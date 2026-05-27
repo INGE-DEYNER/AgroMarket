@@ -23,12 +23,14 @@ jobs:
       - name: Build and test
         run: |
           cd agroMarket
+          chmod +x mvnw
           ./mvnw -B -DskipTests=false test
           ./mvnw -B package -DskipTests
       - name: Build Docker image
         if: success()
         run: |
           cd agroMarket
+          chmod +x mvnw
           docker build -t agromarket:ci .
       - name: Scan image with Trivy
         if: success()
