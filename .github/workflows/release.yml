@@ -50,11 +50,12 @@ jobs:
       - name: Build and push Docker image (versioned)
         run: |
           cd agroMarket
-          IMAGE=ghcr.io/${{ github.repository_owner }}/agromarket:${{ github.ref_name }}
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE=ghcr.io/$OWNER/agromarket:${{ github.ref_name }}
           docker build -t $IMAGE .
-          docker tag $IMAGE ghcr.io/${{ github.repository_owner }}/agromarket:latest
+          docker tag $IMAGE ghcr.io/$OWNER/agromarket:latest
           docker push $IMAGE
-          docker push ghcr.io/${{ github.repository_owner }}/agromarket:latest
+          docker push ghcr.io/$OWNER/agromarket:latest
 
       - name: Deploy to Kubernetes (update image)
         if: ${{ secrets.KUBECONFIG != '' }}
@@ -62,4 +63,5 @@ jobs:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
           echo "$KUBECONFIG_DATA" | base64 --decode > $HOME/.kube/config
-          kubectl -n default set image deployment/agromarket agromarket=ghcr.io/${{ github.repository_owner }}/agromarket:${{ github.ref_name }} || true
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          kubectl -n default set image deployment/agromarket agromarket=ghcr.io/$OWNER/agromarket:${{ github.ref_name }} || true

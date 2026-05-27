@@ -60,7 +60,8 @@ jobs:
       - name: Build and push image to GHCR
         run: |
           cd agroMarket
-          IMAGE=ghcr.io/${{ github.repository_owner }}/agromarket:latest
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE=ghcr.io/$OWNER/agromarket:latest
           docker build -t $IMAGE .
           docker push $IMAGE
 
@@ -138,8 +139,8 @@ jobs:
           kustomize build k8s | kubeval --strict --kubernetes-version '1.27.0'
 
       - name: Update image and apply manifests (kustomize)
-        env:
-          IMAGE: ghcr.io/${{ github.repository_owner }}/agromarket:latest
         run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE=ghcr.io/$OWNER/agromarket:latest
           kubectl apply -k k8s/
           kubectl -n default set image deployment/agromarket agromarket=$IMAGE || true
