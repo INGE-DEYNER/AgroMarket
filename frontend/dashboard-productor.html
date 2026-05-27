@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Productor — AgroMarket</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-user">
+          <div
+            class="avatar avatar-green"
+            style="width: 48px; height: 48px; font-size: 1.2rem"
+          >
+            LP
+          </div>
+          <div class="sidebar-user-info">
+            <span class="name">Luis Palacios</span>
+            <span class="role">Productor ASAFRUT</span>
+            <div class="rating">⭐ 4.9 (120 reseñas)</div>
+          </div>
+        </div>
+
+        <div class="sidebar-label">Gestión Comercial</div>
+        <a
+          href="#"
+          class="sidebar-link active"
+          id="link-resumen"
+          onclick="showSection('resumen')"
+        >
+          <span class="icon">📊</span> Panel General
+        </a>
+        <a
+          href="#"
+          class="sidebar-link"
+          id="link-misProductos"
+          onclick="showSection('misProductos')"
+        >
+          <span class="icon">📦</span> Inventario
+        </a>
+        <a
+          href="#"
+          class="sidebar-link"
+          id="link-pedidosRec"
+          onclick="showSection('pedidosRec')"
+        >
+          <span class="icon">🧾</span> Ventas <span class="badge-count">3</span>
+        </a>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-label">Logística</div>
+        <a href="envios.html" class="sidebar-link"
+          ><span class="icon">🚚</span> Despachos</a
+        >
+        <a href="mensajeria.html" class="sidebar-link"
+          ><span class="icon">💬</span> Mensajería</a
+        >
+
+        <a
+          href="login.html"
+          class="sidebar-link"
+          style="margin-top: auto; color: var(--red)"
+          ><span class="icon">🔒</span> Cerrar sesión</a
+        >
+      </aside>
+
+      <main class="main-content">
+        <!-- ── RESUMEN ── -->
+        <div class="section active" id="sec-resumen">
+          <div class="dash-header">
+            <div class="dash-welcome">
+              <h1>¡Excelente día, Luis! 👨‍🌾</h1>
+              <p>
+                Tu cosecha está teniendo un gran rendimiento este mes en Urabá.
+              </p>
+            </div>
+            <button class="btn-cta" onclick="openProductoModal()">
+              Publicar Producto +
+            </button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card color-1">
+              <span class="stat-icon-lg">📦</span>
+              <div class="stat-label">Productos Activos</div>
+              <div class="stat-value">03</div>
+              <div class="stat-trend">En venta ahora</div>
+              <div class="stat-progress">
+                <div class="stat-progress-bar" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="stat-card color-2">
+              <span class="stat-icon-lg">🧾</span>
+              <div class="stat-label">Ventas del Mes</div>
+              <div class="stat-value">24</div>
+              <div class="stat-trend up">↑ 8 pedidos nuevos</div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 60%; background: var(--blue)"
+                ></div>
+              </div>
+            </div>
+            <div class="stat-card color-3">
+              <span class="stat-icon-lg">💰</span>
+              <div class="stat-label">Ingresos Totales</div>
+              <div class="stat-value">$1.2M</div>
+              <div class="stat-trend up">↑ 15% vs Abril</div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 75%; background: var(--gold)"
+                ></div>
+              </div>
+            </div>
+            <div class="stat-card color-4">
+              <span class="stat-icon-lg">⭐</span>
+              <div class="stat-label">Calificación</div>
+              <div class="stat-value">4.9</div>
+              <div class="stat-trend">Top Vendedor Urabá</div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 98%; background: #a855f7"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px">
+            <div class="card-table">
+              <div class="table-header">
+                <h3 class="card-title">🧾 Últimas ventas</h3>
+              </div>
+              <div class="table-wrap">
+                <table class="table-responsive">
+                  <thead>
+                    <tr>
+                      <th>Pedido</th>
+                      <th>Comprador</th>
+                      <th>Total</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-label="Pedido">#001</td>
+                      <td data-label="Comprador">María Torres</td>
+                      <td data-label="Total">$84.000</td>
+                      <td data-label="Estado">
+                        <span class="badge-status status-pending"
+                          >🟡 Pendiente</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td data-label="Pedido">#002</td>
+                      <td data-label="Comprador">Jorge Restrepo</td>
+                      <td data-label="Total">$140.000</td>
+                      <td data-label="Estado">
+                        <span class="badge-status status-shipped"
+                          >🟢 Enviado</span
+                        >
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-table" style="padding: 24px">
+              <h3 class="card-title">📊 Ventas x Producto</h3>
+              <div class="chart-container">
+                <div
+                  class="chart-bar"
+                  style="height: 80%"
+                  data-label="Banano"
+                ></div>
+                <div
+                  class="chart-bar"
+                  style="height: 40%; background: var(--gold)"
+                  data-label="Mango"
+                ></div>
+                <div
+                  class="chart-bar"
+                  style="height: 20%; background: var(--blue)"
+                  data-label="Coco"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── MIS PRODUCTOS ── -->
+        <div class="section" id="sec-misProductos">
+          <div class="dash-header">
+            <h1>Mi Inventario</h1>
+            <button class="btn-cta" onclick="openProductoModal()">
+              + Nuevo Producto
+            </button>
+          </div>
+          <div class="card-table">
+            <div class="table-wrap">
+              <table class="table-responsive">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th>Precio/kg</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbMisProductos"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PEDIDOS RECIBIDOS ── -->
+        <div class="section" id="sec-pedidosRec">
+          <div class="dash-header"><h1>Gestión de Ventas</h1></div>
+          <div class="card-table">
+            <div class="table-filters">
+              <div class="search-box">
+                <input type="text" placeholder="Buscar pedido..." />
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="table-responsive">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Comprador</th>
+                    <th>Cant.</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbPedidosRec"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL PRODUCTO -->
+    <div class="modal-overlay" id="modalProducto">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Publicar nuevo producto</span>
+          <button class="modal-close" onclick="closeProductoModal()">✕</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre del producto</label>
+          <input
+            class="form-input"
+            id="pNombre"
+            placeholder="Ej. Banano Urabá"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de fruta</label>
+          <select class="form-select" id="pTipo">
+            <option>Banano</option>
+            <option>Piña</option>
+            <option>Mango</option>
+            <option>Maracuyá</option>
+            <option>Guanábana</option>
+            <option>Naranja</option>
+            <option>Coco</option>
+            <option>Limón</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Precio/kg (COP)</label>
+            <input
+              class="form-input"
+              id="pPrecio"
+              type="number"
+              placeholder="$ 0"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stock disponible (kg)</label>
+            <input
+              class="form-input"
+              id="pStock"
+              type="number"
+              placeholder="0"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea
+            class="form-textarea"
+            id="pDesc"
+            rows="3"
+            placeholder="Describe la calidad, procedencia..."
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Imagen del producto</label>
+          <div
+            style="
+              border: 1.5px dashed #d1d5db;
+              border-radius: 8px;
+              padding: 20px;
+              text-align: center;
+              color: #9ca3af;
+              cursor: pointer;
+            "
+          >
+            <span style="font-size: 24px; display: block">📷</span>
+            <span style="font-size: 12px">Haz clic para subir imagen</span>
+            <input type="file" style="display: none" />
+          </div>
+        </div>
+        <div
+          class="modal-footer"
+          style="display: flex; gap: 12px; margin-top: 24px"
+        >
+          <button
+            class="btn btn-secondary"
+            style="flex: 1"
+            onclick="closeProductoModal()"
+          >
+            Cancelar
+          </button>
+          <button
+            class="btn btn-primary"
+            style="flex: 2"
+            onclick="guardarProducto()"
+          >
+            Guardar producto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/dashboard-productor.js"></script>
+  </body>
+</html>

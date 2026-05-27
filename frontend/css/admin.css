@@ -1,0 +1,10 @@
+.badge-admin {
+  background: linear-gradient(135deg, #2b7a3b, #1b4d25);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

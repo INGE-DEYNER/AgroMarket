@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crear cuenta — AgroMarket</title>
+    <meta
+      name="description"
+      content="Únete a AgroMarket, la plataforma de frutas tropicales de ASAFRUT en Chigorodó, Antioquia."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/registro.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- LEFT: FORM -->
+      <div class="left-panel">
+        <a class="brand" href="login.html">
+          <div class="brand-logo">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">AgroMarket</div>
+            <div class="brand-sub">ASAFRUT · Chigorodó, Antioquia</div>
+          </div>
+        </a>
+
+        <h1 class="page-title">Comienza tu viaje</h1>
+        <p class="page-sub">
+          Selecciona tu perfil y únete a la revolución agrícola.
+        </p>
+
+        <!-- ROLE SELECTOR -->
+        <div class="role-selector">
+          <div
+            class="role-card selected"
+            id="roleComprador"
+            onclick="selectRole('comprador')"
+          >
+            <div class="role-check">
+              <svg viewBox="0 0 10 8">
+                <path
+                  d="M1 4l3 3 5-5"
+                  stroke="#fff"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <div class="role-icon">🛒</div>
+            <div class="role-name">Comprador</div>
+            <div class="role-desc">Acceso a los mejores precios de origen</div>
+          </div>
+          <div
+            class="role-card"
+            id="roleProductor"
+            onclick="selectRole('productor')"
+          >
+            <div class="role-check">
+              <svg viewBox="0 0 10 8">
+                <path
+                  d="M1 4l3 3 5-5"
+                  stroke="#fff"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <div class="role-icon">🌾</div>
+            <div class="role-name">Productor</div>
+            <div class="role-desc">Vende directamente sin intermediarios</div>
+          </div>
+        </div>
+
+        <!-- FORM -->
+        <form id="regForm" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="nombre">Nombre</label>
+              <input
+                class="form-input"
+                type="text"
+                id="nombre"
+                placeholder="Juan"
+              />
+              <span class="form-error" id="nombreError">Campo requerido.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="apellido">Apellido</label>
+              <input
+                class="form-input"
+                type="text"
+                id="apellido"
+                placeholder="Pérez"
+              />
+              <span class="form-error" id="apellidoError"
+                >Campo requerido.</span
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Correo electrónico</label>
+            <input
+              class="form-input"
+              type="email"
+              id="email"
+              placeholder="tu@correo.com"
+            />
+            <span class="form-error" id="emailError"
+              >Ingresa un correo válido.</span
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="telefono">Teléfono</label>
+            <input
+              class="form-input"
+              type="tel"
+              id="telefono"
+              placeholder="3001234567"
+            />
+            <span class="form-error" id="telefonoError">Campo requerido.</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="password">Contraseña</label>
+              <input
+                class="form-input"
+                type="password"
+                id="password"
+                placeholder="••••••••"
+              />
+              <span class="form-error" id="passwordError"
+                >Mínimo 6 caracteres.</span
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirmPass"
+                >Confirmar contraseña</label
+              >
+              <input
+                class="form-input"
+                type="password"
+                id="confirmPass"
+                placeholder="••••••••"
+              />
+              <span class="form-error" id="confirmError"
+                >Las contraseñas no coinciden.</span
+              >
+            </div>
+          </div>
+
+          <!-- EXTRA FIELD FOR PRODUCER -->
+          <div class="form-group extra-field" id="ubicacionGroup">
+            <label class="form-label" for="ubicacion">Ubicación / Vereda</label>
+            <input
+              class="form-input"
+              type="text"
+              id="ubicacion"
+              placeholder="Ej. Vereda Las Margaritas, Chigorodó"
+            />
+            <span class="form-error" id="ubicacionError"
+              >Campo requerido para productores.</span
+            >
+          </div>
+
+          <input type="hidden" id="rolSelected" value="comprador" />
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            Crear cuenta
+          </button>
+
+          <div class="success-msg" id="successMsg">
+            <span>✔</span>
+            <span>Cuenta creada. Redirigiendo al inicio de sesión...</span>
+          </div>
+        </form>
+
+        <div class="form-footer">
+          ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+        </div>
+      </div>
+      <!-- /left-panel -->
+
+      <!-- RIGHT: IMAGE -->
+      <div class="right-panel">
+        <img
+          class="bg-img"
+          src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=1200"
+          alt="Frutas tropicales"
+          loading="lazy"
+        />
+        <div class="right-overlay">
+          <div class="right-badge">🌿 ASAFRUT · Chigorodó, Antioquia</div>
+          <h2 class="right-title">Del campo de Urabá<br />a tu hogar.</h2>
+          <p class="right-sub">
+            Garantizamos trazabilidad total y precios justos para quienes
+            cultivan la tierra y quienes disfrutan sus frutos.
+          </p>
+          <div class="right-features">
+            <div class="right-feat">
+              <span class="feat-icon">🔐</span>
+              <span class="feat-text"
+                ><strong style="color: #fff">Trazabilidad total</strong
+                ><br />Conoce el origen exacto de cada fruta que compras.</span
+              >
+            </div>
+            <div class="right-feat">
+              <span class="feat-icon">💰</span>
+              <span class="feat-text"
+                ><strong style="color: #fff">Precios justos</strong><br />Sin
+                intermediarios. Directo del productor al consumidor.</span
+              >
+            </div>
+            <div class="right-feat">
+              <span class="feat-icon">🚚</span>
+              <span class="feat-text"
+                ><strong style="color: #fff">Envíos seguros</strong
+                ><br />Seguimiento en tiempo real desde Urabá hasta tu
+                puerta.</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /right-panel -->
+    </div>
+    <!-- /wrapper -->
+
+    <script type="module" src="js/registro.js"></script>
+  </body>
+</html>
