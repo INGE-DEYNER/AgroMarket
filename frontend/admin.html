@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Admin — AgroMarket</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-user">
+          <div
+            class="avatar avatar-red"
+            style="width: 48px; height: 48px; font-size: 1.2rem"
+          >
+            AD
+          </div>
+          <div class="sidebar-user-info">
+            <span class="name">Administrador</span>
+            <span class="role">Soporte AgroMarket</span>
+          </div>
+        </div>
+
+        <div class="sidebar-label">Panel de Control</div>
+        <a
+          href="#"
+          class="sidebar-link active"
+          id="link-usuarios"
+          onclick="showSection('usuarios')"
+        >
+          <span class="icon">👥</span> Usuarios
+        </a>
+        <a
+          href="#"
+          class="sidebar-link"
+          id="link-productos"
+          onclick="showSection('productos')"
+        >
+          <span class="icon">📦</span> Productos
+        </a>
+        <a
+          href="#"
+          class="sidebar-link"
+          id="link-resenas"
+          onclick="showSection('resenas')"
+        >
+          <span class="icon">⭐</span> Moderación
+        </a>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-label">Reportes</div>
+        <a href="#" class="sidebar-link"
+          ><span class="icon">📈</span> Finanzas</a
+        >
+        <a href="#" class="sidebar-link"
+          ><span class="icon">🚛</span> Logística</a
+        >
+
+        <a
+          href="login.html"
+          class="sidebar-link"
+          style="margin-top: auto; color: var(--red)"
+        >
+          <span class="icon">🔒</span> Cerrar sesión
+        </a>
+      </aside>
+
+      <main class="main-content">
+        <div class="dash-header">
+          <div class="dash-welcome">
+            <h1>Panel de Administración 🛠️</h1>
+            <p>Monitoreo global de la plataforma AgroMarket Urabá</p>
+          </div>
+          <button
+            class="btn-cta"
+            style="background: var(--primary-dark)"
+            onclick="alert('Generando reporte PDF...')"
+          >
+            Generar Reporte Mensual 📊
+          </button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card color-1">
+            <span class="stat-icon-lg">👥</span>
+            <div class="stat-label">Total Usuarios</div>
+            <div class="stat-value" id="statUsuarios">07</div>
+            <div class="stat-trend up">↑ 2 nuevos hoy</div>
+          </div>
+          <div class="stat-card color-2">
+            <span class="stat-icon-lg">📦</span>
+            <div class="stat-label">Productos Globales</div>
+            <div class="stat-value" id="statProductos">12</div>
+            <div class="stat-trend">80% en stock</div>
+          </div>
+          <div class="stat-card color-3">
+            <span class="stat-icon-lg">💰</span>
+            <div class="stat-label">Ingresos Totales</div>
+            <div class="stat-value">$4.8M</div>
+            <div class="stat-trend up">↑ 22% este mes</div>
+          </div>
+          <div class="stat-card color-4">
+            <span class="stat-icon-lg">⭐</span>
+            <div class="stat-label">Alertas Moderación</div>
+            <div class="stat-value" id="statResenas">02</div>
+            <div class="stat-trend down" style="color: orange">
+              Acción requerida
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="grid-columns"
+          style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px"
+        >
+          <!-- SECCIÓN PRINCIPAL SEGÚN CLICK -->
+          <div class="card-table">
+            <!-- USUARIOS -->
+            <div class="section active" id="sec-usuarios">
+              <div class="table-header">
+                <h3 class="card-title">👥 Gestión de Usuarios</h3>
+              </div>
+              <div class="table-filters">
+                <div class="search-box">
+                  <input
+                    type="text"
+                    id="searchUsuarios"
+                    placeholder="Buscar por nombre o correo..."
+                    oninput="filterUsuarios()"
+                  />
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="table-responsive">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Rol</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbUsuarios"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- PRODUCTOS -->
+            <div class="section" id="sec-productos">
+              <div class="table-header">
+                <h3 class="card-title">📦 Inventario Global</h3>
+              </div>
+              <div class="table-wrap">
+                <table class="table-responsive">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Productor</th>
+                      <th>Precio/kg</th>
+                      <th>Stock</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbProductos"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- RESEÑAS -->
+            <div class="section" id="sec-resenas">
+              <div class="table-header">
+                <h3 class="card-title">⭐ Moderación de Reseñas</h3>
+              </div>
+              <div class="table-wrap">
+                <table class="table-responsive">
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Calificación</th>
+                      <th>Comentario</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbResenas"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SIDEBAR INFO ADMIN -->
+          <div class="side-info">
+            <div class="card-table" style="padding: 24px; margin-bottom: 24px">
+              <h3 class="card-title" style="margin-bottom: 16px">
+                Top Productores 🏆
+              </h3>
+              <ul style="list-style: none">
+                <li
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 8px 0;
+                    border-bottom: 1px solid var(--border-light);
+                  "
+                >
+                  <span>Luis Palacios</span>
+                  <span style="font-weight: 600; color: var(--primary)"
+                    >$1.2M</span
+                  >
+                </li>
+                <li
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 8px 0;
+                    border-bottom: 1px solid var(--border-light);
+                  "
+                >
+                  <span>Ana Córdoba</span>
+                  <span style="font-weight: 600; color: var(--primary)"
+                    >$980K</span
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <div class="card-table" style="padding: 24px">
+              <h3 class="card-title" style="margin-bottom: 16px">
+                Ingresos 6 Meses
+              </h3>
+              <div class="chart-container" style="height: 120px">
+                <div class="chart-bar" style="height: 30%"></div>
+                <div class="chart-bar" style="height: 45%"></div>
+                <div class="chart-bar" style="height: 60%"></div>
+                <div class="chart-bar" style="height: 80%"></div>
+                <div class="chart-bar" style="height: 95%"></div>
+                <div
+                  class="chart-bar"
+                  style="height: 70%; background: var(--primary-light)"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="js/admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+/* Catalogo Page Styles */
+.catalog-hero {
+  background: linear-gradient(135deg, #e8f5e9 0%, #f7f9f7 50%, #fef3c7 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 44px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.catalog-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 180px;
+  height: 180px;
+  background: rgba(43, 122, 59, 0.06);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hero-title {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--green-dark);
+}
+.hero-sub {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.hero-emoji {
+  font-size: 4rem;
+  line-height: 1;
+}
+.results-count {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+  font-weight: 500;
+}

@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Comprador — AgroMarket</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-user">
+          <div
+            class="avatar avatar-blue"
+            style="width: 48px; height: 48px; font-size: 1.2rem"
+          >
+            MT
+          </div>
+          <div class="sidebar-user-info">
+            <span class="name">María Torres</span>
+            <span class="role">Cliente Premium</span>
+          </div>
+        </div>
+
+        <div class="sidebar-label">Navegación</div>
+        <a
+          href="#"
+          class="sidebar-link active"
+          onclick="
+            showSection('resumen');
+            return false;
+          "
+        >
+          <span class="icon">📊</span> Resumen
+        </a>
+        <a href="catalogo.html" class="sidebar-link">
+          <span class="icon">🛍️</span> Explorar Catálogo
+        </a>
+        <a
+          href="#"
+          class="sidebar-link"
+          onclick="
+            showSection('misPedidos');
+            return false;
+          "
+        >
+          <span class="icon">🧾</span> Mis Pedidos
+          <span class="badge-count">2</span>
+        </a>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-label">Servicios</div>
+        <a href="envios.html" class="sidebar-link">
+          <span class="icon">🚚</span> Seguimiento
+        </a>
+        <a href="mensajeria.html" class="sidebar-link">
+          <span class="icon">💬</span> Mensajería
+          <span class="badge-count">1</span>
+        </a>
+        <a href="resenas.html" class="sidebar-link">
+          <span class="icon">⭐</span> Mis Reseñas
+        </a>
+
+        <a
+          href="login.html"
+          class="sidebar-link"
+          style="margin-top: auto; color: var(--red)"
+        >
+          <span class="icon">🔒</span> Cerrar sesión
+        </a>
+      </aside>
+
+      <!-- MOBILE NAV -->
+      <nav class="mobile-nav">
+        <a
+          href="#"
+          class="mobile-nav-item active"
+          onclick="showSection('resumen')"
+        >
+          <span class="icon">🏠</span><span>Inicio</span>
+        </a>
+        <a href="catalogo.html" class="mobile-nav-item">
+          <span class="icon">🛍️</span><span>Tienda</span>
+        </a>
+        <a href="#" class="mobile-nav-item" onclick="showSection('misPedidos')">
+          <span class="icon">🧾</span><span>Pedidos</span>
+        </a>
+        <a href="mensajeria.html" class="mobile-nav-item">
+          <span class="icon">💬</span><span>Chat</span>
+        </a>
+        <a href="login.html" class="mobile-nav-item">
+          <span class="icon">👤</span><span>Perfil</span>
+        </a>
+      </nav>
+
+      <main class="main-content">
+        <!-- ── RESUMEN ── -->
+        <div class="section active" id="sec-resumen">
+          <div class="dash-header">
+            <div class="dash-welcome">
+              <h1>¡Hola de nuevo, María! 👋</h1>
+              <p id="currentDate">Lunes, 12 de mayo de 2026 • ☀️ 28°C Urabá</p>
+            </div>
+            <a href="catalogo.html" class="btn-cta"> Explorar catálogo → </a>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card color-1">
+              <span class="stat-icon-lg">📦</span>
+              <div class="stat-label">Pedidos Realizados</div>
+              <div class="stat-value">06</div>
+              <div class="stat-trend up">↑ 12% vs mes anterior</div>
+              <div class="stat-progress">
+                <div class="stat-progress-bar" style="width: 70%"></div>
+              </div>
+            </div>
+            <div class="stat-card color-2">
+              <span class="stat-icon-lg">💰</span>
+              <div class="stat-label">Inversión Total</div>
+              <div class="stat-value">$892k</div>
+              <div class="stat-trend up">↑ $45k esta semana</div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 45%; background: var(--blue)"
+                ></div>
+              </div>
+            </div>
+            <div class="stat-card color-3">
+              <span class="stat-icon-lg">⭐</span>
+              <div class="stat-label">Reseñas Dejadas</div>
+              <div class="stat-value">02</div>
+              <div class="stat-trend">Nivel de opinión: Medio</div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 30%; background: var(--gold)"
+                ></div>
+              </div>
+            </div>
+            <div class="stat-card color-4">
+              <span class="stat-icon-lg">🤝</span>
+              <div class="stat-label">Productores</div>
+              <div class="stat-value">03</div>
+              <div class="stat-trend up">Nuevos contactos</div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 85%; background: #a855f7"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLA RECIENTES -->
+          <div class="card-table" style="margin-bottom: 32px">
+            <div class="table-header">
+              <h3 class="card-title">📦 Pedidos Recientes</h3>
+              <a
+                href="#"
+                onclick="
+                  showSection('misPedidos');
+                  return false;
+                "
+                style="font-size: 0.8rem; font-weight: 600"
+                >Ver todos los pedidos</a
+              >
+            </div>
+            <div class="table-filters">
+              <div class="search-box">
+                <input type="text" placeholder="Buscar por producto o ID..." />
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="table-responsive">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Total COP</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-label="ID">#001</td>
+                    <td data-label="Producto">🍌 Banano Urabá Exportación</td>
+                    <td data-label="Total">$84.000</td>
+                    <td data-label="Estado">
+                      <span class="badge-status status-pending"
+                        >🟡 Pendiente</span
+                      >
+                    </td>
+                    <td data-label="Acciones">
+                      <a href="envios.html" class="btn btn-secondary btn-sm"
+                        >Rastrear</a
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td data-label="ID">#002</td>
+                    <td data-label="Producto">🥭 Mango Tommy Premium</td>
+                    <td data-label="Total">$140.000</td>
+                    <td data-label="Estado">
+                      <span class="badge-status status-shipped"
+                        >🟢 Enviado</span
+                      >
+                    </td>
+                    <td data-label="Acciones">
+                      <a href="envios.html" class="btn btn-secondary btn-sm"
+                        >Rastrear</a
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- RECOMENDADOS -->
+          <div class="dash-header" style="margin-bottom: 20px">
+            <h3 class="card-title">🌟 Productos de Temporada en Urabá</h3>
+          </div>
+          <div class="products-grid" id="recsGrid">
+            <!-- Se llena con JS -->
+          </div>
+        </div>
+
+        <!-- ── MIS PEDIDOS ── -->
+        <div class="section" id="sec-misPedidos">
+          <div class="dash-header">
+            <div class="dash-welcome">
+              <h1>Historial de Pedidos</h1>
+              <p>Gestiona y revisa tus compras anteriores</p>
+            </div>
+          </div>
+          <div class="card-table">
+            <div class="table-filters">
+              <div class="search-box">
+                <input type="text" placeholder="Filtrar pedidos..." />
+              </div>
+              <select
+                class="form-select"
+                style="width: 180px"
+                id="filtroPedComp"
+                onchange="filtrarPedidosComp()"
+              >
+                <option value="">Todos los estados</option>
+                <option>Pendiente</option>
+                <option>Enviado</option>
+                <option>Entregado</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table class="table-responsive">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbPedidosComp"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL FACTURA -->
+    <div class="modal-overlay" id="modalFactura">
+      <div class="modal" style="max-width: 460px">
+        <div class="modal-header">
+          <span class="modal-title">Detalle de Factura Electrónica</span>
+          <button
+            class="modal-close"
+            onclick="
+              document.getElementById('modalFactura').classList.remove('open')
+            "
+          >
+            ✕
+          </button>
+        </div>
+        <div id="facturaContent"></div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            onclick="
+              document.getElementById('modalFactura').classList.remove('open')
+            "
+          >
+            Cerrar
+          </button>
+          <button
+            class="btn btn-primary"
+            onclick="alert('Factura enviada al correo registrado.')"
+          >
+            📧 Enviar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/dashboard-comprador.js"></script>
+  </body>
+</html>

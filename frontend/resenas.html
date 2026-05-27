@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reseñas — AgroMarket</title>
+    <meta
+      name="description"
+      content="Reseñas de productos de AgroMarket ASAFRUT."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/resenas.css" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <a class="navbar-brand" href="dashboard-comprador.html">
+        <span class="logo-icon">🌿</span><span>AgroMarket</span>
+      </a>
+      <div class="navbar-links" id="navLinks">
+        <a href="dashboard-comprador.html">Mi Panel</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="pedidos.html">Pedidos</a>
+        <a href="mensajeria.html">Mensajes</a>
+        <a href="envios.html">Envíos</a>
+      </div>
+      <div class="navbar-right" id="navActions">
+        <div class="avatar avatar-blue">MT</div>
+        <a href="login.html" class="btn btn-secondary btn-sm">Salir</a>
+      </div>
+    </nav>
+
+    <main style="padding: 28px 32px; max-width: 860px; margin: 0 auto">
+      <div class="section-header">
+        <span class="section-title">⭐ Reseñas de Productos</span>
+        <button class="btn btn-primary" onclick="openModal()">
+          + Nueva reseña
+        </button>
+      </div>
+
+      <div id="reviewsList"></div>
+    </main>
+
+    <!-- MODAL NUEVA RESEÑA -->
+    <div class="modal-overlay" id="modalResena">
+      <div class="modal" style="max-width: 480px">
+        <div class="modal-header">
+          <span class="modal-title">Nueva Reseña</span>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Producto *</label>
+          <select class="form-select" id="rProducto">
+            <option value="">Selecciona un producto...</option>
+            <option>🍌 Banano Urabá</option>
+            <option>🍍 Piña Manzana</option>
+            <option>🥭 Mango Tommy</option>
+            <option>🫐 Maracuyá</option>
+            <option>🍈 Guanábana</option>
+            <option>🍊 Naranja Valencia</option>
+            <option>🥥 Coco Fresco</option>
+            <option>🍋 Limón Tahití</option>
+          </select>
+          <span class="form-error" id="rProductoErr"
+            >Selecciona un producto.</span
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Calificación *</label>
+          <div class="star-input-row" id="starRow">
+            <span
+              class="star-inp"
+              data-val="1"
+              onclick="setRating(1)"
+              onmouseover="hoverStar(1)"
+              onmouseout="resetHover()"
+              >★</span
+            >
+            <span
+              class="star-inp"
+              data-val="2"
+              onclick="setRating(2)"
+              onmouseover="hoverStar(2)"
+              onmouseout="resetHover()"
+              >★</span
+            >
+            <span
+              class="star-inp"
+              data-val="3"
+              onclick="setRating(3)"
+              onmouseover="hoverStar(3)"
+              onmouseout="resetHover()"
+              >★</span
+            >
+            <span
+              class="star-inp"
+              data-val="4"
+              onclick="setRating(4)"
+              onmouseover="hoverStar(4)"
+              onmouseout="resetHover()"
+              >★</span
+            >
+            <span
+              class="star-inp"
+              data-val="5"
+              onclick="setRating(5)"
+              onmouseover="hoverStar(5)"
+              onmouseout="resetHover()"
+              >★</span
+            >
+          </div>
+          <span class="form-error" id="rRatingErr"
+            >Selecciona una calificación.</span
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Comentario *</label>
+          <textarea
+            class="form-textarea"
+            id="rComentario"
+            placeholder="Describe tu experiencia con el producto..."
+            style="min-height: 100px"
+          ></textarea>
+          <span class="form-error" id="rComentErr">Escribe un comentario.</span>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal()">
+            Cancelar
+          </button>
+          <button class="btn btn-primary" onclick="publicarResena()">
+            ⭐ Publicar reseña
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/navbar.js"></script>
+    <script type="module" src="js/resenas.js"></script>
+  </body>
+</html>
