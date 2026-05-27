@@ -1,0 +1,20 @@
+[changelog]
+header = "# Changelog\n"
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+## {{ group | upper_first }}
+{% for commit in commits %}
+- {{ commit.message }} ([{{ commit.id | truncate(length=7, end="") }}])
+{% endfor %}
+{% endfor %}
+"""
+[git]
+conventional_commits = true
+commit_parsers = [
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^docs", group = "Documentation" },
+  { message = "^ci", group = "CI/CD" },
+  { message = "^chore", group = "Chores" },
+  { message = ".*breaking.*", group = "Breaking Changes" },
+]
