@@ -10,36 +10,32 @@ jobs:
       contents: write
       packages: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Generate CHANGELOG with git-cliff
-        id: gitcliff
+      - name: Generate changelog
+        id: cliff
         uses: orhun/git-cliff-action@v3
         with:
-          config: ./cliff.toml
+          config: cliff.toml
           args: --latest --strip header
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          body: ${{ steps.gitcliff.outputs.content }}
+          body: ${{ steps.cliff.outputs.content }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Log in to GHCR
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker image
+      - name: Build and push image
         run: |
           cd agroMarket
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE=ghcr.io/$OWNER/agromarket:${{ github.ref_name }}
-          docker build -t $IMAGE .
-          docker tag $IMAGE ghcr.io/$OWNER/agromarket:latest
-          docker push $IMAGE
+          docker build -t ghcr.io/$OWNER/agromarket:${{ github.ref_name }} .
+          docker tag ghcr.io/$OWNER/agromarket:${{ github.ref_name }} ghcr.io/$OWNER/agromarket:latest
+          docker push ghcr.io/$OWNER/agromarket:${{ github.ref_name }}
           docker push ghcr.io/$OWNER/agromarket:latest
