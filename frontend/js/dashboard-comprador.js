@@ -191,7 +191,7 @@ async function verFactura(id) {
         <div class="invoice" style="border:1px dashed var(--border); padding:20px; border-radius:8px;">
             <div style="text-align:center; margin-bottom:15px;">
             <h3 style="color:var(--primary-dark)">AGROMARKET Urabá</h3>
-            <span style="font-size:0.8rem;color:var(--text-muted)">Proveedor local</span>
+                    <span style="font-size:0.8rem;color:var(--text-muted)">${factura.proveedorNombre || "Proveedor"}</span>
           </div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:6px 0;"><span>Nº Factura</span><strong>${factura.numeroFactura || "FAC-" + factura.id}</strong></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:6px 0;"><span>Fecha</span><span>${formatearFecha(factura.fechaEmision)}</span></div>

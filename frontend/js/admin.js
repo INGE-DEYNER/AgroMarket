@@ -319,7 +319,13 @@ function renderPerfil() {
   const welcomeText = document.getElementById("welcomeUserText");
 
   if (sidebarName) sidebarName.textContent = user.nombre;
-  if (sidebarRole) sidebarRole.textContent = "Administrador";
+  if (sidebarRole) {
+    const rolNormalized = Auth.normalizarRol(user.rol || user.role || user.tipo);
+    const displayRole = rolNormalized
+      ? rolNormalized.charAt(0).toUpperCase() + rolNormalized.slice(1)
+      : "Usuario";
+    sidebarRole.textContent = displayRole;
+  }
   if (welcomeText) {
     welcomeText.textContent = `¡Hola, ${user.nombre.split(" ")[0]}! 👋`;
   }

@@ -442,8 +442,12 @@
           <h3 class="footer-col-title">Contacto</h3>
           <div class="footer-contact">
             <span>📍 Chigorodó, Antioquia</span>
-            <span>📧 contacto@agromarket.co</span>
-            <span>📞 +57 310 000 0000</span>
+            <span id="contactEmail"
+              >📧 <span class="muted">Cargando...</span></span
+            >
+            <span id="contactPhone"
+              >📞 <span class="muted">Cargando...</span></span
+            >
           </div>
         </div>
       </div>
@@ -456,5 +460,30 @@
     <script src="js/cart.js"></script>
     <script type="module" src="js/navbar.js"></script>
     <script src="js/home.js"></script>
+    <script>
+      (async function () {
+        try {
+          const res = await fetch("/api/public/site-info");
+          if (!res.ok) {
+            document.getElementById("contactEmail").style.display = "none";
+            document.getElementById("contactPhone").style.display = "none";
+            return;
+          }
+          const json = await res.json();
+          const data = json?.data || json || {};
+          if (data.contactEmail)
+            document.getElementById("contactEmail").textContent =
+              "📧 " + data.contactEmail;
+          if (data.contactPhone)
+            document.getElementById("contactPhone").textContent =
+              "📞 " + data.contactPhone;
+        } catch (e) {
+          if (document.getElementById("contactEmail"))
+            document.getElementById("contactEmail").style.display = "none";
+          if (document.getElementById("contactPhone"))
+            document.getElementById("contactPhone").style.display = "none";
+        }
+      })();
+    </script>
   </body>
 </html>
