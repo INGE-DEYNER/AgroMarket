@@ -1,7 +1,6 @@
 import api from "./api.js";
 
-const STORAGE_TOKEN = "agro_token";
-const STORAGE_USER = "agro_user";
+const SESSION_KEYS = ["token", "rol", "nombre", "userId", "correo"];
 
 function normalizarRol(rol) {
   const value = String(rol || "").toUpperCase();
@@ -11,49 +10,74 @@ function normalizarRol(rol) {
   return String(rol || "").toLowerCase();
 }
 
+function resolveDashboardRoute(rol) {
+  const normalized = normalizarRol(rol);
+  const routes = {
+    admin: "admin.html",
+    productor: "dashboard-productor.html",
+    comprador: "dashboard-comprador.html",
+  };
+  return routes[normalized] || "home.html";
+}
+
+function clearSession() {
+  SESSION_KEYS.forEach((key) => localStorage.removeItem(key));
+}
+
+function redirectToLogin() {
+  window.location.href = "login.html";
+}
+
 function guardarSesion(authResponse) {
   if (!authResponse) return;
-  const usuario = {
-    id:
-      authResponse.idUsuario ??
-      authResponse.userId ??
-      authResponse.usuarioId ??
-      null,
-    nombre:
-      authResponse.nombre ||
-      authResponse.name ||
-      authResponse.usuario ||
-      authResponse.correo ||
-      "Usuario",
-    correo: authResponse.correo,
-    rol: normalizarRol(
-      authResponse.rol || authResponse.role || authResponse.tipo,
-    ),
-  };
-  localStorage.setItem(STORAGE_TOKEN, authResponse.token);
-  localStorage.setItem(STORAGE_USER, JSON.stringify(usuario));
+  const rolNormalizado = normalizarRol(
+    authResponse.rol || authResponse.role || authResponse.tipo,
+  );
+  localStorage.setItem("token", authResponse.token);
+  localStorage.setItem("rol", rolNormalizado);
+  if (authResponse.nombre) {
+    localStorage.setItem("nombre", authResponse.nombre);
+  }
+  if (authResponse.userId !== undefined && authResponse.userId !== null) {
+    localStorage.setItem("userId", String(authResponse.userId));
+  }
+  if (authResponse.correo) {
+    localStorage.setItem("correo", authResponse.correo);
+  }
 }
 
 function getToken() {
-  return localStorage.getItem(STORAGE_TOKEN);
+  return localStorage.getItem("token");
 }
 
 function getUsuario() {
-  return JSON.parse(localStorage.getItem(STORAGE_USER) || "null");
+  const token = getToken();
+  if (!token) return null;
+
+  const rol = localStorage.getItem("rol");
+  const nombre = localStorage.getItem("nombre");
+  const userId = localStorage.getItem("userId");
+  const correo = localStorage.getItem("correo");
+
+  return {
+    id: userId ? Number(userId) : null,
+    nombre: nombre || "Usuario",
+    correo: correo || "",
+    rol: normalizarRol(rol),
+  };
 }
 
 function isLoggedIn() {
-  return Boolean(getToken() && getUsuario());
+  return Boolean(getToken());
 }
 
 function getRole() {
-  return getUsuario()?.rol || null;
+  return localStorage.getItem("rol") || null;
 }
 
 function cerrarSesion() {
-  localStorage.removeItem(STORAGE_TOKEN);
-  localStorage.removeItem(STORAGE_USER);
-  window.location.href = "login.html";
+  clearSession();
+  redirectToLogin();
 }
 
 function logout() {
@@ -63,20 +87,51 @@ function logout() {
 function requireRole(rolesPermitidos = []) {
   const usuario = getUsuario();
   if (!usuario) {
-    window.location.href = "login.html";
+    redirectToLogin();
     return null;
   }
 
   if (rolesPermitidos.length > 0 && !rolesPermitidos.includes(usuario.rol)) {
-    window.location.href = "login.html";
+    redirectToLogin();
     return null;
   }
 
   return usuario;
 }
 
+async function loadPerfil({ force = false } = {}) {
+  if (!isLoggedIn()) return null;
+
+  const stored = getUsuario();
+  if (stored && stored.nombre && !force) {
+    return stored;
+  }
+
+  try {
+    const perfil = await api.getPerfil();
+    if (perfil) {
+      guardarSesion({
+        token: getToken(),
+        rol: perfil.rol || stored?.rol,
+        nombre: perfil.nombre || stored?.nombre,
+        userId: perfil.id || perfil.userId || stored?.id || "",
+        correo: perfil.correo || stored?.correo || "",
+      });
+    }
+    return getUsuario();
+  } catch (error) {
+    if (error?.status === 401) {
+      clearSession();
+      redirectToLogin();
+      return null;
+    }
+    return stored;
+  }
+}
+
 function limpiarSesionSiAuthFalla() {
-  cerrarSesion();
+  clearSession();
+  redirectToLogin();
 }
 
 function inicializarSesionDesdeBackend(authResponse) {
@@ -96,6 +151,9 @@ const Auth = {
   limpiarSesionSiAuthFalla,
   normalizarRol,
   inicializarSesionDesdeBackend,
+  resolveDashboardRoute,
+  clearSession,
+  loadPerfil,
 };
 
 window.Auth = Auth;
@@ -112,6 +170,9 @@ export {
   limpiarSesionSiAuthFalla,
   normalizarRol,
   inicializarSesionDesdeBackend,
+  resolveDashboardRoute,
+  clearSession,
+  loadPerfil,
 };
 
 export default Auth;

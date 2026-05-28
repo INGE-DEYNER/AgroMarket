@@ -4,10 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pedidos — AgroMarket</title>
-    <meta
-      name="description"
-      content="Gestión de pedidos en AgroMarket ASAFRUT."
-    />
+    <meta name="description" content="Gestión de pedidos en AgroMarket." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -30,8 +27,16 @@
         <a href="envios.html">Envíos</a>
       </div>
       <div class="navbar-right" id="navActions">
-        <div class="avatar avatar-blue">MT</div>
-        <a href="login.html" class="btn btn-secondary btn-sm">Salir</a>
+        <div class="avatar avatar-blue">--</div>
+        <a
+          href="#"
+          onclick="
+            Auth.logout();
+            return false;
+          "
+          class="btn btn-secondary btn-sm"
+          >Cerrar sesión</a
+        >
       </div>
     </nav>
 

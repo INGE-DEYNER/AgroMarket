@@ -36,7 +36,7 @@ function renderContacts() {
 
   if (!state.contactos.length) {
     list.innerHTML =
-      '<div class="empty-state" style="padding:24px;">No hay conversaciones aún.</div>';
+      '<div class="empty-state" style="padding:24px;color:var(--text-muted)">No hay conversaciones aún.</div>';
     return;
   }
 
@@ -61,13 +61,13 @@ function renderMessages() {
 
   if (!state.activeContact) {
     box.innerHTML =
-      '<div class="empty-state" style="margin:auto"><div class="empty-icon">💬</div><div>Selecciona un contacto para iniciar la conversación.</div></div>';
+      '<div class="empty-state" style="margin:auto"><div class="empty-icon">💬</div><div style="color:var(--text-muted)">Selecciona un contacto para iniciar la conversación.</div></div>';
     return;
   }
 
   if (!state.conversation.length) {
     box.innerHTML =
-      '<div class="empty-state" style="margin:auto"><div class="empty-icon">💬</div><div>No hay mensajes todavía.</div></div>';
+      '<div class="empty-state" style="margin:auto"><div class="empty-icon">💬</div><div style="color:var(--text-muted)">No hay mensajes todavía. ¡Envía un mensaje de saludo!</div></div>';
     return;
   }
 
@@ -90,20 +90,36 @@ async function openContact(userId) {
   );
   if (!state.activeContact) return;
 
-  document.getElementById("chatAvatar").className =
-    `avatar ${avatarColor(state.contactos.findIndex((contacto) => String(contacto.usuarioId) === String(userId)))}`;
-  document.getElementById("chatAvatar").textContent = initials(
-    state.activeContact.nombre,
-  );
-  document.getElementById("chatName").textContent = state.activeContact.nombre;
-  document.getElementById("chatRole").textContent = state.activeContact.rol;
-  document.getElementById("onlineBadge").style.display = "inline-flex";
-  document.getElementById("msgInput").disabled = false;
-  document.getElementById("sendBtn").disabled = false;
+  const idx = state.contactos.findIndex((contacto) => String(contacto.usuarioId) === String(userId));
+  
+  const avatarEl = document.getElementById("chatAvatar");
+  if (avatarEl) {
+    avatarEl.className = `avatar ${avatarColor(idx >= 0 ? idx : 0)}`;
+    avatarEl.textContent = initials(state.activeContact.nombre);
+  }
+  
+  const nameEl = document.getElementById("chatName");
+  if (nameEl) nameEl.textContent = state.activeContact.nombre;
 
-  state.conversation = await api.getConversacion(userId);
-  renderContacts();
-  renderMessages();
+  const roleEl = document.getElementById("chatRole");
+  if (roleEl) roleEl.textContent = state.activeContact.rol || "Usuario";
+
+  const onlineEl = document.getElementById("onlineBadge");
+  if (onlineEl) onlineEl.style.display = "inline-flex";
+
+  const msgInput = document.getElementById("msgInput");
+  if (msgInput) msgInput.disabled = false;
+
+  const sendBtn = document.getElementById("sendBtn");
+  if (sendBtn) sendBtn.disabled = false;
+
+  try {
+    state.conversation = await api.getConversacion(userId);
+    renderContacts();
+    renderMessages();
+  } catch (error) {
+    console.error("Error al recuperar conversación: ", error);
+  }
 }
 
 async function sendMessage() {
@@ -112,11 +128,15 @@ async function sendMessage() {
   if (!text || !state.activeContact) return;
 
   input.value = "";
-  await api.enviarMensaje(state.activeContact.usuarioId, text);
-  state.conversation = await api.getConversacion(state.activeContact.usuarioId);
-  state.contactos = await api.getContactos();
-  renderContacts();
-  renderMessages();
+  try {
+    await api.enviarMensaje(state.activeContact.usuarioId, text);
+    state.conversation = await api.getConversacion(state.activeContact.usuarioId);
+    state.contactos = await api.getContactos();
+    renderContacts();
+    renderMessages();
+  } catch (error) {
+    alert(error?.message || "No se pudo enviar el mensaje.");
+  }
 }
 
 function handleKey(event) {
@@ -127,10 +147,20 @@ function handleKey(event) {
 }
 
 async function cargarMensajeria() {
-  state.contactos = await api.getContactos();
-  renderContacts();
-  if (state.contactos.length) {
-    await openContact(state.contactos[0].usuarioId);
+  try {
+    state.contactos = await api.getContactos();
+    renderContacts();
+    if (state.contactos.length) {
+      await openContact(state.contactos[0].usuarioId);
+    } else {
+      renderMessages();
+    }
+  } catch (error) {
+    console.error("Error al cargar contactos: ", error);
+    const box = document.getElementById("chatMessages");
+    if (box) {
+      box.innerHTML = `<div class="empty-state" style="margin:auto;color:red;">Error al cargar mensajería. Inténtalo más tarde.</div>`;
+    }
   }
 }
 

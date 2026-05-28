@@ -7,5 +7,5 @@ import com.agromarket.application.dto.RegistroRequest;
 public interface AuthService {
     AuthResponse login(LoginRequest request);
 
-    AuthResponse registro(RegistroRequest request);
+    void registro(RegistroRequest request);
 }

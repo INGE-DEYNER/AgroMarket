@@ -2,6 +2,7 @@ package com.agromarket.application.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,9 @@ public class ErrorResponse {
     private int status;
     private String error;
     private String message;
+    private String mensaje;
     private LocalDateTime timestamp;
     private String path;
     private List<String> fieldErrors;
+    private Map<String, String> campos;
 }

@@ -7,10 +7,12 @@ import com.agromarket.application.service.UsuarioService;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
+@Validated
 public class UsuarioController {
     private final UsuarioService usuarioService;
 
@@ -33,7 +36,11 @@ public class UsuarioController {
 
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<UsuarioResponse>> actualizarMe(@AuthenticationPrincipal JwtUserPrincipal principal, @Valid @RequestBody ActualizarUsuarioRequest request) {
-        return ResponseEntity.ok(ApiResponse.<UsuarioResponse>builder().success(true).message("Perfil actualizado").data(usuarioService.actualizar(principal.getUserId(), request)).build());
+        return ResponseEntity.ok(ApiResponse.<UsuarioResponse>builder()
+                .success(true)
+                .message("Perfil actualizado")
+                .data(usuarioService.actualizar(principal.getUserId(), request))
+                .build());
     }
 
     @GetMapping
@@ -44,21 +51,31 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<ApiResponse<UsuarioResponse>> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.<UsuarioResponse>builder().success(true).message("Usuario recuperado").data(usuarioService.getById(id)).build());
+    public ResponseEntity<ApiResponse<UsuarioResponse>> getById(@PathVariable @Positive Long id) {
+        return ResponseEntity.ok(ApiResponse.<UsuarioResponse>builder()
+                .success(true)
+                .message("Usuario recuperado")
+                .data(usuarioService.getById(id))
+                .build());
     }
 
     @PutMapping("/{id}/habilitar")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<ApiResponse<Void>> habilitar(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> habilitar(@PathVariable @Positive Long id) {
         usuarioService.habilitar(id);
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Usuario habilitado").build());
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Usuario habilitado")
+                .build());
     }
 
     @PutMapping("/{id}/deshabilitar")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<ApiResponse<Void>> deshabilitar(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deshabilitar(@PathVariable @Positive Long id) {
         usuarioService.deshabilitar(id);
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Usuario deshabilitado").build());
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Usuario deshabilitado")
+                .build());
     }
 }

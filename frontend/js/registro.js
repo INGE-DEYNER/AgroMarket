@@ -1,5 +1,5 @@
 import api from "./api.js";
-import { guardarSesion, normalizarRol } from "./auth.js";
+import Auth, { guardarSesion, normalizarRol } from "./auth.js";
 import { mostrarExito } from "./ui.js";
 
 let currentRole = "comprador";
@@ -10,19 +10,24 @@ const successMsg = document.getElementById("successMsg");
 
 function selectRole(role) {
   currentRole = role;
-  document.getElementById("rolSelected").value = role;
-  document
-    .getElementById("roleComprador")
-    .classList.toggle("selected", role === "comprador");
-  document
-    .getElementById("roleProductor")
-    .classList.toggle("selected", role === "productor");
+  const inputRol = document.getElementById("rolSelected");
+  if (inputRol) inputRol.value = role;
+
+  const roleComp = document.getElementById("roleComprador");
+  if (roleComp) roleComp.classList.toggle("selected", role === "comprador");
+
+  const roleProd = document.getElementById("roleProductor");
+  if (roleProd) roleProd.classList.toggle("selected", role === "productor");
+
   const ubicacionGroup = document.getElementById("ubicacionGroup");
   if (role === "productor") {
-    ubicacionGroup.classList.add("visible");
+    if (ubicacionGroup) ubicacionGroup.classList.add("visible");
   } else {
-    ubicacionGroup.classList.remove("visible");
-    document.getElementById("ubicacion").value = "";
+    if (ubicacionGroup) {
+      ubicacionGroup.classList.remove("visible");
+    }
+    const inputUbicacion = document.getElementById("ubicacion");
+    if (inputUbicacion) inputUbicacion.value = "";
   }
 }
 
@@ -37,24 +42,31 @@ function clearErrors() {
 }
 
 function showErr(inputId, errorId, message) {
-  document.getElementById(inputId).classList.add("error");
+  const input = document.getElementById(inputId);
+  if (input) input.classList.add("error");
   const errorEl = document.getElementById(errorId);
-  errorEl.textContent = message;
-  errorEl.classList.add("visible");
+  if (errorEl) {
+    errorEl.textContent = message;
+    errorEl.classList.add("visible");
+  }
 }
 
 function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function validPhone(value) {
+  return /^[0-9]{10}$/.test(value);
+}
+
+function validPassword(value) {
+  return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':",.<>/?]).{8,100}$/.test(
+    value,
+  );
+}
+
 function redirectByRole(role) {
-  const normalized = normalizarRol(role);
-  const routes = {
-    admin: "admin.html",
-    productor: "dashboard-productor.html",
-    comprador: "dashboard-comprador.html",
-  };
-  window.location.href = routes[normalized] || "home.html";
+  window.location.href = Auth.resolveDashboardRoute(role);
 }
 
 document
@@ -74,7 +86,7 @@ form?.addEventListener("submit", async (event) => {
   const telefono = document.getElementById("telefono").value.trim();
   const contrasena = document.getElementById("password").value;
   const confirmacion = document.getElementById("confirmPass").value;
-  const ubicacion = document.getElementById("ubicacion").value.trim();
+  const ubicacion = document.getElementById("ubicacion")?.value.trim() || "";
   let isValid = true;
 
   if (!nombre) {
@@ -89,12 +101,16 @@ form?.addEventListener("submit", async (event) => {
     showErr("email", "emailError", "Ingresa un correo válido.");
     isValid = false;
   }
-  if (!telefono) {
-    showErr("telefono", "telefonoError", "El teléfono es requerido.");
+  if (!telefono || !validPhone(telefono)) {
+    showErr("telefono", "telefonoError", "Debe tener 10 dígitos numéricos.");
     isValid = false;
   }
-  if (!contrasena || contrasena.length < 6) {
-    showErr("password", "passwordError", "Mínimo 6 caracteres.");
+  if (!contrasena || !validPassword(contrasena)) {
+    showErr(
+      "password",
+      "passwordError",
+      "Debe tener 8 caracteres, una mayúscula, un número y un carácter especial.",
+    );
     isValid = false;
   }
   if (confirmacion !== contrasena) {
@@ -112,7 +128,7 @@ form?.addEventListener("submit", async (event) => {
   submitBtn.textContent = "Creando cuenta...";
 
   try {
-    const authResponse = await api.registro({
+    await api.registro({
       nombre,
       apellido,
       correo,
@@ -121,13 +137,32 @@ form?.addEventListener("submit", async (event) => {
       rol: currentRole.toUpperCase(),
       ubicacion: currentRole === "productor" ? ubicacion : null,
     });
-    guardarSesion(authResponse);
-    successMsg?.classList.add("visible");
-    mostrarExito("Cuenta creada correctamente.");
-    redirectByRole(authResponse.rol || authResponse.tipo);
+    if (successMsg) successMsg.classList.add("visible");
+    mostrarExito("Cuenta creada. Revisa tu correo para activar la cuenta.");
+    setTimeout(() => (window.location.href = "login.html"), 2500);
   } catch (error) {
-    const message = error?.message || "No se pudo crear la cuenta.";
-    showErr("email", "emailError", message);
+    const message =
+      error?.mensaje || error?.message || "No se pudo crear la cuenta.";
+    const campos = error?.campos || {};
+
+    if (Object.keys(campos).length > 0) {
+      Object.entries(campos).forEach(([field, fieldMessage]) => {
+        const mapping = {
+          nombre: ["nombre", "nombreError"],
+          apellido: ["apellido", "apellidoError"],
+          correo: ["email", "emailError"],
+          telefono: ["telefono", "telefonoError"],
+          contrasena: ["password", "passwordError"],
+          ubicacion: ["ubicacion", "ubicacionError"],
+        };
+        const target = mapping[field];
+        if (target) {
+          showErr(target[0], target[1], fieldMessage);
+        }
+      });
+    } else {
+      showErr("email", "emailError", message);
+    }
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Crear cuenta";

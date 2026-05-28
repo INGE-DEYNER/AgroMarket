@@ -1,7 +1,9 @@
 package com.agromarket.interfaces.rest.advice;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.agromarket.application.dto.ErrorResponse;
@@ -13,9 +15,15 @@ import com.agromarket.domain.exception.ResenaDuplicadaException;
 import com.agromarket.domain.exception.StockInsuficienteException;
 import com.agromarket.domain.exception.UsuarioYaExisteException;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,66 +34,94 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(RecursoNoEncontradoException ex, HttpServletRequest request) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of());
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
     }
 
     @ExceptionHandler(StockInsuficienteException.class)
     public ResponseEntity<ErrorResponse> handleStock(StockInsuficienteException ex, HttpServletRequest request) {
-        return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of());
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
     }
 
     @ExceptionHandler(EstadoPedidoInvalidoException.class)
     public ResponseEntity<ErrorResponse> handleEstado(EstadoPedidoInvalidoException ex, HttpServletRequest request) {
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of());
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
     }
 
     @ExceptionHandler(AccesoDenegadoException.class)
     public ResponseEntity<ErrorResponse> handleForbidden(AccesoDenegadoException ex, HttpServletRequest request) {
-        return build(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of());
+        return build(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
     }
 
     @ExceptionHandler(UsuarioYaExisteException.class)
     public ResponseEntity<ErrorResponse> handleDuplicate(UsuarioYaExisteException ex, HttpServletRequest request) {
-        return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of());
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
     }
 
     @ExceptionHandler(CredencialesInvalidasException.class)
     public ResponseEntity<ErrorResponse> handleAuth(CredencialesInvalidasException ex, HttpServletRequest request) {
-        return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of());
+        return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
     }
 
     @ExceptionHandler(ResenaDuplicadaException.class)
     public ResponseEntity<ErrorResponse> handleReview(ResenaDuplicadaException ex, HttpServletRequest request) {
-        return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of());
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, "Conflicto con la información almacenada", request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleJpaNotFound(EntityNotFoundException ex, HttpServletRequest request) {
+        return build(HttpStatus.NOT_FOUND, "Recurso no encontrado", request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleSpringForbidden(AccessDeniedException ex, HttpServletRequest request) {
+        return build(HttpStatus.FORBIDDEN, "No tienes permisos para realizar esta acción", request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
+    }
+
+    @ExceptionHandler({JwtException.class, ExpiredJwtException.class})
+    public ResponseEntity<ErrorResponse> handleJwt(JwtException ex, HttpServletRequest request) {
+        return build(HttpStatus.UNAUTHORIZED, "Tu sesión no es válida o ha expirado", request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        List<String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+        Map<String, String> fieldMap = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> fieldMap.put(error.getField(), error.getDefaultMessage()));
+        List<String> fieldErrors = fieldMap.entrySet().stream()
+                .map(entry -> entry.getKey() + ": " + entry.getValue())
                 .collect(Collectors.toList());
-        return build(HttpStatus.BAD_REQUEST, "Error de validación", request.getRequestURI(), ex.getClass().getSimpleName(), fieldErrors);
+        return build(HttpStatus.BAD_REQUEST, "Validation Failed", request.getRequestURI(), ex.getClass().getSimpleName(), fieldErrors, fieldMap);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraint(ConstraintViolationException ex, HttpServletRequest request) {
-        List<String> errors = ex.getConstraintViolations().stream().map(violation -> violation.getPropertyPath() + ": " + violation.getMessage()).collect(Collectors.toList());
-        return build(HttpStatus.BAD_REQUEST, "Error de validación", request.getRequestURI(), ex.getClass().getSimpleName(), errors);
+        Map<String, String> fieldMap = new LinkedHashMap<>();
+        ex.getConstraintViolations().forEach(violation -> fieldMap.put(violation.getPropertyPath().toString(), violation.getMessage()));
+        List<String> errors = fieldMap.entrySet().stream()
+                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                .collect(Collectors.toList());
+        return build(HttpStatus.BAD_REQUEST, "Validation Failed", request.getRequestURI(), ex.getClass().getSimpleName(), errors, fieldMap);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex, HttpServletRequest request) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI(), ex.getClass().getSimpleName(), List.of());
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor", request.getRequestURI(), ex.getClass().getSimpleName(), List.of(), Map.of());
     }
 
-    private ResponseEntity<ErrorResponse> build(HttpStatus status, String message, String path, String error, List<String> fieldErrors) {
+    private ResponseEntity<ErrorResponse> build(HttpStatus status, String message, String path, String error, List<String> fieldErrors, Map<String, String> campos) {
         return ResponseEntity.status(status).body(ErrorResponse.builder()
                 .status(status.value())
                 .error(error)
                 .message(message)
+                .mensaje(message)
                 .timestamp(LocalDateTime.now())
                 .path(path)
                 .fieldErrors(fieldErrors)
+                .campos(campos)
                 .build());
     }
 }

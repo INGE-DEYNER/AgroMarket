@@ -19,13 +19,14 @@
         <div class="sidebar-user">
           <div
             class="avatar avatar-blue"
+            id="sidebarUserAvatar"
             style="width: 48px; height: 48px; font-size: 1.2rem"
           >
-            MT
+            --
           </div>
           <div class="sidebar-user-info">
-            <span class="name">María Torres</span>
-            <span class="role">Cliente Premium</span>
+            <span class="name" id="sidebarUserName">Cargando perfil...</span>
+            <span class="role" id="sidebarUserRole">Comprador</span>
           </div>
         </div>
 
@@ -52,7 +53,6 @@
           "
         >
           <span class="icon">🧾</span> Mis Pedidos
-          <span class="badge-count">2</span>
         </a>
 
         <div class="sidebar-divider"></div>
@@ -63,14 +63,17 @@
         </a>
         <a href="mensajeria.html" class="sidebar-link">
           <span class="icon">💬</span> Mensajería
-          <span class="badge-count">1</span>
         </a>
         <a href="resenas.html" class="sidebar-link">
           <span class="icon">⭐</span> Mis Reseñas
         </a>
 
         <a
-          href="login.html"
+          href="#"
+          onclick="
+            Auth.logout();
+            return false;
+          "
           class="sidebar-link"
           style="margin-top: auto; color: var(--red)"
         >
@@ -96,8 +99,15 @@
         <a href="mensajeria.html" class="mobile-nav-item">
           <span class="icon">💬</span><span>Chat</span>
         </a>
-        <a href="login.html" class="mobile-nav-item">
-          <span class="icon">👤</span><span>Perfil</span>
+        <a
+          href="#"
+          onclick="
+            Auth.logout();
+            return false;
+          "
+          class="mobile-nav-item"
+        >
+          <span class="icon">👤</span><span>Salir</span>
         </a>
       </nav>
 
@@ -106,8 +116,8 @@
         <div class="section active" id="sec-resumen">
           <div class="dash-header">
             <div class="dash-welcome">
-              <h1>¡Hola de nuevo, María! 👋</h1>
-              <p id="currentDate">Lunes, 12 de mayo de 2026 • ☀️ 28°C Urabá</p>
+              <h1 id="welcomeUserText">Cargando panel...</h1>
+              <p id="currentDate">Cargando fecha...</p>
             </div>
             <a href="catalogo.html" class="btn-cta"> Explorar catálogo → </a>
           </div>
@@ -116,45 +126,49 @@
             <div class="stat-card color-1">
               <span class="stat-icon-lg">📦</span>
               <div class="stat-label">Pedidos Realizados</div>
-              <div class="stat-value">06</div>
-              <div class="stat-trend up">↑ 12% vs mes anterior</div>
+              <div class="stat-value" id="statPedidos">--</div>
+              <div class="stat-trend up" id="pedidosTrend">Compras totales</div>
               <div class="stat-progress">
-                <div class="stat-progress-bar" style="width: 70%"></div>
+                <div class="stat-progress-bar" style="width: 100%"></div>
               </div>
             </div>
             <div class="stat-card color-2">
               <span class="stat-icon-lg">💰</span>
               <div class="stat-label">Inversión Total</div>
-              <div class="stat-value">$892k</div>
-              <div class="stat-trend up">↑ $45k esta semana</div>
+              <div class="stat-value" id="statInversion">--</div>
+              <div class="stat-trend up" id="inversionTrend">
+                COP invertidos
+              </div>
               <div class="stat-progress">
                 <div
                   class="stat-progress-bar"
-                  style="width: 45%; background: var(--blue)"
+                  style="width: 100%; background: var(--blue)"
                 ></div>
               </div>
             </div>
             <div class="stat-card color-3">
               <span class="stat-icon-lg">⭐</span>
               <div class="stat-label">Reseñas Dejadas</div>
-              <div class="stat-value">02</div>
-              <div class="stat-trend">Nivel de opinión: Medio</div>
+              <div class="stat-value" id="statResenas">--</div>
+              <div class="stat-trend" id="resenasTrend">Nivel de opinión</div>
               <div class="stat-progress">
                 <div
                   class="stat-progress-bar"
-                  style="width: 30%; background: var(--gold)"
+                  style="width: 100%; background: var(--gold)"
                 ></div>
               </div>
             </div>
             <div class="stat-card color-4">
               <span class="stat-icon-lg">🤝</span>
               <div class="stat-label">Productores</div>
-              <div class="stat-value">03</div>
-              <div class="stat-trend up">Nuevos contactos</div>
+              <div class="stat-value" id="statContactos">--</div>
+              <div class="stat-trend up" id="contactosTrend">
+                Contactos de chat
+              </div>
               <div class="stat-progress">
                 <div
                   class="stat-progress-bar"
-                  style="width: 85%; background: #a855f7"
+                  style="width: 100%; background: #a855f7"
                 ></div>
               </div>
             </div>
@@ -174,11 +188,6 @@
                 >Ver todos los pedidos</a
               >
             </div>
-            <div class="table-filters">
-              <div class="search-box">
-                <input type="text" placeholder="Buscar por producto o ID..." />
-              </div>
-            </div>
             <div class="table-wrap">
               <table class="table-responsive">
                 <thead>
@@ -190,38 +199,7 @@
                     <th>Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td data-label="ID">#001</td>
-                    <td data-label="Producto">🍌 Banano Urabá Exportación</td>
-                    <td data-label="Total">$84.000</td>
-                    <td data-label="Estado">
-                      <span class="badge-status status-pending"
-                        >🟡 Pendiente</span
-                      >
-                    </td>
-                    <td data-label="Acciones">
-                      <a href="envios.html" class="btn btn-secondary btn-sm"
-                        >Rastrear</a
-                      >
-                    </td>
-                  </tr>
-                  <tr>
-                    <td data-label="ID">#002</td>
-                    <td data-label="Producto">🥭 Mango Tommy Premium</td>
-                    <td data-label="Total">$140.000</td>
-                    <td data-label="Estado">
-                      <span class="badge-status status-shipped"
-                        >🟢 Enviado</span
-                      >
-                    </td>
-                    <td data-label="Acciones">
-                      <a href="envios.html" class="btn btn-secondary btn-sm"
-                        >Rastrear</a
-                      >
-                    </td>
-                  </tr>
-                </tbody>
+                <tbody id="tbRecentPedidos"></tbody>
               </table>
             </div>
           </div>
@@ -314,6 +292,7 @@
       </div>
     </div>
 
+    <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/dashboard-comprador.js"></script>
   </body>
 </html>

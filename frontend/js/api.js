@@ -2,11 +2,14 @@ const BASE_URL = "http://localhost:8080/api";
 
 class AgroMarketAPI {
   _getToken() {
-    return localStorage.getItem("agro_token");
+    return localStorage.getItem("token");
   }
 
   _getUser() {
-    return JSON.parse(localStorage.getItem("agro_user") || "null");
+    const rol = localStorage.getItem("rol");
+    const nombre = localStorage.getItem("nombre");
+    if (!rol) return null;
+    return { rol, nombre };
   }
 
   _headers(auth = true) {
@@ -20,34 +23,63 @@ class AgroMarketAPI {
     return headers;
   }
 
-  async _fetch(method, path, body = null, auth = true) {
-    const options = { method, headers: this._headers(auth) };
+  async request(method, path, { body = null, auth = true, headers = {} } = {}) {
+    const options = {
+      method,
+      headers: {
+        ...this._headers(auth),
+        "X-Requested-With": "XMLHttpRequest",
+        ...headers,
+      },
+    };
     if (body !== null && body !== undefined) {
       options.body = JSON.stringify(body);
     }
 
-    const response = await fetch(`${BASE_URL}${path}`, options);
-    const isJson = response.headers
-      .get("content-type")
-      ?.includes("application/json");
-    const payload = isJson ? await response.json() : null;
+    try {
+      const response = await fetch(`${BASE_URL}${path}`, options);
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const payload = isJson ? await response.json() : null;
 
-    if (!response.ok) {
-      if (
-        response.status === 401 &&
-        window.Auth &&
-        typeof window.Auth.logout === "function"
-      ) {
-        window.Auth.logout();
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("rol");
+          localStorage.removeItem("nombre");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("correo");
+          window.location.href = "login.html";
+        }
+        throw {
+          status: response.status,
+          message:
+            payload?.mensaje ||
+            payload?.message ||
+            "No se pudo completar la solicitud.",
+          data: payload?.data || null,
+          campos: payload?.campos || null,
+        };
+      }
+
+      return payload?.data;
+    } catch (error) {
+      if (error.status !== undefined) {
+        throw error;
       }
       throw {
-        status: response.status,
-        message: payload?.message || "Error",
-        data: payload?.data || null,
+        status: 0,
+        message:
+          "No se pudo conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.",
+        data: null,
+        campos: null,
       };
     }
+  }
 
-    return payload?.data;
+  _fetch(method, path, body = null, auth = true) {
+    return this.request(method, path, { body, auth });
   }
 
   login(correo, contrasena) {
@@ -56,6 +88,27 @@ class AgroMarketAPI {
 
   registro(payload) {
     return this._fetch("POST", "/auth/registro", payload, false);
+  }
+
+  requestPasswordReset(correo) {
+    return this._fetch("POST", "/auth/recuperar-contrasena", { correo }, false);
+  }
+
+  confirmPasswordReset(token, nuevaContrasena) {
+    return this._fetch(
+      "POST",
+      "/auth/restablecer-contrasena",
+      { token, nuevaContrasena },
+      false,
+    );
+  }
+
+  sendVerification(correo) {
+    return this._fetch("POST", "/auth/enviar-verificacion", { correo }, false);
+  }
+
+  verifyEmail(token) {
+    return this._fetch("POST", "/auth/verificar", { token }, false);
   }
 
   getProductos(params = {}) {
@@ -87,6 +140,10 @@ class AgroMarketAPI {
 
   getMisProductos() {
     return this._fetch("GET", "/productos/mis-productos");
+  }
+
+  getPedidos() {
+    return this._fetch("GET", "/pedidos");
   }
 
   crearPedido(productoId, cantidad) {
@@ -125,6 +182,10 @@ class AgroMarketAPI {
     return this._fetch("GET", `/facturas/pedido/${pedidoId}`);
   }
 
+  getFacturas() {
+    return this._fetch("GET", "/facturas");
+  }
+
   getMisEnvios() {
     return this._fetch("GET", "/envios/mis-envios");
   }
@@ -157,6 +218,10 @@ class AgroMarketAPI {
     return this._fetch("GET", `/resenas/producto/${productoId}`, null, false);
   }
 
+  getTodasResenas() {
+    return this._fetch("GET", "/resenas", null, false);
+  }
+
   crearResena(body) {
     return this._fetch("POST", "/resenas", body);
   }
@@ -181,12 +246,24 @@ class AgroMarketAPI {
     return this._fetch("GET", "/usuarios/me");
   }
 
+  getPerfil() {
+    return this.getMe();
+  }
+
   actualizarMe(body) {
     return this._fetch("PUT", "/usuarios/me", body);
   }
 
+  actualizarPerfil(body) {
+    return this.actualizarMe(body);
+  }
+
   getDashboard() {
     return this._fetch("GET", "/admin/dashboard");
+  }
+
+  getEstadisticasAdmin() {
+    return this.getDashboard();
   }
 
   getUsuarios() {

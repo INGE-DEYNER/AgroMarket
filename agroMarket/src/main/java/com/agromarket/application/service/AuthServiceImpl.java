@@ -31,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final com.agromarket.application.service.EmailVerificationService emailVerificationService;
 
     @Override
     public AuthResponse login(LoginRequest request) {
@@ -51,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse registro(RegistroRequest request) {
+    public void registro(RegistroRequest request) {
         if (usuarioJpaRepository.existsByCorreo(request.getCorreo())) {
             throw new UsuarioYaExisteException("Ya existe un usuario con ese correo");
         }
@@ -59,18 +60,12 @@ public class AuthServiceImpl implements AuthService {
         usuario.setNombre(compactarNombre(request.getNombre(), request.getApellido()));
         usuario.setContrasena(passwordEncoder.encode(request.getContrasena()));
         usuario.setTelefono(request.getTelefono());
-        usuario.setActivo(true);
+        // Require email verification before activating the account
+        usuario.setActivo(false);
         usuario.setFechaRegistro(LocalDateTime.now());
         UsuarioEntity guardado = usuarioJpaRepository.save(usuario);
-        String token = jwtTokenProvider.generateToken(guardado.getCorreo(), guardado.getId(), guardado.getRol());
-        return AuthResponse.builder()
-                .token(token)
-                .tipo("Bearer")
-                .userId(guardado.getId())
-                .nombre(guardado.getNombre())
-                .correo(guardado.getCorreo())
-                .rol(guardado.getRol())
-                .build();
+        // send verification email
+        emailVerificationService.sendVerificationEmail(guardado);
     }
 
     private UsuarioEntity crearEntidad(RegistroRequest request) {

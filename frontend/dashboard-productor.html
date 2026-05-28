@@ -19,14 +19,15 @@
         <div class="sidebar-user">
           <div
             class="avatar avatar-green"
+            id="sidebarUserAvatar"
             style="width: 48px; height: 48px; font-size: 1.2rem"
           >
-            LP
+            --
           </div>
           <div class="sidebar-user-info">
-            <span class="name">Luis Palacios</span>
-            <span class="role">Productor ASAFRUT</span>
-            <div class="rating">⭐ 4.9 (120 reseñas)</div>
+            <span class="name" id="sidebarUserName">Cargando perfil...</span>
+            <span class="role" id="sidebarUserRole">Productor</span>
+            <div class="rating" id="sidebarUserRating">⭐ --</div>
           </div>
         </div>
 
@@ -53,7 +54,7 @@
           id="link-pedidosRec"
           onclick="showSection('pedidosRec')"
         >
-          <span class="icon">🧾</span> Ventas <span class="badge-count">3</span>
+          <span class="icon">🧾</span> Ventas
         </a>
 
         <div class="sidebar-divider"></div>
@@ -66,7 +67,11 @@
         >
 
         <a
-          href="login.html"
+          href="#"
+          onclick="
+            Auth.logout();
+            return false;
+          "
           class="sidebar-link"
           style="margin-top: auto; color: var(--red)"
           ><span class="icon">🔒</span> Cerrar sesión</a
@@ -78,10 +83,8 @@
         <div class="section active" id="sec-resumen">
           <div class="dash-header">
             <div class="dash-welcome">
-              <h1>¡Excelente día, Luis! 👨‍🌾</h1>
-              <p>
-                Tu cosecha está teniendo un gran rendimiento este mes en Urabá.
-              </p>
+              <h1 id="welcomeUserText">Cargando panel...</h1>
+              <p>Tu inventario y tus ventas se cargan desde el backend.</p>
             </div>
             <button class="btn-cta" onclick="openProductoModal()">
               Publicar Producto +
@@ -92,7 +95,7 @@
             <div class="stat-card color-1">
               <span class="stat-icon-lg">📦</span>
               <div class="stat-label">Productos Activos</div>
-              <div class="stat-value">03</div>
+              <div class="stat-value" id="statActiveProductos">--</div>
               <div class="stat-trend">En venta ahora</div>
               <div class="stat-progress">
                 <div class="stat-progress-bar" style="width: 100%"></div>
@@ -100,37 +103,39 @@
             </div>
             <div class="stat-card color-2">
               <span class="stat-icon-lg">🧾</span>
-              <div class="stat-label">Ventas del Mes</div>
-              <div class="stat-value">24</div>
-              <div class="stat-trend up">↑ 8 pedidos nuevos</div>
+              <div class="stat-label">Ventas Totales</div>
+              <div class="stat-value" id="statVentasMes">--</div>
+              <div class="stat-trend up" id="statVentasTrend">
+                Pedidos recibidos
+              </div>
               <div class="stat-progress">
                 <div
                   class="stat-progress-bar"
-                  style="width: 60%; background: var(--blue)"
+                  style="width: 100%; background: var(--blue)"
                 ></div>
               </div>
             </div>
             <div class="stat-card color-3">
               <span class="stat-icon-lg">💰</span>
               <div class="stat-label">Ingresos Totales</div>
-              <div class="stat-value">$1.2M</div>
-              <div class="stat-trend up">↑ 15% vs Abril</div>
+              <div class="stat-value" id="statRevenue">--</div>
+              <div class="stat-trend up">COP acumulados</div>
               <div class="stat-progress">
                 <div
                   class="stat-progress-bar"
-                  style="width: 75%; background: var(--gold)"
+                  style="width: 100%; background: var(--gold)"
                 ></div>
               </div>
             </div>
             <div class="stat-card color-4">
               <span class="stat-icon-lg">⭐</span>
               <div class="stat-label">Calificación</div>
-              <div class="stat-value">4.9</div>
-              <div class="stat-trend">Top Vendedor Urabá</div>
+              <div class="stat-value" id="statRating">--</div>
+              <div class="stat-trend">Promedio real de reseñas</div>
               <div class="stat-progress">
                 <div
                   class="stat-progress-bar"
-                  style="width: 98%; background: #a855f7"
+                  style="width: 100%; background: #a855f7"
                 ></div>
               </div>
             </div>
@@ -151,48 +156,17 @@
                       <th>Estado</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <td data-label="Pedido">#001</td>
-                      <td data-label="Comprador">María Torres</td>
-                      <td data-label="Total">$84.000</td>
-                      <td data-label="Estado">
-                        <span class="badge-status status-pending"
-                          >🟡 Pendiente</span
-                        >
-                      </td>
-                    </tr>
-                    <tr>
-                      <td data-label="Pedido">#002</td>
-                      <td data-label="Comprador">Jorge Restrepo</td>
-                      <td data-label="Total">$140.000</td>
-                      <td data-label="Estado">
-                        <span class="badge-status status-shipped"
-                          >🟢 Enviado</span
-                        >
-                      </td>
-                    </tr>
-                  </tbody>
+                  <tbody id="tbRecentVentas"></tbody>
                 </table>
               </div>
             </div>
             <div class="card-table" style="padding: 24px">
               <h3 class="card-title">📊 Ventas x Producto</h3>
-              <div class="chart-container">
+              <div class="chart-container" id="salesChartContainer">
                 <div
                   class="chart-bar"
-                  style="height: 80%"
-                  data-label="Banano"
-                ></div>
-                <div
-                  class="chart-bar"
-                  style="height: 40%; background: var(--gold)"
-                  data-label="Mango"
-                ></div>
-                <div
-                  class="chart-bar"
-                  style="height: 20%; background: var(--blue)"
-                  data-label="Coco"
+                  style="height: 0%"
+                  data-label="Sin datos"
                 ></div>
               </div>
             </div>
@@ -260,7 +234,9 @@
     <div class="modal-overlay" id="modalProducto">
       <div class="modal">
         <div class="modal-header">
-          <span class="modal-title">Publicar nuevo producto</span>
+          <span class="modal-title" id="modalTitle"
+            >Publicar nuevo producto</span
+          >
           <button class="modal-close" onclick="closeProductoModal()">✕</button>
         </div>
         <div class="form-group">
@@ -326,8 +302,9 @@
             "
           >
             <span style="font-size: 24px; display: block">📷</span>
-            <span style="font-size: 12px">Haz clic para subir imagen</span>
-            <input type="file" style="display: none" />
+            <span style="font-size: 12px"
+              >Imágenes predeterminadas cargadas automáticamente</span
+            >
           </div>
         </div>
         <div
@@ -352,6 +329,7 @@
       </div>
     </div>
 
+    <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/dashboard-productor.js"></script>
   </body>
 </html>

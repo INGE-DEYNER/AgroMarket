@@ -6,7 +6,7 @@
     <title>AgroMarket — Del campo de Urabá a tu mesa</title>
     <meta
       name="description"
-      content="AgroMarket: Conectamos productores agrícolas de ASAFRUT con compradores. Frutas frescas, precios justos, trazabilidad total."
+      content="AgroMarket: Conectamos productores agrícolas con compradores. Frutas frescas, precios justos, trazabilidad total."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,7 +31,6 @@
         <a href="home.html">Inicio</a>
         <a href="catalogo.html">Catálogo</a>
         <a href="#como-funciona">Cómo funciona</a>
-        <a href="#asafrut">Sobre ASAFRUT</a>
       </div>
       <div class="nav-actions" id="navActions">
         <a href="login.html" class="btn btn-secondary">Iniciar sesión</a>
@@ -44,9 +43,7 @@
     <section class="hero">
       <div class="hero-content">
         <div class="hero-left">
-          <div class="hero-badge animate-fade-up">
-            🌿 ASAFRUT · Chigorodó, Urabá
-          </div>
+          <div class="hero-badge animate-fade-up">🌿 AgroMarket · Urabá</div>
           <h1 class="hero-title animate-fade-up" style="transition-delay: 0.1s">
             Del campo de <span>Urabá</span> directamente a tu mesa.
           </h1>
@@ -103,13 +100,13 @@
             style="transition-delay: 0.5s"
           >
             <div class="avatar-group">
-              <div class="avatar">JC</div>
-              <div class="avatar">AP</div>
-              <div class="avatar">LR</div>
-              <div class="avatar">MM</div>
+              <div class="avatar">AS</div>
+              <div class="avatar">AG</div>
+              <div class="avatar">PM</div>
+              <div class="avatar">UR</div>
             </div>
             <div class="hero-avatars-text">
-              Más de 200 familias ya confían en nosotros
+              Un mercado agrícola vivo, conectado con datos reales
             </div>
           </div>
         </div>
@@ -141,20 +138,20 @@
     <section class="metrics">
       <div class="metrics-grid">
         <div class="metric-item animate-fade-up">
-          <div class="metric-val">200+</div>
-          <div class="metric-label">Familias productoras</div>
+          <div class="metric-val" id="metricProductos">—</div>
+          <div class="metric-label">Productos publicados</div>
         </div>
         <div class="metric-item animate-fade-up" style="transition-delay: 0.1s">
-          <div class="metric-val">8</div>
-          <div class="metric-label">Tipos de frutas disponibles</div>
+          <div class="metric-val" id="metricProductores">—</div>
+          <div class="metric-label">Productores visibles</div>
         </div>
         <div class="metric-item animate-fade-up" style="transition-delay: 0.2s">
-          <div class="metric-val">4.8★</div>
-          <div class="metric-label">Calificación promedio</div>
+          <div class="metric-val" id="metricPrecio">—</div>
+          <div class="metric-label">Precio promedio del catálogo</div>
         </div>
         <div class="metric-item animate-fade-up" style="transition-delay: 0.3s">
-          <div class="metric-val">100%</div>
-          <div class="metric-label">Pagos seguros</div>
+          <div class="metric-val" id="metricCalificacion">—</div>
+          <div class="metric-label">Calificación promedio real</div>
         </div>
       </div>
     </section>
@@ -232,172 +229,13 @@
         >
       </div>
 
-      <div class="products-grid">
-        <!-- Product 1 -->
-        <div
-          class="product-card animate-fade-up"
-          style="transition-delay: 0.1s"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=500"
-            alt="Banano"
-            class="product-img"
-          />
-          <div class="product-info">
-            <h3 class="product-name">Banano Urabá</h3>
-            <div class="product-producer">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                />
-              </svg>
-              Luis Palacios
-            </div>
-            <div class="product-price">$1.200/kg</div>
-            <div class="product-meta">
-              <div class="product-rating">
-                ★★★★★
-                <span style="color: var(--text-muted); font-weight: normal"
-                  >(4.8)</span
-                >
-              </div>
-              <div class="product-badge">Disponible</div>
-            </div>
-            <a href="catalogo.html" class="btn btn-primary product-btn"
-              >Pedir ahora</a
-            >
-          </div>
-        </div>
-        <!-- Product 2 -->
-        <div
-          class="product-card animate-fade-up"
-          style="transition-delay: 0.2s"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=500"
-            alt="Mango"
-            class="product-img"
-          />
-          <div class="product-info">
-            <h3 class="product-name">Mango Tommy</h3>
-            <div class="product-producer">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                />
-              </svg>
-              Luis Palacios
-            </div>
-            <div class="product-price">$3.500/kg</div>
-            <div class="product-meta">
-              <div class="product-rating">
-                ★★★★★
-                <span style="color: var(--text-muted); font-weight: normal"
-                  >(4.7)</span
-                >
-              </div>
-              <div class="product-badge">Disponible</div>
-            </div>
-            <a href="catalogo.html" class="btn btn-primary product-btn"
-              >Pedir ahora</a
-            >
-          </div>
-        </div>
-        <!-- Product 3 -->
-        <div
-          class="product-card animate-fade-up"
-          style="transition-delay: 0.3s"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=500"
-            alt="Aguacate Hass"
-            class="product-img"
-          />
-          <div class="product-info">
-            <h3 class="product-name">Aguacate Hass</h3>
-            <div class="product-producer">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                />
-              </svg>
-              Ana Córdoba
-            </div>
-            <div class="product-price">$4.500/kg</div>
-            <div class="product-meta">
-              <div class="product-rating">
-                ★★★★★
-                <span style="color: var(--text-muted); font-weight: normal"
-                  >(4.9)</span
-                >
-              </div>
-              <div class="product-badge">Disponible</div>
-            </div>
-            <a href="catalogo.html" class="btn btn-primary product-btn"
-              >Pedir ahora</a
-            >
-          </div>
-        </div>
-        <!-- Product 4 -->
-        <div
-          class="product-card animate-fade-up"
-          style="transition-delay: 0.4s"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=500"
-            alt="Piña Manzana"
-            class="product-img"
-          />
-          <div class="product-info">
-            <h3 class="product-name">Piña Manzana</h3>
-            <div class="product-producer">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                />
-              </svg>
-              Ana Córdoba
-            </div>
-            <div class="product-price">$2.800/kg</div>
-            <div class="product-meta">
-              <div class="product-rating">
-                ★★★★★
-                <span style="color: var(--text-muted); font-weight: normal"
-                  >(4.5)</span
-                >
-              </div>
-              <div class="product-badge">Disponible</div>
-            </div>
-            <a href="catalogo.html" class="btn btn-primary product-btn"
-              >Pedir ahora</a
-            >
-          </div>
-        </div>
+      <div class="products-grid" id="featuredProducts">
+        <div id="homeMetricsFallback" style="grid-column: 1 / -1"></div>
       </div>
     </section>
 
     <!-- FOR PRODUCERS -->
-    <section class="for-producers" id="asafrut">
+    <section class="for-producers" id="for-producers">
       <div class="fp-content">
         <div class="fp-left">
           <div class="fp-badge animate-fade-up">PARA PRODUCTORES</div>
@@ -405,7 +243,7 @@
             Vende tus frutas directamente. Sin intermediarios.
           </h2>
           <p class="fp-sub animate-fade-up" style="transition-delay: 0.2s">
-            Únete a la red de ASAFRUT y maximiza tus ganancias conectando
+            Únete a la red de productores y maximiza tus ganancias conectando
             directo con los compradores finales.
           </p>
 
@@ -461,7 +299,7 @@
           </div>
           <div class="fp-float">
             <div class="fp-float-title">📦 Nuevo pedido recibido</div>
-            <div class="fp-float-desc">Juan Calle · 50 kg de Banano</div>
+            <div class="fp-float-desc">Detalles del pedido</div>
             <div class="fp-float-badge">Pendiente</div>
           </div>
         </div>
@@ -480,14 +318,14 @@
           <div class="test-quote-mark">"</div>
           <div class="test-stars">★★★★★</div>
           <div class="test-content">
-            Compro banano para mi negocio cada semana. La calidad es constante y
-            los precios son mucho mejores que en la central mayorista.
+            La plataforma hace más claro el origen de lo que compro y me permite
+            revisar el catálogo sin depender de intermediarios.
           </div>
           <div class="test-author">
             <div class="test-avatar">JC</div>
             <div>
-              <div class="test-name">Juan Calle</div>
-              <div class="test-role">Comprador · Medellín</div>
+              <div class="test-name">Cliente verificado</div>
+              <div class="test-role">Comprador · Urabá</div>
             </div>
           </div>
         </div>
@@ -496,14 +334,14 @@
           <div class="test-quote-mark">"</div>
           <div class="test-stars">★★★★★</div>
           <div class="test-content">
-            Antes vendía a intermediarios que me pagaban muy poco. Ahora con
-            AgroMarket vendo directo y mis ingresos aumentaron un 40%.
+            El panel centraliza pedidos, mensajes y envíos en un solo lugar, así
+            el trabajo diario se vuelve más simple.
           </div>
           <div class="test-author">
             <div class="test-avatar">AP</div>
             <div>
-              <div class="test-name">Andrés Palacios</div>
-              <div class="test-role">Productor · Chigorodó</div>
+              <div class="test-name">Productor verificado</div>
+              <div class="test-role">Chigorodó</div>
             </div>
           </div>
         </div>
@@ -512,14 +350,14 @@
           <div class="test-quote-mark">"</div>
           <div class="test-stars">★★★★★</div>
           <div class="test-content">
-            La plataforma es muy fácil de usar. Publico mis productos, recibo
-            los pedidos y coordino las entregas todo desde el celular.
+            Tener trazabilidad, reseñas y seguimiento en tiempo real cambia por
+            completo la experiencia de compra.
           </div>
           <div class="test-author">
             <div class="test-avatar">MM</div>
             <div>
-              <div class="test-name">María Mosquera</div>
-              <div class="test-role">Productora · Apartadó</div>
+              <div class="test-name">Usuario verificado</div>
+              <div class="test-role">AgroMarket</div>
             </div>
           </div>
         </div>
@@ -558,8 +396,7 @@
             AgroMarket
           </div>
           <p class="footer-desc">
-            Plataforma oficial de comercialización para la Asociación de
-            Agricultores ASAFRUT.
+            Plataforma oficial de comercialización agrícola.
           </p>
           <div class="social-links">
             <a href="#"
@@ -588,7 +425,7 @@
           <div class="footer-links">
             <a href="catalogo.html">Catálogo</a>
             <a href="#como-funciona">Cómo funciona</a>
-            <a href="#asafrut">Sobre ASAFRUT</a>
+            <a href="#for-producers">Sobre nosotros</a>
           </div>
         </div>
 
@@ -612,7 +449,7 @@
       </div>
 
       <div class="footer-bottom">
-        © 2026 AgroMarket · ASAFRUT · Todos los derechos reservados
+        © 2026 AgroMarket · Todos los derechos reservados
       </div>
     </footer>
 

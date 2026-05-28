@@ -1,0 +1,46 @@
+/* Styles for recuperar-contrasena.html */
+.container {
+  max-width: 520px;
+  margin: 48px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+}
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+button {
+  background: #2d6a4f;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.hidden {
+  display: none;
+}
+#status {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 6px;
+}
+#status.success {
+  background: #e6f4ea;
+  color: #165a37;
+}
+#status.error {
+  background: #fdecea;
+  color: #7a1f1f;
+}

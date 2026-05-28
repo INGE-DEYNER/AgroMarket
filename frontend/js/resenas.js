@@ -37,9 +37,11 @@ function renderResenas() {
 
   if (!state.resenas.length) {
     list.innerHTML =
-      '<div class="empty-state"><div class="empty-icon">⭐</div><div>Sé el primero en dejar una reseña.</div></div>';
+      '<div class="empty-state" style="text-align:center;padding:32px;"><div class="empty-icon" style="font-size:2rem;margin-bottom:8px;">⭐</div><div style="color:var(--text-muted);">Sé el primero en dejar una reseña para este producto.</div></div>';
     return;
   }
+
+  const selectedProductText = document.getElementById("rProducto")?.selectedOptions?.[0]?.textContent || "Producto";
 
   list.innerHTML = state.resenas
     .map((resena) => {
@@ -47,17 +49,17 @@ function renderResenas() {
         "★".repeat(Number(resena.calificacion || 0)) +
         "☆".repeat(5 - Number(resena.calificacion || 0));
       return `
-      <div class="review-card">
+      <div class="review-card" style="margin-bottom:16px;">
         <div class="review-header">
           <div class="avatar ${avatarColor(resena.compradorNombre)}">${initials(resena.compradorNombre)}</div>
           <div class="review-meta">
-            <div class="review-user">${resena.compradorNombre}</div>
-            <div class="review-time">${new Date(resena.fecha).toLocaleDateString("es-CO")}</div>
+            <div class="review-user">${resena.compradorNombre || "Comprador de AgroMarket"}</div>
+            <div class="review-time">${new Date(resena.fecha || Date.now()).toLocaleDateString("es-CO")}</div>
           </div>
-          <div class="review-product-badge">${document.getElementById("rProducto")?.selectedOptions?.[0]?.textContent || "Producto"}</div>
+          <div class="review-product-badge">${selectedProductText}</div>
         </div>
-        <div class="review-stars">${stars}</div>
-        <div class="review-comment">${resena.comentario}</div>
+        <div class="review-stars" style="color:var(--gold);font-size:1.1rem;margin:8px 0;">${stars}</div>
+        <div class="review-comment">"${resena.comentario}"</div>
       </div>`;
     })
     .join("");
@@ -93,8 +95,12 @@ function updateStarDisplay() {
 
 function openModal() {
   state.currentRating = 0;
-  document.getElementById("rComentario").value = "";
+  
+  const commentEl = document.getElementById("rComentario");
+  if (commentEl) commentEl.value = "";
+  
   updateStarDisplay();
+  
   ["rProductoErr", "rRatingErr", "rComentErr"].forEach((id) =>
     document.getElementById(id)?.classList.remove("visible"),
   );
@@ -137,7 +143,10 @@ async function publicarResena() {
       comentario,
     });
     closeModal();
-    await cargarProductoYResenas();
+    
+    // Recargar reseñas del producto actual
+    state.resenas = await api.getResenas(productoId);
+    renderResenas();
   } catch (error) {
     alert(error?.message || "No se pudo publicar la reseña.");
   }
@@ -145,11 +154,11 @@ async function publicarResena() {
 
 async function cargarProductoYResenas() {
   const list = document.getElementById("reviewsList");
-  if (list) mostrarSpinner(list, "Cargando reseñas...");
+  if (list) mostrarSpinner(list, "Cargando catálogo y opiniones...");
 
   try {
     const productos = await api.getProductos({ page: 0, size: 100 });
-    state.productos = productos?.content || [];
+    state.productos = productos?.content || productos || [];
     const select = document.getElementById("rProducto");
     if (select) {
       select.innerHTML =
@@ -164,7 +173,7 @@ async function cargarProductoYResenas() {
 
     const productoSeleccionado = state.productos[0]?.id || select?.value;
     if (productoSeleccionado) {
-      select.value = String(productoSeleccionado);
+      if (select) select.value = String(productoSeleccionado);
       state.resenas = await api.getResenas(productoSeleccionado);
     } else {
       state.resenas = [];
@@ -185,8 +194,16 @@ document.addEventListener("DOMContentLoaded", () => {
         renderResenas();
         return;
       }
-      state.resenas = await api.getResenas(productoId);
-      renderResenas();
+      
+      const list = document.getElementById("reviewsList");
+      if (list) mostrarSpinner(list, "Cargando opiniones...");
+      
+      try {
+        state.resenas = await api.getResenas(productoId);
+        renderResenas();
+      } catch (error) {
+        if (list) mostrarError(list, error?.message || "Error al cargar las reseñas de este producto.");
+      }
     });
 
   cargarProductoYResenas();

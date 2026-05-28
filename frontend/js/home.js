@@ -1,20 +1,28 @@
-// Mobile Menu Toggle
+import api from "./api.js";
+import {
+  formatearPrecio,
+  mostrarError,
+  mostrarEstadoVacio,
+  mostrarSpinner,
+} from "./ui.js";
+
 const menuToggle = document.getElementById("menuToggle");
 const navbar = document.getElementById("navbar");
 
-menuToggle.addEventListener("click", () => {
-  navbar.classList.toggle("menu-open");
-});
+if (menuToggle && navbar) {
+  menuToggle.addEventListener("click", () => {
+    navbar.classList.toggle("menu-open");
+  });
+}
 
-// Close menu when clicking a link
 document.querySelectorAll(".nav-links a").forEach((link) => {
   link.addEventListener("click", () => {
-    navbar.classList.remove("menu-open");
+    navbar?.classList.remove("menu-open");
   });
 });
 
-// Navbar Scroll Effect
 window.addEventListener("scroll", () => {
+  if (!navbar) return;
   if (window.scrollY > 50) {
     navbar.classList.add("scrolled");
   } else {
@@ -22,22 +30,149 @@ window.addEventListener("scroll", () => {
   }
 });
 
-// Intersection Observer for Animations
 const observerOptions = {
   root: null,
   rootMargin: "0px",
   threshold: 0.15,
 };
 
-const observer = new IntersectionObserver((entries, observer) => {
+const observer = new IntersectionObserver((entries, observerInstance) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
       entry.target.classList.add("visible");
-      observer.unobserve(entry.target);
+      observerInstance.unobserve(entry.target);
     }
   });
 }, observerOptions);
 
 document.querySelectorAll(".animate-fade-up").forEach((el) => {
   observer.observe(el);
+});
+
+function renderMetric(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
+function renderFeaturedProducts(productos) {
+  const container = document.getElementById("featuredProducts");
+  if (!container) return;
+
+  if (!productos.length) {
+    mostrarEstadoVacio(
+      container,
+      "Todavía no hay productos activos para mostrar.",
+      "🫙",
+    );
+    return;
+  }
+
+  container.innerHTML = productos
+    .slice(0, 4)
+    .map((producto) => {
+      const disponible = Number(producto.cantidadDisponible || 0) > 0;
+      const rating = Number(producto.calificacionPromedio || 0).toFixed(1);
+      const reviews = Number(producto.totalResenas || 0);
+
+      return `
+        <div class="product-card animate-fade-up">
+          <img
+            src="${producto.imagenUrl || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500"}"
+            alt="${producto.nombre}"
+            class="product-img"
+            onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'"
+          />
+          <div class="product-info">
+            <h3 class="product-name">${producto.nombre}</h3>
+            <div class="product-producer">${producto.productorNombre || "Productor verificado"}</div>
+            <div class="product-price">${formatearPrecio(producto.precio)}/kg</div>
+            <div class="product-meta">
+              <div class="product-rating">★ ${rating} <span style="color: var(--text-muted); font-weight: normal">(${reviews})</span></div>
+              <div class="product-badge">${disponible ? "Disponible" : "Sin stock"}</div>
+            </div>
+            <a href="catalogo.html" class="btn btn-primary product-btn">Pedir ahora</a>
+          </div>
+        </div>`;
+    })
+    .join("");
+}
+
+async function cargarHome() {
+  const featuredProducts = document.getElementById("featuredProducts");
+  const metricsFallback = document.getElementById("homeMetricsFallback");
+
+  if (featuredProducts)
+    mostrarSpinner(featuredProducts, "Cargando productos destacados...");
+  if (metricsFallback)
+    mostrarSpinner(metricsFallback, "Cargando panorama general...");
+
+  try {
+    const response = await api.getProductos({ page: 0, size: 100 });
+    const productos = response?.content || response || [];
+
+    renderFeaturedProducts(productos);
+
+    const activos = productos.filter(
+      (producto) => Number(producto.cantidadDisponible || 0) > 0,
+    );
+    const productores = new Set(
+      productos.map((producto) => producto.productorNombre).filter(Boolean),
+    );
+    const precioPromedio = productos.length
+      ? productos.reduce(
+          (sum, producto) => sum + Number(producto.precio || 0),
+          0,
+        ) / productos.length
+      : 0;
+    const promedioResenas = productos.length
+      ? productos.reduce(
+          (sum, producto) => sum + Number(producto.calificacionPromedio || 0),
+          0,
+        ) / productos.length
+      : 0;
+
+    renderMetric("metricProductos", String(productos.length));
+    renderMetric("metricProductores", String(productores.size));
+    renderMetric("metricPrecio", formatearPrecio(precioPromedio));
+    renderMetric(
+      "metricCalificacion",
+      promedioResenas ? `${promedioResenas.toFixed(1)}★` : "—",
+    );
+
+    const heroBadge = document.querySelector(".hero-badge");
+    if (heroBadge) {
+      heroBadge.textContent = `🌿 Catálogo vivo · ${activos.length} productos disponibles`;
+    }
+
+    const floatCardTitle = document.querySelector(".float-card-1-title");
+    const floatCardSub = document.querySelector(".float-card-1-sub");
+    const floatCardValue = document.querySelector(".float-card-2-val");
+    const floatCardDesc = document.querySelector(".float-card-2-sub");
+
+    if (floatCardTitle) floatCardTitle.textContent = "🛒 Catálogo activo";
+    if (floatCardSub)
+      floatCardSub.textContent = `${activos.length} productos listos para compra`;
+    if (floatCardValue)
+      floatCardValue.textContent = promedioResenas
+        ? `${promedioResenas.toFixed(1)}★`
+        : "—";
+    if (floatCardDesc) floatCardDesc.textContent = "Promedio real del catálogo";
+
+    if (metricsFallback) metricsFallback.innerHTML = "";
+  } catch (error) {
+    if (featuredProducts)
+      mostrarError(
+        featuredProducts,
+        error?.message || "No se pudieron cargar los productos destacados.",
+      );
+    if (metricsFallback)
+      mostrarError(
+        metricsFallback,
+        error?.message || "No se pudo cargar el panorama general.",
+      );
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  cargarHome();
 });

@@ -1,5 +1,5 @@
 import api from "./api.js";
-import { guardarSesion, normalizarRol } from "./auth.js";
+import Auth, { guardarSesion, normalizarRol } from "./auth.js";
 import { mostrarError, mostrarExito } from "./ui.js";
 
 const form = document.getElementById("loginForm");
@@ -21,6 +21,10 @@ function clearErrors() {
   }
 }
 
+function getErrorMessage(error) {
+  return error?.mensaje || error?.message || "No se pudo iniciar sesión.";
+}
+
 function showFieldError(input, errorEl, message) {
   input?.classList.add("error");
   if (errorEl) {
@@ -30,13 +34,7 @@ function showFieldError(input, errorEl, message) {
 }
 
 function redirectByRole(role) {
-  const normalized = normalizarRol(role);
-  const routes = {
-    admin: "admin.html",
-    productor: "dashboard-productor.html",
-    comprador: "dashboard-comprador.html",
-  };
-  window.location.href = routes[normalized] || "home.html";
+  window.location.href = Auth.resolveDashboardRoute(role);
 }
 
 function isValidEmail(value) {
@@ -75,7 +73,7 @@ form?.addEventListener("submit", async (event) => {
     mostrarExito(`Bienvenido, ${authResponse.nombre || correo}`);
     redirectByRole(authResponse.rol || authResponse.tipo);
   } catch (error) {
-    const message = error?.message || "No se pudo iniciar sesión.";
+    const message = getErrorMessage(error);
     if (globalError) {
       globalError.textContent = message;
       globalError.classList.add("visible");

@@ -17,6 +17,16 @@ export function mostrarError(contenedor, mensaje) {
   `;
 }
 
+export function mostrarEstadoVacio(contenedor, mensaje, icono = "ℹ️") {
+  if (!contenedor) return;
+  contenedor.innerHTML = `
+    <div class="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px;padding:24px;color:#6b7280;font-weight:600;gap:10px;text-align:center;">
+      <div class="empty-icon" style="font-size:2rem;line-height:1;">${icono}</div>
+      <div>${mensaje}</div>
+    </div>
+  `;
+}
+
 export function mostrarExito(mensaje) {
   const toast = document.createElement("div");
   toast.textContent = mensaje;

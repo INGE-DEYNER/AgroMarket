@@ -1,0 +1,47 @@
+/* Styles for restablecer-contrasena */
+.container {
+  max-width: 540px;
+  margin: 48px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+button {
+  background: #2d6a4f;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#checks {
+  margin-bottom: 12px;
+}
+#checks div {
+  padding: 6px 0;
+  color: #666;
+}
+#checks .ok {
+  color: #165a37;
+  font-weight: 600;
+}
+#status {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 6px;
+}
+#status.success {
+  background: #e6f4ea;
+  color: #165a37;
+}
+#status.error {
+  background: #fdecea;
+  color: #7a1f1f;
+}

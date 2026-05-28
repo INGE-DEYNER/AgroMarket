@@ -6,7 +6,7 @@
     <title>Crear cuenta — AgroMarket</title>
     <meta
       name="description"
-      content="Únete a AgroMarket, la plataforma de frutas tropicales de ASAFRUT en Chigorodó, Antioquia."
+      content="Únete a AgroMarket, la plataforma de comercialización agrícola."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -30,7 +30,7 @@
           </div>
           <div>
             <div class="brand-name">AgroMarket</div>
-            <div class="brand-sub">ASAFRUT · Chigorodó, Antioquia</div>
+            <div class="brand-sub">Plataforma de comercio agrícola</div>
           </div>
         </a>
 
@@ -130,8 +130,12 @@
               type="tel"
               id="telefono"
               placeholder="3001234567"
+              maxlength="10"
+              inputmode="numeric"
             />
-            <span class="form-error" id="telefonoError">Campo requerido.</span>
+            <span class="form-error" id="telefonoError"
+              >Debe tener 10 dígitos numéricos.</span
+            >
           </div>
 
           <div class="form-row">
@@ -142,9 +146,11 @@
                 type="password"
                 id="password"
                 placeholder="••••••••"
+                minlength="8"
               />
               <span class="form-error" id="passwordError"
-                >Mínimo 6 caracteres.</span
+                >Debe tener 8 caracteres, una mayúscula, un número y un carácter
+                especial.</span
               >
             </div>
             <div class="form-group">
@@ -204,7 +210,7 @@
           loading="lazy"
         />
         <div class="right-overlay">
-          <div class="right-badge">🌿 ASAFRUT · Chigorodó, Antioquia</div>
+          <div class="right-badge">🌿 Plataforma oficial</div>
           <h2 class="right-title">Del campo de Urabá<br />a tu hogar.</h2>
           <p class="right-sub">
             Garantizamos trazabilidad total y precios justos para quienes

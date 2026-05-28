@@ -19,13 +19,14 @@
         <div class="sidebar-user">
           <div
             class="avatar avatar-red"
+            id="sidebarUserAvatar"
             style="width: 48px; height: 48px; font-size: 1.2rem"
           >
-            AD
+            --
           </div>
           <div class="sidebar-user-info">
-            <span class="name">Administrador</span>
-            <span class="role">Soporte AgroMarket</span>
+            <span class="name" id="sidebarUserName">Cargando perfil...</span>
+            <span class="role" id="sidebarUserRole">Administrador</span>
           </div>
         </div>
 
@@ -65,7 +66,11 @@
         >
 
         <a
-          href="login.html"
+          href="#"
+          onclick="
+            Auth.logout();
+            return false;
+          "
           class="sidebar-link"
           style="margin-top: auto; color: var(--red)"
         >
@@ -76,8 +81,8 @@
       <main class="main-content">
         <div class="dash-header">
           <div class="dash-welcome">
-            <h1>Panel de Administración 🛠️</h1>
-            <p>Monitoreo global de la plataforma AgroMarket Urabá</p>
+            <h1 id="welcomeUserText">Cargando panel...</h1>
+            <p>Monitoreo global de la plataforma AgroMarket.</p>
           </div>
           <button
             class="btn-cta"
@@ -92,27 +97,27 @@
           <div class="stat-card color-1">
             <span class="stat-icon-lg">👥</span>
             <div class="stat-label">Total Usuarios</div>
-            <div class="stat-value" id="statUsuarios">07</div>
-            <div class="stat-trend up">↑ 2 nuevos hoy</div>
+            <div class="stat-value" id="statUsuarios">--</div>
+            <div class="stat-trend up">Registrados en AgroMarket</div>
           </div>
           <div class="stat-card color-2">
             <span class="stat-icon-lg">📦</span>
             <div class="stat-label">Productos Globales</div>
-            <div class="stat-value" id="statProductos">12</div>
-            <div class="stat-trend">80% en stock</div>
+            <div class="stat-value" id="statProductos">--</div>
+            <div class="stat-trend">Publicados e inventariados</div>
           </div>
           <div class="stat-card color-3">
             <span class="stat-icon-lg">💰</span>
             <div class="stat-label">Ingresos Totales</div>
-            <div class="stat-value">$4.8M</div>
-            <div class="stat-trend up">↑ 22% este mes</div>
+            <div class="stat-value" id="statIngresos">--</div>
+            <div class="stat-trend up">Transacciones en la app</div>
           </div>
           <div class="stat-card color-4">
             <span class="stat-icon-lg">⭐</span>
             <div class="stat-label">Alertas Moderación</div>
-            <div class="stat-value" id="statResenas">02</div>
+            <div class="stat-value" id="statResenas">--</div>
             <div class="stat-trend down" style="color: orange">
-              Acción requerida
+              Reseñas cargadas
             </div>
           </div>
         </div>
@@ -187,7 +192,7 @@
                       <th>Usuario</th>
                       <th>Calificación</th>
                       <th>Comentario</th>
-                      <th>Estado</th>
+                      <th>Producto</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -203,49 +208,55 @@
               <h3 class="card-title" style="margin-bottom: 16px">
                 Top Productores 🏆
               </h3>
-              <ul style="list-style: none">
+              <ul style="list-style: none" id="ulTopProducers">
                 <li
                   style="
                     display: flex;
                     justify-content: space-between;
                     padding: 8px 0;
                     border-bottom: 1px solid var(--border-light);
+                    color: var(--text-muted);
                   "
                 >
-                  <span>Luis Palacios</span>
-                  <span style="font-weight: 600; color: var(--primary)"
-                    >$1.2M</span
-                  >
-                </li>
-                <li
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    padding: 8px 0;
-                    border-bottom: 1px solid var(--border-light);
-                  "
-                >
-                  <span>Ana Córdoba</span>
-                  <span style="font-weight: 600; color: var(--primary)"
-                    >$980K</span
-                  >
+                  Cargando top productores...
                 </li>
               </ul>
             </div>
 
             <div class="card-table" style="padding: 24px">
               <h3 class="card-title" style="margin-bottom: 16px">
-                Ingresos 6 Meses
+                Ingresos Semestrales
               </h3>
               <div class="chart-container" style="height: 120px">
-                <div class="chart-bar" style="height: 30%"></div>
-                <div class="chart-bar" style="height: 45%"></div>
-                <div class="chart-bar" style="height: 60%"></div>
-                <div class="chart-bar" style="height: 80%"></div>
-                <div class="chart-bar" style="height: 95%"></div>
                 <div
                   class="chart-bar"
-                  style="height: 70%; background: var(--primary-light)"
+                  style="height: 35%"
+                  data-label="Ene"
+                ></div>
+                <div
+                  class="chart-bar"
+                  style="height: 50%"
+                  data-label="Feb"
+                ></div>
+                <div
+                  class="chart-bar"
+                  style="height: 65%"
+                  data-label="Mar"
+                ></div>
+                <div
+                  class="chart-bar"
+                  style="height: 75%"
+                  data-label="Abr"
+                ></div>
+                <div
+                  class="chart-bar"
+                  style="height: 90%"
+                  data-label="May"
+                ></div>
+                <div
+                  class="chart-bar"
+                  style="height: 98%; background: var(--primary-light)"
+                  data-label="Jun"
                 ></div>
               </div>
             </div>
@@ -254,6 +265,7 @@
       </main>
     </div>
 
+    <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/admin.js"></script>
   </body>
 </html>

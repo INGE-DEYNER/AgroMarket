@@ -1,0 +1,48 @@
+/* Styles for verificar-correo */
+.container {
+  max-width: 620px;
+  margin: 48px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  text-align: center;
+}
+#code-inputs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 16px 0;
+}
+.digit {
+  width: 48px;
+  height: 56px;
+  font-size: 28px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+#timer {
+  margin-top: 8px;
+  color: #666;
+}
+#resend {
+  margin-top: 12px;
+  background: #fff;
+  border: 1px solid #2d6a4f;
+  color: #2d6a4f;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+#status {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 6px;
+}
+#status.success {
+  background: #e6f4ea;
+  color: #165a37;
+}
+#status.error {
+  background: #fdecea;
+  color: #7a1f1f;
+}
