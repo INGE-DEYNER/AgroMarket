@@ -28,6 +28,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
+    public UsuarioResponse getPerfil(Long id) {
+        return getById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<UsuarioResponse> getAll() {
         return usuarioMapper.toResponseList(usuarioJpaRepository.findAll());
     }
@@ -36,9 +42,15 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public UsuarioResponse actualizar(Long id, ActualizarUsuarioRequest request) {
         UsuarioEntity usuario = findUsuario(id);
-        usuario.setNombre(request.getNombre());
-        usuario.setTelefono(request.getTelefono());
+        usuario.setNombre(request.getNombre().trim());
+        usuario.setTelefono(request.getTelefono().trim());
         return usuarioMapper.toResponse(usuarioJpaRepository.save(usuario));
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponse actualizarPerfil(Long id, ActualizarUsuarioRequest request) {
+        return actualizar(id, request);
     }
 
     @Override

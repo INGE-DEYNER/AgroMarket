@@ -40,6 +40,9 @@ public class PasswordResetTokenEntity {
     @Column(nullable = false)
     private LocalDateTime expiry;
 
+    @Column(nullable = false)
+    private Boolean usado = false;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

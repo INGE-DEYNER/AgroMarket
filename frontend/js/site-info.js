@@ -8,7 +8,12 @@ async function loadSiteInfo() {
       (await fetch("/api/public/site-info").then((r) =>
         r.ok ? r.json() : null,
       ));
-    if (!info) return;
+    if (!info) {
+      window.__siteInfo = {};
+      return;
+    }
+    window.__siteInfo = info;
+    window.getSite = (key) => window.__siteInfo?.[key] || null;
     document.querySelectorAll("[data-site]").forEach((el) => {
       const key = el.getAttribute("data-site");
       if (key && info[key]) {
@@ -17,9 +22,12 @@ async function loadSiteInfo() {
       }
     });
   } catch (e) {
-    // silent fallback
+    window.__siteInfo = {};
+    window.getSite = () => null;
     console.debug("site-info load failed", e);
   }
 }
 
 document.addEventListener("DOMContentLoaded", loadSiteInfo);
+
+export default { loadSiteInfo };

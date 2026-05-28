@@ -1,6 +1,6 @@
 import api from "./api.js";
 import Auth from "./auth.js";
-import { mostrarError, mostrarSpinner } from "./ui.js";
+import { escapeHtml, mostrarError, mostrarSpinner } from "./ui.js";
 
 Auth.requireRole(["comprador", "productor", "admin"]);
 
@@ -41,7 +41,9 @@ function renderResenas() {
     return;
   }
 
-  const selectedProductText = document.getElementById("rProducto")?.selectedOptions?.[0]?.textContent || "Producto";
+  const selectedProductText =
+    document.getElementById("rProducto")?.selectedOptions?.[0]?.textContent ||
+    "Producto";
 
   list.innerHTML = state.resenas
     .map((resena) => {
@@ -53,13 +55,13 @@ function renderResenas() {
         <div class="review-header">
           <div class="avatar ${avatarColor(resena.compradorNombre)}">${initials(resena.compradorNombre)}</div>
           <div class="review-meta">
-            <div class="review-user">${resena.compradorNombre || "Comprador de AgroMarket"}</div>
+            <div class="review-user">${escapeHtml(resena.compradorNombre || "Comprador de AgroMarket")}</div>
             <div class="review-time">${new Date(resena.fecha || Date.now()).toLocaleDateString("es-CO")}</div>
           </div>
-          <div class="review-product-badge">${selectedProductText}</div>
+          <div class="review-product-badge">${escapeHtml(selectedProductText)}</div>
         </div>
         <div class="review-stars" style="color:var(--gold);font-size:1.1rem;margin:8px 0;">${stars}</div>
-        <div class="review-comment">"${resena.comentario}"</div>
+        <div class="review-comment">"${escapeHtml(resena.comentario)}"</div>
       </div>`;
     })
     .join("");
@@ -95,12 +97,12 @@ function updateStarDisplay() {
 
 function openModal() {
   state.currentRating = 0;
-  
+
   const commentEl = document.getElementById("rComentario");
   if (commentEl) commentEl.value = "";
-  
+
   updateStarDisplay();
-  
+
   ["rProductoErr", "rRatingErr", "rComentErr"].forEach((id) =>
     document.getElementById(id)?.classList.remove("visible"),
   );
@@ -143,7 +145,7 @@ async function publicarResena() {
       comentario,
     });
     closeModal();
-    
+
     // Recargar reseñas del producto actual
     state.resenas = await api.getResenas(productoId);
     renderResenas();
@@ -166,7 +168,7 @@ async function cargarProductoYResenas() {
         state.productos
           .map(
             (producto) =>
-              `<option value="${producto.id}">${producto.nombre}</option>`,
+              `<option value="${producto.id}">${escapeHtml(producto.nombre)}</option>`,
           )
           .join("");
     }
@@ -194,22 +196,23 @@ document.addEventListener("DOMContentLoaded", () => {
         renderResenas();
         return;
       }
-      
+
       const list = document.getElementById("reviewsList");
       if (list) mostrarSpinner(list, "Cargando opiniones...");
-      
+
       try {
         state.resenas = await api.getResenas(productoId);
         renderResenas();
       } catch (error) {
-        if (list) mostrarError(list, error?.message || "Error al cargar las reseñas de este producto.");
+        if (list)
+          mostrarError(
+            list,
+            error?.message || "Error al cargar las reseñas de este producto.",
+          );
       }
     });
-
-  cargarProductoYResenas();
 });
 
-window.openModal = openModal;
 window.closeModal = closeModal;
 window.publicarResena = publicarResena;
 window.hoverStar = hoverStar;

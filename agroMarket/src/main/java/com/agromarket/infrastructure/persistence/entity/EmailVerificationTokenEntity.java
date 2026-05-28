@@ -40,6 +40,9 @@ public class EmailVerificationTokenEntity {
     @Column(nullable = false)
     private LocalDateTime expiry;
 
+    @Column(nullable = false)
+    private Boolean verificado = false;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

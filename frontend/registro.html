@@ -148,6 +148,77 @@
                 placeholder="••••••••"
                 minlength="8"
               />
+              <div
+                id="passwordStrengthWrap"
+                style="
+                  margin-top: 10px;
+                  padding: 12px;
+                  border-radius: 12px;
+                  border: 1px solid rgba(45, 106, 45, 0.1);
+                  background: #fff;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                  "
+                >
+                  <span
+                    style="
+                      font-size: 0.72rem;
+                      font-weight: 700;
+                      text-transform: uppercase;
+                      letter-spacing: 0.07em;
+                      color: #6b6b6b;
+                    "
+                    >Fortaleza</span
+                  >
+                  <span
+                    id="passwordStrengthLabel"
+                    style="font-size: 0.82rem; font-weight: 700; color: #dc2626"
+                    >Débil</span
+                  >
+                </div>
+                <div
+                  style="
+                    height: 8px;
+                    background: #e8ede8;
+                    border-radius: 999px;
+                    overflow: hidden;
+                    margin-top: 10px;
+                  "
+                >
+                  <div
+                    id="passwordStrengthBar"
+                    style="
+                      width: 0%;
+                      height: 100%;
+                      background: #dc2626;
+                      border-radius: 999px;
+                      transition:
+                        width 0.2s ease,
+                        background 0.2s ease;
+                    "
+                  ></div>
+                </div>
+                <div
+                  style="
+                    display: grid;
+                    gap: 6px;
+                    margin-top: 10px;
+                    font-size: 0.78rem;
+                    color: #4e6b54;
+                  "
+                >
+                  <div id="reqLength">• Mínimo 8 caracteres</div>
+                  <div id="reqUpper">• Una mayúscula</div>
+                  <div id="reqNumber">• Un número</div>
+                  <div id="reqSpecial">• Un carácter especial</div>
+                </div>
+              </div>
               <span class="form-error" id="passwordError"
                 >Debe tener 8 caracteres, una mayúscula, un número y un carácter
                 especial.</span
@@ -191,7 +262,7 @@
 
           <div class="success-msg" id="successMsg">
             <span>✔</span>
-            <span>Cuenta creada. Redirigiendo al inicio de sesión...</span>
+            <span>Cuenta creada. Redirigiendo a la verificación...</span>
           </div>
         </form>
 
@@ -211,7 +282,10 @@
         />
         <div class="right-overlay">
           <div class="right-badge">🌿 Plataforma oficial</div>
-          <h2 class="right-title">Del campo de Urabá<br />a tu hogar.</h2>
+          <h2 class="right-title">
+            Del campo de <span data-site="siteRegion">Urabá</span><br />a tu
+            hogar.
+          </h2>
           <p class="right-sub">
             Garantizamos trazabilidad total y precios justos para quienes
             cultivan la tierra y quienes disfrutan sus frutos.
@@ -235,8 +309,8 @@
               <span class="feat-icon">🚚</span>
               <span class="feat-text"
                 ><strong style="color: #fff">Envíos seguros</strong
-                ><br />Seguimiento en tiempo real desde Urabá hasta tu
-                puerta.</span
+                ><br />Seguimiento en tiempo real desde
+                <span data-site="siteRegion">Urabá</span> hasta tu puerta.</span
               >
             </div>
           </div>
@@ -246,7 +320,7 @@
     </div>
     <!-- /wrapper -->
 
+    <script type="module" src="js/site-info.js"></script>
     <script type="module" src="js/registro.js"></script>
-    <script src="js/site-info.js"></script>
   </body>
 </html>

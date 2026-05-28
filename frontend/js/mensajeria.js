@@ -1,5 +1,6 @@
 import api from "./api.js";
 import Auth from "./auth.js";
+import { escapeHtml } from "./ui.js";
 
 Auth.requireRole(["comprador", "productor", "admin"]);
 
@@ -44,10 +45,10 @@ function renderContacts() {
     .map(
       (contacto, index) => `
     <div class="chat-contact-item ${state.activeContact?.usuarioId === contacto.usuarioId ? "active" : ""}" onclick="openContact(${contacto.usuarioId})">
-      <div class="avatar ${avatarColor(index)}">${initials(contacto.nombre)}</div>
+      <div class="avatar ${avatarColor(index)}">${escapeHtml(initials(contacto.nombre))}</div>
       <div class="chat-contact-info">
-        <div class="contact-name">${contacto.nombre}</div>
-        <div class="contact-last">${contacto.ultimoMensaje || "Sin mensajes"}</div>
+        <div class="contact-name">${escapeHtml(contacto.nombre)}</div>
+        <div class="contact-last">${escapeHtml(contacto.ultimoMensaje || "Sin mensajes")}</div>
       </div>
       ${contacto.noLeidos ? `<span class="badge badge-green">${contacto.noLeidos}</span>` : ""}
     </div>`,
@@ -76,7 +77,7 @@ function renderMessages() {
     .map(
       (mensaje) => `
     <div class="msg ${Number(mensaje.remitenteId) === Number(currentUserId) ? "out" : "in"}">
-      <div class="msg-bubble">${mensaje.contenido}</div>
+      <div class="msg-bubble">${escapeHtml(mensaje.contenido)}</div>
       <div class="msg-time">${new Date(mensaje.fechaEnvio).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</div>
     </div>`,
     )
@@ -90,14 +91,16 @@ async function openContact(userId) {
   );
   if (!state.activeContact) return;
 
-  const idx = state.contactos.findIndex((contacto) => String(contacto.usuarioId) === String(userId));
-  
+  const idx = state.contactos.findIndex(
+    (contacto) => String(contacto.usuarioId) === String(userId),
+  );
+
   const avatarEl = document.getElementById("chatAvatar");
   if (avatarEl) {
     avatarEl.className = `avatar ${avatarColor(idx >= 0 ? idx : 0)}`;
     avatarEl.textContent = initials(state.activeContact.nombre);
   }
-  
+
   const nameEl = document.getElementById("chatName");
   if (nameEl) nameEl.textContent = state.activeContact.nombre;
 
@@ -130,7 +133,9 @@ async function sendMessage() {
   input.value = "";
   try {
     await api.enviarMensaje(state.activeContact.usuarioId, text);
-    state.conversation = await api.getConversacion(state.activeContact.usuarioId);
+    state.conversation = await api.getConversacion(
+      state.activeContact.usuarioId,
+    );
     state.contactos = await api.getContactos();
     renderContacts();
     renderMessages();
@@ -159,7 +164,7 @@ async function cargarMensajeria() {
     console.error("Error al cargar contactos: ", error);
     const box = document.getElementById("chatMessages");
     if (box) {
-      box.innerHTML = `<div class="empty-state" style="margin:auto;color:red;">Error al cargar mensajería. Inténtalo más tarde.</div>`;
+      box.innerHTML = `<div class="empty-state" style="margin:auto;color:red;">${escapeHtml("Error al cargar mensajería. Inténtalo más tarde.")}</div>`;
     }
   }
 }

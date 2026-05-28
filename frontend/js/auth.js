@@ -1,6 +1,13 @@
 import api from "./api.js";
 
-const SESSION_KEYS = ["token", "rol", "nombre", "userId", "correo"];
+const SESSION_KEYS = [
+  "token",
+  "rol",
+  "nombre",
+  "userId",
+  "correo",
+  "fotoPerfil",
+];
 
 function normalizarRol(rol) {
   const value = String(rol || "").toUpperCase();
@@ -21,7 +28,7 @@ function resolveDashboardRoute(rol) {
 }
 
 function clearSession() {
-  SESSION_KEYS.forEach((key) => localStorage.removeItem(key));
+  localStorage.clear();
 }
 
 function redirectToLogin() {
@@ -29,20 +36,30 @@ function redirectToLogin() {
 }
 
 function guardarSesion(authResponse) {
-  if (!authResponse) return;
+  const source =
+    authResponse?.data && typeof authResponse.data === "object"
+      ? authResponse.data
+      : authResponse;
+  if (!source) return;
+
   const rolNormalizado = normalizarRol(
-    authResponse.rol || authResponse.role || authResponse.tipo,
+    source.rol || source.role || source.tipo,
   );
-  localStorage.setItem("token", authResponse.token);
+  if (source.token) {
+    localStorage.setItem("token", source.token);
+  }
   localStorage.setItem("rol", rolNormalizado);
-  if (authResponse.nombre) {
-    localStorage.setItem("nombre", authResponse.nombre);
+  if (source.nombre) {
+    localStorage.setItem("nombre", source.nombre);
   }
-  if (authResponse.userId !== undefined && authResponse.userId !== null) {
-    localStorage.setItem("userId", String(authResponse.userId));
+  if (source.userId !== undefined && source.userId !== null) {
+    localStorage.setItem("userId", String(source.userId));
   }
-  if (authResponse.correo) {
-    localStorage.setItem("correo", authResponse.correo);
+  if (source.correo) {
+    localStorage.setItem("correo", source.correo);
+  }
+  if (source.fotoPerfil) {
+    localStorage.setItem("fotoPerfil", source.fotoPerfil);
   }
 }
 
@@ -58,12 +75,14 @@ function getUsuario() {
   const nombre = localStorage.getItem("nombre");
   const userId = localStorage.getItem("userId");
   const correo = localStorage.getItem("correo");
+  const fotoPerfil = localStorage.getItem("fotoPerfil");
 
   return {
     id: userId ? Number(userId) : null,
     nombre: nombre || "Usuario",
     correo: correo || "",
     rol: normalizarRol(rol),
+    fotoPerfil: fotoPerfil || "",
   };
 }
 
@@ -84,6 +103,31 @@ function logout() {
   cerrarSesion();
 }
 
+function getProfilePhoto() {
+  return localStorage.getItem("fotoPerfil") || "";
+}
+
+function getDisplayName() {
+  return getUsuario()?.nombre || "Usuario";
+}
+
+function getInitials(nombre = "") {
+  return String(nombre)
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function hasRole(rolesPermitidos = []) {
+  const usuario = getUsuario();
+  if (!usuario) return false;
+  if (!rolesPermitidos.length) return true;
+  return rolesPermitidos.map(normalizarRol).includes(usuario.rol);
+}
+
 function requireRole(rolesPermitidos = []) {
   const usuario = getUsuario();
   if (!usuario) {
@@ -91,7 +135,7 @@ function requireRole(rolesPermitidos = []) {
     return null;
   }
 
-  if (rolesPermitidos.length > 0 && !rolesPermitidos.includes(usuario.rol)) {
+  if (rolesPermitidos.length > 0 && !hasRole(rolesPermitidos)) {
     redirectToLogin();
     return null;
   }
@@ -116,6 +160,8 @@ async function loadPerfil({ force = false } = {}) {
         nombre: perfil.nombre || stored?.nombre,
         userId: perfil.id || perfil.userId || stored?.id || "",
         correo: perfil.correo || stored?.correo || "",
+        fotoPerfil:
+          perfil.fotoPerfil || perfil.avatarUrl || stored?.fotoPerfil || "",
       });
     }
     return getUsuario();
@@ -154,6 +200,10 @@ const Auth = {
   resolveDashboardRoute,
   clearSession,
   loadPerfil,
+  getProfilePhoto,
+  getDisplayName,
+  getInitials,
+  hasRole,
 };
 
 window.Auth = Auth;
@@ -173,6 +223,10 @@ export {
   resolveDashboardRoute,
   clearSession,
   loadPerfil,
+  getProfilePhoto,
+  getDisplayName,
+  getInitials,
+  hasRole,
 };
 
 export default Auth;

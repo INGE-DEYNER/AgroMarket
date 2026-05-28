@@ -1,5 +1,6 @@
 import api from "./api.js";
 import {
+  escapeHtml,
   formatearPrecio,
   mostrarError,
   mostrarExito,
@@ -30,10 +31,10 @@ function renderGrid(list) {
     <div class="product-card">
       ${producto.enPromocion ? '<span class="badge-promo">OFERTA</span>' : ""}
       <div class="product-img-container">
-        <img src="${producto.imagenUrl || "https://placehold.co/400x300/e8f5e9/1a5c2a?text=Fruta"}" alt="${producto.nombre}" onerror="this.src='https://placehold.co/400x300/e8f5e9/1a5c2a?text=Fruta'">
+        <img src="${producto.imagenUrl || "https://placehold.co/400x300/e8f5e9/1a5c2a?text=Fruta"}" alt="${escapeHtml(producto.nombre)}" onerror="this.src='https://placehold.co/400x300/e8f5e9/1a5c2a?text=Fruta'">
       </div>
       <div class="product-body">
-        <span class="product-name">${producto.nombre}</span>
+        <span class="product-name">${escapeHtml(producto.nombre)}</span>
         <div class="product-rating">★ ${Number(producto.calificacionPromedio || 0).toFixed(1)} <span class="rating-value">(${producto.totalResenas || 0})</span></div>
         <div class="product-price">${formatearPrecio(producto.precio)}<span>/kg</span></div>
         <button class="btn-add-cart" ${producto.cantidadDisponible <= 0 ? "disabled" : ""} onclick="addToCart(${producto.id})">
@@ -122,7 +123,7 @@ function renderCartItems() {
       <div style="text-align:center; padding: 60px 20px; color: var(--text-dim);">
         <div style="font-size: 48px; margin-bottom: 16px;">🛒</div>
         <div style="font-weight: 600; font-size: 16px; color: var(--text-muted); margin-bottom: 8px;">Tu carrito está vacío</div>
-        <div style="font-size: 13px; margin-bottom: 24px;">Explora el catálogo y agrega productos frescos de Urabá</div>
+        <div style="font-size: 13px; margin-bottom: 24px;">Explora el catálogo y agrega productos frescos de <span>${escapeHtml((window.getSite && window.getSite("siteRegion")) || "tu región")}</span></div>
         <button class="btn btn-primary" onclick="toggleCart()" style="padding: 10px 20px;">Ver catálogo →</button>
       </div>`;
     if (footer) footer.style.display = "none";
@@ -136,7 +137,7 @@ function renderCartItems() {
     <div class="cart-item">
       <img src="${item.img}" class="cart-item-img" onerror="this.src='https://placehold.co/100x100/e8f5e9/1a5c2a?text=Fruta'">
       <div class="cart-item-info">
-        <div class="cart-item-name">${item.nombre}</div>
+        <div class="cart-item-name">${escapeHtml(item.nombre)}</div>
         <div class="cart-item-meta">${item.cantidad} kg · ${formatearPrecio(item.precio)}/kg</div>
         <div class="cart-item-controls">
           <button class="control-btn" onclick="updateCartQty(${item.id}, -1)">−</button>

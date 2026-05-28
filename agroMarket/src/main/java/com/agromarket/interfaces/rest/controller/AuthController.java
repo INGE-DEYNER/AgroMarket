@@ -3,7 +3,10 @@ package com.agromarket.interfaces.rest.controller;
 import com.agromarket.application.dto.ApiResponse;
 import com.agromarket.application.dto.AuthResponse;
 import com.agromarket.application.dto.LoginRequest;
+import com.agromarket.application.dto.PasswordResetConfirmRequest;
+import com.agromarket.application.dto.PasswordResetRequest;
 import com.agromarket.application.dto.RegistroRequest;
+import com.agromarket.application.dto.VerificarCorreoRequest;
 import com.agromarket.application.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -26,6 +29,14 @@ public class AuthController {
     private final com.agromarket.application.service.EmailVerificationService emailVerificationService;
     private final com.agromarket.application.service.RateLimiterService rateLimiterService;
 
+    private ResponseEntity<ApiResponse<Void>> ok(String message) {
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message(message)
+                .data(null)
+                .build());
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
@@ -38,15 +49,11 @@ public class AuthController {
     @PostMapping("/registro")
     public ResponseEntity<ApiResponse<Void>> registro(@Valid @RequestBody RegistroRequest request) {
         authService.registro(request);
-        return ResponseEntity.ok(ApiResponse.<Void>builder()
-                .success(true)
-                .message("Registro exitoso. Revisa tu correo para verificar la cuenta.")
-                .data(null)
-                .build());
+        return ok("Registro exitoso. Revisa tu correo para verificar la cuenta.");
     }
 
     @PostMapping("/enviar-verificacion")
-    public ResponseEntity<ApiResponse<Void>> enviarVerificacion(@Valid @RequestBody com.agromarket.application.dto.PasswordResetRequest request) {
+    public ResponseEntity<ApiResponse<Void>> enviarVerificacion(@Valid @RequestBody PasswordResetRequest request) {
         String key = "email-verification:" + request.getCorreo().toLowerCase();
         boolean allowed = rateLimiterService.tryAcquire(key);
         if (allowed) {
@@ -54,35 +61,42 @@ public class AuthController {
             emailVerificationService.sendVerificationEmail(request.getCorreo());
         }
         // Always return generic success to avoid revealing whether the email exists
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Si la cuenta existe, recibirás un correo de verificación").data(null).build());
+        return ok("Si la cuenta existe, recibirás un correo de verificación");
+    }
+
+    @PostMapping("/reenviar-verificacion")
+    public ResponseEntity<ApiResponse<Void>> reenviarVerificacion(@Valid @RequestBody PasswordResetRequest request) {
+        return enviarVerificacion(request);
+    }
+
+    @PostMapping("/verificar-correo")
+    public ResponseEntity<ApiResponse<Void>> verificarCorreo(@Valid @RequestBody VerificarCorreoRequest request) {
+        emailVerificationService.verifyCode(request.getCorreo(), request.getCodigo());
+        return ok("Correo verificado");
     }
 
     @PostMapping("/verificar")
-    public ResponseEntity<ApiResponse<Void>> verificar(@Valid @RequestBody com.agromarket.application.dto.PasswordResetConfirmRequest request) {
+    public ResponseEntity<ApiResponse<Void>> verificar(@Valid @RequestBody PasswordResetConfirmRequest request) {
         // reuse PasswordResetConfirmRequest.token field for verification
         emailVerificationService.verifyToken(request.getToken());
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Correo verificado").data(null).build());
+        return ok("Correo verificado");
     }
 
     @PostMapping("/recuperar-contrasena")
-    public ResponseEntity<ApiResponse<Void>> recuperarContrasena(@Valid @RequestBody com.agromarket.application.dto.PasswordResetRequest request) {
+    public ResponseEntity<ApiResponse<Void>> recuperarContrasena(@Valid @RequestBody PasswordResetRequest request) {
         passwordResetService.requestPasswordReset(request.getCorreo());
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Correo de recuperación enviado").data(null).build());
+        return ok("Correo de recuperación enviado");
     }
 
     @PostMapping("/restablecer-contrasena")
-    public ResponseEntity<ApiResponse<Void>> restablecerContrasena(@Valid @RequestBody com.agromarket.application.dto.PasswordResetConfirmRequest request) {
+    public ResponseEntity<ApiResponse<Void>> restablecerContrasena(@Valid @RequestBody PasswordResetConfirmRequest request) {
         passwordResetService.resetPassword(request.getToken(), request.getNuevaContrasena());
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Contraseña restablecida").data(null).build());
+        return ok("Contraseña restablecida");
     }
 
     @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> logout() {
-        return ResponseEntity.ok(ApiResponse.<Void>builder()
-                .success(true)
-                .message("Sesión cerrada en el cliente")
-                .data(null)
-                .build());
+        return ok("Sesión cerrada en el cliente");
     }
 }

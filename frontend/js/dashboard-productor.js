@@ -2,6 +2,7 @@ import api from "./api.js";
 import Auth from "./auth.js";
 import {
   badgeEstado,
+  escapeHtml,
   formatearPrecio,
   mostrarError,
   mostrarExito,
@@ -61,7 +62,7 @@ function tipoDesdeEnum(tipo) {
     LIMON: "Limón",
     OTRO: "Otro",
   };
-  return mapa[value] || value;
+  return mapa[value] || "Otro";
 }
 
 function renderMisProductos() {
@@ -80,8 +81,8 @@ function renderMisProductos() {
     <tr>
       <td data-label="Producto">
         <div style="display:flex; align-items:center; gap:10px;">
-          <img src="${producto.imagenUrl || "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=80"}" alt="${producto.nombre}" style="width:32px; height:32px; border-radius:6px; object-fit:cover;">
-          <strong>${producto.nombre}</strong>
+          <img src="${producto.imagenUrl || "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=80"}" alt="${escapeHtml(producto.nombre)}" style="width:32px; height:32px; border-radius:6px; object-fit:cover;">
+          <strong>${escapeHtml(producto.nombre)}</strong>
         </div>
       </td>
       <td data-label="Tipo">${tipoDesdeEnum(producto.tipoFruta)}</td>
@@ -113,7 +114,7 @@ function renderRecentVentas() {
       (pedido) => `
     <tr>
       <td data-label="Pedido" style="color:var(--text-dim); font-weight:600;">#${pedido.id}</td>
-      <td data-label="Comprador">${pedido.compradorNombre || "Cliente"}</td>
+      <td data-label="Comprador">${escapeHtml(pedido.compradorNombre || "Cliente")}</td>
       <td data-label="Total" style="font-weight:600;">${formatearPrecio(pedido.total)}</td>
       <td data-label="Estado">${badgeEstado(pedido.estado)}</td>
     </tr>`,
@@ -153,8 +154,8 @@ function renderPedidosRec() {
 
       return `<tr>
       <td data-label="ID">#${pedido.id}</td>
-      <td data-label="Producto">${pedido.productoNombre}</td>
-      <td data-label="Comprador">${pedido.compradorNombre}</td>
+      <td data-label="Producto">${escapeHtml(pedido.productoNombre || "Producto no disponible")}</td>
+      <td data-label="Comprador">${escapeHtml(pedido.compradorNombre || "Cliente")}</td>
       <td data-label="Cant.">${pedido.cantidad} kg</td>
       <td data-label="Total" style="font-weight:600;">${formatearPrecio(pedido.total)}</td>
       <td data-label="Estado">${badgeEstado(pedido.estado)}</td>
@@ -204,7 +205,7 @@ function renderChart() {
       const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
       const col = colors[idx % colors.length];
       return `
-      <div class="chart-bar" style="height: ${Math.max(pct, 15)}%; background: ${col};" data-label="${name.split(" ")[0]}">
+      <div class="chart-bar" style="height: ${Math.max(pct, 15)}%; background: ${col};" data-label="${escapeHtml(name.split(" ")[0] || "")}">
         <span style="position:absolute;top:-20px;font-size:0.7rem;font-weight:700;color:var(--text);">${formatearPrecio(val)}</span>
       </div>`;
     })
@@ -226,10 +227,10 @@ function renderPerfil() {
       .toString()
       .replace(/^(.)/, (s) => s.toUpperCase());
   if (welcomeText) {
-    welcomeText.textContent = `¡Excelente día, ${user.nombre.split(" ")[0]}! 👨‍🌾`;
+    welcomeText.textContent = `¡Excelente día, ${(user.nombre || "Usuario").split(" ")[0]}! 👨‍🌾`;
   }
   if (sidebarAvatar) {
-    sidebarAvatar.textContent = user.nombre
+    sidebarAvatar.textContent = (user.nombre || "U")
       .split(" ")
       .filter(Boolean)
       .map((w) => w[0])
@@ -287,6 +288,11 @@ async function guardarProducto() {
   const precio = Number(document.getElementById("pPrecio").value);
   const stock = Number(document.getElementById("pStock").value);
   const tipo = document.getElementById("pTipo").value;
+  const productoExistente = state.editingId
+    ? state.productos.find(
+        (item) => String(item.id) === String(state.editingId),
+      )
+    : null;
 
   if (!nombre || !precio || !stock) {
     alert("Por favor completa los campos obligatorios.");
@@ -298,7 +304,7 @@ async function guardarProducto() {
     descripcion: desc,
     precio,
     cantidadDisponible: stock,
-    imagenUrl: producto?.imagenUrl || "",
+    imagenUrl: productoExistente?.imagenUrl || "",
     tipoFruta: normalizarTipoFruta(tipo),
     enPromocion: false,
   };

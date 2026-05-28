@@ -39,6 +39,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
                 .token(token)
                 .usuario(usuario)
                 .expiry(LocalDateTime.now().plusHours(1))
+                .usado(false)
                 .build();
             tokenRepository.save(entity);
 
@@ -53,13 +54,16 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     public void resetPassword(String token, String nuevaContrasena) {
         PasswordResetTokenEntity entity = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new CredencialesInvalidasException("Token inválido o expirado"));
+        if (entity.getUsado() != null && entity.getUsado()) {
+            throw new CredencialesInvalidasException("Token inválido o expirado");
+        }
         if (entity.getExpiry().isBefore(LocalDateTime.now())) {
-            tokenRepository.delete(entity);
             throw new CredencialesInvalidasException("Token inválido o expirado");
         }
         UsuarioEntity usuario = entity.getUsuario();
         usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
         usuarioJpaRepository.save(usuario);
-        tokenRepository.delete(entity);
+        entity.setUsado(true);
+        tokenRepository.save(entity);
     }
 }

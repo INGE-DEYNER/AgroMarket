@@ -1,6 +1,162 @@
 <!doctype html>
 <html lang="es">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restablecer contraseña — AgroMarket</title>
+    <meta
+      name="description"
+      content="Crea una nueva contraseña segura para tu cuenta de AgroMarket."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/restablecer-contrasena.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="left-panel">
+        <a href="login.html" class="brand">
+          <div class="brand-logo">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">AgroMarket</div>
+            <div class="brand-sub">Plataforma de comercio agrícola</div>
+          </div>
+        </a>
+
+        <div style="margin: auto 0; max-width: 420px; width: 100%">
+          <h1 class="page-title">Define tu nueva contraseña</h1>
+          <p class="page-sub">
+            El enlace de recuperación debe venir en la URL. Completa ambos
+            campos para continuar.
+          </p>
+
+          <div
+            id="result"
+            class="result-box"
+            role="status"
+            aria-live="polite"
+          ></div>
+
+          <form id="resetForm" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="password">Nueva contraseña</label>
+              <input
+                class="form-input"
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                autocomplete="new-password"
+              />
+              <div class="strength-card">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                  "
+                >
+                  <span class="form-label" style="margin: 0">Fortaleza</span>
+                  <span
+                    id="strengthLabel"
+                    style="font-weight: 700; color: #dc2626"
+                    >Débil</span
+                  >
+                </div>
+                <div class="strength-bar-track">
+                  <div id="strengthBar" class="strength-bar"></div>
+                </div>
+                <div class="strength-requirements">
+                  <div id="reqLength">• Mínimo 8 caracteres</div>
+                  <div id="reqUpper">• Una mayúscula</div>
+                  <div id="reqNumber">• Un número</div>
+                  <div id="reqSpecial">• Un carácter especial</div>
+                </div>
+              </div>
+              <span class="form-error" id="passwordError"
+                >Debe tener 8 caracteres, una mayúscula, un número y un carácter
+                especial.</span
+              >
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="confirm"
+                >Confirmar contraseña</label
+              >
+              <input
+                class="form-input"
+                id="confirm"
+                type="password"
+                placeholder="••••••••"
+                autocomplete="new-password"
+              />
+              <span class="form-error" id="confirmError"
+                >Las contraseñas no coinciden.</span
+              >
+            </div>
+
+            <button class="btn-submit" id="submitBtn" type="submit">
+              Restablecer contraseña
+            </button>
+          </form>
+
+          <div class="divider"></div>
+
+          <div class="form-footer">
+            ¿No era tu cuenta? <a href="login.html">Volver a iniciar sesión</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <img
+          src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200"
+          alt="Campo agrícola"
+          class="bg-img"
+        />
+        <div class="right-overlay">
+          <div class="right-badge">🔐 Seguridad AgroMarket</div>
+          <h2 class="right-title">Protege tu acceso con una clave fuerte.</h2>
+          <p class="right-sub">
+            Tu nueva contraseña debe cumplir con los requisitos de seguridad
+            antes de guardarse.
+          </p>
+
+          <div class="hero-note">
+            <div class="hero-note-item">
+              <strong>Mayúscula, número y especial</strong><br />La validación
+              se actualiza en tiempo real.
+            </div>
+            <div class="hero-note-item">
+              <strong>Confirmación obligatoria</strong><br />Ambos campos deben
+              coincidir exactamente.
+            </div>
+            <div class="hero-note-item">
+              <strong>Redirección automática</strong><br />Cuando guardes el
+              cambio volverás al login.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/site-info.js"></script>
+    <script type="module" src="js/restablecer-contrasena.js"></script>
+  </body>
+</html>
+<!doctype html>
+<html lang="es">
+  <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Restablecer contraseña — AgroMarket</title>
@@ -22,6 +178,6 @@
     </main>
 
     <script type="module" src="js/restablecer.js"></script>
-    <script src="js/site-info.js"></script>
+    <script type="module" src="js/site-info.js"></script>
   </body>
 </html>

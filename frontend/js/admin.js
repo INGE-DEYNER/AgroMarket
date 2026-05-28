@@ -2,6 +2,7 @@ import api from "./api.js";
 import Auth from "./auth.js";
 import {
   formatearPrecio,
+  escapeHtml,
   mostrarError,
   mostrarExito,
   mostrarSpinner,
@@ -45,9 +46,9 @@ function renderUsuarios(list = state.usuarios) {
     .map(
       (usuario) => `
     <tr>
-      <td data-label="Nombre"><strong>${usuario.nombre}</strong></td>
-      <td data-label="Correo">${usuario.correo}</td>
-      <td data-label="Rol"><span class="badge-status ${String(usuario.rol).toLowerCase() === "productor" ? "status-shipped" : String(usuario.rol).toLowerCase() === "administrador" || String(usuario.rol).toLowerCase() === "admin" ? "status-delivered" : "status-pending"}">${String(usuario.rol).toLowerCase()}</span></td>
+      <td data-label="Nombre"><strong>${escapeHtml(usuario.nombre)}</strong></td>
+      <td data-label="Correo">${escapeHtml(usuario.correo)}</td>
+      <td data-label="Rol"><span class="badge-status ${String(usuario.rol).toLowerCase() === "productor" ? "status-shipped" : String(usuario.rol).toLowerCase() === "administrador" || String(usuario.rol).toLowerCase() === "admin" ? "status-delivered" : "status-pending"}">${escapeHtml(String(usuario.rol).toLowerCase())}</span></td>
       <td data-label="Estado">${usuario.activo ? "🟢 Activo" : "🟡 Inactivo"}</td>
       <td data-label="Acciones" class="actions-cell">
         <button class="btn btn-secondary btn-sm" onclick="toggleUsuario(${usuario.id}, ${usuario.activo})">${usuario.activo ? "Bloquear" : "Habilitar"}</button>
@@ -71,8 +72,8 @@ function renderProductos() {
     .map(
       (producto) => `
     <tr>
-      <td><strong>${producto.nombre}</strong></td>
-      <td>${producto.productorNombre || "-"}</td>
+      <td><strong>${escapeHtml(producto.nombre)}</strong></td>
+      <td>${escapeHtml(producto.productorNombre || "-")}</td>
       <td>${formatearPrecio(producto.precio)}</td>
       <td>${producto.cantidadDisponible} kg</td>
       <td class="actions-cell">
@@ -97,10 +98,10 @@ function renderResenas() {
     .map(
       (resena) => `
     <tr>
-      <td><strong>${resena.compradorNombre || "Comprador"}</strong></td>
+      <td><strong>${escapeHtml(resena.compradorNombre || "Comprador")}</strong></td>
       <td style="color:var(--gold);font-weight:bold;">${"★".repeat(Number(resena.calificacion || 0))}</td>
-      <td>"${resena.comentario}"</td>
-      <td><span style="font-size:0.8rem;color:var(--text-muted)">${resena.productoNombre || "Producto"}</span></td>
+      <td>"${escapeHtml(resena.comentario || "")}"</td>
+      <td><span style="font-size:0.8rem;color:var(--text-muted)">${escapeHtml(resena.productoNombre || "Producto")}</span></td>
       <td class="actions-cell">
         <button class="btn btn-danger btn-sm" onclick="eliminarResena(${resena.id})">Eliminar</button>
       </td>
@@ -131,7 +132,7 @@ function renderTopProducers() {
     .map((p) => {
       return `
       <li style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);">
-        <span>${p.nombre}</span>
+        <span>${escapeHtml(p.nombre)}</span>
         <span style="font-weight:600; color:var(--primary)">-</span>
       </li>`;
     })
@@ -329,10 +330,10 @@ function renderPerfil() {
     sidebarRole.textContent = displayRole;
   }
   if (welcomeText) {
-    welcomeText.textContent = `¡Hola, ${user.nombre.split(" ")[0]}! 👋`;
+    welcomeText.textContent = `¡Hola, ${(user.nombre || "Usuario").split(" ")[0]}! 👋`;
   }
   if (sidebarAvatar) {
-    sidebarAvatar.textContent = user.nombre
+    sidebarAvatar.textContent = (user.nombre || "U")
       .split(" ")
       .filter(Boolean)
       .map((w) => w[0])

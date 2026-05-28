@@ -1,5 +1,6 @@
 import api from "./api.js";
 import {
+  escapeHtml,
   formatearPrecio,
   mostrarError,
   mostrarEstadoVacio,
@@ -78,13 +79,13 @@ function renderFeaturedProducts(productos) {
         <div class="product-card animate-fade-up">
           <img
             src="${producto.imagenUrl || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500"}"
-            alt="${producto.nombre}"
+            alt="${escapeHtml(producto.nombre)}"
             class="product-img"
             onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'"
           />
           <div class="product-info">
-            <h3 class="product-name">${producto.nombre}</h3>
-            <div class="product-producer">${producto.productorNombre || "Productor verificado"}</div>
+            <h3 class="product-name">${escapeHtml(producto.nombre)}</h3>
+            <div class="product-producer">${escapeHtml(producto.productorNombre || "Productor verificado")}</div>
             <div class="product-price">${formatearPrecio(producto.precio)}/kg</div>
             <div class="product-meta">
               <div class="product-rating">★ ${rating} <span style="color: var(--text-muted); font-weight: normal">(${reviews})</span></div>

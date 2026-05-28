@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AgroMarket — Del campo de Urabá a tu mesa</title>
+    <title>AgroMarket — Del campo local a tu mesa</title>
     <meta
       name="description"
       content="AgroMarket: Conectamos productores agrícolas con compradores. Frutas frescas, precios justos, trazabilidad total."
@@ -43,9 +43,13 @@
     <section class="hero">
       <div class="hero-content">
         <div class="hero-left">
-          <div class="hero-badge animate-fade-up">🌿 AgroMarket · Urabá</div>
+          <div class="hero-badge animate-fade-up">
+            🌿 <span data-site="siteName">AgroMarket</span> ·
+            <span data-site="siteRegion">Urabá</span>
+          </div>
           <h1 class="hero-title animate-fade-up" style="transition-delay: 0.1s">
-            Del campo de <span>Urabá</span> directamente a tu mesa.
+            Del campo de <span data-site="siteRegion">Urabá</span> directamente
+            a tu mesa.
           </h1>
           <p class="hero-sub animate-fade-up" style="transition-delay: 0.2s">
             Conectamos productores agrícolas con compradores, eliminando
@@ -62,7 +66,8 @@
                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
                 />
               </svg>
-              Más de 50 productores activos en Urabá
+              Más de 50 productores activos en
+              <span data-site="siteRegion">Urabá</span>
             </div>
             <div class="hero-bullet">
               <svg viewBox="0 0 24 24">
@@ -325,7 +330,9 @@
             <div class="test-avatar">JC</div>
             <div>
               <div class="test-name">Cliente verificado</div>
-              <div class="test-role">Comprador · Urabá</div>
+              <div class="test-role">
+                Comprador · <span data-site="siteRegion">Urabá</span>
+              </div>
             </div>
           </div>
         </div>
@@ -485,6 +492,6 @@
         }
       })();
     </script>
-    <script src="js/site-info.js"></script>
+    <script type="module" src="js/site-info.js"></script>
   </body>
 </html>

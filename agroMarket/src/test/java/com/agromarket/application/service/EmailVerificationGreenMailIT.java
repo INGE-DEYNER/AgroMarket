@@ -74,14 +74,14 @@ public class EmailVerificationGreenMailIT {
         String content = (String) received[0].getContent();
         assertThat(content).contains("verificar-correo.html");
 
-        // extract token from content
-        String token = null;
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("token=([a-f0-9\\-]+)").matcher(content);
-        if (m.find()) token = m.group(1);
-        assertThat(token).isNotNull();
+        // extract verification code from content
+        String codigo = null;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("codigo=([0-9]{6})").matcher(content);
+        if (m.find()) codigo = m.group(1);
+        assertThat(codigo).isNotNull();
 
-        // verify token activates user
-        emailVerificationService.verifyToken(token);
+        // verify code activates user
+        emailVerificationService.verifyCode("verify-greenmail@example.com", codigo);
 
         CompradorEntity updated = (CompradorEntity) usuarioJpaRepository.findByCorreo("verify-greenmail@example.com").orElseThrow();
         assertThat(updated.isActivo()).isTrue();

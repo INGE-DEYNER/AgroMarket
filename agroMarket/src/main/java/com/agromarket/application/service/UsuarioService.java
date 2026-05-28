@@ -12,10 +12,16 @@ public interface UsuarioService {
     UsuarioResponse getById(Long id);
 
     @Transactional(readOnly = true)
+    UsuarioResponse getPerfil(Long id);
+
+    @Transactional(readOnly = true)
     List<UsuarioResponse> getAll();
 
     @Transactional
     UsuarioResponse actualizar(Long id, ActualizarUsuarioRequest request);
+
+    @Transactional
+    UsuarioResponse actualizarPerfil(Long id, ActualizarUsuarioRequest request);
 
     @Transactional
     void habilitar(Long id);

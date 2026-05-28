@@ -1,6 +1,11 @@
 import api from "./api.js";
 import Auth from "./auth.js";
-import { formatearFecha, mostrarError, mostrarSpinner } from "./ui.js";
+import {
+  escapeHtml,
+  formatearFecha,
+  mostrarError,
+  mostrarSpinner,
+} from "./ui.js";
 
 Auth.requireRole(["comprador", "productor", "admin"]);
 
@@ -45,7 +50,7 @@ function badgeEstadoEnvio(estado) {
         : value === "PREPARANDO"
           ? "badge-blue"
           : "badge-green";
-  return `<span class="badge ${clase}">${label}</span>`;
+  return `<span class="badge ${clase}">${escapeHtml(label)}</span>`;
 }
 
 function renderShipment(envio) {
@@ -64,7 +69,7 @@ function renderShipment(envio) {
       return `
       <div class="track-step">
         <div class="track-circle ${isDone ? "done" : isCurrent ? "current" : "pending"}">${isDone ? "✓" : index + 1}</div>
-        <div class="track-label">${label}</div>
+        <div class="track-label">${escapeHtml(label)}</div>
         <div class="track-line ${isDone ? "done" : ""}"></div>
       </div>`;
     })
@@ -74,16 +79,16 @@ function renderShipment(envio) {
     <div class="shipment-card">
       <div class="shipment-header">
         <div>
-          <div class="shipment-id">ENV-${envio.id} · Pedido #${envio.pedidoId} · Guía: ${envio.guia || "-"}</div>
-          <div class="shipment-route">${envio.origen} → ${envio.direccionDestino}</div>
+          <div class="shipment-id">ENV-${escapeHtml(envio.id)} · Pedido #${escapeHtml(envio.pedidoId)} · Guía: ${escapeHtml(envio.guia || "-")}</div>
+          <div class="shipment-route">${escapeHtml(envio.origen)} → ${escapeHtml(envio.direccionDestino)}</div>
           <div class="shipment-meta">
-            <span>🚛 <strong>${envio.transportista || "Por asignar"}</strong></span>
+            <span>🚛 <strong>${escapeHtml(envio.transportista || "Por asignar")}</strong></span>
           </div>
         </div>
         ${badgeEstadoEnvio(envio.estado)}
       </div>
       <div class="tracking-bar">${stepsHtml}</div>
-      <div class="last-update">📅 Entrega estimada: <strong>${formatearFecha(envio.fechaEstimadaEntrega)}</strong></div>
+      <div class="last-update">📅 Entrega estimada: <strong>${escapeHtml(formatearFecha(envio.fechaEstimadaEntrega))}</strong></div>
       <div class="shipment-actions">
         <a href="mensajeria.html" class="btn btn-secondary btn-sm">💬 Contactar</a>
         <a href="pedidos.html" class="btn btn-ghost btn-sm">🧾 Ver pedido</a>
@@ -116,10 +121,10 @@ function renderHistorial() {
     <tr>
       <td style="color:var(--text-muted);font-size:.82rem;">ENV-${envio.id}</td>
       <td>${envio.pedidoId}</td>
-      <td style="font-size:.82rem;">${envio.origen} → ${envio.direccionDestino}</td>
-      <td>${envio.transportista || "-"}</td>
+      <td style="font-size:.82rem;">${escapeHtml(envio.origen)} → ${escapeHtml(envio.direccionDestino)}</td>
+      <td>${escapeHtml(envio.transportista || "-")}</td>
       <td>${badgeEstadoEnvio(envio.estado)}</td>
-      <td style="color:var(--text-muted);font-size:.82rem;">${formatearFecha(envio.fechaEstimadaEntrega)}</td>
+      <td style="color:var(--text-muted);font-size:.82rem;">${escapeHtml(formatearFecha(envio.fechaEstimadaEntrega))}</td>
     </tr>`,
     )
     .join("");

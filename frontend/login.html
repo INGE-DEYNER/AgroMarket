@@ -76,8 +76,19 @@
 
           <div class="divider"></div>
 
-          <div class="form-footer">
-            ¿No tienes cuenta? <a href="registro.html">Regístrate gratis</a>
+          <div
+            class="form-footer"
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              align-items: center;
+            "
+          >
+            <a href="recuperar-contrasena.html">¿Olvidaste tu contraseña?</a>
+            <div>
+              ¿No tienes cuenta? <a href="registro.html">Regístrate gratis</a>
+            </div>
           </div>
         </div>
 
@@ -105,13 +116,14 @@
           <h2 class="right-title">Conectando el campo con tu mesa.</h2>
           <p class="right-sub">
             Accede a tu panel de control para gestionar tus productos, pedidos o
-            realizar compras frescas directo a los productores de Urabá.
+            realizar compras frescas directo a los productores de
+            <span data-site="siteRegion">Urabá</span>.
           </p>
         </div>
       </div>
     </div>
 
+    <script type="module" src="js/site-info.js"></script>
     <script type="module" src="js/login.js"></script>
-    <script src="js/site-info.js"></script>
   </body>
 </html>

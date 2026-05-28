@@ -6,5 +6,7 @@ public interface EmailVerificationService {
     void sendVerificationEmail(UsuarioEntity usuario);
     void sendVerificationEmail(String correo);
 
+    void verifyCode(String correo, String codigo);
+
     void verifyToken(String token);
 }
