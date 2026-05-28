@@ -320,7 +320,9 @@ function renderPerfil() {
 
   if (sidebarName) sidebarName.textContent = user.nombre;
   if (sidebarRole) {
-    const rolNormalized = Auth.normalizarRol(user.rol || user.role || user.tipo);
+    const rolNormalized = Auth.normalizarRol(
+      user.rol || user.role || user.tipo,
+    );
     const displayRole = rolNormalized
       ? rolNormalized.charAt(0).toUpperCase() + rolNormalized.slice(1)
       : "Usuario";
