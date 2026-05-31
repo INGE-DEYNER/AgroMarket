@@ -8,4 +8,8 @@ public interface AuthService {
     AuthResponse login(LoginRequest request);
 
     void registro(RegistroRequest request);
+
+    String iniciarGoogleOAuth2();
+
+    AuthResponse completarGoogleOAuth2(String email, String nombre, String googleSubject);
 }

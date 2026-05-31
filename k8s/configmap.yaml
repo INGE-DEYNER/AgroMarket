@@ -3,5 +3,4 @@ kind: ConfigMap
 metadata:
   name: agromarket-config
 data:
-  frontend_base_url: "https://example.com"
-
+  frontend_base_url: "http://agromarket.local"

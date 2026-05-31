@@ -15,4 +15,8 @@ public class JwtUserPrincipal {
     private Long userId;
     private String correo;
     private RolUsuario rol;
+
+    public Long getUserId() {
+        return this.userId;
+    }
 }

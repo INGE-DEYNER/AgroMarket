@@ -1,0 +1,46 @@
+{
+  "groups": [
+    {
+      "name": "app",
+      "type": "com.agromarket.config.properties.AppProperties",
+      "sourceType": "com.agromarket.config.properties.AppProperties"
+    },
+    {
+      "name": "jwt",
+      "type": "com.agromarket.config.properties.JwtProperties",
+      "sourceType": "com.agromarket.config.properties.JwtProperties"
+    },
+    {
+      "name": "agromarket.jwt",
+      "type": "com.agromarket.config.properties.AgroMarketJwtProperties",
+      "sourceType": "com.agromarket.config.properties.AgroMarketJwtProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "app.frontend-url",
+      "type": "java.lang.String",
+      "sourceType": "com.agromarket.config.properties.AppProperties"
+    },
+    {
+      "name": "app.uploads-path",
+      "type": "java.lang.String",
+      "sourceType": "com.agromarket.config.properties.AppProperties"
+    },
+    {
+      "name": "app.cors-allowed-origins",
+      "type": "java.lang.String[]",
+      "sourceType": "com.agromarket.config.properties.AppProperties"
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "sourceType": "com.agromarket.config.properties.JwtProperties"
+    },
+    {
+      "name": "agromarket.jwt.expiration-ms",
+      "type": "java.lang.Long",
+      "sourceType": "com.agromarket.config.properties.AgroMarketJwtProperties"
+    }
+  ]
+}

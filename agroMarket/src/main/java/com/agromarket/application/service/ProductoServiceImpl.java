@@ -1,10 +1,12 @@
 package com.agromarket.application.service;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.agromarket.application.dto.ActualizarProductoRequest;
 import com.agromarket.application.dto.CrearProductoRequest;
@@ -12,7 +14,6 @@ import com.agromarket.application.dto.PageResponse;
 import com.agromarket.application.dto.ProductoResponse;
 import com.agromarket.application.mapper.ProductoMapper;
 import com.agromarket.domain.exception.RecursoNoEncontradoException;
-import com.agromarket.domain.model.RolUsuario;
 import com.agromarket.domain.model.TipoFruta;
 import com.agromarket.domain.service.ProductoDomainService;
 import com.agromarket.infrastructure.persistence.entity.ProductoEntity;
@@ -22,6 +23,10 @@ import com.agromarket.infrastructure.persistence.repository.ProductoJpaRepositor
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.agromarket.infrastructure.security.InputSanitizerService;
+import com.github.benmanes.caffeine.cache.Cache;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,36 +36,49 @@ public class ProductoServiceImpl implements ProductoService {
     private final ProductoJpaRepository productoJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final ProductoMapper productoMapper;
+    private final InputSanitizerService inputSanitizerService;
     private final ProductoDomainService productoDomainService = new ProductoDomainService();
+    private final Cache<Long, Object> productoCache;
+    private final Cache<Long, Object> misProductosCache;
 
     @Override
     public PageResponse<ProductoResponse> getAll(int page, int size, String search, TipoFruta tipo, BigDecimal precioMin, BigDecimal precioMax) {
-        List<ProductoEntity> productos = productoJpaRepository.findAll();
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        Specification<ProductoEntity> spec = Specification.where((root, query, cb) -> cb.equal(root.get("activo"), true));
         if (search != null && !search.isBlank()) {
-            String keyword = search.toLowerCase();
-            productos = productos.stream()
-                    .filter(producto -> producto.getNombre() != null && producto.getNombre().toLowerCase().contains(keyword))
-                    .collect(Collectors.toList());
+            String keyword = "%" + search.toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("nombre")), keyword));
         }
         if (tipo != null) {
-            productos = productos.stream().filter(producto -> tipo.equals(producto.getTipoFruta())).collect(Collectors.toList());
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoFruta"), tipo));
         }
-        if (precioMin != null) {
-            productos = productos.stream().filter(producto -> producto.getPrecio() != null && producto.getPrecio().compareTo(precioMin) >= 0).collect(Collectors.toList());
+        if (precioMin != null && precioMax != null) {
+            spec = spec.and((root, query, cb) -> cb.between(root.get("precio"), precioMin, precioMax));
+        } else if (precioMin != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("precio"), precioMin));
+        } else if (precioMax != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("precio"), precioMax));
         }
-        if (precioMax != null) {
-            productos = productos.stream().filter(producto -> producto.getPrecio() != null && producto.getPrecio().compareTo(precioMax) <= 0).collect(Collectors.toList());
-        }
-        productos = productos.stream().sorted(Comparator.comparing(ProductoEntity::getFechaCreacion, Comparator.nullsLast(Comparator.reverseOrder()))).collect(Collectors.toList());
-        return paginate(productos.stream().filter(producto -> producto.isActivo()).collect(Collectors.toList()), page, size);
+
+        Page<ProductoEntity> pageResult = productoJpaRepository.findAll(spec, pageable);
+        List<ProductoResponse> content = pageResult.getContent().stream().map(productoMapper::toResponse).collect(Collectors.toList());
+        return PageResponse.<ProductoResponse>builder()
+                .content(content)
+                .page(pageResult.getNumber())
+                .size(pageResult.getSize())
+                .totalElements((int) pageResult.getTotalElements())
+                .totalPages(pageResult.getTotalPages())
+                .build();
     }
 
     @Override
     public ProductoResponse getById(Long id) {
-        return productoMapper.toResponse(findProducto(id));
+        ProductoEntity producto = (ProductoEntity) productoCache.get(id, k -> findProducto(id));
+        return productoMapper.toResponse(producto);
     }
 
     @Override
+    @Transactional
     public ProductoResponse crear(CrearProductoRequest request, Long productorId) {
         ProductorEntity productor = obtenerProductor(productorId);
         ProductoEntity producto = ProductoEntity.builder()
@@ -74,19 +92,27 @@ public class ProductoServiceImpl implements ProductoService {
                 .enPromocion(request.isEnPromocion())
                 .activo(true)
                 .build();
-        return productoMapper.toResponse(productoJpaRepository.save(producto));
+        // sanitize inputs
+        producto.setNombre(inputSanitizerService.sanitize(producto.getNombre()));
+        producto.setDescripcion(inputSanitizerService.sanitize(producto.getDescripcion()));
+        ProductoEntity saved = productoJpaRepository.save(producto);
+        // invalidate caches
+        misProductosCache.invalidateAll();
+        productoCache.invalidateAll();
+        return productoMapper.toResponse(saved);
     }
 
     @Override
+    @Transactional
     public ProductoResponse actualizar(Long id, ActualizarProductoRequest request, Long productorId) {
         ProductoEntity producto = findProducto(id);
         UsuarioEntity solicitante = findUsuario(productorId);
         productoDomainService.validarPropiedad(solicitante.getId(), solicitante.getRol(), producto.getProductor() != null ? producto.getProductor().getId() : null);
         if (request.getNombre() != null) {
-            producto.setNombre(request.getNombre());
+            producto.setNombre(inputSanitizerService.sanitize(request.getNombre()));
         }
         if (request.getDescripcion() != null) {
-            producto.setDescripcion(request.getDescripcion());
+            producto.setDescripcion(inputSanitizerService.sanitize(request.getDescripcion()));
         }
         if (request.getPrecio() != null) {
             producto.setPrecio(request.getPrecio());
@@ -106,21 +132,45 @@ public class ProductoServiceImpl implements ProductoService {
         if (request.getActivo() != null) {
             producto.setActivo(request.getActivo());
         }
-        return productoMapper.toResponse(productoJpaRepository.save(producto));
+        ProductoEntity saved = productoJpaRepository.save(producto);
+        // invalidate caches
+        productoCache.invalidate(id);
+        misProductosCache.invalidateAll();
+        return productoMapper.toResponse(saved);
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id, Long solicitanteId) {
         ProductoEntity producto = findProducto(id);
         UsuarioEntity solicitante = findUsuario(solicitanteId);
         productoDomainService.validarPropiedad(solicitante.getId(), solicitante.getRol(), producto.getProductor() != null ? producto.getProductor().getId() : null);
         productoJpaRepository.deleteById(id);
+        // invalidate caches
+        productoCache.invalidate(id);
+        misProductosCache.invalidateAll();
     }
 
     @Override
     public PageResponse<ProductoResponse> getMisProductos(Long productorId, int page, int size) {
-        List<ProductoEntity> productos = productoJpaRepository.findByProductorId(productorId);
-        return paginate(productos, page, size);
+        Long key = productorId;
+        @SuppressWarnings("unchecked")
+        PageResponse<ProductoResponse> cached = (PageResponse<ProductoResponse>) misProductosCache.getIfPresent(key);
+        if (cached != null) {
+            return cached;
+        }
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        Page<ProductoEntity> pageResult = productoJpaRepository.findByProductorId(productorId, pageable);
+        List<ProductoResponse> content = pageResult.getContent().stream().map(productoMapper::toResponse).collect(Collectors.toList());
+        PageResponse<ProductoResponse> result = PageResponse.<ProductoResponse>builder()
+                .content(content)
+                .page(pageResult.getNumber())
+                .size(pageResult.getSize())
+                .totalElements((int) pageResult.getTotalElements())
+                .totalPages(pageResult.getTotalPages())
+                .build();
+        misProductosCache.put(key, result);
+        return result;
     }
 
     private ProductorEntity obtenerProductor(Long productorId) {
@@ -139,20 +189,5 @@ public class ProductoServiceImpl implements ProductoService {
     private ProductoEntity findProducto(Long id) {
         return productoJpaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado"));
-    }
-
-    private PageResponse<ProductoResponse> paginate(List<ProductoEntity> productos, int page, int size) {
-        int totalElements = productos.size();
-        int fromIndex = Math.min(page * size, totalElements);
-        int toIndex = Math.min(fromIndex + size, totalElements);
-        List<ProductoResponse> content = productos.subList(fromIndex, toIndex).stream().map(productoMapper::toResponse).collect(Collectors.toList());
-        int totalPages = size == 0 ? 0 : (int) Math.ceil((double) totalElements / size);
-        return PageResponse.<ProductoResponse>builder()
-                .content(content)
-                .page(page)
-                .size(size)
-                .totalElements(totalElements)
-                .totalPages(totalPages)
-                .build();
     }
 }

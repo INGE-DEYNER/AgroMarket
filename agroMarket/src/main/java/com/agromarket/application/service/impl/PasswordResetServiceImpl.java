@@ -3,9 +3,9 @@ package com.agromarket.application.service.impl;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.agromarket.config.properties.AppProperties;
 import com.agromarket.application.service.PasswordResetService;
 import com.agromarket.application.service.EmailService;
-import com.agromarket.domain.exception.RecursoNoEncontradoException;
 import com.agromarket.domain.exception.CredencialesInvalidasException;
 import com.agromarket.infrastructure.persistence.entity.PasswordResetTokenEntity;
 import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
@@ -26,6 +26,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final EmailService mailService;
     private final PasswordEncoder passwordEncoder;
     private final com.agromarket.application.service.EmailVerificationService emailVerificationService;
+    private final AppProperties appProperties;
 
     @Override
     @Transactional
@@ -43,7 +44,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
                 .build();
             tokenRepository.save(entity);
 
-                    String resetUrl = "http://localhost:3000/restablecer-contrasena.html?token=" + token;
+                    String resetUrl = appProperties.frontendUrl() + "/restablecer-contrasena.html?token=" + token;
                     java.util.Map<String, String> model = java.util.Map.of("resetUrl", resetUrl);
                     mailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Recuperación de contraseña", "password-reset", model);
         });

@@ -1,17 +1,21 @@
-# Compiled class file
+# Build outputs
+target/
+**/target/
+build/
+**/build/
+out/
+classes/
+generated-sources/
+generated-test-sources/
+maven-archiver/
+maven-status/
+surefire-reports/
+failsafe-reports/
+
+# Packaged artifacts
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
+*.jar.original
 *.war
 *.nar
 *.ear
@@ -19,6 +23,45 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+*.swp
 hs_err_pid*
 replay_pid*
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+.apt_generated/
+.factorypath
+.springBeans
+.sts4-cache
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Dependency and cache directories
+node_modules/
+.gradle/
+
+# Environment and secrets
+.env
+*.env
+!.env.example
+
+# Local/generated runtime data
+uploads/
+.github/java-upgrade/
+k8s/secrets/

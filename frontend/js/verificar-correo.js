@@ -1,13 +1,16 @@
 import api from "./api.js";
 import { mostrarError, mostrarExito } from "./ui.js";
 
-const params = new URLSearchParams(window.location.search);
+const params = new URLSearchParams(globalThis.location.search);
+const pathParts = globalThis.location.pathname.split("/").filter(Boolean);
+const pathToken = pathParts[0] === "verificar" && pathParts[1] ? decodeURIComponent(pathParts[1]) : "";
 const initialCorreo =
   params.get("correo") ||
   sessionStorage.getItem("pendingVerificationEmail") ||
   localStorage.getItem("correo") ||
   "";
-const initialCodigo = params.get("codigo") || "";
+const initialCodigo = params.get("codigo") || pathToken || "";
+const tokenMode = Boolean(pathToken);
 
 const maskedEmailEl = document.getElementById("maskedEmail");
 const codeInputs = Array.from(document.querySelectorAll(".otp-input"));
@@ -22,7 +25,7 @@ const storageKey = `agromarket.verification.expiry.${initialCorreo.toLowerCase()
 let countdownTimer = null;
 
 function maskEmail(correo) {
-  if (!correo || !correo.includes("@")) return correo || "tu correo";
+  if (!correo?.includes("@")) return correo || "tu correo";
   const [user, domain] = correo.split("@");
   if (user.length <= 2) {
     return `${user[0]}***@${domain}`;
@@ -37,7 +40,7 @@ function setResult(message, kind = "info") {
 }
 
 function setCode(value = "") {
-  const digits = String(value).replace(/\D/g, "").slice(0, 6).split("");
+  const digits = String(value).replaceAll(/\D/g, "").slice(0, 6).split("");
   codeInputs.forEach((input, index) => {
     input.value = digits[index] || "";
   });
@@ -64,7 +67,7 @@ function secondsToClock(seconds) {
 
 function getExpiry() {
   const raw = localStorage.getItem(storageKey);
-  const parsed = raw ? Number(raw) : NaN;
+  const parsed = raw ? Number(raw) : Number.NaN;
   return Number.isFinite(parsed) && parsed > Date.now() ? parsed : null;
 }
 
@@ -99,25 +102,18 @@ function renderCountdown() {
     if (timerEl) timerEl.textContent = "00:00";
     if (resendLink) resendLink.classList.remove("is-disabled");
     if (resendBtn) resendBtn.disabled = false;
-    return;
   }
 }
 
 function startCountdown() {
   clearInterval(countdownTimer);
   renderCountdown();
-  countdownTimer = window.setInterval(renderCountdown, 1000);
+  countdownTimer = globalThis.setInterval(renderCountdown, 1000);
 }
 
 async function verifyCode() {
-  if (!initialCorreo) {
+  if (!tokenMode && !initialCorreo) {
     setResult("No encontramos un correo para verificar.", "error");
-    return;
-  }
-
-  const codigo = getCode();
-  if (codigo.length !== 6) {
-    setResult("Ingresa el código completo de 6 dígitos.", "error");
     return;
   }
 
@@ -125,12 +121,21 @@ async function verifyCode() {
   verifyBtn.textContent = "Verificando...";
 
   try {
-    await api.verifyEmailCode(initialCorreo, codigo);
+    if (tokenMode) {
+      await api.verifyEmail(initialCodigo);
+    } else {
+      const codigo = getCode();
+      if (codigo.length !== 6) {
+        setResult("Ingresa el código completo de 6 dígitos.", "error");
+        return;
+      }
+      await api.verifyEmailCode(initialCorreo, codigo);
+    }
     sessionStorage.removeItem("pendingVerificationEmail");
     setResult("Correo verificado. Redirigiendo al inicio de sesión...");
     mostrarExito("Correo verificado correctamente.");
     setTimeout(() => {
-      window.location.href = "login.html";
+      globalThis.location.href = "login.html";
     }, 1800);
   } catch (error) {
     const message =
@@ -183,7 +188,7 @@ function focusIndex(index) {
 
 codeInputs.forEach((input, index) => {
   input.addEventListener("input", (event) => {
-    const value = event.target.value.replace(/\D/g, "").slice(0, 1);
+    const value = event.target.value.replaceAll(/\D/g, "").slice(0, 1);
     event.target.value = value;
 
     if (value && index < codeInputs.length - 1) {
@@ -201,8 +206,8 @@ codeInputs.forEach((input, index) => {
   input.addEventListener("paste", (event) => {
     event.preventDefault();
     const text = event.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
+      .getData("text/plain")
+      .replaceAll(/\D/g, "")
       .slice(0, 6);
     setCode(text);
     const nextIndex = Math.min(text.length, codeInputs.length - 1);
@@ -220,15 +225,15 @@ resendLink?.addEventListener("click", resendCode);
 resendBtn?.addEventListener("click", resendCode);
 
 if (maskedEmailEl) {
-  maskedEmailEl.textContent = maskEmail(initialCorreo);
+  maskedEmailEl.textContent = tokenMode ? "tu enlace de verificación" : maskEmail(initialCorreo);
 }
 
-if (initialCodigo && initialCodigo.length === 6) {
+if (!tokenMode && initialCodigo?.length === 6) {
   setCode(initialCodigo);
   updateButtonState();
 }
 
-if (initialCorreo) {
+if (initialCorreo || tokenMode) {
   sessionStorage.setItem("pendingVerificationEmail", initialCorreo);
 } else {
   setResult("No encontramos un correo para verificar.", "error");

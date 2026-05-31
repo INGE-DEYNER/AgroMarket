@@ -1,6 +1,7 @@
 package com.agromarket.interfaces.rest.controller;
 
 import java.math.BigDecimal;
+import java.net.URI;
 
 import com.agromarket.application.dto.ActualizarProductoRequest;
 import com.agromarket.application.dto.ApiResponse;
@@ -13,6 +14,8 @@ import com.agromarket.infrastructure.security.JwtUserPrincipal;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,7 +47,10 @@ public class ProductoController {
             @RequestParam(required = false) TipoFruta tipo,
             @RequestParam(required = false) BigDecimal precioMin,
             @RequestParam(required = false) BigDecimal precioMax) {
-        return ResponseEntity.ok(ApiResponse.<PageResponse<ProductoResponse>>builder().success(true).message("Productos listados").data(productoService.getAll(page, size, search, tipo, precioMin, precioMax)).build());
+        ApiResponse<PageResponse<ProductoResponse>> body = ApiResponse.<PageResponse<ProductoResponse>>builder().success(true).message("Productos listados").data(productoService.getAll(page, size, search, tipo, precioMin, precioMax)).build();
+        return ResponseEntity.ok()
+            .cacheControl(CacheControl.maxAge(30, java.util.concurrent.TimeUnit.SECONDS).cachePublic())
+            .body(body);
     }
 
     @GetMapping("/{id}")
@@ -56,20 +62,21 @@ public class ProductoController {
     @PreAuthorize("hasAnyRole('PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<ProductoResponse>> crear(@Valid @RequestBody CrearProductoRequest request, @AuthenticationPrincipal JwtUserPrincipal principal) {
         log.info("Creando producto para usuario {}", principal.getUserId());
-        return ResponseEntity.ok(ApiResponse.<ProductoResponse>builder().success(true).message("Producto creado").data(productoService.crear(request, principal.getUserId())).build());
+        ProductoResponse response = productoService.crear(request, principal.getUserId());
+        return ResponseEntity.created(URI.create("/api/productos/" + response.getId())).body(ApiResponse.<ProductoResponse>builder().success(true).message("Producto creado").data(response).build());
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<ProductoResponse>> actualizar(@PathVariable Long id, @Valid @RequestBody ActualizarProductoRequest request, @AuthenticationPrincipal JwtUserPrincipal principal) {
-        return ResponseEntity.ok(ApiResponse.<ProductoResponse>builder().success(true).message("Producto actualizado").data(productoService.actualizar(id, request, principal.getUserId())).build());
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.<ProductoResponse>builder().success(true).message("Producto actualizado").data(productoService.actualizar(id, request, principal.getUserId())).build());
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id, @AuthenticationPrincipal JwtUserPrincipal principal) {
         productoService.eliminar(id, principal.getUserId());
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Producto eliminado").build());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/mis-productos")

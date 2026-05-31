@@ -45,7 +45,7 @@ function renderPedidos(list) {
       return `<tr>
       <td style="color:var(--text-muted);font-size:.82rem;">#${pedido.id}</td>
       <td><strong>${escapeHtml(pedido.productoNombre)}</strong></td>
-      <td>${escapeHtml(pedido.productorNombre || "Luis Palacios")}</td>
+      <td>${pedido.productorNombre ? escapeHtml(pedido.productorNombre) : ''}</td>
       <td>${pedido.cantidad} kg</td>
       <td style="color:var(--green-light);font-weight:600;">${formatearPrecio(pedido.total)}</td>
       <td>${badgeEstado(pedido.estado)}</td>
@@ -89,7 +89,7 @@ async function cargarPedidos() {
 }
 
 async function cancelar(id) {
-  if (!window.confirm("¿Estás seguro de que deseas cancelar este pedido?"))
+  if (!globalThis.confirm("¿Estás seguro de que deseas cancelar este pedido?"))
     return;
 
   try {
@@ -108,16 +108,20 @@ async function verFactura(id) {
     const factura = await api.getFacturaPorPedido(id);
     const body = document.getElementById("facturaBody");
     if (body) {
+      const siteNameRaw = globalThis.getSite?.("siteName") || document.querySelector('[data-site="siteName"]')?.textContent;
+      const siteRegionRaw = globalThis.getSite?.("siteRegion") || document.querySelector('[data-site="siteRegion"]')?.textContent;
+      const siteName = siteNameRaw ? escapeHtml(siteNameRaw) : "";
+      const siteRegion = siteRegionRaw ? escapeHtml(siteRegionRaw) : "";
       body.innerHTML = `
         <div class="invoice" style="border: 1px dashed var(--border); padding: 18px; border-radius: 8px;">
           <div style="text-align: center; margin-bottom: 12px;">
-            <h3 style="color: var(--primary-dark)">${escapeHtml((window.getSite && window.getSite("siteName")) || "AGROMARKET")} ${escapeHtml((window.getSite && window.getSite("siteRegion")) || "Urabá")}</h3>
+            <h3 style="color: var(--primary-dark)">${siteName}${siteRegion ? ' ' + siteRegion : ''}</h3>
           </div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:4px 0;"><span>Nº Factura</span><strong>${escapeHtml(factura.numeroFactura || "FAC-" + factura.id)}</strong></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:4px 0;"><span>Fecha</span><span>${escapeHtml(formatearFecha(factura.fechaEmision))}</span></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:4px 0;"><span>Pedido</span><span>#${escapeHtml(factura.pedidoId)}</span></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:4px 0;"><span>Subtotal</span><span>${formatearPrecio(factura.subtotal)}</span></div>
-          <div class="invoice-row" style="display:flex;justify-content:space-between;margin:4px 0;"><span>IVA (19%)</span><span>${formatearPrecio(factura.iva)}</span></div>
+          <div class="invoice-row" style="display:flex;justify-content:space-between;margin:4px 0;"><span>IVA (19%)</span><span>${formatearPrecio(factura.impuesto)}</span></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:10px 0 0 0;padding-top:10px;border-top:2px solid var(--primary);">
             <span class="invoice-total" style="font-weight:700;">Total</span>
             <span class="invoice-total" style="font-weight:700;color:var(--primary-dark);">${formatearPrecio(factura.total)}</span>
@@ -139,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarPedidos();
 });
 
-window.cancelar = cancelar;
-window.verFactura = verFactura;
-window.closeFactura = closeFactura;
-window.filtrar = filtrar;
+globalThis.cancelar = cancelar;
+globalThis.verFactura = verFactura;
+globalThis.closeFactura = closeFactura;
+globalThis.filtrar = filtrar;

@@ -731,3 +731,72 @@ tbody tr:hover { background: #f9fbf9; cursor: pointer; }
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Upload widget and product placeholder styles (added for dashboard-productor image upload) */
+.imagen-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 200px;
+  height: 150px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f1f9f3 0%, #eef7ee 100%);
+  color: #2d6a4f;
+  border: 2px dashed rgba(45,106,79,0.12);
+  font-size: 2.25rem;
+}
+
+.imagen-upload-area {
+  border: 1.5px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, background 0.15s ease, transform 0.08s ease;
+}
+.imagen-upload-area:hover { box-shadow: 0 6px 18px rgba(45,106,79,0.06); transform: translateY(-2px); }
+.imagen-upload-area.dragover { background: #f8fff7; border-color: #c6f6d5; }
+
+.imagen-preview {
+  width: 100%;
+  max-width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e6f4e9;
+}
+
+.imagen-progress {
+  width: 100%;
+  max-width: 200px;
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.imagen-progress > div { height: 100%; background: #2d6a4f; width: 0%; transition: width 0.25s ease; }
+
+/* small helper for product list placeholder when no image */
+.product-image-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: linear-gradient(135deg,#e8f5e9,#f3faf3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #2d6a4f;
+  font-weight: 700;
+}
+
+/* ID-based variants used in modal markup */
+#imagenUploadArea { border: 1.5px dashed #d1d5db; border-radius: 8px; padding: 14px; text-align: center; color: #9ca3af; cursor: pointer; transition: box-shadow 0.15s ease, background 0.15s ease, transform 0.08s ease; }
+#imagenUploadArea:hover { box-shadow: 0 6px 18px rgba(45,106,79,0.06); transform: translateY(-2px); }
+#imagenUploadArea.dragover { background: #f8fff7; border-color: #c6f6d5; }
+#imagenPreviewContainer { display: none; margin-bottom: 12px; position: relative; }
+#imagenPreview { width: 100%; max-width: 200px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #e6f4e9; }
+#imagenUploadProgress { display: none; margin-top: 8px; background: #f0f0f0; border-radius: 4px; height: 4px; overflow: hidden; }
+#imagenProgressBar { height: 100%; background: #2d6a4f; width: 0%; transition: width 0.25s ease; }

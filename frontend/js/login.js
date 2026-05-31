@@ -1,6 +1,5 @@
-import api from "./api.js";
-import Auth, { guardarSesion } from "./auth.js";
-import { mostrarError, mostrarExito } from "./ui.js";
+import { login as doLogin, guardarSesion, setCurrentUser } from "./auth.js";
+import { showToast, escapeHtml } from "./ui.js";
 
 const form = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
@@ -9,6 +8,46 @@ const emailError = document.getElementById("emailError");
 const passwordError = document.getElementById("passwordError");
 const globalError = document.getElementById("globalError");
 const submitBtn = document.getElementById("submitBtn");
+
+async function consumeOAuthCallback() {
+
+  try {
+    const response = await fetch("/api/auth/token-exchange", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("No se pudo completar el inicio con Google.");
+    }
+
+    const payload = await response.json();
+    const authResponse = payload?.data || payload;
+    guardarSesion(authResponse);
+    setCurrentUser({
+      nombre: authResponse.nombre,
+      correo: authResponse.correo,
+      rol: authResponse.rol,
+      fotoPerfil: authResponse.fotoPerfil || authResponse.fotoUrl,
+      userId: authResponse.userId,
+    });
+
+    const cleanUrl = globalThis.location.origin + globalThis.location.pathname;
+    globalThis.history.replaceState({}, document.title, cleanUrl);
+    redirectByRole(authResponse.rol || authResponse.tipo);
+    return true;
+  } catch (error) {
+    if (globalError) {
+      globalError.textContent = error?.message || "No se pudo completar el inicio con Google.";
+      globalError.classList.add("visible");
+    }
+    return false;
+  }
+}
 
 function setFieldState(input, errorEl, message, isValid) {
   if (!input) return;
@@ -61,7 +100,16 @@ function showFieldError(input, errorEl, message) {
 }
 
 function redirectByRole(role) {
-  window.location.href = Auth.resolveDashboardRoute(role);
+  // simple routing based on role value
+  if (!role) {
+    globalThis.location.assign("/");
+    return;
+  }
+  const r = String(role).toUpperCase();
+  if (r.includes("ADMIN")) globalThis.location.assign("/admin.html");
+  else if (r.includes("PRODUCTOR"))
+    globalThis.location.assign("/dashboard-productor.html");
+  else globalThis.location.assign("/dashboard-comprador.html");
 }
 
 function validateEmailField(showMessage = false) {
@@ -106,6 +154,8 @@ emailInput?.addEventListener("blur", () => validateEmailField(true));
 passwordInput?.addEventListener("input", () => validatePasswordField(false));
 passwordInput?.addEventListener("blur", () => validatePasswordField(true));
 
+await consumeOAuthCallback();
+
 function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -127,22 +177,31 @@ form?.addEventListener("submit", async (event) => {
   submitBtn.disabled = true;
 
   try {
-    const authResponse = await api.login(correo, contrasena);
-    guardarSesion(authResponse);
-    mostrarExito(`Bienvenido, ${authResponse.nombre || correo}`);
+    const authResponse = await doLogin(correo, contrasena);
+    // auth.login already stored token; persist minimal user info
+    setCurrentUser({
+      nombre: authResponse.nombre,
+      correo: authResponse.correo,
+      rol: authResponse.rol,
+      fotoUrl: authResponse.fotoUrl,
+    });
+    showToast(
+      `Bienvenido, ${escapeHtml(authResponse.nombre || correo)}`,
+      "success",
+    );
     redirectByRole(authResponse.rol || authResponse.tipo);
   } catch (error) {
     const message = getErrorMessage(error);
     if (error?.status === 403 && /verific/i.test(message)) {
       sessionStorage.setItem("pendingVerificationEmail", correo);
-      window.location.href = `verificar-correo.html?correo=${encodeURIComponent(correo)}`;
+      globalThis.location.assign(`verificar-correo.html?correo=${encodeURIComponent(correo)}`);
       return;
     }
     if (globalError) {
       globalError.textContent = message;
       globalError.classList.add("visible");
     } else {
-      mostrarError(document.body, message);
+      showToast(message, "error");
     }
   } finally {
     submitBtn.textContent = "Ingresar";

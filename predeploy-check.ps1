@@ -4,7 +4,7 @@ param(
   [switch]$CheckTools,
   [switch]$CheckK8s,
   [switch]$CheckFiles,
-  [string]$RootPath = $PSScriptRoot
+  [string]$RootPath = $(if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path })
 )
 
 $ErrorActionPreference = 'Stop'
@@ -25,7 +25,7 @@ function Assert-File([string]$Path, [string]$Label) {
   Write-Host "OK  $Label" -ForegroundColor Green
 }
 
-$root = (Resolve-Path $RootPath).Path
+$root = (Resolve-Path -LiteralPath $RootPath).Path
 $backend = Join-Path $root 'agroMarket'
 $frontend = Join-Path $root 'frontend'
 $k8s = Join-Path $root 'k8s'

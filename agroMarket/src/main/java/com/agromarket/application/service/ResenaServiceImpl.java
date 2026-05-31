@@ -2,7 +2,6 @@ package com.agromarket.application.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.agromarket.application.dto.CrearResenaRequest;
 import com.agromarket.application.dto.ResenaResponse;
@@ -10,18 +9,18 @@ import com.agromarket.application.mapper.ResenaMapper;
 import com.agromarket.domain.exception.AccesoDenegadoException;
 import com.agromarket.domain.exception.RecursoNoEncontradoException;
 import com.agromarket.domain.exception.ResenaDuplicadaException;
-import com.agromarket.domain.model.RolUsuario;
-import com.agromarket.domain.service.ResenaDomainService;
+import com.agromarket.infrastructure.persistence.entity.CompradorEntity;
 import com.agromarket.infrastructure.persistence.entity.ProductoEntity;
 import com.agromarket.infrastructure.persistence.entity.ResenaEntity;
-import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
-import com.agromarket.infrastructure.persistence.repository.PedidoJpaRepository;
+import com.agromarket.infrastructure.persistence.repository.CompradorJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.ProductoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.ResenaJpaRepository;
-import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.agromarket.infrastructure.security.InputSanitizerService;
+import com.github.benmanes.caffeine.cache.Cache;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,10 +30,10 @@ import lombok.RequiredArgsConstructor;
 public class ResenaServiceImpl implements ResenaService {
     private final ResenaJpaRepository resenaJpaRepository;
     private final ProductoJpaRepository productoJpaRepository;
-    private final PedidoJpaRepository pedidoJpaRepository;
-    private final UsuarioJpaRepository usuarioJpaRepository;
+    private final CompradorJpaRepository compradorJpaRepository;
     private final ResenaMapper resenaMapper;
-    private final ResenaDomainService resenaDomainService = new ResenaDomainService();
+    private final InputSanitizerService inputSanitizerService;
+    private final Cache<Long, Object> resenaCache;
 
     @Override
     public ResenaResponse crear(CrearResenaRequest request, Long compradorId) {
@@ -46,34 +45,47 @@ public class ResenaServiceImpl implements ResenaService {
         if (!resenaJpaRepository.tieneEntregado(compradorId, request.getProductoId())) {
             throw new AccesoDenegadoException("Se requiere al menos un pedido entregado para reseñar");
         }
-        UsuarioEntity comprador = usuarioJpaRepository.findById(compradorId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+        CompradorEntity comprador = compradorJpaRepository.findById(compradorId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Comprador no encontrado"));
+        
         ResenaEntity resena = ResenaEntity.builder()
-                .comprador((com.agromarket.infrastructure.persistence.entity.CompradorEntity) comprador)
+                .comprador(comprador)
                 .producto(producto)
                 .calificacion(request.getCalificacion())
-                .comentario(request.getComentario())
+                .comentario(inputSanitizerService.sanitize(request.getComentario()))
                 .fecha(LocalDateTime.now())
                 .build();
-        return resenaMapper.toResponse(resenaJpaRepository.save(resena));
+        ResenaEntity saved = resenaJpaRepository.save(resena);
+        resenaCache.invalidate(request.getProductoId());
+        return resenaMapper.toResponse(saved);
     }
 
     @Override
     public List<ResenaResponse> getByProducto(Long productoId) {
-        return resenaMapper.toResponseList(resenaJpaRepository.findByProductoId(productoId));
+        @SuppressWarnings("unchecked")
+        List<ResenaResponse> cached = (List<ResenaResponse>) resenaCache.getIfPresent(productoId);
+        if (cached != null) {
+            return cached;
+        }
+        List<ResenaResponse> result = resenaMapper.toResponseList(resenaJpaRepository.findByProductoId(productoId));
+        resenaCache.put(productoId, result);
+        return result;
     }
 
     @Override
     public void eliminar(Long id, Long solicitanteId) {
         ResenaEntity resena = resenaJpaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Reseña no encontrada"));
-        UsuarioEntity usuario = usuarioJpaRepository.findById(solicitanteId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
-        boolean esAdmin = usuario.getRol() == RolUsuario.ADMINISTRADOR;
+        boolean esAdmin = compradorJpaRepository.findById(solicitanteId)
+                .map(u -> u.getRol() == com.agromarket.domain.model.RolUsuario.ADMINISTRADOR)
+                .orElse(false);
         boolean esDueno = resena.getComprador() != null && resena.getComprador().getId() != null && resena.getComprador().getId().equals(solicitanteId);
         if (!esAdmin && !esDueno) {
             throw new AccesoDenegadoException("No tiene permisos para eliminar esta reseña");
         }
         resenaJpaRepository.deleteById(id);
+        if (resena.getProducto() != null) {
+            resenaCache.invalidate(resena.getProducto().getId());
+        }
     }
 }

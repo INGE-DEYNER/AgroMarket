@@ -1,0 +1,13 @@
+﻿Linea 23:   Write-Host "[$(Get-Timestamp)] âœ“ $Message" -ForegroundColor Green
+Linea 27:   Write-Host "[$(Get-Timestamp)] â„¹ï¸ $Message" -ForegroundColor Yellow
+Linea 31:   Write-Host "[$(Get-Timestamp)] âš  $Message" -ForegroundColor Yellow
+Linea 35:   Write-Host "[$(Get-Timestamp)] âœ— $Message" -ForegroundColor Red
+Linea 119: Write-Host "RaÃ­z del proyecto: $root"
+Linea 168:     Write-Success "  âœ“ $var"
+Linea 174:       Write-Warning2 "  âš  $var (usando valor por defecto: $($backendRequiredVars[$var]))"
+Linea 178:       Write-Warning2 "  âš  $var (NO ENCONTRADA EN .env)"
+Linea 193:     Write-Success "  âœ“ $var"
+Linea 196:     Write-Warning2 "  âš  $var (NO ENCONTRADA EN .env)"
+Linea 260:   Write-Info "[DRY-RUN] .gitignore SERÃA actualizado con: k8s/secrets/"
+Linea 269:     Write-Error2 "kubectl no estÃ¡ disponible en PATH"
+Linea 338: Write-Host "PrÃ³ximos pasos:" -ForegroundColor Yellow

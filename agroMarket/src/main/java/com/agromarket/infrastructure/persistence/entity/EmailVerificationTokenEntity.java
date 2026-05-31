@@ -41,6 +41,7 @@ public class EmailVerificationTokenEntity {
     private LocalDateTime expiry;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean verificado = false;
 
     @CreationTimestamp

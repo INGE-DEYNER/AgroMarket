@@ -1,6 +1,6 @@
-import api from "./api.js";
-import Auth from "./auth.js";
-import { mostrarExito } from "./ui.js";
+import { register as doRegister, setCurrentUser } from "./auth.js";
+import { showToast } from "./ui.js";
+import { escapeHtml } from "./ui.js";
 
 let currentRole = "comprador";
 
@@ -284,7 +284,7 @@ form?.addEventListener("submit", async (event) => {
   submitBtn.textContent = "Creando cuenta...";
 
   try {
-    await api.registro({
+    await doRegister({
       nombre,
       apellido,
       correo,
@@ -295,7 +295,10 @@ form?.addEventListener("submit", async (event) => {
     });
     sessionStorage.setItem("pendingVerificationEmail", correo);
     if (successMsg) successMsg.classList.add("visible");
-    mostrarExito("Cuenta creada. Revisa tu correo para verificar la cuenta.");
+    showToast(
+      `Cuenta creada. Revisa ${escapeHtml(correo)} para verificar la cuenta.`,
+      "success",
+    );
     setTimeout(() => {
       window.location.href = `verificar-correo.html?correo=${encodeURIComponent(correo)}`;
     }, 2000);

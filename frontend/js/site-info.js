@@ -1,33 +1,33 @@
-// site-info.js: fetch /api/public/site-info and populate elements with data-site attributes
-import api from "./api.js";
+const DEFAULT_SITE_INFO = {
+  siteName: "AgroMarket",
+  siteRegion: "Urabá",
+  siteTagline: "Plataforma de comercio agrícola",
+  supportEmail: "soporte@agromarket.local",
+};
 
-async function loadSiteInfo() {
-  try {
-    const info =
-      (await api.getSiteInfo?.()) ||
-      (await fetch("/api/public/site-info").then((r) =>
-        r.ok ? r.json() : null,
-      ));
-    if (!info) {
-      window.__siteInfo = {};
-      return;
+function loadSiteInfo() {
+  const info = { ...DEFAULT_SITE_INFO };
+
+  document.querySelectorAll("[data-site]").forEach((el) => {
+    const key = el.dataset.site;
+    const currentValue = el.textContent?.trim();
+    if (key && currentValue) {
+      info[key] = currentValue;
     }
-    window.__siteInfo = info;
-    window.getSite = (key) => window.__siteInfo?.[key] || null;
-    document.querySelectorAll("[data-site]").forEach((el) => {
-      const key = el.getAttribute("data-site");
-      if (key && info[key]) {
-        el.textContent = info[key];
-        el.style.display = "";
-      }
-    });
-  } catch (e) {
-    window.__siteInfo = {};
-    window.getSite = () => null;
-    console.debug("site-info load failed", e);
-  }
+  });
+
+  globalThis.__siteInfo = info;
+  globalThis.getSite = (key) => globalThis.__siteInfo?.[key] || null;
+
+  document.querySelectorAll("[data-site]").forEach((el) => {
+    const key = el.dataset.site;
+    if (key && info[key]) {
+      el.textContent = info[key];
+      el.style.display = "";
+    }
+  });
 }
 
 document.addEventListener("DOMContentLoaded", loadSiteInfo);
 
-export default { loadSiteInfo };
+export default { loadSiteInfo, DEFAULT_SITE_INFO };

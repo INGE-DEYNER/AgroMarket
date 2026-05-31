@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class ActualizarUsuarioRequest {
     @NotBlank
     @Size(min = 2, max = 100)
-    @Pattern(regexp = "^[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+$", message = "Solo se permiten letras y espacios")
+    @Pattern(regexp = "^[A-Za-z\\u00C0-\\u024F\\s]+$", message = "Solo se permiten letras y espacios")
     private String nombre;
 
     @NotBlank

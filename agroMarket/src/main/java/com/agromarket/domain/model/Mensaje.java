@@ -3,6 +3,7 @@ package com.agromarket.domain.model;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class Mensaje {
     private Usuario remitente;
     private Usuario destinatario;
     private String contenido;
+    @Builder.Default
     private boolean leido = false;
     private LocalDateTime fechaEnvio;
 

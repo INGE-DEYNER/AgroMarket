@@ -1,4 +1,4 @@
-[CmdletBinding(SupportsShouldProcess = $true)]
+﻿[CmdletBinding(SupportsShouldProcess = $true)]
 param(
   [switch]$Apply,
   [switch]$DryRun
@@ -20,19 +20,19 @@ function Write-Step([string]$Message) {
 }
 
 function Write-Success([string]$Message) {
-  Write-Host "[$(Get-Timestamp)] ✓ $Message" -ForegroundColor Green
+  Write-Host ("[$(Get-Timestamp)] OK: " + $Message) -ForegroundColor Green
 }
 
 function Write-Info([string]$Message) {
-  Write-Host "[$(Get-Timestamp)] ℹ️ $Message" -ForegroundColor Yellow
+  Write-Host ("[$(Get-Timestamp)] INFO: " + $Message) -ForegroundColor Cyan
 }
 
 function Write-Warning2([string]$Message) {
-  Write-Host "[$(Get-Timestamp)] ⚠ $Message" -ForegroundColor Yellow
+  Write-Host ("[$(Get-Timestamp)] WARN: " + $Message) -ForegroundColor Yellow
 }
 
 function Write-Error2([string]$Message) {
-  Write-Host "[$(Get-Timestamp)] ✗ $Message" -ForegroundColor Red
+  Write-Host ("[$(Get-Timestamp)] ERROR: " + $Message) -ForegroundColor Red
 }
 
 # Function to encode string to Base64
@@ -116,7 +116,7 @@ if (-not $root) { $root = Get-Location }
 $root = (Resolve-Path $root).Path
 
 Write-Step "AgroMarket Kubernetes Secrets Generator"
-Write-Host "Raíz del proyecto: $root"
+Write-Host ("Raiz del proyecto: " + $root)
 Write-Host "DryRun: $DryRun"
 Write-Host "Apply: $Apply"
 Write-Host ""
@@ -125,7 +125,7 @@ Write-Host ""
 $envPath = Join-Path $root ".env"
 $envExamplePath = Join-Path $root ".env.example"
 $targetEnvPath = if (Test-Path $envPath) { $envPath } else { $envExamplePath }
-$secretsDir = Join-Path $root "k8s" "secrets"
+$secretsDir = Join-Path (Join-Path $root "k8s") "secrets"
 $gitignorePath = Join-Path $root ".gitignore"
 $namespace = "agromarket"
 
@@ -165,17 +165,17 @@ $backendProcessed = 0
 foreach ($var in $backendRequiredVars.Keys) {
   if ($envVars.ContainsKey($var) -and -not [string]::IsNullOrEmpty($envVars[$var])) {
     $backendSecretData[$var] = $envVars[$var]
-    Write-Success "  ✓ $var"
+    Write-Success ("  OK: " + $var)
     $backendProcessed++
   } else {
     if ($null -ne $backendRequiredVars[$var]) {
       # Use default value
       $backendSecretData[$var] = $backendRequiredVars[$var]
-      Write-Warning2 "  ⚠ $var (usando valor por defecto: $($backendRequiredVars[$var]))"
+      Write-Warning2 ("  WARN: " + $var + " (usando valor por defecto: " + $backendRequiredVars[$var] + ")")
       $backendWarnings++
     } else {
       # Variable not found and no default
-      Write-Warning2 "  ⚠ $var (NO ENCONTRADA EN .env)"
+      Write-Warning2 ("  WARN: " + $var + " (NO ENCONTRADA EN .env)")
       $backendWarnings++
     }
   }
@@ -190,10 +190,10 @@ $frontendProcessed = 0
 foreach ($var in $frontendRequiredVars.Keys) {
   if ($envVars.ContainsKey($var) -and -not [string]::IsNullOrEmpty($envVars[$var])) {
     $frontendSecretData[$var] = $envVars[$var]
-    Write-Success "  ✓ $var"
+    Write-Success ("  OK: " + $var)
     $frontendProcessed++
   } else {
-    Write-Warning2 "  ⚠ $var (NO ENCONTRADA EN .env)"
+    Write-Warning2 ("  WARN: " + $var + " (NO ENCONTRADA EN .env)")
     $frontendWarnings++
   }
 }
@@ -254,10 +254,10 @@ if (-not $DryRun) {
     Write-Success ".gitignore creado con: $gitignoreEntry"
   }
 } else {
-  Write-Info "[DRY-RUN] Los siguientes archivos SERÍAN creados:"
-  Write-Host "  - $(Join-Path $secretsDir "backend-secret.yaml")" -ForegroundColor DarkGray
-  Write-Host "  - $(Join-Path $secretsDir "frontend-secret.yaml")" -ForegroundColor DarkGray
-  Write-Info "[DRY-RUN] .gitignore SERÍA actualizado con: k8s/secrets/"
+  Write-Info "[DRY-RUN] Los siguientes archivos SERAN generados (sin -DryRun):"
+    Write-Host "  - $(Join-Path $secretsDir 'backend-secret.yaml')" -ForegroundColor DarkGray
+    Write-Host "  - $(Join-Path $secretsDir 'frontend-secret.yaml')" -ForegroundColor DarkGray
+  Write-Info "[DRY-RUN] .gitignore SERA actualizado con: k8s/secrets/"
 }
 
 # Apply secrets to Kubernetes if requested
@@ -266,7 +266,7 @@ if ($Apply -and -not $DryRun) {
 
   # Check if kubectl is available
   if (-not (Get-Command kubectl -ErrorAction SilentlyContinue)) {
-    Write-Error2 "kubectl no está disponible en PATH"
+    Write-Error2 "kubectl no esta disponible en PATH"
     throw "kubectl not found"
   }
 
@@ -293,7 +293,7 @@ if ($Apply -and -not $DryRun) {
 
   # Verify secrets
   Write-Info "Verificando secrets creados:"
-  kubectl get secrets -n $namespace | grep agromarket
+  kubectl get secrets -n $namespace | Select-String "agromarket"
 }
 
 if ($Apply -and $DryRun) {
@@ -325,9 +325,9 @@ Write-Host "  Total warnings: $totalWarnings"
 if (-not $DryRun) {
   Write-Host ""
   Write-Host "Archivos generados:" -ForegroundColor Green
-  Write-Host "  ✓ $(Join-Path $secretsDir "backend-secret.yaml")"
-  Write-Host "  ✓ $(Join-Path $secretsDir "frontend-secret.yaml")"
-  Write-Host "  ✓ Actualizado: .gitignore"
+  Write-Host ("  OK: " + (Join-Path $secretsDir "backend-secret.yaml"))
+  Write-Host ("  OK: " + (Join-Path $secretsDir "frontend-secret.yaml"))
+  Write-Host "  OK: Actualizado .gitignore"
 }
 
 Write-Host ""
@@ -335,7 +335,7 @@ Write-Success "Script completado exitosamente"
 
 # Show next steps
 Write-Host ""
-Write-Host "Próximos pasos:" -ForegroundColor Yellow
+Write-Host "Proximos pasos:" -ForegroundColor Yellow
 if ($DryRun) {
   Write-Host "  1. Ejecuta sin -DryRun para crear los archivos:"
   Write-Host "     .\generate-k8s-secrets.ps1"
@@ -351,4 +351,6 @@ if ($DryRun) {
   Write-Host "     kubectl get secrets -n agromarket"
   Write-Host "     kubectl describe secret agromarket-backend-secret -n agromarket"
 }
+
+
 

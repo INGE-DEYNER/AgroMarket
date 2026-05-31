@@ -29,8 +29,9 @@ public class EnvioController {
     private final EnvioService envioService;
 
     @GetMapping("/pedido/{pedidoId}")
-    public ResponseEntity<ApiResponse<EnvioResponse>> getByPedidoId(@PathVariable Long pedidoId) {
-        return ResponseEntity.ok(ApiResponse.<EnvioResponse>builder().success(true).message("Envío recuperado").data(envioService.getByPedidoId(pedidoId)).build());
+    @PreAuthorize("hasAnyRole('COMPRADOR','ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<EnvioResponse>> getByPedidoId(@PathVariable Long pedidoId, @AuthenticationPrincipal JwtUserPrincipal principal) {
+        return ResponseEntity.ok(ApiResponse.<EnvioResponse>builder().success(true).message("Envío recuperado").data(envioService.getByPedidoId(pedidoId, principal.getUserId())).build());
     }
 
     @GetMapping("/mis-envios")

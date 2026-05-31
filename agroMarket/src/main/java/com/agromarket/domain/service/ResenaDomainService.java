@@ -2,7 +2,6 @@ package com.agromarket.domain.service;
 
 import com.agromarket.domain.exception.AccesoDenegadoException;
 import com.agromarket.domain.exception.ResenaDuplicadaException;
-import com.agromarket.domain.model.Producto;
 import com.agromarket.domain.model.Resena;
 import com.agromarket.domain.repository.PedidoRepository;
 import com.agromarket.domain.repository.ResenaRepository;

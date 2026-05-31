@@ -1,7 +1,16 @@
-apiVersion: kustomize.config.k8s.io/v1
+apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: agromarket
 resources:
+  - namespace.yaml
+  - secret.yaml
+  - rbac.yaml
+  - configmap.yaml
+  - pvc-uploads.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - frontend-deployment.yaml
+  - frontend-service.yaml
+  - mysql-backup-pvc.yaml
   - mysql-backup-cronjob.yaml

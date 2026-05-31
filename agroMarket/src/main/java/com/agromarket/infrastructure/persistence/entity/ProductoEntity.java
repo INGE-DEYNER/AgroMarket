@@ -65,6 +65,7 @@ public class ProductoEntity {
     private boolean enPromocion;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean activo = true;
 
     @CreationTimestamp

@@ -61,22 +61,33 @@ function renderRecs() {
 
   grid.innerHTML = state.productos
     .slice(0, 4)
-    .map(
-      (producto) => `
-    <div class="product-card">
-      ${producto.enPromocion ? '<span class="badge-promo">OFERTA</span>' : ""}
-      <div class="product-img-container">
-        <img src="${producto.imagenUrl || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400"}" alt="${escapeHtml(producto.nombre)}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'">
+    .map((producto) => {
+      const nombre = producto && producto.nombre ? escapeHtml(producto.nombre) : "";
+      const imagen = producto && producto.imagenUrl ? producto.imagenUrl : "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400";
+      const precio = producto && typeof producto.precio !== "undefined" ? formatearPrecio(producto.precio) : "";
+
+      // Only render rating if values are provided by API
+      const ratingHtml =
+        typeof producto.calificacionPromedio !== "undefined" &&
+        typeof producto.totalResenas !== "undefined"
+          ? `<div class="product-rating">★ ${Number(producto.calificacionPromedio).toFixed(1)} <span class="rating-value">(${producto.totalResenas})</span></div>`
+          : "";
+
+      return `
+      <div class="product-card">
+        ${producto.enPromocion ? '<span class="badge-promo">OFERTA</span>' : ""}
+        <div class="product-img-container">
+          <img src="${imagen}" alt="${nombre}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'">
+        </div>
+        <div class="product-body">
+          <span class="product-name">${nombre}</span>
+          ${ratingHtml}
+          <div class="product-price">${precio}${precio ? '<span>/kg</span>' : ''}</div>
+          <button class="btn-add-cart" onclick="location.href='catalogo.html'">🛒 Comprar ahora</button>
+        </div>
       </div>
-      <div class="product-body">
-        <span class="product-name">${escapeHtml(producto.nombre)}</span>
-        <div class="product-rating">★ ${Number(producto.calificacionPromedio || 4.8).toFixed(1)} <span class="rating-value">(${producto.totalResenas || 12})</span></div>
-        <div class="product-price">${formatearPrecio(producto.precio)}<span>/kg</span></div>
-        <button class="btn-add-cart" onclick="location.href='catalogo.html'">🛒 Comprar ahora</button>
-      </div>
-    </div>
-  `,
-    )
+    `;
+    })
     .join("");
 }
 
@@ -188,19 +199,21 @@ async function verFactura(id) {
     const factura = await api.getFacturaPorPedido(id);
     const body = document.getElementById("facturaContent");
     if (body) {
-      const siteName = escapeHtml((window.getSite && window.getSite('siteName')) || document.querySelector('[data-site="siteName"]')?.textContent || 'AgroMarket');
-      const siteRegion = escapeHtml((window.getSite && window.getSite('siteRegion')) || document.querySelector('[data-site="siteRegion"]')?.textContent || '');
+      const siteNameRaw = globalThis.getSite?.("siteName") || document.querySelector('[data-site="siteName"]')?.textContent;
+      const siteRegionRaw = globalThis.getSite?.("siteRegion") || document.querySelector('[data-site="siteRegion"]')?.textContent;
+      const siteName = siteNameRaw ? escapeHtml(siteNameRaw) : "";
+      const siteRegion = siteRegionRaw ? escapeHtml(siteRegionRaw) : "";
       body.innerHTML = `
         <div class="invoice" style="border:1px dashed var(--border); padding:20px; border-radius:8px;">
             <div style="text-align:center; margin-bottom:15px;">
-            <h3 style="color:var(--primary-dark)">${siteName}${siteRegion ? ' ' + siteRegion : ''}</h3>
-                    <span style="font-size:0.8rem;color:var(--text-muted)">${escapeHtml(factura.proveedorNombre || "Proveedor")}</span>
+            <h3 style="color:var(--primary-dark)">${siteName}${siteRegion ? " " + siteRegion : ""}</h3>
+                    <span style="font-size:0.8rem;color:var(--text-muted)"></span>
           </div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:6px 0;"><span>Nº Factura</span><strong>${escapeHtml(factura.numeroFactura || "FAC-" + factura.id)}</strong></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:6px 0;"><span>Fecha</span><span>${escapeHtml(formatearFecha(factura.fechaEmision))}</span></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:6px 0;"><span>Pedido</span><span>#${escapeHtml(factura.pedidoId)}</span></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:6px 0;"><span>Subtotal</span><span>${formatearPrecio(factura.subtotal)}</span></div>
-          <div class="invoice-row" style="display:flex;justify-content:space-between;margin:6px 0;"><span>IVA (19%)</span><span>${formatearPrecio(factura.iva)}</span></div>
+          <div class="invoice-row" style="display:flex;justify-content:space-between;margin:6px 0;"><span>Impuesto (19%)</span><span>${formatearPrecio(factura.impuesto)}</span></div>
           <div class="invoice-row" style="display:flex;justify-content:space-between;margin:10px 0 0 0;padding-top:10px;border-top:2px solid var(--primary);">
             <span class="invoice-total" style="font-weight:700;">Total a pagar</span><span class="invoice-total" style="font-weight:700;color:var(--primary-dark);">${formatearPrecio(factura.total)}</span>
           </div>
@@ -221,13 +234,15 @@ function renderPerfil() {
   const sidebarAvatar = document.getElementById("sidebarUserAvatar");
   const welcomeText = document.getElementById("welcomeUserText");
 
-    if (sidebarName) sidebarName.textContent = user.nombre;
-    if (sidebarRole) sidebarRole.textContent = (user.rol || "comprador").toString().replace(/^(.)/, s => s.toUpperCase());
-  if (welcomeText) {
-    welcomeText.textContent = `¡Hola de nuevo, ${(user.nombre || "Usuario").split(" ")[0]}! 👋`;
+  if (sidebarName && user.nombre) sidebarName.textContent = user.nombre;
+  if (sidebarRole && user.rol)
+    sidebarRole.textContent = user.rol.toString().replace(/^(.)/, (s) => s.toUpperCase());
+  if (welcomeText && user.nombre) {
+    const firstName = (user.nombre || "").split(" ").filter(Boolean)[0] || "";
+    welcomeText.textContent = firstName ? `¡Hola de nuevo, ${firstName}! 👋` : "";
   }
-  if (sidebarAvatar) {
-    sidebarAvatar.textContent = (user.nombre || "U")
+  if (sidebarAvatar && user.nombre) {
+    sidebarAvatar.textContent = user.nombre
       .split(" ")
       .filter(Boolean)
       .map((w) => w[0])
@@ -325,7 +340,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   cargarDashboard();
 });
 
-              <h3 style="color:var(--primary-dark)">AgroMarket</h3>
-              <span style="font-size:0.8rem;color:var(--text-muted)">Comprobante de compra</span>
 window.verFactura = verFactura;
 window.cancelarPed = cancelarPed;

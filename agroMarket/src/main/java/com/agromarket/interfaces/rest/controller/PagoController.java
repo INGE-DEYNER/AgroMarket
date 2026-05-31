@@ -33,7 +33,8 @@ public class PagoController {
     }
 
     @GetMapping("/pedido/{pedidoId}")
-    public ResponseEntity<ApiResponse<PagoResponse>> getByPedidoId(@PathVariable Long pedidoId) {
-        return ResponseEntity.ok(ApiResponse.<PagoResponse>builder().success(true).message("Pago recuperado").data(pagoService.getByPedidoId(pedidoId)).build());
+    @PreAuthorize("hasAnyRole('COMPRADOR','ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<PagoResponse>> getByPedidoId(@PathVariable Long pedidoId, @AuthenticationPrincipal JwtUserPrincipal principal) {
+        return ResponseEntity.ok(ApiResponse.<PagoResponse>builder().success(true).message("Pago recuperado").data(pagoService.getByPedidoId(pedidoId, principal.getUserId())).build());
     }
 }

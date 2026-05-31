@@ -6,9 +6,12 @@ import java.util.List;
 import com.agromarket.domain.model.TipoFruta;
 import com.agromarket.infrastructure.persistence.entity.ProductoEntity;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface ProductoJpaRepository extends JpaRepository<ProductoEntity, Long> {
+public interface ProductoJpaRepository extends JpaRepository<ProductoEntity, Long>, JpaSpecificationExecutor<ProductoEntity> {
     List<ProductoEntity> findByNombreContainingIgnoreCase(String keyword);
 
     List<ProductoEntity> findByTipoFruta(TipoFruta tipo);
@@ -18,4 +21,6 @@ public interface ProductoJpaRepository extends JpaRepository<ProductoEntity, Lon
     List<ProductoEntity> findByCantidadDisponibleGreaterThan(Integer cantidad);
 
     List<ProductoEntity> findByProductorId(Long productorId);
+
+    Page<ProductoEntity> findByProductorId(Long productorId, Pageable pageable);
 }

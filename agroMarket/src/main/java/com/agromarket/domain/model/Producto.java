@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class Producto {
     private TipoFruta tipoFruta;
     private Productor productor;
     private boolean enPromocion;
+    @Builder.Default
     private boolean activo = true;
     private LocalDateTime fechaCreacion;
 

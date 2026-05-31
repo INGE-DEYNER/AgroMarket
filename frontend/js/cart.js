@@ -8,7 +8,14 @@ const CART_KEY = 'agromarket_cart';
 const Cart = {
   getItems: function() {
     const data = localStorage.getItem(CART_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    try {
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_error) {
+      localStorage.removeItem(CART_KEY);
+      return [];
+    }
   },
 
   saveItems: function(items) {
@@ -60,6 +67,9 @@ const Cart = {
 };
 
 window.Cart = Cart;
+
+export { Cart };
+export default Cart;
 
 // Update badge on initial load if element exists
 document.addEventListener('DOMContentLoaded', () => {

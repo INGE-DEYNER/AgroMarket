@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +23,7 @@ public class Envio {
     private String transportista;
     private String guia;
     private LocalDate fechaEstimadaEntrega;
+    @Builder.Default
     private String origen = "Chigorodó, Antioquia";
     private LocalDateTime fechaCreacion;
 

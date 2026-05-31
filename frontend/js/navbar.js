@@ -1,5 +1,75 @@
-import Auth from "./auth.js";
+// File: frontend/js/navbar.js
+import { isAuthenticated, getCurrentUser, logout } from "./auth.js";
 import { escapeHtml } from "./ui.js";
+
+function buildLink(text, href) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.textContent = text;
+  a.className = "nav-link";
+  return a;
+}
+
+function renderNavbar(containerId = "main-nav") {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
+
+  const left = document.createElement("div");
+  left.className = "nav-left";
+  left.appendChild(buildLink("Inicio", "/"));
+  left.appendChild(buildLink("Catálogo", "/catalogo.html"));
+
+  const right = document.createElement("div");
+  right.className = "nav-right";
+
+  if (isAuthenticated()) {
+    const user = getCurrentUser();
+    const avatar = document.createElement("img");
+    avatar.className = "nav-avatar";
+    avatar.style.width = "36px";
+    avatar.style.height = "36px";
+    avatar.style.borderRadius = "50%";
+    avatar.alt = "Avatar";
+    avatar.src =
+      user && user.fotoUrl
+        ? escapeHtml(user.fotoUrl)
+        : "/assets/img/placeholder-fruta.png";
+
+    const name = document.createElement("span");
+    name.className = "nav-user";
+    name.textContent = user ? user.nombre : "Usuario";
+
+    const dropdown = document.createElement("div");
+    dropdown.className = "nav-dropdown";
+    dropdown.appendChild(avatar);
+    dropdown.appendChild(name);
+
+    const menu = document.createElement("div");
+    menu.className = "nav-menu";
+    menu.appendChild(buildLink("Mi perfil", "/perfil.html"));
+    menu.appendChild(buildLink("Mis pedidos", "/pedidos.html"));
+    const logoutBtn = document.createElement("button");
+    logoutBtn.textContent = "Cerrar sesión";
+    logoutBtn.onclick = () => {
+      logout();
+      window.location.href = "/login.html";
+    };
+    menu.appendChild(logoutBtn);
+
+    dropdown.appendChild(menu);
+    right.appendChild(dropdown);
+  } else {
+    right.appendChild(buildLink("Ingresar", "/login.html"));
+    right.appendChild(buildLink("Registro", "/registro.html"));
+  }
+
+  container.appendChild(left);
+  container.appendChild(right);
+}
+
+export { renderNavbar };
+import Auth from "./auth.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const navActions = document.getElementById("navActions");

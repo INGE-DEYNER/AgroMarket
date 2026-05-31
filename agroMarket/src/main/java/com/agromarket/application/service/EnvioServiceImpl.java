@@ -27,9 +27,11 @@ public class EnvioServiceImpl implements EnvioService {
     private final EnvioMapper envioMapper;
 
     @Override
-    public EnvioResponse getByPedidoId(Long pedidoId) {
-        return envioMapper.toResponse(envioJpaRepository.findByPedidoId(pedidoId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Envío no encontrado")));
+    public EnvioResponse getByPedidoId(Long pedidoId, Long solicitanteId) {
+        EnvioEntity envio = envioJpaRepository.findByPedidoId(pedidoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Envío no encontrado"));
+        validarPropietario(envio, solicitanteId);
+        return envioMapper.toResponse(envio);
     }
 
     @Override
@@ -61,5 +63,15 @@ public class EnvioServiceImpl implements EnvioService {
             envio.setEstado(request.getEstado());
         }
         return envioMapper.toResponse(envioJpaRepository.save(envio));
+    }
+
+    private void validarPropietario(EnvioEntity envio, Long solicitanteId) {
+        UsuarioEntity solicitante = usuarioJpaRepository.findById(solicitanteId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+        boolean esAdmin = solicitante.getRol() == RolUsuario.ADMINISTRADOR;
+        boolean esDueno = envio.getPedido() != null && envio.getPedido().getComprador() != null && envio.getPedido().getComprador().getId() != null && envio.getPedido().getComprador().getId().equals(solicitanteId);
+        if (!esAdmin && !esDueno) {
+            throw new AccesoDenegadoException("No tiene permisos para ver este envío");
+        }
     }
 }

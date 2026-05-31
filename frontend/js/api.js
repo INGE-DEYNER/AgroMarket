@@ -1,6 +1,141 @@
-const BASE_URL = "http://localhost:8080/api";
+// File: frontend/js/api.js
+const API_BASE = window.__AGROMARKET_API_BASE__ || "/api";
 const REQUESTED_WITH_HEADER = "XMLHttpRequest";
 
+// ── In-memory cache for GET requests with TTL ─────────────────────────────────
+const _cache = new Map();
+
+function _cacheSet(key, value, ttlMs) {
+  const expires = Date.now() + ttlMs;
+  _cache.set(key, { value, expires });
+}
+
+function _cacheGet(key) {
+  const entry = _cache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expires) {
+    _cache.delete(key);
+    return null;
+  }
+  return entry.value;
+}
+
+// ── Auth token helpers (module-level, used by named exports) ──────────────────
+function getAuthToken() {
+  return localStorage.getItem("am_token");
+}
+
+function setAuthToken(token) {
+  if (token) {
+    localStorage.setItem("am_token", token);
+  } else {
+    localStorage.removeItem("am_token");
+  }
+}
+
+// ── Low-level fetch wrapper (named-export surface) ────────────────────────────
+async function request(
+  path,
+  { method = "GET", params, body, headers = {}, cacheMs = 0, signal } = {},
+) {
+  const url = new URL(API_BASE + path, window.location.origin);
+  if (params)
+    Object.keys(params).forEach((k) => url.searchParams.append(k, params[k]));
+
+  if (method === "GET" && cacheMs > 0) {
+    const cached = _cacheGet(url.toString());
+    if (cached) return cached;
+  }
+
+  const auth = getAuthToken();
+  const baseHeaders = Object.assign(
+    { "X-Requested-With": REQUESTED_WITH_HEADER },
+    headers,
+  );
+  if (auth) baseHeaders["Authorization"] = "Bearer " + auth;
+
+  const opts = { method, headers: baseHeaders, signal };
+  if (body) {
+    if (body instanceof FormData) {
+      opts.body = body;
+    } else {
+      opts.body = JSON.stringify(body);
+      opts.headers["Content-Type"] = "application/json";
+    }
+  }
+
+  const res = await fetch(url.toString(), opts);
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    let json = null;
+    try {
+      json = JSON.parse(text || "{}");
+    } catch (e) {
+      json = { mensaje: text };
+    }
+    const err = new Error(json.mensaje || res.statusText || "Error");
+    err.status = res.status;
+    err.body = json;
+    throw err;
+  }
+
+  const ct = res.headers.get("content-type") || "";
+  const result = ct.includes("application/json")
+    ? await res.json()
+    : await res.text();
+
+  if (method === "GET" && cacheMs > 0) _cacheSet(url.toString(), result, cacheMs);
+  return result;
+}
+
+function get(path, options = {}) {
+  return request(path, Object.assign({ method: "GET" }, options));
+}
+function post(path, body, options = {}) {
+  return request(path, Object.assign({ method: "POST", body }, options));
+}
+function put(path, body, options = {}) {
+  return request(path, Object.assign({ method: "PUT", body }, options));
+}
+function del(path, options = {}) {
+  return request(path, Object.assign({ method: "DELETE" }, options));
+}
+
+// Upload with progress — used by named-export callers
+function uploadWithProgress(urlPath, file, onProgress, fieldName = "imagen") {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const token = getAuthToken();
+    xhr.open("POST", API_BASE + urlPath, true);
+    if (token) xhr.setRequestHeader("Authorization", "Bearer " + token);
+    xhr.setRequestHeader("X-Requested-With", REQUESTED_WITH_HEADER);
+    xhr.upload.onprogress = function (e) {
+      if (e.lengthComputable && onProgress)
+        onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch (e) {
+          resolve(xhr.responseText);
+        }
+      } else {
+        reject(new Error("Upload failed: " + xhr.status));
+      }
+    };
+    xhr.onerror = function () {
+      reject(new Error("Network error"));
+    };
+    const form = new FormData();
+    form.append(fieldName, file);
+    xhr.send(form);
+  });
+}
+
+export { API_BASE, getAuthToken, setAuthToken, get, post, put, del, uploadWithProgress };
+
+// ── Helper functions ──────────────────────────────────────────────────────────
 function isFormDataLike(value) {
   return typeof FormData !== "undefined" && value instanceof FormData;
 }
@@ -51,9 +186,23 @@ function readJsonSafely(text) {
   }
 }
 
+// Known session keys — mirrors the list in auth.js
+const SESSION_KEYS = [
+  "am_token",
+  "token",
+  "am_user",
+  "rol",
+  "nombre",
+  "userId",
+  "correo",
+  "fotoPerfil",
+];
+
+// ── AgroMarketAPI class ───────────────────────────────────────────────────────
 class AgroMarketAPI {
+  // Use the module-level getAuthToken so both code-paths read the same key
   _getToken() {
-    return localStorage.getItem("token");
+    return getAuthToken() || localStorage.getItem("token");
   }
 
   _getUser() {
@@ -64,8 +213,9 @@ class AgroMarketAPI {
     return { rol, nombre, fotoPerfil };
   }
 
+  // Clear only known session keys — never wipe the whole localStorage
   _clearSession() {
-    localStorage.clear();
+    SESSION_KEYS.forEach((key) => localStorage.removeItem(key));
   }
 
   _headers(auth = true) {
@@ -86,7 +236,7 @@ class AgroMarketAPI {
 
   _buildUrl(path, query) {
     const suffix = query ? buildQuery(query) : "";
-    return `${BASE_URL}${path}${suffix}`;
+    return `${API_BASE}${path}${suffix}`;
   }
 
   async request(
@@ -174,6 +324,7 @@ class AgroMarketAPI {
     return this.request(method, path, { body, auth });
   }
 
+  // Image upload — uses class XHR so it reads the token via _getToken()
   async uploadProductImage(productoId, file, onProgress = null) {
     if (!file) {
       throw {
@@ -187,11 +338,12 @@ class AgroMarketAPI {
     }
 
     const formData = new FormData();
+    // field name must match @RequestParam("imagen") on the backend
     formData.append("imagen", file, file.name || "imagen");
 
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", `${BASE_URL}/productos/${productoId}/imagen`);
+      xhr.open("POST", `${API_BASE}/productos/${productoId}/imagen`);
       xhr.setRequestHeader("Accept", "application/json");
       xhr.setRequestHeader("X-Requested-With", REQUESTED_WITH_HEADER);
 
@@ -260,6 +412,12 @@ class AgroMarketAPI {
     });
   }
 
+  // Alias: some callers use subirImagenProducto — delegates to uploadProductImage
+  subirImagenProducto(productoId, file, onProgress) {
+    return this.uploadProductImage(productoId, file, onProgress);
+  }
+
+  // ── Auth ───────────────────────────────────────────────────────────────────
   login(correo, contrasena) {
     return this._fetch("POST", "/auth/login", { correo, contrasena }, false);
   }
@@ -319,6 +477,7 @@ class AgroMarketAPI {
     );
   }
 
+  // ── Productos ─────────────────────────────────────────────────────────────
   getProductos(params = {}) {
     return this.request("GET", "/productos", { auth: false, query: params });
   }
@@ -343,6 +502,7 @@ class AgroMarketAPI {
     return this.request("GET", "/productos/mis-productos", { query: params });
   }
 
+  // ── Pedidos ───────────────────────────────────────────────────────────────
   getPedidos(params = {}) {
     return this.request("GET", "/pedidos", { query: params });
   }
@@ -371,6 +531,7 @@ class AgroMarketAPI {
     return this._fetch("PUT", `/pedidos/${id}/cancelar`);
   }
 
+  // ── Pagos ─────────────────────────────────────────────────────────────────
   procesarPago(body) {
     return this._fetch("POST", "/pagos", body);
   }
@@ -379,14 +540,12 @@ class AgroMarketAPI {
     return this._fetch("GET", `/pagos/pedido/${pedidoId}`);
   }
 
+  // ── Facturas ──────────────────────────────────────────────────────────────
   getFacturaPorPedido(pedidoId) {
     return this._fetch("GET", `/facturas/pedido/${pedidoId}`);
   }
 
-  getFacturas(params = {}) {
-    return this.request("GET", "/facturas", { query: params });
-  }
-
+  // ── Envíos ────────────────────────────────────────────────────────────────
   getMisEnvios(params = {}) {
     return this.request("GET", "/envios/mis-envios", { query: params });
   }
@@ -399,6 +558,7 @@ class AgroMarketAPI {
     return this._fetch("PUT", `/envios/${id}`, body);
   }
 
+  // ── Mensajes ──────────────────────────────────────────────────────────────
   getContactos(params = {}) {
     return this.request("GET", "/mensajes/contactos", { query: params });
   }
@@ -417,15 +577,12 @@ class AgroMarketAPI {
     return this._fetch("GET", "/mensajes/no-leidos");
   }
 
+  // ── Reseñas ───────────────────────────────────────────────────────────────
   getResenas(productoId, params = {}) {
     return this.request("GET", `/resenas/producto/${productoId}`, {
       auth: false,
       query: params,
     });
-  }
-
-  getTodasResenas(params = {}) {
-    return this.request("GET", "/resenas", { auth: false, query: params });
   }
 
   crearResena(body) {
@@ -436,6 +593,7 @@ class AgroMarketAPI {
     return this._fetch("DELETE", `/resenas/${id}`);
   }
 
+  // ── Notificaciones ────────────────────────────────────────────────────────
   getNotificaciones(params = {}) {
     return this.request("GET", "/notificaciones", { query: params });
   }
@@ -448,6 +606,7 @@ class AgroMarketAPI {
     return this._fetch("PUT", "/notificaciones/leer-todas");
   }
 
+  // ── Perfil / usuario ──────────────────────────────────────────────────────
   getMe() {
     return this._fetch("GET", "/usuarios/me");
   }
@@ -464,6 +623,11 @@ class AgroMarketAPI {
     return this.actualizarMe(body);
   }
 
+  actualizarContrasena(body) {
+    return this._fetch("PUT", "/usuarios/me/contrasena", body);
+  }
+
+  // ── Admin ─────────────────────────────────────────────────────────────────
   getDashboard() {
     return this._fetch("GET", "/admin/dashboard");
   }

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verificar correo â€” AgroMarket</title>
+    <meta
+      name="description"
+      content="Confirma tu cuenta con el cÃ³digo de 6 dÃ­gitos enviado por AgroMarket."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/verificar-correo.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="left-panel">
+        <a href="login.html" class="brand">
+          <div class="brand-logo">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">AgroMarket</div>
+            <div class="brand-sub">Plataforma de comercio agrÃ­cola</div>
+          </div>
+        </a>
+
+        <div
+          class="verify-wrap"
+          style="margin: auto 0; max-width: 440px; width: 100%"
+        >
+          <h1 class="page-title">Verifica tu correo</h1>
+          <p class="page-sub">
+            Ingresa el cÃ³digo de 6 dÃ­gitos que enviamos a
+            <span id="maskedEmail" class="masked-email">tu correo</span>.
+          </p>
+
+          <div
+            id="result"
+            class="verification-state"
+            role="status"
+            aria-live="polite"
+          ></div>
+
+          <form id="verifyForm" novalidate>
+            <div class="otp-grid" aria-label="CÃ³digo de verificaciÃ³n">
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                maxlength="1"
+                autocomplete="one-time-code"
+                aria-label="DÃ­gito 1"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                maxlength="1"
+                aria-label="DÃ­gito 2"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                maxlength="1"
+                aria-label="DÃ­gito 3"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                maxlength="1"
+                aria-label="DÃ­gito 4"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                maxlength="1"
+                aria-label="DÃ­gito 5"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                maxlength="1"
+                aria-label="DÃ­gito 6"
+              />
+            </div>
+
+            <div class="verify-meta">
+              <div class="timer-pill">â³ <span id="timer">15:00</span></div>
+              <a
+                href="#"
+                id="resendLink"
+                class="resend-link is-disabled"
+                aria-disabled="true"
+                >Reenviar cÃ³digo</a
+              >
+            </div>
+
+            <button class="btn-submit" id="verifyBtn" type="submit">
+              Verificar cÃ³digo
+            </button>
+            <button type="button" id="resendBtn" style="display: none"></button>
+          </form>
+
+          <div class="divider"></div>
+
+          <div class="form-footer">
+            Â¿Ya verificaste? <a href="login.html">Volver al inicio de sesiÃ³n</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <img
+          src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=1200"
+          alt="Cultivos de fruta"
+          class="bg-img"
+        />
+        <div class="right-overlay">
+          <div class="right-badge">ðŸ“© VerificaciÃ³n segura</div>
+          <h2 class="right-title">
+            Activa tu cuenta para comprar y vender con confianza.
+          </h2>
+          <p class="right-sub">
+            El cÃ³digo expira en 15 minutos. Si necesitas otro, podrÃ¡s reenviarlo
+            cuando el temporizador llegue a cero.
+          </p>
+
+          <div class="verify-hints">
+            <div class="verify-hint">
+              <strong>Autocompletado</strong><br />Puedes pegar los 6 dÃ­gitos de
+              una sola vez.
+            </div>
+            <div class="verify-hint">
+              <strong>ReenvÃ­o controlado</strong><br />El botÃ³n de reenviar se
+              activa solo al expirar el contador.
+            </div>
+            <div class="verify-hint">
+              <strong>Acceso inmediato</strong><br />Cuando verifiques, te
+              llevaremos al login para entrar al sistema.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/site-info.js"></script>
+    <script type="module" src="js/verificar-correo.js"></script>
+  </body>
+</html>
+

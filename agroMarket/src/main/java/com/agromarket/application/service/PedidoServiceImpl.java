@@ -2,7 +2,7 @@ package com.agromarket.application.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import com.agromarket.application.dto.CrearPedidoRequest;
 import com.agromarket.application.dto.PedidoResponse;
@@ -27,6 +27,8 @@ import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.benmanes.caffeine.cache.Cache;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -38,6 +40,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final EnvioJpaRepository envioJpaRepository;
     private final PedidoMapper pedidoMapper;
+    private final Cache<Long, Object> pedidosCache;
 
     @Override
     public PedidoResponse crear(CrearPedidoRequest request, Long compradorId) {
@@ -61,6 +64,8 @@ public class PedidoServiceImpl implements PedidoService {
                 .estado(EstadoPedido.PENDIENTE)
                 .build();
         PedidoEntity guardado = pedidoJpaRepository.save(pedido);
+        // invalidate caches
+        pedidosCache.invalidateAll();
         return pedidoMapper.toResponse(guardado);
     }
 
@@ -106,7 +111,10 @@ public class PedidoServiceImpl implements PedidoService {
         } else if (pedido.getEstado() == EstadoPedido.ENVIADO) {
             pedido.setEstado(EstadoPedido.ENTREGADO);
         }
-        return pedidoMapper.toResponse(pedidoJpaRepository.save(pedido));
+        PedidoResponse result = pedidoMapper.toResponse(pedidoJpaRepository.save(pedido));
+        // invalidate caches
+        pedidosCache.invalidateAll();
+        return result;
     }
 
     @Override
@@ -126,6 +134,8 @@ public class PedidoServiceImpl implements PedidoService {
         producto.setCantidadDisponible(producto.getCantidadDisponible() + pedido.getCantidad());
         productoJpaRepository.save(producto);
         pedidoJpaRepository.save(pedido);
+        // invalidate caches
+        pedidosCache.invalidateAll();
     }
 
     @Override
@@ -150,17 +160,17 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     private UsuarioEntity obtenerUsuario(Long id) {
-        return usuarioJpaRepository.findById(id)
+        return usuarioJpaRepository.findById(Objects.requireNonNull(id, "id"))
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
     }
 
     private ProductoEntity obtenerProducto(Long id) {
-        return productoJpaRepository.findById(id)
+        return productoJpaRepository.findById(Objects.requireNonNull(id, "id"))
                 .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado"));
     }
 
     private PedidoEntity obtenerPedido(Long id) {
-        return pedidoJpaRepository.findById(id)
+        return pedidoJpaRepository.findById(Objects.requireNonNull(id, "id"))
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pedido no encontrado"));
     }
 }

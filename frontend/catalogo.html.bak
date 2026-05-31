@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CatÃ¡logo â€” AgroMarket</title>
+    <meta
+      name="description"
+      content="Explora y compra frutas tropicales frescas de ASAFRUT ChigorodÃ³."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/catalogo.css" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <a class="navbar-brand" href="dashboard-comprador.html">
+        <span class="logo-icon">ðŸŒ¿</span><span>AgroMarket</span>
+      </a>
+      <div class="navbar-links" id="navLinks">
+        <a href="dashboard-comprador.html">Mi Panel</a>
+        <a href="catalogo.html" class="active">CatÃ¡logo</a>
+        <a href="pedidos.html">Pedidos</a>
+        <a href="mensajeria.html">Mensajes</a>
+      </div>
+      <div class="navbar-right" id="navActions">
+        <!-- Injected by navbar.js -->
+      </div>
+    </nav>
+
+    <main style="padding: 28px 32px; max-width: 1280px; margin: 0 auto">
+      <!-- HERO -->
+      <div class="catalog-hero">
+        <div>
+          <div class="hero-title">
+            Frutas tropicales<br />directo del campo ðŸŒ¿
+          </div>
+          <div class="hero-sub">
+            Productos frescos de los agricultores de ASAFRUT en ChigorodÃ³,
+            Antioquia.
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filter-bar" style="margin-bottom: 8px">
+        <input
+          class="search-input"
+          type="text"
+          id="searchCatalog"
+          placeholder="ðŸ” Buscar por nombre o tipo..."
+          oninput="applyFilters()"
+        />
+        <select
+          class="form-select"
+          style="width: 160px"
+          id="filtroTipo"
+          onchange="applyFilters()"
+        >
+          <option value="">Todos los tipos</option>
+          <option>Banano</option>
+          <option>PiÃ±a</option>
+          <option>Mango</option>
+          <option>MaracuyÃ¡</option>
+          <option>GuanÃ¡bana</option>
+          <option>Naranja</option>
+          <option>Coco</option>
+          <option>LimÃ³n</option>
+        </select>
+      </div>
+
+      <!-- GRID -->
+      <div class="products-grid" id="catalogGrid"></div>
+    </main>
+
+    <!-- CART DRAWER -->
+    <div
+      class="cart-drawer-overlay"
+      id="cartOverlay"
+      onclick="toggleCart()"
+    ></div>
+    <div class="cart-drawer" id="cartDrawer">
+      <div class="cart-header">
+        <h3>
+          ðŸ›’ Mi carrito
+          <span
+            id="cartCountHeader"
+            style="font-size: 0.9rem; color: var(--text-dim); font-weight: 400"
+            >(0 items)</span
+          >
+        </h3>
+        <button class="modal-close" onclick="toggleCart()">âœ•</button>
+      </div>
+
+      <div class="cart-content" id="cartItemsContainer">
+        <!-- Rendered by renderCartItems() -->
+      </div>
+
+      <div class="cart-footer" id="cartFooter">
+        <div class="cart-summary-row">
+          <span>Subtotal</span><span id="cartSubtotal">$0</span>
+        </div>
+        <div class="cart-summary-row">
+          <span>EnvÃ­o</span><span>$15.000</span>
+        </div>
+        <div class="cart-summary-total">
+          <span>TOTAL</span><span id="cartTotal">$0</span>
+        </div>
+
+        <div class="cart-actions">
+          <button
+            class="btn btn-primary btn-cta"
+            style="width: 100%; justify-content: center"
+            onclick="checkoutCart()"
+          >
+            Proceder al pago â†’
+          </button>
+          <button
+            class="btn btn-secondary"
+            style="width: 100%; justify-content: center"
+            onclick="toggleCart()"
+          >
+            Seguir comprando
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/cart.js"></script>
+    <script type="module" src="js/navbar.js"></script>
+    <script type="module" src="js/catalogo.js"></script>
+  </body>
+</html>
+
+

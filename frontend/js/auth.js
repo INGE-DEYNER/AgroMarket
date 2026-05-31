@@ -1,13 +1,26 @@
-import api from "./api.js";
+// File: frontend/js/auth.js
+import api, { getAuthToken as getApiAuthToken, setAuthToken as setApiAuthToken } from "./api.js";
 
-const SESSION_KEYS = [
-  "token",
-  "rol",
-  "nombre",
-  "userId",
-  "correo",
-  "fotoPerfil",
-];
+const SESSION_KEYS = ["am_token", "token", "am_user", "rol", "nombre", "userId", "correo", "fotoPerfil"];
+
+function setSessionToken(token) {
+  if (token) {
+    setApiAuthToken(token);
+    localStorage.setItem("token", token);
+    return;
+  }
+  setApiAuthToken(null);
+  localStorage.removeItem("token");
+}
+
+function getToken() {
+  const token = getApiAuthToken() || localStorage.getItem("token");
+  // Keep both token keys in sync while legacy scripts still exist.
+  if (token && !getApiAuthToken()) {
+    setApiAuthToken(token);
+  }
+  return token;
+}
 
 function normalizarRol(rol) {
   const value = String(rol || "").toUpperCase();
@@ -28,7 +41,7 @@ function resolveDashboardRoute(rol) {
 }
 
 function clearSession() {
-  localStorage.clear();
+  SESSION_KEYS.forEach((key) => localStorage.removeItem(key));
 }
 
 function redirectToLogin() {
@@ -45,9 +58,7 @@ function guardarSesion(authResponse) {
   const rolNormalizado = normalizarRol(
     source.rol || source.role || source.tipo,
   );
-  if (source.token) {
-    localStorage.setItem("token", source.token);
-  }
+  if (source.token) setSessionToken(source.token);
   localStorage.setItem("rol", rolNormalizado);
   if (source.nombre) {
     localStorage.setItem("nombre", source.nombre);
@@ -61,10 +72,6 @@ function guardarSesion(authResponse) {
   if (source.fotoPerfil) {
     localStorage.setItem("fotoPerfil", source.fotoPerfil);
   }
-}
-
-function getToken() {
-  return localStorage.getItem("token");
 }
 
 function getUsuario() {
@@ -84,6 +91,75 @@ function getUsuario() {
     rol: normalizarRol(rol),
     fotoPerfil: fotoPerfil || "",
   };
+}
+
+function getCurrentUser() {
+  try {
+    const stored = JSON.parse(localStorage.getItem("am_user") || "null");
+    if (stored) return stored;
+  } catch (_error) {
+    // Ignore invalid JSON and fallback to role-based session keys.
+  }
+
+  const user = getUsuario();
+  if (!user) return null;
+
+  return {
+    nombre: user.nombre,
+    correo: user.correo,
+    rol: user.rol,
+    fotoPerfil: user.fotoPerfil,
+    userId: user.id,
+  };
+}
+
+function setCurrentUser(user) {
+  if (!user) {
+    localStorage.removeItem("am_user");
+    localStorage.removeItem("nombre");
+    localStorage.removeItem("correo");
+    localStorage.removeItem("rol");
+    localStorage.removeItem("fotoPerfil");
+    localStorage.removeItem("userId");
+    return;
+  }
+
+  const normalizedRole = normalizarRol(user.rol || user.role || "comprador");
+  localStorage.setItem("am_user", JSON.stringify(user));
+  localStorage.setItem("rol", normalizedRole);
+  localStorage.setItem("nombre", user.nombre || "Usuario");
+  localStorage.setItem("correo", user.correo || "");
+
+  if (user.fotoPerfil || user.fotoUrl) {
+    localStorage.setItem("fotoPerfil", user.fotoPerfil || user.fotoUrl);
+  }
+
+  const id = user.userId ?? user.id;
+  if (id !== undefined && id !== null) {
+    localStorage.setItem("userId", String(id));
+  }
+}
+
+function isAuthenticated() {
+  return Boolean(getToken());
+}
+
+async function login(email, password) {
+  const authResponse = await api.login(email, password);
+  const source = authResponse?.data ?? authResponse;
+  guardarSesion(source);
+  setCurrentUser({
+    nombre: source?.nombre,
+    correo: source?.correo,
+    rol: source?.rol,
+    fotoPerfil: source?.fotoPerfil || source?.fotoUrl,
+    userId: source?.userId,
+  });
+  return source;
+}
+
+async function register(user) {
+  return api.registro(user);
 }
 
 function isLoggedIn() {
@@ -185,6 +261,8 @@ function inicializarSesionDesdeBackend(authResponse) {
 }
 
 const Auth = {
+  login,
+  register,
   guardarSesion,
   getToken,
   getUsuario,
@@ -209,9 +287,14 @@ const Auth = {
 window.Auth = Auth;
 
 export {
+  login,
+  register,
   guardarSesion,
   getToken,
   getUsuario,
+  getCurrentUser,
+  setCurrentUser,
+  isAuthenticated,
   isLoggedIn,
   getRole,
   cerrarSesion,

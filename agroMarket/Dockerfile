@@ -4,7 +4,7 @@ COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
 COPY src src
-RUN chmod +x mvnw && ./mvnw -B -DskipTests package
+RUN chmod +x mvnw && ./mvnw -B -U -DskipTests clean package
 FROM eclipse-temurin:17-jre-jammy
 RUN useradd -m appuser
 USER appuser

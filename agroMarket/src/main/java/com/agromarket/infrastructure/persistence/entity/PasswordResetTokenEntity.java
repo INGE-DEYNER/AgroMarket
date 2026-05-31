@@ -41,6 +41,7 @@ public class PasswordResetTokenEntity {
     private LocalDateTime expiry;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean usado = false;
 
     @CreationTimestamp

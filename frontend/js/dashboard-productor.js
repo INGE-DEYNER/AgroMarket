@@ -15,6 +15,8 @@ const state = {
   productos: [],
   ventas: [],
   editingId: null,
+  imagenFile: null,
+  imagenUrl: null,
 };
 
 function showSection(name) {
@@ -258,6 +260,8 @@ function actualizarStats() {
 
 function openProductoModal(producto = null) {
   state.editingId = producto?.id || null;
+  state.imagenFile = null;
+  state.imagenUrl = producto?.imagenUrl || null;
 
   const title = document.getElementById("modalTitle");
   if (title) {
@@ -273,6 +277,14 @@ function openProductoModal(producto = null) {
   document.getElementById("pPrecio").value = producto?.precio || "";
   document.getElementById("pStock").value = producto?.cantidadDisponible || "";
   document.getElementById("pDesc").value = producto?.descripcion || "";
+
+  // Reset imagen
+  const imagenInput = document.getElementById("imagenInput");
+  if (imagenInput) imagenInput.value = "";
+  const previewContainer = document.getElementById("imagenPreviewContainer");
+  if (previewContainer) previewContainer.style.display = state.imagenUrl ? "block" : "none";
+  const preview = document.getElementById("imagenPreview");
+  if (preview && state.imagenUrl) preview.src = state.imagenUrl;
 
   document.getElementById("modalProducto")?.classList.add("open");
 }
@@ -304,19 +316,35 @@ async function guardarProducto() {
     descripcion: desc,
     precio,
     cantidadDisponible: stock,
-    imagenUrl: productoExistente?.imagenUrl || "",
+    imagenUrl: state.imagenUrl || productoExistente?.imagenUrl || "",
     tipoFruta: normalizarTipoFruta(tipo),
     enPromocion: false,
   };
 
   try {
+    let productoId = state.editingId;
+
     if (state.editingId) {
       await api.actualizarProducto(state.editingId, payload);
       mostrarExito("Producto actualizado correctamente.");
     } else {
-      await api.crearProducto(payload);
+      const res = await api.crearProducto(payload);
+      productoId = res?.id;
       mostrarExito("Producto publicado correctamente.");
     }
+
+    // Subir imagen si existe
+    if (state.imagenFile && productoId) {
+      const progressBar = document.getElementById("imagenProgressBar");
+      try {
+        await api.subirImagenProducto(productoId, state.imagenFile, (pct) => {
+          if (progressBar) progressBar.style.width = `${pct}%`;
+        });
+      } catch (err) {
+        console.warn("Error al subir imagen:", err.message);
+      }
+    }
+
     closeProductoModal();
     await cargarDatos();
   } catch (error) {
@@ -416,8 +444,66 @@ async function cargarDatos() {
   actualizarStats();
 }
 
+function setupImagenHandlers() {
+  const imagenInput = document.getElementById("imagenInput");
+  const imagenUploadArea = document.getElementById("imagenUploadArea");
+  const imagenPreviewContainer = document.getElementById("imagenPreviewContainer");
+  const imagenPreview = document.getElementById("imagenPreview");
+  const uploadProgress = document.getElementById("imagenUploadProgress");
+  const progressBar = document.getElementById("imagenProgressBar");
+
+  if (!imagenInput || !imagenUploadArea) return;
+
+  const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+
+  function handleFile(file) {
+    if (!validTypes.includes(file.type)) {
+      alert("Solo se permiten imágenes JPG, PNG o WEBP.");
+      return;
+    }
+    if (file.size > maxSize) {
+      alert("La imagen no puede superar 5 MB.");
+      return;
+    }
+
+    state.imagenFile = file;
+
+    // Preview local
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (imagenPreview) imagenPreview.src = e.target.result;
+      if (imagenPreviewContainer) imagenPreviewContainer.style.display = "block";
+      if (uploadProgress) uploadProgress.style.display = "none";
+      if (progressBar) progressBar.style.width = "0%";
+    };
+    reader.readAsDataURL(file);
+  }
+
+  imagenUploadArea.addEventListener("click", () => imagenInput.click());
+  imagenUploadArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    imagenUploadArea.style.background = "#f0f0f0";
+  });
+  imagenUploadArea.addEventListener("dragleave", () => {
+    imagenUploadArea.style.background = "";
+  });
+  imagenUploadArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    imagenUploadArea.style.background = "";
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+
+  imagenInput.addEventListener("change", (e) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   renderPerfil();
+  setupImagenHandlers();
   await cargarDatos();
 });
 

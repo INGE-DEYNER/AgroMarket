@@ -285,24 +285,31 @@
             placeholder="Describe la calidad, procedencia..."
           ></textarea>
         </div>
-        <div class="form-group">
-          <label class="form-label">Imagen del producto</label>
-          <div
-            style="
-              border: 1.5px dashed #d1d5db;
-              border-radius: 8px;
-              padding: 20px;
-              text-align: center;
-              color: #9ca3af;
-              cursor: pointer;
-            "
-          >
-            <span style="font-size: 24px; display: block">📷</span>
-            <span style="font-size: 12px"
-              >Imágenes predeterminadas cargadas automáticamente</span
-            >
-          </div>
-        </div>
+         <div class="form-group">
+           <label class="form-label">Imagen del producto</label>
+           <div id="imagenPreviewContainer" style="display: none; margin-bottom: 12px; position: relative;">
+             <img id="imagenPreview" src="" alt="Vista previa" style="width: 100%; max-width: 200px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #2d6a4f;" />
+             <div id="imagenUploadProgress" style="display: none; margin-top: 8px; background: #f0f0f0; border-radius: 4px; height: 4px; overflow: hidden;">
+               <div id="imagenProgressBar" style="height: 100%; background: #2d6a4f; width: 0%; transition: width 0.3s ease;"></div>
+             </div>
+           </div>
+           <div
+             id="imagenUploadArea"
+             style="
+               border: 1.5px dashed #d1d5db;
+               border-radius: 8px;
+               padding: 20px;
+               text-align: center;
+               color: #9ca3af;
+               cursor: pointer;
+               transition: all 0.2s ease;
+             "
+           >
+             <span style="font-size: 24px; display: block">📷</span>
+             <span style="font-size: 12px; display: block;">Haz clic para seleccionar imagen (JPG, PNG, WEBP, máx. 5MB)</span>
+           </div>
+           <input type="file" id="imagenInput" accept="image/jpeg,image/jpg,image/png,image/webp" style="display: none;" />
+         </div>
         <div
           class="modal-footer"
           style="display: flex; gap: 12px; margin-top: 24px"
@@ -330,3 +337,4 @@
     <script type="module" src="js/dashboard-productor.js"></script>
   </body>
 </html>
+

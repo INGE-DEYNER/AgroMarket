@@ -2,6 +2,7 @@ package com.agromarket.application.service;
 
 import java.util.List;
 
+import com.agromarket.application.dto.CambiarContrasenaRequest;
 import com.agromarket.application.dto.ActualizarUsuarioRequest;
 import com.agromarket.application.dto.UsuarioResponse;
 
@@ -22,6 +23,9 @@ public interface UsuarioService {
 
     @Transactional
     UsuarioResponse actualizarPerfil(Long id, ActualizarUsuarioRequest request);
+
+    @Transactional
+    void actualizarContrasena(Long id, CambiarContrasenaRequest request);
 
     @Transactional
     void habilitar(Long id);

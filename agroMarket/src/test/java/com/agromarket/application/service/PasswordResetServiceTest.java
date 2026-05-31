@@ -8,6 +8,7 @@ import com.agromarket.infrastructure.persistence.entity.PasswordResetTokenEntity
 import com.agromarket.infrastructure.persistence.repository.PasswordResetTokenRepository;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 import java.util.List;
+import java.util.Objects;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class PasswordResetServiceTest {
                 .telefono("3001234567")
                 .build();
 
-        usuarioJpaRepository.save(comprador);
+        usuarioJpaRepository.save(Objects.requireNonNull(comprador));
 
         CapturingMailSender sender = (CapturingMailSender) javaMailSender;
         // clear any previous captured messages to isolate this test

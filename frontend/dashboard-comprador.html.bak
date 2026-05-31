@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Comprador â€” AgroMarket</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-user">
+          <div
+            class="avatar avatar-blue"
+            id="sidebarUserAvatar"
+            style="width: 48px; height: 48px; font-size: 1.2rem"
+          >
+            --
+          </div>
+          <div class="sidebar-user-info">
+            <span class="name" id="sidebarUserName">Cargando perfil...</span>
+            <span class="role" id="sidebarUserRole">Cargando...</span>
+          </div>
+        </div>
+
+        <div class="sidebar-label">NavegaciÃ³n</div>
+        <a
+          href="#"
+          class="sidebar-link active"
+          onclick="
+            showSection('resumen');
+            return false;
+          "
+        >
+          <span class="icon">ðŸ“Š</span> Resumen
+        </a>
+        <a href="catalogo.html" class="sidebar-link">
+          <span class="icon">ðŸ›ï¸</span> Explorar CatÃ¡logo
+        </a>
+        <a
+          href="#"
+          class="sidebar-link"
+          onclick="
+            showSection('misPedidos');
+            return false;
+          "
+        >
+          <span class="icon">ðŸ§¾</span> Mis Pedidos
+        </a>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-label">Servicios</div>
+        <a href="envios.html" class="sidebar-link">
+          <span class="icon">ðŸšš</span> Seguimiento
+        </a>
+        <a href="mensajeria.html" class="sidebar-link">
+          <span class="icon">ðŸ’¬</span> MensajerÃ­a
+        </a>
+        <a href="resenas.html" class="sidebar-link">
+          <span class="icon">â­</span> Mis ReseÃ±as
+        </a>
+
+        <a
+          href="#"
+          onclick="
+            Auth.logout();
+            return false;
+          "
+          class="sidebar-link"
+          style="margin-top: auto; color: var(--red)"
+        >
+          <span class="icon">ðŸ”’</span> Cerrar sesiÃ³n
+        </a>
+      </aside>
+
+      <!-- MOBILE NAV -->
+      <nav class="mobile-nav">
+        <a
+          href="#"
+          class="mobile-nav-item active"
+          onclick="showSection('resumen')"
+        >
+          <span class="icon">ðŸ </span><span>Inicio</span>
+        </a>
+        <a href="catalogo.html" class="mobile-nav-item">
+          <span class="icon">ðŸ›ï¸</span><span>Tienda</span>
+        </a>
+        <a href="#" class="mobile-nav-item" onclick="showSection('misPedidos')">
+          <span class="icon">ðŸ§¾</span><span>Pedidos</span>
+        </a>
+        <a href="mensajeria.html" class="mobile-nav-item">
+          <span class="icon">ðŸ’¬</span><span>Chat</span>
+        </a>
+        <a
+          href="#"
+          onclick="
+            Auth.logout();
+            return false;
+          "
+          class="mobile-nav-item"
+        >
+          <span class="icon">ðŸ‘¤</span><span>Salir</span>
+        </a>
+      </nav>
+
+      <main class="main-content">
+        <!-- â”€â”€ RESUMEN â”€â”€ -->
+        <div class="section active" id="sec-resumen">
+          <div class="dash-header">
+            <div class="dash-welcome">
+              <h1 id="welcomeUserText">Cargando panel...</h1>
+              <p id="currentDate">Cargando fecha...</p>
+            </div>
+            <a href="catalogo.html" class="btn-cta"> Explorar catÃ¡logo â†’ </a>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card color-1">
+              <span class="stat-icon-lg">ðŸ“¦</span>
+              <div class="stat-label">Pedidos Realizados</div>
+              <div class="stat-value" id="statPedidos">--</div>
+              <div class="stat-trend up" id="pedidosTrend">Compras totales</div>
+              <div class="stat-progress">
+                <div class="stat-progress-bar" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="stat-card color-2">
+              <span class="stat-icon-lg">ðŸ’°</span>
+              <div class="stat-label">InversiÃ³n Total</div>
+              <div class="stat-value" id="statInversion">--</div>
+              <div class="stat-trend up" id="inversionTrend">
+                COP invertidos
+              </div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 100%; background: var(--blue)"
+                ></div>
+              </div>
+            </div>
+            <div class="stat-card color-3">
+              <span class="stat-icon-lg">â­</span>
+              <div class="stat-label">ReseÃ±as Dejadas</div>
+              <div class="stat-value" id="statResenas">--</div>
+              <div class="stat-trend" id="resenasTrend">Nivel de opiniÃ³n</div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 100%; background: var(--gold)"
+                ></div>
+              </div>
+            </div>
+            <div class="stat-card color-4">
+              <span class="stat-icon-lg">ðŸ¤</span>
+              <div class="stat-label">Productores</div>
+              <div class="stat-value" id="statContactos">--</div>
+              <div class="stat-trend up" id="contactosTrend">
+                Contactos de chat
+              </div>
+              <div class="stat-progress">
+                <div
+                  class="stat-progress-bar"
+                  style="width: 100%; background: #a855f7"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLA RECIENTES -->
+          <div class="card-table" style="margin-bottom: 32px">
+            <div class="table-header">
+              <h3 class="card-title">ðŸ“¦ Pedidos Recientes</h3>
+              <a
+                href="#"
+                onclick="
+                  showSection('misPedidos');
+                  return false;
+                "
+                style="font-size: 0.8rem; font-weight: 600"
+                >Ver todos los pedidos</a
+              >
+            </div>
+            <div class="table-wrap">
+              <table class="table-responsive">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Total COP</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbRecentPedidos"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- RECOMENDADOS -->
+          <div class="dash-header" style="margin-bottom: 20px">
+            <h3 class="card-title">
+              ðŸŒŸ Productos de Temporada en
+              <span data-site="siteRegion">UrabÃ¡</span>
+            </h3>
+          </div>
+          <div class="products-grid" id="recsGrid">
+            <!-- Se llena con JS -->
+          </div>
+        </div>
+
+        <!-- â”€â”€ MIS PEDIDOS â”€â”€ -->
+        <div class="section" id="sec-misPedidos">
+          <div class="dash-header">
+            <div class="dash-welcome">
+              <h1>Historial de Pedidos</h1>
+              <p>Gestiona y revisa tus compras anteriores</p>
+            </div>
+          </div>
+          <div class="card-table">
+            <div class="table-filters">
+              <div class="search-box">
+                <input type="text" placeholder="Filtrar pedidos..." />
+              </div>
+              <select
+                class="form-select"
+                style="width: 180px"
+                id="filtroPedComp"
+                onchange="filtrarPedidosComp()"
+              >
+                <option value="">Todos los estados</option>
+                <option>Pendiente</option>
+                <option>Enviado</option>
+                <option>Entregado</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table class="table-responsive">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbPedidosComp"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL FACTURA -->
+    <div class="modal-overlay" id="modalFactura">
+      <div class="modal" style="max-width: 460px">
+        <div class="modal-header">
+          <span class="modal-title">Detalle de Factura ElectrÃ³nica</span>
+          <button
+            class="modal-close"
+            onclick="
+              document.getElementById('modalFactura').classList.remove('open')
+            "
+          >
+            âœ•
+          </button>
+        </div>
+        <div id="facturaContent"></div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            onclick="
+              document.getElementById('modalFactura').classList.remove('open')
+            "
+          >
+            Cerrar
+          </button>
+          <button
+            class="btn btn-primary"
+            onclick="alert('Factura enviada al correo registrado.')"
+          >
+            ðŸ“§ Enviar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/site-info.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/dashboard-comprador.js"></script>
+  </body>
+</html>
+

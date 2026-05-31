@@ -1,11 +1,11 @@
 package com.agromarket.infrastructure.security;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
+import com.agromarket.config.properties.AppProperties;
 import com.agromarket.application.service.AuthService;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -15,16 +15,18 @@ import org.springframework.web.util.UriComponentsBuilder;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
+    private static final String OAUTH2_TEMP_COOKIE = "agromarket_oauth2_token";
 
     private final AuthService authService;
+    private final AppProperties appProperties;
 
-    @Value("${app.frontend.base-url:http://localhost:3000}")
-    private String frontendBaseUrl;
+    public OAuth2LoginSuccessHandler(@Lazy AuthService authService, AppProperties appProperties) {
+        this.authService = authService;
+        this.appProperties = appProperties;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
@@ -38,12 +40,17 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String subject = stringValue(oauth2User.getAttribute("sub"));
 
         var authResponse = authService.completarGoogleOAuth2(email, nombre, subject);
-        String redirect = UriComponentsBuilder.fromHttpUrl(frontendBaseUrl)
+        ResponseCookie cookie = ResponseCookie.from(OAUTH2_TEMP_COOKIE, authResponse.getToken())
+                .httpOnly(true)
+                .secure(request.isSecure())
+                .path("/")
+                .sameSite("Strict")
+                .maxAge(300)
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        String redirect = UriComponentsBuilder.fromHttpUrl(appProperties.frontendUrl())
                 .path("/login.html")
-                .queryParam("token", authResponse.getToken())
-                .queryParam("rol", authResponse.getRol())
-                .queryParam("nombre", authResponse.getNombre())
-                .queryParam("correo", authResponse.getCorreo())
                 .build(true)
                 .toUriString();
         response.sendRedirect(redirect);
@@ -62,4 +69,3 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         return "Usuario";
     }
 }
-

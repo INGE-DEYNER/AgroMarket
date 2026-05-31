@@ -6,7 +6,7 @@ import com.agromarket.application.dto.ActualizarEnvioRequest;
 import com.agromarket.application.dto.EnvioResponse;
 
 public interface EnvioService {
-    EnvioResponse getByPedidoId(Long pedidoId);
+    EnvioResponse getByPedidoId(Long pedidoId, Long solicitanteId);
 
     List<EnvioResponse> getMisEnvios(Long compradorId);
 

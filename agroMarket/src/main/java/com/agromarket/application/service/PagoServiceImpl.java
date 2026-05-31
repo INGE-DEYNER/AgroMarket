@@ -66,7 +66,9 @@ public class PagoServiceImpl implements PagoService {
     }
 
     @Override
-    public PagoResponse getByPedidoId(Long pedidoId) {
+    public PagoResponse getByPedidoId(Long pedidoId, Long solicitanteId) {
+        PedidoEntity pedido = obtenerPedido(pedidoId);
+        validarPropietarioPedido(pedido, solicitanteId);
         return pagoMapper.toResponse(pagoJpaRepository.findByPedidoId(pedidoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado")));
     }

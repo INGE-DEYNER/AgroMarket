@@ -1,5 +1,6 @@
 package com.agromarket.interfaces.rest.controller;
 
+import com.agromarket.application.dto.CambiarContrasenaRequest;
 import com.agromarket.application.dto.ActualizarUsuarioRequest;
 import com.agromarket.application.dto.ApiResponse;
 import com.agromarket.application.dto.UsuarioResponse;
@@ -40,6 +41,16 @@ public class UsuarioController {
                 .success(true)
                 .message("Perfil actualizado")
                 .data(usuarioService.actualizar(principal.getUserId(), request))
+                .build());
+    }
+
+    @PutMapping("/me/contrasena")
+    public ResponseEntity<ApiResponse<Void>> actualizarContrasena(@AuthenticationPrincipal JwtUserPrincipal principal,
+                                                                  @Valid @RequestBody CambiarContrasenaRequest request) {
+        usuarioService.actualizarContrasena(principal.getUserId(), request);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Contraseña actualizada")
                 .build());
     }
 

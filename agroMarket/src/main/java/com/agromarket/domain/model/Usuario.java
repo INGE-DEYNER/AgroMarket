@@ -3,6 +3,7 @@ package com.agromarket.domain.model;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,7 @@ public abstract class Usuario {
     private String contrasena;
     private String telefono;
     private RolUsuario rol;
+    @Builder.Default
     private boolean activo = true;
     private LocalDateTime fechaRegistro;
 

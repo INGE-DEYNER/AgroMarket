@@ -6,5 +6,5 @@ import com.agromarket.application.dto.ProcesarPagoRequest;
 public interface PagoService {
     PagoResponse procesar(ProcesarPagoRequest request, Long compradorId);
 
-    PagoResponse getByPedidoId(Long pedidoId);
+    PagoResponse getByPedidoId(Long pedidoId, Long solicitanteId);
 }

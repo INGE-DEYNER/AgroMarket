@@ -1,9 +1,9 @@
 package com.agromarket.application.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.agromarket.config.properties.AppProperties;
 import com.agromarket.application.service.EmailVerificationService;
 import com.agromarket.domain.exception.CredencialesInvalidasException;
 import com.agromarket.infrastructure.persistence.entity.EmailVerificationTokenEntity;
@@ -11,8 +11,6 @@ import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.EmailVerificationTokenRepository;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +22,16 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     private final EmailVerificationTokenRepository repository;
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final com.agromarket.application.service.EmailService mailService;
+    private final com.agromarket.application.service.RateLimiterService rateLimiterService;
+    private final AppProperties appProperties;
 
     @Override
     public void sendVerificationEmail(String correo) {
+        // rate limit by correo: max 3 per hour (InMemoryRateLimiterService)
+        String key = "verify:email:" + correo.toLowerCase();
+        if (!rateLimiterService.tryAcquire(key)) {
+            throw new com.agromarket.domain.exception.TooManyRequestsException("Límite de reenvíos alcanzado. Intenta más tarde.");
+        }
         usuarioJpaRepository.findByCorreo(correo).ifPresent(this::sendVerificationEmail);
     }
 
@@ -61,7 +66,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
                 .build();
         repository.save(entity);
 
-        String verifyUrl = "http://localhost:3000/verificar-correo.html?correo=" + usuario.getCorreo() + "&codigo=" + token;
+        String verifyUrl = appProperties.frontendUrl() + "/verificar/" + token;
         java.util.Map<String, String> model = java.util.Map.of(
                 "verifyUrl", verifyUrl,
                 "codigo", token,

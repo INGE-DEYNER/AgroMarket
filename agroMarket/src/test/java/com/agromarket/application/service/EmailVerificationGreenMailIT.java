@@ -7,6 +7,7 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 import com.agromarket.infrastructure.persistence.entity.CompradorEntity;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Objects;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,7 @@ public class EmailVerificationGreenMailIT {
                 .telefono("3000000")
                 .activo(false)
                 .build();
-        usuarioJpaRepository.save(comprador);
+        usuarioJpaRepository.save(Objects.requireNonNull(comprador));
 
         // Ensure inbox empty
         greenMail.purgeEmailFromAllMailboxes();

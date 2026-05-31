@@ -37,18 +37,30 @@ const observerOptions = {
   threshold: 0.15,
 };
 
-const observer = new IntersectionObserver((entries, observerInstance) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("visible");
-      observerInstance.unobserve(entry.target);
-    }
-  });
-}, observerOptions);
+function makeVisible(elements) {
+  elements.forEach((el) => el.classList.add("visible"));
+}
 
-document.querySelectorAll(".animate-fade-up").forEach((el) => {
-  observer.observe(el);
-});
+let animatedElements = [];
+
+let observer = null;
+function setupAnimations() {
+  animatedElements = Array.from(document.querySelectorAll(".animate-fade-up"));
+  if (typeof IntersectionObserver === "function") {
+    observer = new IntersectionObserver((entries, observerInstance) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observerInstance.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    animatedElements.forEach((el) => observer.observe(el));
+  } else {
+    makeVisible(animatedElements);
+  }
+}
 
 function renderMetric(id, value) {
   const element = document.getElementById(id);
@@ -96,6 +108,94 @@ function renderFeaturedProducts(productos) {
         </div>`;
     })
     .join("");
+}
+
+function ensureHeroContent() {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  const badge = hero.querySelector('.hero-badge');
+  const title = hero.querySelector('.hero-title');
+  const sub = hero.querySelector('.hero-sub');
+  const btns = document.getElementById('heroBtns');
+
+  if (badge && !badge.textContent.trim()) badge.textContent = '🌿 AgroMarket · Urabá';
+  if (title && !title.textContent.trim()) title.textContent = 'Del campo directamente a tu mesa.';
+  if (sub && !sub.textContent.trim()) sub.textContent = 'Frutas frescas de productores locales.';
+  if (btns && !btns.children.length) {
+    btns.innerHTML = '<a href="catalogo.html" class="btn btn-primary btn-lg">Ver catálogo →</a><a href="registro.html" class="btn btn-secondary btn-lg">Soy productor</a>';
+  }
+}
+
+function renderFallbackHome(message = "No se pudo conectar al catálogo en este momento.") {
+  const featuredProducts = document.getElementById("featuredProducts");
+  const metricsFallback = document.getElementById("homeMetricsFallback");
+  const fallbackProducts = [
+    {
+      nombre: "Banano Premium",
+      productorNombre: "Productor local",
+      precio: 4200,
+      cantidadDisponible: 120,
+      calificacionPromedio: 4.8,
+      totalResenas: 24,
+      imagenUrl: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500",
+    },
+    {
+      nombre: "Mango Tommy",
+      productorNombre: "Cosecha verificada",
+      precio: 5600,
+      cantidadDisponible: 95,
+      calificacionPromedio: 4.7,
+      totalResenas: 18,
+      imagenUrl: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=500",
+    },
+    {
+      nombre: "Piña Oro",
+      productorNombre: "Productores aliados",
+      precio: 3800,
+      cantidadDisponible: 60,
+      calificacionPromedio: 4.9,
+      totalResenas: 31,
+      imagenUrl: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=500",
+    },
+  ];
+
+  if (featuredProducts) {
+    renderFeaturedProducts(fallbackProducts);
+    featuredProducts.insertAdjacentHTML(
+      "beforeend",
+      `<div class="featured-fallback" style="grid-column:1 / -1;margin-top:12px;padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px dashed #cbd5e1;color:#475569;font-weight:600;">
+        ${message}
+      </div>`,
+    );
+  }
+
+  if (metricsFallback) {
+    metricsFallback.innerHTML = `
+      <div style="grid-column:1 / -1;padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-weight:600;">
+        ${message}
+      </div>`;
+  }
+
+  renderMetric("metricProductos", String(fallbackProducts.length));
+  renderMetric("metricProductores", "3");
+  renderMetric("metricPrecio", formatearPrecio(4600));
+  renderMetric("metricCalificacion", "4.8★");
+
+  const heroBadge = document.querySelector(".hero-badge");
+  if (heroBadge) {
+    heroBadge.textContent = "🌿 Catálogo disponible · modo sin conexión";
+  }
+
+  const floatCardTitle = document.querySelector(".float-card-1-title");
+  const floatCardSub = document.querySelector(".float-card-1-sub");
+  const floatCardValue = document.querySelector(".float-card-2-val");
+  const floatCardDesc = document.querySelector(".float-card-2-sub");
+
+  if (floatCardTitle) floatCardTitle.textContent = "🛒 Catálogo local";
+  if (floatCardSub) floatCardSub.textContent = "Productos destacados cargados desde fallback";
+  if (floatCardValue) floatCardValue.textContent = "4.8★";
+  if (floatCardDesc) floatCardDesc.textContent = "La página sigue visible aunque el API no responda";
+  makeVisible(animatedElements);
 }
 
 async function cargarHome() {
@@ -161,19 +261,15 @@ async function cargarHome() {
 
     if (metricsFallback) metricsFallback.innerHTML = "";
   } catch (error) {
-    if (featuredProducts)
-      mostrarError(
-        featuredProducts,
-        error?.message || "No se pudieron cargar los productos destacados.",
-      );
-    if (metricsFallback)
-      mostrarError(
-        metricsFallback,
-        error?.message || "No se pudo cargar el panorama general.",
-      );
+    renderFallbackHome(
+      error?.message || "No se pudieron cargar los productos destacados.",
+    );
   }
+  // Ensure hero shows reasonable defaults even when data is missing
+  ensureHeroContent();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  setupAnimations();
   cargarHome();
 });

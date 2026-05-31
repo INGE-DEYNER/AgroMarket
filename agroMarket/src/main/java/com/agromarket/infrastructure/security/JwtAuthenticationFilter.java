@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agromarket.domain.model.RolUsuario;
 
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -30,7 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            if (jwtTokenProvider.validateToken(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+            boolean valid = jwtTokenProvider.validateToken(token);
+            if (valid && SecurityContextHolder.getContext().getAuthentication() == null) {
                 String correo = jwtTokenProvider.extractCorreo(token);
                 Long userId = jwtTokenProvider.extractUserId(token);
                 RolUsuario rol = jwtTokenProvider.extractRol(token);
@@ -41,6 +45,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else if (!valid) {
+                try {
+                    String ip = request.getRemoteAddr();
+                    String path = request.getRequestURI();
+                    log.warn("Acceso con token inválido/expirado - ip={} path={} timestamp={}", ip, path, System.currentTimeMillis());
+                } catch (Exception e) {
+                    log.warn("Acceso con token inválido/expirado - unable to obtain request context");
+                }
             }
         }
         filterChain.doFilter(request, response);
