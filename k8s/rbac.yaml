@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agromarket-sa
+  namespace: agromarket
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: agromarket-role
+  namespace: agromarket
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "configmaps", "secrets", "persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: agromarket-rolebinding
+  namespace: agromarket
+subjects:
+  - kind: ServiceAccount
+    name: agromarket-sa
+    namespace: agromarket
+roleRef:
+  kind: Role
+  name: agromarket-role
+  apiGroup: rbac.authorization.k8s.io
+
