@@ -1,0 +1,8 @@
+# Caddyfile para TLS automático con DuckDNS
+miagromarket.duckdns.org {
+  reverse_proxy localhost:8080
+  log {
+    output stdout
+    format console
+  }
+}
