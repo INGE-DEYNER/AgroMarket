@@ -12,4 +12,4 @@ USER appuser
 WORKDIR /home/appuser
 COPY --from=build /workspace/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-XX:TieredStopAtLevel=1","-Xms256m","-Xmx512m","-jar","/home/appuser/app.jar"]
+ENTRYPOINT ["java", "-XX:+UseSerialGC", "-XX:TieredStopAtLevel=1", "-Xms64m", "-Xmx256m", "-XX:MaxMetaspaceSize=128m", "-jar", "/home/appuser/app.jar"]
