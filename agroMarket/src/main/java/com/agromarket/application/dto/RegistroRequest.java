@@ -37,9 +37,7 @@ public class RegistroRequest {
 
     @NotBlank
     @Size(min = 8, max = 100)
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\",.<>/?]).{8,100}$",
-            message = "Debe tener al menos 1 mayúscula, 1 número y 1 carácter especial")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={};\'\",./?]).{8,100}$", message = "Debe tener al menos 1 mayuscula, 1 numero y 1 caracter especial")
     private String contrasena;
 
     @NotNull
