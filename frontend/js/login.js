@@ -1,6 +1,6 @@
 import { login as doLogin, guardarSesion, setCurrentUser } from "./auth.js";
 import { showToast, escapeHtml } from "./ui.js";
-import api from "./api.js";
+import api, { API_BASE } from "./api.js";
 
 const form = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
@@ -18,7 +18,7 @@ let pendingTwoFactorToken = null;
 
 async function consumeOAuthCallback() {
   try {
-    const response = await fetch("/api/auth/token-exchange", {
+    const response = await fetch(`${API_BASE}/auth/token-exchange`, {
       method: "GET",
       credentials: "include",
       headers: {
