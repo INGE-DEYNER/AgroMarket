@@ -7,7 +7,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 
+import org.springframework.context.annotation.Profile;
+
 @Configuration
+@Profile("test")
 public class MailAutoConfiguration {
 
     @Bean

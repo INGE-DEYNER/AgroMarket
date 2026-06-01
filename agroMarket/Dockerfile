@@ -19,4 +19,5 @@ ENTRYPOINT ["java", \
 "-Xmx256m", \
 "-XX:MaxMetaspaceSize=128m", \
 "-Dspring.backgroundpreinitializer.ignore=true", \
+"-Dspring.profiles.active=prod", \
 "-jar", "/home/appuser/app.jar"]
