@@ -24,8 +24,7 @@
 		<java.version>17</java.version>
 		<flyway.version>10.20.1</flyway.version>
 	</properties>
-
-	<!-- ✅ CLAVE: fuerza Flyway 10.x sobreescribiendo la versión de Spring Boot -->
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
