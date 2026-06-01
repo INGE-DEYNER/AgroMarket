@@ -50,13 +50,43 @@
           <form id="resetForm" novalidate>
             <div class="form-group">
               <label class="form-label" for="password">Nueva contraseña</label>
-              <input
-                class="form-input"
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                autocomplete="new-password"
-              />
+              <div
+                style="
+                  position: relative;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <input
+                  class="form-input"
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  autocomplete="new-password"
+                  style="padding-right: 88px; flex: 1"
+                />
+                <button
+                  type="button"
+                  id="togglePassword"
+                  aria-label="Mostrar contraseña"
+                  aria-pressed="false"
+                  style="
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    border: 0;
+                    background: transparent;
+                    color: #2d7a3a;
+                    font-weight: 700;
+                    cursor: pointer;
+                    padding: 4px 6px;
+                  "
+                >
+                  Mostrar
+                </button>
+              </div>
               <div class="strength-card">
                 <div
                   style="
@@ -93,13 +123,43 @@
               <label class="form-label" for="confirm"
                 >Confirmar contraseña</label
               >
-              <input
-                class="form-input"
-                id="confirm"
-                type="password"
-                placeholder="••••••••"
-                autocomplete="new-password"
-              />
+              <div
+                style="
+                  position: relative;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <input
+                  class="form-input"
+                  id="confirm"
+                  type="password"
+                  placeholder="••••••••"
+                  autocomplete="new-password"
+                  style="padding-right: 88px; flex: 1"
+                />
+                <button
+                  type="button"
+                  id="toggleConfirmPassword"
+                  aria-label="Mostrar confirmación de contraseña"
+                  aria-pressed="false"
+                  style="
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    border: 0;
+                    background: transparent;
+                    color: #2d7a3a;
+                    font-weight: 700;
+                    cursor: pointer;
+                    padding: 4px 6px;
+                  "
+                >
+                  Mostrar
+                </button>
+              </div>
               <span class="form-error" id="confirmError"
                 >Las contraseñas no coinciden.</span
               >
@@ -154,4 +214,3 @@
     <script type="module" src="js/restablecer-contrasena.js"></script>
   </body>
 </html>
-

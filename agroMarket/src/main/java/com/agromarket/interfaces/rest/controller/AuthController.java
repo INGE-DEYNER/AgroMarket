@@ -7,10 +7,14 @@ import com.agromarket.application.dto.LoginRequest;
 import com.agromarket.application.dto.PasswordResetConfirmRequest;
 import com.agromarket.application.dto.PasswordResetRequest;
 import com.agromarket.application.dto.RegistroRequest;
+import com.agromarket.application.dto.TwoFactorCodeRequest;
+import com.agromarket.application.dto.TwoFactorLoginRequest;
+import com.agromarket.application.dto.TwoFactorSetupResponse;
 import com.agromarket.application.dto.VerificarCorreoRequest;
 import com.agromarket.application.service.AuthService;
 import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
+import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import com.agromarket.infrastructure.security.JwtTokenProvider;
 
 import java.util.Arrays;
@@ -24,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@SuppressWarnings({"null", "unused"})
 public class AuthController {
     private final AuthService authService;
     private final com.agromarket.application.service.PasswordResetService passwordResetService;
@@ -55,12 +61,23 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse auth = authService.login(request);
         return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
                 .success(true)
-                .message("Inicio de sesión exitoso")
-                .data(authService.login(request))
+            .message(auth.isTwoFactorRequired() ? "Verificación en dos pasos requerida" : "Inicio de sesión exitoso")
+            .data(auth)
                 .build());
     }
+
+        @PostMapping("/login-2fa")
+        public ResponseEntity<ApiResponse<AuthResponse>> login2fa(@Valid @RequestBody TwoFactorLoginRequest request) {
+        AuthResponse auth = authService.loginWithTwoFactor(request.getTempToken(), request.getCodigo());
+        return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
+            .success(true)
+            .message("Inicio de sesión exitoso")
+            .data(auth)
+            .build());
+        }
 
     @PostMapping("/registro")
     public ResponseEntity<ApiResponse<Void>> registro(@Valid @RequestBody RegistroRequest request) {
@@ -89,16 +106,64 @@ public class AuthController {
     }
 
     @PostMapping("/verificar-correo")
-    public ResponseEntity<ApiResponse<Void>> verificarCorreo(@Valid @RequestBody VerificarCorreoRequest request) {
-        emailVerificationService.verifyCode(request.getCorreo(), request.getCodigo());
-        return ok("Correo verificado");
+    public ResponseEntity<ApiResponse<java.util.Map<String, Boolean>>> verificarCorreo(@Valid @RequestBody VerificarCorreoRequest request) {
+        com.agromarket.infrastructure.persistence.entity.UsuarioEntity usuario = emailVerificationService.verifyCode(request.getCorreo(), request.getCodigo());
+        boolean pendiente = usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR");
+        return ResponseEntity.ok(ApiResponse.<java.util.Map<String, Boolean>>builder()
+                .success(true)
+                .message(pendiente ? "Correo verificado. Tu cuenta está pendiente de aprobación por un administrador." : "Correo verificado")
+                .data(java.util.Map.of("pendiente", pendiente))
+                .build());
     }
 
     // #4 — uses dedicated DTO with only the token field, no nuevaContrasena
     @PostMapping("/verificar")
-    public ResponseEntity<ApiResponse<Void>> verificar(@Valid @RequestBody EmailVerificationRequest request) {
-        emailVerificationService.verifyToken(request.getToken());
-        return ok("Correo verificado");
+    public ResponseEntity<ApiResponse<java.util.Map<String, Boolean>>> verificar(@Valid @RequestBody EmailVerificationRequest request) {
+        com.agromarket.infrastructure.persistence.entity.UsuarioEntity usuario = emailVerificationService.verifyToken(request.getToken());
+        boolean pendiente = usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR");
+        return ResponseEntity.ok(ApiResponse.<java.util.Map<String, Boolean>>builder()
+                .success(true)
+                .message(pendiente ? "Correo verificado. Tu cuenta está pendiente de aprobación por un administrador." : "Correo verificado")
+                .data(java.util.Map.of("pendiente", pendiente))
+                .build());
+    }
+
+    @PostMapping("/2fa/setup")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<TwoFactorSetupResponse>> initTwoFactorSetup(@AuthenticationPrincipal JwtUserPrincipal principal) {
+        TwoFactorSetupResponse response = authService.initTwoFactorSetup(principal.getUserId());
+        return ResponseEntity.ok(ApiResponse.<TwoFactorSetupResponse>builder()
+                .success(true)
+                .message("Escanea el QR o usa la clave manual en tu Authenticator")
+                .data(response)
+                .build());
+    }
+
+    @PostMapping("/2fa/confirm")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> confirmTwoFactorSetup(@AuthenticationPrincipal JwtUserPrincipal principal,
+                                                                   @Valid @RequestBody TwoFactorCodeRequest request) {
+        authService.confirmTwoFactorSetup(principal.getUserId(), request.getCodigo());
+        return ok("Autenticación en dos pasos activada");
+    }
+
+    @PostMapping("/2fa/disable")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> disableTwoFactor(@AuthenticationPrincipal JwtUserPrincipal principal,
+                                                              @Valid @RequestBody TwoFactorCodeRequest request) {
+        authService.disableTwoFactor(principal.getUserId(), request.getCodigo());
+        return ok("Autenticación en dos pasos desactivada");
+    }
+
+    @GetMapping("/2fa/status")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Boolean>>> twoFactorStatus(@AuthenticationPrincipal JwtUserPrincipal principal) {
+        boolean enabled = authService.isTwoFactorEnabled(principal.getUserId());
+        return ResponseEntity.ok(ApiResponse.<java.util.Map<String, Boolean>>builder()
+                .success(true)
+                .message("Estado de autenticación en dos pasos")
+                .data(java.util.Map.of("enabled", enabled))
+                .build());
     }
 
     @GetMapping("/token-exchange")

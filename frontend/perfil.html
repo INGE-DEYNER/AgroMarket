@@ -18,7 +18,11 @@
       <!-- SIDEBAR -->
       <aside class="sidebar">
         <div class="sidebar-user">
-          <div class="avatar avatar-green" id="sidebarUserAvatar" style="width: 48px; height: 48px; font-size: 1.2rem">
+          <div
+            class="avatar avatar-green"
+            id="sidebarUserAvatar"
+            style="width: 48px; height: 48px; font-size: 1.2rem"
+          >
             --
           </div>
           <div class="sidebar-user-info">
@@ -35,7 +39,15 @@
           <span class="icon">👤</span> Mi Perfil
         </a>
 
-        <a href="#" onclick="Auth.logout(); return false;" class="sidebar-link" style="margin-top: auto; color: var(--red)">
+        <a
+          href="#"
+          onclick="
+            Auth.logout();
+            return false;
+          "
+          class="sidebar-link"
+          style="margin-top: auto; color: var(--red)"
+        >
           <span class="icon">🔒</span> Cerrar sesión
         </a>
       </aside>
@@ -45,7 +57,9 @@
           <div class="dash-header">
             <div>
               <h1>Configuración de Perfil</h1>
-              <p>Gestiona tu información personal y la seguridad de tu cuenta.</p>
+              <p>
+                Gestiona tu información personal y la seguridad de tu cuenta.
+              </p>
             </div>
           </div>
 
@@ -53,42 +67,91 @@
             <!-- Left Side: Profile info -->
             <div class="profile-card">
               <h3 class="card-title">Información Personal</h3>
-              
-              <div id="profileAlert" class="alert-box" style="display: none;"></div>
+
+              <div
+                id="profileAlert"
+                class="alert-box"
+                style="display: none"
+              ></div>
 
               <form id="profileForm" novalidate>
                 <div class="avatar-upload-section">
                   <div class="avatar-preview-container">
-                    <img id="avatarPreview" src="https://placehold.co/150x150/e8f5e9/1a5c2a?text=Foto" alt="Foto de perfil" class="profile-avatar-img" />
-                    <div class="avatar-loading-overlay" id="avatarLoading" style="display: none;">
+                    <img
+                      id="avatarPreview"
+                      src="https://placehold.co/150x150/e8f5e9/1a5c2a?text=Foto"
+                      alt="Foto de perfil"
+                      class="profile-avatar-img"
+                    />
+                    <div
+                      class="avatar-loading-overlay"
+                      id="avatarLoading"
+                      style="display: none"
+                    >
                       <div class="spinner"></div>
                     </div>
                   </div>
                   <div class="avatar-upload-controls">
-                    <label for="avatarInput" class="btn btn-secondary btn-sm">Seleccionar Foto</label>
-                    <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;" />
+                    <label for="avatarInput" class="btn btn-secondary btn-sm"
+                      >Seleccionar Foto</label
+                    >
+                    <input
+                      type="file"
+                      id="avatarInput"
+                      accept="image/png, image/jpeg, image/jpg, image/webp"
+                      style="display: none"
+                    />
                     <span class="form-help">PNG, JPG o WEBP (máx. 5MB)</span>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label" for="nombre">Nombre Completo</label>
-                  <input class="form-input" id="nombre" type="text" placeholder="Tu nombre" required />
-                  <span class="form-error" id="nombreError">El nombre es requerido.</span>
+                  <input
+                    class="form-input"
+                    id="nombre"
+                    type="text"
+                    placeholder="Tu nombre"
+                    required
+                  />
+                  <span class="form-error" id="nombreError"
+                    >El nombre es requerido.</span
+                  >
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label" for="correo">Correo Electrónico (No editable)</label>
-                  <input class="form-input" id="correo" type="email" disabled style="background-color: #f3f4f6; cursor: not-allowed;" />
+                  <label class="form-label" for="correo"
+                    >Correo Electrónico (No editable)</label
+                  >
+                  <input
+                    class="form-input"
+                    id="correo"
+                    type="email"
+                    disabled
+                    style="background-color: #f3f4f6; cursor: not-allowed"
+                  />
                 </div>
 
                 <div class="form-group">
                   <label class="form-label" for="telefono">Teléfono</label>
-                  <input class="form-input" id="telefono" type="tel" placeholder="Ej. 3001234567" required />
-                  <span class="form-error" id="telefonoError">Ingresa un teléfono válido.</span>
+                  <input
+                    class="form-input"
+                    id="telefono"
+                    type="tel"
+                    placeholder="Ej. 3001234567"
+                    required
+                  />
+                  <span class="form-error" id="telefonoError"
+                    >Ingresa un teléfono válido.</span
+                  >
                 </div>
 
-                <button class="btn btn-primary" id="saveProfileBtn" type="submit" style="width: 100%; margin-top: 12px;">
+                <button
+                  class="btn btn-primary"
+                  id="saveProfileBtn"
+                  type="submit"
+                  style="width: 100%; margin-top: 12px"
+                >
                   Guardar Cambios
                 </button>
               </form>
@@ -97,48 +160,224 @@
             <!-- Right Side: Change password -->
             <div class="profile-card">
               <h3 class="card-title">Seguridad y Contraseña</h3>
-              
-              <div id="passwordAlert" class="alert-box" style="display: none;"></div>
+
+              <div
+                id="passwordAlert"
+                class="alert-box"
+                style="display: none"
+              ></div>
 
               <form id="passwordForm" novalidate>
                 <div class="form-group">
-                  <label class="form-label" for="currentPassword">Contraseña Actual</label>
-                  <input class="form-input" id="currentPassword" type="password" placeholder="••••••••" required />
-                  <span class="form-error" id="currentPasswordError">La contraseña actual es requerida.</span>
+                  <label class="form-label" for="currentPassword"
+                    >Contraseña Actual</label
+                  >
+                  <input
+                    class="form-input"
+                    id="currentPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <span class="form-error" id="currentPasswordError"
+                    >La contraseña actual es requerida.</span
+                  >
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label" for="newPassword">Nueva Contraseña</label>
-                  <input class="form-input" id="newPassword" type="password" placeholder="••••••••" required />
-                  
-                  <div class="strength-card" style="margin-top: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-                      <span class="form-label" style="margin: 0; font-size: 0.8rem;">Fortaleza</span>
-                      <span id="strengthLabel" style="font-weight: 700; color: #dc2626; font-size: 0.8rem;">Débil</span>
+                  <label class="form-label" for="newPassword"
+                    >Nueva Contraseña</label
+                  >
+                  <input
+                    class="form-input"
+                    id="newPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+
+                  <div class="strength-card" style="margin-top: 8px">
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        gap: 12px;
+                      "
+                    >
+                      <span
+                        class="form-label"
+                        style="margin: 0; font-size: 0.8rem"
+                        >Fortaleza</span
+                      >
+                      <span
+                        id="strengthLabel"
+                        style="
+                          font-weight: 700;
+                          color: #dc2626;
+                          font-size: 0.8rem;
+                        "
+                        >Débil</span
+                      >
                     </div>
-                    <div class="strength-bar-track" style="height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-top: 6px;">
-                      <div id="strengthBar" class="strength-bar" style="width: 0%; height: 100%; background: #dc2626; transition: width 0.2s;"></div>
+                    <div
+                      class="strength-bar-track"
+                      style="
+                        height: 6px;
+                        background: #e5e7eb;
+                        border-radius: 3px;
+                        overflow: hidden;
+                        margin-top: 6px;
+                      "
+                    >
+                      <div
+                        id="strengthBar"
+                        class="strength-bar"
+                        style="
+                          width: 0%;
+                          height: 100%;
+                          background: #dc2626;
+                          transition: width 0.2s;
+                        "
+                      ></div>
                     </div>
-                    <div class="strength-requirements" style="display: grid; gap: 4px; margin-top: 8px; font-size: 0.75rem; color: #6b7280;">
+                    <div
+                      class="strength-requirements"
+                      style="
+                        display: grid;
+                        gap: 4px;
+                        margin-top: 8px;
+                        font-size: 0.75rem;
+                        color: #6b7280;
+                      "
+                    >
                       <div id="reqLength">• Mínimo 8 caracteres</div>
                       <div id="reqUpper">• Una mayúscula</div>
                       <div id="reqNumber">• Un número</div>
                       <div id="reqSpecial">• Un carácter especial</div>
                     </div>
                   </div>
-                  <span class="form-error" id="newPasswordError">Cumple con todos los requisitos.</span>
+                  <span class="form-error" id="newPasswordError"
+                    >Cumple con todos los requisitos.</span
+                  >
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label" for="confirmPassword">Confirmar Nueva Contraseña</label>
-                  <input class="form-input" id="confirmPassword" type="password" placeholder="••••••••" required />
-                  <span class="form-error" id="confirmPasswordError">Las contraseñas no coinciden.</span>
+                  <label class="form-label" for="confirmPassword"
+                    >Confirmar Nueva Contraseña</label
+                  >
+                  <input
+                    class="form-input"
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <span class="form-error" id="confirmPasswordError"
+                    >Las contraseñas no coinciden.</span
+                  >
                 </div>
 
-                <button class="btn btn-primary" id="savePasswordBtn" type="submit" style="width: 100%; margin-top: 12px;">
+                <button
+                  class="btn btn-primary"
+                  id="savePasswordBtn"
+                  type="submit"
+                  style="width: 100%; margin-top: 12px"
+                >
                   Actualizar Contraseña
                 </button>
               </form>
+
+              <hr
+                style="margin: 24px 0; border: 0; border-top: 1px solid #eef2f7"
+              />
+
+              <h3 class="card-title" style="margin-bottom: 10px">
+                Autenticación en dos pasos
+              </h3>
+              <p class="form-help" style="margin-bottom: 12px">
+                Protege tu cuenta con Google Authenticator o Microsoft
+                Authenticator.
+              </p>
+
+              <div
+                id="twoFactorStatus"
+                class="alert-box info"
+                style="display: block; margin-bottom: 12px"
+              >
+                Estado: no configurado
+              </div>
+
+              <div
+                id="twoFactorSetupBox"
+                class="twofa-box"
+                style="display: none"
+              >
+                <div class="form-group">
+                  <label class="form-label" for="twoFactorSecret"
+                    >Clave manual</label
+                  >
+                  <input
+                    class="form-input"
+                    id="twoFactorSecret"
+                    type="text"
+                    readonly
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="twoFactorOtpUrl"
+                    >URL OTPAUTH</label
+                  >
+                  <input
+                    class="form-input"
+                    id="twoFactorOtpUrl"
+                    type="text"
+                    readonly
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="twoFactorCode"
+                    >Código de Authenticator</label
+                  >
+                  <input
+                    class="form-input"
+                    id="twoFactorCode"
+                    type="text"
+                    maxlength="6"
+                    placeholder="123456"
+                    inputmode="numeric"
+                  />
+                </div>
+              </div>
+
+              <div
+                style="
+                  display: flex;
+                  gap: 10px;
+                  flex-wrap: wrap;
+                  margin-top: 8px;
+                "
+              >
+                <button class="btn btn-secondary" id="btnInit2FA" type="button">
+                  Configurar Authenticator
+                </button>
+                <button
+                  class="btn btn-primary"
+                  id="btnEnable2FA"
+                  type="button"
+                  style="display: none"
+                >
+                  Activar 2FA
+                </button>
+                <button
+                  class="btn btn-danger"
+                  id="btnDisable2FA"
+                  type="button"
+                  style="display: none"
+                >
+                  Desactivar 2FA
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -150,4 +389,3 @@
     <script type="module" src="js/perfil.js"></script>
   </body>
 </html>
-

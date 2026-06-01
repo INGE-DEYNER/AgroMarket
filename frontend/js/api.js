@@ -84,7 +84,8 @@ async function request(
     ? await res.json()
     : await res.text();
 
-  if (method === "GET" && cacheMs > 0) _cacheSet(url.toString(), result, cacheMs);
+  if (method === "GET" && cacheMs > 0)
+    _cacheSet(url.toString(), result, cacheMs);
   return result;
 }
 
@@ -133,7 +134,16 @@ function uploadWithProgress(urlPath, file, onProgress, fieldName = "imagen") {
   });
 }
 
-export { API_BASE, getAuthToken, setAuthToken, get, post, put, del, uploadWithProgress };
+export {
+  API_BASE,
+  getAuthToken,
+  setAuthToken,
+  get,
+  post,
+  put,
+  del,
+  uploadWithProgress,
+};
 
 // ── Helper functions ──────────────────────────────────────────────────────────
 function isFormDataLike(value) {
@@ -422,6 +432,26 @@ class AgroMarketAPI {
     return this._fetch("POST", "/auth/login", { correo, contrasena }, false);
   }
 
+  login2FA(tempToken, codigo) {
+    return this._fetch("POST", "/auth/login-2fa", { tempToken, codigo }, false);
+  }
+
+  initTwoFactorSetup() {
+    return this._fetch("POST", "/auth/2fa/setup", {});
+  }
+
+  confirmTwoFactorSetup(codigo) {
+    return this._fetch("POST", "/auth/2fa/confirm", { codigo });
+  }
+
+  disableTwoFactor(codigo) {
+    return this._fetch("POST", "/auth/2fa/disable", { codigo });
+  }
+
+  getTwoFactorStatus() {
+    return this._fetch("GET", "/auth/2fa/status");
+  }
+
   registro(payload) {
     return this._fetch("POST", "/auth/registro", payload, false);
   }
@@ -638,6 +668,10 @@ class AgroMarketAPI {
 
   getUsuarios(params = {}) {
     return this.request("GET", "/admin/usuarios", { query: params });
+  }
+
+  aprobarUsuario(id) {
+    return this._fetch("POST", `/admin/usuarios/${id}/aprobar`);
   }
 
   habilitarUsuario(id) {

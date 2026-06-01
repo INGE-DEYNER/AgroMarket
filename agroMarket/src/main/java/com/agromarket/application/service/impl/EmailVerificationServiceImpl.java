@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"null", "unused"})
 public class EmailVerificationServiceImpl implements EmailVerificationService {
     private final EmailVerificationTokenRepository repository;
     private final UsuarioJpaRepository usuarioJpaRepository;
@@ -77,7 +78,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
     @Override
     @Transactional
-    public void verifyCode(String correo, String codigo) {
+    public UsuarioEntity verifyCode(String correo, String codigo) {
         EmailVerificationTokenEntity entity = repository.findByToken(codigo)
                 .orElseThrow(() -> new CredencialesInvalidasException("Código de verificación inválido"));
         if (entity.getVerificado() != null && entity.getVerificado()) {
@@ -91,15 +92,23 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
             throw new CredencialesInvalidasException("Código de verificación expirado");
         }
         UsuarioEntity usuario = entity.getUsuario();
-        usuario.setActivo(true);
+        // If user is a producer, do not activate automatically; remain pending admin approval
+        if (usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR")) {
+            usuario.setActivo(true);
+            usuario.setAprobado(false);
+        } else {
+            usuario.setActivo(true);
+            usuario.setAprobado(true);
+        }
         usuarioJpaRepository.save(usuario);
         entity.setVerificado(true);
         repository.save(entity);
+        return usuario;
     }
 
     @Override
     @Transactional
-    public void verifyToken(String token) {
+    public UsuarioEntity verifyToken(String token) {
         EmailVerificationTokenEntity entity = repository.findByToken(token)
                 .orElseThrow(() -> new CredencialesInvalidasException("Token de verificación inválido"));
         if (entity.getVerificado() != null && entity.getVerificado()) {
@@ -110,9 +119,16 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
             throw new CredencialesInvalidasException("Token de verificación expirado");
         }
         UsuarioEntity usuario = entity.getUsuario();
-        usuario.setActivo(true);
+        if (usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR")) {
+            usuario.setActivo(true);
+            usuario.setAprobado(false);
+        } else {
+            usuario.setActivo(true);
+            usuario.setAprobado(true);
+        }
         usuarioJpaRepository.save(usuario);
         entity.setVerificado(true);
         repository.save(entity);
+        return usuario;
     }
 }

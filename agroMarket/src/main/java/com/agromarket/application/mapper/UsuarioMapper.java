@@ -29,6 +29,8 @@ public interface UsuarioMapper {
                 .telefono(entity.getTelefono())
                 .rol(entity.getRol())
                 .activo(entity.isActivo())
+                .aprobado(entity.isAprobado())
+                .twoFactorEnabled(entity.isTotpEnabled())
                 .ubicacion(entity instanceof ProductorEntity productorEntity ? productorEntity.getUbicacion() : null)
                 .build();
     }

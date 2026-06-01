@@ -23,6 +23,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordPolicyService passwordPolicyService;
 
     @Override
     @Transactional(readOnly = true)
@@ -64,8 +65,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (!passwordEncoder.matches(request.getContrasenaActual(), usuario.getContrasena())) {
             throw new IllegalArgumentException("La contraseña actual no es correcta");
         }
+        passwordPolicyService.validarContrasenaNueva(usuario, request.getNuevaContrasena());
         usuario.setContrasena(passwordEncoder.encode(request.getNuevaContrasena()));
-        usuarioJpaRepository.save(usuario);
+        UsuarioEntity guardado = usuarioJpaRepository.save(usuario);
+        passwordPolicyService.registrarContrasenaEnHistorial(guardado);
     }
 
     @Override

@@ -16,6 +16,10 @@ const reqLength = document.getElementById("reqLength");
 const reqUpper = document.getElementById("reqUpper");
 const reqNumber = document.getElementById("reqNumber");
 const reqSpecial = document.getElementById("reqSpecial");
+const togglePasswordBtn = document.getElementById("togglePassword");
+const toggleConfirmPasswordBtn = document.getElementById(
+  "toggleConfirmPassword",
+);
 
 function setResult(message, kind = "info") {
   if (!result) return;
@@ -100,6 +104,19 @@ function setFieldState(input, errorEl, message, valid) {
   }
 }
 
+function togglePasswordVisibility(input, button) {
+  if (!input || !button) return;
+
+  const isHidden = input.type === "password";
+  input.type = isHidden ? "text" : "password";
+  button.textContent = isHidden ? "Ocultar" : "Mostrar";
+  button.setAttribute(
+    "aria-label",
+    isHidden ? "Ocultar contraseña" : "Mostrar contraseña",
+  );
+  button.setAttribute("aria-pressed", String(isHidden));
+}
+
 function validatePassword(showError = false) {
   const value = passwordInput.value;
   const rules = updateStrength();
@@ -161,6 +178,12 @@ passwordInput?.addEventListener("input", () => {
 passwordInput?.addEventListener("blur", () => validatePassword(true));
 confirmInput?.addEventListener("input", () => validateConfirm(false));
 confirmInput?.addEventListener("blur", () => validateConfirm(true));
+togglePasswordBtn?.addEventListener("click", () =>
+  togglePasswordVisibility(passwordInput, togglePasswordBtn),
+);
+toggleConfirmPasswordBtn?.addEventListener("click", () =>
+  togglePasswordVisibility(confirmInput, toggleConfirmPasswordBtn),
+);
 
 form?.addEventListener("submit", async (event) => {
   event.preventDefault();

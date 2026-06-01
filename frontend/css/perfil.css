@@ -117,6 +117,13 @@
   color: #1e40af;
 }
 
+.twofa-box {
+  padding: 14px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
 /* Spinner styling */
 .spinner {
   width: 24px;

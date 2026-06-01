@@ -5,33 +5,41 @@ import { mostrarError, mostrarExito, escapeHtml } from "./ui.js";
 Auth.requireRole(["comprador", "productor", "administrador", "admin"]);
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
-const profileForm       = document.getElementById("profileForm");
-const passwordForm      = document.getElementById("passwordForm");
-const nombreInput       = document.getElementById("nombre");
-const correoInput       = document.getElementById("correo");
-const telefonoInput     = document.getElementById("telefono");
-const avatarInput       = document.getElementById("avatarInput");
-const avatarPreview     = document.getElementById("avatarPreview");
-const avatarLoading     = document.getElementById("avatarLoading");
-const saveProfileBtn    = document.getElementById("saveProfileBtn");
-const savePasswordBtn   = document.getElementById("savePasswordBtn");
-const profileAlert      = document.getElementById("profileAlert");
-const passwordAlert     = document.getElementById("passwordAlert");
-const sidebarName       = document.getElementById("sidebarUserName");
-const sidebarRole       = document.getElementById("sidebarUserRole");
-const sidebarAvatar     = document.getElementById("sidebarUserAvatar");
-const backBtn           = document.getElementById("backToDashboardBtn");
+const profileForm = document.getElementById("profileForm");
+const passwordForm = document.getElementById("passwordForm");
+const nombreInput = document.getElementById("nombre");
+const correoInput = document.getElementById("correo");
+const telefonoInput = document.getElementById("telefono");
+const avatarInput = document.getElementById("avatarInput");
+const avatarPreview = document.getElementById("avatarPreview");
+const avatarLoading = document.getElementById("avatarLoading");
+const saveProfileBtn = document.getElementById("saveProfileBtn");
+const savePasswordBtn = document.getElementById("savePasswordBtn");
+const profileAlert = document.getElementById("profileAlert");
+const passwordAlert = document.getElementById("passwordAlert");
+const sidebarName = document.getElementById("sidebarUserName");
+const sidebarRole = document.getElementById("sidebarUserRole");
+const sidebarAvatar = document.getElementById("sidebarUserAvatar");
+const backBtn = document.getElementById("backToDashboardBtn");
 
 // password fields
 const currentPasswordInput = document.getElementById("currentPassword");
-const newPasswordInput     = document.getElementById("newPassword");
+const newPasswordInput = document.getElementById("newPassword");
 const confirmPasswordInput = document.getElementById("confirmPassword");
-const strengthLabel        = document.getElementById("strengthLabel");
-const strengthBar          = document.getElementById("strengthBar");
-const reqLength            = document.getElementById("reqLength");
-const reqUpper             = document.getElementById("reqUpper");
-const reqNumber            = document.getElementById("reqNumber");
-const reqSpecial           = document.getElementById("reqSpecial");
+const strengthLabel = document.getElementById("strengthLabel");
+const strengthBar = document.getElementById("strengthBar");
+const reqLength = document.getElementById("reqLength");
+const reqUpper = document.getElementById("reqUpper");
+const reqNumber = document.getElementById("reqNumber");
+const reqSpecial = document.getElementById("reqSpecial");
+const twoFactorStatus = document.getElementById("twoFactorStatus");
+const twoFactorSetupBox = document.getElementById("twoFactorSetupBox");
+const twoFactorSecret = document.getElementById("twoFactorSecret");
+const twoFactorOtpUrl = document.getElementById("twoFactorOtpUrl");
+const twoFactorCode = document.getElementById("twoFactorCode");
+const btnInit2FA = document.getElementById("btnInit2FA");
+const btnEnable2FA = document.getElementById("btnEnable2FA");
+const btnDisable2FA = document.getElementById("btnDisable2FA");
 
 // ── Alert helpers ─────────────────────────────────────────────────────────────
 function showAlert(el, message, kind = "success") {
@@ -39,15 +47,17 @@ function showAlert(el, message, kind = "success") {
   el.textContent = message;
   el.className = `alert-box ${kind}`;
   el.style.display = "block";
-  setTimeout(() => { el.style.display = "none"; }, 5000);
+  setTimeout(() => {
+    el.style.display = "none";
+  }, 5000);
 }
 
 // ── Password strength ─────────────────────────────────────────────────────────
 function passwordRules(value) {
   return {
-    length:  value.length >= 8,
-    upper:   /[A-Z]/.test(value),
-    number:  /\d/.test(value),
+    length: value.length >= 8,
+    upper: /[A-Z]/.test(value),
+    number: /\d/.test(value),
     special: /[!@#$%^&*()_+\-=[\]{};':",.<>/?]/.test(value),
   };
 }
@@ -56,23 +66,45 @@ function updateStrength() {
   const value = newPasswordInput ? newPasswordInput.value : "";
   const rules = passwordRules(value);
   const count = Object.values(rules).filter(Boolean).length;
-  const pct   = (count / 4) * 100;
+  const pct = (count / 4) * 100;
 
   if (strengthBar) {
     strengthBar.style.width = `${pct}%`;
     strengthBar.style.background =
-      pct <= 25 ? "#dc2626" : pct <= 50 ? "#f59e0b" : pct <= 75 ? "#84cc16" : "#2d7a3a";
+      pct <= 25
+        ? "#dc2626"
+        : pct <= 50
+          ? "#f59e0b"
+          : pct <= 75
+            ? "#84cc16"
+            : "#2d7a3a";
   }
   if (strengthLabel) {
     strengthLabel.textContent =
-      count <= 1 ? "Débil" : count === 2 ? "Aceptable" : count === 3 ? "Fuerte" : "Muy fuerte";
+      count <= 1
+        ? "Débil"
+        : count === 2
+          ? "Aceptable"
+          : count === 3
+            ? "Fuerte"
+            : "Muy fuerte";
     strengthLabel.style.color =
-      pct <= 25 ? "#dc2626" : pct <= 50 ? "#b45309" : pct <= 75 ? "#4d7c0f" : "#2d7a3a";
+      pct <= 25
+        ? "#dc2626"
+        : pct <= 50
+          ? "#b45309"
+          : pct <= 75
+            ? "#4d7c0f"
+            : "#2d7a3a";
   }
-  if (reqLength) reqLength.textContent = `${rules.length ? "✓" : "•"} Mínimo 8 caracteres`;
-  if (reqUpper)  reqUpper.textContent  = `${rules.upper  ? "✓" : "•"} Una mayúscula`;
-  if (reqNumber) reqNumber.textContent = `${rules.number ? "✓" : "•"} Un número`;
-  if (reqSpecial) reqSpecial.textContent = `${rules.special ? "✓" : "•"} Un carácter especial`;
+  if (reqLength)
+    reqLength.textContent = `${rules.length ? "✓" : "•"} Mínimo 8 caracteres`;
+  if (reqUpper)
+    reqUpper.textContent = `${rules.upper ? "✓" : "•"} Una mayúscula`;
+  if (reqNumber)
+    reqNumber.textContent = `${rules.number ? "✓" : "•"} Un número`;
+  if (reqSpecial)
+    reqSpecial.textContent = `${rules.special ? "✓" : "•"} Un carácter especial`;
 
   return rules;
 }
@@ -98,7 +130,8 @@ function renderSidebar(user) {
   if (sidebarName) sidebarName.textContent = user.nombre || "Usuario";
   if (sidebarRole) {
     const rol = (user.rol || "usuario").toString();
-    sidebarRole.textContent = rol.charAt(0).toUpperCase() + rol.slice(1).toLowerCase();
+    sidebarRole.textContent =
+      rol.charAt(0).toUpperCase() + rol.slice(1).toLowerCase();
   }
   if (sidebarAvatar) {
     sidebarAvatar.textContent = (user.nombre || "U")
@@ -111,12 +144,32 @@ function renderSidebar(user) {
   }
 }
 
+function setTwoFactorStatus(enabled) {
+  if (!twoFactorStatus) return;
+  twoFactorStatus.textContent = enabled
+    ? "Estado: autenticación en dos pasos ACTIVADA"
+    : "Estado: autenticación en dos pasos DESACTIVADA";
+  twoFactorStatus.className = `alert-box ${enabled ? "success" : "info"}`;
+
+  if (btnDisable2FA)
+    btnDisable2FA.style.display = enabled ? "inline-flex" : "none";
+}
+
+async function loadTwoFactorStatus() {
+  try {
+    const status = await api.getTwoFactorStatus();
+    setTwoFactorStatus(Boolean(status?.enabled));
+  } catch (_error) {
+    setTwoFactorStatus(false);
+  }
+}
+
 // ── Load profile ──────────────────────────────────────────────────────────────
 async function cargarPerfil() {
   try {
     const perfil = await api.getPerfil();
-    if (nombreInput)  nombreInput.value  = perfil.nombre   || "";
-    if (correoInput)  correoInput.value  = perfil.correo   || "";
+    if (nombreInput) nombreInput.value = perfil.nombre || "";
+    if (correoInput) correoInput.value = perfil.correo || "";
     if (telefonoInput) telefonoInput.value = perfil.telefono || "";
 
     // Photo
@@ -128,14 +181,18 @@ async function cargarPerfil() {
 
     renderSidebar(perfil);
   } catch (err) {
-    showAlert(profileAlert, err?.mensaje || err?.message || "No se pudo cargar el perfil.", "error");
+    showAlert(
+      profileAlert,
+      err?.mensaje || err?.message || "No se pudo cargar el perfil.",
+      "error",
+    );
   }
 }
 
 // ── Profile form submit ───────────────────────────────────────────────────────
 profileForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const nombre   = (nombreInput?.value   || "").trim();
+  const nombre = (nombreInput?.value || "").trim();
   const telefono = (telefonoInput?.value || "").trim();
 
   if (!nombre) {
@@ -152,7 +209,11 @@ profileForm?.addEventListener("submit", async (e) => {
     showAlert(profileAlert, "Perfil actualizado correctamente.", "success");
     renderSidebar({ nombre, rol: Auth.getUsuario()?.rol });
   } catch (err) {
-    showAlert(profileAlert, err?.mensaje || err?.message || "No se pudo actualizar el perfil.", "error");
+    showAlert(
+      profileAlert,
+      err?.mensaje || err?.message || "No se pudo actualizar el perfil.",
+      "error",
+    );
   } finally {
     saveProfileBtn.disabled = false;
     saveProfileBtn.textContent = "Guardar Cambios";
@@ -165,10 +226,14 @@ avatarInput?.addEventListener("change", async (e) => {
   if (!file) return;
 
   const ALLOWED = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-  const MAX_MB  = 5 * 1024 * 1024;
+  const MAX_MB = 5 * 1024 * 1024;
 
   if (!ALLOWED.includes(file.type)) {
-    showAlert(profileAlert, "Solo se permiten imágenes JPG, PNG o WEBP.", "error");
+    showAlert(
+      profileAlert,
+      "Solo se permiten imágenes JPG, PNG o WEBP.",
+      "error",
+    );
     avatarInput.value = "";
     return;
   }
@@ -193,12 +258,16 @@ avatarInput?.addEventListener("change", async (e) => {
     // como base64 para preview local. En producción, agregar endpoint.
     const base64 = await new Promise((res, rej) => {
       const r = new FileReader();
-      r.onload  = () => res(r.result);
+      r.onload = () => res(r.result);
       r.onerror = rej;
       r.readAsDataURL(file);
     });
     localStorage.setItem("fotoPerfil", base64);
-    showAlert(profileAlert, "Foto de perfil actualizada localmente.", "success");
+    showAlert(
+      profileAlert,
+      "Foto de perfil actualizada localmente.",
+      "success",
+    );
   } catch (err) {
     showAlert(profileAlert, "No se pudo subir la foto.", "error");
   } finally {
@@ -213,7 +282,7 @@ passwordForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const currentPass = currentPasswordInput?.value || "";
-  const newPass     = newPasswordInput?.value     || "";
+  const newPass = newPasswordInput?.value || "";
   const confirmPass = confirmPasswordInput?.value || "";
 
   // Validar contraseña actual
@@ -242,18 +311,29 @@ passwordForm?.addEventListener("submit", async (e) => {
   savePasswordBtn.disabled = true;
   savePasswordBtn.textContent = "Actualizando...";
 
-   try {
-     // Endpoint convencional: PUT /api/usuarios/me con contrasenaActual y nuevaContrasena
-     await api.actualizarContrasena({ contrasenaActual: currentPass, nuevaContrasena: newPass });
-     showAlert(passwordAlert, "Contraseña actualizada correctamente.", "success");
-     passwordForm.reset();
-     updateStrength();
-   } catch (err) {
-     showAlert(passwordAlert, err?.mensaje || err?.message || "No se pudo actualizar la contraseña.", "error");
-   } finally {
-     savePasswordBtn.disabled = false;
-     savePasswordBtn.textContent = "Actualizar Contraseña";
-   }
+  try {
+    // Endpoint convencional: PUT /api/usuarios/me con contrasenaActual y nuevaContrasena
+    await api.actualizarContrasena({
+      contrasenaActual: currentPass,
+      nuevaContrasena: newPass,
+    });
+    showAlert(
+      passwordAlert,
+      "Contraseña actualizada correctamente.",
+      "success",
+    );
+    passwordForm.reset();
+    updateStrength();
+  } catch (err) {
+    showAlert(
+      passwordAlert,
+      err?.mensaje || err?.message || "No se pudo actualizar la contraseña.",
+      "error",
+    );
+  } finally {
+    savePasswordBtn.disabled = false;
+    savePasswordBtn.textContent = "Actualizar Contraseña";
+  }
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -266,5 +346,79 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (localPhoto && avatarPreview) avatarPreview.src = localPhoto;
 
   await cargarPerfil();
+  await loadTwoFactorStatus();
   updateStrength();
+});
+
+btnInit2FA?.addEventListener("click", async () => {
+  try {
+    const setup = await api.initTwoFactorSetup();
+    if (twoFactorSetupBox) twoFactorSetupBox.style.display = "block";
+    if (twoFactorSecret) twoFactorSecret.value = setup?.secret || "";
+    if (twoFactorOtpUrl) twoFactorOtpUrl.value = setup?.otpauthUrl || "";
+    if (btnEnable2FA) btnEnable2FA.style.display = "inline-flex";
+    showAlert(
+      profileAlert,
+      "Configura tu app Authenticator y confirma con el código de 6 dígitos.",
+      "info",
+    );
+  } catch (err) {
+    showAlert(
+      profileAlert,
+      err?.mensaje || err?.message || "No se pudo iniciar configuración 2FA.",
+      "error",
+    );
+  }
+});
+
+btnEnable2FA?.addEventListener("click", async () => {
+  const code = String(twoFactorCode?.value || "").trim();
+  if (!/^[0-9]{6}$/.test(code)) {
+    showAlert(profileAlert, "Ingresa un código válido de 6 dígitos.", "error");
+    return;
+  }
+  try {
+    await api.confirmTwoFactorSetup(code);
+    if (twoFactorSetupBox) twoFactorSetupBox.style.display = "none";
+    if (btnEnable2FA) btnEnable2FA.style.display = "none";
+    if (twoFactorCode) twoFactorCode.value = "";
+    await loadTwoFactorStatus();
+    showAlert(
+      profileAlert,
+      "Autenticación en dos pasos activada correctamente.",
+      "success",
+    );
+  } catch (err) {
+    showAlert(
+      profileAlert,
+      err?.mensaje || err?.message || "No se pudo activar 2FA.",
+      "error",
+    );
+  }
+});
+
+btnDisable2FA?.addEventListener("click", async () => {
+  const code = globalThis.prompt(
+    "Ingresa tu código actual de Authenticator para desactivar 2FA:",
+  );
+  if (!code) return;
+  if (!/^[0-9]{6}$/.test(code)) {
+    showAlert(profileAlert, "Código inválido.", "error");
+    return;
+  }
+  try {
+    await api.disableTwoFactor(code);
+    await loadTwoFactorStatus();
+    showAlert(
+      profileAlert,
+      "Autenticación en dos pasos desactivada.",
+      "success",
+    );
+  } catch (err) {
+    showAlert(
+      profileAlert,
+      err?.mensaje || err?.message || "No se pudo desactivar 2FA.",
+      "error",
+    );
+  }
 });

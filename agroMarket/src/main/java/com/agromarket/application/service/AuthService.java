@@ -7,9 +7,19 @@ import com.agromarket.application.dto.RegistroRequest;
 public interface AuthService {
     AuthResponse login(LoginRequest request);
 
+    AuthResponse loginWithTwoFactor(String tempToken, String codigo);
+
     void registro(RegistroRequest request);
 
     String iniciarGoogleOAuth2();
 
     AuthResponse completarGoogleOAuth2(String email, String nombre, String googleSubject);
+
+    com.agromarket.application.dto.TwoFactorSetupResponse initTwoFactorSetup(Long userId);
+
+    void confirmTwoFactorSetup(Long userId, String codigo);
+
+    void disableTwoFactor(Long userId, String codigo);
+
+    boolean isTwoFactorEnabled(Long userId);
 }

@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings({"null", "unused"})
 public class ResenaServiceImpl implements ResenaService {
     private final ResenaJpaRepository resenaJpaRepository;
     private final ProductoJpaRepository productoJpaRepository;

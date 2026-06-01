@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings({"null", "unused"})
 public class ProductoController {
     private final ProductoService productoService;
 
@@ -63,7 +64,8 @@ public class ProductoController {
     public ResponseEntity<ApiResponse<ProductoResponse>> crear(@Valid @RequestBody CrearProductoRequest request, @AuthenticationPrincipal JwtUserPrincipal principal) {
         log.info("Creando producto para usuario {}", principal.getUserId());
         ProductoResponse response = productoService.crear(request, principal.getUserId());
-        return ResponseEntity.created(URI.create("/api/productos/" + response.getId())).body(ApiResponse.<ProductoResponse>builder().success(true).message("Producto creado").data(response).build());
+        URI location = java.util.Objects.requireNonNull(URI.create("/api/productos/" + response.getId()));
+        return ResponseEntity.created(location).body(ApiResponse.<ProductoResponse>builder().success(true).message("Producto creado").data(response).build());
     }
 
     @PutMapping("/{id}")

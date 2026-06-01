@@ -6,6 +6,8 @@ import com.agromarket.application.dto.RegistroRequest;
 import com.agromarket.domain.exception.CredencialesInvalidasException;
 import com.agromarket.domain.exception.UsuarioYaExisteException;
 import com.agromarket.domain.model.RolUsuario;
+import com.agromarket.application.dto.TwoFactorSetupResponse;
+import com.agromarket.domain.exception.RecursoNoEncontradoException;
 import com.agromarket.infrastructure.persistence.entity.AdministradorEntity;
 import com.agromarket.infrastructure.persistence.entity.CompradorEntity;
 import com.agromarket.infrastructure.persistence.entity.ProductorEntity;
@@ -35,6 +37,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final com.agromarket.application.service.EmailVerificationService emailVerificationService;
+    private final PasswordPolicyService passwordPolicyService;
+    private final TwoFactorAuthenticatorService twoFactorAuthenticatorService;
 
     @Override
     public AuthResponse login(LoginRequest request) {
@@ -52,6 +56,21 @@ public class AuthServiceImpl implements AuthService {
                 // User exists but hasn't verified email
                 log.warn("Intento de login de usuario no verificado - correo={} ip={} timestamp={}", obfuscateEmail(usuario.getCorreo()), getRemoteIp(), Instant.now().toEpochMilli());
                 throw new com.agromarket.domain.exception.AccesoDenegadoException("Debes verificar tu correo");
+            }
+            if (usuario.getRol() == RolUsuario.PRODUCTOR && !usuario.isAprobado()) {
+                throw new com.agromarket.domain.exception.AccesoDenegadoException("Tu cuenta de productor está pendiente de aprobación por un administrador");
+            }
+            if (usuario.isTotpEnabled()) {
+                String tempToken = jwtTokenProvider.generateTwoFactorToken(usuario.getCorreo(), usuario.getId(), usuario.getRol());
+                return AuthResponse.builder()
+                        .tipo("Bearer")
+                        .userId(usuario.getId())
+                        .nombre(usuario.getNombre())
+                        .correo(usuario.getCorreo())
+                        .rol(usuario.getRol())
+                        .twoFactorRequired(true)
+                        .tempToken(tempToken)
+                        .build();
             }
             String token = jwtTokenProvider.generateToken(usuario.getCorreo(), usuario.getId(), usuario.getRol());
             return AuthResponse.builder()
@@ -72,12 +91,122 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public AuthResponse loginWithTwoFactor(String tempToken, String codigo) {
+        if (!jwtTokenProvider.validateToken(tempToken) || !jwtTokenProvider.isTwoFactorToken(tempToken)) {
+            throw new CredencialesInvalidasException("Sesión de verificación en dos pasos inválida o expirada");
+        }
+
+        Long userId = jwtTokenProvider.extractUserId(tempToken);
+        UsuarioEntity usuario = usuarioJpaRepository.findById(userId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        if (!usuario.isTotpEnabled() || usuario.getTotpSecret() == null || usuario.getTotpSecret().isBlank()) {
+            throw new CredencialesInvalidasException("La autenticación en dos pasos no está configurada");
+        }
+
+        boolean valido = twoFactorAuthenticatorService.verifyCode(usuario.getTotpSecret(), codigo);
+        if (!valido) {
+            throw new CredencialesInvalidasException("Código de autenticación inválido");
+        }
+
+        String token = jwtTokenProvider.generateToken(usuario.getCorreo(), usuario.getId(), usuario.getRol());
+        return buildAuthenticatedResponse(usuario, token);
+    }
+
+    @Override
+    @Transactional
+    public TwoFactorSetupResponse initTwoFactorSetup(Long userId) {
+        UsuarioEntity usuario = usuarioJpaRepository.findById(userId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        String secret = twoFactorAuthenticatorService.generateSecret();
+        usuario.setTotpSecret(secret);
+        usuario.setTotpEnabled(false);
+        usuarioJpaRepository.save(usuario);
+
+        String issuer = "AgroMarket";
+        return TwoFactorSetupResponse.builder()
+                .enabled(false)
+                .secret(secret)
+                .issuer(issuer)
+                .accountName(usuario.getCorreo())
+                .otpauthUrl(twoFactorAuthenticatorService.buildOtpAuthUrl(issuer, usuario.getCorreo(), secret))
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void confirmTwoFactorSetup(Long userId, String codigo) {
+        UsuarioEntity usuario = usuarioJpaRepository.findById(userId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        if (usuario.getTotpSecret() == null || usuario.getTotpSecret().isBlank()) {
+            throw new CredencialesInvalidasException("Primero debes iniciar la configuración de Authenticator");
+        }
+
+        boolean valido = twoFactorAuthenticatorService.verifyCode(usuario.getTotpSecret(), codigo);
+        if (!valido) {
+            throw new CredencialesInvalidasException("Código de autenticación inválido");
+        }
+
+        usuario.setTotpEnabled(true);
+        usuarioJpaRepository.save(usuario);
+    }
+
+    @Override
+    @Transactional
+    public void disableTwoFactor(Long userId, String codigo) {
+        UsuarioEntity usuario = usuarioJpaRepository.findById(userId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        if (!usuario.isTotpEnabled() || usuario.getTotpSecret() == null || usuario.getTotpSecret().isBlank()) {
+            return;
+        }
+
+        boolean valido = twoFactorAuthenticatorService.verifyCode(usuario.getTotpSecret(), codigo);
+        if (!valido) {
+            throw new CredencialesInvalidasException("Código de autenticación inválido");
+        }
+
+        usuario.setTotpEnabled(false);
+        usuario.setTotpSecret(null);
+        usuarioJpaRepository.save(usuario);
+    }
+
+    @Override
+    public boolean isTwoFactorEnabled(Long userId) {
+        return usuarioJpaRepository.findById(userId)
+                .map(UsuarioEntity::isTotpEnabled)
+                .orElse(false);
+    }
+
+    private AuthResponse buildAuthenticatedResponse(UsuarioEntity usuario, String token) {
+        return AuthResponse.builder()
+                .token(token)
+                .tipo("Bearer")
+                .userId(usuario.getId())
+                .nombre(usuario.getNombre())
+                .correo(usuario.getCorreo())
+                .rol(usuario.getRol())
+                .twoFactorRequired(false)
+                .tempToken(null)
+                .build();
+    }
+
+    @Override
     @Transactional
     public void registro(RegistroRequest request) {
         if (usuarioJpaRepository.existsByCorreo(request.getCorreo())) {
             throw new UsuarioYaExisteException("Ya existe un usuario con ese correo");
         }
+        passwordPolicyService.validarContrasenaRegistro(request.getContrasena());
         UsuarioEntity usuario = crearEntidad(request);
+        // Producers require admin approval after email verification
+        if (request.getRol() == RolUsuario.PRODUCTOR) {
+            usuario.setAprobado(false);
+        } else {
+            usuario.setAprobado(true);
+        }
         usuario.setNombre(compactarNombre(request.getNombre(), request.getApellido()));
         usuario.setContrasena(passwordEncoder.encode(request.getContrasena()));
         usuario.setTelefono(request.getTelefono());
@@ -85,6 +214,7 @@ public class AuthServiceImpl implements AuthService {
         usuario.setActivo(false);
         usuario.setFechaRegistro(LocalDateTime.now());
         UsuarioEntity guardado = usuarioJpaRepository.save(usuario);
+        passwordPolicyService.registrarContrasenaEnHistorial(guardado);
         // send verification email
         emailVerificationService.sendVerificationEmail(guardado);
     }

@@ -28,6 +28,10 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("deprecation")
 public class JwtTokenProvider {
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
+    private static final String PURPOSE_CLAIM = "purpose";
+    private static final String PURPOSE_LOGIN = "login";
+    private static final String PURPOSE_LOGIN_2FA = "login_2fa";
+    private static final long TWO_FACTOR_EXPIRATION_MS = 5 * 60 * 1000;
     private final SecretKey secretKey;
     private final long expirationMs;
 
@@ -43,13 +47,27 @@ public class JwtTokenProvider {
     }
 
     public String generateToken(String correo, Long userId, RolUsuario rol) {
+        return generateTokenWithPurpose(correo, userId, rol, PURPOSE_LOGIN, expirationMs);
+    }
+
+    public String generateTwoFactorToken(String correo, Long userId, RolUsuario rol) {
+        return generateTokenWithPurpose(correo, userId, rol, PURPOSE_LOGIN_2FA, TWO_FACTOR_EXPIRATION_MS);
+    }
+
+    public boolean isTwoFactorToken(String token) {
+        Object purpose = parseClaims(token).get(PURPOSE_CLAIM);
+        return PURPOSE_LOGIN_2FA.equals(String.valueOf(purpose));
+    }
+
+    private String generateTokenWithPurpose(String correo, Long userId, RolUsuario rol, String purpose, long expiresInMs) {
         Instant now = Instant.now();
-        Instant expiration = now.plusMillis(expirationMs);
+        Instant expiration = now.plusMillis(expiresInMs);
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
                 .setSubject(correo)
                 .claim("rol", rol != null ? rol.name() : null)
                 .claim("userId", userId)
+                .claim(PURPOSE_CLAIM, purpose)
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(expiration))
                 .signWith(secretKey)

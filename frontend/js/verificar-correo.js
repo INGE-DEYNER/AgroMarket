@@ -3,7 +3,10 @@ import { mostrarError, mostrarExito } from "./ui.js";
 
 const params = new URLSearchParams(globalThis.location.search);
 const pathParts = globalThis.location.pathname.split("/").filter(Boolean);
-const pathToken = pathParts[0] === "verificar" && pathParts[1] ? decodeURIComponent(pathParts[1]) : "";
+const pathToken =
+  pathParts[0] === "verificar" && pathParts[1]
+    ? decodeURIComponent(pathParts[1])
+    : "";
 const initialCorreo =
   params.get("correo") ||
   sessionStorage.getItem("pendingVerificationEmail") ||
@@ -121,19 +124,30 @@ async function verifyCode() {
   verifyBtn.textContent = "Verificando...";
 
   try {
+    let resp = null;
     if (tokenMode) {
-      await api.verifyEmail(initialCodigo);
+      resp = await api.verifyEmail(initialCodigo);
     } else {
       const codigo = getCode();
       if (codigo.length !== 6) {
         setResult("Ingresa el código completo de 6 dígitos.", "error");
         return;
       }
-      await api.verifyEmailCode(initialCorreo, codigo);
+      resp = await api.verifyEmailCode(initialCorreo, codigo);
     }
     sessionStorage.removeItem("pendingVerificationEmail");
-    setResult("Correo verificado. Redirigiendo al inicio de sesión...");
-    mostrarExito("Correo verificado correctamente.");
+    const pendiente = resp && resp.pendiente;
+    if (pendiente) {
+      setResult(
+        "Correo verificado. Tu cuenta está pendiente de aprobación por un administrador.",
+      );
+      mostrarExito(
+        "Correo verificado. Espera la aprobación del administrador.",
+      );
+    } else {
+      setResult("Correo verificado. Redirigiendo al inicio de sesión...");
+      mostrarExito("Correo verificado correctamente.");
+    }
     setTimeout(() => {
       globalThis.location.href = "login.html";
     }, 1800);
@@ -225,7 +239,9 @@ resendLink?.addEventListener("click", resendCode);
 resendBtn?.addEventListener("click", resendCode);
 
 if (maskedEmailEl) {
-  maskedEmailEl.textContent = tokenMode ? "tu enlace de verificación" : maskEmail(initialCorreo);
+  maskedEmailEl.textContent = tokenMode
+    ? "tu enlace de verificación"
+    : maskEmail(initialCorreo);
 }
 
 if (!tokenMode && initialCodigo?.length === 6) {

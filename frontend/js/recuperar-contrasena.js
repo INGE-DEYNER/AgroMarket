@@ -6,6 +6,7 @@ const emailInput = document.getElementById("email");
 const emailError = document.getElementById("emailError");
 const result = document.getElementById("result");
 const submitBtn = document.getElementById("submitBtn");
+const prefillEmail = new URLSearchParams(window.location.search).get("correo");
 
 function setResult(message, kind = "info") {
   if (!result) return;
@@ -42,7 +43,37 @@ function validateEmail(showError = false) {
 emailInput?.addEventListener("input", () => validateEmail(false));
 emailInput?.addEventListener("blur", () => validateEmail(true));
 
-const prefillEmail = new URLSearchParams(window.location.search).get("correo");
+function togglePasswordVisibility(input, button) {
+  if (!input || !button) return;
+
+  const isHidden = input.type === "password";
+  input.type = isHidden ? "text" : "password";
+  button.textContent = isHidden ? "Ocultar" : "Mostrar";
+  button.setAttribute(
+    "aria-label",
+    isHidden ? "Ocultar contraseña" : "Mostrar contraseña",
+  );
+  button.setAttribute("aria-pressed", String(isHidden));
+}
+
+const togglePasswordBtn = document.getElementById("togglePassword");
+const toggleConfirmPasswordBtn = document.getElementById(
+  "toggleConfirmPassword",
+);
+
+togglePasswordBtn?.addEventListener("click", () => {
+  togglePasswordVisibility(
+    document.getElementById("password"),
+    togglePasswordBtn,
+  );
+});
+
+toggleConfirmPasswordBtn?.addEventListener("click", () => {
+  togglePasswordVisibility(
+    document.getElementById("confirm"),
+    toggleConfirmPasswordBtn,
+  );
+});
 if (prefillEmail) {
   emailInput.value = prefillEmail;
 }

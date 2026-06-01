@@ -1,6 +1,7 @@
 package com.agromarket.infrastructure.persistence.entity;
-import lombok.Builder;
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.agromarket.domain.model.RolUsuario;
 
@@ -16,12 +17,11 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
- 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Setter
@@ -56,6 +56,17 @@ public abstract class UsuarioEntity {
     @Column(nullable = false)
     @Builder.Default
     private boolean activo = true;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean aprobado = true;
+
+    @Column(name = "totp_enabled", nullable = false)
+    @Builder.Default
+    private boolean totpEnabled = false;
+
+    @Column(name = "totp_secret")
+    private String totpSecret;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -64,6 +75,30 @@ public abstract class UsuarioEntity {
     // Explicit setter to satisfy IDE / LSP when Lombok annotation processing is unavailable
     public void setActivo(boolean activo) {
         this.activo = activo;
+    }
+
+    public boolean isAprobado() {
+        return this.aprobado;
+    }
+
+    public void setAprobado(boolean aprobado) {
+        this.aprobado = aprobado;
+    }
+
+    public boolean isTotpEnabled() {
+        return this.totpEnabled;
+    }
+
+    public void setTotpEnabled(boolean totpEnabled) {
+        this.totpEnabled = totpEnabled;
+    }
+
+    public String getTotpSecret() {
+        return this.totpSecret;
+    }
+
+    public void setTotpSecret(String totpSecret) {
+        this.totpSecret = totpSecret;
     }
 
     // Explicit getters to reduce IDE diagnostics when Lombok isn't initialized

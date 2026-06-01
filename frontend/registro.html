@@ -20,7 +20,7 @@
     <div class="wrapper">
       <!-- LEFT: FORM -->
       <div class="left-panel">
-        <a class="brand" href="login.html">
+        <a class="brand" href="/login.html">
           <div class="brand-logo">
             <svg viewBox="0 0 24 24">
               <path
@@ -41,11 +41,7 @@
 
         <!-- ROLE SELECTOR -->
         <div class="role-selector">
-          <button
-            type="button"
-            class="role-card selected"
-            id="roleComprador"
-          >
+          <button type="button" class="role-card selected" id="roleComprador">
             <div class="role-check">
               <svg viewBox="0 0 10 8">
                 <path
@@ -61,11 +57,7 @@
             <div class="role-name">Comprador</div>
             <div class="role-desc">Acceso a los mejores precios de origen</div>
           </button>
-          <button
-            type="button"
-            class="role-card"
-            id="roleProductor"
-          >
+          <button type="button" class="role-card" id="roleProductor">
             <div class="role-check">
               <svg viewBox="0 0 10 8">
                 <path
@@ -141,13 +133,43 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="password">Contraseña</label>
-              <input
-                class="form-input"
-                type="password"
-                id="password"
-                placeholder="••••••••"
-                minlength="8"
-              />
+              <div
+                style="
+                  position: relative;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <input
+                  class="form-input"
+                  type="password"
+                  id="password"
+                  placeholder="••••••••"
+                  minlength="8"
+                  style="padding-right: 88px; flex: 1"
+                />
+                <button
+                  type="button"
+                  id="togglePassword"
+                  aria-label="Mostrar contraseña"
+                  aria-pressed="false"
+                  style="
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    border: 0;
+                    background: transparent;
+                    color: #2d6a2d;
+                    font-weight: 700;
+                    cursor: pointer;
+                    padding: 4px 6px;
+                  "
+                >
+                  Mostrar
+                </button>
+              </div>
               <div
                 id="passwordStrengthWrap"
                 style="
@@ -228,12 +250,42 @@
               <label class="form-label" for="confirmPass"
                 >Confirmar contraseña</label
               >
-              <input
-                class="form-input"
-                type="password"
-                id="confirmPass"
-                placeholder="••••••••"
-              />
+              <div
+                style="
+                  position: relative;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <input
+                  class="form-input"
+                  type="password"
+                  id="confirmPass"
+                  placeholder="••••••••"
+                  style="padding-right: 88px; flex: 1"
+                />
+                <button
+                  type="button"
+                  id="toggleConfirmPassword"
+                  aria-label="Mostrar confirmación de contraseña"
+                  aria-pressed="false"
+                  style="
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    border: 0;
+                    background: transparent;
+                    color: #2d6a2d;
+                    font-weight: 700;
+                    cursor: pointer;
+                    padding: 4px 6px;
+                  "
+                >
+                  Mostrar
+                </button>
+              </div>
               <span class="form-error" id="confirmError"
                 >Las contraseñas no coinciden.</span
               >
@@ -267,10 +319,10 @@
         </form>
 
         <div class="form-footer">
-          ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+          ¿Ya tienes cuenta? <a href="/login.html">Inicia sesión</a>
           <a
             class="btn-google"
-            href="http://localhost:8080/oauth2/authorization/google"
+            href="/oauth2/authorization/google"
             style="
               display: inline-flex;
               align-items: center;
@@ -347,4 +399,3 @@
     <script type="module" src="js/registro.js"></script>
   </body>
 </html>
-

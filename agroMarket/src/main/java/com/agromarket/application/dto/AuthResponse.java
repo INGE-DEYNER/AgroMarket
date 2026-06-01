@@ -18,4 +18,6 @@ public class AuthResponse {
     private String nombre;
     private String correo;
     private RolUsuario rol;
+    private boolean twoFactorRequired;
+    private String tempToken;
 }

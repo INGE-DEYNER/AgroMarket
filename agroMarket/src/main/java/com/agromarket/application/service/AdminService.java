@@ -12,4 +12,6 @@ public interface AdminService {
     List<PedidoResponse> pedidos();
 
     List<UsuarioResponse> usuarios();
+
+    void aprobarUsuario(Long id);
 }

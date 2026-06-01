@@ -1,7 +1,19 @@
 // File: frontend/js/auth.js
-import api, { getAuthToken as getApiAuthToken, setAuthToken as setApiAuthToken } from "./api.js";
+import api, {
+  getAuthToken as getApiAuthToken,
+  setAuthToken as setApiAuthToken,
+} from "./api.js";
 
-const SESSION_KEYS = ["am_token", "token", "am_user", "rol", "nombre", "userId", "correo", "fotoPerfil"];
+const SESSION_KEYS = [
+  "am_token",
+  "token",
+  "am_user",
+  "rol",
+  "nombre",
+  "userId",
+  "correo",
+  "fotoPerfil",
+];
 
 function setSessionToken(token) {
   if (token) {
@@ -96,7 +108,12 @@ function getUsuario() {
 function getCurrentUser() {
   try {
     const stored = JSON.parse(localStorage.getItem("am_user") || "null");
-    if (stored) return stored;
+    if (stored) {
+      return {
+        ...stored,
+        rol: normalizarRol(stored.rol || stored.role || stored.tipo),
+      };
+    }
   } catch (_error) {
     // Ignore invalid JSON and fallback to role-based session keys.
   }
@@ -125,16 +142,24 @@ function setCurrentUser(user) {
   }
 
   const normalizedRole = normalizarRol(user.rol || user.role || "comprador");
-  localStorage.setItem("am_user", JSON.stringify(user));
-  localStorage.setItem("rol", normalizedRole);
-  localStorage.setItem("nombre", user.nombre || "Usuario");
-  localStorage.setItem("correo", user.correo || "");
+  const normalizedUser = {
+    ...user,
+    rol: normalizedRole,
+  };
 
-  if (user.fotoPerfil || user.fotoUrl) {
-    localStorage.setItem("fotoPerfil", user.fotoPerfil || user.fotoUrl);
+  localStorage.setItem("am_user", JSON.stringify(normalizedUser));
+  localStorage.setItem("rol", normalizedRole);
+  localStorage.setItem("nombre", normalizedUser.nombre || "Usuario");
+  localStorage.setItem("correo", normalizedUser.correo || "");
+
+  if (normalizedUser.fotoPerfil || normalizedUser.fotoUrl) {
+    localStorage.setItem(
+      "fotoPerfil",
+      normalizedUser.fotoPerfil || normalizedUser.fotoUrl,
+    );
   }
 
-  const id = user.userId ?? user.id;
+  const id = normalizedUser.userId ?? normalizedUser.id;
   if (id !== undefined && id !== null) {
     localStorage.setItem("userId", String(id));
   }
@@ -147,6 +172,9 @@ function isAuthenticated() {
 async function login(email, password) {
   const authResponse = await api.login(email, password);
   const source = authResponse?.data ?? authResponse;
+  if (source?.twoFactorRequired) {
+    return source;
+  }
   guardarSesion(source);
   setCurrentUser({
     nombre: source?.nombre,
@@ -167,7 +195,8 @@ function isLoggedIn() {
 }
 
 function getRole() {
-  return localStorage.getItem("rol") || null;
+  const rol = localStorage.getItem("rol");
+  return rol ? normalizarRol(rol) : null;
 }
 
 function cerrarSesion() {

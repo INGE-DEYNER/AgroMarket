@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
+@SuppressWarnings({"null", "unused"})
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private static final String OAUTH2_TEMP_COOKIE = "agromarket_oauth2_token";
 
@@ -49,7 +50,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
 
-        String redirect = UriComponentsBuilder.fromHttpUrl(appProperties.frontendUrl())
+        String redirect = UriComponentsBuilder.fromUriString(appProperties.frontendUrl())
                 .path("/login.html")
                 .build(true)
                 .toUriString();

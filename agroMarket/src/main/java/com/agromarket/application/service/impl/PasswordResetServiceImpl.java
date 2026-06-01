@@ -20,13 +20,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"null", "unused"})
 public class PasswordResetServiceImpl implements PasswordResetService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService mailService;
     private final PasswordEncoder passwordEncoder;
-    private final com.agromarket.application.service.EmailVerificationService emailVerificationService;
     private final AppProperties appProperties;
+    private final com.agromarket.application.service.PasswordPolicyService passwordPolicyService;
 
     @Override
     @Transactional
@@ -62,8 +63,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
             throw new CredencialesInvalidasException("Token inválido o expirado");
         }
         UsuarioEntity usuario = entity.getUsuario();
+        passwordPolicyService.validarContrasenaNueva(usuario, nuevaContrasena);
         usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
-        usuarioJpaRepository.save(usuario);
+        UsuarioEntity guardado = usuarioJpaRepository.save(usuario);
+        passwordPolicyService.registrarContrasenaEnHistorial(guardado);
         entity.setUsado(true);
         tokenRepository.save(entity);
     }

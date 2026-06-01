@@ -20,7 +20,7 @@
     <div class="wrapper">
       <!-- LEFT PANEL: FORM -->
       <div class="left-panel">
-        <a href="home.html" class="brand">
+        <a href="/home.html" class="brand">
           <div class="brand-logo">
             <svg viewBox="0 0 24 24">
               <path
@@ -57,15 +57,64 @@
 
             <div class="form-group">
               <label class="form-label" for="password">Contraseña</label>
-              <input
-                class="form-input"
-                type="password"
-                id="password"
-                placeholder="••••••••"
-                autocomplete="current-password"
-              />
+              <div
+                style="
+                  position: relative;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <input
+                  class="form-input"
+                  type="password"
+                  id="password"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                  style="padding-right: 88px; flex: 1"
+                />
+                <button
+                  type="button"
+                  id="togglePassword"
+                  aria-label="Mostrar contraseña"
+                  aria-pressed="false"
+                  style="
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    border: 0;
+                    background: transparent;
+                    color: #2d6a2d;
+                    font-weight: 700;
+                    cursor: pointer;
+                    padding: 4px 6px;
+                  "
+                >
+                  Mostrar
+                </button>
+              </div>
               <span class="form-error" id="passwordError"
                 >La contraseña es requerida.</span
+              >
+            </div>
+
+            <div class="form-group" id="otpGroup" style="display: none">
+              <label class="form-label" for="otpCode"
+                >Código Authenticator (6 dígitos)</label
+              >
+              <input
+                class="form-input"
+                type="text"
+                id="otpCode"
+                maxlength="6"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                placeholder="123456"
+                autocomplete="one-time-code"
+              />
+              <span class="form-error" id="otpError"
+                >Ingresa un código válido de 6 dígitos.</span
               >
             </div>
 
@@ -85,10 +134,10 @@
               align-items: center;
             "
           >
-            <a href="recuperar-contrasena.html">¿Olvidaste tu contraseña?</a>
+            <a href="/recuperar-contrasena.html">¿Olvidaste tu contraseña?</a>
             <a
               class="btn-google"
-              href="http://localhost:8080/oauth2/authorization/google"
+              href="/oauth2/authorization/google"
               style="
                 display: flex;
                 align-items: center;
@@ -110,7 +159,7 @@
               Continuar con Google
             </a>
             <div>
-              ¿No tienes cuenta? <a href="registro.html">Regístrate gratis</a>
+              ¿No tienes cuenta? <a href="/registro.html">Regístrate gratis</a>
             </div>
           </div>
         </div>
@@ -150,4 +199,3 @@
     <script type="module" src="js/login.js"></script>
   </body>
 </html>
-

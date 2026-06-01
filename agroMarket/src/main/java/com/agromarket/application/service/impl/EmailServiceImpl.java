@@ -19,6 +19,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"null", "unused"})
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 

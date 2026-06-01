@@ -6,7 +6,7 @@ public interface EmailVerificationService {
     void sendVerificationEmail(UsuarioEntity usuario);
     void sendVerificationEmail(String correo);
 
-    void verifyCode(String correo, String codigo);
+    com.agromarket.infrastructure.persistence.entity.UsuarioEntity verifyCode(String correo, String codigo);
 
-    void verifyToken(String token);
+    com.agromarket.infrastructure.persistence.entity.UsuarioEntity verifyToken(String token);
 }

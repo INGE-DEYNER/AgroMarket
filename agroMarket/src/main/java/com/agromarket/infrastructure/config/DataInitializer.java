@@ -3,6 +3,7 @@ package com.agromarket.infrastructure.config;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import com.agromarket.domain.model.RolUsuario;
 import com.agromarket.domain.model.TipoFruta;
@@ -67,7 +68,7 @@ public class DataInitializer implements CommandLineRunner {
                 producto("Coco Fresco", "Coco recién cosechado", new BigDecimal("4700"), 70, TipoFruta.COCO, luis, false),
                 producto("Limón Tahití", "Limón ideal para bebidas", new BigDecimal("2600"), 160, TipoFruta.LIMON, ana, true)
         );
-        productoJpaRepository.saveAll(productos);
+        productoJpaRepository.saveAll(Objects.requireNonNull(productos));
         log.info("Datos de desarrollo inicializados correctamente");
     }
 

@@ -9,6 +9,7 @@ import com.agromarket.application.dto.UsuarioResponse;
 import com.agromarket.application.mapper.PedidoMapper;
 import com.agromarket.application.mapper.UsuarioMapper;
 import com.agromarket.infrastructure.persistence.entity.PagoEntity;
+import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.PagoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.PedidoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.ProductoJpaRepository;
@@ -50,5 +51,14 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public List<UsuarioResponse> usuarios() {
         return usuarioMapper.toResponseList(usuarioJpaRepository.findAll());
+    }
+
+    @Override
+    public void aprobarUsuario(Long id) {
+        UsuarioEntity usuario = usuarioJpaRepository.findById(id)
+                .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
+        usuario.setAprobado(true);
+        usuario.setActivo(true);
+        usuarioJpaRepository.save(usuario);
     }
 }

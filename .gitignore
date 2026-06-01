@@ -65,3 +65,5 @@ node_modules/
 uploads/
 .github/java-upgrade/
 k8s/secrets/
+frontend/certs/*.pem
+frontend/certs/*.key

@@ -17,9 +17,10 @@ import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(classes = com.asafrut.agroMarket.AgroMarketApplication.class)
 @org.springframework.context.annotation.Import(EmailVerificationGreenMailIT.MailConfig.class)
+@SuppressWarnings({"null", "unused"})
 public class EmailVerificationGreenMailIT {
 
-    private static GreenMail greenMail = new GreenMail(ServerSetupTest.SMTP);
+    private static final GreenMail greenMail = new GreenMail(ServerSetupTest.SMTP);
 
     static {
         greenMail.start();

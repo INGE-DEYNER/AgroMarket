@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings({"null", "unused"})
 public class EnvioServiceImpl implements EnvioService {
     private final EnvioJpaRepository envioJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;

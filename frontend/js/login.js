@@ -1,5 +1,6 @@
 import { login as doLogin, guardarSesion, setCurrentUser } from "./auth.js";
 import { showToast, escapeHtml } from "./ui.js";
+import api from "./api.js";
 
 const form = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
@@ -8,9 +9,14 @@ const emailError = document.getElementById("emailError");
 const passwordError = document.getElementById("passwordError");
 const globalError = document.getElementById("globalError");
 const submitBtn = document.getElementById("submitBtn");
+const togglePasswordBtn = document.getElementById("togglePassword");
+const otpGroup = document.getElementById("otpGroup");
+const otpInput = document.getElementById("otpCode");
+const otpError = document.getElementById("otpError");
+
+let pendingTwoFactorToken = null;
 
 async function consumeOAuthCallback() {
-
   try {
     const response = await fetch("/api/auth/token-exchange", {
       method: "GET",
@@ -42,7 +48,8 @@ async function consumeOAuthCallback() {
     return true;
   } catch (error) {
     if (globalError) {
-      globalError.textContent = error?.message || "No se pudo completar el inicio con Google.";
+      globalError.textContent =
+        error?.message || "No se pudo completar el inicio con Google.";
       globalError.classList.add("visible");
     }
     return false;
@@ -72,13 +79,48 @@ function setFieldState(input, errorEl, message, isValid) {
 
 function clearErrors() {
   [emailInput, passwordInput].forEach((el) => el?.classList.remove("error"));
+  otpInput?.classList.remove("error");
   [emailError, passwordError].forEach(
     (el) => el && ((el.textContent = ""), el.classList.remove("visible")),
   );
+  if (otpError) {
+    otpError.textContent = "";
+    otpError.classList.remove("visible");
+  }
   if (globalError) {
     globalError.textContent = "";
     globalError.classList.remove("visible");
   }
+}
+
+function validateOtpField(showMessage = false) {
+  const value = String(otpInput?.value || "").trim();
+  if (!pendingTwoFactorToken) return true;
+  if (!value && !showMessage) return false;
+  if (!/^[0-9]{6}$/.test(value)) {
+    if (showMessage && otpError) {
+      otpError.textContent = "Ingresa un código válido de 6 dígitos.";
+      otpError.classList.add("visible");
+      otpInput?.classList.add("error");
+    }
+    return false;
+  }
+  otpInput?.classList.remove("error");
+  otpError?.classList.remove("visible");
+  return true;
+}
+
+function enterTwoFactorStep(tempToken) {
+  pendingTwoFactorToken = tempToken;
+  if (otpGroup) otpGroup.style.display = "block";
+  if (otpInput) {
+    otpInput.value = "";
+    otpInput.focus();
+  }
+  if (emailInput) emailInput.readOnly = true;
+  if (passwordInput) passwordInput.readOnly = true;
+  if (togglePasswordBtn) togglePasswordBtn.disabled = true;
+  if (submitBtn) submitBtn.textContent = "Verificar código";
 }
 
 function getErrorMessage(error) {
@@ -97,6 +139,19 @@ function showFieldError(input, errorEl, message) {
     errorEl.textContent = message;
     errorEl.classList.add("visible");
   }
+}
+
+function togglePasswordVisibility(input, button) {
+  if (!input || !button) return;
+
+  const isHidden = input.type === "password";
+  input.type = isHidden ? "text" : "password";
+  button.textContent = isHidden ? "Ocultar" : "Mostrar";
+  button.setAttribute(
+    "aria-label",
+    isHidden ? "Ocultar contraseña" : "Mostrar contraseña",
+  );
+  button.setAttribute("aria-pressed", String(isHidden));
 }
 
 function redirectByRole(role) {
@@ -153,6 +208,9 @@ emailInput?.addEventListener("input", () => validateEmailField(false));
 emailInput?.addEventListener("blur", () => validateEmailField(true));
 passwordInput?.addEventListener("input", () => validatePasswordField(false));
 passwordInput?.addEventListener("blur", () => validatePasswordField(true));
+togglePasswordBtn?.addEventListener("click", () =>
+  togglePasswordVisibility(passwordInput, togglePasswordBtn),
+);
 
 await consumeOAuthCallback();
 
@@ -170,6 +228,7 @@ form?.addEventListener("submit", async (event) => {
 
   if (!validateEmailField(true)) isValid = false;
   if (!validatePasswordField(true)) isValid = false;
+  if (!validateOtpField(true)) isValid = false;
 
   if (!isValid) return;
 
@@ -177,7 +236,21 @@ form?.addEventListener("submit", async (event) => {
   submitBtn.disabled = true;
 
   try {
-    const authResponse = await doLogin(correo, contrasena);
+    let authResponse = null;
+    if (pendingTwoFactorToken) {
+      const otpCode = String(otpInput?.value || "").trim();
+      authResponse = await api.login2FA(pendingTwoFactorToken, otpCode);
+    } else {
+      authResponse = await doLogin(correo, contrasena);
+    }
+
+    if (authResponse?.twoFactorRequired) {
+      enterTwoFactorStep(authResponse.tempToken);
+      showToast("Introduce el código de tu app Authenticator.", "info");
+      return;
+    }
+
+    guardarSesion(authResponse);
     // auth.login already stored token; persist minimal user info
     setCurrentUser({
       nombre: authResponse.nombre,
@@ -189,12 +262,15 @@ form?.addEventListener("submit", async (event) => {
       `Bienvenido, ${escapeHtml(authResponse.nombre || correo)}`,
       "success",
     );
+    pendingTwoFactorToken = null;
     redirectByRole(authResponse.rol || authResponse.tipo);
   } catch (error) {
     const message = getErrorMessage(error);
     if (error?.status === 403 && /verific/i.test(message)) {
       sessionStorage.setItem("pendingVerificationEmail", correo);
-      globalThis.location.assign(`verificar-correo.html?correo=${encodeURIComponent(correo)}`);
+      globalThis.location.assign(
+        `verificar-correo.html?correo=${encodeURIComponent(correo)}`,
+      );
       return;
     }
     if (globalError) {

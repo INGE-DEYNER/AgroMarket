@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings({"null", "unused"})
 public class MensajeServiceImpl implements MensajeService {
     private final MensajeJpaRepository mensajeJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;

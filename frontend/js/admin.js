@@ -49,13 +49,30 @@ function renderUsuarios(list = state.usuarios) {
       <td data-label="Nombre"><strong>${escapeHtml(usuario.nombre)}</strong></td>
       <td data-label="Correo">${escapeHtml(usuario.correo)}</td>
       <td data-label="Rol"><span class="badge-status ${String(usuario.rol).toLowerCase() === "productor" ? "status-shipped" : String(usuario.rol).toLowerCase() === "administrador" || String(usuario.rol).toLowerCase() === "admin" ? "status-delivered" : "status-pending"}">${escapeHtml(String(usuario.rol).toLowerCase())}</span></td>
-      <td data-label="Estado">${usuario.activo ? "🟢 Activo" : "🟡 Inactivo"}</td>
+      <td data-label="Estado">${estadoUsuario(usuario)}</td>
       <td data-label="Acciones" class="actions-cell">
+        ${renderAccionAprobacion(usuario)}
         <button class="btn btn-secondary btn-sm" onclick="toggleUsuario(${usuario.id}, ${usuario.activo})">${usuario.activo ? "Bloquear" : "Habilitar"}</button>
       </td>
     </tr>`,
     )
     .join("");
+}
+
+function estadoUsuario(usuario) {
+  const esProductor = String(usuario.rol).toUpperCase() === "PRODUCTOR";
+  if (esProductor && !usuario.aprobado) {
+    return "🟠 Pendiente aprobación";
+  }
+  return usuario.activo ? "🟢 Activo" : "🟡 Inactivo";
+}
+
+function renderAccionAprobacion(usuario) {
+  const esProductor = String(usuario.rol).toUpperCase() === "PRODUCTOR";
+  if (!esProductor || usuario.aprobado) {
+    return "";
+  }
+  return `<button class="btn btn-primary btn-sm" onclick="aprobarUsuario(${usuario.id})">Aprobar</button>`;
 }
 
 function renderProductos() {
@@ -161,6 +178,16 @@ async function toggleUsuario(id, activo) {
     mostrarExito("Usuario actualizado correctamente.");
   } catch (error) {
     alert(error?.message || "No se pudo actualizar el usuario.");
+  }
+}
+
+async function aprobarUsuario(id) {
+  try {
+    await api.aprobarUsuario(id);
+    await cargarUsuarios();
+    mostrarExito("Productor aprobado correctamente.");
+  } catch (error) {
+    alert(error?.message || "No se pudo aprobar el productor.");
   }
 }
 
@@ -361,5 +388,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 window.showSection = showSection;
 window.filterUsuarios = filterUsuarios;
 window.toggleUsuario = toggleUsuario;
+window.aprobarUsuario = aprobarUsuario;
 window.eliminarProducto = eliminarProducto;
 window.eliminarResena = eliminarResena;

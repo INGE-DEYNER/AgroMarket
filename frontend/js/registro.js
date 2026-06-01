@@ -13,6 +13,10 @@ const reqLength = document.getElementById("reqLength");
 const reqUpper = document.getElementById("reqUpper");
 const reqNumber = document.getElementById("reqNumber");
 const reqSpecial = document.getElementById("reqSpecial");
+const togglePasswordBtn = document.getElementById("togglePassword");
+const toggleConfirmPasswordBtn = document.getElementById(
+  "toggleConfirmPassword",
+);
 
 function setFieldState(input, errorEl, message, isValid) {
   if (!input) return;
@@ -134,6 +138,19 @@ function showErr(inputId, errorId, message) {
   }
 }
 
+function togglePasswordVisibility(input, button) {
+  if (!input || !button) return;
+
+  const isHidden = input.type === "password";
+  input.type = isHidden ? "text" : "password";
+  button.textContent = isHidden ? "Ocultar" : "Mostrar";
+  button.setAttribute(
+    "aria-label",
+    isHidden ? "Ocultar contraseña" : "Mostrar contraseña",
+  );
+  button.setAttribute("aria-pressed", String(isHidden));
+}
+
 function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -169,6 +186,20 @@ document.getElementById("password")?.addEventListener("input", () => {
       true,
     );
   }
+});
+
+togglePasswordBtn?.addEventListener("click", () => {
+  togglePasswordVisibility(
+    document.getElementById("password"),
+    togglePasswordBtn,
+  );
+});
+
+toggleConfirmPasswordBtn?.addEventListener("click", () => {
+  togglePasswordVisibility(
+    document.getElementById("confirmPass"),
+    toggleConfirmPasswordBtn,
+  );
 });
 
 document.getElementById("confirmPass")?.addEventListener("input", () => {

@@ -17,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -56,5 +57,11 @@ public class AdminController {
     public ResponseEntity<ApiResponse<Void>> eliminarResena(@PathVariable Long id, @AuthenticationPrincipal JwtUserPrincipal principal) {
         resenaService.eliminar(id, principal.getUserId());
         return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Reseña eliminada").build());
+    }
+
+    @PostMapping("/usuarios/{id}/aprobar")
+    public ResponseEntity<ApiResponse<Void>> aprobarUsuario(@PathVariable Long id) {
+        adminService.aprobarUsuario(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Usuario aprobado").build());
     }
 }

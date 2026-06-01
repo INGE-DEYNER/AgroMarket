@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"null", "unused"})
 public class ProductoServiceImpl implements ProductoService {
     private final ProductoJpaRepository productoJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
@@ -44,7 +45,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public PageResponse<ProductoResponse> getAll(int page, int size, String search, TipoFruta tipo, BigDecimal precioMin, BigDecimal precioMax) {
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
-        Specification<ProductoEntity> spec = Specification.where((root, query, cb) -> cb.equal(root.get("activo"), true));
+        Specification<ProductoEntity> spec = (root, query, cb) -> cb.equal(root.get("activo"), true);
         if (search != null && !search.isBlank()) {
             String keyword = "%" + search.toLowerCase() + "%";
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("nombre")), keyword));

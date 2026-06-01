@@ -3,7 +3,6 @@ package com.agromarket.interfaces.rest.controller;
 import com.agromarket.BaseIT;
 import com.agromarket.domain.model.RolUsuario;
 import com.agromarket.infrastructure.persistence.entity.ProductorEntity;
-import com.agromarket.infrastructure.persistence.repository.ProductoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
+@SuppressWarnings({"null", "unused"})
 public class ProductoControllerIT extends BaseIT {
 
     @Autowired
@@ -36,9 +36,6 @@ public class ProductoControllerIT extends BaseIT {
 
     @Autowired
     UsuarioJpaRepository usuarioJpaRepository;
-
-    @Autowired
-    ProductoJpaRepository productoJpaRepository;
 
     ProductorEntity productor;
 

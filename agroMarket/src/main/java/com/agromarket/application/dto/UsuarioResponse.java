@@ -18,5 +18,7 @@ public class UsuarioResponse {
     private String telefono;
     private RolUsuario rol;
     private boolean activo;
+    private boolean aprobado;
+    private boolean twoFactorEnabled;
     private String ubicacion;
 }
