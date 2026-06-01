@@ -45,7 +45,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .httpOnly(true)
                 .secure(request.isSecure())
                 .path("/")
-                .sameSite("Strict")
+                .sameSite("None")
                 .maxAge(300)
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());

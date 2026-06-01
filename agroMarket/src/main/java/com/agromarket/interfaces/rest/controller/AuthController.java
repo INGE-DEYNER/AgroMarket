@@ -230,7 +230,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(request.isSecure())
                 .path("/")
-                .sameSite("Strict")
+                .sameSite("None")
                 .maxAge(0)
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
