@@ -212,7 +212,9 @@ togglePasswordBtn?.addEventListener("click", () =>
   togglePasswordVisibility(passwordInput, togglePasswordBtn),
 );
 
-await consumeOAuthCallback();
+if (window.location.search.includes("oauth2=success")) {
+  await consumeOAuthCallback();
+}
 
 function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);

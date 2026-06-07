@@ -52,6 +52,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String redirect = UriComponentsBuilder.fromUriString(appProperties.frontendUrl())
                 .path("/login.html")
+                .queryParam("oauth2", "success")
                 .build(true)
                 .toUriString();
         response.sendRedirect(redirect);
