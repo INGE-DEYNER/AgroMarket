@@ -1,0 +1,101 @@
+{
+  "nav": {
+    "inicio": "首页",
+    "catalogo": "目录",
+    "carrito": "购物车",
+    "perfil": "个人资料",
+    "cerrarSesion": "注销",
+    "ingresa": "登录",
+    "registrate": "注册"
+  },
+  "auth": {
+    "email": "电子邮件",
+    "contrasena": "密码",
+    "nombre": "姓名",
+    "confirmarContrasena": "确认密码",
+    "iniciarSesion": "登录",
+    "registrarse": "注册",
+    "olvidaste": "忘记密码？",
+    "volverLogin": "返回登录",
+    "tokenExpired": "令牌已过期或无效。",
+    "verificacionEnviada": "验证邮件已发送。"
+  },
+  "dashboard": {
+    "misOrdenes": "我的订单",
+    "misProductos": "我的产品",
+    "misVentas": "我的销售",
+    "agregarProducto": "添加产品",
+    "editarProducto": "编辑产品",
+    "eliminarProducto": "删除产品",
+    "totalVentas": "总销售额",
+    "totalOrdenes": "总订单",
+    "estadoPedido": "订单状态"
+  },
+  "catalogo": {
+    "buscar": "搜索",
+    "filtrar": "筛选",
+    "precio": "价格",
+    "categoria": "类别",
+    "agregarCarrito": "添加到购物车",
+    "sinResultados": "未找到结果。",
+    "verDetalle": "查看详情"
+  },
+  "checkout": {
+    "resumen": "订单摘要",
+    "direccion": "收货地址",
+    "metodoPago": "支付方式",
+    "confirmarPedido": "确认订单",
+    "totalAPagar": "总计"
+  },
+  "perfil": {
+    "miCuenta": "我的账户",
+    "editarPerfil": "编辑个人资料",
+    "cambiarContrasena": "更改密码",
+    "guardarCambios": "保存更改",
+    "fotoPerfil": "头像"
+  },
+  "errores": {
+    "campoRequerido": "此字段为必填项。",
+    "emailInvalido": "无效的电子邮件。",
+    "contrasenasNoCoinciden": "密码不匹配。",
+    "errorServidor": "服务器错误。请稍后再试。",
+    "sesionExpirada": "您的会话已过期。请重新登录。",
+    "sinPermiso": "您无权访问此页面。",
+    "noEncontrado": "页面未找到。"
+  },
+  "emails": {
+    "asuntoVerificacion": "验证您的AgroMarket电子邮件",
+    "asuntoBienvenida": "欢迎来到AgroMarket",
+    "asuntoReset": "重置您的AgroMarket密码"
+  },
+  "general": {
+    "cargando": "加载中...",
+    "guardar": "保存",
+    "cancelar": "取消",
+    "eliminar": "删除",
+    "confirmar": "确认",
+    "volver": "返回",
+    "siguiente": "下一步",
+    "anterior": "上一步",
+    "si": "是",
+    "no": "否",
+    "cerrar": "关闭",
+    "appName": "AgroMarket",
+    "appSlogan": "农业贸易平台",
+    "verifying": "验证中...",
+    "copyright": "&copy; 2026 AgroMarket. 版权所有。",
+    "officialPlatform": "🌿 协会官方平台",
+    "connectingFieldToTable": "连接田野与您的餐桌。",
+    "dashboardDescription": "访问您的控制面板，管理您的产品、订单，或直接从乌拉巴的生产商那里购买新鲜产品。"
+  },
+  "idioma": {
+    "selector": "语言",
+    "es": "西班牙语",
+    "en": "英语",
+    "pt": "葡萄牙语",
+    "fr": "法语",
+    "de": "德语",
+    "zh": "中文",
+    "ar": "阿拉伯语"
+  }
+}

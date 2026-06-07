@@ -1,0 +1,101 @@
+{
+  "nav": {
+    "inicio": "Accueil",
+    "catalogo": "Catalogue",
+    "carrito": "Panier",
+    "perfil": "Profil",
+    "cerrarSesion": "Déconnexion",
+    "ingresa": "Connexion",
+    "registrate": "S'inscrire"
+  },
+  "auth": {
+    "email": "Email",
+    "contrasena": "Mot de passe",
+    "nombre": "Nom",
+    "confirmarContrasena": "Confirmer le mot de passe",
+    "iniciarSesion": "Se connecter",
+    "registrarse": "S'inscrire",
+    "olvidaste": "Mot de passe oublié ?",
+    "volverLogin": "Retour à la connexion",
+    "tokenExpired": "Le jeton a expiré ou est invalide.",
+    "verificacionEnviada": "Un e-mail de vérification a été envoyé."
+  },
+  "dashboard": {
+    "misOrdenes": "Mes commandes",
+    "misProductos": "Mes produits",
+    "misVentas": "Mes ventes",
+    "agregarProducto": "Ajouter un produit",
+    "editarProducto": "Modifier le produit",
+    "eliminarProducto": "Supprimer le produit",
+    "totalVentas": "Ventes totales",
+    "totalOrdenes": "Commandes totales",
+    "estadoPedido": "Statut de la commande"
+  },
+  "catalogo": {
+    "buscar": "Rechercher",
+    "filtrar": "Filtrer",
+    "precio": "Prix",
+    "categoria": "Catégorie",
+    "agregarCarrito": "Ajouter au panier",
+    "sinResultados": "Aucun résultat trouvé.",
+    "verDetalle": "Voir les détails"
+  },
+  "checkout": {
+    "resumen": "Résumé de la commande",
+    "direccion": "Adresse de livraison",
+    "metodoPago": "Mode de paiement",
+    "confirmarPedido": "Confirmer la commande",
+    "totalAPagar": "Total à payer"
+  },
+  "perfil": {
+    "miCuenta": "Mon compte",
+    "editarPerfil": "Modifier le profil",
+    "cambiarContrasena": "Changer le mot de passe",
+    "guardarCambios": "Enregistrer les modifications",
+    "fotoPerfil": "Photo de profil"
+  },
+  "errores": {
+    "campoRequerido": "Ce champ est obligatoire.",
+    "emailInvalido": "Email invalide.",
+    "contrasenasNoCoinciden": "Les mots de passe ne correspondent pas.",
+    "errorServidor": "Erreur serveur. Veuillez réessayer plus tard.",
+    "sesionExpirada": "Votre session a expiré. Veuillez vous reconnecter.",
+    "sinPermiso": "Vous n'avez pas la permission d'accéder à cette page.",
+    "noEncontrado": "Page non trouvée."
+  },
+  "emails": {
+    "asuntoVerificacion": "Vérifiez votre e-mail pour AgroMarket",
+    "asuntoBienvenida": "Bienvenue sur AgroMarket",
+    "asuntoReset": "Réinitialisez votre mot de passe AgroMarket"
+  },
+  "general": {
+    "cargando": "Chargement...",
+    "guardar": "Enregistrer",
+    "cancelar": "Annuler",
+    "eliminar": "Supprimer",
+    "confirmar": "Confirmer",
+    "volver": "Retour",
+    "siguiente": "Suivant",
+    "anterior": "Précédent",
+    "si": "Oui",
+    "no": "Non",
+    "cerrar": "Fermer",
+    "appName": "AgroMarket",
+    "appSlogan": "Plateforme de commerce agricole",
+    "verifying": "Vérification...",
+    "copyright": "&copy; 2026 AgroMarket. Tous droits réservés.",
+    "officialPlatform": "🌿 Plateforme officielle de l'Association",
+    "connectingFieldToTable": "Connecter le champ à votre table.",
+    "dashboardDescription": "Accédez à votre panneau de contrôle pour gérer vos produits, vos commandes ou effectuer des achats frais directement auprès des producteurs d'Urabá."
+  },
+  "idioma": {
+    "selector": "Langue",
+    "es": "Espagnol",
+    "en": "Anglais",
+    "pt": "Portugais",
+    "fr": "Français",
+    "de": "Allemand",
+    "zh": "Chinois",
+    "ar": "Arabe"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "nav": {
+    "inicio": "Home",
+    "catalogo": "Catalog",
+    "carrito": "Cart",
+    "perfil": "Profile",
+    "cerrarSesion": "Logout",
+    "ingresa": "Login",
+    "registrate": "Register"
+  },
+  "auth": {
+    "email": "Email",
+    "contrasena": "Password",
+    "nombre": "Name",
+    "confirmarContrasena": "Confirm Password",
+    "iniciarSesion": "Login",
+    "registrarse": "Register",
+    "olvidaste": "Forgot your password?",
+    "volverLogin": "Back to Login",
+    "tokenExpired": "Token has expired or is invalid.",
+    "verificacionEnviada": "A verification email has been sent.",
+    "welcomeBack": "Welcome back",
+    "enterCredentials": "Enter your credentials to continue.",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "••••••••",
+    "hidePassword": "Hide",
+    "showPassword": "Show",
+    "otpCodeLabel": "Authenticator Code (6 digits)",
+    "otpPlaceholder": "123456",
+    "verifyCode": "Verify code",
+    "continueWithGoogle": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "registerFree": "Register for free"
+  },
+  "dashboard": {
+    "misOrdenes": "My Orders",
+    "misProductos": "My Products",
+    "misVentas": "My Sales",
+    "agregarProducto": "Add Product",
+    "editarProducto": "Edit Product",
+    "eliminarProducto": "Delete Product",
+    "totalVentas": "Total Sales",
+    "totalOrdenes": "Total Orders",
+    "estadoPedido": "Order Status"
+  },
+  "catalogo": {
+    "buscar": "Search",
+    "filtrar": "Filter",
+    "precio": "Price",
+    "categoria": "Category",
+    "agregarCarrito": "Add to Cart",
+    "sinResultados": "No results found.",
+    "verDetalle": "View Details"
+  },
+  "checkout": {
+    "resumen": "Order Summary",
+    "direccion": "Shipping Address",
+    "metodoPago": "Payment Method",
+    "confirmarPedido": "Confirm Order",
+    "totalAPagar": "Total to Pay"
+  },
+  "perfil": {
+    "miCuenta": "My Account",
+    "editarPerfil": "Edit Profile",
+    "cambiarContrasena": "Change Password",
+    "guardarCambios": "Save Changes",
+    "fotoPerfil": "Profile Picture"
+  },
+  "errores": {
+    "campoRequerido": "This field is required.",
+    "emailInvalido": "Invalid email.",
+    "contrasenasNoCoinciden": "Passwords do not match.",
+    "errorServidor": "Server error. Please try again later.",
+    "sesionExpirada": "Your session has expired. Please log in again.",
+    "sinPermiso": "You do not have permission to access this page.",
+    "noEncontrado": "Page not found."
+  },
+  "emails": {
+    "asuntoVerificacion": "Verify your email for AgroMarket",
+    "asuntoBienvenida": "Welcome to AgroMarket",
+    "asuntoReset": "Reset your AgroMarket password"
+  },
+  "general": {
+    "cargando": "Loading...",
+    "guardar": "Save",
+    "cancelar": "Cancel",
+    "eliminar": "Delete",
+    "confirmar": "Confirm",
+    "volver": "Back",
+    "siguiente": "Next",
+    "anterior": "Previous",
+    "si": "Yes",
+    "no": "No",
+    "cerrar": "Close",
+    "appName": "AgroMarket",
+    "appSlogan": "Agricultural trade platform",
+    "verifying": "Verifying...",
+    "copyright": "&copy; 2026 AgroMarket. All rights reserved.",
+    "officialPlatform": "🌿 Official platform of the Association",
+    "connectingFieldToTable": "Connecting the field to your table.",
+    "dashboardDescription": "Access your control panel to manage your products, orders or make fresh purchases directly from Urabá producers.",
+    "redirecting": "Redirecting to AgroMarket..."
+  },
+  "idioma": {
+    "selector": "Language",
+    "es": "Spanish",
+    "en": "English",
+    "pt": "Portuguese",
+    "fr": "French",
+    "de": "German",
+    "zh": "Chinese",
+    "ar": "Arabic"
+  }
+}

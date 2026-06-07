@@ -1,9 +1,11 @@
-// File: frontend/src/components/Login.jsx
 import React, { useState } from 'react';
 import { useLogin } from '../hooks/useLogin.js';
 import { resolveDashboardRoute } from '../utils/auth.js';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom'; // Import Link for internal navigation
 
 export default function Login() {
+  const { t } = useTranslation();
   const {
     email,
     setEmail,
@@ -33,7 +35,7 @@ export default function Login() {
       window.location.assign(target);
     } else if (result?.pendingVerification) {
       sessionStorage.setItem("pendingVerificationEmail", result.email);
-      window.location.assign(`/verificar-correo.html?correo=${encodeURIComponent(result.email)}`);
+      window.location.assign(`/verificar-correo?correo=${encodeURIComponent(result.email)}`);
     }
   };
 
@@ -41,32 +43,32 @@ export default function Login() {
     <div className="wrapper">
       {/* LEFT PANEL: FORM */}
       <div className="left-panel">
-        <a href="/home.html" className="brand">
+        <Link to="/" className="brand">
           <div className="brand-logo">
             <svg viewBox="0 0 24 24">
               <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
             </svg>
           </div>
           <div>
-            <div className="brand-name">AgroMarket</div>
-            <div className="brand-sub">Plataforma de comercio agrícola</div>
+            <div className="brand-name">{t('general.appName')}</div>
+            <div className="brand-sub">{t('general.appSlogan')}</div>
           </div>
-        </a>
+        </Link>
 
         <div style={{ margin: "auto 0", maxWidth: "400px", width: "100%" }}>
-          <h1 className="page-title">Bienvenido de nuevo</h1>
-          <p className="page-sub">Ingresa tus credenciales para continuar.</p>
+          <h1 className="page-title">{t('auth.welcomeBack')}</h1>
+          <p className="page-sub">{t('auth.enterCredentials')}</p>
 
           {globalError && <div className="global-error visible">{globalError}</div>}
 
           <form onSubmit={onSubmit} noValidate>
             <div className="form-group">
-              <label className="form-label" htmlFor="email">Correo electrónico</label>
+              <label className="form-label" htmlFor="email">{t('auth.email')}</label>
               <input
                 className={`form-input ${emailError ? 'error' : ''}`}
                 type="email"
                 id="email"
-                placeholder="tu@correo.com"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onBlur={() => validateEmail(true)}
@@ -76,13 +78,13 @@ export default function Login() {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="password">Contraseña</label>
+              <label className="form-label" htmlFor="password">{t('auth.contrasena')}</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "8px" }}>
                 <input
                   className={`form-input ${passwordError ? 'error' : ''}`}
                   type={showPassword ? "text" : "password"}
                   id="password"
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onBlur={() => validatePassword(true)}
@@ -105,7 +107,7 @@ export default function Login() {
                     padding: "4px 6px",
                   }}
                 >
-                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                  {showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                 </button>
               </div>
               {passwordError && <span className="form-error visible">{passwordError}</span>}
@@ -113,7 +115,7 @@ export default function Login() {
 
             {pendingTwoFactorToken && (
               <div className="form-group">
-                <label className="form-label" htmlFor="otpCode">Código Authenticator (6 dígitos)</label>
+                <label className="form-label" htmlFor="otpCode">{t('auth.otpCodeLabel')}</label>
                 <input
                   className={`form-input ${otpError ? 'error' : ''}`}
                   type="text"
@@ -121,7 +123,7 @@ export default function Login() {
                   maxLength={6}
                   inputMode="numeric"
                   pattern="[0-9]{6}"
-                  placeholder="123456"
+                  placeholder={t('auth.otpPlaceholder')}
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
                   onBlur={() => validateOtp(true)}
@@ -132,7 +134,7 @@ export default function Login() {
             )}
 
             <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? 'Verificando...' : pendingTwoFactorToken ? 'Verificar código' : 'Iniciar sesión'}
+              {loading ? t('general.verifying') : pendingTwoFactorToken ? t('auth.verifyCode') : t('auth.iniciarSesion')}
             </button>
           </form>
 
@@ -147,7 +149,7 @@ export default function Login() {
               alignItems: "center",
             }}
           >
-            <a href="/recuperar-contrasena.html">¿Olvidaste tu contraseña?</a>
+            <Link to="/recuperar-contrasena">{t('auth.olvidaste')}</Link>
             <a
               className="btn-google"
               href="https://agromarket-vj8x.onrender.com/oauth2/authorization/google"
@@ -169,16 +171,16 @@ export default function Login() {
                 alt="G"
                 style={{ width: "18px", height: "18px" }}
               />
-              Continuar con Google
+              {t('auth.continueWithGoogle')}
             </a>
             <div>
-              ¿No tienes cuenta? <a href="/registro.html">Regístrate gratis</a>
+              {t('auth.noAccount')} <Link to="/registro">{t('auth.registerFree')}</Link>
             </div>
           </div>
         </div>
 
         <div style={{ marginTop: "auto", paddingTop: "24px", fontSize: "0.75rem", color: "#9a9a9a" }}>
-          &copy; 2026 AgroMarket. Todos los derechos reservados.
+          {t('general.copyright')}
         </div>
       </div>
 
@@ -190,11 +192,10 @@ export default function Login() {
           className="bg-img"
         />
         <div className="right-overlay">
-          <div className="right-badge">🌿 Plataforma oficial de la Asociación</div>
-          <h2 className="right-title">Conectando el campo con tu mesa.</h2>
+          <div className="right-badge">{t('general.officialPlatform')}</div>
+          <h2 className="right-title">{t('general.connectingFieldToTable')}</h2>
           <p className="right-sub">
-            Accede a tu panel de control para gestionar tus productos, pedidos o
-            realizar compras frescas directo a los productores de Urabá.
+            {t('general.dashboardDescription')}
           </p>
         </div>
       </div>

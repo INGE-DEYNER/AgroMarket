@@ -1,0 +1,114 @@
+{
+  "_dir": "rtl",
+  "nav": {
+    "inicio": "الرئيسية",
+    "catalogo": "الكتالوج",
+    "carrito": "عربة التسوق",
+    "perfil": "الملف الشخصي",
+    "cerrarSesion": "تسجيل الخروج",
+    "ingresa": "تسجيل الدخول",
+    "registrate": "التسجيل"
+  },
+  "auth": {
+    "email": "البريد الإلكتروني",
+    "contrasena": "كلمة المرور",
+    "nombre": "الاسم",
+    "confirmarContrasena": "تأكيد كلمة المرور",
+    "iniciarSesion": "تسجيل الدخول",
+    "registrarse": "التسجيل",
+    "olvidaste": "هل نسيت كلمة المرور؟",
+    "volverLogin": "العودة إلى تسجيل الدخول",
+    "tokenExpired": "انتهت صلاحية الرمز أو أنه غير صالح.",
+    "verificacionEnviada": "تم إرسال بريد إلكتروني للتحقق.",
+    "welcomeBack": "مرحبًا بعودتك",
+    "enterCredentials": "أدخل بيانات الاعتماد الخاصة بك للمتابعة.",
+    "emailPlaceholder": "بريدك@الإلكتروني.com",
+    "passwordPlaceholder": "••••••••",
+    "hidePassword": "إخفاء",
+    "showPassword": "إظهار",
+    "otpCodeLabel": "رمز المصادقة (6 أرقام)",
+    "otpPlaceholder": "123456",
+    "verifyCode": "التحقق من الرمز",
+    "continueWithGoogle": "المتابعة باستخدام جوجل",
+    "noAccount": "ليس لديك حساب؟",
+    "registerFree": "سجل مجاناً"
+  },
+  "dashboard": {
+    "misOrdenes": "طلباتي",
+    "misProductos": "منتجاتي",
+    "misVentas": "مبيعاتي",
+    "agregarProducto": "إضافة منتج",
+    "editarProducto": "تعديل المنتج",
+    "eliminarProducto": "حذف المنتج",
+    "totalVentas": "إجمالي المبيعات",
+    "totalOrdenes": "إجمالي الطلبات",
+    "estadoPedido": "حالة الطلب"
+  },
+  "catalogo": {
+    "buscar": "بحث",
+    "filtrar": "تصفية",
+    "precio": "السعر",
+    "categoria": "الفئة",
+    "agregarCarrito": "أضف إلى السلة",
+    "sinResultados": "لم يتم العثور على نتائج.",
+    "verDetalle": "عرض التفاصيل"
+  },
+  "checkout": {
+    "resumen": "ملخص الطلب",
+    "direccion": "عنوان الشحن",
+    "metodoPago": "طريقة الدفع",
+    "confirmarPedido": "تأكيد الطلب",
+    "totalAPagar": "المبلغ الإجمالي"
+  },
+  "perfil": {
+    "miCuenta": "حسابي",
+    "editarPerfil": "تعديل الملف الشخصي",
+    "cambiarContrasena": "تغيير كلمة المرور",
+    "guardarCambios": "حفظ التغييرات",
+    "fotoPerfil": "صورة الملف الشخصي"
+  },
+  "errores": {
+    "campoRequerido": "هذا الحقل مطلوب.",
+    "emailInvalido": "بريد إلكتروني غير صالح.",
+    "contrasenasNoCoinciden": "كلمات المرور غير متطابقة.",
+    "errorServidor": "خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقًا.",
+    "sesionExpirada": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "sinPermiso": "ليس لديك إذن للوصول إلى هذه الصفحة.",
+    "noEncontrado": "الصفحة غير موجودة."
+  },
+  "emails": {
+    "asuntoVerificacion": "تحقق من بريدك الإلكتروني لـ AgroMarket",
+    "asuntoBienvenida": "مرحبًا بك في AgroMarket",
+    "asuntoReset": "إعادة تعيين كلمة مرور AgroMarket الخاصة بك"
+  },
+  "general": {
+    "cargando": "جار التحميل...",
+    "guardar": "حفظ",
+    "cancelar": "إلغاء",
+    "eliminar": "حذف",
+    "confirmar": "تأكيد",
+    "volver": "رجوع",
+    "siguiente": "التالي",
+    "anterior": "السابق",
+    "si": "نعم",
+    "no": "لا",
+    "cerrar": "إغلاق",
+    "appName": "AgroMarket",
+    "appSlogan": "منصة التجارة الزراعية",
+    "verifying": "جار التحقق...",
+    "copyright": "&copy; 2026 AgroMarket. جميع الحقوق محفوظة.",
+    "officialPlatform": "🌿 المنصة الرسمية للجمعية",
+    "connectingFieldToTable": "ربط الحقل بطاولتك.",
+    "dashboardDescription": "ادخل إلى لوحة التحكم الخاصة بك لإدارة منتجاتك، طلباتك أو لإجراء مشتريات طازجة مباشرة من منتجي أورابا."
+  },
+  "idioma": {
+    "selector": "اللغة",
+    "es": "الإسبانية",
+    "en": "الإنجليزية",
+    "pt": "البرتغالية",
+    "fr": "الفرنسية",
+    "de": "الألمانية",
+    "zh": "الصينية",
+    "ar": "العربية"
+  }
+}

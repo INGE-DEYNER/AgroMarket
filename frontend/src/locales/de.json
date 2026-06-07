@@ -1,0 +1,101 @@
+{
+  "nav": {
+    "inicio": "Startseite",
+    "catalogo": "Katalog",
+    "carrito": "Warenkorb",
+    "perfil": "Profil",
+    "cerrarSesion": "Abmelden",
+    "ingresa": "Anmelden",
+    "registrate": "Registrieren"
+  },
+  "auth": {
+    "email": "E-Mail",
+    "contrasena": "Passwort",
+    "nombre": "Name",
+    "confirmarContrasena": "Passwort bestätigen",
+    "iniciarSesion": "Anmelden",
+    "registrarse": "Registrieren",
+    "olvidaste": "Passwort vergessen?",
+    "volverLogin": "Zurück zur Anmeldung",
+    "tokenExpired": "Token ist abgelaufen oder ungültig.",
+    "verificacionEnviada": "Eine Bestätigungs-E-Mail wurde gesendet."
+  },
+  "dashboard": {
+    "misOrdenes": "Meine Bestellungen",
+    "misProductos": "Meine Produkte",
+    "misVentas": "Meine Verkäufe",
+    "agregarProducto": "Produkt hinzufügen",
+    "editarProducto": "Produkt bearbeiten",
+    "eliminarProducto": "Produkt löschen",
+    "totalVentas": "Gesamtumsatz",
+    "totalOrdenes": "Gesamtbestellungen",
+    "estadoPedido": "Bestellstatus"
+  },
+  "catalogo": {
+    "buscar": "Suchen",
+    "filtrar": "Filtern",
+    "precio": "Preis",
+    "categoria": "Kategorie",
+    "agregarCarrito": "In den Warenkorb",
+    "sinResultados": "Keine Ergebnisse gefunden.",
+    "verDetalle": "Details anzeigen"
+  },
+  "checkout": {
+    "resumen": "Bestellübersicht",
+    "direccion": "Lieferadresse",
+    "metodoPago": "Zahlungsmethode",
+    "confirmarPedido": "Bestellung bestätigen",
+    "totalAPagar": "Gesamtbetrag"
+  },
+  "perfil": {
+    "miCuenta": "Mein Konto",
+    "editarPerfil": "Profil bearbeiten",
+    "cambiarContrasena": "Passwort ändern",
+    "guardarCambios": "Änderungen speichern",
+    "fotoPerfil": "Profilbild"
+  },
+  "errores": {
+    "campoRequerido": "Dieses Feld ist erforderlich.",
+    "emailInvalido": "Ungültige E-Mail-Adresse.",
+    "contrasenasNoCoinciden": "Passwörter stimmen nicht überein.",
+    "errorServidor": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "sesionExpirada": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+    "sinPermiso": "Sie haben keine Berechtigung, diese Seite aufzurufen.",
+    "noEncontrado": "Seite nicht gefunden."
+  },
+  "emails": {
+    "asuntoVerificacion": "Bestätigen Sie Ihre E-Mail für AgroMarket",
+    "asuntoBienvenida": "Willkommen bei AgroMarket",
+    "asuntoReset": "Setzen Sie Ihr AgroMarket-Passwort zurück"
+  },
+  "general": {
+    "cargando": "Wird geladen...",
+    "guardar": "Speichern",
+    "cancelar": "Abbrechen",
+    "eliminar": "Löschen",
+    "confirmar": "Bestätigen",
+    "volver": "Zurück",
+    "siguiente": "Weiter",
+    "anterior": "Zurück",
+    "si": "Ja",
+    "no": "Nein",
+    "cerrar": "Schließen",
+    "appName": "AgroMarket",
+    "appSlogan": "Plattform für Agrarhandel",
+    "verifying": "Überprüfung...",
+    "copyright": "&copy; 2026 AgroMarket. Alle Rechte vorbehalten.",
+    "officialPlatform": "🌿 Offizielle Plattform des Verbandes",
+    "connectingFieldToTable": "Das Feld mit Ihrem Tisch verbinden.",
+    "dashboardDescription": "Greifen Sie auf Ihr Kontrollpanel zu, um Ihre Produkte und Bestellungen zu verwalten oder frische Einkäufe direkt von den Produzenten in Urabá zu tätigen."
+  },
+  "idioma": {
+    "selector": "Sprache",
+    "es": "Spanisch",
+    "en": "Englisch",
+    "pt": "Portugiesisch",
+    "fr": "Französisch",
+    "de": "Deutsch",
+    "zh": "Chinesisch",
+    "ar": "Arabisch"
+  }
+}
