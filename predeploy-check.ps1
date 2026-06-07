@@ -36,10 +36,7 @@ Write-Host "Root: $root"
 if ($CheckFiles -or -not ($CheckTools -or $CheckK8s)) {
   Write-Section "Verificando archivos base"
   Assert-File (Join-Path $root 'README.md') 'README.md'
-  Assert-File (Join-Path $root 'DEPLOYMENT_GUIDE.md') 'DEPLOYMENT_GUIDE.md'
-  Assert-File (Join-Path $root 'OAUTH2_GUIDE.md') 'OAUTH2_GUIDE.md'
-  Assert-File (Join-Path $root 'PHASE_11_12_SUMMARY.md') 'PHASE_11_12_SUMMARY.md'
-  Assert-File (Join-Path $root 'NEXT_STEPS.md') 'NEXT_STEPS.md'
+  Assert-File (Join-Path $root 'README_DEPLOY.md') 'README_DEPLOY.md'
   Assert-File (Join-Path $root 'deploy.ps1') 'deploy.ps1'
   Assert-File (Join-Path $root 'predeploy-check.ps1') 'predeploy-check.ps1'
   Assert-File (Join-Path $backend 'pom.xml') 'Backend pom.xml'
