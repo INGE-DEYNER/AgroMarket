@@ -1,8 +1,11 @@
-// File: frontend/src/components/Registro.jsx
 import React, { useState } from 'react';
 import api from '../utils/api.js';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Registro() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [role, setRole] = useState('comprador');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
@@ -39,16 +42,16 @@ export default function Registro() {
     const count = Object.values(rules).filter(Boolean).length;
     const pct = (count / 4) * 100;
     
-    let label = 'Débil';
+    let label = t('perfil.passwordRulesWeak');
     let color = '#dc2626';
     if (count === 2) {
-      label = 'Aceptable';
+      label = t('perfil.passwordRulesAcceptable');
       color = '#f59e0b';
     } else if (count === 3) {
-      label = 'Fuerte';
+      label = t('perfil.passwordRulesStrong');
       color = '#84cc16';
     } else if (count === 4) {
-      label = 'Muy fuerte';
+      label = t('perfil.passwordRulesVeryStrong');
       color = '#2d6a2d';
     }
     return { rules, pct, label, color };
@@ -84,31 +87,31 @@ export default function Registro() {
     let isValid = true;
 
     if (!nombre.trim()) {
-      setNombreError('El nombre es requerido.');
+      setNombreError(t('errores.nameIsRequired'));
       isValid = false;
     }
     if (!apellido.trim()) {
-      setApellidoError('El apellido es requerido.');
+      setApellidoError(t('errores.lastNameIsRequired'));
       isValid = false;
     }
     if (!email.trim() || !validateEmail(email.trim())) {
-      setEmailError('Ingresa un correo válido.');
+      setEmailError(t('errores.invalidEmail'));
       isValid = false;
     }
     if (!telefono.trim() || !validatePhone(telefono.trim())) {
-      setTelefonoError('Debe tener 10 dígitos numéricos.');
+      setTelefonoError(t('errores.invalidPhone'));
       isValid = false;
     }
     if (!password || !validatePasswordStrength(password)) {
-      setPasswordError('Debe tener 8 caracteres, una mayúscula, un número y un carácter especial.');
+      setPasswordError(t('errores.passwordRequirements'));
       isValid = false;
     }
     if (confirmPass !== password) {
-      setConfirmError('Las contraseñas no coinciden.');
+      setConfirmError(t('errores.contrasenasNoCoinciden'));
       isValid = false;
     }
     if (role === 'productor' && !ubicacion.trim()) {
-      setUbicacionError('La ubicación es requerida.');
+      setUbicacionError(t('errores.locationIsRequired'));
       isValid = false;
     }
 
@@ -130,10 +133,10 @@ export default function Registro() {
       sessionStorage.setItem("pendingVerificationEmail", email.trim());
       setSuccess(true);
       setTimeout(() => {
-        window.location.assign(`/verificar-correo.html?correo=${encodeURIComponent(email.trim())}`);
+        navigate(`/verificar-correo?correo=${encodeURIComponent(email.trim())}`);
       }, 2000);
     } catch (error) {
-      const message = error?.mensaje || error?.message || "No se pudo crear la cuenta.";
+      const message = error?.mensaje || error?.message || t('errores.accountCreationError');
       const campos = error?.campos || {};
 
       if (Object.keys(campos).length > 0) {
@@ -154,20 +157,20 @@ export default function Registro() {
   return (
     <div className="wrapper">
       <div className="left-panel">
-        <a className="brand" href="/login.html">
+        <Link className="brand" to="/login">
           <div className="brand-logo">
             <svg viewBox="0 0 24 24">
               <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
             </svg>
           </div>
           <div>
-            <div className="brand-name">AgroMarket</div>
-            <div className="brand-sub">Plataforma de comercio agrícola</div>
+            <div className="brand-name">{t('general.appName')}</div>
+            <div className="brand-sub">{t('general.appSlogan')}</div>
           </div>
-        </a>
+        </Link>
 
-        <h1 className="page-title">Comienza tu viaje</h1>
-        <p className="page-sub">Selecciona tu perfil y únete a la revolución agrícola.</p>
+        <h1 className="page-title">{t('auth.startYourJourney')}</h1>
+        <p className="page-sub">{t('auth.selectProfileJoinRevolution')}</p>
 
         {/* ROLE SELECTOR */}
         <div className="role-selector">
@@ -182,8 +185,8 @@ export default function Registro() {
               </svg>
             </div>
             <div className="role-icon">🛒</div>
-            <div className="role-name">Comprador</div>
-            <div className="role-desc">Acceso a los mejores precios de origen</div>
+            <div className="role-name">{t('auth.buyer')}</div>
+            <div className="role-desc">{t('auth.buyerDesc')}</div>
           </button>
           <button
             type="button"
@@ -196,8 +199,8 @@ export default function Registro() {
               </svg>
             </div>
             <div className="role-icon">🌾</div>
-            <div className="role-name">Productor</div>
-            <div className="role-desc">Vende directamente sin intermediarios</div>
+            <div className="role-name">{t('auth.producer')}</div>
+            <div className="role-desc">{t('auth.producerDesc')}</div>
           </button>
         </div>
 
@@ -205,24 +208,24 @@ export default function Registro() {
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label" htmlFor="nombre">Nombre</label>
+              <label className="form-label" htmlFor="nombre">{t('auth.nameLabel')}</label>
               <input
                 className={`form-input ${nombreError ? 'error' : ''}`}
                 type="text"
                 id="nombre"
-                placeholder="Juan"
+                placeholder={t('auth.namePlaceholder')}
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
               />
               {nombreError && <span className="form-error visible">{nombreError}</span>}
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="apellido">Apellido</label>
+              <label className="form-label" htmlFor="apellido">{t('auth.lastNameLabel')}</label>
               <input
                 className={`form-input ${apellidoError ? 'error' : ''}`}
                 type="text"
                 id="apellido"
-                placeholder="Pérez"
+                placeholder={t('auth.lastNamePlaceholder')}
                 value={apellido}
                 onChange={(e) => setApellido(e.target.value)}
               />
@@ -231,12 +234,12 @@ export default function Registro() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email">Correo electrónico</label>
+            <label className="form-label" htmlFor="email">{t('auth.email')}</label>
             <input
               className={`form-input ${emailError ? 'error' : ''}`}
               type="email"
               id="email"
-              placeholder="tu@correo.com"
+              placeholder={t('auth.emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -244,12 +247,12 @@ export default function Registro() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="telefono">Teléfono</label>
+            <label className="form-label" htmlFor="telefono">{t('auth.phoneLabel')}</label>
             <input
               className={`form-input ${telefonoError ? 'error' : ''}`}
               type="tel"
               id="telefono"
-              placeholder="3001234567"
+              placeholder={t('auth.phonePlaceholder')}
               maxLength={10}
               inputMode="numeric"
               value={telefono}
@@ -260,13 +263,13 @@ export default function Registro() {
 
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label" htmlFor="password">Contraseña</label>
+              <label className="form-label" htmlFor="password">{t('auth.passwordLabel')}</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "8px" }}>
                 <input
                   className={`form-input ${passwordError ? 'error' : ''}`}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   style={{ paddingRight: "88px", flex: 1 }}
@@ -287,7 +290,7 @@ export default function Registro() {
                     padding: "4px 6px",
                   }}
                 >
-                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                  {showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                 </button>
               </div>
 
@@ -302,7 +305,7 @@ export default function Registro() {
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
                   <span style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#6b6b6b" }}>
-                    Fortaleza
+                    {t('auth.passwordStrength')}
                   </span>
                   <span style={{ fontSize: "0.82rem", fontWeight: 700, color: metrics.color }}>
                     {metrics.label}
@@ -312,23 +315,23 @@ export default function Registro() {
                   <div style={{ width: `${metrics.pct}%`, height: "100%", background: metrics.color, borderRadius: "999px", transition: "width 0.2s ease, background 0.2s ease" }}></div>
                 </div>
                 <div style={{ display: "grid", gap: "6px", marginTop: "10px", fontSize: "0.78rem", color: "#4e6b54" }}>
-                  <div>{passwordRules(password).length ? "✓" : "•"} Mínimo 8 caracteres</div>
-                  <div>{passwordRules(password).upper ? "✓" : "•"} Una mayúscula</div>
-                  <div>{passwordRules(password).number ? "✓" : "•"} Un número</div>
-                  <div>{passwordRules(password).special ? "✓" : "•"} Un carácter especial</div>
+                  <div>{passwordRules(password).length ? "✓" : "•"} {t('perfil.passwordMinLength')}</div>
+                  <div>{passwordRules(password).upper ? "✓" : "•"} {t('perfil.passwordUppercase')}</div>
+                  <div>{passwordRules(password).number ? "✓" : "•"} {t('perfil.passwordNumber')}</div>
+                  <div>{passwordRules(password).special ? "✓" : "•"} {t('perfil.passwordSpecialChar')}</div>
                 </div>
               </div>
               {passwordError && <span className="form-error visible">{passwordError}</span>}
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="confirmPass">Confirmar contraseña</label>
+              <label className="form-label" htmlFor="confirmPass">{t('auth.confirmPasswordLabel')}</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "8px" }}>
                 <input
                   className={`form-input ${confirmError ? 'error' : ''}`}
                   type={showConfirm ? 'text' : 'password'}
                   id="confirmPass"
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder')}
                   value={confirmPass}
                   onChange={(e) => setConfirmPass(e.target.value)}
                   style={{ paddingRight: "88px", flex: 1 }}
@@ -349,7 +352,7 @@ export default function Registro() {
                     padding: "4px 6px",
                   }}
                 >
-                  {showConfirm ? 'Ocultar' : 'Mostrar'}
+                  {showConfirm ? t('auth.hidePassword') : t('auth.showPassword')}
                 </button>
               </div>
               {confirmError && <span className="form-error visible">{confirmError}</span>}
@@ -358,12 +361,12 @@ export default function Registro() {
 
           {role === 'productor' && (
             <div className="form-group extra-field visible" id="ubicacionGroup">
-              <label className="form-label" htmlFor="ubicacion">Ubicación / Vereda</label>
+              <label className="form-label" htmlFor="ubicacion">{t('auth.locationLabel')}</label>
               <input
                 className={`form-input ${ubicacionError ? 'error' : ''}`}
                 type="text"
                 id="ubicacion"
-                placeholder="Ej. Vereda Las Margaritas, Chigorodó"
+                placeholder={t('auth.locationPlaceholder')}
                 value={ubicacion}
                 onChange={(e) => setUbicacion(e.target.value)}
               />
@@ -372,19 +375,19 @@ export default function Registro() {
           )}
 
           <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+            {loading ? t('auth.creatingAccount') : t('auth.createAccount')}
           </button>
 
           {success && (
             <div className="success-msg visible" id="successMsg">
               <span>✔</span>
-              <span>Cuenta creada. Redirigiendo a la verificación...</span>
+              <span>{t('auth.accountCreatedRedirecting')}</span>
             </div>
           )}
         </form>
 
         <div className="form-footer">
-          ¿Ya tienes cuenta? <a href="/login.html">Inicia sesión</a>
+          {t('auth.alreadyHaveAccount')} <Link to="/login">{t('auth.loginHere')}</Link>
           <a
             className="btn-google"
             href="https://agromarket-vj8x.onrender.com/oauth2/authorization/google"
@@ -406,7 +409,7 @@ export default function Registro() {
               alt="G"
               style={{ width: "16px", height: "16px" }}
             />
-            Continuar con Google
+            {t('auth.continueWithGoogle')}
           </a>
         </div>
       </div>
@@ -415,32 +418,32 @@ export default function Registro() {
         <img
           className="bg-img"
           src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=1200"
-          alt="Frutas tropicales"
+          alt={t('auth.tropicalFruits')}
           loading="lazy"
         />
         <div className="right-overlay">
-          <div className="right-badge">🌿 Plataforma oficial</div>
-          <h2 className="right-title">Del campo de Urabá a tu hogar.</h2>
+          <div className="right-badge">{t('auth.officialPlatform')}</div>
+          <h2 className="right-title">{t('auth.fromFarmToHome')}</h2>
           <p className="right-sub">
-            Garantizamos trazabilidad total y precios justos para quienes cultivan la tierra y quienes disfrutan sus frutos.
+            {t('auth.traceabilityDescription')}
           </p>
           <div className="right-features">
             <div className="right-feat">
               <span className="feat-icon">🔐</span>
               <span className="feat-text">
-                <strong style={{ color: "#fff" }}>Trazabilidad total</strong><br />Conoce el origen exacto de cada fruta que compras.
+                <strong style={{ color: "#fff" }}>{t('auth.totalTraceability')}</strong><br />{t('auth.knowExactOrigin')}
               </span>
             </div>
             <div className="right-feat">
               <span className="feat-icon">💰</span>
               <span className="feat-text">
-                <strong style={{ color: "#fff" }}>Precios justos</strong><br />Sin intermediarios. Directo del productor al consumidor.
+                <strong style={{ color: "#fff" }}>{t('auth.fairPrices')}</strong><br />{t('auth.noIntermediaries')}
               </span>
             </div>
             <div className="right-feat">
               <span className="feat-icon">🚚</span>
               <span className="feat-text">
-                <strong style={{ color: "#fff" }}>Envíos seguros</strong><br />Seguimiento en tiempo real desde Urabá hasta tu puerta.
+                <strong style={{ color: "#fff" }}>{t('auth.secureShipping')}</strong><br />{t('auth.realTimeTracking')}
               </span>
             </div>
           </div>

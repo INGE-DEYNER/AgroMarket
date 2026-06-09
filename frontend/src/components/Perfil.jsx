@@ -1,4 +1,3 @@
-// File: frontend/src/components/Perfil.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../utils/api.js';
 import { showToast } from '../utils/ui.js';
@@ -6,6 +5,8 @@ import { useAuth } from '../context/AuthContext.jsx';
 import Navbar from './Navbar.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import { normalizarRol } from '../utils/auth.js';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 function passwordRules(value) {
   return {
@@ -16,22 +17,23 @@ function passwordRules(value) {
   };
 }
 
-function strengthFromRules(rules) {
+function strengthFromRules(rules, t) {
   const count = Object.values(rules).filter(Boolean).length;
-  if (count <= 1) return { label: 'Débil', color: '#dc2626', pct: 25 };
-  if (count === 2) return { label: 'Aceptable', color: '#f59e0b', pct: 50 };
-  if (count === 3) return { label: 'Fuerte', color: '#84cc16', pct: 75 };
-  return { label: 'Muy fuerte', color: '#2d7a3a', pct: 100 };
+  if (count <= 1) return { label: t('perfil.passwordRulesWeak'), color: '#dc2626', pct: 25 };
+  if (count === 2) return { label: t('perfil.passwordRulesAcceptable'), color: '#f59e0b', pct: 50 };
+  if (count === 3) return { label: t('perfil.passwordRulesStrong'), color: '#84cc16', pct: 75 };
+  return { label: t('perfil.passwordRulesVeryStrong'), color: '#2d7a3a', pct: 100 };
 }
 
 function getDashboardLink(rol) {
   const r = normalizarRol(rol);
-  if (r === 'productor') return '/dashboard-productor.html';
-  if (r === 'admin') return '/admin.html';
-  return '/dashboard-comprador.html';
+  if (r === 'productor') return '/dashboard-productor';
+  if (r === 'admin') return '/admin';
+  return '/dashboard-comprador';
 }
 
 function PerfilContent() {
+  const { t } = useTranslation();
   const { user, refreshUser } = useAuth();
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
@@ -51,7 +53,7 @@ function PerfilContent() {
   const fileRef = useRef();
 
   const rules = passwordRules(newPass);
-  const strength = strengthFromRules(rules);
+  const strength = strengthFromRules(rules, t);
 
   useEffect(() => {
     const localPhoto = localStorage.getItem('fotoPerfil');
@@ -68,7 +70,7 @@ function PerfilContent() {
       setTelefono(perfil.telefono || '');
       if (perfil.fotoPerfil) setAvatarSrc(perfil.fotoPerfil);
     } catch (err) {
-      showToast(err?.message || 'No se pudo cargar el perfil.', 'error');
+      showToast(err?.message || t('errores.profileLoadError'), 'error');
     }
   };
 
@@ -83,14 +85,14 @@ function PerfilContent() {
 
   const guardarPerfil = async (e) => {
     e.preventDefault();
-    if (!nombre.trim()) { showToast('El nombre es requerido.', 'error'); return; }
+    if (!nombre.trim()) { showToast(t('errores.nameRequired'), 'error'); return; }
     setSavingProfile(true);
     try {
       await api.actualizarPerfil({ nombre: nombre.trim(), telefono: telefono.trim() });
-      showToast('Perfil actualizado correctamente.', 'success');
+      showToast(t('general.profileUpdatedSuccess'), 'success');
       if (refreshUser) refreshUser();
     } catch (err) {
-      showToast(err?.message || 'No se pudo actualizar el perfil.', 'error');
+      showToast(err?.message || t('errores.profileUpdateError'), 'error');
     } finally {
       setSavingProfile(false);
     }
@@ -98,17 +100,17 @@ function PerfilContent() {
 
   const actualizarContrasena = async (e) => {
     e.preventDefault();
-    if (!currentPass) { showToast('Ingresa tu contraseña actual.', 'error'); return; }
+    if (!currentPass) { showToast(t('errores.currentPasswordRequired'), 'error'); return; }
     const valid = rules.length && rules.upper && rules.number && rules.special;
-    if (!valid) { showToast('La contraseña no cumple los requisitos.', 'error'); return; }
-    if (newPass !== confirmPass) { showToast('Las contraseñas no coinciden.', 'error'); return; }
+    if (!valid) { showToast(t('errores.passwordRequirementsNotMet'), 'error'); return; }
+    if (newPass !== confirmPass) { showToast(t('errores.contrasenasNoCoinciden'), 'error'); return; }
     setSavingPass(true);
     try {
       await api.actualizarContrasena({ contrasenaActual: currentPass, nuevaContrasena: newPass });
-      showToast('Contraseña actualizada correctamente.', 'success');
+      showToast(t('general.passwordUpdatedSuccess'), 'success');
       setCurrentPass(''); setNewPass(''); setConfirmPass('');
     } catch (err) {
-      showToast(err?.message || 'No se pudo actualizar la contraseña.', 'error');
+      showToast(err?.message || t('errores.passwordUpdateError'), 'error');
     } finally {
       setSavingPass(false);
     }
@@ -118,13 +120,13 @@ function PerfilContent() {
     const file = e.target.files?.[0];
     if (!file) return;
     const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type);
-    if (!valid) { showToast('Solo JPG, PNG o WEBP.', 'error'); return; }
-    if (file.size > 5 * 1024 * 1024) { showToast('La imagen no puede superar 5 MB.', 'error'); return; }
+    if (!valid) { showToast(t('errores.invalidImageFormat'), 'error'); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast(t('errores.imageSizeExceeded'), 'error'); return; }
     const reader = new FileReader();
     reader.onload = (ev) => {
       setAvatarSrc(ev.target.result);
       localStorage.setItem('fotoPerfil', ev.target.result);
-      showToast('Foto actualizada localmente.', 'success');
+      showToast(t('general.photoUpdatedLocally'), 'success');
     };
     reader.readAsDataURL(file);
   };
@@ -133,34 +135,34 @@ function PerfilContent() {
     try {
       const setup = await api.initTwoFactorSetup();
       setTwoFactorSetup(setup);
-      showToast('Configura tu app Authenticator con el código proporcionado.', 'info');
+      showToast(t('general.configureAuthenticatorApp'), 'info');
     } catch (err) {
-      showToast(err?.message || 'No se pudo iniciar la configuración 2FA.', 'error');
+      showToast(err?.message || t('errores.twoFactorInitError'), 'error');
     }
   };
 
   const enableTwoFactor = async () => {
-    if (!/^[0-9]{6}$/.test(tfCode)) { showToast('Ingresa un código válido de 6 dígitos.', 'error'); return; }
+    if (!/^[0-9]{6}$/.test(tfCode)) { showToast(t('errores.invalidOtpCode'), 'error'); return; }
     try {
       await api.confirmTwoFactorSetup(tfCode);
       setTwoFactorSetup(null); setTfCode('');
       await loadTwoFactorStatus();
-      showToast('Autenticación en dos pasos activada.', 'success');
+      showToast(t('general.twoFactorActivated'), 'success');
     } catch (err) {
-      showToast(err?.message || 'No se pudo activar 2FA.', 'error');
+      showToast(err?.message || t('errores.twoFactorActivateError'), 'error');
     }
   };
 
   const disableTwoFactor = async () => {
-    const code = window.prompt('Ingresa tu código actual de Authenticator para desactivar 2FA:');
+    const code = window.prompt(t('perfil.enterCurrent2FACode'));
     if (!code) return;
-    if (!/^[0-9]{6}$/.test(code)) { showToast('Código inválido.', 'error'); return; }
+    if (!/^[0-9]{6}$/.test(code)) { showToast(t('errores.invalidCode'), 'error'); return; }
     try {
       await api.disableTwoFactor(code);
       await loadTwoFactorStatus();
-      showToast('Autenticación en dos pasos desactivada.', 'success');
+      showToast(t('general.twoFactorDeactivated'), 'success');
     } catch (err) {
-      showToast(err?.message || 'No se pudo desactivar 2FA.', 'error');
+      showToast(err?.message || t('errores.twoFactorDeactivateError'), 'error');
     }
   };
 
@@ -183,10 +185,10 @@ function PerfilContent() {
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '32px 24px' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
-        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#1a3a2a' }}>Mi Perfil</h1>
-        <a href={getDashboardLink(user?.rol)} style={{ padding: '8px 18px', borderRadius: '10px', background: '#f0fdf4', color: '#2d6a4f', fontWeight: 700, textDecoration: 'none', fontSize: '0.9rem' }}>
-          ← Volver al panel
-        </a>
+        <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#1a3a2a' }}>{t('perfil.myProfileTitle')}</h1>
+        <Link to={getDashboardLink(user?.rol)} style={{ padding: '8px 18px', borderRadius: '10px', background: '#f0fdf4', color: '#2d6a4f', fontWeight: 700, textDecoration: 'none', fontSize: '0.9rem' }}>
+          ← {t('perfil.backToDashboard')}
+        </Link>
       </div>
 
       {/* Avatar + Info */}
@@ -194,7 +196,7 @@ function PerfilContent() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
             {avatarSrc ? (
-              <img src={avatarSrc} alt="Avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(45,106,79,.2)' }} />
+              <img src={avatarSrc} alt={t('general.photoOf', { name: user.nombre || t('general.user') })} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(45,106,79,.2)' }} />
             ) : (
               <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg,#2d6a4f,#40916c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1.4rem' }}>
                 {getInitials(nombre || user?.nombre)}
@@ -206,49 +208,49 @@ function PerfilContent() {
             <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1a3a2a' }}>{nombre || user?.nombre || 'Usuario'}</div>
+            <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1a3a2a' }}>{nombre || user?.nombre || t('general.user')}</div>
             <div style={{ color: '#6b7280', fontSize: '0.85rem', marginTop: '4px' }}>{correo || user?.email}</div>
             <div style={{ marginTop: '6px' }}>
               <span style={{ padding: '3px 10px', borderRadius: '999px', background: '#d1fae5', color: '#166534', fontSize: '0.78rem', fontWeight: 700 }}>
-                {user?.rol || 'comprador'}
+                {user?.rol || t('general.buyer')}
               </span>
             </div>
           </div>
         </div>
 
         <form onSubmit={guardarPerfil}>
-          <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px', color: '#374151' }}>Información personal</h2>
+          <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px', color: '#374151' }}>{t('perfil.personalInfo')}</h2>
           <div style={{ display: 'grid', gap: '14px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Nombre *</label>
-              <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre completo" style={inputStyle} required />
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('perfil.nameLabel')}</label>
+              <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder={t('perfil.namePlaceholder')} style={inputStyle} required />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Correo electrónico</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('perfil.emailLabel')}</label>
               <input type="email" value={correo} readOnly style={{ ...inputStyle, background: '#f9fafb', color: '#6b7280' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Teléfono</label>
-              <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+57 300 000 0000" style={inputStyle} />
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('perfil.phoneLabel')}</label>
+              <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder={t('perfil.phonePlaceholder')} style={inputStyle} />
             </div>
           </div>
           <button type="submit" disabled={savingProfile} style={{ marginTop: '20px', padding: '10px 24px', borderRadius: '10px', border: 0, background: '#2d6a4f', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
-            {savingProfile ? 'Guardando...' : 'Guardar cambios'}
+            {savingProfile ? t('perfil.savingChanges') : t('perfil.saveChanges')}
           </button>
         </form>
       </div>
 
       {/* Password change */}
       <div style={cardStyle}>
-        <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px', color: '#374151' }}>Cambiar contraseña</h2>
+        <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px', color: '#374151' }}>{t('perfil.changePasswordTitle')}</h2>
         <form onSubmit={actualizarContrasena}>
           <div style={{ display: 'grid', gap: '14px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Contraseña actual *</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('perfil.currentPasswordLabel')}</label>
               <input type="password" value={currentPass} onChange={(e) => setCurrentPass(e.target.value)} placeholder="••••••••" style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Nueva contraseña *</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('perfil.newPasswordLabel')}</label>
               <input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="••••••••" style={inputStyle} />
               {newPass && (
                 <div style={{ marginTop: '8px' }}>
@@ -257,60 +259,60 @@ function PerfilContent() {
                   </div>
                   <div style={{ fontSize: '0.8rem', color: strength.color, fontWeight: 600 }}>{strength.label}</div>
                   <div style={{ display: 'grid', gap: '2px', marginTop: '6px', fontSize: '0.8rem', color: '#6b7280' }}>
-                    <span style={{ color: rules.length ? '#2d6a4f' : '#9ca3af' }}>{rules.length ? '✓' : '•'} Mínimo 8 caracteres</span>
-                    <span style={{ color: rules.upper ? '#2d6a4f' : '#9ca3af' }}>{rules.upper ? '✓' : '•'} Una mayúscula</span>
-                    <span style={{ color: rules.number ? '#2d6a4f' : '#9ca3af' }}>{rules.number ? '✓' : '•'} Un número</span>
-                    <span style={{ color: rules.special ? '#2d6a4f' : '#9ca3af' }}>{rules.special ? '✓' : '•'} Un carácter especial</span>
+                    <span style={{ color: rules.length ? '#2d6a4f' : '#9ca3af' }}>{rules.length ? '✓' : '•'} {t('perfil.passwordMinLength')}</span>
+                    <span style={{ color: rules.upper ? '#2d6a4f' : '#9ca3af' }}>{rules.upper ? '✓' : '•'} {t('perfil.passwordUppercase')}</span>
+                    <span style={{ color: rules.number ? '#2d6a4f' : '#9ca3af' }}>{rules.number ? '✓' : '•'} {t('perfil.passwordNumber')}</span>
+                    <span style={{ color: rules.special ? '#2d6a4f' : '#9ca3af' }}>{rules.special ? '✓' : '•'} {t('perfil.passwordSpecialChar')}</span>
                   </div>
                 </div>
               )}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>Confirmar contraseña *</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('perfil.confirmPasswordLabel')}</label>
               <input type="password" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} placeholder="••••••••" style={inputStyle} />
               {confirmPass && newPass !== confirmPass && (
-                <div style={{ marginTop: '4px', fontSize: '0.8rem', color: '#dc2626' }}>Las contraseñas no coinciden.</div>
+                <div style={{ marginTop: '4px', fontSize: '0.8rem', color: '#dc2626' }}>{t('errores.contrasenasNoCoinciden')}</div>
               )}
             </div>
           </div>
           <button type="submit" disabled={savingPass} style={{ marginTop: '20px', padding: '10px 24px', borderRadius: '10px', border: 0, background: '#2d6a4f', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
-            {savingPass ? 'Actualizando...' : 'Actualizar contraseña'}
+            {savingPass ? t('perfil.updatingPassword') : t('perfil.updatePassword')}
           </button>
         </form>
       </div>
 
       {/* 2FA */}
       <div style={cardStyle}>
-        <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px', color: '#374151' }}>Autenticación en dos pasos (2FA)</h2>
+        <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px', color: '#374151' }}>{t('perfil.twoFactorAuthTitle')}</h2>
         <div style={{ padding: '10px 14px', borderRadius: '10px', background: twoFactorEnabled ? '#d1fae5' : '#f0f9ff', color: twoFactorEnabled ? '#166534' : '#1e40af', fontSize: '0.9rem', fontWeight: 600, marginBottom: '16px' }}>
-          {twoFactorEnabled ? '✅ Autenticación en dos pasos ACTIVADA' : 'ℹ️ Autenticación en dos pasos DESACTIVADA'}
+          {twoFactorEnabled ? t('perfil.twoFactorEnabled') : t('perfil.twoFactorDisabled')}
         </div>
 
         {!twoFactorEnabled && !twoFactorSetup && (
           <button type="button" onClick={initTwoFactor} style={{ padding: '10px 20px', borderRadius: '10px', border: 0, background: '#2d6a4f', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
-            Activar 2FA
+            {t('perfil.activate2FA')}
           </button>
         )}
 
         {twoFactorSetup && (
           <div style={{ marginTop: '16px', display: 'grid', gap: '12px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Clave secreta:</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{t('perfil.secretKeyLabel')}</label>
               <input type="text" value={twoFactorSetup.secret || ''} readOnly style={{ ...inputStyle, background: '#f9fafb', fontFamily: 'monospace' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>Código de verificación (6 dígitos):</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{t('perfil.verificationCodeLabel')}</label>
               <input type="text" value={tfCode} onChange={(e) => setTfCode(e.target.value)} maxLength={6} placeholder="123456" style={inputStyle} />
             </div>
             <button type="button" onClick={enableTwoFactor} style={{ padding: '10px 20px', borderRadius: '10px', border: 0, background: '#2d6a4f', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
-              Confirmar y activar
+              {t('perfil.confirmAndActivate')}
             </button>
           </div>
         )}
 
         {twoFactorEnabled && (
           <button type="button" onClick={disableTwoFactor} style={{ padding: '10px 20px', borderRadius: '10px', border: 0, background: '#fef2f2', color: '#991b1b', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
-            Desactivar 2FA
+            {t('perfil.deactivate2FA')}
           </button>
         )}
       </div>

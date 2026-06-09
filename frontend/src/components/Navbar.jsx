@@ -1,10 +1,12 @@
-// File: frontend/src/components/Navbar.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
-import { escapeHtml } from '../utils/ui.js';
 import { normalizarRol } from '../utils/auth.js';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import LanguageSwitcher from './LanguageSwitcher'; // Import LanguageSwitcher
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -21,30 +23,30 @@ export default function Navbar() {
 
   const getDashboardLink = (rol) => {
     const r = normalizarRol(rol);
-    if (r === 'admin') return '/admin.html';
-    if (r === 'productor') return '/dashboard-productor.html';
-    if (r === 'comprador') return '/dashboard-comprador.html';
-    return '/home.html';
+    if (r === 'admin') return '/admin';
+    if (r === 'productor') return '/dashboard-productor';
+    if (r === 'comprador') return '/dashboard-comprador';
+    return '/';
   };
 
   const getNavLinks = (rol) => {
     const r = normalizarRol(rol);
     if (r === 'comprador') {
       return [
-        { href: '/dashboard-comprador.html', label: 'Mi Panel' },
-        { href: '/catalogo.html', label: 'Catálogo' },
-        { href: '/pedidos.html', label: 'Mis Pedidos' },
-        { href: '/mensajeria.html', label: 'Mensajes' },
+        { href: '/dashboard-comprador', label: t('nav.myPanel') },
+        { href: '/catalogo', label: t('nav.catalogo') },
+        { href: '/pedidos', label: t('dashboard.misOrdenes') },
+        { href: '/mensajeria', label: t('nav.messages') },
       ];
     } else if (r === 'productor') {
       return [
-        { href: '/dashboard-productor.html', label: 'Mi Panel' },
-        { href: '/mensajeria.html', label: 'Mensajes' },
+        { href: '/dashboard-productor', label: t('nav.myPanel') },
+        { href: '/mensajeria', label: t('nav.messages') },
       ];
     } else if (r === 'admin') {
       return [
-        { href: '/admin.html', label: 'Mi Panel' },
-        { href: '/admin.html', label: 'Usuarios' },
+        { href: '/admin', label: t('nav.myPanel') },
+        { href: '/admin', label: t('nav.users') },
       ];
     }
     return [];
@@ -60,7 +62,7 @@ export default function Navbar() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  const dashboardLink = user ? getDashboardLink(user.rol) : '/home.html';
+  const dashboardLink = user ? getDashboardLink(user.rol) : '/';
   const navLinks = user ? getNavLinks(user.rol) : [];
 
   return (
@@ -77,7 +79,7 @@ export default function Navbar() {
       zIndex: 100,
     }}>
       {/* Logo */}
-      <a href="/home.html" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
         <div style={{
           width: '32px', height: '32px', borderRadius: '8px',
           background: 'linear-gradient(135deg,#2d6a4f,#40916c)',
@@ -87,16 +89,16 @@ export default function Navbar() {
             <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
           </svg>
         </div>
-        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1a3a2a' }}>AgroMarket</span>
-      </a>
+        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1a3a2a' }}>{t('general.appName')}</span>
+      </Link>
 
       {/* Nav Links */}
       {isAuthenticated && (
         <div style={{ display: 'flex', gap: '4px', id: 'navLinks' }}>
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href + link.label}
-              href={link.href}
+              to={link.href}
               style={{
                 padding: '6px 12px',
                 borderRadius: '8px',
@@ -107,34 +109,35 @@ export default function Navbar() {
               }}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
       )}
 
       {/* Nav Actions */}
       <div id="navActions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <LanguageSwitcher /> {/* Integrated LanguageSwitcher */}
         {!isAuthenticated ? (
           <>
-            <a href="/login.html" className="btn btn-secondary" style={{ padding: '6px 14px' }}>
-              Iniciar sesión
-            </a>
-            <a href="/registro.html" className="btn btn-primary" style={{ padding: '6px 14px' }}>
-              Registrarse
-            </a>
+            <Link to="/login" className="btn btn-secondary" style={{ padding: '6px 14px' }}>
+              {t('auth.iniciarSesion')}
+            </Link>
+            <Link to="/registro" className="btn btn-primary" style={{ padding: '6px 14px' }}>
+              {t('auth.registrarse')}
+            </Link>
           </>
         ) : (
           <>
             <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1a3a2a' }}>
-              Hola, {(user?.nombre || 'Usuario').split(' ')[0]}
+              {t('nav.hello')}, {(user?.nombre || t('general.user')).split(' ')[0]}
             </span>
-            <a
-              href={dashboardLink}
+            <Link
+              to={dashboardLink}
               className="btn btn-secondary btn-sm"
               style={{ padding: '6px 12px', textDecoration: 'none' }}
             >
-              Mi Panel
-            </a>
+              {t('nav.myPanel')}
+            </Link>
 
             {/* Profile dropdown */}
             <div ref={menuRef} style={{ position: 'relative' }}>
@@ -154,7 +157,7 @@ export default function Navbar() {
                 {user?.fotoPerfil ? (
                   <img
                     src={user.fotoPerfil}
-                    alt={`Foto de ${user.nombre || 'usuario'}`}
+                    alt={t('general.photoOf', { name: user.nombre || t('general.user') })}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
@@ -178,18 +181,18 @@ export default function Navbar() {
                   padding: '10px', zIndex: 30,
                 }}>
                   <div style={{ padding: '10px 12px 12px', borderBottom: '1px solid rgba(45,106,79,.12)', marginBottom: '8px' }}>
-                    <div style={{ fontWeight: 700, color: '#1a3a2a' }}>{user?.nombre || 'Usuario'}</div>
+                    <div style={{ fontWeight: 700, color: '#1a3a2a' }}>{user?.nombre || t('general.user')}</div>
                     <div style={{ fontSize: '0.82rem', color: '#6b7280', marginTop: '4px' }}>
-                      {user?.rol || 'comprador'}
+                      {user?.rol || t('general.buyer')}
                     </div>
                   </div>
                   <div style={{ display: 'grid', gap: '6px' }}>
-                    <a href={dashboardLink} style={{ padding: '10px 12px', borderRadius: '12px', textDecoration: 'none', color: '#1a3a2a', fontWeight: 700, display: 'block' }}>
-                      Ver panel
-                    </a>
-                    <a href="/perfil.html" style={{ padding: '10px 12px', borderRadius: '12px', textDecoration: 'none', color: '#1a3a2a', fontWeight: 500, display: 'block' }}>
-                      Mi perfil
-                    </a>
+                    <Link to={dashboardLink} style={{ padding: '10px 12px', borderRadius: '12px', textDecoration: 'none', color: '#1a3a2a', fontWeight: 700, display: 'block' }}>
+                      {t('nav.viewPanel')}
+                    </Link>
+                    <Link to="/perfil" style={{ padding: '10px 12px', borderRadius: '12px', textDecoration: 'none', color: '#1a3a2a', fontWeight: 500, display: 'block' }}>
+                      {t('nav.myProfile')}
+                    </Link>
                   </div>
                   <button
                     type="button"
@@ -200,7 +203,7 @@ export default function Navbar() {
                       color: '#991b1b', fontWeight: 700, cursor: 'pointer', textAlign: 'left',
                     }}
                   >
-                    Cerrar sesión
+                    {t('nav.cerrarSesion')}
                   </button>
                 </div>
               )}

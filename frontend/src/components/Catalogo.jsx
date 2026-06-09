@@ -1,9 +1,10 @@
-// File: frontend/src/components/Catalogo.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../utils/api.js';
-import { escapeHtml, formatearPrecio, showToast } from '../utils/ui.js';
+import { formatearPrecio, showToast } from '../utils/ui.js';
 import { useCart } from '../hooks/useCart.js';
 import Navbar from './Navbar.jsx';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const TIPO_MAP = {
   Banano: 'BANANO',
@@ -17,19 +18,20 @@ const TIPO_MAP = {
 };
 
 function ProductCard({ producto, onAddToCart }) {
+  const { t } = useTranslation();
   const hasStock = producto.cantidadDisponible > 0;
   return (
     <div className="product-card" style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(45,106,79,.12)', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,.06)', display: 'flex', flexDirection: 'column' }}>
       {producto.enPromocion && (
         <span className="badge-promo" style={{ position: 'absolute', top: '12px', left: '12px', background: '#e53935', color: '#fff', fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '999px' }}>
-          OFERTA
+          {t('catalogo.offer')}
         </span>
       )}
       <div className="product-img-container" style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', background: '#f0f7f0' }}>
         <img
           src={producto.imagenUrl || 'https://placehold.co/400x300/e8f5e9/1a5c2a?text=Fruta'}
           alt={producto.nombre}
-          onError={(e) => { e.target.src = 'https://placehold.co/400x300/e8f5e9/1a5c2a?text=Fruta'; }}
+          onError={(e) => { e.target.src = 'https://placehold.co/400x300/e8f5e9/1a5c2a?text=' + t('catalogo.fruitPlaceholder'); }}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </div>
@@ -58,7 +60,7 @@ function ProductCard({ producto, onAddToCart }) {
             fontSize: '0.9rem',
           }}
         >
-          {hasStock ? '🛒 Agregar al carrito' : 'Agotado'}
+          {hasStock ? t('catalogo.addToCart') : t('catalogo.outOfStock')}
         </button>
       </div>
     </div>
@@ -66,6 +68,7 @@ function ProductCard({ producto, onAddToCart }) {
 }
 
 function CartDrawer({ items, total, onUpdateQty, onRemove, onCheckout, onClose }) {
+  const { t } = useTranslation();
   const DELIVERY = 15000;
 
   return (
@@ -84,7 +87,7 @@ function CartDrawer({ items, total, onUpdateQty, onRemove, onCheckout, onClose }
       }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(45,106,79,.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>
-            Carrito <span style={{ color: '#6b7280', fontWeight: 500, fontSize: '0.9rem' }}>({items.length} items)</span>
+            {t('catalogo.cartTitle')} <span style={{ color: '#6b7280', fontWeight: 500, fontSize: '0.9rem' }}>({items.length} {t('catalogo.items')})</span>
           </h2>
           <button type="button" onClick={onClose} style={{ background: 'transparent', border: 0, fontSize: '1.5rem', cursor: 'pointer', color: '#6b7280' }}>×</button>
         </div>
@@ -93,7 +96,7 @@ function CartDrawer({ items, total, onUpdateQty, onRemove, onCheckout, onClose }
           {items.length === 0 ? (
             <div style={{ textAlign: 'center', paddingTop: '60px', color: '#6b7280' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>🛒</div>
-              <div style={{ fontWeight: 600 }}>Tu carrito está vacío</div>
+              <div style={{ fontWeight: 600 }}>{t('catalogo.cartEmpty')}</div>
             </div>
           ) : (
             items.map((item) => (
@@ -101,7 +104,7 @@ function CartDrawer({ items, total, onUpdateQty, onRemove, onCheckout, onClose }
                 <img
                   src={item.img || 'https://placehold.co/100x100/e8f5e9/1a5c2a?text=Fruta'}
                   alt={item.nombre}
-                  onError={(e) => { e.target.src = 'https://placehold.co/100x100/e8f5e9/1a5c2a?text=Fruta'; }}
+                  onError={(e) => { e.target.src = 'https://placehold.co/100x100/e8f5e9/1a5c2a?text=' + t('catalogo.fruitPlaceholder'); }}
                   style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }}
                 />
                 <div style={{ flex: 1 }}>
@@ -123,13 +126,13 @@ function CartDrawer({ items, total, onUpdateQty, onRemove, onCheckout, onClose }
         {items.length > 0 && (
           <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(45,106,79,.12)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
-              <span>Subtotal</span><span>{formatearPrecio(total)}</span>
+              <span>{t('catalogo.subtotal')}</span><span>{formatearPrecio(total)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '0.9rem', color: '#6b7280' }}>
-              <span>Envío</span><span>{formatearPrecio(DELIVERY)}</span>
+              <span>{t('catalogo.shipping')}</span><span>{formatearPrecio(DELIVERY)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontWeight: 800, fontSize: '1.05rem' }}>
-              <span>Total</span><span>{formatearPrecio(total + DELIVERY)}</span>
+              <span>{t('catalogo.total')}</span><span>{formatearPrecio(total + DELIVERY)}</span>
             </div>
             <button
               type="button"
@@ -139,7 +142,7 @@ function CartDrawer({ items, total, onUpdateQty, onRemove, onCheckout, onClose }
                 background: '#2d6a4f', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '1rem',
               }}
             >
-              Finalizar compra
+              {t('catalogo.finishPurchase')}
             </button>
           </div>
         )}
@@ -149,6 +152,8 @@ function CartDrawer({ items, total, onUpdateQty, onRemove, onCheckout, onClose }
 }
 
 export default function Catalogo() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -174,7 +179,7 @@ export default function Catalogo() {
       const page = await api.getProductos({ page: 0, size: 100 });
       setProductos(page?.content || []);
     } catch (err) {
-      setError(err?.message || 'No se pudo cargar el catálogo.');
+      setError(err?.message || t('errores.catalogLoadError'));
     } finally {
       setLoading(false);
     }
@@ -193,11 +198,11 @@ export default function Catalogo() {
       id: producto.id,
       nombre: producto.nombre,
       precio: producto.precio,
-      img: producto.imagenUrl || 'https://placehold.co/100x100/e8f5e9/1a5c2a?text=Fruta',
+      img: producto.imagenUrl || 'https://placehold.co/100x100/e8f5e9/1a5c2a?text=' + t('catalogo.fruitPlaceholder'),
     }, 1);
-    showToast(`${producto.nombre} agregado al carrito`, 'success');
+    showToast(t('general.productAddedToCart', { productName: producto.nombre }), 'success');
     setCartOpen(true);
-  }, [addItem]);
+  }, [addItem, t]);
 
   const handleCheckout = async () => {
     if (!items.length) return;
@@ -208,10 +213,10 @@ export default function Catalogo() {
       }
       clearCart();
       setCartOpen(false);
-      showToast('Pedido procesado con éxito.', 'success');
-      setTimeout(() => { window.location.assign('/pedidos.html'); }, 1200);
+      showToast(t('general.orderProcessedSuccess'), 'success');
+      setTimeout(() => { navigate('/pedidos'); }, 1200);
     } catch (err) {
-      showToast(err?.message || 'No se pudo procesar la compra.', 'error');
+      showToast(err?.message || t('errores.checkoutError'), 'error');
     } finally {
       setCheckingOut(false);
     }
@@ -223,7 +228,7 @@ export default function Catalogo() {
 
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-          <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, color: '#1a3a2a' }}>Catálogo de Productos</h1>
+          <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, color: '#1a3a2a' }}>{t('catalogo.catalogTitle')}</h1>
           <button
             type="button"
             onClick={() => setCartOpen(true)}
@@ -233,7 +238,7 @@ export default function Catalogo() {
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
             }}
           >
-            🛒 Carrito
+            🛒 {t('nav.carrito')}
             {count > 0 && (
               <span style={{
                 position: 'absolute', top: '-8px', right: '-8px',
@@ -251,7 +256,7 @@ export default function Catalogo() {
         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <input
             type="text"
-            placeholder="Buscar productos..."
+            placeholder={t('catalogo.searchProductsPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
@@ -269,7 +274,7 @@ export default function Catalogo() {
               outline: 'none', background: '#fff',
             }}
           >
-            <option value="">Todos los tipos</option>
+            <option value="">{t('catalogo.allTypes')}</option>
             {Object.keys(TIPO_MAP).map((tipo) => (
               <option key={tipo} value={tipo}>{tipo}</option>
             ))}
@@ -279,7 +284,7 @@ export default function Catalogo() {
         {/* Grid */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280', fontWeight: 600 }}>
-            Cargando catálogo...
+            {t('catalogo.loadingCatalog')}
           </div>
         ) : error ? (
           <div style={{ padding: '16px', background: '#fff1f2', borderRadius: '12px', color: '#9f1239', fontWeight: 600 }}>
@@ -287,7 +292,7 @@ export default function Catalogo() {
           </div>
         ) : filteredProductos.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280', fontWeight: 600 }}>
-            No se encontraron productos.
+            {t('catalogo.noProductsFound')}
           </div>
         ) : (
           <div id="catalogGrid" style={{
