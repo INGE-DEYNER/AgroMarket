@@ -233,5 +233,45 @@
   },
   "protectedRoute": {
     "loading": "Loading..."
+  },
+  "resenas": {
+    "title": "Product Reviews",
+    "loadError": "Could not load reviews.",
+    "loadProductReviewsError": "Error loading product reviews.",
+    "selectProductError": "Select a product.",
+    "selectRatingError": "Select a rating.",
+    "writeCommentError": "Write a comment.",
+    "publishedSuccess": "Review published.",
+    "publishError": "Could not publish review.",
+    "anonymousBuyer": "AgroMarket Buyer",
+    "beFirstToReview": "Be the first to leave a review for this product.",
+    "newReviewBtn": "+ New review",
+    "newReviewTitle": "New Review",
+    "productLabel": "Product *",
+    "selectProductOption": "Select a product...",
+    "ratingLabel": "Rating *",
+    "commentLabel": "Comment *",
+    "commentPlaceholder": "Describe your experience with the product...",
+    "publishBtn": "⭐ Publish review"
+  },
+  "resenas": {
+    "title": "Product Reviews",
+    "loadError": "Could not load reviews.",
+    "loadProductReviewsError": "Error loading product reviews.",
+    "selectProductError": "Select a product.",
+    "selectRatingError": "Select a rating.",
+    "writeCommentError": "Write a comment.",
+    "publishedSuccess": "Review published.",
+    "publishError": "Could not publish review.",
+    "anonymousBuyer": "AgroMarket Buyer",
+    "beFirstToReview": "Be the first to leave a review for this product.",
+    "newReviewBtn": "+ New review",
+    "newReviewTitle": "New Review",
+    "productLabel": "Product *",
+    "selectProductOption": "Select a product...",
+    "ratingLabel": "Rating *",
+    "commentLabel": "Comment *",
+    "commentPlaceholder": "Describe your experience with the product...",
+    "publishBtn": "⭐ Publish review"
   }
 }
