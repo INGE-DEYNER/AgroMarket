@@ -87,8 +87,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-            "https://agco-market.app",
-            "https://www.agco-market.app",
+            appProperties.frontendUrl(),          // lee de app.frontend-url
             "http://localhost:5173",
             "http://localhost:3000"
         ));

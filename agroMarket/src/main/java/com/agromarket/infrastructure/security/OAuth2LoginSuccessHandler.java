@@ -64,7 +64,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         String redirect = UriComponentsBuilder
-            .fromUriString(appProperties.frontendUrl()) // debe ser https://agco-market.app
+            .fromUriString(appProperties.frontendUrl()) // debe ser https://agro-market.app
             .path("/login")
             .queryParam("oauth2", "success")
             .build(true).toUriString();
