@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api.js';
 import { badgeEstado, formatearPrecio, formatearFecha, showToast } from '../utils/ui.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import Navbar from './Navbar.jsx';
-import ProtectedRoute from './ProtectedRoute.jsx';
+import Navbar from '../components/Navbar.jsx';
+import ProtectedRoute from '../components/ProtectedRoute.jsx';
 import { useTranslation } from 'react-i18next';
 
 function BadgeEstado({ estado }) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../utils/api.js';
 import { formatearPrecio, showToast } from '../utils/ui.js';
 import { useCart } from '../hooks/useCart.js';
-import Navbar from './Navbar.jsx';
+import Navbar from '../components/Navbar.jsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
