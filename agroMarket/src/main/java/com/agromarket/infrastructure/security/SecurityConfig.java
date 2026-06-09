@@ -1,6 +1,7 @@
 package com.agromarket.infrastructure.security;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+
 
 import com.agromarket.config.properties.AppProperties;
 import com.agromarket.domain.model.RolUsuario;
@@ -42,6 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/actuator/health/**",
+                                "/api/health", // Added health endpoint
                                 "/api/auth/verificar",
                                 "/api/auth/recuperar-contrasena",
                                 "/api/auth/restablecer-contrasena",
@@ -69,13 +73,12 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(authEndpoint -> authEndpoint
-                                // URI estándar de Spring Security: /oauth2/authorization/{registrationId}
-                                .baseUri("/oauth2/authorization")
-                                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
-                        .redirectionEndpoint(redirectionEndpoint -> redirectionEndpoint
-                                .baseUri("/login/oauth2/code/*"))
-                        .successHandler(oAuth2LoginSuccessHandler)
+                    .authorizationEndpoint(auth -> auth
+                        .authorizationRequestRepository(
+                            new HttpSessionOAuth2AuthorizationRequestRepository()
+                        )
+                    )
+                    .successHandler(oAuth2LoginSuccessHandler)
                 );
         return http.build();
     }
@@ -83,11 +86,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(appProperties.corsAllowedOrigins()));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Link", "X-Total-Count"));
+        configuration.setAllowedOrigins(List.of(
+            "https://agco-market.app",
+            "https://www.agco-market.app",
+            "http://localhost:5173",
+            "http://localhost:3000"
+        ));
+        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);  // CRÍTICO para cookies cross-domain
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

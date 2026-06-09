@@ -226,23 +226,30 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse completarGoogleOAuth2(String email, String nombre, String googleSubject) {
-        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(email).orElse(null);
+    public AuthResponse completarGoogleOAuth2(String email, String nombre, String picture) {
+        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(email)
+            .map(existingUser -> {
+                existingUser.setNombre(nombre);
+                if (picture != null && !picture.isEmpty()) existingUser.setFoto(picture);
+                existingUser.setActivo(true); // Ensure user is active after OAuth2 login
+                return existingUser;
+            })
+            .orElseGet(() -> {
+                CompradorEntity nuevo = new CompradorEntity();
+                nuevo.setRol(RolUsuario.COMPRADOR);
+                nuevo.setCorreo(email);
+                nuevo.setNombre(nombre);
+                nuevo.setFoto(picture);
+                nuevo.setTelefono("0000000000"); // Default phone
+                nuevo.setContrasena(passwordEncoder.encode(UUID.randomUUID().toString())); // Random password for OAuth2 users
+                nuevo.setActivo(true);
+                nuevo.setFechaRegistro(LocalDateTime.now());
+                nuevo.setProveedor("GOOGLE"); // Set provider
+                nuevo.setEmailVerificado(true); // Email is verified by Google
+                return nuevo;
+            });
 
-        if (usuario == null) {
-            CompradorEntity comprador = CompradorEntity.builder().build();
-            comprador.setRol(RolUsuario.COMPRADOR);
-            comprador.setCorreo(email);
-            comprador.setNombre(nombre != null && !nombre.isBlank() ? nombre : email);
-            comprador.setTelefono("0000000000");
-            comprador.setContrasena(passwordEncoder.encode(UUID.randomUUID().toString()));
-            comprador.setActivo(true);
-            comprador.setFechaRegistro(LocalDateTime.now());
-            usuario = usuarioJpaRepository.save(comprador);
-        } else if (!usuario.isActivo()) {
-            usuario.setActivo(true);
-            usuario = usuarioJpaRepository.save(usuario);
-        }
+        usuario = usuarioJpaRepository.save(usuario);
 
         String token = jwtTokenProvider.generateToken(usuario.getCorreo(), usuario.getId(), usuario.getRol());
         return AuthResponse.builder()

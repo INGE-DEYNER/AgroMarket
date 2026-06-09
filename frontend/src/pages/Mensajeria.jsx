@@ -5,7 +5,7 @@ import api from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { showToast } from '../utils/ui.js';
 import Navbar from '../components/Navbar.jsx';
-import '../../css/mensajeria.css'; // Import page styles
+import '../../legacy-css/mensajeria.css'; // Import page styles
 
 export default function Mensajeria() {
   const { t } = useTranslation();

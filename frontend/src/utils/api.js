@@ -1,5 +1,4 @@
 // File: frontend/src/utils/api.js
-import './config.js';
 
 const API_BASE = window.__AGROMARKET_API_BASE__ || "/api";
 const REQUESTED_WITH_HEADER = "XMLHttpRequest";

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../utils/api.js';
 import { showToast } from '../utils/ui.js';
 import Navbar from '../components/Navbar.jsx';
-import '../../css/resenas.css'; // Page styles
+import '../../legacy-css/resenas.css'; // Page styles
 
 export default function Resenas() {
   const { t } = useTranslation();
@@ -198,7 +198,7 @@ export default function Resenas() {
                     key={val}
                     onClick={() => { setRating(val); setRRatingError(''); }}
                     onMouseEnter={() => setHoverRating(val)}
-                    onMouseLeave={() => setHoverRating(0)}
+                    onLeave={() => setHoverRating(0)}
                     style={{
                       fontSize: '1.8rem',
                       cursor: 'pointer',
