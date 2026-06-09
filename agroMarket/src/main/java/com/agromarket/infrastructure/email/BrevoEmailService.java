@@ -2,6 +2,7 @@ package com.agromarket.infrastructure.email;
 
 import com.agromarket.application.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +63,9 @@ public class BrevoEmailService implements EmailService {
 
     @Override
     public void sendTemplateMessage(String to, String subject, String templateName, Map<String, String> model) {
+        String resolvedTemplateName = resolveLocalizedTemplateName(templateName);
         try {
-            ClassPathResource res = new ClassPathResource("email-templates/" + templateName + ".html");
+            ClassPathResource res = new ClassPathResource("email-templates/" + resolvedTemplateName + ".html");
             String template = StreamUtils.copyToString(res.getInputStream(), StandardCharsets.UTF_8);
             if (model != null) {
                 for (Map.Entry<String, String> e : model.entrySet()) {
@@ -71,7 +74,34 @@ public class BrevoEmailService implements EmailService {
             }
             sendHtmlMessage(to, subject, template);
         } catch (IOException ex) {
-            throw new RuntimeException("Error loading email template: " + templateName, ex);
+            throw new RuntimeException("Error loading email template: " + resolvedTemplateName, ex);
         }
+    }
+
+    private String resolveLocalizedTemplateName(String templateName) {
+        String lang = "es";
+        try {
+            if (LocaleContextHolder.getLocale() != null) {
+                String reqLang = LocaleContextHolder.getLocale().getLanguage();
+                if (reqLang != null && !reqLang.isEmpty()) {
+                    lang = reqLang.toLowerCase();
+                }
+            }
+        } catch (Exception e) {
+            // Ignore and fallback
+        }
+
+        if (!Arrays.asList("es", "en", "pt", "fr", "de", "zh", "ar").contains(lang)) {
+            lang = "es";
+        }
+
+        if ("email-verification".equals(templateName)) {
+            return "verificacion_" + lang;
+        } else if ("password-reset".equals(templateName)) {
+            return "reset_" + lang;
+        } else if ("welcome".equals(templateName) || "bienvenida".equals(templateName)) {
+            return "bienvenida_" + lang;
+        }
+        return templateName + "_" + lang;
     }
 }

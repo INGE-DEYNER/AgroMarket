@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt" dir="ltr">
+  <body style="margin: 0; padding: 0; background: #f4f6f3; font-family: Arial, Helvetica, sans-serif; color: #1a2e1e;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f4f6f3; padding: 24px 12px">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 620px; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 16px 40px rgba(26, 92, 42, 0.12); border: 1px solid rgba(26, 92, 42, 0.08);">
+            <tr>
+              <td style="background: linear-gradient(135deg, #1a5c2a, #2d7a3a); padding: 28px 32px; color: #fff; text-align: left;">
+                <div style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.8; font-weight: 700;">
+                  AgroMarket
+                </div>
+                <h2 style="margin: 10px 0 0; font-size: 28px; line-height: 1.2; font-weight: 800;">
+                  Verificação de E-mail
+                </h2>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 32px; text-align: left;">
+                <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.7">
+                  Olá <strong>${correoMascarado}</strong>, confirme sua conta para começar a usar o AgroMarket.
+                </p>
+                <div style="background: #f7fbf8; border: 1px solid rgba(45, 122, 58, 0.12); border-radius: 16px; padding: 18px 20px; margin: 24px 0;">
+                  <div style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #4a5d4e; font-weight: 700; margin-bottom: 8px;">
+                    Código de 6 dígitos
+                  </div>
+                  
+      <div style="font-size: 32px; letter-spacing: 0.35em; font-weight: 800; color: #1a5c2a; text-align: center; margin: 10px 0;">
+        ${codigo}
+      </div>
+    
+                  <div style="margin: 12px 0 0; font-size: 14px; line-height: 1.7; color: #4a5d4e;">
+                    Este código expira em 15 minutos. Você também pode usar o botão abaixo para ir diretamente para a tela de verificação.
+                  </div>
+                </div>
+                <p style="text-align: center; margin: 30px 0">
+                  <a href="${verifyUrl}" style="display: inline-block; padding: 14px 26px; background: #2d7a3a; color: #fff; border-radius: 999px; text-decoration: none; font-weight: 700; box-shadow: 0 10px 24px rgba(45, 122, 58, 0.22);">
+                    Verificar E-mail
+                  </a>
+                </p>
+                <p style="margin: 18px 0 0; font-size: 13px; color: #4a5d4e; line-height: 1.6;">
+                  Se o botão não abrir, copie e cole este link no seu navegador:
+                </p>
+                <p style="margin: 8px 0 0; font-size: 13px; word-break: break-all; color: #1a5c2a;">
+                  ${verifyUrl}
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
