@@ -9,10 +9,9 @@ import com.agromarket.infrastructure.persistence.entity.CompradorEntity;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 /**
  * Integration test for email verification flow.
@@ -28,7 +27,7 @@ public class EmailVerificationGreenMailIT {
     @Autowired
     private UsuarioJpaRepository usuarioJpaRepository;
 
-    @MockitoBean
+    @MockBean
     private EmailService emailService;
 
     @Test
@@ -44,7 +43,6 @@ public class EmailVerificationGreenMailIT {
 
         emailVerificationService.sendVerificationEmail("verify-greenmail@example.com");
 
-        // Verify that email was sent via Brevo mock
         verify(emailService, atLeastOnce()).sendTemplateMessage(
                 eq("verify-greenmail@example.com"),
                 anyString(),

@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @SpringBootTest(classes = com.asafrut.agroMarket.AgroMarketApplication.class)
 public class PasswordResetServiceTest {
@@ -27,7 +27,7 @@ public class PasswordResetServiceTest {
     @Autowired
     private PasswordResetTokenRepository tokenRepository;
 
-    @MockitoBean
+    @MockBean
     private EmailService emailService;
 
     @Test
