@@ -59,6 +59,11 @@ export default function Registro() {
 
   const metrics = getStrengthMetrics();
 
+  const googleAuthUrl = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8080/oauth2/authorization/google'
+    : 'https://agromarket-vj8x.onrender.com/oauth2/authorization/google';
+
   const validateEmail = (val) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
   };
@@ -390,7 +395,7 @@ export default function Registro() {
           {t('auth.alreadyHaveAccount')} <Link to="/login">{t('auth.loginHere')}</Link>
           <a
             className="btn-google"
-            href="https://agromarket-vj8x.onrender.com/oauth2/authorization/google"
+            href={googleAuthUrl}
             style={{
               display: "inline-flex",
               alignItems: "center",

@@ -1,6 +1,9 @@
 // File: frontend/src/utils/api.js
 
-const API_BASE = window.__AGROMARKET_API_BASE__ || "/api";
+export const API_BASE = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8080/api'
+  : 'https://agromarket-vj8x.onrender.com/api';
 const REQUESTED_WITH_HEADER = "XMLHttpRequest";
 
 const _cache = new Map();

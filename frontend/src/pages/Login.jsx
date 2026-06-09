@@ -39,6 +39,11 @@ export default function Login() {
     }
   };
 
+  const googleAuthUrl = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8080/oauth2/authorization/google'
+    : 'https://agromarket-vj8x.onrender.com/oauth2/authorization/google';
+
   return (
     <div className="wrapper">
       {/* LEFT PANEL: FORM */}
@@ -152,7 +157,7 @@ export default function Login() {
             <Link to="/recuperar-contrasena">{t('auth.olvidaste')}</Link>
             <a
               className="btn-google"
-              href="https://agromarket-vj8x.onrender.com/oauth2/authorization/google"
+              href={googleAuthUrl}
               style={{
                 display: "flex",
                 alignItems: "center",
