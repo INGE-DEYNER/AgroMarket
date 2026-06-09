@@ -77,10 +77,8 @@ public class BrevoEmailServiceTest {
                 .thenReturn(ResponseEntity.ok("success"));
 
         Map<String, String> model = Map.of("codigo", "123456", "correoMascarado", "u***@example.com");
-        // We test with a known resource, let's mock loading or verify it throws if file not found,
-        // but since we will create the templates, we can check a real load of verificacion_es.
-        // Wait, the templates are verificacion_es, etc.
-        emailService.sendTemplateMessage("test@example.com", "Verifica", "verificacion_es", model);
+        // Corrected template name to match the expected generic name by resolveLocalizedTemplateName
+        emailService.sendTemplateMessage("test@example.com", "Verifica", "email-verification", model);
 
         ArgumentCaptor<HttpEntity> captor = ArgumentCaptor.forClass(HttpEntity.class);
         verify(restTemplate).postForEntity(eq("https://api.brevo.com/v3/smtp/email"), captor.capture(), eq(String.class));

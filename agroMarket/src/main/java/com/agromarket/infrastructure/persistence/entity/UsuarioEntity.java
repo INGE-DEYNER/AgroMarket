@@ -72,6 +72,16 @@ public abstract class UsuarioEntity {
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaRegistro;
 
+    @Column(name = "foto")
+    private String foto;
+
+    @Column(name = "proveedor")
+    private String proveedor;
+
+    @Column(name = "email_verificado", nullable = false)
+    @Builder.Default
+    private boolean emailVerificado = false;
+
     // Explicit setter to satisfy IDE / LSP when Lombok annotation processing is unavailable
     public void setActivo(boolean activo) {
         this.activo = activo;
@@ -99,6 +109,30 @@ public abstract class UsuarioEntity {
 
     public void setTotpSecret(String totpSecret) {
         this.totpSecret = totpSecret;
+    }
+
+    public String getFoto() {
+        return this.foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+
+    public String getProveedor() {
+        return this.proveedor;
+    }
+
+    public void setProveedor(String proveedor) {
+        this.proveedor = proveedor;
+    }
+
+    public boolean isEmailVerificado() {
+        return this.emailVerificado;
+    }
+
+    public void setEmailVerificado(boolean emailVerificado) {
+        this.emailVerificado = emailVerificado;
     }
 
     // Explicit getters to reduce IDE diagnostics when Lombok isn't initialized
