@@ -1,23 +1,18 @@
-FROM maven:3.9.4-eclipse-temurin-17 AS build
-WORKDIR /workspace
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
+WORKDIR /app
 COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
-COPY src src
-RUN chmod +x mvnw && ./mvnw -B -U -DskipTests clean package
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn package -DskipTests -B
 
-FROM eclipse-temurin:17-jre-jammy
-RUN useradd -m appuser
-USER appuser
-WORKDIR /home/appuser
-COPY --from=build /workspace/target/*.jar app.jar
+# Stage 2: Runtime
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", \
-"-XX:+UseSerialGC", \
-"-XX:TieredStopAtLevel=1", \
-"-Xms64m", \
-"-Xmx256m", \
-"-XX:MaxMetaspaceSize=128m", \
-"-Dspring.backgroundpreinitializer.ignore=true", \
-"-Dspring.profiles.active=prod", \
-"-jar", "/home/appuser/app.jar"]
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-jar", "app.jar"]
