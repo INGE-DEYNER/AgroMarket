@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSecureParams } from '../hooks/useSecureParams.js';
 import api from '../utils/api.js';
+import { useTranslation } from 'react-i18next';
 
 export default function VerificarCorreo() {
+  const { t } = useTranslation();
   const { getParam } = useSecureParams();
   const [correo, setCorreo] = useState('');
   const [tokenMode, setTokenMode] = useState(false);
@@ -32,10 +34,10 @@ export default function VerificarCorreo() {
     }
 
     if (!isToken && !emailParam) {
-      setResultMessage("No encontramos un correo para verificar.");
+      setResultMessage(t('verifyEmail.noEmailFound', 'No encontramos un correo para verificar.'));
       setResultKind('error');
     }
-  }, [search, pathToken, getParam]);
+  }, [search, pathToken, getParam, t]);
 
   const storageKey = `agromarket.verification.expiry.${correo.toLowerCase() || "default"}`;
 
@@ -79,7 +81,7 @@ export default function VerificarCorreo() {
   }, [correo, storageKey]);
 
   const maskEmail = (emailStr) => {
-    if (!emailStr?.includes("@")) return emailStr || "tu correo";
+    if (!emailStr?.includes("@")) return emailStr || t('verifyEmail.yourEmailFallback', "tu correo");
     const [user, domain] = emailStr.split("@");
     if (user.length <= 2) {
       return `${user[0]}***@${domain}`;
@@ -119,7 +121,7 @@ export default function VerificarCorreo() {
   const verifyCode = async (e) => {
     if (e) e.preventDefault();
     if (!tokenMode && !correo) {
-      setResultMessage("No encontramos un correo para verificar.");
+      setResultMessage(t('verifyEmail.noEmailFound', "No encontramos un correo para verificar."));
       setResultKind('error');
       return;
     }
@@ -134,7 +136,7 @@ export default function VerificarCorreo() {
       } else {
         const fullCode = code.join('');
         if (fullCode.length !== 6) {
-          setResultMessage("Ingresa el código completo de 6 dígitos.");
+          setResultMessage(t('verifyEmail.enterFullCode', "Ingresa el código completo de 6 dígitos."));
           setResultKind('error');
           setLoading(false);
           return;
@@ -145,10 +147,10 @@ export default function VerificarCorreo() {
       sessionStorage.removeItem("pendingVerificationEmail");
       const pendiente = resp && resp.pendiente;
       if (pendiente) {
-        setResultMessage("Correo verificado. Tu cuenta está pendiente de aprobación por un administrador.");
+        setResultMessage(t('verifyEmail.verifiedPendingApproval', "Correo verificado. Tu cuenta está pendiente de aprobación por un administrador."));
         setResultKind('info');
       } else {
-        setResultMessage("Correo verificado. Redirigiendo al inicio de sesión...");
+        setResultMessage(t('verifyEmail.verifiedRedirecting', "Correo verificado. Redirigiendo al inicio de sesión..."));
         setResultKind('info');
       }
 
@@ -156,7 +158,7 @@ export default function VerificarCorreo() {
         window.location.assign("/login.html");
       }, 1800);
     } catch (error) {
-      const msg = error?.mensaje || error?.message || "No se pudo verificar el correo.";
+      const msg = error?.mensaje || error?.message || t('verifyEmail.verificationError', "No se pudo verificar el correo.");
       setResultMessage(msg);
       setResultKind('error');
     } finally {
@@ -167,7 +169,7 @@ export default function VerificarCorreo() {
   const handleResend = async (e) => {
     e.preventDefault();
     if (!correo) {
-      setResultMessage("No encontramos un correo para reenviar el código.");
+      setResultMessage(t('verifyEmail.noEmailForResend', "No encontramos un correo para reenviar el código."));
       setResultKind('error');
       return;
     }
@@ -175,10 +177,10 @@ export default function VerificarCorreo() {
     try {
       await api.resendVerification(correo);
       localStorage.removeItem(storageKey);
-      setResultMessage("Código reenviado. Revisa tu correo.");
+      setResultMessage(t('verifyEmail.codeResent', "Código reenviado. Revisa tu correo."));
       setResultKind('info');
     } catch (error) {
-      const msg = error?.mensaje || error?.message || "No se pudo reenviar el código.";
+      const msg = error?.mensaje || error?.message || t('verifyEmail.resendError', "No se pudo reenviar el código.");
       setResultMessage(msg);
       setResultKind('error');
     }
@@ -194,17 +196,17 @@ export default function VerificarCorreo() {
             </svg>
           </div>
           <div>
-            <div className="brand-name">AgroMarket</div>
-            <div className="brand-sub">Plataforma de comercio agrícola</div>
+            <div className="brand-name">{t('general.appName', 'AgroMarket')}</div>
+            <div className="brand-sub">{t('general.appSlogan', 'Plataforma de comercio agrícola')}</div>
           </div>
         </a>
 
         <div className="verify-wrap" style={{ margin: "auto 0", maxWidth: "440px", width: "100%" }}>
-          <h1 className="page-title">Verifica tu correo</h1>
+          <h1 className="page-title">{t('verifyEmail.title', 'Verifica tu correo')}</h1>
           <p className="page-sub">
-            Ingresa el código de 6 dígitos que enviamos a{' '}
+            {t('verifyEmail.enterCodeInstructions', 'Ingresa el código de 6 dígitos que enviamos a')}{' '}
             <span className="masked-email">
-              {tokenMode ? "tu enlace de verificación" : maskEmail(correo)}
+              {tokenMode ? t('verifyEmail.yourVerificationLink', "tu enlace de verificación") : maskEmail(correo)}
             </span>.
           </p>
 
@@ -215,7 +217,7 @@ export default function VerificarCorreo() {
           )}
 
           <form onSubmit={verifyCode} noValidate>
-            <div className="otp-grid" aria-label="Código de verificación">
+            <div className="otp-grid" aria-label={t('verifyEmail.otpGridLabel', "Código de verificación")}>
               {code.map((digit, idx) => (
                 <input
                   key={idx}
@@ -227,7 +229,7 @@ export default function VerificarCorreo() {
                   onChange={(e) => handleInputChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
                   onPaste={handlePaste}
-                  aria-label={`Dígito ${idx + 1}`}
+                  aria-label={t('verifyEmail.digitLabel', { defaultValue: 'Dígito {{number}}', number: idx + 1 })}
                 />
               ))}
             </div>
@@ -240,19 +242,20 @@ export default function VerificarCorreo() {
                 className={`resend-link ${!canResend ? 'is-disabled' : ''}`}
                 aria-disabled={!canResend}
               >
-                Reenviar código
+                {t('verifyEmail.resendLink', 'Reenviar código')}
               </a>
             </div>
 
             <button className="btn-submit" disabled={loading || code.join('').length !== 6} type="submit">
-              {loading ? 'Verificando...' : 'Verificar código'}
+              {loading ? t('verifyEmail.verifying', 'Verificando...') : t('verifyEmail.verifyBtn', 'Verificar código')}
             </button>
           </form>
 
           <div className="divider"></div>
 
           <div className="form-footer">
-            ¿Ya verificaste? <a href="login.html">Volver al inicio de sesión</a>
+            {t('verifyEmail.alreadyVerified', '¿Ya verificaste?')}{' '}
+            <a href="login.html">{t('auth.volverLogin', 'Volver al inicio de sesión')}</a>
           </div>
         </div>
       </div>
@@ -264,21 +267,21 @@ export default function VerificarCorreo() {
           className="bg-img"
         />
         <div className="right-overlay">
-          <div className="right-badge">📩 Verificación segura</div>
-          <h2 className="right-title">Activa tu cuenta para comprar y vender con confianza.</h2>
+          <div className="right-badge">📩 {t('verifyEmail.secureVerificationBadge', 'Verificación segura')}</div>
+          <h2 className="right-title">{t('verifyEmail.heroTitle', 'Activa tu cuenta para comprar y vender con confianza.')}</h2>
           <p className="right-sub">
-            El código expira en 15 minutos. Si necesitas otro, podrás reenviarlo cuando el temporizador llegue a cero.
+            {t('verifyEmail.heroSub', 'El código expira en 15 minutos. Si necesitas otro, podrás reenviarlo cuando el temporizador llegue a cero.')}
           </p>
 
           <div className="verify-hints">
             <div className="verify-hint">
-              <strong>Autocompletado</strong><br />Puedes pegar los 6 dígitos de una sola vez.
+              <strong>{t('verifyEmail.autocompleteTitle', 'Autocompletado')}</strong><br />{t('verifyEmail.autocompleteDesc', 'Puedes pegar los 6 dígitos de una sola vez.')}
             </div>
             <div className="verify-hint">
-              <strong>Reenvío controlado</strong><br />El botón de reenviar se activa solo al expirar el contador.
+              <strong>{t('verifyEmail.controlledResendTitle', 'Reenvío controlado')}</strong><br />{t('verifyEmail.controlledResendDesc', 'El botón de reenviar se activa solo al expirar el contador.')}
             </div>
             <div className="verify-hint">
-              <strong>Acceso inmediato</strong><br />Cuando verifiques, te llevaremos al login para entrar al sistema.
+              <strong>{t('verifyEmail.immediateAccessTitle', 'Acceso inmediato')}</strong><br />{t('verifyEmail.immediateAccessDesc', 'Cuando verifiques, te llevaremos al login para entrar al sistema.')}
             </div>
           </div>
         </div>

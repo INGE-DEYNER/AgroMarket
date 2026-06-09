@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSecureParams } from '../hooks/useSecureParams.js';
 import api from '../utils/api.js';
+import { useTranslation } from 'react-i18next';
 
 export default function RestablecerContrasena() {
+  const { t } = useTranslation();
   const { getParam } = useSecureParams();
   const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
@@ -22,10 +24,10 @@ export default function RestablecerContrasena() {
     const tokenParam = getParam('token') || '';
     setToken(tokenParam);
     if (!tokenParam && search) {
-      setResultMessage("El enlace no contiene un token válido.");
+      setResultMessage(t('resetPassword.invalidToken', 'El enlace no contiene un token válido.'));
       setResultKind('error');
     }
-  }, [search, getParam]);
+  }, [search, getParam, t]);
 
   const passwordRules = (val) => {
     return {
@@ -41,16 +43,16 @@ export default function RestablecerContrasena() {
     const count = Object.values(rules).filter(Boolean).length;
     const pct = (count / 4) * 100;
     
-    let label = 'Débil';
+    let label = t('perfil.passwordRulesWeak', 'Débil');
     let color = '#dc2626';
     if (count === 2) {
-      label = 'Aceptable';
+      label = t('perfil.passwordRulesAcceptable', 'Aceptable');
       color = '#f59e0b';
     } else if (count === 3) {
-      label = 'Fuerte';
+      label = t('perfil.passwordRulesStrong', 'Fuerte');
       color = '#84cc16';
     } else if (count === 4) {
-      label = 'Muy fuerte';
+      label = t('perfil.passwordRulesVeryStrong', 'Muy fuerte');
       color = '#2d7a3a';
     }
     return { rules, count, pct, label, color };
@@ -66,7 +68,7 @@ export default function RestablecerContrasena() {
       return false;
     }
     if (!valid) {
-      if (show) setPasswordError("Debe tener 8 caracteres, una mayúscula, un número y un carácter especial.");
+      if (show) setPasswordError(t('errores.passwordRequirements', "Debe tener 8 caracteres, una mayúscula, un número y un carácter especial."));
       return false;
     }
     setPasswordError('');
@@ -80,7 +82,7 @@ export default function RestablecerContrasena() {
       return false;
     }
     if (!matches) {
-      if (show) setConfirmError("Las contraseñas no coinciden.");
+      if (show) setConfirmError(t('errores.contrasenasNoCoinciden', "Las contraseñas no coinciden."));
       return false;
     }
     setConfirmError('');
@@ -92,7 +94,7 @@ export default function RestablecerContrasena() {
     setResultMessage('');
 
     if (!token) {
-      setResultMessage("El enlace no contiene un token válido.");
+      setResultMessage(t('resetPassword.invalidToken', "El enlace no contiene un token válido."));
       setResultKind('error');
       return;
     }
@@ -104,13 +106,13 @@ export default function RestablecerContrasena() {
     setLoading(true);
     try {
       await api.confirmPasswordReset(token, password);
-      setResultMessage("Contraseña actualizada correctamente. Redirigiendo al inicio de sesión...");
+      setResultMessage(t('resetPassword.updatedSuccess', "Contraseña actualizada correctamente. Redirigiendo al inicio de sesión..."));
       setResultKind('info');
       setTimeout(() => {
         window.location.assign("/login.html");
       }, 1800);
     } catch (error) {
-      const msg = error?.mensaje || error?.message || "No se pudo restablecer la contraseña.";
+      const msg = error?.mensaje || error?.message || t('resetPassword.updateError', "No se pudo restablecer la contraseña.");
       setResultMessage(msg);
       setResultKind('error');
     } finally {
@@ -128,15 +130,15 @@ export default function RestablecerContrasena() {
             </svg>
           </div>
           <div>
-            <div className="brand-name">AgroMarket</div>
-            <div className="brand-sub">Plataforma de comercio agrícola</div>
+            <div className="brand-name">{t('general.appName', 'AgroMarket')}</div>
+            <div className="brand-sub">{t('general.appSlogan', 'Plataforma de comercio agrícola')}</div>
           </div>
         </a>
 
         <div style={{ margin: "auto 0", maxWidth: "420px", width: "100%" }}>
-          <h1 className="page-title">Define tu nueva contraseña</h1>
+          <h1 className="page-title">{t('resetPassword.title', 'Define tu nueva contraseña')}</h1>
           <p className="page-sub">
-            El enlace de recuperación debe venir en la URL. Completa ambos campos para continuar.
+            {t('resetPassword.sub', 'El enlace de recuperación debe venir en la URL. Completa ambos campos para continuar.')}
           </p>
 
           {resultMessage && (
@@ -147,7 +149,7 @@ export default function RestablecerContrasena() {
 
           <form onSubmit={handleSubmit} noValidate>
             <div className="form-group">
-              <label className="form-label" htmlFor="password">Nueva contraseña</label>
+              <label className="form-label" htmlFor="password">{t('perfil.newPasswordLabel', 'Nueva contraseña')}</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "8px" }}>
                 <input
                   className={`form-input ${passwordError ? 'error' : ''}`}
@@ -176,30 +178,30 @@ export default function RestablecerContrasena() {
                     padding: "4px 6px",
                   }}
                 >
-                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                  {showPassword ? t('auth.hidePassword', 'Ocultar') : t('auth.showPassword', 'Mostrar')}
                 </button>
               </div>
 
               <div className="strength-card">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
-                  <span className="form-label" style={{ margin: 0 }}>Fortaleza</span>
+                  <span className="form-label" style={{ margin: 0 }}>{t('auth.passwordStrength', 'Fortaleza')}</span>
                   <span style={{ fontWeight: 700, color: metrics.color }}>{metrics.label}</span>
                 </div>
                 <div className="strength-bar-track">
                   <div className="strength-bar" style={{ width: `${metrics.pct}%`, background: metrics.color }}></div>
                 </div>
                 <div className="strength-requirements">
-                  <div>{metrics.rules.length ? "✓" : "•"} Mínimo 8 caracteres</div>
-                  <div>{metrics.rules.upper ? "✓" : "•"} Una mayúscula</div>
-                  <div>{metrics.rules.number ? "✓" : "•"} Un número</div>
-                  <div>{metrics.rules.special ? "✓" : "•"} Un carácter especial</div>
+                  <div>{metrics.rules.length ? "✓" : "•"} {t('perfil.passwordMinLength', 'Mínimo 8 caracteres')}</div>
+                  <div>{metrics.rules.upper ? "✓" : "•"} {t('perfil.passwordUppercase', 'Una mayúscula')}</div>
+                  <div>{metrics.rules.number ? "✓" : "•"} {t('perfil.passwordNumber', 'Un número')}</div>
+                  <div>{metrics.rules.special ? "✓" : "•"} {t('perfil.passwordSpecialChar', 'Un carácter especial')}</div>
                 </div>
               </div>
               {passwordError && <span className="form-error visible">{passwordError}</span>}
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="confirm">Confirmar contraseña</label>
+              <label className="form-label" htmlFor="confirm">{t('perfil.confirmPasswordLabel', 'Confirmar contraseña')}</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "8px" }}>
                 <input
                   className={`form-input ${confirmError ? 'error' : ''}`}
@@ -228,21 +230,22 @@ export default function RestablecerContrasena() {
                     padding: "4px 6px",
                   }}
                 >
-                  {showConfirm ? 'Ocultar' : 'Mostrar'}
+                  {showConfirm ? t('auth.hidePassword', 'Ocultar') : t('auth.showPassword', 'Mostrar')}
                 </button>
               </div>
               {confirmError && <span className="form-error visible">{confirmError}</span>}
             </div>
 
             <button className="btn-submit" disabled={loading || !token} type="submit">
-              {loading ? 'Restableciendo...' : 'Restablecer contraseña'}
+              {loading ? t('resetPassword.resettingBtn', 'Restableciendo...') : t('resetPassword.resetBtn', 'Restablecer contraseña')}
             </button>
           </form>
 
           <div className="divider"></div>
 
           <div className="form-footer">
-            ¿No era tu cuenta? <a href="login.html">Volver a iniciar sesión</a>
+            {t('resetPassword.notYourAccount', '¿No era tu cuenta?')}{' '}
+            <a href="login.html">{t('auth.volverLogin', 'Volver a iniciar sesión')}</a>
           </div>
         </div>
       </div>
@@ -254,21 +257,21 @@ export default function RestablecerContrasena() {
           className="bg-img"
         />
         <div className="right-overlay">
-          <div className="right-badge">🔐 Seguridad AgroMarket</div>
-          <h2 className="right-title">Protege tu acceso con una clave fuerte.</h2>
+          <div className="right-badge">🔐 {t('resetPassword.badge', 'Seguridad AgroMarket')}</div>
+          <h2 className="right-title">{t('resetPassword.heroTitle', 'Protege tu acceso con una clave fuerte.')}</h2>
           <p className="right-sub">
-            Tu nueva contraseña debe cumplir con los requisitos de seguridad antes de guardarse.
+            {t('resetPassword.heroSub', 'Tu nueva contraseña debe cumplir con los requisitos de seguridad antes de guardarse.')}
           </p>
 
           <div className="hero-note">
             <div className="hero-note-item">
-              <strong>Mayúscula, número y especial</strong><br />La validación se actualiza en tiempo real.
+              <strong>{t('resetPassword.hint1Title', 'Mayúscula, número y especial')}</strong><br />{t('resetPassword.hint1Desc', 'La validación se actualiza en tiempo real.')}
             </div>
             <div className="hero-note-item">
-              <strong>Confirmación obligatoria</strong><br />Ambos campos deben coincidir exactamente.
+              <strong>{t('resetPassword.hint2Title', 'Confirmación obligatoria')}</strong><br />{t('resetPassword.hint2Desc', 'Ambos campos deben coincidir exactamente.')}
             </div>
             <div className="hero-note-item">
-              <strong>Redirección automática</strong><br />Cuando guardes el cambio volverás al login.
+              <strong>{t('resetPassword.hint3Title', 'Redirección automática')}</strong><br />{t('resetPassword.hint3Desc', 'Cuando guardes el cambio volverás al login.')}
             </div>
           </div>
         </div>

@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSecureParams } from '../hooks/useSecureParams.js';
 import api from '../utils/api.js';
+import { useTranslation } from 'react-i18next';
 
 export default function RecuperarContrasena() {
+  const { t } = useTranslation();
   const { getParam } = useSecureParams();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -26,11 +28,11 @@ export default function RecuperarContrasena() {
 
   const validateEmail = (show = true) => {
     if (!email.trim()) {
-      if (show) setEmailError('El correo es requerido.');
+      if (show) setEmailError(t('errores.campoRequerido', 'El correo es requerido.'));
       return false;
     }
     if (!isValidEmail(email.trim())) {
-      if (show) setEmailError('Ingresa un correo válido.');
+      if (show) setEmailError(t('errores.emailInvalido', 'Ingresa un correo válido.'));
       return false;
     }
     setEmailError('');
@@ -46,10 +48,10 @@ export default function RecuperarContrasena() {
     setLoading(true);
     try {
       await api.requestPasswordReset(email.trim());
-      setResultMessage("Si el correo existe, recibirás un enlace de recuperación en unos minutos.");
+      setResultMessage(t('recuperarContrasena.requestSent', "Si el correo existe, recibirás un enlace de recuperación en unos minutos."));
       setResultKind('info');
     } catch (error) {
-      const msg = error?.mensaje || error?.message || "No se pudo enviar el enlace.";
+      const msg = error?.mensaje || error?.message || t('recuperarContrasena.requestError', "No se pudo enviar el enlace.");
       setResultMessage(msg);
       setResultKind('error');
     } finally {
@@ -67,14 +69,14 @@ export default function RecuperarContrasena() {
             </svg>
           </div>
           <div>
-            <div className="brand-name">AgroMarket</div>
-            <div className="brand-sub">Plataforma de comercio agrícola</div>
+            <div className="brand-name">{t('general.appName', 'AgroMarket')}</div>
+            <div className="brand-sub">{t('general.appSlogan', 'Plataforma de comercio agrícola')}</div>
           </div>
         </a>
 
         <div style={{ margin: "auto 0", maxWidth: "420px", width: "100%" }}>
-          <h1 className="page-title">Recupera tu acceso</h1>
-          <p className="page-sub">Te enviaremos un enlace seguro al correo asociado a tu cuenta.</p>
+          <h1 className="page-title">{t('recuperarContrasena.title', 'Recupera tu acceso')}</h1>
+          <p className="page-sub">{t('recuperarContrasena.sub', 'Te enviaremos un enlace seguro al correo asociado a tu cuenta.')}</p>
 
           {resultMessage && (
             <div className={`result-box visible ${resultKind === 'error' ? 'error' : ''}`}>
@@ -84,12 +86,12 @@ export default function RecuperarContrasena() {
 
           <form onSubmit={handleSubmit} noValidate>
             <div className="form-group">
-              <label className="form-label" htmlFor="email">Correo electrónico</label>
+              <label className="form-label" htmlFor="email">{t('auth.email', 'Correo electrónico')}</label>
               <input
                 className={`form-input ${emailError ? 'error' : ''}`}
                 id="email"
                 type="email"
-                placeholder="tu@correo.com"
+                placeholder={t('auth.emailPlaceholder', 'tu@correo.com')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onBlur={() => validateEmail(true)}
@@ -99,14 +101,15 @@ export default function RecuperarContrasena() {
             </div>
 
             <button className="btn-submit" disabled={loading} type="submit">
-              {loading ? 'Enviando...' : 'Enviar enlace'}
+              {loading ? t('recuperarContrasena.sendingBtn', 'Enviando...') : t('recuperarContrasena.sendBtn', 'Enviar enlace')}
             </button>
           </form>
 
           <div className="divider"></div>
 
           <div className="form-footer">
-            ¿Recordaste tu contraseña? <a href="login.html">Volver al inicio de sesión</a>
+            {t('recuperarContrasena.rememberedPassword', '¿Recordaste tu contraseña?')}{' '}
+            <a href="login.html">{t('auth.volverLogin', 'Volver al inicio de sesión')}</a>
           </div>
         </div>
       </div>
@@ -118,29 +121,29 @@ export default function RecuperarContrasena() {
           className="bg-img"
         />
         <div className="right-overlay">
-          <div className="right-badge">🌿 AgroMarket seguro</div>
-          <h2 className="right-title">Restablece tu contraseña sin perder acceso a tus pedidos.</h2>
+          <div className="right-badge">🌿 {t('recuperarContrasena.badge', 'AgroMarket seguro')}</div>
+          <h2 className="right-title">{t('recuperarContrasena.heroTitle', 'Restablece tu contraseña sin perder acceso a tus pedidos.')}</h2>
           <p className="right-sub">
-            El enlace caduca en 1 hora y solo funciona una vez para proteger tu cuenta.
+            {t('recuperarContrasena.heroSub', 'El enlace caduca en 1 hora y solo funciona una vez para proteger tu cuenta.')}
           </p>
 
           <div className="hero-list">
             <div className="hero-item">
               <span>1</span>
               <div>
-                <strong>Correo verificado</strong><br />Usa el correo con el que te registraste.
+                <strong>{t('recuperarContrasena.step1Title', 'Correo verificado')}</strong><br />{t('recuperarContrasena.step1Desc', 'Usa el correo con el que te registraste.')}
               </div>
             </div>
             <div className="hero-item">
               <span>2</span>
               <div>
-                <strong>Enlace seguro</strong><br />Recibe un acceso temporal para definir tu nueva clave.
+                <strong>{t('recuperarContrasena.step2Title', 'Enlace seguro')}</strong><br />{t('recuperarContrasena.step2Desc', 'Recibe un acceso temporal para definir tu nueva clave.')}
               </div>
             </div>
             <div className="hero-item">
               <span>3</span>
               <div>
-                <strong>Protección activa</strong><br />Los enlaces expiran automáticamente para tu seguridad.
+                <strong>{t('recuperarContrasena.step3Title', 'Protección activa')}</strong><br />{t('recuperarContrasena.step3Desc', 'Los enlaces expiran automáticamente para tu seguridad.')}
               </div>
             </div>
           </div>

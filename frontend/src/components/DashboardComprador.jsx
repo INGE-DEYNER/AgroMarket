@@ -5,6 +5,7 @@ import { badgeEstado, formatearPrecio, formatearFecha, showToast } from '../util
 import { useAuth } from '../context/AuthContext.jsx';
 import Navbar from './Navbar.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
+import { useTranslation } from 'react-i18next';
 
 function BadgeEstado({ estado }) {
   const { label, bg, fg } = badgeEstado(estado);
@@ -35,21 +36,22 @@ function StatCard({ label, value, icon }) {
 }
 
 function FacturaModal({ factura, onClose }) {
+  const { t } = useTranslation();
   if (!factura) return null;
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: '#fff', borderRadius: '20px', padding: '32px', maxWidth: '420px', width: '100%', margin: '0 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h3 style={{ margin: 0, fontWeight: 800 }}>Factura</h3>
+          <h3 style={{ margin: 0, fontWeight: 800 }}>{t('dashboard.invoiceTitle', 'Factura')}</h3>
           <button type="button" onClick={onClose} style={{ background: 'transparent', border: 0, fontSize: '1.4rem', cursor: 'pointer', color: '#6b7280' }}>×</button>
         </div>
         <div style={{ borderRadius: '12px', border: '1px dashed #d1d5db', padding: '20px', display: 'grid', gap: '10px' }}>
           {[
-            ['Nº Factura', factura.numeroFactura || `FAC-${factura.id}`],
-            ['Fecha', formatearFecha(factura.fechaEmision)],
-            ['Pedido', `#${factura.pedidoId}`],
-            ['Subtotal', formatearPrecio(factura.subtotal)],
-            ['Impuesto (19%)', formatearPrecio(factura.impuesto)],
+            [t('dashboard.invoiceNumber', 'Nº Factura'), factura.numeroFactura || `FAC-${factura.id}`],
+            [t('dashboard.date', 'Fecha'), formatearFecha(factura.fechaEmision)],
+            [t('dashboard.order', 'Pedido'), `#${factura.pedidoId}`],
+            [t('catalogo.subtotal', 'Subtotal'), formatearPrecio(factura.subtotal)],
+            [t('dashboard.tax', 'Impuesto (19%)'), formatearPrecio(factura.impuesto)],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
               <span style={{ color: '#6b7280' }}>{k}</span>
@@ -57,7 +59,7 @@ function FacturaModal({ factura, onClose }) {
             </div>
           ))}
           <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #2d6a4f', paddingTop: '10px', fontWeight: 800 }}>
-            <span>Total a pagar</span>
+            <span>{t('checkout.totalAPagar', 'Total a pagar')}</span>
             <span style={{ color: '#2d6a4f' }}>{formatearPrecio(factura.total)}</span>
           </div>
         </div>
@@ -67,6 +69,7 @@ function FacturaModal({ factura, onClose }) {
 }
 
 function DashboardCompradorContent() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [section, setSection] = useState('overview');
   const [pedidos, setPedidos] = useState([]);
@@ -94,20 +97,20 @@ function DashboardCompradorContent() {
       setPedidos(pedidosResp || []);
       setContactos(contactosResp || []);
     } catch (err) {
-      showToast(err?.message || 'No se pudo cargar el panel.', 'error');
+      showToast(err?.message || t('dashboard.loadError', 'No se pudo cargar el panel.'), 'error');
     } finally {
       setLoading(false);
     }
   };
 
   const cancelarPed = async (id) => {
-    if (!window.confirm('¿Deseas cancelar este pedido?')) return;
+    if (!window.confirm(t('dashboard.cancelOrderConfirm', '¿Deseas cancelar este pedido?'))) return;
     try {
       await api.cancelarPedido(id);
       setPedidos((prev) => prev.filter((p) => String(p.id) !== String(id)));
-      showToast('Pedido cancelado.', 'success');
+      showToast(t('dashboard.orderCancelled', 'Pedido cancelado.'), 'success');
     } catch (err) {
-      showToast(err?.message || 'No se pudo cancelar el pedido.', 'error');
+      showToast(err?.message || t('dashboard.cancelOrderError', 'No se pudo cancelar el pedido.'), 'error');
     }
   };
 
@@ -116,7 +119,7 @@ function DashboardCompradorContent() {
       const f = await api.getFacturaPorPedido(id);
       setFactura(f);
     } catch (err) {
-      showToast(err?.message || 'No se pudo abrir la factura.', 'error');
+      showToast(err?.message || t('dashboard.openInvoiceError', 'No se pudo abrir la factura.'), 'error');
     }
   };
 
@@ -130,9 +133,9 @@ function DashboardCompradorContent() {
     : pedidos;
 
   const navItems = [
-    { id: 'overview', icon: '🏠', label: 'Inicio' },
-    { id: 'pedidos', icon: '📦', label: 'Pedidos' },
-    { id: 'mensajes', icon: '💬', label: 'Mensajes' },
+    { id: 'overview', icon: '🏠', label: t('nav.inicio', 'Inicio') },
+    { id: 'pedidos', icon: '📦', label: t('dashboard.ordersSection', 'Pedidos') },
+    { id: 'mensajes', icon: '💬', label: t('nav.messages', 'Mensajes') },
   ];
 
   return (
@@ -148,8 +151,8 @@ function DashboardCompradorContent() {
           }}>
             {(user?.nombre || 'U').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()}
           </div>
-          <div style={{ fontWeight: 700, color: '#1a3a2a', fontSize: '0.95rem' }}>{user?.nombre || 'Usuario'}</div>
-          <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>Comprador</div>
+          <div style={{ fontWeight: 700, color: '#1a3a2a', fontSize: '0.95rem' }}>{user?.nombre || t('general.user', 'Usuario')}</div>
+          <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>{t('auth.buyer', 'Comprador')}</div>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -174,7 +177,7 @@ function DashboardCompradorContent() {
 
         <div style={{ marginTop: 'auto' }}>
           <a href="/catalogo.html" style={{ display: 'block', padding: '10px 14px', borderRadius: '12px', background: '#2d6a4f', color: '#fff', textDecoration: 'none', fontWeight: 700, textAlign: 'center', fontSize: '0.9rem' }}>
-            🛒 Ir al catálogo
+            {t('dashboard.goToCatalog', '🛒 Ir al catálogo')}
           </a>
         </div>
       </aside>
@@ -185,7 +188,7 @@ function DashboardCompradorContent() {
           <>
             <div style={{ marginBottom: '28px' }}>
               <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#1a3a2a' }}>
-                ¡Hola de nuevo, {firstName}! 👋
+                {t('dashboard.helloAgain', { defaultValue: '¡Hola de nuevo, {{name}}! 👋', name: firstName })}
               </h1>
               <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '0.9rem' }}>
                 {new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -193,16 +196,16 @@ function DashboardCompradorContent() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-              <StatCard label="Pedidos totales" value={String(pedidos.length).padStart(2, '0')} icon="📦" />
-              <StatCard label="Total invertido" value={formatearPrecio(totalInversion)} icon="💰" />
-              <StatCard label="Entregados" value={String(entregados).padStart(2, '0')} icon="✅" />
-              <StatCard label="Contactos" value={String(contactos.length).padStart(2, '0')} icon="💬" />
+              <StatCard label={t('dashboard.totalOrders', 'Pedidos totales')} value={String(pedidos.length).padStart(2, '0')} icon="📦" />
+              <StatCard label={t('dashboard.totalInvested', 'Total invertido')} value={formatearPrecio(totalInversion)} icon="💰" />
+              <StatCard label={t('dashboard.deliveredCount', 'Entregados')} value={String(entregados).padStart(2, '0')} icon="✅" />
+              <StatCard label={t('dashboard.contactsCount', 'Contactos')} value={String(contactos.length).padStart(2, '0')} icon="💬" />
             </div>
 
             {/* Recent products */}
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px' }}>Productos recomendados</h2>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px' }}>{t('dashboard.recommendedProducts', 'Productos recomendados')}</h2>
             {loading ? (
-              <div style={{ color: '#6b7280' }}>Cargando...</div>
+              <div style={{ color: '#6b7280' }}>{t('general.cargando', 'Cargando...')}</div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
                 {productos.slice(0, 4).map((p) => (
@@ -217,7 +220,7 @@ function DashboardCompradorContent() {
                       <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{p.nombre}</div>
                       <div style={{ color: '#2d6a4f', fontWeight: 800, marginTop: '4px' }}>{formatearPrecio(p.precio)}/kg</div>
                       <a href="/catalogo.html" style={{ display: 'block', marginTop: '8px', padding: '8px', borderRadius: '8px', background: '#2d6a4f', color: '#fff', textDecoration: 'none', textAlign: 'center', fontSize: '0.8rem', fontWeight: 700 }}>
-                        🛒 Comprar
+                        {t('dashboard.buyBtn', '🛒 Comprar')}
                       </a>
                     </div>
                   </div>
@@ -226,12 +229,12 @@ function DashboardCompradorContent() {
             )}
 
             {/* Recent orders */}
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px' }}>Compras recientes</h2>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px' }}>{t('dashboard.recentPurchases', 'Compras recientes')}</h2>
             <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#f8faf8' }}>
-                    {['ID', 'Producto', 'Total', 'Estado', 'Acciones'].map((h) => (
+                    {[t('dashboard.idHeader', 'ID'), t('dashboard.productHeader', 'Producto'), t('catalogo.total', 'Total'), t('dashboard.statusHeader', 'Estado'), t('dashboard.actionsHeader', 'Acciones')].map((h) => (
                       <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.05em' }}>{h}</th>
                     ))}
                   </tr>
@@ -245,10 +248,10 @@ function DashboardCompradorContent() {
                       <td style={{ padding: '12px 16px' }}><BadgeEstado estado={p.estado} /></td>
                       <td style={{ padding: '12px 16px' }}>
                         {(String(p.estado).toUpperCase() === 'ENVIADO' || String(p.estado).toUpperCase() === 'PREPARANDO') && (
-                          <a href="/envios.html" style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#eff6ff', color: '#1d4ed8', textDecoration: 'none', fontWeight: 600 }}>Rastrear</a>
+                          <a href="/envios.html" style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#eff6ff', color: '#1d4ed8', textDecoration: 'none', fontWeight: 600 }}>{t('dashboard.trackBtn', 'Rastrear')}</a>
                         )}
                         {String(p.estado).toUpperCase() === 'ENTREGADO' && (
-                          <button type="button" onClick={() => verFactura(p.id)} style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#f0fdf4', color: '#166534', border: 0, cursor: 'pointer', fontWeight: 600 }}>Factura</button>
+                          <button type="button" onClick={() => verFactura(p.id)} style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#f0fdf4', color: '#166534', border: 0, cursor: 'pointer', fontWeight: 600 }}>{t('dashboard.invoiceBtn', 'Factura')}</button>
                         )}
                       </td>
                     </tr>
@@ -256,7 +259,7 @@ function DashboardCompradorContent() {
                   {pedidos.length === 0 && (
                     <tr>
                       <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>
-                        Aún no has realizado ningún pedido. <a href="/catalogo.html" style={{ color: '#2d6a4f', fontWeight: 700 }}>Explorar catálogo</a>
+                        {t('dashboard.noOrdersYet', 'Aún no has realizado ningún pedido.')} <a href="/catalogo.html" style={{ color: '#2d6a4f', fontWeight: 700 }}>{t('dashboard.exploreCatalog', 'Explorar catálogo')}</a>
                       </td>
                     </tr>
                   )}
@@ -269,13 +272,13 @@ function DashboardCompradorContent() {
         {section === 'pedidos' && (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-              <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#1a3a2a' }}>Historial de Pedidos</h1>
+              <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#1a3a2a' }}>{t('dashboard.orderHistoryTitle', 'Historial de Pedidos')}</h1>
               <select
                 value={filtroPed}
                 onChange={(e) => setFiltroPed(e.target.value)}
                 style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(45,106,79,.2)', fontSize: '0.9rem', background: '#fff' }}
               >
-                <option value="">Todos los estados</option>
+                <option value="">{t('dashboard.allStates', 'Todos los estados')}</option>
                 {['PENDIENTE', 'PREPARANDO', 'ENVIADO', 'EN_CAMINO', 'ENTREGADO', 'CANCELADO'].map((e) => (
                   <option key={e} value={e}>{e}</option>
                 ))}
@@ -286,7 +289,7 @@ function DashboardCompradorContent() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#f8faf8' }}>
-                    {['ID', 'Producto', 'Cantidad', 'Total', 'Estado', 'Acciones'].map((h) => (
+                    {[t('dashboard.idHeader', 'ID'), t('dashboard.productHeader', 'Producto'), t('dashboard.quantityHeader', 'Cantidad'), t('catalogo.total', 'Total'), t('dashboard.statusHeader', 'Estado'), t('dashboard.actionsHeader', 'Acciones')].map((h) => (
                       <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.05em' }}>{h}</th>
                     ))}
                   </tr>
@@ -301,13 +304,13 @@ function DashboardCompradorContent() {
                       <td style={{ padding: '12px 16px' }}><BadgeEstado estado={p.estado} /></td>
                       <td style={{ padding: '12px 16px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         {(String(p.estado).toUpperCase() === 'ENVIADO' || String(p.estado).toUpperCase() === 'PREPARANDO' || String(p.estado).toUpperCase() === 'EN_CAMINO') && (
-                          <a href="/envios.html" style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#eff6ff', color: '#1d4ed8', textDecoration: 'none', fontWeight: 600 }}>Rastrear</a>
+                          <a href="/envios.html" style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#eff6ff', color: '#1d4ed8', textDecoration: 'none', fontWeight: 600 }}>{t('dashboard.trackBtn', 'Rastrear')}</a>
                         )}
                         {String(p.estado).toUpperCase() === 'ENTREGADO' && (
-                          <button type="button" onClick={() => verFactura(p.id)} style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#f0fdf4', color: '#166534', border: 0, cursor: 'pointer', fontWeight: 600 }}>Factura</button>
+                          <button type="button" onClick={() => verFactura(p.id)} style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#f0fdf4', color: '#166534', border: 0, cursor: 'pointer', fontWeight: 600 }}>{t('dashboard.invoiceBtn', 'Factura')}</button>
                         )}
                         {String(p.estado).toUpperCase() === 'PENDIENTE' && (
-                          <button type="button" onClick={() => cancelarPed(p.id)} style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#fef2f2', color: '#dc2626', border: 0, cursor: 'pointer', fontWeight: 600 }}>Cancelar</button>
+                          <button type="button" onClick={() => cancelarPed(p.id)} style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', background: '#fef2f2', color: '#dc2626', border: 0, cursor: 'pointer', fontWeight: 600 }}>{t('general.cancelar', 'Cancelar')}</button>
                         )}
                       </td>
                     </tr>
@@ -315,7 +318,7 @@ function DashboardCompradorContent() {
                   {pedidosFiltrados.length === 0 && (
                     <tr>
                       <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>
-                        No hay pedidos con este filtro.
+                        {t('dashboard.noOrdersWithFilter', 'No hay pedidos con este filtro.')}
                       </td>
                     </tr>
                   )}
@@ -328,10 +331,10 @@ function DashboardCompradorContent() {
         {section === 'mensajes' && (
           <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
-            <h2 style={{ fontWeight: 800, color: '#1a3a2a', marginBottom: '8px' }}>Mensajes</h2>
-            <p>Gestiona tus conversaciones con productores.</p>
+            <h2 style={{ fontWeight: 800, color: '#1a3a2a', marginBottom: '8px' }}>{t('nav.messages', 'Mensajes')}</h2>
+            <p>{t('dashboard.manageChatsDesc', 'Gestiona tus conversaciones con productores.')}</p>
             <a href="/mensajeria.html" style={{ display: 'inline-block', marginTop: '16px', padding: '12px 24px', borderRadius: '12px', background: '#2d6a4f', color: '#fff', textDecoration: 'none', fontWeight: 700 }}>
-              Ir a mensajería
+              {t('dashboard.goToMessaging', 'Ir a mensajería')}
             </a>
           </div>
         )}
