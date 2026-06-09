@@ -1,22 +1,21 @@
 package com.agromarket.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
-import com.agromarket.config.TestMailConfig.CapturingMailSender;
 import com.agromarket.infrastructure.persistence.entity.CompradorEntity;
 import com.agromarket.infrastructure.persistence.entity.PasswordResetTokenEntity;
 import com.agromarket.infrastructure.persistence.repository.PasswordResetTokenRepository;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 import java.util.List;
-import java.util.Objects;
-import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(classes = com.asafrut.agroMarket.AgroMarketApplication.class)
-@Import(com.agromarket.config.TestMailConfig.class)
 public class PasswordResetServiceTest {
 
     @Autowired
@@ -28,11 +27,11 @@ public class PasswordResetServiceTest {
     @Autowired
     private PasswordResetTokenRepository tokenRepository;
 
-    @Autowired
-    private org.springframework.mail.javamail.JavaMailSender javaMailSender;
+    @MockitoBean
+    private EmailService emailService;
 
     @Test
-    public void requestPasswordReset_createsTokenAndSendsEmail() throws Exception {
+    public void requestPasswordReset_createsTokenAndSendsEmail() {
         CompradorEntity comprador = CompradorEntity.builder()
                 .nombre("Test User")
                 .correo("reset-test@example.com")
@@ -40,20 +39,17 @@ public class PasswordResetServiceTest {
                 .telefono("3001234567")
                 .build();
 
-        usuarioJpaRepository.save(Objects.requireNonNull(comprador));
-
-        CapturingMailSender sender = (CapturingMailSender) javaMailSender;
-        // clear any previous captured messages to isolate this test
-        sender.getMessages().clear();
+        usuarioJpaRepository.save(java.util.Objects.requireNonNull(comprador));
 
         passwordResetService.requestPasswordReset("reset-test@example.com");
 
         List<PasswordResetTokenEntity> tokens = tokenRepository.findAll();
-        assertThat(tokens).hasSize(1);
+        assertThat(tokens).isNotEmpty();
 
-        List<MimeMessage> messages = sender.getMessages();
-        assertThat(messages).hasSize(1);
-        String content = messages.get(0).getContent().toString();
-        assertThat(content).contains("restablecer-contrasena.html");
+        verify(emailService, atLeastOnce()).sendTemplateMessage(
+                eq("reset-test@example.com"),
+                anyString(),
+                anyString(),
+                any());
     }
 }

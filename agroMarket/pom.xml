@@ -147,12 +147,6 @@
 			<artifactId>flyway-mysql</artifactId>
 		</dependency>
 
-		<!-- ── Mail ── -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-
 		<!-- ── Rate limiting & Sanitization ── -->
 		<dependency>
 			<groupId>com.bucket4j</groupId>
@@ -180,12 +174,6 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.icegreen</groupId>
-			<artifactId>greenmail</artifactId>
-			<version>2.0.0</version>
 			<scope>test</scope>
 		</dependency>
 
