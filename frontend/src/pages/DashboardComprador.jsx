@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import Navbar from '../components/Navbar.jsx';
 import ProtectedRoute from '../components/ProtectedRoute.jsx';
 import { useTranslation } from 'react-i18next';
+import '../styles/styles.css';
 
 function BadgeEstado({ estado }) {
   const { label, bg, fg } = badgeEstado(estado);

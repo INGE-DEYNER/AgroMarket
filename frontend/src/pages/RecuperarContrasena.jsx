@@ -1,4 +1,4 @@
-// File: frontend/src/components/RecuperarContrasena.jsx
+import '../styles/recuperar-contrasena.css';
 import React, { useState, useEffect } from 'react';
 import { useSecureParams } from '../hooks/useSecureParams.js';
 import api from '../utils/api.js';

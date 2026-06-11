@@ -6,6 +6,7 @@ import api from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { badgeEstado, formatearPrecio, formatearFecha, showToast } from '../utils/ui.js';
 import Navbar from '../components/Navbar.jsx';
+import '../styles/styles.css';
 
 export default function Pedidos() {
   const { t } = useTranslation();

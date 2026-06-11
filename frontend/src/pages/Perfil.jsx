@@ -7,6 +7,8 @@ import ProtectedRoute from '../components/ProtectedRoute.jsx';
 import { normalizarRol } from '../utils/auth.js';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import '../styles/styles.css';
+import '../styles/perfil.css';
 
 function passwordRules(value) {
   return {

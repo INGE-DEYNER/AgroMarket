@@ -30,8 +30,6 @@ export default function App() {
         <Routes>
           {/* Ruta raíz → redirigir a /home */}
           <Route path="/" element={<Navigate to="/home" replace />} />
-
-          {/* Páginas públicas */}
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import api from '../utils/api.js';
 import { showToast } from '../utils/ui.js';
 import Navbar from '../components/Navbar.jsx';
-import '../../legacy-css/resenas.css'; // Page styles
+import '../styles/styles.css';
+import '../styles/resenas.css';
 
 export default function Resenas() {
   const { t } = useTranslation();

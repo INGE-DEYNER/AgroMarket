@@ -1,4 +1,3 @@
-// File: frontend/src/pages/Admin.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +5,8 @@ import api from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { badgeEstado, formatearPrecio, showToast } from '../utils/ui.js';
 import Navbar from '../components/Navbar.jsx';
+import '../styles/styles.css';
+import '../styles/admin.css';
 
 export default function Admin() {
   const { t } = useTranslation();

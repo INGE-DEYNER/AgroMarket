@@ -6,7 +6,8 @@ import api from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { formatearFecha, showToast } from '../utils/ui.js';
 import Navbar from '../components/Navbar.jsx';
-import '../../legacy-css/envios.css'; // Import page styles
+import '../styles/styles.css';
+import '../styles/envios.css';
 
 export default function Envios() {
   const { t } = useTranslation();

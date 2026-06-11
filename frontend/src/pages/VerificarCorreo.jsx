@@ -1,4 +1,4 @@
-// File: frontend/src/components/VerificarCorreo.jsx
+import '../styles/verificar-correo.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { useSecureParams } from '../hooks/useSecureParams.js';
 import api from '../utils/api.js';

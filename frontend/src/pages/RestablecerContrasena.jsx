@@ -1,4 +1,4 @@
-// File: frontend/src/components/RestablecerContrasena.jsx
+import '../styles/restablecer-contrasena.css';
 import React, { useState, useEffect } from 'react';
 import { useSecureParams } from '../hooks/useSecureParams.js';
 import api from '../utils/api.js';

@@ -3,7 +3,8 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { normalizarRol } from '../utils/auth.js';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import LanguageSwitcher from './LanguageSwitcher'; // Import LanguageSwitcher
+import LanguageSwitcher from './LanguageSwitcher';
+import '../styles/styles.css';
 
 export default function Navbar() {
   const { t } = useTranslation();
