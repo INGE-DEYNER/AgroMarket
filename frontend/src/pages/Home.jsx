@@ -58,7 +58,7 @@ export default function Home() {
         }
         if (prodCountRes.ok) {
           const d = await prodCountRes.json();
-          productores = d.count || d || '—';
+          productores = typeof d?.count === 'number' ? d.count : (typeof d === 'number' ? d : '—');
         }
         if (priceRes.ok) {
           const d = await priceRes.json();
