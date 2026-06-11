@@ -1,16 +1,12 @@
-// File: frontend/src/pages/Mensajeria.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import api from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { showToast } from '../utils/ui.js';
-import Navbar from '../components/Navbar.jsx';
 import '../styles/styles.css';
 import '../styles/mensajeria.css';
 
 export default function Mensajeria() {
-  const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const [contactos, setContactos] = useState([]);
   const [activeContact, setActiveContact] = useState(null);
@@ -40,7 +36,6 @@ export default function Mensajeria() {
       }
     } catch (error) {
       console.error("Error al cargar contactos: ", error);
-      showToast(t('mensajeria.loadError', 'Error al cargar mensajería. Inténtalo más tarde.'), 'error');
     } finally {
       setLoading(false);
     }
@@ -72,7 +67,7 @@ export default function Mensajeria() {
       const updatedContacts = await api.getContactos();
       setContactos(updatedContacts || []);
     } catch (error) {
-      showToast(error?.message || t('mensajeria.sendError', 'No se pudo enviar el mensaje.'), 'error');
+      console.error("Error al enviar mensaje: ", error);
     }
   };
 
@@ -80,6 +75,14 @@ export default function Mensajeria() {
     if (e.key === 'Enter') {
       e.preventDefault();
       sendMessage();
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión: ", error);
     }
   };
 
@@ -105,17 +108,37 @@ export default function Mensajeria() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-      <Navbar />
-      
+    <div className="page-wrap" style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      {/* NAVBAR */}
+      <nav className="navbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: '64px', background: '#fff', borderBottom: '1px solid #e5e7eb' }}>
+        <Link className="navbar-brand" to="/dashboard-comprador" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit', fontWeight: 700, fontSize: '1.25rem' }}>
+          <span className="logo-icon">🌿</span>
+          <span>AgroMarket</span>
+        </Link>
+        <div className="navbar-links" style={{ display: 'flex', gap: '24px' }}>
+          <Link to="/dashboard-comprador" style={{ textDecoration: 'none', color: 'inherit' }}>Mi Panel</Link>
+          <Link to="/catalogo" style={{ textDecoration: 'none', color: 'inherit' }}>Catálogo</Link>
+          <Link to="/pedidos" style={{ textDecoration: 'none', color: 'inherit' }}>Pedidos</Link>
+          <Link to="/mensajeria" className="active" style={{ textDecoration: 'none', color: 'inherit' }}>Mensajes</Link>
+          <Link to="/envios" style={{ textDecoration: 'none', color: 'inherit' }}>Envíos</Link>
+        </div>
+        <div className="navbar-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="avatar avatar-blue">--</div>
+          <button className="btn btn-secondary btn-sm" onClick={handleLogout} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontSize: '0.875rem' }}>
+            Cerrar sesión
+          </button>
+        </div>
+      </nav>
+
+      {/* CHAT LAYOUT */}
       <div className="chat-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Contact List */}
-        <aside className="chat-contacts" style={{ width: '320px', borderRight: '1px solid rgba(45,106,79,.12)', background: '#fff', overflowY: 'auto' }}>
+        {/* CONTACTS */}
+        <div className="chat-contacts" style={{ width: '320px', borderRight: '1px solid rgba(45,106,79,.12)', background: '#fff', overflowY: 'auto' }}>
           {loading ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>{t('general.cargando', 'Cargando...')}</div>
+            <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Cargando...</div>
           ) : contactos.length === 0 ? (
             <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>
-              {t('mensajeria.noConversations', 'No hay conversaciones aún.')}
+              No hay conversaciones aún.
             </div>
           ) : (
             contactos.map((contacto, index) => (
@@ -139,7 +162,7 @@ export default function Mensajeria() {
                 <div className="chat-contact-info" style={{ flex: 1, minWidth: 0 }}>
                   <div className="contact-name" style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1a3a2a' }}>{contacto.nombre}</div>
                   <div className="contact-last" style={{ fontSize: '0.78rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {contacto.ultimoMensaje || t('mensajeria.noMessages', 'Sin mensajes')}
+                    {contacto.ultimoMensaje || 'Sin mensajes'}
                   </div>
                 </div>
                 {contacto.noLeidos > 0 && (
@@ -150,17 +173,17 @@ export default function Mensajeria() {
               </div>
             ))
           )}
-        </aside>
+        </div>
 
-        {/* Chat Window */}
+        {/* WINDOW */}
         <div className="chat-window" style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f8faf8', overflow: 'hidden' }}>
-          {activeContact ? (
-            <>
-              {/* Chat Header */}
-              <div className="chat-header" style={{
-                padding: '16px 24px', background: '#fff', borderBottom: '1px solid rgba(45,106,79,.12)',
-                display: 'flex', alignItems: 'center', gap: '12px'
-              }}>
+          {/* Chat Header */}
+          <div className="chat-header" style={{
+            padding: '16px 24px', background: '#fff', borderBottom: '1px solid rgba(45,106,79,.12)',
+            display: 'flex', alignItems: 'center', gap: '12px'
+          }}>
+            {activeContact ? (
+              <>
                 <div className={`avatar ${avatarColor(contactos.findIndex(c => c.usuarioId === activeContact.usuarioId))}`} style={{
                   width: '40px', height: '40px', borderRadius: '50%', display: 'flex',
                   alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#fff'
@@ -170,97 +193,109 @@ export default function Mensajeria() {
                 <div>
                   <div className="chat-name" style={{ fontWeight: 700, color: '#1a3a2a' }}>{activeContact.nombre}</div>
                   <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                    {activeContact.rol || t('general.user', 'Usuario')}
+                    {activeContact.rol || 'Usuario'}
                   </div>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
                   <span className="badge badge-green" style={{ background: '#d1fae5', color: '#065f46', fontSize: '0.75rem', padding: '4px 10px', borderRadius: '999px', fontWeight: 600 }}>
-                    {t('mensajeria.online', '● En línea')}
+                    ● En línea
                   </span>
                 </div>
-              </div>
+              </>
+            ) : (
+              <>
+                <div className="avatar avatar-green" style={{
+                  width: '40px', height: '40px', borderRadius: '50%', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#fff'
+                }}>
+                  --
+                </div>
+                <div>
+                  <div className="chat-name" style={{ fontWeight: 700, color: '#1a3a2a' }}>Selecciona una conversación</div>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}></div>
+                </div>
+                <div style={{ marginLeft: 'auto' }}>
+                  <span className="badge badge-green" style={{ display: 'none' }}>● En línea</span>
+                </div>
+              </>
+            )}
+          </div>
 
-              {/* Chat Messages */}
-              <div className="chat-messages" style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {conversation.length === 0 ? (
-                  <div className="empty-state" style={{ margin: 'auto', textAlign: 'center' }}>
-                    <div className="empty-icon" style={{ fontSize: '2.5rem', marginBottom: '12px' }}>💬</div>
-                    <div style={{ color: '#6b7280' }}>
-                      {t('mensajeria.noMessagesGreeting', 'No hay mensajes todavía. ¡Envía un mensaje de saludo!')}
+          {/* Chat Messages */}
+          <div className="chat-messages" style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {!activeContact || conversation.length === 0 ? (
+              <div className="empty-state" style={{ margin: 'auto', textAlign: 'center' }}>
+                <div className="empty-icon" style={{ fontSize: '2.5rem', marginBottom: '12px' }}>💬</div>
+                <div style={{ color: '#6b7280' }}>
+                  {activeContact
+                    ? 'No hay mensajes todavía. ¡Envía un mensaje de saludo!'
+                    : 'Selecciona un contacto para iniciar la conversación.'}
+                </div>
+              </div>
+            ) : (
+              conversation.map((mensaje) => {
+                const isOut = Number(mensaje.remitenteId) === Number(user?.id);
+                return (
+                  <div key={mensaje.id} className={`msg ${isOut ? 'out' : 'in'}`} style={{
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: isOut ? 'flex-end' : 'flex-start'
+                  }}>
+                    <div className="msg-bubble" style={{
+                      background: isOut ? '#2d6a4f' : '#fff',
+                      color: isOut ? '#fff' : '#1a3a2a',
+                      padding: '10px 16px', borderRadius: '14px',
+                      borderTopRightRadius: isOut ? '2px' : '14px',
+                      borderTopLeftRadius: isOut ? '14px' : '2px',
+                      maxWidth: '60%',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                      border: isOut ? 'none' : '1px solid rgba(45,106,79,.08)'
+                    }}>
+                      {mensaje.contenido}
+                    </div>
+                    <div className="msg-time" style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '4px' }}>
+                      {new Date(mensaje.fechaEnvio).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
-                ) : (
-                  conversation.map((mensaje) => {
-                    const isOut = Number(mensaje.remitenteId) === Number(user?.id);
-                    return (
-                      <div key={mensaje.id} className={`msg ${isOut ? 'out' : 'in'}`} style={{
-                        display: 'flex', flexDirection: 'column',
-                        alignItems: isOut ? 'flex-end' : 'flex-start'
-                      }}>
-                        <div className="msg-bubble" style={{
-                          background: isOut ? '#2d6a4f' : '#fff',
-                          color: isOut ? '#fff' : '#1a3a2a',
-                          padding: '10px 16px', borderRadius: '14px',
-                          borderTopRightRadius: isOut ? '2px' : '14px',
-                          borderTopLeftRadius: isOut ? '14px' : '2px',
-                          maxWidth: '60%',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
-                          border: isOut ? 'none' : '1px solid rgba(45,106,79,.08)'
-                        }}>
-                          {mensaje.contenido}
-                        </div>
-                        <div className="msg-time" style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '4px' }}>
-                          {new Date(mensaje.fechaEnvio).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-                <div ref={messagesEndRef} />
-              </div>
+                );
+              })
+            )}
+            <div ref={messagesEndRef} />
+          </div>
 
-              {/* Chat Input Bar */}
-              <div className="chat-input-bar" style={{ padding: '16px 24px', background: '#fff', borderTop: '1px solid rgba(45,106,79,.12)', display: 'flex', gap: '12px' }}>
-                <input
-                  className="chat-input"
-                  placeholder={t('mensajeria.inputPlaceholder', 'Escribe un mensaje...')}
-                  value={msgText}
-                  onChange={(e) => setMsgText(e.target.value)}
-                  onKeyDown={handleKey}
-                  style={{
-                    flex: 1, padding: '12px 16px', borderRadius: '12px',
-                    border: '1px solid rgba(45,106,79,.2)', fontSize: '0.95rem', outline: 'none'
-                  }}
+          {/* Chat Input Bar */}
+          <div className="chat-input-bar" style={{ padding: '16px 24px', background: '#fff', borderTop: '1px solid rgba(45,106,79,.12)', display: 'flex', gap: '12px' }}>
+            <input
+              className="chat-input"
+              placeholder="Escribe un mensaje..."
+              value={msgText}
+              onChange={(e) => setMsgText(e.target.value)}
+              onKeyDown={handleKey}
+              disabled={!activeContact}
+              style={{
+                flex: 1, padding: '12px 16px', borderRadius: '12px',
+                border: '1px solid rgba(45,106,79,.2)', fontSize: '0.95rem', outline: 'none'
+              }}
+            />
+            <button
+              className="btn btn-primary"
+              onClick={sendMessage}
+              disabled={!activeContact || !msgText.trim()}
+              style={{
+                padding: '12px 20px', borderRadius: '12px', border: 0,
+                background: '#2d6a4f', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'
+              }}
+            >
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                <path
+                  d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
-                <button
-                  className="btn btn-primary"
-                  onClick={sendMessage}
-                  disabled={!msgText.trim()}
-                  style={{
-                    padding: '12px 20px', borderRadius: '12px', border: 0,
-                    background: '#2d6a4f', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'
-                  }}
-                >
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                    <path
-                      d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="empty-state" style={{ margin: 'auto', textAlign: 'center' }}>
-              <div className="empty-icon" style={{ fontSize: '3rem', marginBottom: '16px' }}>💬</div>
-              <div style={{ color: '#6b7280', fontWeight: 600 }}>
-                {t('mensajeria.selectContactToStart', 'Selecciona un contacto para iniciar la conversación.')}
-              </div>
-            </div>
-          )}
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>

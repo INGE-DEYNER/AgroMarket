@@ -1,17 +1,13 @@
-// File: frontend/src/pages/Envios.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import api from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { formatearFecha, showToast } from '../utils/ui.js';
-import Navbar from '../components/Navbar.jsx';
+import api from '../utils/api.js';
+import { formatearFecha } from '../utils/ui.js';
 import '../styles/styles.css';
 import '../styles/envios.css';
 
 export default function Envios() {
-  const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [envios, setEnvios] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,36 +21,28 @@ export default function Envios() {
       const data = await api.getMisEnvios();
       setEnvios(data || []);
     } catch (error) {
-      showToast(error?.message || t('envios.loadError', 'No se pudieron cargar los envíos.'), 'error');
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleLogout = (e) => {
+    e.preventDefault();
+    logout();
+  };
+
   const labelEstado = (estado) => {
     const value = String(estado || '').toUpperCase();
     const mapa = {
-      PENDIENTE: t('states.pending', 'Pendiente'),
-      CONFIRMADO: t('states.confirmed', 'Confirmado'),
-      PREPARANDO: t('states.preparing', 'Preparando'),
-      EN_CAMINO: t('states.onWay', 'En camino'),
-      ENTREGADO: t('states.delivered', 'Entregado'),
-      CANCELADO: t('states.cancelled', 'Cancelado'),
+      PENDIENTE: 'Pendiente',
+      CONFIRMADO: 'Confirmado',
+      PREPARANDO: 'Preparando',
+      EN_CAMINO: 'En camino',
+      ENTREGADO: 'Entregado',
+      CANCELADO: 'Cancelado',
     };
     return mapa[value] || estado;
-  };
-
-  const pasoActual = (estado) => {
-    const value = String(estado || '').toUpperCase();
-    const mapa = {
-      PENDIENTE: 0,
-      CONFIRMADO: 1,
-      PREPARANDO: 2,
-      EN_CAMINO: 3,
-      ENTREGADO: 4,
-      CANCELADO: 0,
-    };
-    return mapa[value] ?? 0;
   };
 
   const badgeClaseEnvio = (estado) => {
@@ -65,138 +53,127 @@ export default function Envios() {
     return 'badge-green';
   };
 
-  const steps = [
-    t('envios.step1', 'Pedido recibido'),
-    t('envios.step2', 'Pago confirmado'),
-    t('envios.step3', 'Preparando envío'),
-    t('envios.step4', 'En camino'),
-    t('envios.step5', 'Entregado'),
-  ];
-
   return (
     <>
-      <Navbar />
+      <nav className="navbar">
+        <a className="navbar-brand" href="/dashboard-comprador">
+          <span className="logo-icon">🌿</span>
+          <span>AgroMarket</span>
+        </a>
+        <div className="navbar-links" id="navLinks">
+          <Link to="/dashboard-comprador">Mi Panel</Link>
+          <Link to="/catalogo">Catálogo</Link>
+          <Link to="/pedidos">Pedidos</Link>
+          <Link to="/mensajeria">Mensajes</Link>
+          <Link to="/envios" className="active">Envíos</Link>
+        </div>
+        <div className="navbar-right" id="navActions">
+          <div className="avatar avatar-blue">--</div>
+          <a href="#" onClick={handleLogout} className="btn btn-secondary btn-sm">
+            Cerrar sesión
+          </a>
+        </div>
+      </nav>
+
       <main style={{ padding: '28px 32px', maxWidth: '1100px', margin: '0 auto' }}>
         <div className="section-header" style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1a3a2a', margin: 0 }}>
-            🚚 {t('envios.title', 'Seguimiento de Envíos')}
-          </h2>
+          <span className="section-title">🚚 Seguimiento de Envíos</span>
         </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-            {t('general.cargando', 'Cargando...')}
-          </div>
-        ) : (
-          <>
-            {/* Active Shipments */}
-            <div id="shipmentsContainer">
-              {envios.map((envio) => {
-                const actual = pasoActual(envio.estado);
-                return (
-                  <div key={envio.id} className="shipment-card">
-                    <div className="shipment-header">
-                      <div>
-                        <div className="shipment-id">
-                          ENV-{envio.id} · {t('dashboard.orderHeader', 'Pedido')} #{envio.pedidoId} · {t('envios.guide', 'Guía')}: {envio.guia || '-'}
-                        </div>
-                        <div className="shipment-route" style={{ color: '#2d7a3a' }}>
-                          {envio.origen} → {envio.direccionDestino}
-                        </div>
-                        <div className="shipment-meta">
-                          <span>
-                            🚛 <strong>{envio.transportista || t('envios.unassignedCarrier', 'Por asignar')}</strong>
-                          </span>
-                        </div>
-                      </div>
-                      <span className={`badge ${badgeClaseEnvio(envio.estado)}`}>
-                        {labelEstado(envio.estado)}
-                      </span>
+        <div id="shipmentsContainer">
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>Cargando...</div>
+          ) : envios.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px', background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🚚</div>
+              <div style={{ color: '#6b7280' }}>No tienes envíos registrados.</div>
+            </div>
+          ) : (
+            envios.map((envio) => (
+              <div key={envio.id} style={{ background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)', padding: '24px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, marginBottom: '4px' }}>
+                      ENV-{envio.id} · Pedido #{envio.pedidoId} · Guía: {envio.guia || '-'}
                     </div>
-
-                    <div className="tracking-bar">
-                      {steps.map((stepLabel, index) => {
-                        const isDone = index < actual;
-                        const isCurrent = index === actual;
-                        const stepClass = isDone ? 'done' : (isCurrent ? 'current' : 'pending');
-                        return (
-                          <div key={index} className="track-step">
-                            <div className={`track-circle ${stepClass}`}>
-                              {isDone ? '✓' : index + 1}
-                            </div>
-                            <div className="track-label">{stepLabel}</div>
-                            <div className={`track-line ${isDone ? 'done' : ''}`} />
-                          </div>
-                        );
-                      })}
+                    <div style={{ color: '#2d7a3a', marginBottom: '4px' }}>
+                      {envio.origen} → {envio.direccionDestino}
                     </div>
-
-                    <div className="last-update">
-                      📅 {t('envios.estimatedDelivery', 'Entrega estimada')}: <strong>{formatearFecha(envio.fechaEstimadaEntrega)}</strong>
-                    </div>
-
-                    <div className="shipment-actions">
-                      <Link to="/mensajeria" className="btn btn-secondary btn-sm">
-                        💬 {t('envios.contactBtn', 'Contactar')}
-                      </Link>
-                      <Link to="/pedidos" className="btn btn-ghost btn-sm" style={{ border: '1px solid transparent', color: '#6b7280', fontWeight: 600 }}>
-                        🧾 {t('envios.viewOrderBtn', 'Ver pedido')}
-                      </Link>
+                    <div style={{ fontSize: '0.9rem' }}>
+                      🚛 <strong>{envio.transportista || 'Por asignar'}</strong>
                     </div>
                   </div>
-                );
-              })}
-
-              {envios.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '48px', background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)' }}>
-                  <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🚚</div>
-                  <div style={{ color: '#6b7280' }}>{t('envios.noShipments', 'No tienes envíos registrados.')}</div>
+                  <span className={badgeClaseEnvio(envio.estado)} style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
+                    {labelEstado(envio.estado)}
+                  </span>
                 </div>
-              )}
-            </div>
 
-            {/* History Table */}
-            <div style={{ marginTop: '32px' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px', color: '#1a3a2a' }}>
-                📋 {t('envios.historyTitle', 'Historial de todos los envíos')}
-              </h3>
-              <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ background: '#f8faf8' }}>
-                      {[t('envios.idHeader', 'ID Envío'), t('dashboard.orderHeader', 'Pedido'), t('envios.routeHeader', 'Origen → Destino'), t('envios.carrierHeader', 'Transportista'), t('dashboard.statusHeader', 'Estado'), t('dashboard.date', 'Fecha')].map((h) => (
-                        <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {envios.map((envio) => (
-                      <tr key={envio.id} style={{ borderTop: '1px solid rgba(45,106,79,.08)' }}>
-                        <td style={{ padding: '12px 16px', color: '#6b7280', fontSize: '.82rem' }}>ENV-{envio.id}</td>
-                        <td style={{ padding: '12px 16px', fontWeight: 500 }}>#{envio.pedidoId}</td>
-                        <td style={{ padding: '12px 16px', fontSize: '.82rem' }}>{envio.origen} → {envio.direccionDestino}</td>
-                        <td style={{ padding: '12px 16px' }}>{envio.transportista || '-'}</td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span className={`badge ${badgeClaseEnvio(envio.estado)}`} style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
-                            {labelEstado(envio.estado)}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', color: '#6b7280', fontSize: '.82rem' }}>{formatearFecha(envio.fechaEstimadaEntrega)}</td>
-                      </tr>
-                    ))}
-                    {envios.length === 0 && (
-                      <tr>
-                        <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>
-                          {t('envios.noHistory', 'Sin historial de envíos.')}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                <div style={{ marginBottom: '16px' }}>
+                  📅 Entrega estimada: <strong>{formatearFecha(envio.fechaEstimadaEntrega)}</strong>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Link to="/mensajeria" className="btn btn-secondary btn-sm">
+                    💬 Contactar
+                  </Link>
+                  <Link to="/pedidos" className="btn btn-ghost btn-sm" style={{ border: '1px solid transparent', color: '#6b7280', fontWeight: 600 }}>
+                    🧾 Ver pedido
+                  </Link>
+                </div>
               </div>
-            </div>
-          </>
-        )}
+            ))
+          )}
+        </div>
+
+        <div style={{ marginTop: '32px' }}>
+          <h3 style={{ fontFamily: 'var(--font-title)', fontSize: '1.05rem', marginBottom: '16px' }}>
+            📋 Historial de todos los envíos
+          </h3>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID Envío</th>
+                  <th>Producto</th>
+                  <th>Origen → Destino</th>
+                  <th>Transportista</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody id="tbHistorial">
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>
+                      Cargando...
+                    </td>
+                  </tr>
+                ) : envios.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>
+                      Sin historial de envíos.
+                    </td>
+                  </tr>
+                ) : (
+                  envios.map((envio) => (
+                    <tr key={envio.id} style={{ borderTop: '1px solid rgba(45,106,79,.08)' }}>
+                      <td style={{ padding: '12px 16px', color: '#6b7280', fontSize: '0.82rem' }}>ENV-{envio.id}</td>
+                      <td style={{ padding: '12px 16px', fontWeight: 500 }}>#{envio.pedidoId}</td>
+                      <td style={{ padding: '12px 16px', fontSize: '0.82rem' }}>{envio.origen} → {envio.direccionDestino}</td>
+                      <td style={{ padding: '12px 16px' }}>{envio.transportista || '-'}</td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <span className={badgeClaseEnvio(envio.estado)} style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
+                          {labelEstado(envio.estado)}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 16px', color: '#6b7280', fontSize: '0.82rem' }}>{formatearFecha(envio.fechaEstimadaEntrega)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </main>
     </>
   );

