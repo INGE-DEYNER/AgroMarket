@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import Navbar from '../components/Navbar';
 import { useEffect, useState } from 'react';
+import '../styles/styles.css';
 import '../styles/home.css';
 
 export default function Home() {
@@ -18,8 +19,7 @@ export default function Home() {
       try {
         const res = await fetch('/api/public/site-info');
         if (res.ok) {
-          const data = res.json().then(j => j?.data || j || {});
-          const d = await data;
+          const d = await res.json().then(j => j?.data || j || {});
           if (d.siteName) setSiteName(d.siteName);
           if (d.siteRegion) setSiteRegion(d.siteRegion);
           if (d.contactEmail) {
@@ -32,10 +32,10 @@ export default function Home() {
           }
         }
       } catch (e) {
-        const el1 = document.getElementById('contactEmail');
-        const el2 = document.getElementById('contactPhone');
-        if (el1) el1.style.display = 'none';
-        if (el2) el2.style.display = 'none';
+        ['contactEmail', 'contactPhone'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
       }
     };
     loadSiteInfo();
@@ -92,13 +92,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => {
+    const timer = setTimeout(() => {
       document.querySelectorAll('.animate-fade-up').forEach((el) => {
         el.classList.add('visible');
       });
-    });
-    return () => cancelAnimationFrame(raf);
-  }, []);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [featuredProducts]);
 
   return (
     <div className="home-root">
@@ -243,11 +243,8 @@ export default function Home() {
           </div>
           <Link to="/catalogo" className="btn btn-secondary">Ver catálogo completo →</Link>
         </div>
-
         <div className="products-grid" id="featuredProducts">
-          {featuredProducts.length === 0 && (
-            <div key="fallback" id="homeMetricsFallback" style={{ gridColumn: '1 / -1' }}></div>
-          )}
+          <div id="homeMetricsFallback" style={{ gridColumn: '1 / -1' }}></div>
           {featuredProducts.map((p) => (
             <div key={p.id} className="product-mini-card">
               {p.enPromocion && <span className="badge-promo">Oferta</span>}
@@ -396,9 +393,15 @@ export default function Home() {
             </div>
             <p className="footer-desc">Plataforma oficial de comercialización agrícola.</p>
             <div className="social-links">
-              <a href="#"><svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-1.11 9-5.53 9-10.95z" /></svg></a>
-              <a href="#"><svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z" /></svg></a>
-              <a href="#"><svg viewBox="0 0 24 24"><path d="M2.004 22l1.352-4.968A9.926 9.926 0 0 1 2 11.99C2 6.47 6.48 2 12 2s10 4.47 10 9.99c0 5.51-4.48 9.99-10 9.99-1.74 0-3.37-.44-4.78-1.21L2.004 22zm5.72-3.15l.39.23c1.19.71 2.54 1.09 3.89 1.09 4.6 0 8.35-3.75 8.35-8.35S16.6 3.64 12 3.64 3.65 7.39 3.65 11.99c0 1.48.42 2.91 1.2 4.14l.25.4-1.12 4.11 4.22-1.14zm8.68-6.1c-.13-.22-.47-.35-1-.62s-3.11-1.53-3.6-1.7c-.48-.17-.83-.26-1.19.26-.35.53-1.37 1.7-1.68 2.05-.31.35-.62.4-1.14.13-1.92-.95-3.32-2.1-4.63-4.35-.14-.24-.02-.37.1-.5.11-.11.24-.29.36-.43.12-.15.17-.26.25-.44.09-.17.04-.33-.02-.45-.06-.13-1.18-2.85-1.62-3.9-.42-1.02-.85-.88-1.19-.9-.31-.02-.67-.02-1.03-.02-.36 0-.94.13-1.43.68-.49.54-1.87 1.83-1.87 4.46s1.92 5.17 2.19 5.53c.26.36 3.76 5.75 9.11 8.06 4.47 1.93 5.4 1.54 6.38 1.45 1.04-.1 3.11-1.27 3.55-2.5.44-1.22.44-2.28.31-2.5z" /></svg></a>
+              <a href="#">
+                <svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-1.11 9-5.53 9-10.95z" /></svg>
+              </a>
+              <a href="#">
+                <svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z" /></svg>
+              </a>
+              <a href="#">
+                <svg viewBox="0 0 24 24"><path d="M2.004 22l1.352-4.968A9.926 9.926 0 0 1 2 11.99C2 6.47 6.48 2 12 2s10 4.47 10 9.99c0 5.51-4.48 9.99-10 9.99-1.74 0-3.37-.44-4.78-1.21L2.004 22zm5.72-3.15l.39.23c1.19.71 2.54 1.09 3.89 1.09 4.6 0 8.35-3.75 8.35-8.35S16.6 3.64 12 3.64 3.65 7.39 3.65 11.99c0 1.48.42 2.91 1.2 4.14l.25.4-1.12 4.11 4.22-1.14zm8.68-6.1c-.13-.22-.47-.35-1-.62s-3.11-1.53-3.6-1.7c-.48-.17-.83-.26-1.19.26-.35.53-1.37 1.7-1.68 2.05-.31.35-.62.4-1.14.13-1.92-.95-3.32-2.1-4.63-4.35-.14-.24-.02-.37.1-.5.11-.11.24-.29.36-.43.12-.15.17-.26.25-.44.09-.17.04-.33-.02-.45-.06-.13-1.18-2.85-1.62-3.9-.42-1.02-.85-.88-1.19-.9-.31-.02-.67-.02-1.03-.02-.36 0-.94.13-1.43.68-.49.54-1.87 1.83-1.87 4.46s1.92 5.17 2.19 5.53c.26.36 3.76 5.75 9.11 8.06 4.47 1.93 5.4 1.54 6.38 1.45 1.04-.1 3.11-1.27 3.55-2.5.44-1.22.44-2.28.31-2.5z" /></svg>
+              </a>
             </div>
           </div>
 
