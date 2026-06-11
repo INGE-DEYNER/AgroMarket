@@ -7,7 +7,8 @@ import '../styles/styles.css';
 import '../styles/home.css';
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  i18n.on('languageChanged', () => {});
   const { user } = useAuth();
   const [metrics, setMetrics] = useState({ productos: '—', productores: '—', precio: '—', calificacion: '—' });
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -112,31 +113,31 @@ export default function Home() {
               🌿 <span data-site="siteName">{siteName}</span> · <span data-site="siteRegion">{siteRegion}</span>
             </div>
             <h1 className="hero-title animate-fade-up" style={{ transitionDelay: '0.1s' }}>
-              Del campo de <span data-site="siteRegion">{siteRegion}</span> directamente a tu mesa.
+              {t('home.title', { region: siteRegion })}
             </h1>
             <p className="hero-sub animate-fade-up" style={{ transitionDelay: '0.2s' }}>
-              Conectamos productores agrícolas con compradores, eliminando intermediarios. Frutas frescas, precios justos, trazabilidad total.
+              {t('home.subtitle')}
             </p>
 
             <div className="hero-bullets animate-fade-up" style={{ transitionDelay: '0.3s' }}>
               <div className="hero-bullet">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                Más de 50 productores activos en <span data-site="siteRegion">{siteRegion}</span>
+                {t('home.bullet1', { region: siteRegion })}
               </div>
               <div className="hero-bullet">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                Pagos seguros con PSE y tarjeta
+                {t('home.bullet2')}
               </div>
               <div className="hero-bullet">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                Seguimiento en tiempo real de tu pedido
+                {t('home.bullet3')}
               </div>
             </div>
 
             <div className="hero-btns animate-fade-up" style={{ transitionDelay: '0.4s' }} id="heroBtns">
-              <Link to="/catalogo" className="btn btn-primary btn-lg">Ver catálogo →</Link>
+              <Link to="/catalogo" className="btn btn-primary btn-lg">{t('home.catalogBtn')}</Link>
               {!user && (
-                <Link to="/registro" className="btn btn-secondary btn-lg">Soy productor</Link>
+                <Link to="/registro" className="btn btn-secondary btn-lg">{t('home.producerBtn')}</Link>
               )}
             </div>
 
@@ -147,7 +148,7 @@ export default function Home() {
                 <div className="avatar">PM</div>
                 <div className="avatar">UR</div>
               </div>
-              <div className="hero-avatars-text">Un mercado agrícola vivo, conectado con datos reales</div>
+              <div className="hero-avatars-text">{t('home.avatarsText')}</div>
             </div>
           </div>
 
@@ -179,19 +180,19 @@ export default function Home() {
         <div className="metrics-grid">
           <div className="metric-item animate-fade-up">
             <div className="metric-val" id="metricProductos">{metrics.productos}</div>
-            <div className="metric-label">Productos publicados</div>
+            <div className="metric-label">{t('home.metrics.productos')}</div>
           </div>
           <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.1s' }}>
             <div className="metric-val" id="metricProductores">{metrics.productores}</div>
-            <div className="metric-label">Productores visibles</div>
+            <div className="metric-label">{t('home.metrics.productores')}</div>
           </div>
           <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.2s' }}>
             <div className="metric-val" id="metricPrecio">{metrics.precio}</div>
-            <div className="metric-label">Precio promedio del catálogo</div>
+            <div className="metric-label">{t('home.metrics.precio')}</div>
           </div>
           <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.3s' }}>
             <div className="metric-val" id="metricCalificacion">{metrics.calificacion}</div>
-            <div className="metric-label">Calificación promedio real</div>
+            <div className="metric-label">{t('home.metrics.calificacion')}</div>
           </div>
         </div>
       </section>
@@ -200,10 +201,10 @@ export default function Home() {
       <section className="how-it-works" id="como-funciona">
         <div className="section-eyebrow animate-fade-up">PROCESO</div>
         <h2 className="section-title animate-fade-up" style={{ transitionDelay: '0.1s' }}>
-          Tan fácil como 3 pasos
+          {t('home.howTitle')}
         </h2>
         <p className="section-sub animate-fade-up" style={{ transitionDelay: '0.2s' }}>
-          Comprar directo al productor nunca fue tan sencillo y seguro.
+          {t('home.howSub')}
         </p>
 
         <div className="steps-grid">
@@ -212,24 +213,24 @@ export default function Home() {
               <div className="step-num">01</div>
               <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
             </div>
-            <h3 className="step-title">Crea tu cuenta</h3>
-            <p className="step-desc">Regístrate en menos de un minuto como comprador o productor y accede a la plataforma.</p>
+            <h3 className="step-title">{t('home.step1Title')}</h3>
+            <p className="step-desc">{t('home.step1Desc')}</p>
           </div>
           <div className="step-card animate-fade-up" style={{ transitionDelay: '0.4s' }}>
             <div className="step-icon-wrap">
               <div className="step-num">02</div>
               <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" /></svg>
             </div>
-            <h3 className="step-title">Encuentra tus frutas</h3>
-            <p className="step-desc">Navega el catálogo, filtra por tipo, precio y disponibilidad para encontrar lo que necesitas.</p>
+            <h3 className="step-title">{t('home.step2Title')}</h3>
+            <p className="step-desc">{t('home.step2Desc')}</p>
           </div>
           <div className="step-card animate-fade-up" style={{ transitionDelay: '0.5s' }}>
             <div className="step-icon-wrap">
               <div className="step-num">03</div>
               <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" /></svg>
             </div>
-            <h3 className="step-title">Recibe en casa</h3>
-            <p className="step-desc">Paga de forma segura y rastrea tu pedido en tiempo real hasta que llegue a tu puerta.</p>
+            <h3 className="step-title">{t('home.step3Title')}</h3>
+            <p className="step-desc">{t('home.step3Desc')}</p>
           </div>
         </div>
       </section>
@@ -239,9 +240,9 @@ export default function Home() {
         <div className="featured-header animate-fade-up">
           <div>
             <div className="section-eyebrow">DESTACADOS</div>
-            <h2 className="section-title" style={{ marginBottom: 0 }}>Frutas de temporada</h2>
+            <h2 className="section-title" style={{ marginBottom: 0 }}>{t('home.featuredTitle')}</h2>
           </div>
-          <Link to="/catalogo" className="btn btn-secondary">Ver catálogo completo →</Link>
+          <Link to="/catalogo" className="btn btn-secondary">{t('home.featuredBtn')}</Link>
         </div>
         <div className="products-grid" id="featuredProducts">
           <div id="homeMetricsFallback" style={{ gridColumn: '1 / -1' }}></div>
@@ -265,35 +266,35 @@ export default function Home() {
       <section className="for-producers" id="for-producers">
         <div className="fp-content">
           <div className="fp-left">
-            <div className="fp-badge animate-fade-up">PARA PRODUCTORES</div>
+            <div className="fp-badge animate-fade-up">{t('home.producersBadge')}</div>
             <h2 className="fp-title animate-fade-up" style={{ transitionDelay: '0.1s' }}>
-              Vende tus frutas directamente. Sin intermediarios.
+              {t('home.producersTitle')}
             </h2>
             <p className="fp-sub animate-fade-up" style={{ transitionDelay: '0.2s' }}>
-              Únete a la red de productores y maximiza tus ganancias conectando directo con los compradores finales.
+              {t('home.producersSub')}
             </p>
 
             <div className="fp-list animate-fade-up" style={{ transitionDelay: '0.3s' }}>
               <div className="fp-item">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                Publica tus productos en minutos
+                {t('home.producersItem1')}
               </div>
               <div className="fp-item">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                Recibe pagos seguros directamente
+                {t('home.producersItem2')}
               </div>
               <div className="fp-item">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                Gestiona tus pedidos desde el panel
+                {t('home.producersItem3')}
               </div>
               <div className="fp-item">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                Comunícate con compradores en tiempo real
+                {t('home.producersItem4')}
               </div>
             </div>
 
             <Link to="/registro" className="btn btn-white btn-lg animate-fade-up" style={{ transitionDelay: '0.4s' }}>
-              Quiero ser productor
+              {t('home.producersBtn')}
             </Link>
           </div>
           <div className="fp-right animate-fade-up" style={{ transitionDelay: '0.3s' }}>
@@ -317,7 +318,7 @@ export default function Home() {
       <section className="testimonials">
         <div className="test-header animate-fade-up">
           <div className="section-eyebrow">TESTIMONIOS</div>
-          <h2 className="section-title">Lo que dicen nuestros usuarios</h2>
+          <h2 className="section-title">{t('home.testimonialsTitle')}</h2>
         </div>
 
         <div className="test-grid">
@@ -325,13 +326,13 @@ export default function Home() {
             <div className="test-quote-mark">"</div>
             <div className="test-stars">★★★★★</div>
             <div className="test-content">
-              La plataforma hace más claro el origen de lo que compro y me permite revisar el catálogo sin depender de intermediarios.
+              {t('home.test1')}
             </div>
             <div className="test-author">
               <div className="test-avatar">JC</div>
               <div>
-                <div className="test-name">Cliente verificado</div>
-                <div className="test-role">Comprador · <span data-site="siteRegion">{siteRegion}</span></div>
+                <div className="test-name">{t('home.test1Name')}</div>
+                <div className="test-role">{t('home.test1Role', { region: siteRegion })}</div>
               </div>
             </div>
           </div>
@@ -340,13 +341,13 @@ export default function Home() {
             <div className="test-quote-mark">"</div>
             <div className="test-stars">★★★★★</div>
             <div className="test-content">
-              El panel centraliza pedidos, mensajes y envíos en un solo lugar, así el trabajo diario se vuelve más simple.
+              {t('home.test2')}
             </div>
             <div className="test-author">
               <div className="test-avatar">AP</div>
               <div>
-                <div className="test-name">Productor verificado</div>
-                <div className="test-role">Chigorodó</div>
+                <div className="test-name">{t('home.test2Name', 'Productor verificado')}</div>
+                <div className="test-role">{t('home.test2Role')}</div>
               </div>
             </div>
           </div>
@@ -355,13 +356,13 @@ export default function Home() {
             <div className="test-quote-mark">"</div>
             <div className="test-stars">★★★★★</div>
             <div className="test-content">
-              Tener trazabilidad, reseñas y seguimiento en tiempo real cambia por completo la experiencia de compra.
+              {t('home.test3')}
             </div>
             <div className="test-author">
               <div className="test-avatar">MM</div>
               <div>
-                <div className="test-name">Usuario verificado</div>
-                <div className="test-role">AgroMarket</div>
+                <div className="test-name">{t('home.test3Name')}</div>
+                <div className="test-role">{t('home.test3Role')}</div>
               </div>
             </div>
           </div>
@@ -372,13 +373,13 @@ export default function Home() {
       <section className="cta-final">
         <div className="cta-overlay"></div>
         <div className="cta-content">
-          <h2 className="cta-title animate-fade-up">¿Listo para empezar?</h2>
+          <h2 className="cta-title animate-fade-up">{t('home.ctaTitle')}</h2>
           <p className="cta-sub animate-fade-up" style={{ transitionDelay: '0.1s' }}>
-            Únete a AgroMarket y sé parte del comercio justo agrícola.
+            {t('home.ctaSub')}
           </p>
           <div className="cta-btns animate-fade-up" style={{ transitionDelay: '0.2s' }}>
-            <Link to="/catalogo" className="btn btn-white btn-lg">Explorar catálogo</Link>
-            <Link to="/registro" className="btn btn-outline-white btn-lg">Registrarme gratis</Link>
+            <Link to="/catalogo" className="btn btn-white btn-lg">{t('home.ctaBtn1')}</Link>
+            <Link to="/registro" className="btn btn-outline-white btn-lg">{t('home.ctaBtn2')}</Link>
           </div>
         </div>
       </section>
@@ -389,9 +390,9 @@ export default function Home() {
           <div>
             <div className="nav-brand" style={{ color: '#fff', marginBottom: '16px' }}>
               <svg viewBox="0 0 24 24" style={{ fill: 'var(--green-light)' }}><path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" /></svg>
-              AgroMarket
+              {t('general.appName')}
             </div>
-            <p className="footer-desc">Plataforma oficial de comercialización agrícola.</p>
+            <p className="footer-desc">{t('home.footerDesc')}</p>
             <div className="social-links">
               <a href="#">
                 <svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-1.11 9-5.53 9-10.95z" /></svg>
@@ -406,27 +407,27 @@ export default function Home() {
           </div>
 
           <div>
-            <h3 className="footer-col-title">Plataforma</h3>
+            <h3 className="footer-col-title">{t('home.footerCol1')}</h3>
             <div className="footer-links">
-              <Link to="/catalogo">Catálogo</Link>
+              <Link to="/catalogo">{t('nav.catalogo')}</Link>
               <a href="#como-funciona">Cómo funciona</a>
               <a href="#for-producers">Sobre nosotros</a>
             </div>
           </div>
 
           <div>
-            <h3 className="footer-col-title">Acceso</h3>
+            <h3 className="footer-col-title">{t('home.footerCol2')}</h3>
             <div className="footer-links">
-              <Link to="/login">Iniciar sesión</Link>
-              <Link to="/registro">Registrarse</Link>
-              <Link to="/login">Panel productor</Link>
+              <Link to="/login">{t('nav.ingresa')}</Link>
+              <Link to="/registro">{t('nav.registrate')}</Link>
+              <Link to="/login">{t('nav.dashboard')}</Link>
             </div>
           </div>
 
           <div>
-            <h3 className="footer-col-title">Contacto</h3>
+            <h3 className="footer-col-title">{t('home.footerCol3')}</h3>
             <div className="footer-contact">
-              <span>📍 Chigorodó, Antioquia</span>
+              <span>{t('home.footerLocation')}</span>
               <span id="contactEmail">📧 <span className="muted">Cargando...</span></span>
               <span id="contactPhone">📞 <span className="muted">Cargando...</span></span>
             </div>
@@ -434,7 +435,7 @@ export default function Home() {
         </div>
 
         <div className="footer-bottom">
-          © 2026 AgroMarket · Todos los derechos reservados · Desarollado por  Deyner Chaverra
+          {t('home.footerBottom')}
         </div>
       </footer>
     </div>

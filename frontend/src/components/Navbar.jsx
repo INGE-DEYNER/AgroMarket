@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import LanguageSwitcher from './LanguageSwitcher';
 import '../styles/styles.css';
+import '../styles/home.css';
 
 export default function Navbar() {
   const { t } = useTranslation();
@@ -59,100 +60,72 @@ export default function Navbar() {
         setMenuOpen(false);
       }
     };
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
     document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
   }, []);
 
   const dashboardLink = user ? getDashboardLink(user.rol) : '/';
   const navLinks = user ? getNavLinks(user.rol) : [];
 
   return (
-    <nav id="main-nav" style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 24px',
-      height: '64px',
-      background: '#fff',
-      borderBottom: '1px solid rgba(45,106,79,0.12)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-    }}>
-      {/* Logo */}
-      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-        <div style={{
-          width: '32px', height: '32px', borderRadius: '8px',
-          background: 'linear-gradient(135deg,#2d6a4f,#40916c)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff">
-            <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
-          </svg>
-        </div>
-        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1a3a2a' }}>{t('general.appName')}</span>
+    <nav className={`navbar${menuOpen ? ' menu-open' : ''}`} id="navbar">
+      <Link to="/" className="nav-brand">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
+        </svg>
+        <span>{t('general.appName')}</span>
       </Link>
 
-      {/* Nav Links */}
-      {isAuthenticated && (
-        <div style={{ display: 'flex', gap: '4px', id: 'navLinks' }}>
-          {navLinks.map((link) => (
-            <Link
-              key={link.href + link.label}
-              to={link.href}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                color: '#2d6a4f',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-              }}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {/* Nav Actions */}
-      <div id="navActions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <LanguageSwitcher /> {/* Integrated LanguageSwitcher */}
+      <div className="nav-links" id="navLinks">
         {!isAuthenticated ? (
           <>
-            <Link to="/login" className="btn btn-secondary" style={{ padding: '6px 14px' }}>
-              {t('auth.iniciarSesion')}
+            <Link to="/">{t('nav.inicio')}</Link>
+            <Link to="/catalogo">{t('nav.catalogo')}</Link>
+            <Link to="#como-funciona">Cómo funciona</Link>
+          </>
+        ) : (
+          navLinks.map((link) => (
+            <Link key={link.href + link.label} to={link.href}>
+              {link.label}
             </Link>
-            <Link to="/registro" className="btn btn-primary" style={{ padding: '6px 14px' }}>
-              {t('auth.registrarse')}
-            </Link>
+          ))
+        )}
+      </div>
+
+      <div className="nav-actions" id="navActions">
+        <LanguageSwitcher />
+        {!isAuthenticated ? (
+          <>
+            <Link to="/login" className="btn btn-secondary">{t('auth.iniciarSesion')}</Link>
+            <Link to="/registro" className="btn btn-primary">{t('auth.registrarse')}</Link>
           </>
         ) : (
           <>
-            <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1a3a2a' }}>
-              {t('nav.hello')}, {(user?.nombre || t('general.user')).split(' ')[0]}
+            <span className="nav-user-greeting">
+              {t('nav.hello')}, {user?.nombre?.split(' ')[0] || t('general.user')}
             </span>
-            <Link
-              to={dashboardLink}
-              className="btn btn-secondary btn-sm"
-              style={{ padding: '6px 12px', textDecoration: 'none' }}
-            >
+            <Link to={dashboardLink} className="btn btn-secondary btn-sm">
               {t('nav.myPanel')}
             </Link>
-
-            {/* Profile dropdown */}
-            <div ref={menuRef} style={{ position: 'relative' }}>
+            <div ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 style={{
-                  width: '42px', height: '42px', borderRadius: '999px',
+                  width: '40px', height: '40px', borderRadius: '999px',
                   border: '1px solid rgba(45,106,79,.2)',
                   background: '#fff', display: 'flex', alignItems: 'center',
                   justifyContent: 'center', overflow: 'hidden',
-                  cursor: 'pointer', boxShadow: '0 6px 18px rgba(0,0,0,.08)',
+                  cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,.08)',
                 }}
               >
                 {user?.fotoPerfil ? (
@@ -197,7 +170,7 @@ export default function Navbar() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => { logout(); }}
+                    onClick={() => { logout(); setMenuOpen(false); }}
                     style={{
                       marginTop: '6px', width: '100%', padding: '10px 12px',
                       borderRadius: '12px', border: 0, background: '#fef2f2',
@@ -212,6 +185,10 @@ export default function Navbar() {
           </>
         )}
       </div>
+
+      <button className="menu-toggle" id="menuToggle" onClick={() => setMenuOpen(!menuOpen)}>
+        ☰
+      </button>
     </nav>
   );
 }
