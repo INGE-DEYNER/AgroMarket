@@ -17,7 +17,7 @@ function DashboardComprador() {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-      })
+      }) + ' • ☀️ 28°C Urabá'
     );
   }, []);
 
@@ -78,7 +78,8 @@ function DashboardComprador() {
           className={`sidebar-link ${activeSection === 'misPedidos' ? 'active' : ''}`}
           onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}
         >
-          <span className="icon">🧾</span> Mis Pedidos
+          <span className="icon">🧾</span> Mis Pedidos{' '}
+          <span className="badge-count">2</span>
         </Link>
 
         <div className="sidebar-divider"></div>
@@ -88,7 +89,8 @@ function DashboardComprador() {
           <span className="icon">🚚</span> Seguimiento
         </Link>
         <Link to="/mensajeria" className="sidebar-link">
-          <span className="icon">💬</span> Mensajería
+          <span className="icon">💬</span> Mensajería{' '}
+          <span className="badge-count">1</span>
         </Link>
         <Link to="/resenas" className="sidebar-link">
           <span className="icon">⭐</span> Mis Reseñas
@@ -127,11 +129,10 @@ function DashboardComprador() {
           <span className="icon">💬</span><span>Chat</span>
         </Link>
         <Link
-          to="#"
+          to="/login"
           className="mobile-nav-item"
-          onClick={handleLogout}
         >
-          <span className="icon">👤</span><span>Salir</span>
+          <span className="icon">👤</span><span>Perfil</span>
         </Link>
       </nav>
 
@@ -140,7 +141,7 @@ function DashboardComprador() {
         <div className={`section ${activeSection === 'resumen' ? 'active' : ''}`} id="sec-resumen">
           <div className="dash-header">
             <div className="dash-welcome">
-              <h1 id="welcomeUserText">¡Hola, {userName}!</h1>
+              <h1 id="welcomeUserText">¡Hola de nuevo, {userName}! 👋</h1>
               <p id="currentDate">{currentDate}</p>
             </div>
             <Link to="/catalogo" className="btn-cta"> Explorar catálogo → </Link>
@@ -152,9 +153,7 @@ function DashboardComprador() {
               <div className="stat-label">Pedidos Realizados</div>
               <div className="stat-value" id="statPedidos">--</div>
               <div className="stat-trend up" id="pedidosTrend">Compras totales</div>
-              <div className="stat-progress">
-                <div className="stat-progress-bar" style={{ width: '100%' }}></div>
-              </div>
+<div className="stat-progress"><div className="stat-progress-bar" style={{ width: '70%' }}></div></div>
             </div>
             <div className="stat-card color-2">
               <span className="stat-icon-lg">💰</span>
@@ -166,7 +165,7 @@ function DashboardComprador() {
               <div className="stat-progress">
                 <div
                   className="stat-progress-bar"
-                  style={{ width: '100%', background: 'var(--blue)' }}
+                  style={{ width: '45%', background: 'var(--blue)' }}
                 ></div>
               </div>
             </div>
@@ -178,7 +177,7 @@ function DashboardComprador() {
               <div className="stat-progress">
                 <div
                   className="stat-progress-bar"
-                  style={{ width: '100%', background: 'var(--gold)' }}
+                  style={{ width: '30%', background: 'var(--gold)' }}
                 ></div>
               </div>
             </div>
@@ -192,7 +191,7 @@ function DashboardComprador() {
               <div className="stat-progress">
                 <div
                   className="stat-progress-bar"
-                  style={{ width: '100%', background: '#a855f7' }}
+                  style={{ width: '85%', background: '#a855f7' }}
                 ></div>
               </div>
             </div>
@@ -209,6 +208,11 @@ function DashboardComprador() {
               >
                 Ver todos los pedidos
               </Link>
+            </div>
+            <div className="table-filters">
+              <div className="search-box">
+                <input type="text" placeholder="Buscar por producto o ID..." />
+              </div>
             </div>
             <div className="table-wrap">
               <table className="table-responsive">
@@ -229,8 +233,7 @@ function DashboardComprador() {
           {/* RECOMENDADOS */}
           <div className="dash-header" style={{ marginBottom: '20px' }}>
             <h3 className="card-title">
-              🌟 Productos de Temporada en
-              <span data-site="siteRegion">Urabá</span>
+              🌟 Productos de Temporada en Urabá
             </h3>
           </div>
           <div className="products-grid" id="recsGrid">

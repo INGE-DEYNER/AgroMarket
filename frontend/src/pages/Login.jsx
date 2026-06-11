@@ -26,7 +26,10 @@ export default function Login() {
     handleSubmit,
   } = useLogin();
 
-  const [showPassword, setShowPassword] = useState(false);
+  const googleAuthUrl = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8080/oauth2/authorization/google'
+    : 'https://agromarket-vj8x.onrender.com/oauth2/authorization/google';
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -40,153 +43,103 @@ export default function Login() {
     }
   };
 
-  const googleAuthUrl = window.location.hostname === 'localhost' ||
-                        window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8080/oauth2/authorization/google'
-    : 'https://agromarket-vj8x.onrender.com/oauth2/authorization/google';
-
   return (
     <div className="wrapper">
       {/* LEFT PANEL: FORM */}
       <div className="left-panel">
         <Link to="/" className="brand">
           <div className="brand-logo">
-            <svg viewBox="0 0 24 24">
-              <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z"/></svg>
           </div>
           <div>
-            <div className="brand-name">{t('general.appName')}</div>
-            <div className="brand-sub">{t('general.appSlogan')}</div>
+            <div className="brand-name">AgroMarket</div>
+            <div className="brand-sub">ASAFRUT · Chigorodó, Antioquia</div>
           </div>
         </Link>
 
         <div style={{ margin: "auto 0", maxWidth: "400px", width: "100%" }}>
-          <h1 className="page-title">{t('auth.welcomeBack')}</h1>
-          <p className="page-sub">{t('auth.enterCredentials')}</p>
+          <h1 className="page-title">Bienvenido de nuevo</h1>
+          <p className="page-sub">Ingresa tus credenciales para continuar.</p>
 
-          {globalError && <div className="global-error visible">{globalError}</div>}
+          <div className={`global-error${globalError ? ' visible' : ''}`} id="globalError">
+            {globalError}
+          </div>
 
-          <form onSubmit={onSubmit} noValidate>
+          <form id="loginForm" onSubmit={onSubmit} noValidate>
             <div className="form-group">
-              <label className="form-label" htmlFor="email">{t('auth.email')}</label>
+              <label className="form-label" htmlFor="email">Correo electrónico</label>
               <input
                 className={`form-input ${emailError ? 'error' : ''}`}
                 type="email"
                 id="email"
-                placeholder={t('auth.emailPlaceholder')}
+                placeholder="tu@correo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onBlur={() => validateEmail(true)}
                 autoComplete="email"
               />
-              {emailError && <span className="form-error visible">{emailError}</span>}
+              <span className={`form-error${emailError ? ' visible' : ''}`} id="emailError">
+                {emailError || 'Ingresa un correo válido.'}
+              </span>
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="password">{t('auth.contrasena')}</label>
-              <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "8px" }}>
-                <input
-                  className={`form-input ${passwordError ? 'error' : ''}`}
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  placeholder={t('auth.passwordPlaceholder')}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onBlur={() => validatePassword(true)}
-                  autoComplete="current-password"
-                  style={{ paddingRight: "88px", flex: 1 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    border: 0,
-                    background: "transparent",
-                    color: "#2d6a2d",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    padding: "4px 6px",
-                  }}
-                >
-                  {showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
-                </button>
-              </div>
-              {passwordError && <span className="form-error visible">{passwordError}</span>}
+              <label className="form-label" htmlFor="password">Contraseña</label>
+              <input
+                className={`form-input ${passwordError ? 'error' : ''}`}
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => validatePassword(true)}
+                autoComplete="current-password"
+              />
+              <span className={`form-error${passwordError ? ' visible' : ''}`} id="passwordError">
+                {passwordError || 'La contraseña es requerida.'}
+              </span>
             </div>
 
-            {pendingTwoFactorToken && (
-              <div className="form-group">
-                <label className="form-label" htmlFor="otpCode">{t('auth.otpCodeLabel')}</label>
-                <input
-                  className={`form-input ${otpError ? 'error' : ''}`}
-                  type="text"
-                  id="otpCode"
-                  maxLength={6}
-                  inputMode="numeric"
-                  pattern="[0-9]{6}"
-                  placeholder={t('auth.otpPlaceholder')}
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  onBlur={() => validateOtp(true)}
-                  autoComplete="one-time-code"
-                />
-                {otpError && <span className="form-error visible">{otpError}</span>}
-              </div>
-            )}
-
-            <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? t('general.verifying') : pendingTwoFactorToken ? t('auth.verifyCode') : t('auth.iniciarSesion')}
+            <button type="submit" className="btn-submit" id="submitBtn" disabled={loading}>
+              {loading ? t('general.verifying') : pendingTwoFactorToken ? t('auth.verifyCode') : 'Iniciar sesión'}
             </button>
           </form>
 
           <div className="divider"></div>
 
-          <div
-            className="form-footer"
+          <div className="form-footer">
+            ¿No tienes cuenta? <Link to="/registro">Regístrate gratis</Link>
+          </div>
+          <div className="form-footer" style={{ marginTop: "12px", fontSize: "0.75rem", color: "#8a8a8a" }}>
+            Acceso demo: admin@agromarket.co · productor@agromarket.co · comprador@agromarket.co
+          </div>
+
+          <a
+            href={googleAuthUrl}
             style={{
               display: "flex",
-              flexDirection: "column",
-              gap: "10px",
               alignItems: "center",
+              gap: "8px",
+              padding: "8px 12px",
+              borderRadius: "8px",
+              border: "1px solid #ddd",
+              background: "#fff",
+              color: "#222",
+              textDecoration: "none",
+              marginTop: "6px",
             }}
           >
-            <Link to="/recuperar-contrasena">{t('auth.olvidaste')}</Link>
-            <a
-              className="btn-google"
-              href={googleAuthUrl}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "8px 12px",
-                borderRadius: "8px",
-                border: "1px solid #ddd",
-                background: "#fff",
-                color: "#222",
-                textDecoration: "none",
-                marginTop: "6px",
-              }}
-            >
-              <img
-                src="https://www.svgrepo.com/show/355037/google.svg"
-                alt="G"
-                style={{ width: "18px", height: "18px" }}
-              />
-              {t('auth.continueWithGoogle')}
-            </a>
-            <div>
-              {t('auth.noAccount')} <Link to="/registro">{t('auth.registerFree')}</Link>
-            </div>
-          </div>
+            <img
+              src="https://www.svgrepo.com/show/355037/google.svg"
+              alt="G"
+              style={{ width: "18px", height: "18px" }}
+            />
+            {t('auth.continueWithGoogle')}
+          </a>
         </div>
-
+        
         <div style={{ marginTop: "auto", paddingTop: "24px", fontSize: "0.75rem", color: "#9a9a9a" }}>
-          {t('general.copyright')}
+          &copy; 2026 AgroMarket ASAFRUT. Todos los derechos reservados.
         </div>
       </div>
 
@@ -198,10 +151,10 @@ export default function Login() {
           className="bg-img"
         />
         <div className="right-overlay">
-          <div className="right-badge">{t('general.officialPlatform')}</div>
-          <h2 className="right-title">{t('general.connectingFieldToTable')}</h2>
+          <div className="right-badge">🌿 Plataforma oficial de la Asociación</div>
+          <h2 className="right-title">Conectando el campo con tu mesa.</h2>
           <p className="right-sub">
-            {t('general.dashboardDescription')}
+            Accede a tu panel de control para gestionar tus productos, pedidos o realizar compras frescas directo a los productores de Urabá.
           </p>
         </div>
       </div>

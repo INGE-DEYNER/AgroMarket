@@ -1,4 +1,3 @@
-// File: frontend/src/pages/Pedidos.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +16,6 @@ export default function Pedidos() {
   const [filtroEstado, setFiltroEstado] = useState('');
   const [loading, setLoading] = useState(true);
   const [factura, setFactura] = useState(null);
-  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -26,6 +24,8 @@ export default function Pedidos() {
     }
     cargarPedidos();
   }, [location]);
+
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
   const cargarPedidos = async () => {
     setLoading(true);
@@ -71,25 +71,30 @@ export default function Pedidos() {
     <>
       <Navbar />
       <main style={{ padding: '28px 32px', maxWidth: '1280px', margin: '0 auto' }}>
-        {showSuccessBanner && (
-          <div style={{
-            background: '#eef7ee', border: '1px solid #1a5c2a', borderRadius: '12px',
-            padding: '14px 18px', marginBottom: '20px', color: '#1a5c2a',
-            fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px'
-          }}>
-            ✅ {t('pedidos.successBanner', '¡Pedido realizado con éxito! Ya está siendo procesado por el productor.')}
-          </div>
-        )}
+        <div id="successBanner" style={{
+          display: showSuccessBanner ? 'flex' : 'none',
+          background: '#eef7ee',
+          border: '1px solid #1a5c2a',
+          borderRadius: '12px',
+          padding: '14px 18px',
+          marginBottom: '20px',
+          color: '#1a5c2a',
+          fontWeight: 600,
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          ✅ {t('pedidos.successBanner', '¡Pedido realizado con éxito! Ya está siendo procesado por el productor.')}
+        </div>
 
-        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1a3a2a', margin: 0 }}>
-            🧾 {t('pedidos.title', 'Mis Pedidos')}
-          </h2>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div className="section-header" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span className="section-title">🧾 {t('pedidos.title', 'Mis Pedidos')}</span>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <select
+              className="form-select"
+              style={{ width: '170px' }}
+              id="filtroEstado"
               value={filtroEstado}
               onChange={(e) => setFiltroEstado(e.target.value)}
-              style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid rgba(45,106,79,.2)', fontSize: '0.9rem', background: '#fff', width: '170px' }}
             >
               <option value="">{t('dashboard.allStates', 'Todos los estados')}</option>
               <option value="PENDIENTE">{t('states.pending', 'Pendiente')}</option>
@@ -97,28 +102,32 @@ export default function Pedidos() {
               <option value="ENTREGADO">{t('states.delivered', 'Entregado')}</option>
               <option value="CANCELADO">{t('states.cancelled', 'Cancelado')}</option>
             </select>
-            <Link to="/catalogo" className="btn btn-primary" style={{ padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700 }}>
-              {t('pedidos.newOrderBtn', '+ Nuevo pedido')}
-            </Link>
+            <Link to="/catalogo" className="btn btn-primary">+ {t('pedidos.newOrderBtn', 'Nuevo pedido')}</Link>
           </div>
         </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-            {t('general.cargando', 'Cargando...')}
-          </div>
-        ) : (
-          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid rgba(45,106,79,.12)', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#f8faf8' }}>
-                  {[t('dashboard.idHeader', 'ID'), t('dashboard.productHeader', 'Producto'), t('auth.producer', 'Productor'), t('dashboard.quantityHeader', 'Cantidad'), t('catalogo.total', 'Total'), t('dashboard.statusHeader', 'Estado'), t('dashboard.actionsHeader', 'Acciones')].map((h) => (
-                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase' }}>{h}</th>
-                  ))}
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Producto</th>
+                <th>Productor</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbPedidos">
+              {loading ? (
+                <tr>
+                  <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>
+                    {t('general.cargando', 'Cargando...')}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredPedidos.map((pedido) => {
+              ) : (
+                filteredPedidos.map((pedido) => {
                   const estadoUpper = String(pedido.estado).toUpperCase();
                   const badge = badgeEstado(pedido.estado);
                   return (
@@ -156,62 +165,62 @@ export default function Pedidos() {
                       </td>
                     </tr>
                   );
-                })}
-                {filteredPedidos.length === 0 && (
-                  <tr>
-                    <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>
-                      {t('dashboard.noOrdersWithFilter', 'No hay pedidos con este filtro.')}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                })
+              )}
+              {!loading && filteredPedidos.length === 0 && (
+                <tr>
+                  <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>
+                    {t('dashboard.noOrdersWithFilter', 'No hay pedidos con este filtro.')}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </main>
 
-      {/* Invoice Modal */}
+      {/* MODAL FACTURA */}
       {factura && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', borderRadius: '20px', padding: '32px', maxWidth: '480px', width: '100%', margin: '0 16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ margin: 0, fontWeight: 800 }}>{t('dashboard.invoiceTitle', 'Factura')}</h3>
-              <button type="button" onClick={() => setFactura(null)} style={{ background: 'transparent', border: 0, fontSize: '1.4rem', cursor: 'pointer', color: '#6b7280' }}>✕</button>
+        <div className="modal-overlay" id="modalFactura">
+          <div className="modal" style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <span className="modal-title">{t('dashboard.invoiceTitle', 'Factura')}</span>
+              <button className="modal-close" onClick={() => setFactura(null)}>✕</button>
             </div>
-            
-            <div style={{ border: '1px dashed #d1d5db', padding: '20px', borderRadius: '12px', display: 'grid', gap: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                <span>{t('dashboard.invoiceNumber', 'Nº Factura')}</span>
-                <strong>{factura.numeroFactura || `FAC-${factura.id}`}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                <span>{t('dashboard.date', 'Fecha')}</span>
-                <span>{formatearFecha(factura.fechaEmision)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                <span>{t('dashboard.order', 'Pedido')}</span>
-                <span>#{factura.pedidoId}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                <span>{t('catalogo.subtotal', 'Subtotal')}</span>
-                <span>{formatearPrecio(factura.subtotal)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                <span>{t('dashboard.tax', 'IVA (19%)')}</span>
-                <span>{formatearPrecio(factura.impuesto)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #2d6a4f', paddingTop: '10px', fontWeight: 800, fontSize: '1.1rem' }}>
-                <span>{t('catalogo.total', 'Total')}</span>
-                <span style={{ color: '#2d6a4f' }}>{formatearPrecio(factura.total)}</span>
+            <div id="facturaBody">
+              <div style={{ border: '1px dashed #d1d5db', padding: '20px', borderRadius: '12px', display: 'grid', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span>{t('dashboard.invoiceNumber', 'Nº Factura')}</span>
+                  <strong>{factura.numeroFactura || `FAC-${factura.id}`}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span>{t('dashboard.date', 'Fecha')}</span>
+                  <span>{formatearFecha(factura.fechaEmision)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span>{t('dashboard.order', 'Pedido')}</span>
+                  <span>#{factura.pedidoId}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span>{t('catalogo.subtotal', 'Subtotal')}</span>
+                  <span>{formatearPrecio(factura.subtotal)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span>{t('dashboard.tax', 'IVA (19%)')}</span>
+                  <span>{formatearPrecio(factura.impuesto)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #2d6a4f', paddingTop: '10px', fontWeight: 800, fontSize: '1.1rem' }}>
+                  <span>{t('catalogo.total', 'Total')}</span>
+                  <span style={{ color: '#2d6a4f' }}>{formatearPrecio(factura.total)}</span>
+                </div>
               </div>
             </div>
-
-            <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
-              <button type="button" onClick={() => setFactura(null)} style={{ padding: '10px 20px', borderRadius: '10px', border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontWeight: 600 }}>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setFactura(null)}>
                 {t('general.cerrar', 'Cerrar')}
               </button>
-              <button type="button" onClick={enviarFacturaCorreo} style={{ padding: '10px 20px', borderRadius: '10px', border: 0, background: '#2d6a4f', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
-                {t('pedidos.emailInvoiceBtn', '📧 Enviar por correo')}
+              <button className="btn btn-primary" onClick={enviarFacturaCorreo}>
+                📧 {t('pedidos.emailInvoiceBtn', 'Enviar por correo')}
               </button>
             </div>
           </div>

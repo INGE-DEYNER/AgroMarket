@@ -28,14 +28,13 @@ export default function Admin() {
         <div className="sidebar-user">
           <div
             className="avatar avatar-red"
-            id="sidebarUserAvatar"
             style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}
           >
-            --
+            AD
           </div>
           <div className="sidebar-user-info">
-            <span className="name" id="sidebarUserName">Cargando perfil...</span>
-            <span className="role" id="sidebarUserRole">Cargando...</span>
+            <span className="name">Administrador</span>
+            <span className="role">Soporte AgroMarket</span>
           </div>
         </div>
 
@@ -87,8 +86,8 @@ export default function Admin() {
       <main className="main-content">
         <div className="dash-header">
           <div className="dash-welcome">
-            <h1 id="welcomeUserText">Cargando panel...</h1>
-            <p>Monitoreo global de la plataforma AgroMarket.</p>
+            <h1>Panel de Administración 🛠️</h1>
+            <p>Monitoreo global de la plataforma AgroMarket Urabá</p>
           </div>
           <button
             className="btn-cta"
@@ -103,28 +102,26 @@ export default function Admin() {
           <div className="stat-card color-1">
             <span className="stat-icon-lg">👥</span>
             <div className="stat-label">Total Usuarios</div>
-            <div className="stat-value" id="statUsuarios">--</div>
-            <div className="stat-trend up">Registrados en AgroMarket</div>
+            <div className="stat-value" id="statUsuarios">07</div>
+            <div className="stat-trend up">↑ 2 nuevos hoy</div>
           </div>
           <div className="stat-card color-2">
             <span className="stat-icon-lg">📦</span>
             <div className="stat-label">Productos Globales</div>
-            <div className="stat-value" id="statProductos">--</div>
-            <div className="stat-trend">Publicados e inventariados</div>
+            <div className="stat-value" id="statProductos">12</div>
+            <div className="stat-trend">80% en stock</div>
           </div>
           <div className="stat-card color-3">
             <span className="stat-icon-lg">💰</span>
             <div className="stat-label">Ingresos Totales</div>
-            <div className="stat-value" id="statIngresos">--</div>
-            <div className="stat-trend up">Transacciones en la app</div>
+            <div className="stat-value">$4.8M</div>
+            <div className="stat-trend up">↑ 22% este mes</div>
           </div>
           <div className="stat-card color-4">
             <span className="stat-icon-lg">⭐</span>
             <div className="stat-label">Alertas Moderación</div>
-            <div className="stat-value" id="statResenas">--</div>
-            <div className="stat-trend down" style={{ color: 'orange' }}>
-              Reseñas cargadas
-            </div>
+            <div className="stat-value" id="statResenas">02</div>
+            <div className="stat-trend down" style={{ color: 'orange' }}>Acción requerida</div>
           </div>
         </div>
 
@@ -194,7 +191,7 @@ export default function Admin() {
                       <th>Usuario</th>
                       <th>Calificación</th>
                       <th>Comentario</th>
-                      <th>Producto</th>
+                      <th>Estado</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -206,59 +203,28 @@ export default function Admin() {
 
           <div className="side-info">
             <div className="card-table" style={{ padding: '24px', marginBottom: '24px' }}>
-              <h3 className="card-title" style={{ marginBottom: '16px' }}>
-                Top Productores 🏆
-              </h3>
-              <ul style={{ listStyle: 'none' }} id="ulTopProducers">
-                <li
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '8px 0',
-                    borderBottom: '1px solid var(--border-light)',
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  Cargando top productores...
+              <h3 className="card-title" style={{ marginBottom: '16px' }}>Top Productores 🏆</h3>
+              <ul style={{ listStyle: 'none' }}>
+                <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
+                  <span>Luis Palacios</span>
+                  <span style={{ fontWeight: 600, color: 'var(--primary)' }}>$1.2M</span>
+                </li>
+                <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
+                  <span>Ana Córdoba</span>
+                  <span style={{ fontWeight: 600, color: 'var(--primary)' }}>$980K</span>
                 </li>
               </ul>
             </div>
 
             <div className="card-table" style={{ padding: '24px' }}>
-              <h3 className="card-title" style={{ marginBottom: '16px' }}>
-                Ingresos Semestrales
-              </h3>
+              <h3 className="card-title" style={{ marginBottom: '16px' }}>Ingresos 6 Meses</h3>
               <div className="chart-container" style={{ height: '120px' }}>
-                <div
-                  className="chart-bar"
-                  style={{ height: '35%' }}
-                  data-label="Ene"
-                ></div>
-                <div
-                  className="chart-bar"
-                  style={{ height: '50%' }}
-                  data-label="Feb"
-                ></div>
-                <div
-                  className="chart-bar"
-                  style={{ height: '65%' }}
-                  data-label="Mar"
-                ></div>
-                <div
-                  className="chart-bar"
-                  style={{ height: '75%' }}
-                  data-label="Abr"
-                ></div>
-                <div
-                  className="chart-bar"
-                  style={{ height: '90%' }}
-                  data-label="May"
-                ></div>
-                <div
-                  className="chart-bar"
-                  style={{ height: '98%', background: 'var(--primary-light)' }}
-                  data-label="Jun"
-                ></div>
+                <div className="chart-bar" style={{ height: '30%' }}></div>
+                <div className="chart-bar" style={{ height: '45%' }}></div>
+                <div className="chart-bar" style={{ height: '60%' }}></div>
+                <div className="chart-bar" style={{ height: '80%' }}></div>
+                <div className="chart-bar" style={{ height: '95%' }}></div>
+                <div className="chart-bar" style={{ height: '70%', background: 'var(--primary-light)' }}></div>
               </div>
             </div>
           </div>

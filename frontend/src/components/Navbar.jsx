@@ -71,6 +71,21 @@ export default function Navbar() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const nav = document.getElementById('navbar');
+      if (nav) {
+        if (window.scrollY > 50) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const dashboardLink = user ? getDashboardLink(user.rol) : '/';
   const navLinks = user ? getNavLinks(user.rol) : [];
 

@@ -113,15 +113,17 @@ export default function Resenas() {
           <Link to="/envios">Envíos</Link>
         </div>
         <div className="navbar-right" id="navActions">
-          <div className="avatar avatar-blue">--</div>
-          <a href="#" onClick={(e) => { e.preventDefault(); logout(); }} className="btn btn-secondary btn-sm">Cerrar sesión</a>
+          <div className="avatar avatar-blue">MT</div>
+          <a href="/login" className="btn btn-secondary btn-sm">Salir</a>
         </div>
       </nav>
 
       <main style={{ padding: '28px 32px', maxWidth: '860px', margin: '0 auto' }}>
         <div className="section-header">
-          <span className="section-title">⭐ Reseñas de Productos</span>
-          <button className="btn btn-primary" onClick={openModal}>+ Nueva reseña</button>
+          <span className="section-title">⭐ {t('resenas.title', 'Reseñas de Productos')}</span>
+          <button className="btn btn-primary" onClick={openModal}>
+            + {t('resenas.newReviewBtn', 'Nueva reseña')}
+          </button>
         </div>
 
         <div id="reviewsList">
@@ -137,25 +139,25 @@ export default function Resenas() {
               const stars = '★'.repeat(Number(resena.calificacion || 0)) + '☆'.repeat(5 - Number(resena.calificacion || 0));
               const bgColor = avatarColor(resena.compradorNombre);
               return (
-                <div key={resena.id} className="review-card" style={{ background: '#fff', border: '1px solid rgba(45,106,79,.08)', borderRadius: '16px', padding: '24px', marginBottom: '18px', boxShadow: '0 2px 8px rgba(0,0,0,.04)' }}>
-                  <div className="review-header" style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '14px' }}>
+                <div key={resena.id} className="review-card">
+                  <div className="review-header" style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, flexShrink: 0 }}>
                       {initials(resena.compradorNombre)}
                     </div>
                     <div className="review-meta" style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, color: '#1a3a2a', fontSize: '1rem' }}>{resena.compradorNombre || t('resenas.anonymousBuyer', 'Comprador de AgroMarket')}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '2px' }}>
+                      <div className="review-user">{resena.compradorNombre || t('resenas.anonymousBuyer', 'Comprador de AgroMarket')}</div>
+                      <div className="review-time">
                         {new Date(resena.fecha || Date.now()).toLocaleDateString('es-CO')}
                       </div>
                     </div>
                     {selectedProductName && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', background: '#eef7ee', border: '1px solid rgba(45,106,79,.12)', borderRadius: '999px', padding: '4px 12px', fontSize: '0.78rem', color: '#2d7a3a', fontWeight: 500 }}>
+                      <span className="review-product-badge">
                         {selectedProductName}
                       </span>
                     )}
                   </div>
-                  <div style={{ color: '#fbbf24', fontSize: '1.15rem', margin: '8px 0', letterSpacing: '2px' }}>{stars}</div>
-                  <div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: '1.7', fontStyle: 'italic' }}>"{resena.comentario}"</div>
+                  <div className="review-stars" style={{ margin: '8px 0' }}>{stars}</div>
+                  <div className="review-comment">"{resena.comentario}"</div>
                 </div>
               );
             })
@@ -168,40 +170,50 @@ export default function Resenas() {
         <div className="modal-overlay" id="modalResena">
           <div className="modal" style={{ maxWidth: '480px' }}>
             <div className="modal-header">
-              <span className="modal-title">Nueva Reseña</span>
-              <button type="button" className="modal-close" onClick={closeModal}>✕</button>
+              <span className="modal-title">{t('resenas.modalTitle', 'Nueva Reseña')}</span>
+              <button className="modal-close" onClick={closeModal}>✕</button>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Producto *</label>
+              <label className="form-label">{t('resenas.productLabel', 'Producto')} *</label>
               <select className="form-select" id="rProducto" value={selectedProductId} onChange={(e) => { setSelectedProductId(e.target.value); setRProductoError(''); }}>
                 <option value="">{t('resenas.selectProductOption', 'Selecciona un producto...')}</option>
                 {productos.map((p) => (
                   <option key={p.id} value={p.id}>{p.nombre}</option>
                 ))}
               </select>
-              <span className="form-error" id="rProductoErr">{rProductoError || 'Selecciona un producto.'}</span>
+              <span className="form-error" id="rProductoErr">{rProductoError || t('resenas.selectProductError', 'Selecciona un producto.')}</span>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Calificación *</label>
+              <label className="form-label">{t('resenas.ratingLabel', 'Calificación')} *</label>
               <div className="star-input-row" id="starRow">
-                {[1, 2, 3, 4, 5].map((val) => (
-                  <span className="star-inp" key={val} data-val={val} onClick={() => { setRating(val); setRRatingError(''); }} onMouseEnter={() => setHoverRating(val)} onMouseOut={() => setHoverRating(0)}>★</span>
-                ))}
+                {[1, 2, 3, 4, 5].map((val) => {
+                  const isActive = val <= (hoverRating || rating);
+                  return (
+                    <span
+                      key={val}
+                      className={`star-inp ${isActive ? 'active' : ''}`}
+                      data-val={val}
+                      onClick={() => { setRating(val); setRRatingError(''); }}
+                      onMouseEnter={() => setHoverRating(val)}
+                      onMouseOut={() => setHoverRating(0)}
+                    >★</span>
+                  );
+                })}
               </div>
-              <span className="form-error" id="rRatingErr">{rRatingError || 'Selecciona una calificación.'}</span>
+              <span className="form-error" id="rRatingErr">{rRatingError || t('resenas.selectRatingError', 'Selecciona una calificación.')}</span>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Comentario *</label>
-              <textarea className="form-textarea" id="rComentario" placeholder="Describe tu experiencia con el producto..." style={{ minHeight: '100px' }} value={comentario} onChange={(e) => { setComentario(e.target.value); setRComentError(''); }}></textarea>
-              <span className="form-error" id="rComentErr">{rComentError || 'Escribe un comentario.'}</span>
+              <label className="form-label">{t('resenas.commentLabel', 'Comentario')} *</label>
+              <textarea className="form-textarea" id="rComentario" placeholder={t('resenas.commentPlaceholder', 'Describe tu experiencia con el producto...')} style={{ minHeight: '100px' }} value={comentario} onChange={(e) => { setComentario(e.target.value); setRComentError(''); }}></textarea>
+              <span className="form-error" id="rComentErr">{rComentError || t('resenas.writeCommentError', 'Escribe un comentario.')}</span>
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
-              <button className="btn btn-primary" onClick={publicarResena}>⭐ Publicar reseña</button>
+              <button className="btn btn-secondary" onClick={closeModal}>{t('general.cancelar', 'Cancelar')}</button>
+              <button className="btn btn-primary" onClick={publicarResena}>⭐ {t('resenas.publishBtn', 'Publicar reseña')}</button>
             </div>
           </div>
         </div>
