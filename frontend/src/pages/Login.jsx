@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useLogin } from '../hooks/useLogin.js';
 import { resolveDashboardRoute } from '../utils/auth.js';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom'; // Import Link for internal navigation
+import '../styles/login.css';
 
 export default function Login() {
   const { t } = useTranslation();

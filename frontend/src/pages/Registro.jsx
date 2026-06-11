@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../utils/api.js';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import '../styles/registro.css';
 
 export default function Registro() {
   const { t } = useTranslation();

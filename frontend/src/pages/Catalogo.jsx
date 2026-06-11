@@ -5,6 +5,8 @@ import { useCart } from '../hooks/useCart.js';
 import Navbar from '../components/Navbar.jsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import '../styles/styles.css';
+import '../styles/catalogo.css';
 
 const TIPO_MAP = {
   Banano: 'BANANO',
