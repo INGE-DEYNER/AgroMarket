@@ -91,6 +91,18 @@ export default function Home() {
     loadFeatured();
   }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.animate-fade-up').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [featuredProducts]);
+
   return (
     <div className="home-root">
       <Navbar />
