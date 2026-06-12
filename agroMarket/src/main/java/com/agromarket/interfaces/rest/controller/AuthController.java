@@ -178,6 +178,10 @@ public class AuthController {
         UsuarioEntity usuario = usuarioJpaRepository.findById(userId)
                 .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
 
+        if (!usuario.isActivo() || (usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR") && !usuario.isAprobado())) {
+            throw new com.agromarket.domain.exception.AccesoDenegadoException("La cuenta no está activa o está pendiente de aprobación");
+        }
+
         clearCookie(response, request, OAUTH2_TEMP_COOKIE);
 
         AuthResponse authResponse = AuthResponse.builder()

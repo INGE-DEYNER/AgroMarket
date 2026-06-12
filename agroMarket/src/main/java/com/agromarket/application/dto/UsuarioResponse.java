@@ -21,4 +21,7 @@ public class UsuarioResponse {
     private boolean aprobado;
     private boolean twoFactorEnabled;
     private String ubicacion;
+    private boolean emailVerificado;
+    private String proveedor;
+    private String idEncriptado;
 }

@@ -51,6 +51,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             (String) oAuth2User.getAttributes().get("picture"))
             .orElse("");
 
+        String googleId = Optional.ofNullable(
+            (String) oAuth2User.getAttributes().get("sub"))
+            .orElseThrow(() -> new OAuth2AuthenticationException("Google ID not found in Google response"));
+
         String rolSolicitado = "COMPRADOR"; // Default
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
@@ -61,9 +65,19 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
         }
 
-        var authResponse = authService.completarGoogleOAuth2(email, name, picture, rolSolicitado);
+        var authResponse = authService.completarGoogleOAuth2(email, name, picture, rolSolicitado, googleId);
         
-        ResponseCookie cookie = ResponseCookie.from("oauth2_token", authResponse.getToken())
+        if (authResponse.isPendienteAprobacion()) {
+            String redirect = UriComponentsBuilder
+                .fromUriString(appProperties.frontendUrl())
+                .path("/login")
+                .queryParam("oauth2", "pending")
+                .build(true).toUriString();
+            response.sendRedirect(redirect);
+            return;
+        }
+        
+        ResponseCookie cookie = ResponseCookie.from("agromarket_oauth2_token", authResponse.getToken())
             .httpOnly(true)
             .secure(true)
             .sameSite("None")   // OBLIGATORIO para cross-domain

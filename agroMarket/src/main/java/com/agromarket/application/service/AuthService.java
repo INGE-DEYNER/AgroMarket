@@ -13,7 +13,7 @@ public interface AuthService {
 
     String iniciarGoogleOAuth2();
 
-    AuthResponse completarGoogleOAuth2(String email, String nombre, String picture, String rolSolicitado);
+    AuthResponse completarGoogleOAuth2(String email, String nombre, String picture, String rolSolicitado, String googleId);
 
     com.agromarket.application.dto.TwoFactorSetupResponse initTwoFactorSetup(Long userId);
 

@@ -104,6 +104,10 @@ public class BrevoEmailService implements EmailService {
             return "reset_" + lang;
         } else if ("welcome".equals(templateName) || "bienvenida".equals(templateName)) {
             return "bienvenida_" + lang;
+        } else if ("productor-aprobado".equals(templateName)) {
+            return "aprobacion_" + lang;
+        } else if ("productor-rechazado".equals(templateName)) {
+            return "rechazo_" + lang;
         }
         return templateName + "_" + lang;
     }

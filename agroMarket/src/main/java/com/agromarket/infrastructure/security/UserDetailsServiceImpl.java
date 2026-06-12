@@ -27,9 +27,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 usuario.getCorreo(),
                 usuario.getContrasena(),
                 usuario.isActivo(),
+                usuario.isEmailVerificado(),
                 true,
-                true,
-                true,
+                usuario.isAprobado(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()))
         );
     }

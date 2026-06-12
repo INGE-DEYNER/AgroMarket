@@ -53,12 +53,6 @@ public class PasswordPolicyService {
     }
 
     private void validarNoUsadaPorOtroUsuario(Long usuarioActualId, String nuevaContrasena) {
-        boolean usadaPorOtro = usuarioJpaRepository.findAll().stream()
-                .filter(usuario -> usuarioActualId == null || !usuario.getId().equals(usuarioActualId))
-                .anyMatch(usuario -> passwordEncoder.matches(nuevaContrasena, usuario.getContrasena()));
-
-        if (usadaPorOtro) {
-            throw new CredencialesInvalidasException("Esa contraseña ya está siendo usada por otro usuario");
-        }
+        // No-op: Removed for performance and security reasons. Comparing passwords of all users is an anti-pattern.
     }
 }

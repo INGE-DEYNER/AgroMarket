@@ -1,7 +1,7 @@
 package com.agromarket.application.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.ThreadLocalRandom;
+import java.security.SecureRandom;
 
 import com.agromarket.config.properties.AppProperties;
 import com.agromarket.application.service.EmailVerificationService;
@@ -25,6 +25,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     private final com.agromarket.application.service.EmailService mailService;
     private final com.agromarket.application.service.RateLimiterService rateLimiterService;
     private final AppProperties appProperties;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @Override
     public void sendVerificationEmail(String correo) {
@@ -37,7 +38,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     }
 
     private String generarCodigo() {
-        return String.format("%06d", ThreadLocalRandom.current().nextInt(0, 1_000_000));
+        return String.format("%06d", secureRandom.nextInt(1_000_000));
     }
 
     private String enmascararCorreo(String correo) {
@@ -92,6 +93,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
             throw new CredencialesInvalidasException("Código de verificación expirado");
         }
         UsuarioEntity usuario = entity.getUsuario();
+        usuario.setEmailVerificado(true);
         // If user is a producer, do not activate automatically; remain pending admin approval
         if (usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR")) {
             usuario.setActivo(true);
@@ -119,6 +121,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
             throw new CredencialesInvalidasException("Token de verificación expirado");
         }
         UsuarioEntity usuario = entity.getUsuario();
+        usuario.setEmailVerificado(true);
         if (usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR")) {
             usuario.setActivo(true);
             usuario.setAprobado(false);

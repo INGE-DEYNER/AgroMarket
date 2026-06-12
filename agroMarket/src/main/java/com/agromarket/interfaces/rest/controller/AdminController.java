@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.agromarket.infrastructure.security.IdEncryptionUtil;
@@ -67,5 +68,28 @@ public class AdminController {
         Long id = idEncryptionUtil.decryptId(encryptedId);
         adminService.aprobarUsuario(id);
         return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Productor aprobado exitosamente").build());
+    }
+
+    @GetMapping("/productores/pendientes")
+    public ResponseEntity<ApiResponse<List<UsuarioResponse>>> productoresPendientes() {
+        List<UsuarioResponse> pendientes = adminService.productoresPendientes();
+        pendientes.forEach(p -> p.setIdEncriptado(idEncryptionUtil.encryptId(p.getId())));
+        return ResponseEntity.ok(ApiResponse.<List<UsuarioResponse>>builder()
+                .success(true)
+                .message("Productores pendientes recuperados")
+                .data(pendientes)
+                .build());
+    }
+
+    @DeleteMapping("/productores/{encryptedId}/rechazar")
+    public ResponseEntity<ApiResponse<Void>> rechazarProductor(
+            @PathVariable String encryptedId,
+            @RequestParam(required = false) String motivo) {
+        Long id = idEncryptionUtil.decryptId(encryptedId);
+        adminService.rechazarProductor(id, motivo);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Productor rechazado exitosamente")
+                .build());
     }
 }

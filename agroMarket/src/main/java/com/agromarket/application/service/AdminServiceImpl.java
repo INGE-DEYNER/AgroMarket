@@ -29,6 +29,7 @@ public class AdminServiceImpl implements AdminService {
     private final PagoJpaRepository pagoJpaRepository;
     private final UsuarioMapper usuarioMapper;
     private final PedidoMapper pedidoMapper;
+    private final com.agromarket.application.service.EmailService emailService;
 
     @Override
     public AdminDashboardResponse dashboard() {
@@ -61,5 +62,32 @@ public class AdminServiceImpl implements AdminService {
         usuario.setAprobado(true);
         usuario.setActivo(true);
         usuarioJpaRepository.save(usuario);
+
+        // Send approval email
+        java.util.Map<String, String> model = java.util.Map.of("nombre", usuario.getNombre());
+        emailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Cuenta de Productor Aprobada", "productor-aprobado", model);
+    }
+
+    @Override
+    public List<UsuarioResponse> productoresPendientes() {
+        List<UsuarioEntity> pendientes = usuarioJpaRepository.findByRolAndAprobadoFalse(com.agromarket.domain.model.RolUsuario.PRODUCTOR);
+        return usuarioMapper.toResponseList(pendientes);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void rechazarProductor(Long id, String motivo) {
+        UsuarioEntity usuario = usuarioJpaRepository.findById(id)
+                .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
+
+        // Send rejection email first
+        java.util.Map<String, String> model = java.util.Map.of(
+            "nombre", usuario.getNombre(),
+            "motivo", motivo != null ? motivo : "No cumple con los requisitos mínimos de la plataforma."
+        );
+        emailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Registro de Productor Rechazado", "productor-rechazado", model);
+
+        // Delete user
+        usuarioJpaRepository.delete(usuario);
     }
 }

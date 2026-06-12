@@ -1,6 +1,8 @@
 package com.agromarket.infrastructure.persistence.repository;
 
 import java.util.Optional;
+import java.util.List;
+import com.agromarket.domain.model.RolUsuario;
 
 import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 
@@ -10,4 +12,8 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, Long>
     Optional<UsuarioEntity> findByCorreo(String correo);
 
     boolean existsByCorreo(String correo);
+
+    List<UsuarioEntity> findByRolAndAprobadoFalse(RolUsuario rol);
+
+    Optional<UsuarioEntity> findByGoogleId(String googleId);
 }

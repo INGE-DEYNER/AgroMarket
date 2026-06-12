@@ -33,6 +33,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final AppProperties appProperties;
 
     @Bean
@@ -77,6 +78,7 @@ public class SecurityConfig {
                         )
                     )
                     .successHandler(oAuth2LoginSuccessHandler)
+                    .failureHandler(oAuth2LoginFailureHandler)
                 );
         return http.build();
     }

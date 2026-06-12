@@ -20,4 +20,5 @@ public class AuthResponse {
     private RolUsuario rol;
     private boolean twoFactorRequired;
     private String tempToken;
+    private boolean pendienteAprobacion;
 }

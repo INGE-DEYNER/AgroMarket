@@ -14,4 +14,8 @@ public interface AdminService {
     List<UsuarioResponse> usuarios();
 
     void aprobarUsuario(Long id);
+
+    List<UsuarioResponse> productoresPendientes();
+
+    void rechazarProductor(Long id, String motivo);
 }

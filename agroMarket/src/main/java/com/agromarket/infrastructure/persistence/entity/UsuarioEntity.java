@@ -78,6 +78,9 @@ public abstract class UsuarioEntity {
     @Column(name = "proveedor")
     private String proveedor;
 
+    @Column(name = "google_id")
+    private String googleId;
+
     @Column(name = "email_verificado", nullable = false)
     @Builder.Default
     private boolean emailVerificado = false;
@@ -125,6 +128,14 @@ public abstract class UsuarioEntity {
 
     public void setProveedor(String proveedor) {
         this.proveedor = proveedor;
+    }
+
+    public String getGoogleId() {
+        return this.googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
     }
 
     public boolean isEmailVerificado() {

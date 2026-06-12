@@ -32,6 +32,8 @@ public interface UsuarioMapper {
                 .aprobado(entity.isAprobado())
                 .twoFactorEnabled(entity.isTotpEnabled())
                 .ubicacion(entity instanceof ProductorEntity productorEntity ? productorEntity.getUbicacion() : null)
+                .emailVerificado(entity.isEmailVerificado())
+                .proveedor(entity.getProveedor())
                 .build();
     }
 

@@ -232,10 +232,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse completarGoogleOAuth2(String email, String nombre, String picture, String rolSolicitado) {
+    public AuthResponse completarGoogleOAuth2(String email, String nombre, String picture, String rolSolicitado, String googleId) {
         UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(email)
             .map(existingUser -> {
                 existingUser.setNombre(nombre);
+                existingUser.setGoogleId(googleId);
+                existingUser.setProveedor("GOOGLE");
                 if (picture != null && !picture.isEmpty()) existingUser.setFoto(picture);
                 if (existingUser.getRol() != RolUsuario.PRODUCTOR) {
                     existingUser.setActivo(true); // Ensure user is active after OAuth2 login, unless pending producer
@@ -270,11 +272,23 @@ public class AuthServiceImpl implements AuthService {
                 
                 nuevo.setFechaRegistro(LocalDateTime.now());
                 nuevo.setProveedor("GOOGLE"); // Set provider
+                nuevo.setGoogleId(googleId);
                 nuevo.setEmailVerificado(true); // Email is verified by Google
                 return nuevo;
             });
 
         usuario = usuarioJpaRepository.save(usuario);
+
+        if (usuario.getRol() == RolUsuario.PRODUCTOR && !usuario.isAprobado()) {
+            return AuthResponse.builder()
+                    .tipo("Bearer")
+                    .userId(usuario.getId())
+                    .nombre(usuario.getNombre())
+                    .correo(usuario.getCorreo())
+                    .rol(usuario.getRol())
+                    .pendienteAprobacion(true)
+                    .build();
+        }
 
         String token = jwtTokenProvider.generateToken(usuario.getCorreo(), usuario.getId(), usuario.getRol());
         return AuthResponse.builder()
@@ -284,6 +298,7 @@ public class AuthServiceImpl implements AuthService {
                 .nombre(usuario.getNombre())
                 .correo(usuario.getCorreo())
                 .rol(usuario.getRol())
+                .pendienteAprobacion(false)
                 .build();
     }
 
