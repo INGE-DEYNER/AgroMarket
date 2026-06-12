@@ -109,7 +109,7 @@ export default function RestablecerContrasena() {
       setResultMessage(t('resetPassword.updatedSuccess', "Contraseña actualizada correctamente. Redirigiendo al inicio de sesión..."));
       setResultKind('info');
       setTimeout(() => {
-        window.location.assign("/login.html");
+        window.location.assign("/login");
       }, 1800);
     } catch (error) {
       const msg = error?.mensaje || error?.message || t('resetPassword.updateError', "No se pudo restablecer la contraseña.");
@@ -123,7 +123,7 @@ export default function RestablecerContrasena() {
   return (
     <div className="wrapper">
       <div className="left-panel">
-        <a href="login.html" className="brand">
+        <a href="/login" className="brand">
           <div className="brand-logo">
             <svg viewBox="0 0 24 24">
               <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
@@ -245,7 +245,7 @@ export default function RestablecerContrasena() {
 
           <div className="form-footer">
             {t('resetPassword.notYourAccount', '¿No era tu cuenta?')}{' '}
-            <a href="login.html">{t('auth.volverLogin', 'Volver a iniciar sesión')}</a>
+            <a href="/login">{t('auth.volverLogin', 'Volver a iniciar sesión')}</a>
           </div>
         </div>
       </div>

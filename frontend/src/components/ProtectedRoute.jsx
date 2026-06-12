@@ -29,7 +29,7 @@ export default function ProtectedRoute({ children, allowedRoles = [], roles = []
   }
 
   if (!isAuthenticated) {
-    window.location.replace('/login.html');
+    window.location.replace('/login');
     return null;
   }
 
@@ -37,7 +37,7 @@ export default function ProtectedRoute({ children, allowedRoles = [], roles = []
     const normalizedUserRole = normalizarRol(user?.rol);
     const normalizedAllowed = activeRoles.map(normalizarRol);
     if (!normalizedAllowed.includes(normalizedUserRole)) {
-      window.location.replace('/login.html');
+      window.location.replace('/login');
       return null;
     }
   }

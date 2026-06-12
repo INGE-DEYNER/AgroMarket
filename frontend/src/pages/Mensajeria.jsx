@@ -216,8 +216,7 @@ export default function Mensajeria() {
                     : 'Selecciona un contacto para iniciar la conversación.'}
                 </div>
               </div>
-              ) : (
-                conversation.map((mensaje) => {
+            ) : conversation.map((mensaje) => {
               const isOut = Number(mensaje.remitenteId) === Number(user?.id);
               return (
                 <div key={mensaje.id} className={`msg ${isOut ? 'out' : 'in'}`} style={{
@@ -242,7 +241,7 @@ export default function Mensajeria() {
                 </div>
               );
             })}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef}></div>
           </div>
 
           {/* Chat Input Bar */}
@@ -277,6 +276,5 @@ export default function Mensajeria() {
       </div>
       {/* /chat-layout */}
     </div>
-    {/* /page-wrap */}
   );
 }

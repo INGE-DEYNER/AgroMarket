@@ -270,7 +270,7 @@ class AgroMarketAPI {
       if (!response.ok) {
         if (response.status === 401 && auth) {
           this._clearSession();
-          window.location.href = "login.html";
+          window.location.href = "/login";
         }
 
         throw {
@@ -365,7 +365,7 @@ class AgroMarketAPI {
 
         if (xhr.status === 401) {
           this._clearSession();
-          window.location.href = "login.html";
+          window.location.href = "/login";
         }
 
         reject({
