@@ -21,5 +21,5 @@ export default function useStyles(stylesArray) {
         }
       });
     };
-  }, [stylesArray]);
+  }, [JSON.stringify(stylesArray)]);
 }
