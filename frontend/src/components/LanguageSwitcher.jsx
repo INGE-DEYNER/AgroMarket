@@ -1,49 +1,38 @@
-import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function LanguageSwitcher() {
+const LANGUAGES = [
+  { code: 'es', label: 'ES' },
+  { code: 'en', label: 'EN' },
+  { code: 'pt', label: 'PT' },
+  { code: 'fr', label: 'FR' },
+  { code: 'de', label: 'DE' },
+  { code: 'zh', label: '中' },
+  { code: 'ar', label: 'AR' },
+];
+
+export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
-  const [lang, setLang] = useState(i18n.language || 'es');
-
-  useEffect(() => {
-    const handler = (lng) => setLang(lng);
-    i18n.on('languageChanged', handler);
-    return () => i18n.off('languageChanged', handler);
-  }, [i18n]);
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    localStorage.setItem('agromarket.lang', lng);
-    if (lng === 'ar') {
-      document.documentElement.setAttribute('dir', 'rtl');
-      document.documentElement.setAttribute('lang', 'ar');
-    } else {
-      document.documentElement.setAttribute('dir', 'ltr');
-      document.documentElement.setAttribute('lang', lng);
-    }
-  };
 
   return (
-    <select
-      value={lang}
-      onChange={(e) => changeLanguage(e.target.value)}
-      style={{
-        padding: '6px 32px 6px 12px',
-        borderRadius: '8px',
-        border: '1px solid rgba(26,92,42,0.2)',
-        background: '#fff',
-        fontSize: '0.85rem',
-        color: 'var(--text-dark)',
-        cursor: 'pointer',
-        fontWeight: 500,
-      }}
-    >
-      <option value="es">Español</option>
-      <option value="en">English</option>
-      <option value="pt">Português</option>
-      <option value="fr">Français</option>
-    </select>
+    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+      {LANGUAGES.map((lang) => (
+        <button
+          key={lang.code}
+          onClick={() => i18n.changeLanguage(lang.code)}
+          style={{
+            background: i18n.language === lang.code ? 'var(--primary, #2d6a4f)' : 'transparent',
+            color: i18n.language === lang.code ? '#fff' : 'inherit',
+            border: '1px solid var(--border-light, #e5e7eb)',
+            borderRadius: '4px',
+            padding: '2px 6px',
+            fontSize: '0.7rem',
+            cursor: 'pointer',
+            fontWeight: '600',
+          }}
+        >
+          {lang.label}
+        </button>
+      ))}
+    </div>
   );
 }
-
-export default LanguageSwitcher;

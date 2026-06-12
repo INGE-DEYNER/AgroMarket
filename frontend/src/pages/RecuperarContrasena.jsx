@@ -1,152 +1,70 @@
-import '../styles/recuperar-contrasena.css';
-import React, { useState, useEffect } from 'react';
-import { useSecureParams } from '../hooks/useSecureParams.js';
-import api from '../utils/api.js';
-import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../utils/api';
+import '../styles/login.css';
 
 export default function RecuperarContrasena() {
-  const { t } = useTranslation();
-  const { getParam } = useSecureParams();
   const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [resultMessage, setResultMessage] = useState('');
-  const [resultKind, setResultKind] = useState('info');
-  const [loading, setLoading] = useState(false);
-
-  const search = window.location.search;
-
-  useEffect(() => {
-    const prefillEmail = getParam('correo') || '';
-    if (prefillEmail) {
-      setEmail(prefillEmail);
-    }
-  }, [search, getParam]);
-
-  const isValidEmail = (val) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-  };
-
-  const validateEmail = (show = true) => {
-    if (!email.trim()) {
-      if (show) setEmailError(t('errores.campoRequerido', 'El correo es requerido.'));
-      return false;
-    }
-    if (!isValidEmail(email.trim())) {
-      if (show) setEmailError(t('errores.emailInvalido', 'Ingresa un correo válido.'));
-      return false;
-    }
-    setEmailError('');
-    return true;
-  };
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setResultMessage('');
-
-    if (!validateEmail(true)) return;
-
-    setLoading(true);
+    if (!email) { setError('Ingresa tu correo electrónico.'); return; }
     try {
-      await api.requestPasswordReset(email.trim());
-      setResultMessage(t('recuperarContrasena.requestSent', "Si el correo existe, recibirás un enlace de recuperación en unos minutos."));
-      setResultKind('info');
-    } catch (error) {
-      const msg = error?.mensaje || error?.message || t('recuperarContrasena.requestError', "No se pudo enviar el enlace.");
-      setResultMessage(msg);
-      setResultKind('error');
-    } finally {
-      setLoading(false);
+      await api.post('/auth/recuperar-contrasena', { email });
+      setSent(true);
+    } catch (err) {
+      setError(err.message || 'Error al enviar el correo.');
     }
   };
 
   return (
     <div className="wrapper">
       <div className="left-panel">
-        <a href="/login" className="brand">
+        <Link to="/home" className="brand">
           <div className="brand-logo">
-            <svg viewBox="0 0 24 24">
-              <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" /></svg>
           </div>
           <div>
-            <div className="brand-name">{t('general.appName', 'AgroMarket')}</div>
-            <div className="brand-sub">{t('general.appSlogan', 'Plataforma de comercio agrícola')}</div>
+            <div className="brand-name">AgroMarket</div>
+            <div className="brand-sub">ASAFRUT · Chigorodó, Antioquia</div>
           </div>
-        </a>
+        </Link>
 
-        <div style={{ margin: "auto 0", maxWidth: "420px", width: "100%" }}>
-          <h1 className="page-title">{t('recuperarContrasena.title', 'Recupera tu acceso')}</h1>
-          <p className="page-sub">{t('recuperarContrasena.sub', 'Te enviaremos un enlace seguro al correo asociado a tu cuenta.')}</p>
+        <div style={{ margin: 'auto 0', maxWidth: '400px', width: '100%' }}>
+          <h1 className="page-title">¿Olvidaste tu contraseña?</h1>
+          <p className="page-sub">Ingresa tu correo y te enviaremos un enlace para restablecerla.</p>
 
-          {resultMessage && (
-            <div className={`result-box visible ${resultKind === 'error' ? 'error' : ''}`}>
-              {resultMessage}
+          {sent ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ fontSize: '3rem' }}>✅</div>
+              <p style={{ marginTop: '16px' }}>Correo enviado. Revisa tu bandeja de entrada.</p>
+              <Link to="/login" style={{ marginTop: '16px', display: 'inline-block' }} className="btn-submit">Volver al inicio de sesión</Link>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              {error && <div className="global-error" style={{ display: 'block', marginBottom: '16px' }}>{error}</div>}
+              <div className="form-group">
+                <label className="form-label" htmlFor="email">Correo electrónico</label>
+                <input className="form-input" type="email" id="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <button type="submit" className="btn-submit">Enviar enlace de recuperación</button>
+            </form>
           )}
 
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="form-group">
-              <label className="form-label" htmlFor="email">{t('auth.email', 'Correo electrónico')}</label>
-              <input
-                className={`form-input ${emailError ? 'error' : ''}`}
-                id="email"
-                type="email"
-                placeholder={t('auth.emailPlaceholder', 'tu@correo.com')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={() => validateEmail(true)}
-                autoComplete="email"
-              />
-              {emailError && <span className="form-error visible">{emailError}</span>}
-            </div>
-
-            <button className="btn-submit" disabled={loading} type="submit">
-              {loading ? t('recuperarContrasena.sendingBtn', 'Enviando...') : t('recuperarContrasena.sendBtn', 'Enviar enlace')}
-            </button>
-          </form>
-
-          <div className="divider"></div>
-
-          <div className="form-footer">
-            {t('recuperarContrasena.rememberedPassword', '¿Recordaste tu contraseña?')}{' '}
-            <a href="/login">{t('auth.volverLogin', 'Volver al inicio de sesión')}</a>
+          <div className="form-footer" style={{ marginTop: '16px' }}>
+            <Link to="/login">← Volver al inicio de sesión</Link>
           </div>
         </div>
       </div>
 
       <div className="right-panel">
-        <img
-          src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200"
-          alt="Frutas frescas"
-          className="bg-img"
-        />
+        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200" alt="Cultivos" className="bg-img" />
         <div className="right-overlay">
-          <div className="right-badge">🌿 {t('recuperarContrasena.badge', 'AgroMarket seguro')}</div>
-          <h2 className="right-title">{t('recuperarContrasena.heroTitle', 'Restablece tu contraseña sin perder acceso a tus pedidos.')}</h2>
-          <p className="right-sub">
-            {t('recuperarContrasena.heroSub', 'El enlace caduca en 1 hora y solo funciona una vez para proteger tu cuenta.')}
-          </p>
-
-          <div className="hero-list">
-            <div className="hero-item">
-              <span>1</span>
-              <div>
-                <strong>{t('recuperarContrasena.step1Title', 'Correo verificado')}</strong><br />{t('recuperarContrasena.step1Desc', 'Usa el correo con el que te registraste.')}
-              </div>
-            </div>
-            <div className="hero-item">
-              <span>2</span>
-              <div>
-                <strong>{t('recuperarContrasena.step2Title', 'Enlace seguro')}</strong><br />{t('recuperarContrasena.step2Desc', 'Recibe un acceso temporal para definir tu nueva clave.')}
-              </div>
-            </div>
-            <div className="hero-item">
-              <span>3</span>
-              <div>
-                <strong>{t('recuperarContrasena.step3Title', 'Protección activa')}</strong><br />{t('recuperarContrasena.step3Desc', 'Los enlaces expiran automáticamente para tu seguridad.')}
-              </div>
-            </div>
-          </div>
+          <div className="right-badge">🌿 AgroMarket ASAFRUT</div>
+          <h2 className="right-title">Recupera tu acceso fácilmente.</h2>
+          <p className="right-sub">Tu cuenta está a salvo. Solo sigue las instrucciones en tu correo.</p>
         </div>
       </div>
     </div>

@@ -1,45 +1,27 @@
-// File: frontend/src/components/ProtectedRoute.jsx
-import React from 'react';
-import { useAuth } from '../context/AuthContext.jsx';
-import { normalizarRol } from '../utils/auth.js';
-import { useTranslation } from 'react-i18next';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-export default function ProtectedRoute({ children, allowedRoles = [], roles = [] }) {
-  const { user, loading, isAuthenticated } = useAuth();
-  const { t } = useTranslation();
-
-  const activeRoles = allowedRoles.length > 0 ? allowedRoles : roles;
+export default function ProtectedRoute({ children, roles }) {
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: '#6b7280', fontWeight: 600, gap: 12 }}>
-        <span
-          style={{
-            width: '20px', height: '20px',
-            border: '3px solid #d1d5db',
-            borderTopColor: '#1f7a3a',
-            borderRadius: '50%',
-            display: 'inline-block',
-            animation: 'agro-spin 0.8s linear infinite',
-          }}
-        />
-        {t('protectedRoute.loading', 'Cargando...')}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <div>Cargando...</div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    window.location.replace('/login');
-    return null;
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
 
-  if (activeRoles.length > 0) {
-    const normalizedUserRole = normalizarRol(user?.rol);
-    const normalizedAllowed = activeRoles.map(normalizarRol);
-    if (!normalizedAllowed.includes(normalizedUserRole)) {
-      window.location.replace('/login');
-      return null;
-    }
+  if (roles && !roles.includes(user.role?.toUpperCase()) && !roles.includes(user.role?.toLowerCase())) {
+    // Redirigir según rol
+    const role = user.role?.toLowerCase();
+    if (role === 'productor') return <Navigate to="/dashboard-productor" replace />;
+    if (role === 'admin') return <Navigate to="/admin" replace />;
+    return <Navigate to="/dashboard-comprador" replace />;
   }
 
   return children;

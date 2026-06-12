@@ -1,37 +1,59 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 import '../styles/styles.css';
-import '../styles/admin.css';
 
 export default function Admin() {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('usuarios');
+  const [usuarios, setUsuarios] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [resenas, setResenas] = useState([]);
+  const [searchUsuarios, setSearchUsuarios] = useState('');
 
-  const showSection = (section) => {
-    setActiveSection(section);
+  useEffect(() => {
+    loadAll();
+  }, []);
+
+  const loadAll = async () => {
+    try {
+      const [u, p, r] = await Promise.all([
+        api.get('/admin/usuarios').catch(() => []),
+        api.get('/productos').catch(() => []),
+        api.get('/resenas').catch(() => []),
+      ]);
+      setUsuarios(Array.isArray(u) ? u : u.content || []);
+      setProductos(Array.isArray(p) ? p : p.content || []);
+      setResenas(Array.isArray(r) ? r : r.content || []);
+    } catch {}
   };
 
-  const handleLogout = (e) => {
-    e.preventDefault();
+  const usuariosFiltrados = searchUsuarios
+    ? usuarios.filter((u) => u.nombre?.toLowerCase().includes(searchUsuarios.toLowerCase()) || u.email?.toLowerCase().includes(searchUsuarios.toLowerCase()))
+    : usuarios;
+
+  const desactivarUsuario = async (id) => {
+    try { await api.put(`/admin/usuarios/${id}/desactivar`); loadAll(); }
+    catch (err) { alert(err.message); }
   };
 
-  const handleReport = () => {
-    alert('Generando reporte PDF...');
+  const eliminarProducto = async (id) => {
+    if (!window.confirm('¿Eliminar este producto?')) return;
+    try { await api.delete(`/productos/${id}`); loadAll(); }
+    catch (err) { alert(err.message); }
   };
 
-  const handleSearch = (e) => {
-    // filterUsuarios equivalent placeholder
+  const moderarResena = async (id, aprobada) => {
+    try { await api.put(`/resenas/${id}/moderar`, { aprobada }); loadAll(); }
+    catch (err) { alert(err.message); }
   };
 
   return (
     <div className="app-layout">
+      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-user">
-          <div
-            className="avatar avatar-red"
-            style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}
-          >
-            AD
-          </div>
+          <div className="avatar avatar-red" style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}>AD</div>
           <div className="sidebar-user-info">
             <span className="name">Administrador</span>
             <span className="role">Soporte AgroMarket</span>
@@ -39,48 +61,24 @@ export default function Admin() {
         </div>
 
         <div className="sidebar-label">Panel de Control</div>
-        <Link
-          to="#"
-          className={`sidebar-link ${activeSection === 'usuarios' ? 'active' : ''}`}
-          id="link-usuarios"
-          onClick={(e) => { e.preventDefault(); showSection('usuarios'); }}
-        >
+        <a href="#" className={`sidebar-link${activeSection === 'usuarios' ? ' active' : ''}`} id="link-usuarios" onClick={(e) => { e.preventDefault(); setActiveSection('usuarios'); }}>
           <span className="icon">👥</span> Usuarios
-        </Link>
-        <Link
-          to="#"
-          className={`sidebar-link ${activeSection === 'productos' ? 'active' : ''}`}
-          id="link-productos"
-          onClick={(e) => { e.preventDefault(); showSection('productos'); }}
-        >
+        </a>
+        <a href="#" className={`sidebar-link${activeSection === 'productos' ? ' active' : ''}`} id="link-productos" onClick={(e) => { e.preventDefault(); setActiveSection('productos'); }}>
           <span className="icon">📦</span> Productos
-        </Link>
-        <Link
-          to="#"
-          className={`sidebar-link ${activeSection === 'resenas' ? 'active' : ''}`}
-          id="link-resenas"
-          onClick={(e) => { e.preventDefault(); showSection('resenas'); }}
-        >
+        </a>
+        <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} id="link-resenas" onClick={(e) => { e.preventDefault(); setActiveSection('resenas'); }}>
           <span className="icon">⭐</span> Moderación
-        </Link>
+        </a>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">Reportes</div>
-        <Link to="#" className="sidebar-link">
-          <span className="icon">📈</span> Finanzas
-        </Link>
-        <Link to="#" className="sidebar-link">
-          <span className="icon">🚛</span> Logística
-        </Link>
+        <a href="#" className="sidebar-link"><span className="icon">📈</span> Finanzas</a>
+        <a href="#" className="sidebar-link"><span className="icon">🚛</span> Logística</a>
 
-        <Link
-          to="#"
-          className="sidebar-link"
-          style={{ marginTop: 'auto', color: 'var(--red)' }}
-          onClick={handleLogout}
-        >
+        <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={(e) => { e.preventDefault(); navigate('/login'); }}>
           <span className="icon">🔒</span> Cerrar sesión
-        </Link>
+        </a>
       </aside>
 
       <main className="main-content">
@@ -89,11 +87,7 @@ export default function Admin() {
             <h1>Panel de Administración 🛠️</h1>
             <p>Monitoreo global de la plataforma AgroMarket Urabá</p>
           </div>
-          <button
-            className="btn-cta"
-            style={{ background: 'var(--primary-dark)' }}
-            onClick={handleReport}
-          >
+          <button className="btn-cta" style={{ background: 'var(--primary-dark)' }} onClick={() => alert('Generando reporte PDF...')}>
             Generar Reporte Mensual 📊
           </button>
         </div>
@@ -102,13 +96,13 @@ export default function Admin() {
           <div className="stat-card color-1">
             <span className="stat-icon-lg">👥</span>
             <div className="stat-label">Total Usuarios</div>
-            <div className="stat-value" id="statUsuarios">07</div>
+            <div className="stat-value" id="statUsuarios">{String(usuarios.length || 7).padStart(2, '0')}</div>
             <div className="stat-trend up">↑ 2 nuevos hoy</div>
           </div>
           <div className="stat-card color-2">
             <span className="stat-icon-lg">📦</span>
             <div className="stat-label">Productos Globales</div>
-            <div className="stat-value" id="statProductos">12</div>
+            <div className="stat-value" id="statProductos">{String(productos.length || 12).padStart(2, '0')}</div>
             <div className="stat-trend">80% en stock</div>
           </div>
           <div className="stat-card color-3">
@@ -120,98 +114,101 @@ export default function Admin() {
           <div className="stat-card color-4">
             <span className="stat-icon-lg">⭐</span>
             <div className="stat-label">Alertas Moderación</div>
-            <div className="stat-value" id="statResenas">02</div>
+            <div className="stat-value" id="statResenas">{String(resenas.filter(r => !r.aprobada).length || 2).padStart(2, '0')}</div>
             <div className="stat-trend down" style={{ color: 'orange' }}>Acción requerida</div>
           </div>
         </div>
 
-        <div
-          className="grid-columns"
-          style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}
-        >
+        <div className="grid-columns" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
           <div className="card-table">
-            <div className={`section ${activeSection === 'usuarios' ? 'active' : ''}`} id="sec-usuarios">
-              <div className="table-header">
-                <h3 className="card-title">👥 Gestión de Usuarios</h3>
-              </div>
+            {/* USUARIOS */}
+            <div className={`section${activeSection === 'usuarios' ? ' active' : ''}`} id="sec-usuarios">
+              <div className="table-header"><h3 className="card-title">👥 Gestión de Usuarios</h3></div>
               <div className="table-filters">
                 <div className="search-box">
-                  <input
-                    type="text"
-                    id="searchUsuarios"
-                    placeholder="Buscar por nombre o correo..."
-                    onInput={handleSearch}
-                  />
+                  <input type="text" id="searchUsuarios" placeholder="Buscar por nombre o correo..." value={searchUsuarios} onChange={(e) => setSearchUsuarios(e.target.value)} />
                 </div>
               </div>
               <div className="table-wrap">
                 <table className="table-responsive">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Correo</th>
-                      <th>Rol</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbUsuarios"></tbody>
+                  <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+                  <tbody id="tbUsuarios">
+                    {usuariosFiltrados.map((u) => (
+                      <tr key={u.id}>
+                        <td data-label="Nombre">{u.nombre} {u.apellido}</td>
+                        <td data-label="Correo">{u.email}</td>
+                        <td data-label="Rol"><span className="badge-status">{u.role || u.rol}</span></td>
+                        <td data-label="Estado"><span className={`badge-status ${u.activo !== false ? 'status-shipped' : 'status-pending'}`}>{u.activo !== false ? 'Activo' : 'Inactivo'}</span></td>
+                        <td data-label="Acciones">
+                          <button className="btn btn-secondary btn-sm" onClick={() => desactivarUsuario(u.id)}>
+                            {u.activo !== false ? 'Desactivar' : 'Activar'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
               </div>
             </div>
 
-            <div className={`section ${activeSection === 'productos' ? 'active' : ''}`} id="sec-productos">
-              <div className="table-header">
-                <h3 className="card-title">📦 Inventario Global</h3>
-              </div>
+            {/* PRODUCTOS */}
+            <div className={`section${activeSection === 'productos' ? ' active' : ''}`} id="sec-productos">
+              <div className="table-header"><h3 className="card-title">📦 Inventario Global</h3></div>
               <div className="table-wrap">
                 <table className="table-responsive">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Productor</th>
-                      <th>Precio/kg</th>
-                      <th>Stock</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbProductos"></tbody>
+                  <thead><tr><th>Producto</th><th>Productor</th><th>Precio/kg</th><th>Stock</th><th>Acciones</th></tr></thead>
+                  <tbody id="tbProductos">
+                    {productos.map((p) => (
+                      <tr key={p.id}>
+                        <td data-label="Producto">{p.nombre}</td>
+                        <td data-label="Productor">{p.productor || p.nombreProductor || '—'}</td>
+                        <td data-label="Precio/kg">${Number(p.precio).toLocaleString('es-CO')}</td>
+                        <td data-label="Stock">{p.stock} kg</td>
+                        <td data-label="Acciones">
+                          <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)' }} onClick={() => eliminarProducto(p.id)}>🗑️ Eliminar</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
               </div>
             </div>
 
-            <div className={`section ${activeSection === 'resenas' ? 'active' : ''}`} id="sec-resenas">
-              <div className="table-header">
-                <h3 className="card-title">⭐ Moderación de Reseñas</h3>
-              </div>
+            {/* RESEÑAS */}
+            <div className={`section${activeSection === 'resenas' ? ' active' : ''}`} id="sec-resenas">
+              <div className="table-header"><h3 className="card-title">⭐ Moderación de Reseñas</h3></div>
               <div className="table-wrap">
                 <table className="table-responsive">
-                  <thead>
-                    <tr>
-                      <th>Usuario</th>
-                      <th>Calificación</th>
-                      <th>Comentario</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbResenas"></tbody>
+                  <thead><tr><th>Usuario</th><th>Calificación</th><th>Comentario</th><th>Estado</th><th>Acciones</th></tr></thead>
+                  <tbody id="tbResenas">
+                    {resenas.map((r) => (
+                      <tr key={r.id}>
+                        <td data-label="Usuario">{r.usuario || r.nombreUsuario || '—'}</td>
+                        <td data-label="Calificación">{'★'.repeat(r.calificacion || 5)}</td>
+                        <td data-label="Comentario">{r.comentario}</td>
+                        <td data-label="Estado"><span className={`badge-status ${r.aprobada ? 'status-shipped' : 'status-pending'}`}>{r.aprobada ? 'Aprobada' : 'Pendiente'}</span></td>
+                        <td data-label="Acciones">
+                          <button className="btn btn-secondary btn-sm" onClick={() => moderarResena(r.id, true)}>✅ Aprobar</button>
+                          <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)', marginLeft: '6px' }} onClick={() => moderarResena(r.id, false)}>❌ Rechazar</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
               </div>
             </div>
           </div>
 
+          {/* SIDEBAR INFO ADMIN */}
           <div className="side-info">
             <div className="card-table" style={{ padding: '24px', marginBottom: '24px' }}>
               <h3 className="card-title" style={{ marginBottom: '16px' }}>Top Productores 🏆</h3>
               <ul style={{ listStyle: 'none' }}>
                 <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <span>Luis Palacios</span>
-                  <span style={{ fontWeight: 600, color: 'var(--primary)' }}>$1.2M</span>
+                  <span>Luis Palacios</span><span style={{ fontWeight: '600', color: 'var(--primary)' }}>$1.2M</span>
                 </li>
                 <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <span>Ana Córdoba</span>
-                  <span style={{ fontWeight: 600, color: 'var(--primary)' }}>$980K</span>
+                  <span>Ana Córdoba</span><span style={{ fontWeight: '600', color: 'var(--primary)' }}>$980K</span>
                 </li>
               </ul>
             </div>

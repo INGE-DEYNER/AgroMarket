@@ -1,63 +1,55 @@
-// File: frontend/src/context/AuthContext.jsx
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import Auth, { getCurrentUser, isLoggedIn } from '../utils/auth.js';
+import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../utils/api';
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = async () => {
-      if (isLoggedIn()) {
-        try {
-          const profile = await Auth.loadPerfil();
-          setUser(profile);
-        } catch (err) {
-          console.error("Failed to load user profile:", err);
-          setUser(getCurrentUser());
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setLoading(false);
+          return;
         }
+        const data = await api.get('/auth/me');
+        setUser(data);
+      } catch {
+        localStorage.removeItem('token');
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    initAuth();
+    checkAuth();
   }, []);
 
-  const loginUser = async (email, password) => {
-    const result = await Auth.login(email, password);
-    if (result && !result.twoFactorRequired) {
-      setUser(getCurrentUser());
-    }
-    return result;
+  const login = (userData, token) => {
+    if (token) localStorage.setItem('token', token);
+    setUser(userData);
   };
 
-  const logoutUser = () => {
-    Auth.logout();
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (_) {}
+    localStorage.removeItem('token');
+    localStorage.removeItem('agromarket_cart');
     setUser(null);
   };
 
-  const value = {
-    user,
-    setUser,
-    loading,
-    login: loginUser,
-    logout: logoutUser,
-    isAuthenticated: !!user,
-    role: user?.rol || null,
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, loading, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export default AuthContext;

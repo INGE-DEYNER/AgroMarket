@@ -1,265 +1,65 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import api from '../utils/api.js';
-import { formatearPrecio, showToast } from '../utils/ui.js';
-import { useCart } from '../hooks/useCart.js';
-import Navbar from '../components/Navbar.jsx';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import { useCart } from '../hooks/useCart';
+import api from '../utils/api';
 import '../styles/styles.css';
 import '../styles/catalogo.css';
 
-const TIPO_MAP = {
-  Banano: 'BANANO',
-  Piña: 'PINA',
-  Mango: 'MANGO',
-  Maracuyá: 'MARACUYA',
-  Guanábana: 'GUANABANA',
-  Naranja: 'NARANJA',
-  Coco: 'COCO',
-  Limón: 'LIMON',
-};
-
-function ProductCard({ producto, onAddToCart }) {
-  const { t } = useTranslation();
-  const hasStock = producto.cantidadDisponible > 0;
-  return (
-    <div className="product-card">
-      {producto.enPromocion && (
-        <span className="badge-promo">{t('catalogo.offer')}</span>
-      )}
-      <div className="product-img-container">
-        <img
-          src={producto.imagenUrl || 'https://placehold.co/400x300/e8f5e9/1a5c2a?text=Fruta'}
-          alt={producto.nombre}
-          onError={(e) => {
-            e.target.src = 'https://placehold.co/400x300/e8f5e9/1a5c2a?text=' + t('catalogo.fruitPlaceholder');
-          }}
-        />
-      </div>
-      <div className="product-body">
-        <span className="product-name">{producto.nombre}</span>
-        <div className="product-rating">
-          ★ {Number(producto.calificacionPromedio || 0).toFixed(1)}{' '}
-          <span className="rating-value">({producto.totalResenas || 0})</span>
-        </div>
-        <div className="product-price">
-          {formatearPrecio(producto.precio)}<span>/kg</span>
-        </div>
-        <button
-          className="btn-add-cart"
-          disabled={!hasStock}
-          onClick={() => onAddToCart(producto)}
-        >
-          {hasStock ? t('catalogo.addToCart') : t('catalogo.outOfStock')}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function CartDrawer({ items, total, onUpdateQty, onRemove, onCheckout, onClose }) {
-  const { t } = useTranslation();
-  const DELIVERY = 15000;
-
-  return (
-    <>
-      <div className="cart-drawer-overlay open" onClick={onClose} />
-      <div className="cart-drawer open">
-        <div className="cart-header">
-          <h3>
-            🛒 {t('catalogo.cartTitle')}{' '}
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-dim)', fontWeight: 400 }}>
-              ({items.length} {t('catalogo.items')})
-            </span>
-          </h3>
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-
-        <div className="cart-content">
-          {items.length === 0 ? (
-            <div style={{ textAlign: 'center', paddingTop: '60px', color: '#6b7280' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🛒</div>
-              <div style={{ fontWeight: 600 }}>{t('catalogo.cartEmpty')}</div>
-            </div>
-          ) : (
-            <div>
-              {items.map((item) => (
-                <div key={item.id} className="cart-item">
-                  <img
-                    className="cart-item-img"
-                    src={item.img || 'https://placehold.co/100x100/e8f5e9/1a5c2a?text=Fruta'}
-                    alt={item.nombre}
-                    onError={(e) => {
-                      e.target.src =
-                        'https://placehold.co/100x100/e8f5e9/1a5c2a?text=' +
-                        t('catalogo.fruitPlaceholder');
-                    }}
-                  />
-                  <div className="cart-item-info">
-                    <div className="cart-item-name">{item.nombre}</div>
-                    <div className="cart-item-meta">
-                      {formatearPrecio(item.precio)}/kg
-                    </div>
-                    <div className="cart-item-controls">
-                      <button
-                        type="button"
-                        className="control-btn"
-                        onClick={() => onUpdateQty(item.id, -1)}
-                      >
-                        −
-                      </button>
-                      <span className="cart-item-qty">{item.cantidad}</span>
-                      <button
-                        type="button"
-                        className="control-btn"
-                        onClick={() => onUpdateQty(item.id, 1)}
-                      >
-                        +
-                      </button>
-                      <span className="cart-item-total">
-                        {formatearPrecio(item.precio * item.cantidad)}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="cart-item-remove"
-                    onClick={() => onRemove(item.id)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {items.length > 0 && (
-          <div className="cart-footer">
-            <div className="cart-summary-row">
-              <span>{t('catalogo.subtotal')}</span>
-              <span>{formatearPrecio(total)}</span>
-            </div>
-            <div className="cart-summary-row">
-              <span>{t('catalogo.shipping')}</span>
-              <span>{formatearPrecio(DELIVERY)}</span>
-            </div>
-            <div className="cart-summary-total">
-              <span>{t('catalogo.total')}</span>
-              <span>{formatearPrecio(total + DELIVERY)}</span>
-            </div>
-            <div className="cart-actions">
-              <button
-                type="button"
-                className="btn btn-primary btn-cta"
-                onClick={onCheckout}
-              >
-                {t('catalogo.finishPurchase')}
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={onClose}
-              >
-                {t('catalogo.keepShopping', 'Seguir comprando')}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
+const TIPOS = ['Banano', 'Piña', 'Mango', 'Maracuyá', 'Guanábana', 'Naranja', 'Coco', 'Limón'];
 
 export default function Catalogo() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { cart, addToCart, removeFromCart, updateQty, total, count, clearCart } = useCart();
+
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [tipoFiltro, setTipoFiltro] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('');
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkingOut, setCheckingOut] = useState(false);
-
-  const { items, addItem, removeItem, updateQty, clearCart, total, count } = useCart();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('openCart') === 'true') {
-      setCartOpen(true);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    cargarProductos();
+    (async () => {
+      try {
+        const data = await api.get('/productos');
+        setProductos(Array.isArray(data) ? data : data.content || []);
+      } catch {
+        // Mostrar productos demo si falla la API
+        setProductos([
+          { id: 1, nombre: 'Banano Urabá', tipo: 'Banano', precio: 1200, stock: 100, productor: 'Luis Palacios', imagenUrl: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=500', calificacion: 4.8 },
+          { id: 2, nombre: 'Mango Tommy', tipo: 'Mango', precio: 3500, stock: 80, productor: 'Luis Palacios', imagenUrl: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=500', calificacion: 4.7 },
+          { id: 3, nombre: 'Aguacate Hass', tipo: 'Aguacate', precio: 4500, stock: 60, productor: 'Ana Córdoba', imagenUrl: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=500', calificacion: 4.9 },
+          { id: 4, nombre: 'Piña Manzana', tipo: 'Piña', precio: 2800, stock: 90, productor: 'Ana Córdoba', imagenUrl: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=500', calificacion: 4.5 },
+          { id: 5, nombre: 'Maracuyá', tipo: 'Maracuyá', precio: 3200, stock: 70, productor: 'Pedro Morales', imagenUrl: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=500', calificacion: 4.6 },
+          { id: 6, nombre: 'Coco Fresco', tipo: 'Coco', precio: 2000, stock: 50, productor: 'Jorge Restrepo', imagenUrl: 'https://images.unsplash.com/photo-1576673442511-7e39b6545c87?w=500', calificacion: 4.4 },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const cargarProductos = async () => {
-    setLoading(true);
-    try {
-      const page = await api.getProductos({ page: 0, size: 100 });
-      setProductos(page?.content || []);
-    } catch (err) {
-      setError(err?.message || t('errores.catalogLoadError'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredProductos = productos.filter((p) => {
-    const q = search.toLowerCase();
-    const tipoNorm = TIPO_MAP[tipoFiltro] || tipoFiltro;
-    const coincideTexto =
-      !q ||
-      p.nombre.toLowerCase().includes(q) ||
-      (p.productorNombre || '').toLowerCase().includes(q);
-    const coincideTipo =
-      !tipoFiltro ||
-      String(p.tipoFruta || '').toUpperCase() === String(tipoNorm).toUpperCase();
-    return coincideTexto && coincideTipo;
+  const filtered = productos.filter((p) => {
+    const matchSearch = !search || p.nombre.toLowerCase().includes(search.toLowerCase()) || p.tipo?.toLowerCase().includes(search.toLowerCase());
+    const matchTipo = !filtroTipo || p.tipo === filtroTipo;
+    return matchSearch && matchTipo;
   });
 
-  const handleAddToCart = useCallback(
-    (producto) => {
-      addItem(
-        {
-          id: producto.id,
-          nombre: producto.nombre,
-          precio: producto.precio,
-          img:
-            producto.imagenUrl ||
-            'https://placehold.co/100x100/e8f5e9/1a5c2a?text=' +
-              t('catalogo.fruitPlaceholder'),
-        },
-        1,
-      );
-      showToast(
-        t('general.productAddedToCart', { productName: producto.nombre }),
-        'success',
-      );
-      setCartOpen(true);
-    },
-    [addItem, t],
-  );
+  const toggleCart = () => setCartOpen(!cartOpen);
 
   const handleCheckout = async () => {
-    if (!items.length) return;
-    setCheckingOut(true);
+    if (cart.length === 0) return;
     try {
-      for (const item of items) {
-        await api.crearPedido(item.id, item.cantidad);
-      }
+      await api.post('/pedidos', {
+        items: cart.map((i) => ({ productoId: i.id, cantidad: i.qty })),
+      });
       clearCart();
       setCartOpen(false);
-      showToast(t('general.orderProcessedSuccess'), 'success');
-      setTimeout(() => {
-        navigate('/pedidos');
-      }, 1200);
+      navigate('/pedidos');
     } catch (err) {
-      showToast(err?.message || t('errores.checkoutError'), 'error');
-    } finally {
-      setCheckingOut(false);
+      alert('Error al procesar el pedido: ' + (err.message || 'Inténtalo de nuevo.'));
     }
   };
 
@@ -267,120 +67,138 @@ export default function Catalogo() {
     <>
       <Navbar />
 
-      <main
-        style={{
-          padding: '28px 32px',
-          maxWidth: '1280px',
-          margin: '0 auto',
-        }}
-      >
+      <main style={{ padding: '28px 32px', maxWidth: '1280px', margin: '0 auto' }}>
+        {/* HERO */}
         <div className="catalog-hero">
           <div>
-            <div className="hero-title">
-              Frutas tropicales
-              <br />
-              directo del campo 🌿
-            </div>
-            <div className="hero-sub">
-              Productos frescos de los agricultores de ASAFRUT en Chigorodó,
-              Antioquia.
-            </div>
+            <div className="hero-title">Frutas tropicales<br />directo del campo 🌿</div>
+            <div className="hero-sub">Productos frescos de los agricultores de ASAFRUT en Chigorodó, Antioquia.</div>
           </div>
+          {count > 0 && (
+            <button className="btn btn-primary" onClick={toggleCart}>
+              🛒 Carrito ({count})
+            </button>
+          )}
         </div>
 
-        <div
-          className="filter-bar"
-          style={{ display: 'flex', gap: '12px', marginBottom: 8, flexWrap: 'wrap' }}
-        >
+        {/* FILTERS */}
+        <div className="filter-bar" style={{ marginBottom: '8px' }}>
           <input
             className="search-input"
             type="text"
             id="searchCatalog"
-            placeholder={t('catalogo.searchProductsPlaceholder')}
+            placeholder="🔍 Buscar por nombre o tipo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{
-              flex: '1 1 240px',
-              padding: '10px 16px',
-              borderRadius: '12px',
-              border: '1px solid rgba(45,106,79,.2)',
-              fontSize: '0.95rem',
-              outline: 'none',
-            }}
           />
           <select
             className="form-select"
+            style={{ width: '160px' }}
             id="filtroTipo"
-            style={{ width: 160 }}
-            value={tipoFiltro}
-            onChange={(e) => setTipoFiltro(e.target.value)}
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value)}
           >
-            <option value="">{t('catalogo.allTypes')}</option>
-            {Object.keys(TIPO_MAP).map((tipo) => (
-              <option key={tipo} value={tipo}>
-                {tipo}
-              </option>
-            ))}
+            <option value="">Todos los tipos</option>
+            {TIPOS.map((t) => <option key={t}>{t}</option>)}
           </select>
         </div>
 
-        {loading ? (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '60px',
-              color: '#6b7280',
-              fontWeight: 600,
-            }}
-          >
-            {t('catalogo.loadingCatalog')}
-          </div>
-        ) : error ? (
-          <div
-            style={{
-              padding: '16px',
-              background: '#fff1f2',
-              borderRadius: '12px',
-              color: '#9f1239',
-              fontWeight: 600,
-            }}
-          >
-            {error}
-          </div>
-        ) : filteredProductos.length === 0 ? (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '60px',
-              color: '#6b7280',
-              fontWeight: 600,
-            }}
-          >
-            {t('catalogo.noProductsFound')}
-          </div>
-        ) : (
-          <div className="products-grid" id="catalogGrid">
-            {filteredProductos.map((producto) => (
-              <ProductCard
-                key={producto.id}
-                producto={producto}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
-          </div>
-        )}
+        {/* GRID */}
+        <div className="products-grid" id="catalogGrid">
+          {loading ? (
+            <p>Cargando productos...</p>
+          ) : filtered.length === 0 ? (
+            <p>No se encontraron productos.</p>
+          ) : (
+            filtered.map((p) => (
+              <div key={p.id} className="product-card">
+                <img
+                  src={p.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'}
+                  alt={p.nombre}
+                  className="product-img"
+                />
+                <div className="product-info">
+                  <h3 className="product-name">{p.nombre}</h3>
+                  <div className="product-producer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                    </svg>
+                    {p.productor || p.nombreProductor || '—'}
+                  </div>
+                  <div className="product-price">${Number(p.precio).toLocaleString('es-CO')}/kg</div>
+                  <div className="product-meta">
+                    <div className="product-rating">
+                      ★★★★★
+                      <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>
+                        ({p.calificacion || '4.8'})
+                      </span>
+                    </div>
+                    <div className="product-badge">{p.stock > 0 ? 'Disponible' : 'Agotado'}</div>
+                  </div>
+                  <button
+                    className="btn btn-primary product-btn"
+                    onClick={() => addToCart(p)}
+                    disabled={p.stock <= 0}
+                  >
+                    Agregar al carrito
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </main>
 
+      {/* CART DRAWER */}
       {cartOpen && (
-        <CartDrawer
-          items={items}
-          total={total}
-          onUpdateQty={updateQty}
-          onRemove={removeItem}
-          onCheckout={handleCheckout}
-          onClose={() => setCartOpen(false)}
-        />
+        <div className="cart-drawer-overlay" id="cartOverlay" onClick={toggleCart}></div>
       )}
+      <div className={`cart-drawer${cartOpen ? ' open' : ''}`} id="cartDrawer">
+        <div className="cart-header">
+          <h3>🛒 Mi carrito <span id="cartCountHeader" style={{ fontSize: '0.9rem', color: 'var(--text-dim)', fontWeight: '400' }}>({count} items)</span></h3>
+          <button className="modal-close" onClick={toggleCart}>✕</button>
+        </div>
+
+        <div className="cart-content" id="cartItemsContainer">
+          {cart.length === 0 ? (
+            <div className="empty-state" style={{ padding: '40px', textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem' }}>🛒</div>
+              <div>Tu carrito está vacío</div>
+            </div>
+          ) : (
+            cart.map((item) => (
+              <div key={item.id} style={{ display: 'flex', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--border-light)' }}>
+                <img src={item.imagenUrl || 'https://via.placeholder.com/60'} alt={item.nombre} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: '600' }}>{item.nombre}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>${Number(item.precio).toLocaleString('es-CO')}/kg</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                    <button className="btn btn-secondary btn-sm" onClick={() => updateQty(item.id, item.qty - 1)}>-</button>
+                    <span>{item.qty}</span>
+                    <button className="btn btn-secondary btn-sm" onClick={() => updateQty(item.id, item.qty + 1)}>+</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => removeFromCart(item.id)} style={{ marginLeft: 'auto', color: 'var(--red)' }}>✕</button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="cart-footer" id="cartFooter">
+          <div className="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">${total.toLocaleString('es-CO')}</span></div>
+          <div className="cart-summary-row"><span>Envío</span><span>$15.000</span></div>
+          <div className="cart-summary-total"><span>TOTAL</span><span id="cartTotal">${(total + 15000).toLocaleString('es-CO')}</span></div>
+
+          <div className="cart-actions">
+            <button className="btn btn-primary btn-cta" style={{ width: '100%', justifyContent: 'center' }} onClick={handleCheckout}>
+              Proceder al pago →
+            </button>
+            <button className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={toggleCart}>
+              Seguir comprando
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

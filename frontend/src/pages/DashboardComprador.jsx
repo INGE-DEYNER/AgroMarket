@@ -1,199 +1,139 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 import '../styles/styles.css';
 
-function DashboardComprador() {
-  const { user, logout } = useAuth();
+export default function DashboardComprador() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('resumen');
+  const [pedidos, setPedidos] = useState([]);
+  const [filtroEstado, setFiltroEstado] = useState('');
   const [modalFactura, setModalFactura] = useState(false);
-  const [currentDate, setCurrentDate] = useState('');
+  const [facturaData, setFacturaData] = useState(null);
+  const currentDate = new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   useEffect(() => {
-    const now = new Date();
-    setCurrentDate(
-      now.toLocaleDateString('es-CO', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }) + ' • ☀️ 28°C Urabá'
-    );
+    (async () => {
+      try {
+        const data = await api.get('/pedidos/mis-pedidos');
+        setPedidos(Array.isArray(data) ? data : data.content || []);
+      } catch {
+        setPedidos([
+          { id: '001', producto: '🍌 Banano Urabá Exportación', total: 84000, estado: 'Pendiente', cantidad: 70 },
+          { id: '002', producto: '🥭 Mango Tommy Premium', total: 140000, estado: 'Enviado', cantidad: 40 },
+        ]);
+      }
+    })();
   }, []);
 
-  const showSection = (section) => {
-    setActiveSection(section);
+  const showSection = (s) => setActiveSection(s);
+
+  const pedidosFiltrados = filtroEstado
+    ? pedidos.filter((p) => p.estado?.toLowerCase() === filtroEstado.toLowerCase())
+    : pedidos;
+
+  const nombreUsuario = user?.nombre || 'María';
+  const iniciales = (user?.nombre || 'MT').charAt(0).toUpperCase() + (user?.apellido || 'T').charAt(0).toUpperCase();
+
+  const badgeClass = (estado) => {
+    const e = estado?.toLowerCase();
+    if (e === 'pendiente') return 'badge-status status-pending';
+    if (e === 'enviado') return 'badge-status status-shipped';
+    if (e === 'entregado') return 'badge-status status-delivered';
+    return 'badge-status';
   };
 
-  const handleLogout = (e) => {
-    e.preventDefault();
-    logout();
+  const openFactura = (pedido) => {
+    setFacturaData(pedido);
+    setModalFactura(true);
   };
-
-  const closeModal = () => {
-    setModalFactura(false);
-  };
-
-  const userName = user?.nombre || 'Usuario';
-  const userRole = user?.rol || 'Comprador';
-  const userInitials = userName
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
 
   return (
     <div className="app-layout">
       {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-user">
-          <div
-            className="avatar avatar-blue"
-            id="sidebarUserAvatar"
-            style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}
-          >
-            {userInitials}
-          </div>
+          <div className="avatar avatar-blue" style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}>{iniciales}</div>
           <div className="sidebar-user-info">
-            <span className="name" id="sidebarUserName">{userName}</span>
-            <span className="role" id="sidebarUserRole">{userRole}</span>
+            <span className="name">{user?.nombre || 'María Torres'}</span>
+            <span className="role">Cliente Premium</span>
           </div>
         </div>
 
         <div className="sidebar-label">Navegación</div>
-        <Link
-          to="#"
-          className={`sidebar-link ${activeSection === 'resumen' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); showSection('resumen'); }}
-        >
+        <a href="#" className={`sidebar-link${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resumen'); }}>
           <span className="icon">📊</span> Resumen
-        </Link>
+        </a>
         <Link to="/catalogo" className="sidebar-link">
           <span className="icon">🛍️</span> Explorar Catálogo
         </Link>
-        <Link
-          to="#"
-          className={`sidebar-link ${activeSection === 'misPedidos' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}
-        >
-          <span className="icon">🧾</span> Mis Pedidos{' '}
-          <span className="badge-count">2</span>
-        </Link>
+        <a href="#" className={`sidebar-link${activeSection === 'misPedidos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}>
+          <span className="icon">🧾</span> Mis Pedidos <span className="badge-count">{pedidos.length}</span>
+        </a>
 
         <div className="sidebar-divider"></div>
-
         <div className="sidebar-label">Servicios</div>
-        <Link to="/envios" className="sidebar-link">
-          <span className="icon">🚚</span> Seguimiento
-        </Link>
-        <Link to="/mensajeria" className="sidebar-link">
-          <span className="icon">💬</span> Mensajería{' '}
-          <span className="badge-count">1</span>
-        </Link>
-        <Link to="/resenas" className="sidebar-link">
-          <span className="icon">⭐</span> Mis Reseñas
-        </Link>
+        <Link to="/envios" className="sidebar-link"><span className="icon">🚚</span> Seguimiento</Link>
+        <Link to="/mensajeria" className="sidebar-link"><span className="icon">💬</span> Mensajería</Link>
+        <Link to="/resenas" className="sidebar-link"><span className="icon">⭐</span> Mis Reseñas</Link>
 
-        <Link
-          to="#"
-          className="sidebar-link"
-          onClick={handleLogout}
-          style={{ marginTop: 'auto', color: 'var(--red)' }}
-        >
+        <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); navigate('/login'); }}>
           <span className="icon">🔒</span> Cerrar sesión
-        </Link>
+        </a>
       </aside>
 
       {/* MOBILE NAV */}
       <nav className="mobile-nav">
-        <Link
-          to="#"
-          className={`mobile-nav-item ${activeSection === 'resumen' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); showSection('resumen'); }}
-        >
+        <a href="#" className={`mobile-nav-item${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resumen'); }}>
           <span className="icon">🏠</span><span>Inicio</span>
-        </Link>
-        <Link to="/catalogo" className="mobile-nav-item">
-          <span className="icon">🛍️</span><span>Tienda</span>
-        </Link>
-        <Link
-          to="#"
-          className={`mobile-nav-item ${activeSection === 'misPedidos' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}
-        >
-          <span className="icon">🧾</span><span>Pedidos</span>
-        </Link>
-        <Link to="/mensajeria" className="mobile-nav-item">
-          <span className="icon">💬</span><span>Chat</span>
-        </Link>
-        <Link
-          to="/login"
-          className="mobile-nav-item"
-        >
-          <span className="icon">👤</span><span>Perfil</span>
-        </Link>
+        </a>
+        <Link to="/catalogo" className="mobile-nav-item"><span className="icon">🛍️</span><span>Tienda</span></Link>
+        <a href="#" className="mobile-nav-item" onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}><span className="icon">🧾</span><span>Pedidos</span></a>
+        <Link to="/mensajeria" className="mobile-nav-item"><span className="icon">💬</span><span>Chat</span></Link>
+        <Link to="/login" className="mobile-nav-item"><span className="icon">👤</span><span>Perfil</span></Link>
       </nav>
 
       <main className="main-content">
-        {/* ── RESUMEN ── */}
-        <div className={`section ${activeSection === 'resumen' ? 'active' : ''}`} id="sec-resumen">
+        {/* RESUMEN */}
+        <div className={`section${activeSection === 'resumen' ? ' active' : ''}`} id="sec-resumen">
           <div className="dash-header">
             <div className="dash-welcome">
-              <h1 id="welcomeUserText">¡Hola de nuevo, {userName}! 👋</h1>
-              <p id="currentDate">{currentDate}</p>
+              <h1>¡Hola de nuevo, {nombreUsuario}! 👋</h1>
+              <p id="currentDate">{currentDate} • ☀️ 28°C Urabá</p>
             </div>
-            <Link to="/catalogo" className="btn-cta"> Explorar catálogo → </Link>
+            <Link to="/catalogo" className="btn-cta">Explorar catálogo →</Link>
           </div>
 
           <div className="stats-grid">
             <div className="stat-card color-1">
               <span className="stat-icon-lg">📦</span>
               <div className="stat-label">Pedidos Realizados</div>
-              <div className="stat-value" id="statPedidos">--</div>
-              <div className="stat-trend up" id="pedidosTrend">Compras totales</div>
-<div className="stat-progress"><div className="stat-progress-bar" style={{ width: '70%' }}></div></div>
+              <div className="stat-value">{String(pedidos.length).padStart(2, '0')}</div>
+              <div className="stat-trend up">↑ 12% vs mes anterior</div>
+              <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '70%' }}></div></div>
             </div>
             <div className="stat-card color-2">
               <span className="stat-icon-lg">💰</span>
               <div className="stat-label">Inversión Total</div>
-              <div className="stat-value" id="statInversion">--</div>
-              <div className="stat-trend up" id="inversionTrend">
-                COP invertidos
-              </div>
-              <div className="stat-progress">
-                <div
-                  className="stat-progress-bar"
-                  style={{ width: '45%', background: 'var(--blue)' }}
-                ></div>
-              </div>
+              <div className="stat-value">$892k</div>
+              <div className="stat-trend up">↑ $45k esta semana</div>
+              <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '45%', background: 'var(--blue)' }}></div></div>
             </div>
             <div className="stat-card color-3">
               <span className="stat-icon-lg">⭐</span>
               <div className="stat-label">Reseñas Dejadas</div>
-              <div className="stat-value" id="statResenas">--</div>
-              <div className="stat-trend" id="resenasTrend">Nivel de opinión</div>
-              <div className="stat-progress">
-                <div
-                  className="stat-progress-bar"
-                  style={{ width: '30%', background: 'var(--gold)' }}
-                ></div>
-              </div>
+              <div className="stat-value">02</div>
+              <div className="stat-trend">Nivel de opinión: Medio</div>
+              <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '30%', background: 'var(--gold)' }}></div></div>
             </div>
             <div className="stat-card color-4">
               <span className="stat-icon-lg">🤝</span>
               <div className="stat-label">Productores</div>
-              <div className="stat-value" id="statContactos">--</div>
-              <div className="stat-trend up" id="contactosTrend">
-                Contactos de chat
-              </div>
-              <div className="stat-progress">
-                <div
-                  className="stat-progress-bar"
-                  style={{ width: '85%', background: '#a855f7' }}
-                ></div>
-              </div>
+              <div className="stat-value">03</div>
+              <div className="stat-trend up">Nuevos contactos</div>
+              <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '85%', background: '#a855f7' }}></div></div>
             </div>
           </div>
 
@@ -201,13 +141,7 @@ function DashboardComprador() {
           <div className="card-table" style={{ marginBottom: '32px' }}>
             <div className="table-header">
               <h3 className="card-title">📦 Pedidos Recientes</h3>
-              <Link
-                to="#"
-                style={{ fontSize: '0.8rem', fontWeight: '600' }}
-                onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}
-              >
-                Ver todos los pedidos
-              </Link>
+              <a href="#" onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }} style={{ fontSize: '0.8rem', fontWeight: '600' }}>Ver todos los pedidos</a>
             </div>
             <div className="table-filters">
               <div className="search-box">
@@ -218,31 +152,50 @@ function DashboardComprador() {
               <table className="table-responsive">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Producto</th>
-                    <th>Total COP</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th>ID</th><th>Producto</th><th>Total COP</th><th>Estado</th><th>Acciones</th>
                   </tr>
                 </thead>
-                <tbody id="tbRecentPedidos"></tbody>
+                <tbody>
+                  {pedidos.slice(0, 5).map((p) => (
+                    <tr key={p.id}>
+                      <td data-label="ID">#{p.id}</td>
+                      <td data-label="Producto">{p.producto || p.nombreProducto || '—'}</td>
+                      <td data-label="Total">${Number(p.total).toLocaleString('es-CO')}</td>
+                      <td data-label="Estado"><span className={badgeClass(p.estado)}>{p.estado}</span></td>
+                      <td data-label="Acciones">
+                        <Link to="/envios" className="btn btn-secondary btn-sm">Rastrear</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
 
           {/* RECOMENDADOS */}
           <div className="dash-header" style={{ marginBottom: '20px' }}>
-            <h3 className="card-title">
-              🌟 Productos de Temporada en Urabá
-            </h3>
+            <h3 className="card-title">🌟 Productos de Temporada en Urabá</h3>
           </div>
           <div className="products-grid" id="recsGrid">
-            {/* Se llena con JS */}
+            {[
+              { nombre: 'Banano Urabá', precio: 1200, img: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=300' },
+              { nombre: 'Mango Tommy', precio: 3500, img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=300' },
+              { nombre: 'Piña Manzana', precio: 2800, img: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=300' },
+            ].map((p, i) => (
+              <div key={i} className="product-card">
+                <img src={p.img} alt={p.nombre} className="product-img" />
+                <div className="product-info">
+                  <h3 className="product-name">{p.nombre}</h3>
+                  <div className="product-price">${p.precio.toLocaleString('es-CO')}/kg</div>
+                  <Link to="/catalogo" className="btn btn-primary product-btn">Ver en catálogo</Link>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* ── MIS PEDIDOS ── */}
-        <div className={`section ${activeSection === 'misPedidos' ? 'active' : ''}`} id="sec-misPedidos">
+        {/* MIS PEDIDOS */}
+        <div className={`section${activeSection === 'misPedidos' ? ' active' : ''}`} id="sec-misPedidos">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1>Historial de Pedidos</h1>
@@ -254,12 +207,7 @@ function DashboardComprador() {
               <div className="search-box">
                 <input type="text" placeholder="Filtrar pedidos..." />
               </div>
-              <select
-                className="form-select"
-                style={{ width: '180px' }}
-                id="filtroPedComp"
-                onChange={(e) => {}}
-              >
+              <select className="form-select" style={{ width: '180px' }} id="filtroPedComp" value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
                 <option value="">Todos los estados</option>
                 <option>Pendiente</option>
                 <option>Enviado</option>
@@ -270,15 +218,23 @@ function DashboardComprador() {
               <table className="table-responsive">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Total</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th>ID</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Estado</th><th>Acciones</th>
                   </tr>
                 </thead>
-                <tbody id="tbPedidosComp"></tbody>
+                <tbody id="tbPedidosComp">
+                  {pedidosFiltrados.map((p) => (
+                    <tr key={p.id}>
+                      <td data-label="ID">#{p.id}</td>
+                      <td data-label="Producto">{p.producto || p.nombreProducto || '—'}</td>
+                      <td data-label="Cantidad">{p.cantidad || '—'} kg</td>
+                      <td data-label="Total">${Number(p.total).toLocaleString('es-CO')}</td>
+                      <td data-label="Estado"><span className={badgeClass(p.estado)}>{p.estado}</span></td>
+                      <td data-label="Acciones">
+                        <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>📄 Factura</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
@@ -286,36 +242,30 @@ function DashboardComprador() {
       </main>
 
       {/* MODAL FACTURA */}
-      <div className={`modal-overlay ${modalFactura ? 'open' : ''}`} id="modalFactura">
-        <div className="modal" style={{ maxWidth: '460px' }}>
-          <div className="modal-header">
-            <span className="modal-title">Detalle de Factura Electrónica</span>
-            <button
-              className="modal-close"
-              onClick={closeModal}
-            >
-              ✕
-            </button>
-          </div>
-          <div id="facturaContent"></div>
-          <div className="modal-footer">
-            <button
-              className="btn btn-secondary"
-              onClick={closeModal}
-            >
-              Cerrar
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => alert('Factura enviada al correo registrado.')}
-            >
-              📧 Enviar PDF
-            </button>
+      {modalFactura && (
+        <div className="modal-overlay open" id="modalFactura">
+          <div className="modal" style={{ maxWidth: '460px' }}>
+            <div className="modal-header">
+              <span className="modal-title">Detalle de Factura Electrónica</span>
+              <button className="modal-close" onClick={() => setModalFactura(false)}>✕</button>
+            </div>
+            <div id="facturaContent">
+              {facturaData && (
+                <div style={{ padding: '24px' }}>
+                  <p><strong>Pedido #:</strong> {facturaData.id}</p>
+                  <p><strong>Producto:</strong> {facturaData.producto || facturaData.nombreProducto}</p>
+                  <p><strong>Total:</strong> ${Number(facturaData.total).toLocaleString('es-CO')}</p>
+                  <p><strong>Estado:</strong> {facturaData.estado}</p>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalFactura(false)}>Cerrar</button>
+              <button className="btn btn-primary" onClick={() => alert('Factura enviada al correo registrado.')}>📧 Enviar PDF</button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
-
-export default DashboardComprador;

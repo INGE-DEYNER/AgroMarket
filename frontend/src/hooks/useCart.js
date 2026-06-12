@@ -1,59 +1,51 @@
-// File: frontend/src/hooks/useCart.js
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-const CART_KEY = 'am_cart';
+const CART_KEY = 'agromarket_cart';
 
-function loadCart() {
+function getCart() {
   try {
-    return JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    return JSON.parse(localStorage.getItem(CART_KEY)) || [];
   } catch {
     return [];
   }
 }
 
-function saveCart(items) {
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
+function saveCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
 export function useCart() {
-  const [items, setItems] = useState(loadCart);
+  const [cart, setCart] = useState(getCart);
 
   useEffect(() => {
-    saveCart(items);
-  }, [items]);
+    saveCart(cart);
+  }, [cart]);
 
-  const addItem = useCallback((product, qty = 1) => {
-    setItems((prev) => {
-      const idx = prev.findIndex((i) => i.id === product.id);
-      if (idx >= 0) {
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], cantidad: updated[idx].cantidad + qty };
-        return updated;
+  const addToCart = (product, qty = 1) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.id === product.id);
+      if (existing) {
+        return prev.map((i) =>
+          i.id === product.id ? { ...i, qty: i.qty + qty } : i
+        );
       }
-      return [...prev, { ...product, cantidad: qty }];
+      return [...prev, { ...product, qty }];
     });
-  }, []);
+  };
 
-  const removeItem = useCallback((id) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
-  }, []);
+  const removeFromCart = (id) => {
+    setCart((prev) => prev.filter((i) => i.id !== id));
+  };
 
-  const updateQty = useCallback((id, change) => {
-    setItems((prev) => {
-      const idx = prev.findIndex((i) => i.id === id);
-      if (idx < 0) return prev;
-      const newQty = prev[idx].cantidad + change;
-      if (newQty <= 0) return prev.filter((i) => i.id !== id);
-      const updated = [...prev];
-      updated[idx] = { ...updated[idx], cantidad: newQty };
-      return updated;
-    });
-  }, []);
+  const updateQty = (id, qty) => {
+    if (qty <= 0) return removeFromCart(id);
+    setCart((prev) => prev.map((i) => (i.id === id ? { ...i, qty } : i)));
+  };
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = () => setCart([]);
 
-  const total = items.reduce((sum, i) => sum + (i.precio || 0) * i.cantidad, 0);
-  const count = items.reduce((sum, i) => sum + i.cantidad, 0);
+  const total = cart.reduce((sum, i) => sum + i.precio * i.qty, 0);
+  const count = cart.reduce((sum, i) => sum + i.qty, 0);
 
-  return { items, addItem, removeItem, updateQty, clearCart, total, count };
+  return { cart, addToCart, removeFromCart, updateQty, clearCart, total, count };
 }

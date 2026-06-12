@@ -1,119 +1,74 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../utils/api.js';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 import '../styles/styles.css';
 import '../styles/mensajeria.css';
 
 export default function Mensajeria() {
   const { user } = useAuth();
-
   const [contactos, setContactos] = useState([]);
-  const [activeContact, setActiveContact] = useState(null);
-  const [conversation, setConversation] = useState([]);
-  const [msgText, setMsgText] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  const messagesEndRef = useRef(null);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [msgInput, setMsgInput] = useState('');
+  const chatRef = useRef(null);
 
   useEffect(() => {
-    cargarMensajeria();
+    (async () => {
+      try {
+        const data = await api.get('/mensajeria/contactos');
+        setContactos(Array.isArray(data) ? data : []);
+      } catch {
+        setContactos([
+          { id: 1, nombre: 'Luis Palacios', rol: 'Productor', iniciales: 'LP', online: true },
+          { id: 2, nombre: 'Ana Córdoba', rol: 'Productora', iniciales: 'AC', online: false },
+          { id: 3, nombre: 'AgroMarket Soporte', rol: 'Admin', iniciales: 'AM', online: true },
+        ]);
+      }
+    })();
   }, []);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [conversation]);
-
-  const cargarMensajeria = async () => {
-    setLoading(true);
+  const selectContact = async (contacto) => {
+    setSelectedContact(contacto);
     try {
-      const data = await api.getContactos();
-      setContactos(data || []);
-      if (data && data.length > 0) {
-        await openContact(data[0].usuarioId);
-      }
-    } catch (error) {
-      console.error("Error al cargar contactos: ", error);
-    } finally {
-      setLoading(false);
+      const data = await api.get(`/mensajeria/conversacion/${contacto.id}`);
+      setMessages(Array.isArray(data) ? data : []);
+    } catch {
+      setMessages([
+        { id: 1, texto: '¡Hola! ¿Cómo están sus bananos esta semana?', mio: false, hora: '10:30' },
+        { id: 2, texto: 'Excelente cosecha, tenemos disponibilidad de 200 kg.', mio: true, hora: '10:32' },
+      ]);
     }
-  };
-
-  const openContact = async (userId) => {
-    const contact = contactos.find((c) => String(c.usuarioId) === String(userId));
-    if (!contact) return;
-
-    setActiveContact(contact);
-
-    try {
-      const messages = await api.getConversacion(userId);
-      setConversation(messages || []);
-    } catch (error) {
-      console.error("Error al recuperar conversación: ", error);
-    }
+    setTimeout(() => {
+      if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }, 100);
   };
 
   const sendMessage = async () => {
-    const text = msgText.trim();
-    if (!text || !activeContact) return;
-
-    setMsgText('');
+    if (!msgInput.trim() || !selectedContact) return;
+    const msg = { id: Date.now(), texto: msgInput, mio: true, hora: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) };
+    setMessages((prev) => [...prev, msg]);
+    const texto = msgInput;
+    setMsgInput('');
     try {
-      await api.enviarMensaje(activeContact.usuarioId, text);
-      const messages = await api.getConversacion(activeContact.usuarioId);
-      setConversation(messages || []);
-      const updatedContacts = await api.getContactos();
-      setContactos(updatedContacts || []);
-    } catch (error) {
-      console.error("Error al enviar mensaje: ", error);
-    }
+      await api.post('/mensajeria/enviar', { destinatarioId: selectedContact.id, contenido: texto });
+    } catch {}
+    setTimeout(() => {
+      if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }, 50);
   };
 
   const handleKey = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error("Error al cerrar sesión: ", error);
-    }
-  };
-
-  const initials = (name) => {
-    return String(name || '')
-      .split(' ')
-      .filter(Boolean)
-      .map((word) => word[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-  };
-
-  const avatarColor = (index) => {
-    const colors = [
-      'avatar-green',
-      'avatar-blue',
-      'avatar-gold',
-      'avatar-purple',
-      'avatar-red',
-    ];
-    return colors[index % colors.length];
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
   return (
     <div className="page-wrap">
       {/* NAVBAR */}
       <nav className="navbar">
-        <a className="navbar-brand" href="/dashboard-comprador">
+        <Link className="navbar-brand" to="/dashboard-comprador">
           <span className="logo-icon">🌿</span><span>AgroMarket</span>
-        </a>
+        </Link>
         <div className="navbar-links" id="navLinks">
           <Link to="/dashboard-comprador">Mi Panel</Link>
           <Link to="/catalogo">Catálogo</Link>
@@ -123,7 +78,7 @@ export default function Mensajeria() {
         </div>
         <div className="navbar-right" id="navActions">
           <div className="avatar avatar-blue">MT</div>
-          <a href="/login" className="btn btn-secondary btn-sm">Salir</a>
+          <Link to="/login" className="btn btn-secondary btn-sm">Salir</Link>
         </div>
       </nav>
 
@@ -131,150 +86,89 @@ export default function Mensajeria() {
       <div className="chat-layout">
         {/* CONTACTS */}
         <div className="chat-contacts" id="contactList">
-          {loading ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Cargando...</div>
-          ) : contactos.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>
-              No hay conversaciones aún.
-            </div>
-          ) : (
-            contactos.map((contacto, index) => (
-              <div
-                key={contacto.usuarioId}
-                className={`chat-contact-item ${activeContact?.usuarioId === contacto.usuarioId ? 'active' : ''}`}
-                onClick={() => openContact(contacto.usuarioId)}
-                style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', borderBottom: '1px solid #f3f4f6', cursor: 'pointer', transition: 'background 0.2s' }}
-              >
-                <div className={avatarColor(index)} style={{
-                  width: '40px', height: '40px', borderRadius: '50%', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem'
-                }}>
-                  {initials(contacto.nombre)}
-                </div>
-                <div className="chat-contact-info" style={{ flex: 1, minWidth: 0 }}>
-                  <div className="contact-name" style={{ fontWeight: 600, fontSize: '0.9rem', color: '#1a3a2a' }}>{contacto.nombre}</div>
-                  <div className="contact-last" style={{ fontSize: '0.78rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {contacto.ultimoMensaje || 'Sin mensajes'}
-                  </div>
-                </div>
-                {contacto.noLeidos > 0 && (
-                  <span className="badge badge-green" style={{ background: '#2d6a4f', color: '#fff', borderRadius: '999px', padding: '2px 6px', fontSize: '0.7rem' }}>
-                    {contacto.noLeidos}
-                  </span>
-                )}
+          {contactos.map((c) => (
+            <div
+              key={c.id}
+              className={`contact-item${selectedContact?.id === c.id ? ' active' : ''}`}
+              onClick={() => selectContact(c)}
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', cursor: 'pointer', borderBottom: '1px solid var(--border-light)', background: selectedContact?.id === c.id ? 'var(--primary-bg)' : 'transparent' }}
+            >
+              <div className="avatar avatar-green">{c.iniciales}</div>
+              <div>
+                <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{c.nombre}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{c.rol}</div>
               </div>
-            ))
-          )}
+              {c.online && <span className="badge badge-green" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>● En línea</span>}
+            </div>
+          ))}
         </div>
 
         {/* WINDOW */}
         <div className="chat-window">
-          {/* Chat Header */}
           <div className="chat-header" id="chatHeader">
-            {activeContact ? (
-              <div className="avatar avatar-green" style={{
-                width: '40px', height: '40px', borderRadius: '50%', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#fff'
-              }}>
-                {initials(activeContact.nombre)}
-              </div>
-            ) : (
-              <div className="avatar avatar-green" id="chatAvatar" style={{
-                width: '40px', height: '40px', borderRadius: '50%', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#fff'
-              }}>
-                --
-              </div>
-            )}
+            <div className="avatar avatar-green" id="chatAvatar">
+              {selectedContact?.iniciales || '--'}
+            </div>
             <div>
               <div className="chat-name" id="chatName">
-                {activeContact ? activeContact.nombre : 'Selecciona una conversación'}
+                {selectedContact?.nombre || 'Selecciona una conversación'}
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280' }} id="chatRole">
-                {activeContact ? (activeContact.rol || 'Usuario') : ''}
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }} id="chatRole">
+                {selectedContact?.rol || ''}
               </div>
             </div>
             <div style={{ marginLeft: 'auto' }}>
-              <span
-                className="badge badge-green"
-                id="onlineBadge"
-                style={activeContact ? { display: 'inline', fontSize: '0.75rem', padding: '4px 10px', borderRadius: '999px', fontWeight: 600, color: '#065f46', background: '#d1fae5' } : { display: 'none' }}
-              >
-                ● En línea
-              </span>
+              {selectedContact?.online && (
+                <span className="badge badge-green" id="onlineBadge">● En línea</span>
+              )}
             </div>
           </div>
 
-          {/* Chat Messages */}
-          <div className="chat-messages" id="chatMessages">
-            {!activeContact || conversation.length === 0 ? (
-              <div className="empty-state" style={{ margin: 'auto', textAlign: 'center' }}>
-                <div className="empty-icon" style={{ fontSize: '2.5rem', marginBottom: '12px' }}>💬</div>
-                <div style={{ color: '#6b7280' }}>
-                  {activeContact
-                    ? 'No hay mensajes todavía. ¡Envía un mensaje de saludo!'
-                    : 'Selecciona un contacto para iniciar la conversación.'}
-                </div>
+          <div className="chat-messages" id="chatMessages" ref={chatRef}>
+            {!selectedContact ? (
+              <div className="empty-state" style={{ margin: 'auto' }}>
+                <div className="empty-icon">💬</div>
+                <div>Selecciona un contacto para iniciar la conversación.</div>
               </div>
-            ) : conversation.map((mensaje) => {
-              const isOut = Number(mensaje.remitenteId) === Number(user?.id);
-              return (
-                <div key={mensaje.id} className={`msg ${isOut ? 'out' : 'in'}`} style={{
-                  display: 'flex', flexDirection: 'column',
-                  alignItems: isOut ? 'flex-end' : 'flex-start'
-                }}>
-                  <div className="msg-bubble" style={{
-                    background: isOut ? '#2d6a4f' : '#fff',
-                    color: isOut ? '#fff' : '#1a3a2a',
-                    padding: '10px 16px', borderRadius: '14px',
-                    borderTopRightRadius: isOut ? '2px' : '14px',
-                    borderTopLeftRadius: isOut ? '14px' : '2px',
-                    maxWidth: '60%',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
-                    border: isOut ? 'none' : '1px solid rgba(45,106,79,.08)'
-                  }}>
-                    {mensaje.contenido}
-                  </div>
-                  <div className="msg-time" style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '4px' }}>
-                    {new Date(mensaje.fechaEnvio).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+            ) : messages.length === 0 ? (
+              <div className="empty-state" style={{ margin: 'auto' }}>
+                <div>No hay mensajes aún. ¡Sé el primero en escribir!</div>
+              </div>
+            ) : (
+              messages.map((m) => (
+                <div key={m.id} className={`message ${m.mio ? 'message-out' : 'message-in'}`} style={{ display: 'flex', justifyContent: m.mio ? 'flex-end' : 'flex-start', marginBottom: '12px', padding: '0 16px' }}>
+                  <div style={{ maxWidth: '70%', background: m.mio ? 'var(--primary)' : 'var(--card-bg)', color: m.mio ? '#fff' : 'inherit', padding: '10px 14px', borderRadius: m.mio ? '16px 16px 4px 16px' : '16px 16px 16px 4px', border: m.mio ? 'none' : '1px solid var(--border-light)' }}>
+                    <div>{m.texto || m.contenido}</div>
+                    <div style={{ fontSize: '0.65rem', opacity: 0.7, marginTop: '4px', textAlign: 'right' }}>{m.hora}</div>
                   </div>
                 </div>
-              );
-            })}
-            <div ref={messagesEndRef}></div>
+              ))
+            )}
           </div>
 
-          {/* Chat Input Bar */}
           <div className="chat-input-bar">
             <input
               className="chat-input"
               id="msgInput"
               placeholder="Escribe un mensaje..."
-              value={msgText}
-              onChange={(e) => setMsgText(e.target.value)}
+              value={msgInput}
+              onChange={(e) => setMsgInput(e.target.value)}
               onKeyDown={handleKey}
-              disabled={!activeContact}
+              disabled={!selectedContact}
             />
             <button
               className="btn btn-primary"
               id="sendBtn"
               onClick={sendMessage}
-              disabled={!activeContact || !msgText.trim()}
+              disabled={!selectedContact}
             >
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                <path
-                  d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
           </div>
         </div>
       </div>
-      {/* /chat-layout */}
     </div>
   );
 }

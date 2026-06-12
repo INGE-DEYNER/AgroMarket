@@ -24,14 +24,7 @@ i18n
       ar: { translation: ar },
     },
     fallbackLng: 'es',
-    debug: true,
-    interpolation: {
-      escapeValue: false, // react already safes from xss
-    },
-    detection: {
-      order: ['queryString', 'cookie', 'localStorage', 'sessionStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
-      caches: ['localStorage', 'cookie'],
-    }
+    interpolation: { escapeValue: false },
   });
 
 export default i18n;
