@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import '../styles/styles.css';
-import '../styles/mensajeria.css';
 
 export default function Mensajeria() {
+  useStyles(["/css/styles.css","/css/mensajeria.css"]);
   const { user } = useAuth();
   const [contactos, setContactos] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);

@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import '../styles/login.css';
+import useStyles from '../hooks/useStyles';
 
 export default function VerificarCorreo() {
+  useStyles(["/css/login.css"]);
   return (
     <div className="wrapper">
       <div className="left-panel" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>

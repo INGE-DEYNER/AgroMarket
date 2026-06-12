@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
+import useStyles from '../hooks/useStyles';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import '../styles/home.css';
 
 export default function Home() {
+  useStyles(["/css/home.css"]);
   const { t } = useTranslation();
 
   useEffect(() => {

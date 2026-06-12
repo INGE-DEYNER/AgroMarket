@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
-import '../styles/styles.css';
-import '../styles/resenas.css';
 
 const PRODUCTOS = ['🍌 Banano Urabá', '🍍 Piña Manzana', '🥭 Mango Tommy', '🫐 Maracuyá', '🍈 Guanábana', '🍊 Naranja Valencia', '🥥 Coco Fresco', '🍋 Limón Tahití'];
 
 export default function Resenas() {
+  useStyles(["/css/styles.css","/css/resenas.css"]);
   const [reviews, setReviews] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [rProducto, setRProducto] = useState('');

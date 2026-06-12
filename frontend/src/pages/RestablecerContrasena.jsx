@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
-import '../styles/login.css';
 
 export default function RestablecerContrasena() {
+  useStyles(["/css/login.css"]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';

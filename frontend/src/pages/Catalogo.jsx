@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import { useCart } from '../hooks/useCart';
 import api from '../utils/api';
-import '../styles/styles.css';
-import '../styles/catalogo.css';
 
 const TIPOS = ['Banano', 'Piña', 'Mango', 'Maracuyá', 'Guanábana', 'Naranja', 'Coco', 'Limón'];
 
 export default function Catalogo() {
+  useStyles(["/css/styles.css","/css/catalogo.css"]);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { cart, addToCart, removeFromCart, updateQty, total, count, clearCart } = useCart();

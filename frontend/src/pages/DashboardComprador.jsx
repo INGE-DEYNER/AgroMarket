@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import '../styles/styles.css';
 
 export default function DashboardComprador() {
+  useStyles(["/css/styles.css"]);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('resumen');

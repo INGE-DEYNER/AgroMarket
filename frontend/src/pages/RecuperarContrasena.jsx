@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
-import '../styles/login.css';
 
 export default function RecuperarContrasena() {
+  useStyles(["/css/login.css"]);
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');

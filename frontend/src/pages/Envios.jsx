@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
-import '../styles/styles.css';
-import '../styles/envios.css';
 
 export default function Envios() {
+  useStyles(["/css/styles.css","/css/envios.css"]);
   const [shipments, setShipments] = useState([]);
   const [historial, setHistorial] = useState([]);
 

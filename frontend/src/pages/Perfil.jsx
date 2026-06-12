@@ -1,8 +1,9 @@
 import { useAuth } from '../context/AuthContext';
+import useStyles from '../hooks/useStyles';
 import { Link } from 'react-router-dom';
-import '../styles/styles.css';
 
 export default function Perfil() {
+  useStyles(["/css/styles.css"]);
   const { user, logout } = useAuth();
 
   return (

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import '../styles/login.css';
 
 export default function Login() {
+  useStyles(["/css/login.css"]);
   const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();

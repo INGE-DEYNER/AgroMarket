@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import useStyles from '../hooks/useStyles';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import '../styles/styles.css';
 
 export default function Pedidos() {
+  useStyles(["/css/styles.css"]);
   const navigate = useNavigate();
   const [pedidos, setPedidos] = useState([]);
   const [filtroEstado, setFiltroEstado] = useState('');
