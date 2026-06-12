@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,15 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -18,13 +27,13 @@ export default function Navbar() {
   const role = user?.role?.toLowerCase();
 
   return (
-    <nav className="navbar" id="navbar">
+    <nav className={`navbar${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`} id="navbar">
       <Link to="/home" className="navbar-brand">
         <span className="logo-icon">🌿</span>
         <span>AgroMarket</span>
       </Link>
 
-      <div className={`navbar-links${menuOpen ? ' open' : ''}`} id="navLinks">
+      <div className="nav-links" id="navLinks" style={{ display: menuOpen && window.innerWidth <= 1024 ? 'flex' : '' }}>
         {!user ? (
           <>
             <Link to="/home">{t('nav.home', 'Inicio')}</Link>
@@ -49,7 +58,7 @@ export default function Navbar() {
         )}
       </div>
 
-      <div className="navbar-right" id="navActions">
+      <div className="nav-actions" id="navActions" style={{ display: menuOpen && window.innerWidth <= 1024 ? 'flex' : '' }}>
         {!user ? (
           <>
             <Link to="/login" className="btn btn-secondary">{t('nav.login', 'Iniciar sesión')}</Link>

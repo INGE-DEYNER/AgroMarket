@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -5,6 +6,28 @@ import '../styles/home.css';
 
 export default function Home() {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.15,
+    };
+
+    const observer = new IntersectionObserver((entries, observerInstance) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observerInstance.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const elements = document.querySelectorAll('.animate-fade-up');
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <>
