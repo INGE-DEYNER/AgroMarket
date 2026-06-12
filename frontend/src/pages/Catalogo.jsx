@@ -25,16 +25,9 @@ export default function Catalogo() {
       try {
         const data = await api.get('/productos');
         setProductos(Array.isArray(data) ? data : data.content || []);
-      } catch {
-        // Mostrar productos demo si falla la API
-        setProductos([
-          { id: 1, nombre: 'Banano Urabá', tipo: 'Banano', precio: 1200, stock: 100, productor: 'Luis Palacios', imagenUrl: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=500', calificacion: 4.8 },
-          { id: 2, nombre: 'Mango Tommy', tipo: 'Mango', precio: 3500, stock: 80, productor: 'Luis Palacios', imagenUrl: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=500', calificacion: 4.7 },
-          { id: 3, nombre: 'Aguacate Hass', tipo: 'Aguacate', precio: 4500, stock: 60, productor: 'Ana Córdoba', imagenUrl: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=500', calificacion: 4.9 },
-          { id: 4, nombre: 'Piña Manzana', tipo: 'Piña', precio: 2800, stock: 90, productor: 'Ana Córdoba', imagenUrl: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=500', calificacion: 4.5 },
-          { id: 5, nombre: 'Maracuyá', tipo: 'Maracuyá', precio: 3200, stock: 70, productor: 'Pedro Morales', imagenUrl: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=500', calificacion: 4.6 },
-          { id: 6, nombre: 'Coco Fresco', tipo: 'Coco', precio: 2000, stock: 50, productor: 'Jorge Restrepo', imagenUrl: 'https://images.unsplash.com/photo-1576673442511-7e39b6545c87?w=500', calificacion: 4.4 },
-        ]);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProductos([]);
       } finally {
         setLoading(false);
       }

@@ -24,11 +24,14 @@ export default function Login() {
     if (params.get('oauth2') === 'success') {
       (async () => {
         try {
-          const data = await api.get('/auth/oauth2/token');
-          if (data?.token) {
-            localStorage.setItem('token', data.token);
-            login(data.user, data.token);
-            redirectByRole(data.user?.role);
+          const res = await api.get('/auth/token-exchange');
+          const authData = res.data || res;
+          if (authData?.token) {
+            localStorage.setItem('token', authData.token);
+            login(authData.user || authData, authData.token);
+            redirectByRole((authData.user || authData)?.role || authData.rol);
+          } else {
+            throw new Error('Token no recibido');
           }
         } catch (e) {
           setGlobalError('Error al verificar sesión OAuth2.');
@@ -67,9 +70,10 @@ export default function Login() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const data = await api.post('/auth/login', { email, password });
-      login(data.user || data, data.token);
-      redirectByRole((data.user || data)?.role);
+      const res = await api.post('/auth/login', { email, password });
+      const authData = res.data || res;
+      login(authData.user || authData, authData.token);
+      redirectByRole((authData.user || authData)?.role || authData.rol);
     } catch (err) {
       setGlobalError(err.message || 'Credenciales incorrectas.');
     } finally {

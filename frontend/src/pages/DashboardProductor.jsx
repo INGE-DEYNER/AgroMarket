@@ -28,12 +28,9 @@ export default function DashboardProductor() {
     try {
       const data = await api.get('/productos/mis-productos');
       setProductos(Array.isArray(data) ? data : data.content || []);
-    } catch {
-      setProductos([
-        { id: 1, nombre: 'Banano Urabá', tipo: 'Banano', precio: 1200, stock: 100, estado: 'Activo' },
-        { id: 2, nombre: 'Mango Tommy', tipo: 'Mango', precio: 3500, stock: 80, estado: 'Activo' },
-        { id: 3, nombre: 'Coco Fresco', tipo: 'Coco', precio: 2000, stock: 50, estado: 'Activo' },
-      ]);
+    } catch (err) {
+      console.error('Error loadProductos:', err);
+      setProductos([]);
     }
   };
 
@@ -41,11 +38,9 @@ export default function DashboardProductor() {
     try {
       const data = await api.get('/pedidos/recibidos');
       setPedidos(Array.isArray(data) ? data : data.content || []);
-    } catch {
-      setPedidos([
-        { id: '001', producto: 'Banano Urabá', comprador: 'María Torres', cantidad: 70, total: 84000, estado: 'Pendiente' },
-        { id: '002', producto: 'Mango Tommy', comprador: 'Jorge Restrepo', cantidad: 40, total: 140000, estado: 'Enviado' },
-      ]);
+    } catch (err) {
+      console.error('Error loadPedidos:', err);
+      setPedidos([]);
     }
   };
 
@@ -157,15 +152,15 @@ export default function DashboardProductor() {
             <div className="stat-card color-3">
               <span className="stat-icon-lg">💰</span>
               <div className="stat-label">Ingresos Totales</div>
-              <div className="stat-value">$1.2M</div>
-              <div className="stat-trend up">↑ 15% vs Abril</div>
+              <div className="stat-value">${pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0).toLocaleString('es-CO')}</div>
+              <div className="stat-trend up">Ingresos confirmados</div>
               <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '75%', background: 'var(--gold)' }}></div></div>
             </div>
             <div className="stat-card color-4">
               <span className="stat-icon-lg">⭐</span>
               <div className="stat-label">Calificación</div>
-              <div className="stat-value">4.9</div>
-              <div className="stat-trend">Top Vendedor Urabá</div>
+              <div className="stat-value">{user?.calificacion || '0.0'}</div>
+              <div className="stat-trend">Basado en reseñas</div>
               <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '98%', background: '#a855f7' }}></div></div>
             </div>
           </div>

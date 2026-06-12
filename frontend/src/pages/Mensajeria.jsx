@@ -18,12 +18,9 @@ export default function Mensajeria() {
       try {
         const data = await api.get('/mensajeria/contactos');
         setContactos(Array.isArray(data) ? data : []);
-      } catch {
-        setContactos([
-          { id: 1, nombre: 'Luis Palacios', rol: 'Productor', iniciales: 'LP', online: true },
-          { id: 2, nombre: 'Ana Córdoba', rol: 'Productora', iniciales: 'AC', online: false },
-          { id: 3, nombre: 'AgroMarket Soporte', rol: 'Admin', iniciales: 'AM', online: true },
-        ]);
+      } catch (err) {
+        console.error('Error loadContactos:', err);
+        setContactos([]);
       }
     })();
   }, []);
@@ -33,11 +30,9 @@ export default function Mensajeria() {
     try {
       const data = await api.get(`/mensajeria/conversacion/${contacto.id}`);
       setMessages(Array.isArray(data) ? data : []);
-    } catch {
-      setMessages([
-        { id: 1, texto: '¡Hola! ¿Cómo están sus bananos esta semana?', mio: false, hora: '10:30' },
-        { id: 2, texto: 'Excelente cosecha, tenemos disponibilidad de 200 kg.', mio: true, hora: '10:32' },
-      ]);
+    } catch (err) {
+      console.error('Error loadMessages:', err);
+      setMessages([]);
     }
     setTimeout(() => {
       if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;

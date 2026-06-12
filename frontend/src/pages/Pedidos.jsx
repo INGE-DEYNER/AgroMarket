@@ -22,12 +22,9 @@ export default function Pedidos() {
     try {
       const data = await api.get('/pedidos/mis-pedidos');
       setPedidos(Array.isArray(data) ? data : data.content || []);
-    } catch {
-      setPedidos([
-        { id: '001', producto: '🍌 Banano Urabá Exportación', productor: 'Luis Palacios', cantidad: 70, total: 84000, estado: 'Pendiente' },
-        { id: '002', producto: '🥭 Mango Tommy Premium', productor: 'Luis Palacios', cantidad: 40, total: 140000, estado: 'Enviado' },
-        { id: '003', producto: '🍍 Piña Manzana', productor: 'Ana Córdoba', cantidad: 30, total: 84000, estado: 'Entregado' },
-      ]);
+    } catch (err) {
+      console.error('Error loadPedidos:', err);
+      setPedidos([]);
     }
   };
 

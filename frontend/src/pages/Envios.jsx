@@ -16,13 +16,10 @@ export default function Envios() {
         const list = Array.isArray(data) ? data : data.content || [];
         setShipments(list.filter(e => e.estado !== 'Entregado'));
         setHistorial(list);
-      } catch {
-        const demo = [
-          { id: 'ENV-001', producto: '🍌 Banano Urabá 50 kg', origen: 'Chigorodó', destino: 'Medellín', transportista: 'Servientrega', estado: 'En tránsito', fecha: '2026-06-10', progreso: 65 },
-          { id: 'ENV-002', producto: '🥭 Mango Tommy 40 kg', origen: 'Apartadó', destino: 'Bogotá', transportista: 'TCC', estado: 'Entregado', fecha: '2026-06-08', progreso: 100 },
-        ];
-        setShipments(demo.filter(e => e.estado !== 'Entregado'));
-        setHistorial(demo);
+      } catch (err) {
+        console.error('Error loadEnvios:', err);
+        setShipments([]);
+        setHistorial([]);
       }
     })();
   }, []);

@@ -97,25 +97,25 @@ export default function Admin() {
           <div className="stat-card color-1">
             <span className="stat-icon-lg">👥</span>
             <div className="stat-label">Total Usuarios</div>
-            <div className="stat-value" id="statUsuarios">{String(usuarios.length || 7).padStart(2, '0')}</div>
-            <div className="stat-trend up">↑ 2 nuevos hoy</div>
+            <div className="stat-value" id="statUsuarios">{String(usuarios.length).padStart(2, '0')}</div>
+            <div className="stat-trend up">Usuarios registrados</div>
           </div>
           <div className="stat-card color-2">
             <span className="stat-icon-lg">📦</span>
             <div className="stat-label">Productos Globales</div>
-            <div className="stat-value" id="statProductos">{String(productos.length || 12).padStart(2, '0')}</div>
-            <div className="stat-trend">80% en stock</div>
+            <div className="stat-value" id="statProductos">{String(productos.length).padStart(2, '0')}</div>
+            <div className="stat-trend">En catálogo</div>
           </div>
           <div className="stat-card color-3">
             <span className="stat-icon-lg">💰</span>
             <div className="stat-label">Ingresos Totales</div>
-            <div className="stat-value">$4.8M</div>
-            <div className="stat-trend up">↑ 22% este mes</div>
+            <div className="stat-value">$0</div>
+            <div className="stat-trend up">Ingresos confirmados</div>
           </div>
           <div className="stat-card color-4">
             <span className="stat-icon-lg">⭐</span>
             <div className="stat-label">Alertas Moderación</div>
-            <div className="stat-value" id="statResenas">{String(resenas.filter(r => !r.aprobada).length || 2).padStart(2, '0')}</div>
+            <div className="stat-value" id="statResenas">{String(resenas.filter(r => !r.aprobada).length).padStart(2, '0')}</div>
             <div className="stat-trend down" style={{ color: 'orange' }}>Acción requerida</div>
           </div>
         </div>
@@ -205,11 +205,8 @@ export default function Admin() {
             <div className="card-table" style={{ padding: '24px', marginBottom: '24px' }}>
               <h3 className="card-title" style={{ marginBottom: '16px' }}>Top Productores 🏆</h3>
               <ul style={{ listStyle: 'none' }}>
-                <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <span>Luis Palacios</span><span style={{ fontWeight: '600', color: 'var(--primary)' }}>$1.2M</span>
-                </li>
-                <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <span>Ana Córdoba</span><span style={{ fontWeight: '600', color: 'var(--primary)' }}>$980K</span>
+                <li style={{ padding: '8px 0', color: 'var(--text-muted)' }}>
+                  No hay datos suficientes
                 </li>
               </ul>
             </div>
@@ -217,12 +214,7 @@ export default function Admin() {
             <div className="card-table" style={{ padding: '24px' }}>
               <h3 className="card-title" style={{ marginBottom: '16px' }}>Ingresos 6 Meses</h3>
               <div className="chart-container" style={{ height: '120px' }}>
-                <div className="chart-bar" style={{ height: '30%' }}></div>
-                <div className="chart-bar" style={{ height: '45%' }}></div>
-                <div className="chart-bar" style={{ height: '60%' }}></div>
-                <div className="chart-bar" style={{ height: '80%' }}></div>
-                <div className="chart-bar" style={{ height: '95%' }}></div>
-                <div className="chart-bar" style={{ height: '70%', background: 'var(--primary-light)' }}></div>
+                <div style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>Sin datos</div>
               </div>
             </div>
           </div>

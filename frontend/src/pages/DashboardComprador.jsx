@@ -20,11 +20,9 @@ export default function DashboardComprador() {
       try {
         const data = await api.get('/pedidos/mis-pedidos');
         setPedidos(Array.isArray(data) ? data : data.content || []);
-      } catch {
-        setPedidos([
-          { id: '001', producto: '🍌 Banano Urabá Exportación', total: 84000, estado: 'Pendiente', cantidad: 70 },
-          { id: '002', producto: '🥭 Mango Tommy Premium', total: 140000, estado: 'Enviado', cantidad: 40 },
-        ]);
+      } catch (err) {
+        console.error('Error fetching pedidos:', err);
+        setPedidos([]);
       }
     })();
   }, []);
@@ -118,22 +116,22 @@ export default function DashboardComprador() {
             <div className="stat-card color-2">
               <span className="stat-icon-lg">💰</span>
               <div className="stat-label">Inversión Total</div>
-              <div className="stat-value">$892k</div>
-              <div className="stat-trend up">↑ $45k esta semana</div>
+              <div className="stat-value">${pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0).toLocaleString('es-CO')}</div>
+              <div className="stat-trend up">Basado en pedidos</div>
               <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '45%', background: 'var(--blue)' }}></div></div>
             </div>
             <div className="stat-card color-3">
               <span className="stat-icon-lg">⭐</span>
               <div className="stat-label">Reseñas Dejadas</div>
-              <div className="stat-value">02</div>
-              <div className="stat-trend">Nivel de opinión: Medio</div>
+              <div className="stat-value">0</div>
+              <div className="stat-trend">Nivel de opinión</div>
               <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '30%', background: 'var(--gold)' }}></div></div>
             </div>
             <div className="stat-card color-4">
               <span className="stat-icon-lg">🤝</span>
               <div className="stat-label">Productores</div>
-              <div className="stat-value">03</div>
-              <div className="stat-trend up">Nuevos contactos</div>
+              <div className="stat-value">0</div>
+              <div className="stat-trend">Contactos activos</div>
               <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '85%', background: '#a855f7' }}></div></div>
             </div>
           </div>
@@ -173,26 +171,7 @@ export default function DashboardComprador() {
             </div>
           </div>
 
-          {/* RECOMENDADOS */}
-          <div className="dash-header" style={{ marginBottom: '20px' }}>
-            <h3 className="card-title">🌟 Productos de Temporada en Urabá</h3>
-          </div>
-          <div className="products-grid" id="recsGrid">
-            {[
-              { nombre: 'Banano Urabá', precio: 1200, img: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=300' },
-              { nombre: 'Mango Tommy', precio: 3500, img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=300' },
-              { nombre: 'Piña Manzana', precio: 2800, img: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=300' },
-            ].map((p, i) => (
-              <div key={i} className="product-card">
-                <img src={p.img} alt={p.nombre} className="product-img" />
-                <div className="product-info">
-                  <h3 className="product-name">{p.nombre}</h3>
-                  <div className="product-price">${p.precio.toLocaleString('es-CO')}/kg</div>
-                  <Link to="/catalogo" className="btn btn-primary product-btn">Ver en catálogo</Link>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* RECOMENDADOS ELIMINADO PARA USAR DATOS REALES DE API EN EL FUTURO */}
         </div>
 
         {/* MIS PEDIDOS */}

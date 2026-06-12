@@ -20,12 +20,9 @@ export default function Resenas() {
       try {
         const data = await api.get('/resenas');
         setReviews(Array.isArray(data) ? data : data.content || []);
-      } catch {
-        setReviews([
-          { id: 1, usuario: 'María Torres', producto: '🍌 Banano Urabá', calificacion: 5, comentario: 'Excelente calidad, muy frescos y al mejor precio.', fecha: '2026-05-20' },
-          { id: 2, usuario: 'Jorge Restrepo', producto: '🥭 Mango Tommy', calificacion: 4, comentario: 'Muy buenos, llegaron en perfectas condiciones.', fecha: '2026-05-18' },
-          { id: 3, usuario: 'Ana Betancur', producto: '🍊 Naranja Valencia', calificacion: 5, comentario: 'Jugosas y dulces. Los mejores cítricos que he probado.', fecha: '2026-05-15' },
-        ]);
+      } catch (err) {
+        console.error('Error loadResenas:', err);
+        setReviews([]);
       }
     })();
   }, []);
@@ -53,16 +50,8 @@ export default function Resenas() {
       const nueva = await api.post('/resenas', { producto: rProducto, calificacion: rating, comentario });
       setReviews((prev) => [nueva, ...prev]);
       closeModal();
-    } catch {
-      setReviews((prev) => [{
-        id: Date.now(),
-        usuario: 'Yo',
-        producto: rProducto,
-        calificacion: rating,
-        comentario,
-        fecha: new Date().toISOString().split('T')[0],
-      }, ...prev]);
-      closeModal();
+    } catch (err) {
+      alert('Error al publicar reseña: ' + (err.message || 'Inténtalo de nuevo.'));
     }
     setRProducto(''); setRating(0); setComentario('');
   };
