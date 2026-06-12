@@ -17,9 +17,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.agromarket.infrastructure.security.IdEncryptionUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +33,7 @@ public class AdminController {
     private final AdminService adminService;
     private final ProductoService productoService;
     private final ResenaService resenaService;
+    private final IdEncryptionUtil idEncryptionUtil;
 
     @GetMapping("/dashboard")
     public ResponseEntity<ApiResponse<AdminDashboardResponse>> dashboard() {
@@ -59,9 +62,10 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Reseña eliminada").build());
     }
 
-    @PostMapping("/usuarios/{id}/aprobar")
-    public ResponseEntity<ApiResponse<Void>> aprobarUsuario(@PathVariable Long id) {
+    @PutMapping("/productores/{encryptedId}/aprobar")
+    public ResponseEntity<ApiResponse<Void>> aprobarProductor(@PathVariable String encryptedId) {
+        Long id = idEncryptionUtil.decryptId(encryptedId);
         adminService.aprobarUsuario(id);
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Usuario aprobado").build());
+        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Productor aprobado exitosamente").build());
     }
 }

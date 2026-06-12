@@ -11,7 +11,9 @@ import com.agromarket.infrastructure.persistence.entity.PasswordResetTokenEntity
 import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.PasswordResetTokenRepository;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
+import com.agromarket.infrastructure.security.JwtTokenProvider;
 
+import java.security.SecureRandom;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,46 +30,62 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final PasswordEncoder passwordEncoder;
     private final AppProperties appProperties;
     private final com.agromarket.application.service.PasswordPolicyService passwordPolicyService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @Override
     @Transactional
     public void requestPasswordReset(String correo) {
         usuarioJpaRepository.findByCorreo(correo).ifPresent(usuario -> {
-            // remove existing tokens for user
             tokenRepository.deleteByUsuarioId(usuario.getId());
 
-            String token = UUID.randomUUID().toString();
+            String codigo = String.format("%06d", secureRandom.nextInt(1000000));
+            String hashedToken = passwordEncoder.encode(codigo);
+            
             PasswordResetTokenEntity entity = PasswordResetTokenEntity.builder()
-                .token(token)
+                .token(hashedToken)
                 .usuario(usuario)
-                .expiry(LocalDateTime.now().plusHours(1))
+                .expiry(LocalDateTime.now().plusMinutes(10))
                 .usado(false)
                 .build();
             tokenRepository.save(entity);
 
-                    String resetUrl = appProperties.frontendUrl() + "/restablecer-contrasena.html?token=" + token;
-                    java.util.Map<String, String> model = java.util.Map.of("resetUrl", resetUrl);
-                    mailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Recuperación de contraseña", "password-reset", model);
+            java.util.Map<String, String> model = java.util.Map.of("codigo", codigo);
+            mailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Código de recuperación", "password-reset", model);
         });
     }
 
     @Override
     @Transactional
+    public String verifyCode(String correo, String codigo) {
+        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(correo)
+            .orElseThrow(() -> new CredencialesInvalidasException("Código inválido o expirado"));
+
+        PasswordResetTokenEntity entity = tokenRepository.findFirstByUsuarioIdOrderByIdDesc(usuario.getId())
+            .filter(t -> !t.getUsado() && t.getExpiry().isAfter(LocalDateTime.now()))
+            .filter(t -> passwordEncoder.matches(codigo, t.getToken()))
+            .orElseThrow(() -> new CredencialesInvalidasException("Código inválido o expirado"));
+
+        entity.setUsado(true);
+        tokenRepository.save(entity);
+
+        return jwtTokenProvider.generatePasswordResetToken(usuario.getCorreo(), usuario.getId());
+    }
+
+    @Override
+    @Transactional
     public void resetPassword(String token, String nuevaContrasena) {
-        PasswordResetTokenEntity entity = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new CredencialesInvalidasException("Token inválido o expirado"));
-        if (entity.getUsado() != null && entity.getUsado()) {
-            throw new CredencialesInvalidasException("Token inválido o expirado");
+        if (!jwtTokenProvider.validateToken(token) || !jwtTokenProvider.isPasswordResetToken(token)) {
+            throw new CredencialesInvalidasException("Token de restablecimiento inválido o expirado");
         }
-        if (entity.getExpiry().isBefore(LocalDateTime.now())) {
-            throw new CredencialesInvalidasException("Token inválido o expirado");
-        }
-        UsuarioEntity usuario = entity.getUsuario();
+        
+        Long userId = jwtTokenProvider.extractUserId(token);
+        UsuarioEntity usuario = usuarioJpaRepository.findById(userId)
+                .orElseThrow(() -> new CredencialesInvalidasException("Usuario no encontrado"));
+                
         passwordPolicyService.validarContrasenaNueva(usuario, nuevaContrasena);
         usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
         UsuarioEntity guardado = usuarioJpaRepository.save(usuario);
         passwordPolicyService.registrarContrasenaEnHistorial(guardado);
-        entity.setUsado(true);
-        tokenRepository.save(entity);
     }
 }

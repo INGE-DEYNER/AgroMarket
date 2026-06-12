@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"null", "unused"})
 public class PasswordPolicyService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PasswordHistoryRepository passwordHistoryRepository;

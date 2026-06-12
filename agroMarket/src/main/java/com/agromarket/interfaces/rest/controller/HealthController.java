@@ -1,6 +1,6 @@
 package com.agromarket.interfaces.rest.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,10 +13,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class HealthController {
 
-    @Autowired
-    DataSource dataSource;
+    private final DataSource dataSource;
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {

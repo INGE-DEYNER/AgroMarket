@@ -31,7 +31,9 @@ public class JwtTokenProvider {
     private static final String PURPOSE_CLAIM = "purpose";
     private static final String PURPOSE_LOGIN = "login";
     private static final String PURPOSE_LOGIN_2FA = "login_2fa";
+    private static final String PURPOSE_RESET = "password_reset";
     private static final long TWO_FACTOR_EXPIRATION_MS = 5 * 60 * 1000;
+    private static final long RESET_EXPIRATION_MS = 10 * 60 * 1000;
     private final SecretKey secretKey;
     private final long expirationMs;
 
@@ -57,6 +59,15 @@ public class JwtTokenProvider {
     public boolean isTwoFactorToken(String token) {
         Object purpose = parseClaims(token).get(PURPOSE_CLAIM);
         return PURPOSE_LOGIN_2FA.equals(String.valueOf(purpose));
+    }
+
+    public String generatePasswordResetToken(String correo, Long userId) {
+        return generateTokenWithPurpose(correo, userId, null, PURPOSE_RESET, RESET_EXPIRATION_MS);
+    }
+
+    public boolean isPasswordResetToken(String token) {
+        Object purpose = parseClaims(token).get(PURPOSE_CLAIM);
+        return PURPOSE_RESET.equals(String.valueOf(purpose));
     }
 
     private String generateTokenWithPurpose(String correo, Long userId, RolUsuario rol, String purpose, long expiresInMs) {

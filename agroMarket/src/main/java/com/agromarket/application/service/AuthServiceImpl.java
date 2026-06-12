@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings({"null", "unused"})
 public class AuthServiceImpl implements AuthService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PasswordEncoder passwordEncoder;
@@ -39,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final com.agromarket.application.service.EmailVerificationService emailVerificationService;
     private final PasswordPolicyService passwordPolicyService;
     private final TwoFactorAuthenticatorService twoFactorAuthenticatorService;
+    private final com.agromarket.infrastructure.validation.DeepEmailValidatorService deepEmailValidatorService;
 
     @Override
     public AuthResponse login(LoginRequest request) {
@@ -196,6 +198,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void registro(RegistroRequest request) {
+        if (!deepEmailValidatorService.isEmailValid(request.getCorreo())) {
+            throw new CredencialesInvalidasException("El correo electrónico no existe o no puede recibir mensajes.");
+        }
+        
         if (usuarioJpaRepository.existsByCorreo(request.getCorreo())) {
             throw new UsuarioYaExisteException("Ya existe un usuario con ese correo");
         }
@@ -226,23 +232,42 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse completarGoogleOAuth2(String email, String nombre, String picture) {
+    public AuthResponse completarGoogleOAuth2(String email, String nombre, String picture, String rolSolicitado) {
         UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(email)
             .map(existingUser -> {
                 existingUser.setNombre(nombre);
                 if (picture != null && !picture.isEmpty()) existingUser.setFoto(picture);
-                existingUser.setActivo(true); // Ensure user is active after OAuth2 login
+                if (existingUser.getRol() != RolUsuario.PRODUCTOR) {
+                    existingUser.setActivo(true); // Ensure user is active after OAuth2 login, unless pending producer
+                }
                 return existingUser;
             })
             .orElseGet(() -> {
-                CompradorEntity nuevo = new CompradorEntity();
-                nuevo.setRol(RolUsuario.COMPRADOR);
+                RolUsuario rol = "PRODUCTOR".equalsIgnoreCase(rolSolicitado) ? RolUsuario.PRODUCTOR : RolUsuario.COMPRADOR;
+                UsuarioEntity nuevo;
+                if (rol == RolUsuario.PRODUCTOR) {
+                    ProductorEntity p = new ProductorEntity();
+                    p.setUbicacion("Pendiente de definir");
+                    nuevo = p;
+                } else {
+                    nuevo = new CompradorEntity();
+                }
+
+                nuevo.setRol(rol);
                 nuevo.setCorreo(email);
                 nuevo.setNombre(nombre);
                 nuevo.setFoto(picture);
                 nuevo.setTelefono("0000000000"); // Default phone
                 nuevo.setContrasena(passwordEncoder.encode(UUID.randomUUID().toString())); // Random password for OAuth2 users
-                nuevo.setActivo(true);
+                
+                if (rol == RolUsuario.PRODUCTOR) {
+                    nuevo.setActivo(true);
+                    nuevo.setAprobado(false); // Espera aprobación
+                } else {
+                    nuevo.setActivo(true);
+                    nuevo.setAprobado(true);
+                }
+                
                 nuevo.setFechaRegistro(LocalDateTime.now());
                 nuevo.setProveedor("GOOGLE"); // Set provider
                 nuevo.setEmailVerificado(true); // Email is verified by Google

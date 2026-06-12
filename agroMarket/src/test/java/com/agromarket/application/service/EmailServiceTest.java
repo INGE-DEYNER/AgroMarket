@@ -11,6 +11,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -19,7 +20,9 @@ import org.springframework.web.client.RestTemplate;
  * Unit tests for BrevoEmailService (Brevo REST API).
  * Uses a mocked RestTemplate — no SMTP dependency.
  */
-public class EmailServiceTest {
+@ExtendWith(MockitoExtension.class)
+@SuppressWarnings({"null", "unchecked"})
+class EmailServiceTest {
 
     private RestTemplate restTemplate;
     private BrevoEmailService emailService;

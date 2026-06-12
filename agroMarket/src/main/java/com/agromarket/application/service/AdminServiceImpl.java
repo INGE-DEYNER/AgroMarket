@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"null", "unused"})
 public class AdminServiceImpl implements AdminService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final ProductoJpaRepository productoJpaRepository;

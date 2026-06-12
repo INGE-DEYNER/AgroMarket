@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.http.HttpHeaders;
 
-
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -51,7 +51,17 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             (String) oAuth2User.getAttributes().get("picture"))
             .orElse("");
 
-        var authResponse = authService.completarGoogleOAuth2(email, name, picture); // Assuming AuthService can handle 'picture' now
+        String rolSolicitado = "COMPRADOR"; // Default
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("agromarket_oauth2_role".equals(c.getName())) {
+                    rolSolicitado = c.getValue();
+                    break;
+                }
+            }
+        }
+
+        var authResponse = authService.completarGoogleOAuth2(email, name, picture, rolSolicitado);
         
         ResponseCookie cookie = ResponseCookie.from("oauth2_token", authResponse.getToken())
             .httpOnly(true)

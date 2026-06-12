@@ -11,6 +11,7 @@ import com.agromarket.application.dto.TwoFactorCodeRequest;
 import com.agromarket.application.dto.TwoFactorLoginRequest;
 import com.agromarket.application.dto.TwoFactorSetupResponse;
 import com.agromarket.application.dto.VerificarCorreoRequest;
+import com.agromarket.application.dto.VerifyCodeRequest;
 import com.agromarket.application.service.AuthService;
 import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
@@ -198,13 +199,23 @@ public class AuthController {
     @PostMapping("/recuperar-contrasena")
     public ResponseEntity<ApiResponse<Void>> recuperarContrasena(@Valid @RequestBody PasswordResetRequest request) {
         passwordResetService.requestPasswordReset(request.getCorreo());
-        return ok("Correo de recuperación enviado");
+        return ok("Si la cuenta existe, recibirás un código de recuperación");
+    }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<ApiResponse<java.util.Map<String, String>>> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
+        String tokenTemporal = passwordResetService.verifyCode(request.getCorreo(), request.getCodigo());
+        return ResponseEntity.ok(ApiResponse.<java.util.Map<String, String>>builder()
+                .success(true)
+                .message("Código verificado")
+                .data(java.util.Map.of("tempToken", tokenTemporal))
+                .build());
     }
 
     @PostMapping("/restablecer-contrasena")
     public ResponseEntity<ApiResponse<Void>> restablecerContrasena(@Valid @RequestBody PasswordResetConfirmRequest request) {
         passwordResetService.resetPassword(request.getToken(), request.getNuevaContrasena());
-        return ok("Contraseña restablecida");
+        return ok("Contraseña restablecida exitosamente");
     }
 
     @PostMapping("/logout")
