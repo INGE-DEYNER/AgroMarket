@@ -1,30 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useStyles from '../hooks/useStyles';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import api from '../utils/api';
 
 export default function RestablecerContrasena() {
   useStyles(["/css/login.css"]);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token') || '';
+  const location = useLocation();
+  const email = location.state?.email || '';
 
+  const [step, setStep] = useState(1); // 1: verify code, 2: set new password
+  const [codigo, setCodigo] = useState('');
+  const [tempToken, setTempToken] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
+  
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState('');
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    if (!email) {
+      setError('No se ha proporcionado un correo electrónico. Por favor, solicita un nuevo código.');
+    }
+  }, [email]);
+
+  const handleVerifyCode = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    if (!codigo) { setError('Ingresa el código de 6 dígitos.'); return; }
+    
+    setLoading(true);
+    setError('');
+    try {
+      const res = await api.post('/auth/verify-code', { correo: email, codigo });
+      setTempToken(res.tempToken);
+      setStep(2);
+      setSuccess('Código verificado. Ahora ingresa tu nueva contraseña.');
+    } catch (err) {
+      setError(err.message || 'Código incorrecto o expirado.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
     e.preventDefault();
     if (password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres.'); return; }
     if (password !== confirmPass) { setError('Las contraseñas no coinciden.'); return; }
+    
+    setLoading(true);
     setError('');
+    setSuccess('');
     try {
-      await api.post('/auth/restablecer-contrasena', { token, password });
-      setSuccess(true);
+      await api.post('/auth/restablecer-contrasena', { token: tempToken, nuevaContrasena: password });
+      setSuccess('Contraseña restablecida con éxito. Redirigiendo al inicio de sesión...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
       setError(err.message || 'Error al restablecer la contraseña.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,29 +78,70 @@ export default function RestablecerContrasena() {
 
         <div style={{ margin: 'auto 0', maxWidth: '400px', width: '100%' }}>
           <h1 className="page-title">Restablecer contraseña</h1>
-          <p className="page-sub">Ingresa tu nueva contraseña.</p>
+          <p className="page-sub">
+            {step === 1 ? 'Ingresa el código que enviamos a tu correo.' : 'Crea tu nueva contraseña segura.'}
+          </p>
 
-          {success ? (
+          {error && <div className="global-error" style={{ display: 'block', marginBottom: '16px' }}>{error}</div>}
+          {success && step === 2 && !tempToken && (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
               <div style={{ fontSize: '3rem' }}>✅</div>
-              <p>Contraseña restablecida. Redirigiendo al login...</p>
+              <p style={{ marginTop: '16px' }}>{success}</p>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              {error && <div className="global-error" style={{ display: 'block', marginBottom: '16px' }}>{error}</div>}
+          )}
+
+          {!email && !success && (
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <Link to="/recuperar-contrasena" className="btn-submit" style={{ display: 'inline-block', textDecoration: 'none' }}>
+                Solicitar nuevo código
+              </Link>
+            </div>
+          )}
+
+          {email && step === 1 && (
+            <form onSubmit={handleVerifyCode}>
               <div className="form-group">
-                <label className="form-label" htmlFor="password">Nueva contraseña</label>
-                <input className="form-input" type="password" id="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <label className="form-label">Correo electrónico</label>
+                <input className="form-input" type="email" value={email} disabled />
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="confirmPass">Confirmar contraseña</label>
-                <input className="form-input" type="password" id="confirmPass" placeholder="••••••••" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
+                <label className="form-label" htmlFor="codigo">Código de recuperación</label>
+                <input 
+                  className="form-input" 
+                  type="text" 
+                  id="codigo" 
+                  placeholder="123456" 
+                  maxLength={6} 
+                  value={codigo} 
+                  onChange={(e) => setCodigo(e.target.value)} 
+                  style={{ letterSpacing: '8px', fontSize: '1.2rem', textAlign: 'center' }} 
+                  disabled={loading}
+                />
               </div>
-              <button type="submit" className="btn-submit">Restablecer contraseña</button>
+              <button type="submit" className="btn-submit" disabled={loading}>
+                {loading ? 'Verificando...' : 'Verificar código'}
+              </button>
             </form>
           )}
 
-          <div className="form-footer" style={{ marginTop: '16px' }}>
+          {step === 2 && !(!tempToken && success) && (
+            <form onSubmit={handleResetPassword}>
+              {success && <div style={{ color: '#27ae60', marginBottom: '16px', fontWeight: '500' }}>{success}</div>}
+              <div className="form-group">
+                <label className="form-label" htmlFor="password">Nueva contraseña</label>
+                <input className="form-input" type="password" id="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="confirmPass">Confirmar contraseña</label>
+                <input className="form-input" type="password" id="confirmPass" placeholder="••••••••" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} disabled={loading} />
+              </div>
+              <button type="submit" className="btn-submit" disabled={loading}>
+                {loading ? 'Guardando...' : 'Guardar nueva contraseña'}
+              </button>
+            </form>
+          )}
+
+          <div className="form-footer" style={{ marginTop: '24px' }}>
             <Link to="/login">← Volver al inicio de sesión</Link>
           </div>
         </div>

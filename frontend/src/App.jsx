@@ -30,6 +30,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/verificar-correo" element={<VerificarCorreo />} />
+          <Route path="/verificar/:token" element={<VerificarCorreo />} />
           <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
           <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
           <Route path="/catalogo" element={<Catalogo />} />

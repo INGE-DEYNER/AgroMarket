@@ -1,22 +1,31 @@
 import { useState } from 'react';
 import useStyles from '../hooks/useStyles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 
 export default function RecuperarContrasena() {
   useStyles(["/css/login.css"]);
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) { setError('Ingresa tu correo electrónico.'); return; }
+    setLoading(true);
+    setError('');
     try {
-      await api.post('/auth/recuperar-contrasena', { email });
+      await api.post('/auth/recuperar-contrasena', { correo: email });
       setSent(true);
+      setTimeout(() => {
+        navigate('/restablecer-contrasena', { state: { email } });
+      }, 2000);
     } catch (err) {
       setError(err.message || 'Error al enviar el correo.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,22 +44,23 @@ export default function RecuperarContrasena() {
 
         <div style={{ margin: 'auto 0', maxWidth: '400px', width: '100%' }}>
           <h1 className="page-title">¿Olvidaste tu contraseña?</h1>
-          <p className="page-sub">Ingresa tu correo y te enviaremos un enlace para restablecerla.</p>
+          <p className="page-sub">Ingresa tu correo y te enviaremos un código de recuperación de 6 dígitos.</p>
 
           {sent ? (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
               <div style={{ fontSize: '3rem' }}>✅</div>
-              <p style={{ marginTop: '16px' }}>Correo enviado. Revisa tu bandeja de entrada.</p>
-              <Link to="/login" style={{ marginTop: '16px', display: 'inline-block' }} className="btn-submit">Volver al inicio de sesión</Link>
+              <p style={{ marginTop: '16px' }}>Código enviado. Redirigiendo para que lo ingreses...</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
               {error && <div className="global-error" style={{ display: 'block', marginBottom: '16px' }}>{error}</div>}
               <div className="form-group">
                 <label className="form-label" htmlFor="email">Correo electrónico</label>
-                <input className="form-input" type="email" id="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <input className="form-input" type="email" id="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
               </div>
-              <button type="submit" className="btn-submit">Enviar enlace de recuperación</button>
+              <button type="submit" className="btn-submit" disabled={loading}>
+                {loading ? 'Enviando...' : 'Enviar código de recuperación'}
+              </button>
             </form>
           )}
 
@@ -65,7 +75,7 @@ export default function RecuperarContrasena() {
         <div className="right-overlay">
           <div className="right-badge">🌿 AgroMarket ASAFRUT</div>
           <h2 className="right-title">Recupera tu acceso fácilmente.</h2>
-          <p className="right-sub">Tu cuenta está a salvo. Solo sigue las instrucciones en tu correo.</p>
+          <p className="right-sub">Tu cuenta está a salvo. Solo sigue las instrucciones y verifica con el código.</p>
         </div>
       </div>
     </div>
