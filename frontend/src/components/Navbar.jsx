@@ -26,6 +26,34 @@ export default function Navbar() {
 
   const role = user?.role?.toLowerCase();
 
+  const getCatalogLink = () => {
+    if (!user) return '/catalogo';
+    if (role === 'comprador') return '/dashboard-comprador?section=catalogo';
+    if (role === 'productor') return '/dashboard-productor?section=misProductos';
+    return '/catalogo';
+  };
+
+  const getOrdersLink = () => {
+    if (!user) return '/login';
+    if (role === 'comprador') return '/dashboard-comprador?section=misPedidos';
+    if (role === 'productor') return '/dashboard-productor?section=pedidosRec';
+    return '/admin';
+  };
+
+  const getMessagesLink = () => {
+    if (!user) return '/login';
+    if (role === 'comprador') return '/dashboard-comprador?section=mensajeria';
+    if (role === 'productor') return '/dashboard-productor?section=mensajeria';
+    return '/admin';
+  };
+
+  const getShippingLink = () => {
+    if (!user) return '/login';
+    if (role === 'comprador') return '/dashboard-comprador?section=seguimiento';
+    if (role === 'productor') return '/dashboard-productor?section=seguimiento';
+    return '/admin';
+  };
+
   return (
     <nav className={`navbar${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`} id="navbar">
       <Link to="/home" className="navbar-brand">
@@ -49,10 +77,10 @@ export default function Navbar() {
             {(role === 'productor' || role === 'admin') && (
               <Link to="/dashboard-productor">Panel Productor</Link>
             )}
-            <Link to="/catalogo">{t('nav.catalog', 'Catálogo')}</Link>
-            <Link to="/pedidos">{t('nav.orders', 'Pedidos')}</Link>
-            <Link to="/mensajeria">{t('nav.messages', 'Mensajes')}</Link>
-            <Link to="/envios">{t('nav.shipping', 'Envíos')}</Link>
+            <Link to={getCatalogLink()}>{t('nav.catalog', 'Catálogo')}</Link>
+            <Link to={getOrdersLink()}>{t('nav.orders', 'Pedidos')}</Link>
+            <Link to={getMessagesLink()}>{t('nav.messages', 'Mensajes')}</Link>
+            <Link to={getShippingLink()}>{t('nav.shipping', 'Envíos')}</Link>
             {role === 'admin' && <Link to="/admin">Admin</Link>}
           </>
         )}

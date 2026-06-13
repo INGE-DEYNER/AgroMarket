@@ -1,15 +1,28 @@
 import { useState, useEffect } from 'react';
-import useStyles from '../hooks/useStyles';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import '../styles/resenas.css';
 
 const PRODUCTOS = ['🍌 Banano Urabá', '🍍 Piña Manzana', '🥭 Mango Tommy', '🫐 Maracuyá', '🍈 Guanábana', '🍊 Naranja Valencia', '🥥 Coco Fresco', '🍋 Limón Tahití'];
 
 export default function Resenas() {
-  useStyles(["/css/styles.css","/css/resenas.css"]);
   const { t } = useTranslation();
+  const { user } = useAuth();
+
+  if (user) {
+    const role = user.role?.toLowerCase();
+    if (role === 'comprador') {
+      return <Navigate to="/dashboard-comprador?section=resenas" replace />;
+    } else if (role === 'productor') {
+      return <Navigate to="/dashboard-productor" replace />;
+    } else if (role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
+  }
+
   const [reviews, setReviews] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [rProducto, setRProducto] = useState('');

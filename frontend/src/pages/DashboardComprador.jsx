@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import useStyles from '../hooks/useStyles';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import api from '../utils/api';
 import { useCart } from '../hooks/useCart';
+import '../styles/catalogo.css';
+import '../styles/envios.css';
+import '../styles/mensajeria.css';
+import '../styles/resenas.css';
 
 const CATEGORIES = [
   { label: 'Todos', emoji: '🌿', value: '' },
@@ -25,19 +28,21 @@ const REVIEW_PRODUCTOS = [
 ];
 
 export default function DashboardComprador() {
-  useStyles([
-    "/css/styles.css",
-    "/css/catalogo.css",
-    "/css/envios.css",
-    "/css/mensajeria.css",
-    "/css/resenas.css"
-  ]);
   const { t, i18n } = useTranslation();
   const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Navigation state
   const [activeSection, setActiveSection] = useState('resumen');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sec = params.get('section');
+    if (sec) {
+      setActiveSection(sec);
+    }
+  }, [location.search]);
 
   // Pedidos & Catalog state
   const [pedidos, setPedidos] = useState([]);
@@ -410,29 +415,21 @@ export default function DashboardComprador() {
                 <span className="stat-icon-lg">📦</span>
                 <div className="stat-label">{t('dashboardComprador.stats.ordersPlaced', 'Pedidos Realizados')}</div>
                 <div className="stat-value">{String(pedidos.length).padStart(2, '0')}</div>
-                <div className="stat-trend up">{t('dashboardComprador.stats.trendOrders', '↑ 12% vs mes anterior')}</div>
-                <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '70%' }}></div></div>
               </div>
               <div className="stat-card color-2">
                 <span className="stat-icon-lg">💰</span>
                 <div className="stat-label">{t('dashboardComprador.stats.totalInvestment', 'Inversión Total')}</div>
                 <div className="stat-value">${totalInvestment.toLocaleString('es-CO')}</div>
-                <div className="stat-trend up">{t('dashboardComprador.stats.trendInvestment', 'Basado en pedidos')}</div>
-                <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '45%', background: 'var(--blue)' }}></div></div>
               </div>
               <div className="stat-card color-3">
                 <span className="stat-icon-lg">⭐</span>
                 <div className="stat-label">{t('dashboardComprador.stats.reviewsLeft', 'Reseñas Dejadas')}</div>
                 <div className="stat-value">{reviewsDejadasCount}</div>
-                <div className="stat-trend">{t('dashboardComprador.stats.trendReviews', 'Nivel de opinión')}</div>
-                <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '30%', background: 'var(--gold)' }}></div></div>
               </div>
               <div className="stat-card color-4">
                 <span className="stat-icon-lg">🤝</span>
                 <div className="stat-label">{t('dashboardComprador.stats.producers', 'Productores')}</div>
                 <div className="stat-value">{uniqueProducersCount}</div>
-                <div className="stat-trend">{t('dashboardComprador.stats.trendProducers', 'Contactos activos')}</div>
-                <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '85%', background: '#a855f7' }}></div></div>
               </div>
             </div>
 

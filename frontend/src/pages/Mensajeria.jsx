@@ -1,15 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
-import useStyles from '../hooks/useStyles';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
+import '../styles/mensajeria.css';
 
 export default function Mensajeria() {
-  useStyles(["/css/styles.css","/css/mensajeria.css"]);
   const { t } = useTranslation();
   const { user } = useAuth();
+
+  if (user) {
+    const role = user.role?.toLowerCase();
+    if (role === 'comprador') {
+      return <Navigate to="/dashboard-comprador?section=mensajeria" replace />;
+    } else if (role === 'productor') {
+      return <Navigate to="/dashboard-productor?section=mensajeria" replace />;
+    } else if (role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
+  }
+
   const [contactos, setContactos] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
   const [messages, setMessages] = useState([]);

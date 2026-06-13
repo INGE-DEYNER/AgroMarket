@@ -1,14 +1,26 @@
 import { useState, useEffect } from 'react';
-import useStyles from '../hooks/useStyles';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 export default function Pedidos() {
-  useStyles(["/css/styles.css"]);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  if (user) {
+    const role = user.role?.toLowerCase();
+    if (role === 'comprador') {
+      return <Navigate to="/dashboard-comprador?section=misPedidos" replace />;
+    } else if (role === 'productor') {
+      return <Navigate to="/dashboard-productor?section=pedidosRec" replace />;
+    } else if (role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
+  }
+
   const [pedidos, setPedidos] = useState([]);
   const [filtroEstado, setFiltroEstado] = useState('');
   const [modalFactura, setModalFactura] = useState(false);

@@ -1,25 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
-import useStyles from '../hooks/useStyles';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import api from '../utils/api';
+import '../styles/envios.css';
+import '../styles/mensajeria.css';
 
 const TIPOS = ['Banano', 'Piña', 'Mango', 'Maracuyá', 'Guanábana', 'Naranja', 'Coco', 'Limón'];
 
 export default function DashboardProductor() {
-  useStyles([
-    "/css/styles.css",
-    "/css/envios.css",
-    "/css/mensajeria.css"
-  ]);
   const { t } = useTranslation();
   const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Navigation state
   const [activeSection, setActiveSection] = useState('resumen');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sec = params.get('section');
+    if (sec) {
+      setActiveSection(sec);
+    }
+  }, [location.search]);
 
   // Product and sales state
   const [productos, setProductos] = useState([]);
@@ -314,33 +319,25 @@ export default function DashboardProductor() {
                 <span className="stat-icon-lg">📦</span>
                 <div className="stat-label">{t('dashboardProductor.stats.activeProducts', 'Productos Activos')}</div>
                 <div className="stat-value">{String(productos.length).padStart(2, '0')}</div>
-                <div className="stat-trend">{t('dashboardProductor.stats.trendProducts', 'En venta ahora')}</div>
-                <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '100%' }}></div></div>
               </div>
               <div className="stat-card color-2">
                 <span className="stat-icon-lg">🧾</span>
                 <div className="stat-label">{t('dashboardProductor.stats.monthlySales', 'Ventas del Mes')}</div>
                 <div className="stat-value">{String(pedidos.length).padStart(2, '0')}</div>
-                <div className="stat-trend up">{t('dashboardProductor.stats.trendSales', '↑ 8 pedidos nuevos')}</div>
-                <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '60%', background: 'var(--blue)' }}></div></div>
               </div>
               <div className="stat-card color-3">
                 <span className="stat-icon-lg">💰</span>
                 <div className="stat-label">{t('dashboardProductor.stats.totalEarnings', 'Ingresos Totales')}</div>
                 <div className="stat-value">${pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0).toLocaleString('es-CO')}</div>
-                <div className="stat-trend up">{t('dashboardProductor.stats.trendEarnings', 'Ingresos confirmados')}</div>
-                <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '75%', background: 'var(--gold)' }}></div></div>
               </div>
               <div className="stat-card color-4">
                 <span className="stat-icon-lg">⭐</span>
                 <div className="stat-label">{t('dashboardProductor.stats.rating', 'Calificación')}</div>
                 <div className="stat-value">{user?.calificacion || '4.9'}</div>
-                <div className="stat-trend">{t('dashboardProductor.stats.trendRating', 'Basado en reseñas')}</div>
-                <div className="stat-progress"><div className="stat-progress-bar" style={{ width: '98%', background: '#a855f7' }}></div></div>
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
               <div className="card-table">
                 <div className="table-header"><h3 className="card-title">🧾 {t('dashboardProductor.recentSales', 'Últimas ventas')}</h3></div>
                 <div className="table-wrap">
@@ -364,14 +361,6 @@ export default function DashboardProductor() {
                       ))}
                     </tbody>
                   </table>
-                </div>
-              </div>
-              <div className="card-table" style={{ padding: '24px' }}>
-                <h3 className="card-title">{t('dashboardProductor.salesByProduct', '📊 Ventas x Producto')}</h3>
-                <div className="chart-container" style={{ height: '180px' }}>
-                  <div className="chart-bar" style={{ height: '80%' }} data-label="Banano"></div>
-                  <div className="chart-bar" style={{ height: '40%', background: 'var(--gold)' }} data-label="Mango"></div>
-                  <div className="chart-bar" style={{ height: '20%', background: 'var(--blue)' }} data-label="Coco"></div>
                 </div>
               </div>
             </div>

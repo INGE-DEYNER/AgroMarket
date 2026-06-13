@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import useStyles from '../hooks/useStyles';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api, { API_BASE } from '../utils/api';
+import '../styles/registro.css';
 
 export default function Registro() {
-  useStyles(["/css/registro.css"]);
   const { t } = useTranslation();
   const navigate = useNavigate();
 

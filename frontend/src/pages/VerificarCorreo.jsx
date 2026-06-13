@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
-import useStyles from '../hooks/useStyles';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import '../styles/login.css';
 
 export default function VerificarCorreo() {
-  useStyles(["/css/login.css"]);
   const navigate = useNavigate();
   const location = useLocation();
   const { token } = useParams();

@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import useStyles from '../hooks/useStyles';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import '../styles/login.css';
 
 export default function RestablecerContrasena() {
-  useStyles(["/css/login.css"]);
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();

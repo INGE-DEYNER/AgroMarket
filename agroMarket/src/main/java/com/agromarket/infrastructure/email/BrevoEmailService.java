@@ -60,8 +60,18 @@ public class BrevoEmailService implements EmailService {
         body.put("subject", subject);
         body.put("htmlContent", html);
 
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-        restTemplate.postForEntity("https://api.brevo.com/v3/smtp/email", request, String.class);
+        try {
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity("https://api.brevo.com/v3/smtp/email", request, String.class);
+            log.info("Email sent successfully to {}", to);
+        } catch (Exception e) {
+            log.error("Failed to send email to {} via Brevo API: {}. Printing contents to logs.", to, e.getMessage());
+            log.info("----- OFFLINE EMAIL LOG -----");
+            log.info("To: {}", to);
+            log.info("Subject: {}", subject);
+            log.info("HTML Content: {}", html);
+            log.info("-----------------------------");
+        }
     }
 
     @Override

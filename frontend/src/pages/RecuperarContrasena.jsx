@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import useStyles from '../hooks/useStyles';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
+import '../styles/login.css';
 
 export default function RecuperarContrasena() {
-  useStyles(["/css/login.css"]);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [email, setEmail] = useState('');

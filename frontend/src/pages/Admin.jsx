@@ -1,17 +1,25 @@
 import { useState, useEffect } from 'react';
-import useStyles from '../hooks/useStyles';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import api from '../utils/api';
+import '../styles/admin.css';
 
 export default function Admin() {
-  useStyles(["/css/styles.css"]);
   const { t } = useTranslation();
   const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeSection, setActiveSection] = useState('usuarios');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sec = params.get('section');
+    if (sec) {
+      setActiveSection(sec);
+    }
+  }, [location.search]);
   
   // Profile forms state
   const [perfilForm, setPerfilForm] = useState({ nombre: '', telefono: '' });

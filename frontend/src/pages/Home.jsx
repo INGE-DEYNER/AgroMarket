@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import useStyles from '../hooks/useStyles';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
+import '../styles/home.css';
 
 export default function Home() {
-  useStyles(['/css/home.css']);
   const { t } = useTranslation();
   const [productos, setProductos] = useState([]);
 
@@ -66,7 +65,7 @@ export default function Home() {
                 <svg viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
-                {t('home.bullet1', 'Más de 50 productores activos en Urabá')}
+                {t('home.bullet1', 'Conexión directa con productores locales')}
               </div>
               <div className="hero-bullet">
                 <svg viewBox="0 0 24 24">
@@ -90,18 +89,6 @@ export default function Home() {
                 {t('home.iAmProducer', 'Soy productor')}
               </Link>
             </div>
-
-            <div className="hero-avatars animate-fade-up" style={{ transitionDelay: '0.5s' }}>
-              <div className="avatar-group">
-                <div className="avatar">JC</div>
-                <div className="avatar">AP</div>
-                <div className="avatar">LR</div>
-                <div className="avatar">MM</div>
-              </div>
-              <div className="hero-avatars-text">
-                {t('home.familiesTrust', 'Más de 200 familias ya confían en nosotros')}
-              </div>
-            </div>
           </div>
 
           <div className="hero-right animate-fade-up" style={{ transitionDelay: '0.3s' }}>
@@ -112,39 +99,6 @@ export default function Home() {
                 className="hero-img"
               />
             </div>
-            <div className="float-card float-card-1">
-              <div className="float-card-1-title">{t('home.orderOnWay', '🚚 Pedido en camino')}</div>
-              <div className="float-card-1-sub">{t('home.orderExample', 'Banano Premium · 50 kg')}</div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill"></div>
-              </div>
-            </div>
-            <div className="float-card float-card-2">
-              <div className="float-card-2-val">⭐ 4.9</div>
-              <div className="float-card-2-sub">{t('home.avgRating', 'Calificación promedio')}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* METRICS */}
-      <section className="metrics">
-        <div className="metrics-grid">
-          <div className="metric-item animate-fade-up">
-            <div className="metric-val">200+</div>
-            <div className="metric-label">{t('home.metrics.families', 'Familias productoras')}</div>
-          </div>
-          <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.1s' }}>
-            <div className="metric-val">8</div>
-            <div className="metric-label">{t('home.metrics.fruits', 'Tipos de frutas disponibles')}</div>
-          </div>
-          <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.2s' }}>
-            <div className="metric-val">4.8★</div>
-            <div className="metric-label">{t('home.metrics.rating', 'Calificación promedio')}</div>
-          </div>
-          <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.3s' }}>
-            <div className="metric-val">100%</div>
-            <div className="metric-label">{t('home.metrics.payments', 'Pagos seguros')}</div>
           </div>
         </div>
       </section>
@@ -200,27 +154,22 @@ export default function Home() {
       </section>
 
       {/* FEATURED PRODUCTS */}
-      <section className="featured">
-        <div className="featured-header animate-fade-up">
-          <div>
-            <div className="section-eyebrow">{t('home.featured.eyebrow', 'DESTACADOS')}</div>
-            <h2 className="section-title" style={{ marginBottom: 0 }}>
-              {t('home.featured.title', 'Frutas de temporada')}
-            </h2>
-          </div>
-          <Link to="/catalogo" className="btn btn-secondary">
-            {t('home.featured.viewAll', 'Ver catálogo completo →')}
-          </Link>
-        </div>
-
-        <div className="products-grid">
-          {productos.length === 0 ? (
-            <div className="empty-state animate-fade-up" style={{ padding: '40px', width: '100%', textAlign: 'center', gridColumn: '1 / -1' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🍊</div>
-              <div>{t('home.featured.noProducts', 'No hay productos de temporada disponibles en este momento.')}</div>
+      {productos.length > 0 && (
+        <section className="featured">
+          <div className="featured-header animate-fade-up">
+            <div>
+              <div className="section-eyebrow">{t('home.featured.eyebrow', 'DESTACADOS')}</div>
+              <h2 className="section-title" style={{ marginBottom: 0 }}>
+                {t('home.featured.title', 'Frutas de temporada')}
+              </h2>
             </div>
-          ) : (
-            productos.slice(0, 4).map((p, i) => (
+            <Link to="/catalogo" className="btn btn-secondary">
+              {t('home.featured.viewAll', 'Ver catálogo completo →')}
+            </Link>
+          </div>
+
+          <div className="products-grid">
+            {productos.slice(0, 4).map((p, i) => (
               <div key={p.id} className="product-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
                 <img src={p.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'} alt={p.nombre} className="product-img" />
                 <div className="product-info">
@@ -244,10 +193,10 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* FOR PRODUCERS */}
       <section className="for-producers" id="asafrut">
@@ -289,52 +238,11 @@ export default function Home() {
                 className="fp-img"
               />
             </div>
-            <div className="fp-float">
-              <div className="fp-float-title">{t('home.forProducers.newOrder', '📦 Nuevo pedido recibido')}</div>
-              <div className="fp-float-desc">{t('home.forProducers.newOrderDetail', 'Juan Calle · 50 kg de Banano')}</div>
-              <div className="fp-float-badge">{t('home.forProducers.pending', 'Pendiente')}</div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="testimonials">
-        <div className="test-header animate-fade-up">
-          <div className="section-eyebrow">{t('home.testimonials.eyebrow', 'TESTIMONIOS')}</div>
-          <h2 className="section-title">{t('home.testimonials.title', 'Lo que dicen nuestros usuarios')}</h2>
-        </div>
 
-        <div className="test-grid">
-          {[
-            {
-              initials: 'JC', name: 'Juan Calle', role: t('home.testimonials.buyer', 'Comprador') + ' · Medellín',
-              content: t('home.testimonials.t1', 'Compro banano para mi negocio cada semana. La calidad es constante y los precios son mucho mejores que en la central mayorista.'),
-            },
-            {
-              initials: 'AP', name: 'Andrés Palacios', role: t('home.testimonials.producer', 'Productor') + ' · Chigorodó',
-              content: t('home.testimonials.t2', 'Antes vendía a intermediarios que me pagaban muy poco. Ahora con AgroMarket vendo directo y mis ingresos aumentaron un 40%.'),
-            },
-            {
-              initials: 'MM', name: 'María Mosquera', role: t('home.testimonials.producer', 'Productora') + ' · Apartadó',
-              content: t('home.testimonials.t3', 'La plataforma es muy fácil de usar. Publico mis productos, recibo los pedidos y coordino las entregas todo desde el celular.'),
-            },
-          ].map((item, i) => (
-            <div key={i} className="test-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
-              <div className="test-quote-mark">"</div>
-              <div className="test-stars">★★★★★</div>
-              <div className="test-content">{item.content}</div>
-              <div className="test-author">
-                <div className="test-avatar">{item.initials}</div>
-                <div>
-                  <div className="test-name">{item.name}</div>
-                  <div className="test-role">{item.role}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* CTA FINAL */}
       <section className="cta-final">
@@ -403,7 +311,7 @@ export default function Home() {
         </div>
 
         <div className="footer-bottom">
-          © 2026 AgroMarket · ASAFRUT · {t('home.footer.rights', 'Todos los derechos reservados')}
+          © 2026 AgroMarket · ASAFRUT · {t('home.footer.rights', 'Todos los derechos reservados')} · Desarrollado por Deyner Chaverra
         </div>
       </footer>
     </>

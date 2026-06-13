@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import useStyles from '../hooks/useStyles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import '../styles/catalogo.css';
 
 const CATEGORIES = [
   { label: 'Todos', emoji: '🌿', value: '' },
@@ -33,9 +34,21 @@ function SkeletonCard() {
 }
 
 export default function Catalogo() {
-  useStyles(['/css/styles.css', '/css/catalogo.css']);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  if (user) {
+    const role = user.role?.toLowerCase();
+    if (role === 'comprador') {
+      return <Navigate to="/dashboard-comprador?section=catalogo" replace />;
+    } else if (role === 'productor') {
+      return <Navigate to="/dashboard-productor?section=misProductos" replace />;
+    } else if (role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
+  }
+
   const { cart, addToCart, removeFromCart, updateQty, total, count, clearCart } = useCart();
 
   const [productos, setProductos] = useState([]);

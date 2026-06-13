@@ -1,12 +1,21 @@
 import { useAuth } from '../context/AuthContext';
-import useStyles from '../hooks/useStyles';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export default function Perfil() {
-  useStyles(["/css/styles.css"]);
   const { user, logout } = useAuth();
   const { t } = useTranslation();
+
+  if (user) {
+    const role = user.role?.toLowerCase();
+    if (role === 'comprador') {
+      return <Navigate to="/dashboard-comprador?section=perfil" replace />;
+    } else if (role === 'productor') {
+      return <Navigate to="/dashboard-productor?section=perfil" replace />;
+    } else if (role === 'admin') {
+      return <Navigate to="/admin?section=perfil" replace />;
+    }
+  }
 
   return (
     <div style={{ padding: '40px 32px', maxWidth: '600px', margin: '0 auto' }}>
