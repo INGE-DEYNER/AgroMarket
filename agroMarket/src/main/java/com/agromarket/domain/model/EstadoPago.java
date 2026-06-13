@@ -4,5 +4,8 @@ public enum EstadoPago {
     PENDIENTE,
     CONFIRMADO,
     RECHAZADO,
-    REVERTIDO
+    REVERTIDO,
+    EN_FIDEICOMISO,
+    LIBERADO,
+    REEMBOLSADO
 }

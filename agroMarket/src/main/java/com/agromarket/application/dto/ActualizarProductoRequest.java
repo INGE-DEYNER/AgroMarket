@@ -37,4 +37,6 @@ public class ActualizarProductoRequest {
     private TipoFruta tipoFruta;
     private Boolean enPromocion;
     private Boolean activo;
+    private Integer cantidadMinimaMayorista;
+    private BigDecimal precioMayorista;
 }

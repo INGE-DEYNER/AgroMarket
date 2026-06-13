@@ -76,25 +76,32 @@ export default function Admin() {
   const [usuarios, setUsuarios] = useState([]);
   const [productos, setProductos] = useState([]);
   const [resenas, setResenas] = useState([]);
+  const [pagosFideicomiso, setPagosFideicomiso] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [searchUsuarios, setSearchUsuarios] = useState('');
+
+  const extractArray = (res) => {
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (res.data) {
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data.content && Array.isArray(res.data.content)) return res.data.content;
+    }
+    if (res.content && Array.isArray(res.content)) return res.content;
+    return [];
+  };
 
   useEffect(() => {
     loadAll();
   }, []);
 
-  const loadAll = async () => {
-    const extractArray = (res) => {
-      if (!res) return [];
-      if (Array.isArray(res)) return res;
-      if (res.data) {
-        if (Array.isArray(res.data)) return res.data;
-        if (res.data.content && Array.isArray(res.data.content)) return res.data.content;
-      }
-      if (res.content && Array.isArray(res.content)) return res.content;
-      return [];
-    };
+  useEffect(() => {
+    if (activeSection === 'escrow') {
+      loadPagosFideicomiso();
+    }
+  }, [activeSection]);
 
+  const loadAll = async () => {
     try {
       const [u, p, r, db] = await Promise.all([
         api.get('/admin/usuarios').catch(() => []),
@@ -107,6 +114,48 @@ export default function Admin() {
       setResenas(extractArray(r));
       if (db) setDashboardData(db.data || db);
     } catch {}
+  };
+
+  const loadPagosFideicomiso = async () => {
+    try {
+      const data = await api.get('/admin/pagos/fideicomiso');
+      setPagosFideicomiso(extractArray(data));
+    } catch (err) {
+      console.error('Error loadPagosFideicomiso:', err);
+      setPagosFideicomiso([]);
+    }
+  };
+
+  const liberarPago = async (pagoId) => {
+    if (!window.confirm('¿Está seguro de que desea liberar estos fondos al productor?')) return;
+    try {
+      await api.put(`/admin/pagos/${pagoId}/liberar`);
+      alert('Fondos liberados exitosamente.');
+      loadPagosFideicomiso();
+    } catch (err) {
+      alert('Error al liberar fondos: ' + err.message);
+    }
+  };
+
+  const reembolsarPago = async (pagoId) => {
+    if (!window.confirm('¿Está seguro de que desea reembolsar estos fondos al comprador?')) return;
+    try {
+      await api.put(`/admin/pagos/${pagoId}/reembolsar`);
+      alert('Fondos reembolsados exitosamente.');
+      loadPagosFideicomiso();
+    } catch (err) {
+      alert('Error al reembolsar fondos: ' + err.message);
+    }
+  };
+
+  const toggleVerificarProductor = async (u) => {
+    try {
+      await api.put(`/admin/productores/${u.idEncriptado}/verificar`);
+      alert('Estado de verificación del productor actualizado.');
+      loadAll();
+    } catch (err) {
+      alert(err.message || 'Error al cambiar la verificación del productor.');
+    }
   };
 
   const handleGenerateReport = async () => {
@@ -181,6 +230,9 @@ export default function Admin() {
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} id="link-resenas" onClick={(e) => { e.preventDefault(); setActiveSection('resenas'); }}>
           <span className="icon">⭐</span> {t('admin.nav.moderation', 'Moderación')}
+        </a>
+        <a href="#" className={`sidebar-link${activeSection === 'escrow' ? ' active' : ''}`} id="link-escrow" onClick={(e) => { e.preventDefault(); setActiveSection('escrow'); }}>
+          <span className="icon">💳</span> Fideicomiso (Escrow)
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'perfil' ? ' active' : ''}`} id="link-perfil" onClick={(e) => { e.preventDefault(); setActiveSection('perfil'); }}>
           <span className="icon">👤</span> {t('profile.title', 'Mi Perfil')}
@@ -277,6 +329,11 @@ export default function Admin() {
                               <button className="btn btn-secondary btn-sm" onClick={() => toggleUsuarioActivo(u)}>
                                 {u.activo !== false ? t('admin.deactivate', 'Desactivar') : t('admin.activate', 'Activar')}
                               </button>
+                              {(u.role || u.rol)?.toUpperCase() === 'PRODUCTOR' && (
+                                <button className="btn btn-secondary btn-sm" style={{ marginLeft: '6px', background: u.verificado ? '#385723' : '#6b7280', color: '#fff' }} onClick={() => toggleVerificarProductor(u)}>
+                                  {u.verificado ? '⭐ Verificado' : 'Verificar'}
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -347,6 +404,52 @@ export default function Admin() {
                             </td>
                           </tr>
                         ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* FIDEICOMISO (ESCROW) */}
+              {activeSection === 'escrow' && (
+                <div className="section active" id="sec-escrow">
+                  <div className="table-header"><h3 className="card-title">💳 Transacciones en Fideicomiso</h3></div>
+                  <div className="table-wrap">
+                    <table className="table-responsive">
+                      <thead>
+                        <tr>
+                          <th>Pago ID</th>
+                          <th>Pedido ID</th>
+                          <th>Monto</th>
+                          <th>Método</th>
+                          <th>Estado</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pagosFideicomiso.length === 0 ? (
+                          <tr>
+                            <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>No hay transacciones retenidas en fideicomiso.</td>
+                          </tr>
+                        ) : (
+                          pagosFideicomiso.map((p) => (
+                            <tr key={p.id}>
+                              <td data-label="Pago ID">#{p.id}</td>
+                              <td data-label="Pedido ID">#{p.pedidoId}</td>
+                              <td data-label="Monto">${Number(p.monto).toLocaleString('es-CO')}</td>
+                              <td data-label="Método">{p.metodoPago}</td>
+                              <td data-label="Estado"><span className="badge-status status-pending">{p.estado}</span></td>
+                              <td data-label="Acciones">
+                                <button className="btn btn-primary btn-sm" onClick={() => liberarPago(p.id)}>
+                                  Liberar Fondos
+                                </button>
+                                <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)', marginLeft: '6px' }} onClick={() => reembolsarPago(p.id)}>
+                                  Reembolsar
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>

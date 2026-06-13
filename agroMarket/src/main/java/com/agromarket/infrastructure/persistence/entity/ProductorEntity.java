@@ -26,6 +26,10 @@ public class ProductorEntity extends UsuarioEntity {
     @Column(nullable = true)
     private String ubicacion;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean verificado = false;
+
     @OneToMany(mappedBy = "productor", fetch = FetchType.LAZY)
     @Builder.Default
     private List<ProductoEntity> productosPublicados = new ArrayList<>();

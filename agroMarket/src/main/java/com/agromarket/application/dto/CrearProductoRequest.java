@@ -43,4 +43,6 @@ public class CrearProductoRequest {
     private TipoFruta tipoFruta;
 
     private boolean enPromocion;
+    private Integer cantidadMinimaMayorista;
+    private BigDecimal precioMayorista;
 }

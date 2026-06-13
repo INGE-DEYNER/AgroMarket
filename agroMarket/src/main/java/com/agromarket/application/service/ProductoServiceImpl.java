@@ -91,6 +91,8 @@ public class ProductoServiceImpl implements ProductoService {
                 .tipoFruta(request.getTipoFruta())
                 .productor(productor)
                 .enPromocion(request.isEnPromocion())
+                .cantidadMinimaMayorista(request.getCantidadMinimaMayorista())
+                .precioMayorista(request.getPrecioMayorista())
                 .activo(true)
                 .build();
         // sanitize inputs
@@ -132,6 +134,12 @@ public class ProductoServiceImpl implements ProductoService {
         }
         if (request.getActivo() != null) {
             producto.setActivo(request.getActivo());
+        }
+        if (request.getCantidadMinimaMayorista() != null) {
+            producto.setCantidadMinimaMayorista(request.getCantidadMinimaMayorista());
+        }
+        if (request.getPrecioMayorista() != null) {
+            producto.setPrecioMayorista(request.getPrecioMayorista());
         }
         ProductoEntity saved = productoJpaRepository.save(producto);
         // invalidate caches

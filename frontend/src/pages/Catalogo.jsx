@@ -203,12 +203,30 @@ export default function Catalogo() {
                   <div className="catalog-card-body">
                     {p.tipo && <div className="catalog-card-tipo">{p.tipo}</div>}
                     <div className="catalog-card-name">{p.nombre}</div>
-                    <div className="catalog-card-producer">
+                    <div className="catalog-card-producer" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                       </svg>
-                      {p.productor || p.nombreProductor || '—'}
+                      {p.productorNombre || p.productor || p.nombreProductor || '—'}
+                      {p.productorVerificado && (
+                        <span style={{ background: '#e2f0d9', color: '#385723', padding: '1px 5px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: '700', border: '1px solid #385723' }}>
+                          ⭐ Gold Supplier
+                        </span>
+                      )}
                     </div>
+
+                    {p.cantidadMinimaMayorista && p.precioMayorista && (
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', background: 'var(--card-bg-sub)', padding: '6px 8px', borderRadius: '6px', margin: '8px 0', border: '1px dashed var(--border-light)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>Por menor:</span>
+                          <span>${Number(p.precio).toLocaleString('es-CO')}/kg</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600', color: 'var(--primary)' }}>
+                          <span>Por mayor (≥{p.cantidadMinimaMayorista}kg):</span>
+                          <span>${Number(p.precioMayorista).toLocaleString('es-CO')}/kg</span>
+                        </div>
+                      </div>
+                    )}
                     <div className="catalog-card-rating">
                       ★★★★★
                       <span>({p.calificacion || '4.8'})</span>
@@ -265,7 +283,20 @@ export default function Catalogo() {
                 />
                 <div className="cart-item-info">
                   <div className="cart-item-name">{item.nombre}</div>
-                  <div className="cart-item-price">${Number(item.precio).toLocaleString('es-CO')}{t('catalog.perKg', '/kg')}</div>
+                  <div className="cart-item-price">
+                    {item.cantidadMinimaMayorista && item.precioMayorista && item.qty >= item.cantidadMinimaMayorista ? (
+                      <>
+                        <span style={{ textDecoration: 'line-through', marginRight: '6px', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                          ${Number(item.precio).toLocaleString('es-CO')}/kg
+                        </span>
+                        <span style={{ color: 'var(--primary)', fontWeight: '600' }}>
+                          ${Number(item.precioMayorista).toLocaleString('es-CO')}/kg
+                        </span>
+                      </>
+                    ) : (
+                      `$${Number(item.precio).toLocaleString('es-CO')}/kg`
+                    )}
+                  </div>
                   <div className="cart-qty-controls">
                     <button className="qty-btn" onClick={() => updateQty(item.id, item.qty - 1)}>−</button>
                     <span className="qty-val">{item.qty}</span>

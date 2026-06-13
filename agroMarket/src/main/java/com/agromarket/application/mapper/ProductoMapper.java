@@ -39,8 +39,11 @@ public interface ProductoMapper {
                 .enPromocion(entity.isEnPromocion())
                 .activo(entity.isActivo())
                 .fechaCreacion(entity.getFechaCreacion())
+                .cantidadMinimaMayorista(entity.getCantidadMinimaMayorista())
+                .precioMayorista(entity.getPrecioMayorista())
                 .calificacionPromedio(promedio)
                 .totalResenas(totalResenas)
+                .productorVerificado(entity.getProductor() != null && Boolean.TRUE.equals(entity.getProductor().getVerificado()))
                 .build();
     }
 

@@ -34,6 +34,7 @@ public interface UsuarioMapper {
                 .ubicacion(entity instanceof ProductorEntity productorEntity ? productorEntity.getUbicacion() : null)
                 .emailVerificado(entity.isEmailVerificado())
                 .proveedor(entity.getProveedor())
+                .verificado(entity instanceof ProductorEntity productorEntity ? Boolean.TRUE.equals(productorEntity.getVerificado()) : false)
                 .build();
     }
 

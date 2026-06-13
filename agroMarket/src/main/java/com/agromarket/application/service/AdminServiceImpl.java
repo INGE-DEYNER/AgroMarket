@@ -8,8 +8,13 @@ import com.agromarket.application.dto.PedidoResponse;
 import com.agromarket.application.dto.UsuarioResponse;
 import com.agromarket.application.mapper.PedidoMapper;
 import com.agromarket.application.mapper.UsuarioMapper;
+import com.agromarket.application.mapper.PagoMapper;
+import com.agromarket.application.dto.PagoResponse;
 import com.agromarket.infrastructure.persistence.entity.PagoEntity;
 import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
+import com.agromarket.infrastructure.persistence.entity.ProductorEntity;
+import com.agromarket.domain.model.EstadoPago;
+import com.agromarket.domain.model.EstadoPedido;
 import com.agromarket.infrastructure.persistence.repository.PagoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.PedidoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.ProductoJpaRepository;
@@ -29,6 +34,7 @@ public class AdminServiceImpl implements AdminService {
     private final PagoJpaRepository pagoJpaRepository;
     private final UsuarioMapper usuarioMapper;
     private final PedidoMapper pedidoMapper;
+    private final PagoMapper pagoMapper;
     private final com.agromarket.application.service.EmailService emailService;
 
     @Override
@@ -296,5 +302,59 @@ public class AdminServiceImpl implements AdminService {
         cell.setPadding(8);
         cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_LEFT);
         table.addCell(cell);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void toggleVerificarProductor(Long id) {
+        UsuarioEntity usuario = usuarioJpaRepository.findById(id)
+                .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
+        if (usuario instanceof ProductorEntity productor) {
+            productor.setVerificado(!Boolean.TRUE.equals(productor.getVerificado()));
+            usuarioJpaRepository.save(productor);
+        } else {
+            throw new com.agromarket.domain.exception.CredencialesInvalidasException("El usuario no es un productor");
+        }
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<PagoResponse> getPagosFideicomiso() {
+        return pagoJpaRepository.findAll().stream()
+                .filter(pago -> pago.getEstado() == EstadoPago.EN_FIDEICOMISO)
+                .map(pagoMapper::toResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void liberarPago(Long pagoId) {
+        PagoEntity pago = pagoJpaRepository.findById(pagoId)
+                .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Pago no encontrado"));
+        if (pago.getEstado() != EstadoPago.EN_FIDEICOMISO) {
+            throw new com.agromarket.domain.exception.CredencialesInvalidasException("El pago no está en fideicomiso");
+        }
+        pago.setEstado(EstadoPago.LIBERADO);
+        if (pago.getPedido() != null) {
+            pago.getPedido().setEstado(EstadoPedido.ENTREGADO);
+            pedidoJpaRepository.save(pago.getPedido());
+        }
+        pagoJpaRepository.save(pago);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void reembolsarPago(Long pagoId) {
+        PagoEntity pago = pagoJpaRepository.findById(pagoId)
+                .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Pago no encontrado"));
+        if (pago.getEstado() != EstadoPago.EN_FIDEICOMISO) {
+            throw new com.agromarket.domain.exception.CredencialesInvalidasException("El pago no está en fideicomiso");
+        }
+        pago.setEstado(EstadoPago.REEMBOLSADO);
+        if (pago.getPedido() != null) {
+            pago.getPedido().setEstado(EstadoPedido.CANCELADO);
+            pedidoJpaRepository.save(pago.getPedido());
+        }
+        pagoJpaRepository.save(pago);
     }
 }

@@ -24,4 +24,5 @@ public class UsuarioResponse {
     private boolean emailVerificado;
     private String proveedor;
     private String idEncriptado;
+    private boolean verificado;
 }

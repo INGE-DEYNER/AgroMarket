@@ -27,6 +27,9 @@ public class ProductoResponse {
     private boolean enPromocion;
     private boolean activo;
     private LocalDateTime fechaCreacion;
+    private Integer cantidadMinimaMayorista;
+    private BigDecimal precioMayorista;
     private double calificacionPromedio;
     private long totalResenas;
+    private boolean productorVerificado;
 }

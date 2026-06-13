@@ -1,6 +1,5 @@
 package com.agromarket.infrastructure.persistence.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,42 +32,28 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "productos")
-public class ProductoEntity {
+@Table(name = "rfqs")
+public class RfqEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String nombre;
-
-    @Column(columnDefinition = "TEXT")
-    private String descripcion;
-
-    @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal precio;
-
-    @Column(nullable = false)
-    private Integer cantidadDisponible;
-
-    private String imagenUrl;
-
-    @Column(nullable = true)
-    private Integer cantidadMinimaMayorista;
-
-    @Column(nullable = true, precision = 19, scale = 2)
-    private BigDecimal precioMayorista;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comprador_id", nullable = false)
+    private UsuarioEntity comprador;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoFruta tipoFruta;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productor_id", nullable = false)
-    private ProductorEntity productor;
+    @Column(nullable = false)
+    private Double cantidadRequerida;
+
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
 
     @Column(nullable = false)
-    private boolean enPromocion;
+    private LocalDateTime fechaLimite;
 
     @Column(nullable = false)
     @Builder.Default
@@ -78,7 +63,7 @@ public class ProductoEntity {
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "rfq", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<ResenaEntity> resenas = new ArrayList<>();
+    private List<RfqOfertaEntity> ofertas = new ArrayList<>();
 }

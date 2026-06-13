@@ -41,9 +41,15 @@ export default function DashboardProductor() {
   const [pedidos, setPedidos] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState({ nombre: '', tipo: 'Banano', precio: '', stock: '', descripcion: '', imagenUrl: '' });
+  const [form, setForm] = useState({ nombre: '', tipo: 'Banano', precio: '', stock: '', descripcion: '', imagenUrl: '', cantidadMinimaMayorista: '', precioMayorista: '' });
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
+
+  // RFQ (Licitaciones) states
+  const [activeRfqs, setActiveRfqs] = useState([]);
+  const [biddingRfq, setBiddingRfq] = useState(null);
+  const [bidForm, setBidForm] = useState({ precioPropuesto: '', comentarios: '' });
+  const [bidMsg, setBidMsg] = useState({ type: '', text: '' });
 
   // Shipments (Despachos) state
   const [shipments, setShipments] = useState([]);
@@ -99,12 +105,47 @@ export default function DashboardProductor() {
     }
   };
 
+  const loadActiveRfqs = async () => {
+    try {
+      const data = await api.get('/rfq/activas');
+      setActiveRfqs(extractArray(data));
+    } catch (err) {
+      console.error('Error loadActiveRfqs:', err);
+      setActiveRfqs([]);
+    }
+  };
+
+  const enviarBid = async (e) => {
+    e.preventDefault();
+    setBidMsg({ type: '', text: '' });
+    if (!bidForm.precioPropuesto) {
+      setBidMsg({ type: 'error', text: 'Por favor complete todos los campos obligatorios.' });
+      return;
+    }
+    try {
+      await api.post(`/rfq/${biddingRfq.id}/ofertar`, {
+        precioPropuesto: parseFloat(bidForm.precioPropuesto),
+        comentarios: bidForm.comentarios
+      });
+      setBidMsg({ type: 'success', text: 'Cotización enviada exitosamente.' });
+      setBidForm({ precioPropuesto: '', comentarios: '' });
+      setTimeout(() => {
+        setBiddingRfq(null);
+        loadActiveRfqs();
+      }, 1500);
+    } catch (err) {
+      setBidMsg({ type: 'error', text: err.message || 'Error al enviar la cotización.' });
+    }
+  };
+
   // Section Loading triggers
   useEffect(() => {
     if (activeSection === 'seguimiento') {
       loadEnvios();
     } else if (activeSection === 'mensajeria') {
       loadContactos();
+    } else if (activeSection === 'rfq') {
+      loadActiveRfqs();
     } else if (activeSection === 'perfil' && user) {
       setPerfilForm({ nombre: user.nombre || '', telefono: user.telefono || '' });
       setPerfilMsg({ type: '', text: '' });
@@ -241,7 +282,9 @@ export default function DashboardProductor() {
         precio: prod.precio,
         stock: prod.stock !== undefined ? prod.stock : prod.cantidadDisponible,
         descripcion: prod.descripcion || '',
-        imagenUrl: prod.imagenUrl || ''
+        imagenUrl: prod.imagenUrl || '',
+        cantidadMinimaMayorista: prod.cantidadMinimaMayorista !== undefined && prod.cantidadMinimaMayorista !== null ? prod.cantidadMinimaMayorista : '',
+        precioMayorista: prod.precioMayorista !== undefined && prod.precioMayorista !== null ? prod.precioMayorista : ''
       });
       if (prod.imagenUrl) {
         // Resolve absolute url for display if relative
@@ -254,7 +297,7 @@ export default function DashboardProductor() {
       }
     } else {
       setEditId(null);
-      setForm({ nombre: '', tipo: 'Banano', precio: '', stock: '', descripcion: '', imagenUrl: '' });
+      setForm({ nombre: '', tipo: 'Banano', precio: '', stock: '', descripcion: '', imagenUrl: '', cantidadMinimaMayorista: '', precioMayorista: '' });
     }
     setModalOpen(true);
   };
@@ -286,7 +329,9 @@ export default function DashboardProductor() {
       precio: Number(form.precio),
       cantidadDisponible: Number(form.stock),
       descripcion: form.descripcion,
-      imagenUrl: form.imagenUrl || ''
+      imagenUrl: form.imagenUrl || '',
+      cantidadMinimaMayorista: form.cantidadMinimaMayorista ? Number(form.cantidadMinimaMayorista) : null,
+      precioMayorista: form.precioMayorista ? Number(form.precioMayorista) : null
     };
 
     try {
@@ -340,7 +385,14 @@ export default function DashboardProductor() {
           <div className="avatar avatar-green" style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}>{iniciales}</div>
           <div className="sidebar-user-info">
             <span className="name">{user?.nombre || 'Luis Palacios'}</span>
-            <span className="role">{t('dashboardProductor.producerRole', 'Productor ASAFRUT')}</span>
+            <span className="role">
+              {t('dashboardProductor.producerRole', 'Productor ASAFRUT')}
+              {user?.verificado && (
+                <span style={{ display: 'inline-block', marginLeft: '6px', background: '#385723', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: '700' }}>
+                  ⭐ Gold
+                </span>
+              )}
+            </span>
             <div className="rating">⭐ {user?.calificacion || '4.9'}</div>
           </div>
         </div>
@@ -354,6 +406,9 @@ export default function DashboardProductor() {
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'pedidosRec' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('pedidosRec'); }}>
           <span className="icon">🧾</span> {t('dashboardProductor.nav.sales', 'Ventas')} <span className="badge-count">{pedidos.length}</span>
+        </a>
+        <a href="#" className={`sidebar-link${activeSection === 'rfq' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('rfq'); }}>
+          <span className="icon">📋</span> Oportunidades Comerciales
         </a>
 
         <div className="sidebar-divider"></div>
@@ -756,6 +811,90 @@ export default function DashboardProductor() {
             </div>
           </div>
         )}
+
+        {/* ─── RFQ OPPORTUNITIES (LICITACIONES) ─── */}
+        {activeSection === 'rfq' && (
+          <div className="section active">
+            <div className="dash-header">
+              <div className="dash-welcome">
+                <h1>📋 Licitaciones / Oportunidades Comerciales</h1>
+                <p>Encuentra solicitudes de compra al por mayor y envía tus cotizaciones de forma segura</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: biddingRfq ? '1fr 1fr' : '1fr', gap: '24px', marginTop: '24px' }}>
+              {/* Active RFQ List */}
+              <div className="card-table" style={{ padding: '24px', borderRadius: '12px', background: 'var(--card-bg)' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '1.1rem', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>Licitaciones Disponibles</h3>
+                {activeRfqs.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-muted)' }}>No hay licitaciones activas en este momento.</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {activeRfqs.map((rfq) => {
+                      const yaOferto = rfq.ofertas?.find(of => of.productorId === user?.id);
+                      return (
+                        <div key={rfq.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <span style={{ fontWeight: '700', fontSize: '1rem', color: 'var(--primary)' }}>
+                              {rfq.tipoFruta} - {rfq.cantidadRequerida} kg
+                            </span>
+                            <div style={{ fontSize: '0.8rem', margin: '4px 0' }}>Comprador: <strong>{rfq.compradorNombre}</strong></div>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '4px 0' }}>{rfq.descripcion}</p>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Vence: {new Date(rfq.fechaLimite).toLocaleString()}</span>
+                          </div>
+                          <div>
+                            {yaOferto ? (
+                              <div style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', textAlign: 'right' }}>
+                                ✓ Ofertado: ${Number(yaOferto.precioPropuesto).toLocaleString('es-CO')}/kg
+                              </div>
+                            ) : (
+                              <button className="btn btn-primary" onClick={() => { setBiddingRfq(rfq); setBidMsg({ type: '', text: '' }); }}>
+                                Cotizar
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Bidding Panel */}
+              {biddingRfq && (
+                <div className="card-table" style={{ padding: '24px', borderRadius: '12px', background: 'var(--card-bg)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
+                    <h3 style={{ fontSize: '1.1rem' }}>Enviar Cotización para RFQ #{biddingRfq.id}</h3>
+                    <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }} onClick={() => setBiddingRfq(null)}>✕</button>
+                  </div>
+                  {bidMsg.text && (
+                    <div style={{ padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem', background: bidMsg.type === 'success' ? 'var(--green-bg)' : 'var(--red-bg)', color: bidMsg.type === 'success' ? 'var(--primary)' : 'var(--red)' }}>
+                      {bidMsg.text}
+                    </div>
+                  )}
+                  <form onSubmit={enviarBid}>
+                    <div className="form-group" style={{ marginBottom: '16px' }}>
+                      <label className="form-label">Detalles de la Solicitud</label>
+                      <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '6px', fontSize: '0.8rem' }}>
+                        <p><strong>Fruta solicitada:</strong> {biddingRfq.tipoFruta}</p>
+                        <p><strong>Cantidad requerida:</strong> {biddingRfq.cantidadRequerida} kg</p>
+                      </div>
+                    </div>
+                    <div className="form-group" style={{ marginBottom: '16px' }}>
+                      <label className="form-label">Precio Propuesto por kg (COP) *</label>
+                      <input type="number" min="1" className="form-input" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={bidForm.precioPropuesto} onChange={(e) => setBidForm({ ...bidForm, precioPropuesto: e.target.value })} placeholder="Ej: 2200" />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: '20px' }}>
+                      <label className="form-label">Comentarios / Condiciones de Entrega</label>
+                      <textarea rows="3" className="form-textarea" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={bidForm.comentarios} onChange={(e) => setBidForm({ ...bidForm, comentarios: e.target.value })} placeholder="Ej: Despacho inmediato, calidad premium certificada."></textarea>
+                    </div>
+                    <button className="btn btn-primary" type="submit" style={{ width: '100%' }}>Enviar Cotización</button>
+                  </form>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* MODAL PRODUCTO */}
@@ -784,6 +923,17 @@ export default function DashboardProductor() {
               <div className="form-group">
                 <label className="form-label">{t('dashboardProductor.productStock', 'Stock disponible (kg)')}</label>
                 <input className="form-input" id="pStock" type="number" placeholder="0" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+              </div>
+            </div>
+            
+            <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', margin: '0 0 16px 0' }}>
+              <div className="form-group">
+                <label className="form-label">Cant. Mínima Mayorista (kg)</label>
+                <input className="form-input" type="number" placeholder="Ej: 100" value={form.cantidadMinimaMayorista} onChange={(e) => setForm({ ...form, cantidadMinimaMayorista: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Precio Mayorista (COP)</label>
+                <input className="form-input" type="number" placeholder="Ej: 2400" value={form.precioMayorista} onChange={(e) => setForm({ ...form, precioMayorista: e.target.value })} />
               </div>
             </div>
             <div className="form-group">

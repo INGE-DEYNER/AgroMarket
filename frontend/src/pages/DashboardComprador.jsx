@@ -102,6 +102,11 @@ export default function DashboardComprador() {
   const [metodoPago, setMetodoPago] = useState('PSE');
   const [pagoModalOpen, setPagoModalOpen] = useState(false);
 
+  // RFQ (Licitaciones) states
+  const [rfqs, setRfqs] = useState([]);
+  const [rfqForm, setRfqForm] = useState({ tipoFruta: 'BANANO', cantidadRequerida: '', descripcion: '', fechaLimite: '' });
+  const [rfqMsg, setRfqMsg] = useState({ type: '', text: '' });
+
   const loadFacturas = async () => {
     try {
       const data = await api.get('/facturas/mis-facturas');
@@ -155,6 +160,50 @@ export default function DashboardComprador() {
     }
   };
 
+  const loadRfqs = async () => {
+    try {
+      const data = await api.get('/rfq/mis-solicitudes');
+      setRfqs(extractArray(data));
+    } catch (err) {
+      console.error('Error loadRfqs:', err);
+      setRfqs([]);
+    }
+  };
+
+  const crearRfq = async (e) => {
+    e.preventDefault();
+    setRfqMsg({ type: '', text: '' });
+    if (!rfqForm.cantidadRequerida || !rfqForm.fechaLimite) {
+      setRfqMsg({ type: 'error', text: 'Por favor complete todos los campos obligatorios.' });
+      return;
+    }
+    try {
+      await api.post('/rfq', {
+        tipoFruta: rfqForm.tipoFruta,
+        cantidadRequerida: parseFloat(rfqForm.cantidadRequerida),
+        descripcion: rfqForm.descripcion,
+        fechaLimite: new Date(rfqForm.fechaLimite).toISOString()
+      });
+      setRfqMsg({ type: 'success', text: 'Licitación publicada exitosamente.' });
+      setRfqForm({ tipoFruta: 'BANANO', cantidadRequerida: '', descripcion: '', fechaLimite: '' });
+      loadRfqs();
+    } catch (err) {
+      setRfqMsg({ type: 'error', text: err.message || 'Error al publicar la licitación.' });
+    }
+  };
+
+  const aceptarOfertaRfq = async (ofertaId) => {
+    if (!window.confirm('¿Está seguro de que desea aceptar esta oferta? Se generará un pedido automático con los datos propuestos.')) return;
+    try {
+      await api.put(`/rfq/ofertas/${ofertaId}/aceptar`);
+      alert('Oferta aceptada correctamente. Se ha generado un pedido en estado pendiente.');
+      loadRfqs();
+      loadPedidos();
+    } catch (err) {
+      alert('Error al aceptar la oferta: ' + err.message);
+    }
+  };
+
   // Section Loading Triggers
   useEffect(() => {
     if (activeSection === 'catalogo') {
@@ -167,6 +216,8 @@ export default function DashboardComprador() {
       loadReviews();
     } else if (activeSection === 'misFacturas') {
       loadFacturas();
+    } else if (activeSection === 'rfq') {
+      loadRfqs();
     } else if (activeSection === 'perfil' && user) {
       setPerfilForm({ nombre: user.nombre || '', telefono: user.telefono || '' });
       setPerfilMsg({ type: '', text: '' });
@@ -411,6 +462,9 @@ export default function DashboardComprador() {
         <a href="#" className={`sidebar-link${activeSection === 'misFacturas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misFacturas'); }}>
           <span className="icon">📄</span> {t('dashboardComprador.nav.myInvoices', 'Mis Facturas')} <span className="badge-count">{facturas.length}</span>
         </a>
+        <a href="#" className={`sidebar-link${activeSection === 'rfq' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('rfq'); }}>
+          <span className="icon">📋</span> Licitaciones B2B (RFQ)
+        </a>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('dashboardComprador.services.title', 'Servicios')}</div>
@@ -595,7 +649,28 @@ export default function DashboardComprador() {
                     <div className="catalog-card-body" style={{ padding: '16px' }}>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{p.tipo}</div>
                       <h4 style={{ margin: '4px 0 8px 0', fontSize: '1.05rem', fontWeight: '700' }}>{p.nombre}</h4>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>📍 {p.productor || p.nombreProductor || 'Productor ASAFRUT'}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        📍 {p.productorNombre || p.productor || p.nombreProductor || 'Productor ASAFRUT'}
+                        {p.productorVerificado && (
+                          <span style={{ background: '#e2f0d9', color: '#385723', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: '700', border: '1px solid #385723' }}>
+                            ⭐ Gold Supplier
+                          </span>
+                        )}
+                      </div>
+                      
+                      {p.cantidadMinimaMayorista && p.precioMayorista && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', margin: '8px 0', border: '1px dashed var(--border-light)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span>Por menor:</span>
+                            <span>${Number(p.precio).toLocaleString('es-CO')}/kg</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600', color: 'var(--primary)' }}>
+                            <span>Por mayor (≥{p.cantidadMinimaMayorista}kg):</span>
+                            <span>${Number(p.precioMayorista).toLocaleString('es-CO')}/kg</span>
+                          </div>
+                        </div>
+                      )}
+
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                         <span style={{ fontWeight: '800', color: 'var(--primary)', fontSize: '1.15rem' }}>${Number(p.precio).toLocaleString('es-CO')}<small style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>/kg</small></span>
                         <button
@@ -991,6 +1066,104 @@ export default function DashboardComprador() {
             </div>
           </div>
         )}
+
+        {/* ─── LICITACIONES B2B (RFQ) ─── */}
+        {activeSection === 'rfq' && (
+          <div className="section active">
+            <div className="dash-header">
+              <div className="dash-welcome">
+                <h1>📋 Licitaciones B2B (RFQ)</h1>
+                <p>Publica solicitudes de cotización al por mayor para recibir ofertas competitivas de productores verificados</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', marginTop: '24px' }}>
+              {/* Publicar Solicitud */}
+              <div className="card-table" style={{ padding: '24px', borderRadius: '12px', background: 'var(--card-bg)' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '1.1rem', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>Nueva Solicitud (RFQ)</h3>
+                {rfqMsg.text && (
+                  <div style={{ padding: '10px 14px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem', background: rfqMsg.type === 'success' ? 'var(--green-bg)' : 'var(--red-bg)', color: rfqMsg.type === 'success' ? 'var(--primary)' : 'var(--red)' }}>
+                    {rfqMsg.text}
+                  </div>
+                )}
+                <form onSubmit={crearRfq}>
+                  <div className="form-group" style={{ marginBottom: '16px' }}>
+                    <label className="form-label">Tipo de Fruta *</label>
+                    <select className="form-select" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={rfqForm.tipoFruta} onChange={(e) => setRfqForm({ ...rfqForm, tipoFruta: e.target.value })}>
+                      <option value="BANANO">🍌 Banano</option>
+                      <option value="PINA">🍍 Piña</option>
+                      <option value="MANGO">🥭 Mango</option>
+                      <option value="MARACUYA">🍊 Maracuyá</option>
+                      <option value="GUANABANA">🍈 Guanábana</option>
+                      <option value="NARANJA">🍊 Naranja</option>
+                      <option value="COCO">🥥 Coco</option>
+                      <option value="LIMON">🍋 Limón</option>
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '16px' }}>
+                    <label className="form-label">Cantidad Requerida (kg) *</label>
+                    <input type="number" min="1" className="form-input" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={rfqForm.cantidadRequerida} onChange={(e) => setRfqForm({ ...rfqForm, cantidadRequerida: e.target.value })} placeholder="Ej: 500" />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '16px' }}>
+                    <label className="form-label">Fecha Límite para Ofertar *</label>
+                    <input type="datetime-local" className="form-input" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={rfqForm.fechaLimite} onChange={(e) => setRfqForm({ ...rfqForm, fechaLimite: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '20px' }}>
+                    <label className="form-label">Instrucciones / Especificaciones</label>
+                    <textarea rows="3" className="form-textarea" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={rfqForm.descripcion} onChange={(e) => setRfqForm({ ...rfqForm, descripcion: e.target.value })} placeholder="Ej: Busco piña manzana de calibre grande, despacho a bodega en Medellín."></textarea>
+                  </div>
+                  <button className="btn btn-primary" type="submit" style={{ width: '100%' }}>Publicar Licitación</button>
+                </form>
+              </div>
+
+              {/* Mis Solicitudes y sus Ofertas */}
+              <div className="card-table" style={{ padding: '24px', borderRadius: '12px', background: 'var(--card-bg)' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '1.1rem', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>Mis Licitaciones Publicadas</h3>
+                {rfqs.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-muted)' }}>No has publicado ninguna licitación.</div>
+                ) : (
+                  rfqs.map((rfq) => (
+                    <div key={rfq.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', marginBottom: '16px', border: '1px solid var(--border-light)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <span style={{ fontWeight: '700', fontSize: '1rem', color: 'var(--primary)' }}>
+                          {rfq.tipoFruta} - {rfq.cantidadRequerida} kg
+                        </span>
+                        <span className={`badge-status ${rfq.activo ? 'status-shipped' : 'status-pending'}`} style={{ fontSize: '0.75rem' }}>
+                          {rfq.activo ? 'Activa' : 'Cerrada'}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '0.85rem', margin: '4px 0' }}>{rfq.descripcion || 'Sin descripción.'}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        Vence: {new Date(rfq.fechaLimite).toLocaleString()}
+                      </p>
+
+                      <div style={{ marginTop: '14px', borderTop: '1px dashed #cbd5e1', paddingTop: '10px' }}>
+                        <strong style={{ fontSize: '0.8rem', display: 'block', marginBottom: '6px' }}>Cotizaciones Recibidas ({rfq.ofertas?.length || 0}):</strong>
+                        {(!rfq.ofertas || rfq.ofertas.length === 0) ? (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>Esperando ofertas de productores...</span>
+                        ) : (
+                          rfq.ofertas.map((of) => (
+                            <div key={of.id} style={{ background: '#fff', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-light)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <strong>{of.productorNombre}</strong>: <span style={{ color: 'var(--primary)', fontWeight: '600' }}>${Number(of.precioPropuesto).toLocaleString('es-CO')}/kg</span>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>"{of.comentarios}"</div>
+                              </div>
+                              {rfq.activo && (
+                                <button className="btn btn-primary btn-sm" style={{ padding: '4px 8px', fontSize: '0.7rem' }} onClick={() => aceptarOfertaRfq(of.id)}>
+                                  Aceptar
+                                </button>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* MODAL PROCESAR PAGO (PSE/TARJETA/EFECTIVO) */}
@@ -1145,7 +1318,20 @@ export default function DashboardComprador() {
                   <div key={item.id} className="cart-item-row" style={{ display: 'flex', gap: '12px', marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: '600' }}>{item.nombre}</div>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>${Number(item.precio).toLocaleString('es-CO')}/kg</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                        {item.cantidadMinimaMayorista && item.precioMayorista && item.qty >= item.cantidadMinimaMayorista ? (
+                          <>
+                            <span style={{ textDecoration: 'line-through', marginRight: '6px', fontSize: '0.75rem' }}>
+                              ${Number(item.precio).toLocaleString('es-CO')}/kg
+                            </span>
+                            <span style={{ color: 'var(--primary)', fontWeight: '600' }}>
+                              ${Number(item.precioMayorista).toLocaleString('es-CO')}/kg
+                            </span>
+                          </>
+                        ) : (
+                          `$${Number(item.precio).toLocaleString('es-CO')}/kg`
+                        )}
+                      </div>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
                         <button className="btn btn-secondary btn-sm" onClick={() => updateQty(item.id, item.qty - 1)} style={{ padding: '2px 8px' }}>-</button>
                         <span>{item.qty} kg</span>

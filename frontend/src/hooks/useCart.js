@@ -44,7 +44,11 @@ export function useCart() {
 
   const clearCart = () => setCart([]);
 
-  const total = cart.reduce((sum, i) => sum + i.precio * i.qty, 0);
+  const total = cart.reduce((sum, i) => {
+    const isWholesale = i.cantidadMinimaMayorista && i.precioMayorista && i.qty >= i.cantidadMinimaMayorista;
+    const currentPrice = isWholesale ? i.precioMayorista : i.precio;
+    return sum + currentPrice * i.qty;
+  }, 0);
   const count = cart.reduce((sum, i) => sum + i.qty, 0);
 
   return { cart, addToCart, removeFromCart, updateQty, clearCart, total, count };

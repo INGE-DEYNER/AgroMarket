@@ -6,6 +6,7 @@ import com.agromarket.application.dto.AdminDashboardResponse;
 import com.agromarket.application.dto.ApiResponse;
 import com.agromarket.application.dto.PedidoResponse;
 import com.agromarket.application.dto.UsuarioResponse;
+import com.agromarket.application.dto.PagoResponse;
 import com.agromarket.application.service.AdminService;
 import com.agromarket.application.service.ProductoService;
 import com.agromarket.application.service.ResenaService;
@@ -48,7 +49,9 @@ public class AdminController {
 
     @GetMapping("/usuarios")
     public ResponseEntity<ApiResponse<List<UsuarioResponse>>> usuarios() {
-        return ResponseEntity.ok(ApiResponse.<List<UsuarioResponse>>builder().success(true).message("Usuarios recuperados").data(adminService.usuarios()).build());
+        List<UsuarioResponse> list = adminService.usuarios();
+        list.forEach(u -> u.setIdEncriptado(idEncryptionUtil.encryptId(u.getId())));
+        return ResponseEntity.ok(ApiResponse.<List<UsuarioResponse>>builder().success(true).message("Usuarios recuperados").data(list).build());
     }
 
     @DeleteMapping("/productos/{id}")
@@ -102,5 +105,43 @@ public class AdminController {
                 .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
                 .contentLength(pdfBytes.length)
                 .body(resource);
+    }
+
+    @PutMapping("/productores/{encryptedId}/verificar")
+    public ResponseEntity<ApiResponse<Void>> toggleVerificarProductor(@PathVariable String encryptedId) {
+        Long id = idEncryptionUtil.decryptId(encryptedId);
+        adminService.toggleVerificarProductor(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Estado de verificación de productor actualizado")
+                .build());
+    }
+
+    @GetMapping("/pagos/fideicomiso")
+    public ResponseEntity<ApiResponse<List<PagoResponse>>> getPagosFideicomiso() {
+        List<PagoResponse> pagos = adminService.getPagosFideicomiso();
+        return ResponseEntity.ok(ApiResponse.<List<PagoResponse>>builder()
+                .success(true)
+                .message("Pagos en fideicomiso recuperados")
+                .data(pagos)
+                .build());
+    }
+
+    @PutMapping("/pagos/{id}/liberar")
+    public ResponseEntity<ApiResponse<Void>> liberarPago(@PathVariable Long id) {
+        adminService.liberarPago(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Fondos liberados exitosamente al productor")
+                .build());
+    }
+
+    @PutMapping("/pagos/{id}/reembolsar")
+    public ResponseEntity<ApiResponse<Void>> reembolsarPago(@PathVariable Long id) {
+        adminService.reembolsarPago(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Fondos reembolsados exitosamente al comprador")
+                .build());
     }
 }

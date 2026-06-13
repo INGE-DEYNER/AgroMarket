@@ -5,6 +5,7 @@ import java.util.List;
 import com.agromarket.application.dto.AdminDashboardResponse;
 import com.agromarket.application.dto.PedidoResponse;
 import com.agromarket.application.dto.UsuarioResponse;
+import com.agromarket.application.dto.PagoResponse;
 
 public interface AdminService {
     AdminDashboardResponse dashboard();
@@ -20,4 +21,12 @@ public interface AdminService {
     void rechazarProductor(Long id, String motivo);
 
     byte[] getReportePdf();
+
+    void toggleVerificarProductor(Long id);
+
+    List<PagoResponse> getPagosFideicomiso();
+
+    void liberarPago(Long pagoId);
+
+    void reembolsarPago(Long pagoId);
 }
