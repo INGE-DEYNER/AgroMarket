@@ -17,6 +17,8 @@ import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import com.agromarket.infrastructure.security.JwtTokenProvider;
+import com.agromarket.infrastructure.security.SafeRedirectUtil;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
 
@@ -49,6 +51,7 @@ public class AuthController {
     private final com.agromarket.application.service.RateLimiterService rateLimiterService;
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SafeRedirectUtil safeRedirectUtil;
 
     private static final String OAUTH2_TEMP_COOKIE = "agromarket_oauth2_token";
 
@@ -89,6 +92,12 @@ public class AuthController {
     @GetMapping("/google")
     public RedirectView iniciarGoogle() {
         return new RedirectView(authService.iniciarGoogleOAuth2());
+    }
+
+    @GetMapping("/login-redirect")
+    public RedirectView loginRedirect(@RequestParam(value = "service", required = false) String service) {
+        String targetUrl = safeRedirectUtil.getSafeRedirectUrl(service);
+        return new RedirectView(targetUrl);
     }
 
     @PostMapping("/enviar-verificacion")

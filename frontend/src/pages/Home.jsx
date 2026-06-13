@@ -8,6 +8,7 @@ import '../styles/home.css';
 export default function Home() {
   const { t } = useTranslation();
   const [productos, setProductos] = useState([]);
+  const [resenas, setResenas] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -16,6 +17,17 @@ export default function Home() {
         setProductos(Array.isArray(data) ? data : data.content || []);
       } catch (err) {
         console.error('Error loading seasonal products:', err);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.get('/resenas');
+        setResenas(Array.isArray(data) ? data : data.content || []);
+      } catch (err) {
+        console.error('Error loading reviews:', err);
       }
     })();
   }, []);
@@ -103,6 +115,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* METRICS */}
+      <section className="metrics">
+        <div className="metrics-grid">
+          <div className="metric-item animate-fade-up">
+            <div className="metric-val">Urabá</div>
+            <div className="metric-label">{t('home.metrics.origin', 'Origen 100% local, cultivado en Chigorodó')}</div>
+          </div>
+          <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.1s' }}>
+            <div className="metric-val">Fresco</div>
+            <div className="metric-label">{t('home.metrics.fresh', 'Cosechado bajo pedido para garantizar la máxima frescura')}</div>
+          </div>
+          <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.2s' }}>
+            <div className="metric-val">Directo</div>
+            <div className="metric-label">{t('home.metrics.fairTrade', 'Comercio justo sin intermediarios para apoyar al productor')}</div>
+          </div>
+          <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.3s' }}>
+            <div className="metric-val">Seguro</div>
+            <div className="metric-label">{t('home.metrics.payments', 'Transacciones y pagos electrónicos 100% protegidos')}</div>
+          </div>
+        </div>
+      </section>
+
       {/* HOW IT WORKS */}
       <section className="how-it-works" id="como-funciona">
         <div className="section-eyebrow animate-fade-up">{t('home.how.eyebrow', 'PROCESO')}</div>
@@ -154,22 +188,27 @@ export default function Home() {
       </section>
 
       {/* FEATURED PRODUCTS */}
-      {productos.length > 0 && (
-        <section className="featured">
-          <div className="featured-header animate-fade-up">
-            <div>
-              <div className="section-eyebrow">{t('home.featured.eyebrow', 'DESTACADOS')}</div>
-              <h2 className="section-title" style={{ marginBottom: 0 }}>
-                {t('home.featured.title', 'Frutas de temporada')}
-              </h2>
-            </div>
-            <Link to="/catalogo" className="btn btn-secondary">
-              {t('home.featured.viewAll', 'Ver catálogo completo →')}
-            </Link>
+      <section className="featured">
+        <div className="featured-header animate-fade-up">
+          <div>
+            <div className="section-eyebrow">{t('home.featured.eyebrow', 'DESTACADOS')}</div>
+            <h2 className="section-title" style={{ marginBottom: 0 }}>
+              {t('home.featured.title', 'Frutas de temporada')}
+            </h2>
           </div>
+          <Link to="/catalogo" className="btn btn-secondary">
+            {t('home.featured.viewAll', 'Ver catálogo completo →')}
+          </Link>
+        </div>
 
-          <div className="products-grid">
-            {productos.slice(0, 4).map((p, i) => (
+        <div className="products-grid">
+          {productos.length === 0 ? (
+            <div className="empty-state animate-fade-up" style={{ padding: '40px', width: '100%', textAlign: 'center', gridColumn: '1 / -1' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🍊</div>
+              <div>{t('home.featured.noProducts', 'No hay productos de temporada disponibles en este momento. ¡Pronto añadiremos más!')}</div>
+            </div>
+          ) : (
+            productos.slice(0, 4).map((p, i) => (
               <div key={p.id} className="product-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
                 <img src={p.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'} alt={p.nombre} className="product-img" />
                 <div className="product-info">
@@ -193,10 +232,10 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+            ))
+          )}
+        </div>
+      </section>
 
       {/* FOR PRODUCERS */}
       <section className="for-producers" id="asafrut">
@@ -242,7 +281,49 @@ export default function Home() {
         </div>
       </section>
 
+      {/* TESTIMONIALS */}
+      <section className="testimonials" id="testimonios">
+        <div className="test-header animate-fade-up">
+          <div className="section-eyebrow">{t('home.testimonials.eyebrow', 'ASOCIACIÓN')}</div>
+          <h2 className="section-title">{t('home.testimonials.title', 'Nuestra Comunidad ASAFRUT')}</h2>
+        </div>
 
+        {resenas.length > 0 ? (
+          <div className="test-grid">
+            {resenas.slice(0, 3).map((item, i) => (
+              <div key={item.id} className="test-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
+                <div className="test-quote-mark">"</div>
+                <div className="test-stars">{"★".repeat(item.calificacion || 5)}</div>
+                <div className="test-content">{item.comentario}</div>
+                <div className="test-author">
+                  <div className="test-avatar">
+                    {(item.compradorNombre || 'C').substring(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="test-name">{item.compradorNombre || 'Comprador'}</div>
+                    <div className="test-role">{t('home.testimonials.buyer', 'Comprador')}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="test-grid">
+            <div className="test-card animate-fade-up" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
+              <div className="test-quote-mark" style={{ position: 'relative', top: '0', display: 'inline-block', marginBottom: '16px' }}>"</div>
+              <div className="test-content" style={{ fontSize: '1.25rem', fontStyle: 'italic', maxWidth: '800px', margin: '0 auto 24px', color: 'var(--text-color)' }}>
+                {t('home.coopQuote', '“Nuestra misión en la Asociación de Agricultores de Chigorodó (ASAFRUT) es empoderar a los productores de la región de Urabá, facilitando la comercialización directa de sus cosechas y garantizando que cada hogar reciba productos frescos y de la más alta calidad, bajo un esquema de comercio justo.”')}
+              </div>
+              <div className="test-author" style={{ justifyContent: 'center' }}>
+                <div>
+                  <div className="test-name">{t('home.coopAuthor', 'Junta Directiva ASAFRUT')}</div>
+                  <div className="test-role">{t('home.coopRole', 'Chigorodó, Urabá')}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* CTA FINAL */}
       <section className="cta-final">

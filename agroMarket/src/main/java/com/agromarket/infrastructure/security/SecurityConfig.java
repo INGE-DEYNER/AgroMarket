@@ -51,6 +51,7 @@ public class SecurityConfig {
                                 "/api/auth/token-exchange",
                                 "/api/auth/login",
                                 "/api/auth/login-2fa",
+                                "/api/auth/login-redirect",
                                 "/api/auth/registro",
                                 "/api/auth/enviar-verificacion",
                                 "/api/auth/reenviar-verificacion",
@@ -62,7 +63,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/resenas/producto/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/resenas/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(RolUsuario.ADMINISTRADOR.name())
                         .anyRequest().authenticated()
                 )
