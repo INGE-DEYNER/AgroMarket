@@ -100,4 +100,56 @@ public class AdminServiceImpl implements AdminService {
         // Delete user
         usuarioJpaRepository.delete(usuario);
     }
+
+    @Override
+    public byte[] getReportePdf() {
+        try (java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
+            com.lowagie.text.Document document = new com.lowagie.text.Document();
+            com.lowagie.text.pdf.PdfWriter.getInstance(document, baos);
+            document.open();
+            
+            document.add(new com.lowagie.text.Paragraph("AGROMARKET - ASAFRUT"));
+            document.add(new com.lowagie.text.Paragraph("REPORTE MENSUAL DE ADMINISTRACION Y CONTROL"));
+            document.add(new com.lowagie.text.Paragraph("Fecha de emision: " + java.time.LocalDate.now()));
+            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            
+            document.add(new com.lowagie.text.Paragraph("RESUMEN DE PLATAFORMA:"));
+            document.add(new com.lowagie.text.Paragraph("- Total Usuarios Registrados: " + usuarioJpaRepository.count()));
+            document.add(new com.lowagie.text.Paragraph("- Total Productos en Catalogo: " + productoJpaRepository.count()));
+            document.add(new com.lowagie.text.Paragraph("- Total Pedidos Realizados: " + pedidoJpaRepository.count()));
+            
+            BigDecimal ingresos = pagoJpaRepository.findAll().stream()
+                    .filter(pago -> pago.getEstado() != null && pago.getEstado().name().equals("CONFIRMADO"))
+                    .map(PagoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            document.add(new com.lowagie.text.Paragraph("- Ingresos Totales Confirmados: $" + ingresos.setScale(2, java.math.RoundingMode.HALF_UP)));
+            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            
+            document.add(new com.lowagie.text.Paragraph("ULTIMOS USUARIOS REGISTRADOS:"));
+            List<UsuarioEntity> usuarios = usuarioJpaRepository.findAll();
+            int uCount = 0;
+            for (UsuarioEntity u : usuarios) {
+                if (uCount++ >= 10) break;
+                document.add(new com.lowagie.text.Paragraph(String.format("  * %s (%s) - Rol: %s - Activo: %s", 
+                        u.getNombre(), u.getCorreo(), u.getRol(), u.isActivo() ? "SI" : "NO")));
+            }
+            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            
+            document.add(new com.lowagie.text.Paragraph("PRODUCTOS RECIENTES EN CATALOGO:"));
+            List<com.agromarket.infrastructure.persistence.entity.ProductoEntity> productos = productoJpaRepository.findAll();
+            int pCount = 0;
+            for (com.agromarket.infrastructure.persistence.entity.ProductoEntity p : productos) {
+                if (pCount++ >= 10) break;
+                document.add(new com.lowagie.text.Paragraph(String.format("  * %s - Precio: $%s/kg - Stock: %s kg", 
+                        p.getNombre(), p.getPrecio(), p.getStock())));
+            }
+            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            document.add(new com.lowagie.text.Paragraph("Fin del Reporte Oficial - Administracion AgroMarket."));
+            
+            document.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar PDF del reporte mensual", e);
+        }
+    }
 }

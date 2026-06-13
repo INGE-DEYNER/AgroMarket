@@ -36,28 +36,33 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     @Override
     @Transactional
     public void requestPasswordReset(String correo) {
-        usuarioJpaRepository.findByCorreo(correo).ifPresent(usuario -> {
-            tokenRepository.deleteByUsuarioId(usuario.getId());
+        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(correo)
+                .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("El correo electrónico no está registrado."));
 
-            String codigo = String.format("%06d", secureRandom.nextInt(1000000));
-            String hashedToken = passwordEncoder.encode(codigo);
-            
-            PasswordResetTokenEntity entity = PasswordResetTokenEntity.builder()
-                .token(hashedToken)
-                .usuario(usuario)
-                .expiry(LocalDateTime.now().plusMinutes(10))
-                .usado(false)
-                .build();
-            tokenRepository.save(entity);
+        if (!usuario.isEmailVerificado()) {
+            throw new CredencialesInvalidasException("El correo electrónico no está verificado.");
+        }
 
-            java.util.Map<String, String> model = java.util.Map.of("codigo", codigo);
-            try {
-                mailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Código de recuperación", "password-reset", model);
-            } catch (Exception e) {
-                org.slf4j.LoggerFactory.getLogger(PasswordResetServiceImpl.class)
-                        .error("Failed to send password reset email to {}: {}", usuario.getCorreo(), e.getMessage());
-            }
-        });
+        tokenRepository.deleteByUsuarioId(usuario.getId());
+
+        String codigo = String.format("%06d", secureRandom.nextInt(1000000));
+        String hashedToken = passwordEncoder.encode(codigo);
+        
+        PasswordResetTokenEntity entity = PasswordResetTokenEntity.builder()
+            .token(hashedToken)
+            .usuario(usuario)
+            .expiry(LocalDateTime.now().plusMinutes(10))
+            .usado(false)
+            .build();
+        tokenRepository.save(entity);
+
+        java.util.Map<String, String> model = java.util.Map.of("codigo", codigo);
+        try {
+            mailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Código de recuperación", "password-reset", model);
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(PasswordResetServiceImpl.class)
+                    .error("Failed to send password reset email to {}: {}", usuario.getCorreo(), e.getMessage());
+        }
     }
 
     @Override

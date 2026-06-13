@@ -92,4 +92,15 @@ public class AdminController {
                 .message("Productor rechazado exitosamente")
                 .build());
     }
+
+    @GetMapping("/reporte/pdf")
+    public ResponseEntity<org.springframework.core.io.Resource> getReportePdf() {
+        byte[] pdfBytes = adminService.getReportePdf();
+        org.springframework.core.io.ByteArrayResource resource = new org.springframework.core.io.ByteArrayResource(pdfBytes);
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"reporte-mensual.pdf\"")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .contentLength(pdfBytes.length)
+                .body(resource);
+    }
 }

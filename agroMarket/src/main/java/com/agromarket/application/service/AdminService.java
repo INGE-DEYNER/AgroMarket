@@ -18,4 +18,6 @@ public interface AdminService {
     List<UsuarioResponse> productoresPendientes();
 
     void rechazarProductor(Long id, String motivo);
+
+    byte[] getReportePdf();
 }

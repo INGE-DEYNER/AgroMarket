@@ -106,7 +106,7 @@ export default function RestablecerContrasena() {
                 <input className="form-input" type="email" value={email} disabled />
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="codigo">{t('auth.forgotPassword', 'Código de recuperación')}</label>
+                <label className="form-label" htmlFor="codigo">{t('forgotPass.codeLabel', 'Código de recuperación')}</label>
                 <input 
                   className="form-input" 
                   type="text" 

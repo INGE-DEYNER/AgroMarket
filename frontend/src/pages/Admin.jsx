@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import api from '../utils/api';
+import api, { API_BASE } from '../utils/api';
 import '../styles/admin.css';
 
 export default function Admin() {
@@ -74,6 +74,7 @@ export default function Admin() {
   const [usuarios, setUsuarios] = useState([]);
   const [productos, setProductos] = useState([]);
   const [resenas, setResenas] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
   const [searchUsuarios, setSearchUsuarios] = useState('');
 
   useEffect(() => {
@@ -93,15 +94,40 @@ export default function Admin() {
     };
 
     try {
-      const [u, p, r] = await Promise.all([
+      const [u, p, r, db] = await Promise.all([
         api.get('/admin/usuarios').catch(() => []),
         api.get('/productos').catch(() => []),
         api.get('/resenas').catch(() => []),
+        api.get('/admin/dashboard').catch(() => null),
       ]);
       setUsuarios(extractArray(u));
       setProductos(extractArray(p));
       setResenas(extractArray(r));
+      if (db) setDashboardData(db.data || db);
     } catch {}
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/admin/reporte/pdf`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error('Error al generar el reporte.');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'reporte-mensual.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err.message || 'Error al generar el reporte.');
+    }
   };
 
   const usuariosFiltrados = searchUsuarios
@@ -171,7 +197,7 @@ export default function Admin() {
             <h1>{t('admin.title', 'Panel de Administración 🛠️')}</h1>
             <p>{t('admin.sub', 'Monitoreo global de la plataforma AgroMarket Urabá')}</p>
           </div>
-          <button className="btn-cta" style={{ background: 'var(--primary-dark)' }} onClick={() => alert(t('admin.generatingReportAlert', 'Generando reporte PDF...'))}>
+          <button className="btn-cta" style={{ background: 'var(--primary-dark)' }} onClick={handleGenerateReport}>
             {t('admin.generateReport', 'Generar Reporte Mensual 📊')}
           </button>
         </div>
@@ -192,7 +218,11 @@ export default function Admin() {
           <div className="stat-card color-3">
             <span className="stat-icon-lg">💰</span>
             <div className="stat-label">{t('admin.stats.totalEarnings', 'Ingresos Totales')}</div>
-            <div className="stat-value">$0</div>
+            <div className="stat-value">
+              {dashboardData?.ingresos !== undefined && dashboardData?.ingresos !== null
+                ? `$${Number(dashboardData.ingresos).toLocaleString('es-CO')}`
+                : '—'}
+            </div>
             <div className="stat-trend up">{t('admin.stats.trendEarnings', 'Ingresos confirmados')}</div>
           </div>
           <div className="stat-card color-4">
