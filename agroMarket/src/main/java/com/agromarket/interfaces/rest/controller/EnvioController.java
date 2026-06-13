@@ -40,6 +40,12 @@ public class EnvioController {
         return ResponseEntity.ok(ApiResponse.<List<EnvioResponse>>builder().success(true).message("Envíos listados").data(envioService.getMisEnvios(principal.getUserId())).build());
     }
 
+    @GetMapping("/mis-despachos")
+    @PreAuthorize("hasAnyRole('PRODUCTOR','ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<List<EnvioResponse>>> misDespachos(@AuthenticationPrincipal JwtUserPrincipal principal) {
+        return ResponseEntity.ok(ApiResponse.<List<EnvioResponse>>builder().success(true).message("Despachos listados").data(envioService.getMisDespachos(principal.getUserId())).build());
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<EnvioResponse>> actualizar(@PathVariable Long id, @Valid @RequestBody ActualizarEnvioRequest request, @AuthenticationPrincipal JwtUserPrincipal principal) {

@@ -11,4 +11,6 @@ public interface ResenaService {
     List<ResenaResponse> getByProducto(Long productoId);
 
     void eliminar(Long id, Long solicitanteId);
+
+    List<ResenaResponse> getAll();
 }

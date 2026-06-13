@@ -1,12 +1,25 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import useStyles from '../hooks/useStyles';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import api from '../utils/api';
 
 export default function Home() {
   useStyles(['/css/home.css']);
   const { t } = useTranslation();
+  const [productos, setProductos] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.get('/productos');
+        setProductos(Array.isArray(data) ? data : data.content || []);
+      } catch (err) {
+        console.error('Error loading seasonal products:', err);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     const observerOptions = {
@@ -201,36 +214,38 @@ export default function Home() {
         </div>
 
         <div className="products-grid">
-          {[
-            { name: 'Banano Urabá', producer: 'Luis Palacios', price: '$1.200/kg', rating: '4.8', img: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=500', alt: 'Banano' },
-            { name: 'Mango Tommy', producer: 'Luis Palacios', price: '$3.500/kg', rating: '4.7', img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=500', alt: 'Mango' },
-            { name: 'Aguacate Hass', producer: 'Ana Córdoba', price: '$4.500/kg', rating: '4.9', img: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=500', alt: 'Aguacate Hass' },
-            { name: 'Piña Manzana', producer: 'Ana Córdoba', price: '$2.800/kg', rating: '4.5', img: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=500', alt: 'Piña Manzana' },
-          ].map((p, i) => (
-            <div key={i} className="product-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
-              <img src={p.img} alt={p.alt} className="product-img" />
-              <div className="product-info">
-                <h3 className="product-name">{p.name}</h3>
-                <div className="product-producer">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                  </svg>
-                  {p.producer}
-                </div>
-                <div className="product-price">{p.price}</div>
-                <div className="product-meta">
-                  <div className="product-rating">
-                    ★★★★★
-                    <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>({p.rating})</span>
-                  </div>
-                  <div className="product-badge">{t('home.featured.available', 'Disponible')}</div>
-                </div>
-                <Link to="/catalogo" className="btn btn-primary product-btn">
-                  {t('home.featured.orderNow', 'Pedir ahora')}
-                </Link>
-              </div>
+          {productos.length === 0 ? (
+            <div className="empty-state animate-fade-up" style={{ padding: '40px', width: '100%', textAlign: 'center', gridColumn: '1 / -1' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🍊</div>
+              <div>{t('home.featured.noProducts', 'No hay productos de temporada disponibles en este momento.')}</div>
             </div>
-          ))}
+          ) : (
+            productos.slice(0, 4).map((p, i) => (
+              <div key={p.id} className="product-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
+                <img src={p.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'} alt={p.nombre} className="product-img" />
+                <div className="product-info">
+                  <h3 className="product-name">{p.nombre}</h3>
+                  <div className="product-producer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                    </svg>
+                    {p.productor || p.nombreProductor || 'Productor'}
+                  </div>
+                  <div className="product-price">${Number(p.precio).toLocaleString('es-CO')}/kg</div>
+                  <div className="product-meta">
+                    <div className="product-rating">
+                      ★★★★★
+                      <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>({p.calificacion || '4.8'})</span>
+                    </div>
+                    <div className="product-badge">{p.stock > 0 ? t('home.featured.available', 'Disponible') : t('home.featured.soldOut', 'Agotado')}</div>
+                  </div>
+                  <Link to="/catalogo" className="btn btn-primary product-btn">
+                    {t('home.featured.orderNow', 'Pedir ahora')}
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
 

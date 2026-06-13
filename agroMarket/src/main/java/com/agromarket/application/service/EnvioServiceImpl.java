@@ -41,6 +41,11 @@ public class EnvioServiceImpl implements EnvioService {
     }
 
     @Override
+    public List<EnvioResponse> getMisDespachos(Long productorId) {
+        return envioJpaRepository.findByPedidoProductoProductorId(productorId).stream().map(envioMapper::toResponse).toList();
+    }
+
+    @Override
     public EnvioResponse actualizar(Long id, ActualizarEnvioRequest request, Long productorId) {
         EnvioEntity envio = envioJpaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Envío no encontrado"));

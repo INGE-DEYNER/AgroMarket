@@ -16,6 +16,7 @@ import com.agromarket.infrastructure.persistence.repository.CompradorJpaReposito
 import com.agromarket.infrastructure.persistence.repository.ProductoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.ResenaJpaRepository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,5 +89,10 @@ public class ResenaServiceImpl implements ResenaService {
         if (resena.getProducto() != null) {
             resenaCache.invalidate(resena.getProducto().getId());
         }
+    }
+
+    @Override
+    public List<ResenaResponse> getAll() {
+        return resenaMapper.toResponseList(resenaJpaRepository.findAll(Sort.by(Sort.Direction.DESC, "fecha")));
     }
 }

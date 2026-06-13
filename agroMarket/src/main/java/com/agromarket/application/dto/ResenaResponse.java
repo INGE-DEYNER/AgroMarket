@@ -17,4 +17,7 @@ public class ResenaResponse {
     private Integer calificacion;
     private String comentario;
     private LocalDateTime fecha;
+
+    @Builder.Default
+    private boolean aprobada = true;
 }

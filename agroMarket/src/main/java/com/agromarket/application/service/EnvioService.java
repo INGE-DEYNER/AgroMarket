@@ -10,5 +10,7 @@ public interface EnvioService {
 
     List<EnvioResponse> getMisEnvios(Long compradorId);
 
+    List<EnvioResponse> getMisDespachos(Long productorId);
+
     EnvioResponse actualizar(Long id, ActualizarEnvioRequest request, Long productorId);
 }

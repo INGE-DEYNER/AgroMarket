@@ -11,4 +11,6 @@ public interface EnvioJpaRepository extends JpaRepository<EnvioEntity, Long> {
     Optional<EnvioEntity> findByPedidoId(Long pedidoId);
 
     List<EnvioEntity> findByPedidoCompradorId(Long compradorId);
+
+    List<EnvioEntity> findByPedidoProductoProductorId(Long productorId);
 }
