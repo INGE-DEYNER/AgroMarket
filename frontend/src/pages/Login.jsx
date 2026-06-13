@@ -146,7 +146,7 @@ export default function Login() {
 
             <div style={{ textAlign: 'center', margin: '16px 0' }}>
               <Link to="/recuperar-contrasena" style={{ fontSize: '0.9rem', color: '#688e4e', textDecoration: 'none', fontWeight: '500' }}>
-                ¿Olvidaste tu contraseña?
+                {t('auth.forgotPassword', '¿Olvidaste tu contraseña?')}
               </Link>
             </div>
 
@@ -168,17 +168,14 @@ export default function Login() {
                 <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                 <path fill="none" d="M0 0h48v48H0z"/>
               </svg>
-              Continuar con Google
+              {t('auth.continueWithGoogle', 'Continuar con Google')}
             </a>
           </form>
 
           <div className="divider"></div>
 
           <div className="form-footer">
-            ¿No tienes cuenta? <Link to="/registro">{t('auth.registerFree', 'Regístrate gratis')}</Link>
-          </div>
-          <div className="form-footer" style={{ marginTop: '12px', fontSize: '0.75rem', color: '#8a8a8a' }}>
-            Acceso demo: admin@agromarket.co · productor@agromarket.co · comprador@agromarket.co
+            {t('auth.noAccount', '¿No tienes cuenta?')} <Link to="/registro">{t('auth.registerFree', 'Regístrate gratis')}</Link>
           </div>
         </div>
 
