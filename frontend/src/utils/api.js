@@ -8,20 +8,21 @@ const API_BASE =
     ? 'http://localhost:8080/api'
     : 'https://agromarket-vj8x.onrender.com/api';
 
-function getHeaders() {
+function getHeaders(isFormData = false) {
   const token = localStorage.getItem('token');
   return {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 }
 
 async function request(method, path, body) {
+  const isFormData = body instanceof FormData;
   const res = await fetch(`${API_BASE}${path}`, {
     method,
-    headers: getHeaders(),
+    headers: getHeaders(isFormData),
     credentials: 'include',
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    ...(body !== undefined ? { body: isFormData ? body : JSON.stringify(body) } : {}),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }));
