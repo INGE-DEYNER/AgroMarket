@@ -63,6 +63,8 @@ export default function DashboardProductor() {
   const [pwForm, setPwForm] = useState({ contrasenaActual: '', nuevaContrasena: '' });
   const [perfilMsg, setPerfilMsg] = useState({ type: '', text: '' });
   const [pwMsg, setPwMsg] = useState({ type: '', text: '' });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const iniciales = (user?.nombre || 'LP').charAt(0).toUpperCase() + (user?.apellido || 'P').charAt(0).toUpperCase();
 
@@ -696,11 +698,57 @@ export default function DashboardProductor() {
                 <form onSubmit={handleUpdatePassword}>
                   <div className="form-group" style={{ marginBottom: '16px' }}>
                     <label className="form-label">Contraseña Actual</label>
-                    <input className="form-input" type="password" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={pwForm.contrasenaActual} onChange={(e) => setPwForm({ ...pwForm, contrasenaActual: e.target.value })} />
+                    <div style={{ position: 'relative' }}>
+                      <input className="form-input" type={showCurrentPassword ? "text" : "password"} style={{ width: '100%', padding: '10px 40px 10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={pwForm.contrasenaActual} onChange={(e) => setPwForm({ ...pwForm, contrasenaActual: e.target.value })} />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: '10px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '1.2rem',
+                          padding: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                      >
+                        {showCurrentPassword ? '👁️' : '🙈'}
+                      </button>
+                    </div>
                   </div>
                   <div className="form-group" style={{ marginBottom: '20px' }}>
                     <label className="form-label">Nueva Contraseña</label>
-                    <input className="form-input" type="password" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={pwForm.nuevaContrasena} onChange={(e) => setPwForm({ ...pwForm, nuevaContrasena: e.target.value })} />
+                    <div style={{ position: 'relative' }}>
+                      <input className="form-input" type={showNewPassword ? "text" : "password"} style={{ width: '100%', padding: '10px 40px 10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={pwForm.nuevaContrasena} onChange={(e) => setPwForm({ ...pwForm, nuevaContrasena: e.target.value })} />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: '10px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '1.2rem',
+                          padding: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        aria-label={showNewPassword ? "Hide password" : "Show password"}
+                      >
+                        {showNewPassword ? '👁️' : '🙈'}
+                      </button>
+                    </div>
                   </div>
                   <button className="btn btn-primary" type="submit" style={{ width: '100%' }}>Cambiar Contraseña</button>
                 </form>

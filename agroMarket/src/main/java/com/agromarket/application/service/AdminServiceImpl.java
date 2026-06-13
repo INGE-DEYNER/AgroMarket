@@ -141,7 +141,7 @@ public class AdminServiceImpl implements AdminService {
             for (com.agromarket.infrastructure.persistence.entity.ProductoEntity p : productos) {
                 if (pCount++ >= 10) break;
                 document.add(new com.lowagie.text.Paragraph(String.format("  * %s - Precio: $%s/kg - Stock: %s kg", 
-                        p.getNombre(), p.getPrecio(), p.getStock())));
+                        p.getNombre(), p.getPrecio(), p.getCantidadDisponible())));
             }
             document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
             document.add(new com.lowagie.text.Paragraph("Fin del Reporte Oficial - Administracion AgroMarket."));

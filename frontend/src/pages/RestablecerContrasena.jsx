@@ -16,6 +16,9 @@ export default function RestablecerContrasena() {
   const [password, setPassword] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
   
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -130,17 +133,81 @@ export default function RestablecerContrasena() {
               {success && <div style={{ color: '#27ae60', marginBottom: '16px', fontWeight: '500' }}>{success}</div>}
               <div className="form-group">
                 <label className="form-label" htmlFor="password">{t('resetPass.newPassword', 'Nueva contraseña')}</label>
-                <input className="form-input" type="password" id="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    className="form-input"
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    style={{ paddingRight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '1.2rem',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? '👁️' : '🙈'}
+                  </button>
+                </div>
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="confirmPass">{t('auth.confirmPassword', 'Confirmar contraseña')}</label>
-                <input className="form-input" type="password" id="confirmPass" placeholder="••••••••" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} disabled={loading} />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    className="form-input"
+                    type={showConfirmPass ? "text" : "password"}
+                    id="confirmPass"
+                    placeholder="••••••••"
+                    value={confirmPass}
+                    onChange={(e) => setConfirmPass(e.target.value)}
+                    disabled={loading}
+                    style={{ paddingRight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '1.2rem',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    aria-label={showConfirmPass ? "Hide password" : "Show password"}
+                  >
+                    {showConfirmPass ? '👁️' : '🙈'}
+                  </button>
+                </div>
               </div>
               <button type="submit" className="btn-submit" disabled={loading}>
                 {loading ? t('resetPass.savingBtn', 'Guardando...') : t('resetPass.saveBtn', 'Guardar nueva contraseña')}
               </button>
             </form>
-          )}
+          ) /* end step 2 */ }
 
           <div className="form-footer" style={{ marginTop: '24px' }}>
             <Link to="/login">{t('forgotPass.backToLogin', '← Volver al inicio de sesión')}</Link>
