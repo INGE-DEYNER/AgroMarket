@@ -13,10 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings({"null", "unused"})
+@Slf4j
 public class PasswordPolicyService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PasswordHistoryRepository passwordHistoryRepository;
@@ -33,11 +35,17 @@ public class PasswordPolicyService {
             throw new CredencialesInvalidasException("No puedes reutilizar tu contraseña actual");
         }
 
-        List<PasswordHistoryEntity> historial = passwordHistoryRepository.findByUsuarioId(usuario.getId());
-        boolean reutilizada = historial.stream()
-                .anyMatch(entry -> passwordEncoder.matches(nuevaContrasena, entry.getContrasenaHash()));
-        if (reutilizada) {
-            throw new CredencialesInvalidasException("No puedes reutilizar una contraseña anterior");
+        try {
+            List<PasswordHistoryEntity> historial = passwordHistoryRepository.findByUsuarioId(usuario.getId());
+            boolean reutilizada = historial.stream()
+                    .anyMatch(entry -> passwordEncoder.matches(nuevaContrasena, entry.getContrasenaHash()));
+            if (reutilizada) {
+                throw new CredencialesInvalidasException("No puedes reutilizar una contraseña anterior");
+            }
+        } catch (CredencialesInvalidasException ex) {
+            throw ex;
+        } catch (Exception e) {
+            log.warn("No se pudo verificar el historial de contraseñas para el usuario {} (posiblemente la tabla no existe): {}", usuario.getId(), e.getMessage());
         }
 
         validarNoUsadaPorOtroUsuario(usuario.getId(), nuevaContrasena);
@@ -45,11 +53,15 @@ public class PasswordPolicyService {
 
     @Transactional
     public void registrarContrasenaEnHistorial(UsuarioEntity usuario) {
-        PasswordHistoryEntity entry = PasswordHistoryEntity.builder()
-                .usuario(usuario)
-                .contrasenaHash(usuario.getContrasena())
-                .build();
-        passwordHistoryRepository.save(entry);
+        try {
+            PasswordHistoryEntity entry = PasswordHistoryEntity.builder()
+                    .usuario(usuario)
+                    .contrasenaHash(usuario.getContrasena())
+                    .build();
+            passwordHistoryRepository.save(entry);
+        } catch (Exception e) {
+            log.warn("No se pudo registrar la contraseña en el historial para el usuario {} (posiblemente la tabla no existe): {}", usuario.getId(), e.getMessage());
+        }
     }
 
     private void validarNoUsadaPorOtroUsuario(Long usuarioActualId, String nuevaContrasena) {

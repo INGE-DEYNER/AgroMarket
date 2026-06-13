@@ -82,7 +82,7 @@ export default function DashboardProductor() {
 
   const loadPedidos = async () => {
     try {
-      const data = await api.get('/pedidos/recibidos');
+      const data = await api.get('/pedidos/mis-pedidos');
       setPedidos(extractArray(data));
     } catch (err) {
       console.error('Error loadPedidos:', err);
@@ -139,7 +139,7 @@ export default function DashboardProductor() {
   // Messaging contacts and messages
   const loadContactos = async () => {
     try {
-      const data = await api.get('/mensajeria/contactos');
+      const data = await api.get('/mensajes/contactos');
       setContactos(extractArray(data));
     } catch (err) {
       console.error('Error loadContactos:', err);
@@ -150,7 +150,7 @@ export default function DashboardProductor() {
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
     try {
-      const data = await api.get(`/mensajeria/conversacion/${contacto.id}`);
+      const data = await api.get(`/mensajes/conversacion/${contacto.id}`);
       setMessages(extractArray(data));
     } catch (err) {
       console.error('Error loadMessages:', err);
@@ -173,7 +173,7 @@ export default function DashboardProductor() {
     const textToSend = msgInput;
     setMsgInput('');
     try {
-      await api.post('/mensajeria/enviar', { destinatarioId: selectedContact.id, contenido: textToSend });
+      await api.post('/mensajes', { destinatarioId: selectedContact.id, contenido: textToSend });
     } catch (err) {
       console.error('Error sending message:', err);
     }

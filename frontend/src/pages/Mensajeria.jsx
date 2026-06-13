@@ -30,7 +30,7 @@ export default function Mensajeria() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.get('/mensajeria/contactos');
+        const data = await api.get('/mensajes/contactos');
         setContactos(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error loadContactos:', err);
@@ -42,7 +42,7 @@ export default function Mensajeria() {
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
     try {
-      const data = await api.get(`/mensajeria/conversacion/${contacto.id}`);
+      const data = await api.get(`/mensajes/conversacion/${contacto.id}`);
       setMessages(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loadMessages:', err);
@@ -60,7 +60,7 @@ export default function Mensajeria() {
     const texto = msgInput;
     setMsgInput('');
     try {
-      await api.post('/mensajeria/enviar', { destinatarioId: selectedContact.id, contenido: texto });
+      await api.post('/mensajes', { destinatarioId: selectedContact.id, contenido: texto });
     } catch {}
     setTimeout(() => {
       if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
