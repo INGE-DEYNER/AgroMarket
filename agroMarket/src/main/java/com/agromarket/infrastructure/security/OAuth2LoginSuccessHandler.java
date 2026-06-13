@@ -91,6 +91,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             .fromUriString(appProperties.frontendUrl()) // debe ser https://agro-market.app
             .path("/login")
             .queryParam("oauth2", "success")
+            .queryParam("token", authResponse.getToken())
             .build(true).toUriString();
         response.sendRedirect(redirect);
     }

@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import useStyles from '../hooks/useStyles';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import Navbar from '../components/Navbar';
 import api from '../utils/api';
 
 const PRODUCTOS = ['🍌 Banano Urabá', '🍍 Piña Manzana', '🥭 Mango Tommy', '🫐 Maracuyá', '🍈 Guanábana', '🍊 Naranja Valencia', '🥥 Coco Fresco', '🍋 Limón Tahití'];
 
 export default function Resenas() {
   useStyles(["/css/styles.css","/css/resenas.css"]);
+  const { t } = useTranslation();
   const [reviews, setReviews] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [rProducto, setRProducto] = useState('');
@@ -36,9 +39,9 @@ export default function Resenas() {
 
   const validate = () => {
     const errs = {};
-    if (!rProducto) errs.producto = 'Selecciona un producto.';
-    if (!rating) errs.rating = 'Selecciona una calificación.';
-    if (!comentario.trim()) errs.comentario = 'Escribe un comentario.';
+    if (!rProducto) errs.producto = t('resenas.errors.product', 'Selecciona un producto.');
+    if (!rating) errs.rating = t('resenas.errors.rating', 'Selecciona una calificación.');
+    if (!comentario.trim()) errs.comentario = t('resenas.errors.comment', 'Escribe un comentario.');
     return errs;
   };
 
@@ -51,7 +54,7 @@ export default function Resenas() {
       setReviews((prev) => [nueva, ...prev]);
       closeModal();
     } catch (err) {
-      alert('Error al publicar reseña: ' + (err.message || 'Inténtalo de nuevo.'));
+      alert(t('resenas.errorPublish', 'Error al publicar reseña: ') + (err.message || 'Inténtalo de nuevo.'));
     }
     setRProducto(''); setRating(0); setComentario('');
   };
@@ -60,34 +63,19 @@ export default function Resenas() {
 
   return (
     <>
-      <nav className="navbar">
-        <Link className="navbar-brand" to="/dashboard-comprador">
-          <span className="logo-icon">🌿</span><span>AgroMarket</span>
-        </Link>
-        <div className="navbar-links" id="navLinks">
-          <Link to="/dashboard-comprador">Mi Panel</Link>
-          <Link to="/catalogo">Catálogo</Link>
-          <Link to="/pedidos">Pedidos</Link>
-          <Link to="/mensajeria">Mensajes</Link>
-          <Link to="/envios">Envíos</Link>
-        </div>
-        <div className="navbar-right" id="navActions">
-          <div className="avatar avatar-blue">MT</div>
-          <Link to="/login" className="btn btn-secondary btn-sm">Salir</Link>
-        </div>
-      </nav>
+      <Navbar />
 
       <main style={{ padding: '28px 32px', maxWidth: '860px', margin: '0 auto' }}>
         <div className="section-header">
-          <span className="section-title">⭐ Reseñas de Productos</span>
-          <button className="btn btn-primary" onClick={openModal}>+ Nueva reseña</button>
+          <span className="section-title">⭐ {t('resenas.title', 'Reseñas de Productos')}</span>
+          <button className="btn btn-primary" onClick={openModal}>{t('resenas.newReview', '+ Nueva reseña')}</button>
         </div>
 
         <div id="reviewsList">
           {reviews.length === 0 ? (
             <div className="empty-state" style={{ padding: '60px', textAlign: 'center' }}>
               <div className="empty-icon">⭐</div>
-              <div>No hay reseñas aún. ¡Sé el primero en dejar una!</div>
+              <div>{t('resenas.emptyReviews', 'No hay reseñas aún. ¡Sé el primero en dejar una!')}</div>
             </div>
           ) : (
             reviews.map((r) => (
@@ -110,21 +98,21 @@ export default function Resenas() {
         <div className="modal-overlay open" id="modalResena">
           <div className="modal" style={{ maxWidth: '480px' }}>
             <div className="modal-header">
-              <span className="modal-title">Nueva Reseña</span>
+              <span className="modal-title">{t('resenas.modalTitle', 'Nueva Reseña')}</span>
               <button className="modal-close" onClick={closeModal}>✕</button>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Producto *</label>
+              <label className="form-label">{t('resenas.productLabel', 'Producto *')}</label>
               <select className="form-select" id="rProducto" value={rProducto} onChange={(e) => setRProducto(e.target.value)}>
-                <option value="">Selecciona un producto...</option>
+                <option value="">{t('resenas.selectProduct', 'Selecciona un producto...')}</option>
                 {PRODUCTOS.map((p) => <option key={p}>{p}</option>)}
               </select>
               {errors.producto && <span className="form-error" id="rProductoErr">{errors.producto}</span>}
             </div>
 
             <div className="form-group">
-              <label className="form-label">Calificación *</label>
+              <label className="form-label">{t('resenas.ratingLabel', 'Calificación *')}</label>
               <div className="star-input-row" id="starRow">
                 {[1, 2, 3, 4, 5].map((v) => (
                   <span
@@ -142,21 +130,21 @@ export default function Resenas() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Comentario *</label>
+              <label className="form-label">{t('resenas.commentLabel', 'Comentario *')}</label>
               <textarea
                 className="form-textarea"
                 id="rComentario"
-                placeholder="Describe tu experiencia con el producto..."
+                placeholder={t('resenas.commentPlaceholder', 'Describe tu experiencia con el producto...')}
                 style={{ minHeight: '100px' }}
                 value={comentario}
                 onChange={(e) => setComentario(e.target.value)}
               ></textarea>
-              {errors.comentario && <span className="form-error" id="rComentErr">{errors.comentario}</span>}
+              {errors.comentario && <span className="form-error" id="rComentErr">{errors.comentErr || errors.comentario}</span>}
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
-              <button className="btn btn-primary" onClick={publicarResena}>⭐ Publicar reseña</button>
+              <button className="btn btn-secondary" onClick={closeModal}>{t('resenas.cancel', 'Cancelar')}</button>
+              <button className="btn btn-primary" onClick={publicarResena}>{t('resenas.publish', '⭐ Publicar reseña')}</button>
             </div>
           </div>
         </div>
@@ -164,3 +152,4 @@ export default function Resenas() {
     </>
   );
 }
+

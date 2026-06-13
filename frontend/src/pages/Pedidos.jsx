@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import useStyles from '../hooks/useStyles';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import Navbar from '../components/Navbar';
 import api from '../utils/api';
 
 export default function Pedidos() {
   useStyles(["/css/styles.css"]);
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [pedidos, setPedidos] = useState([]);
   const [filtroEstado, setFiltroEstado] = useState('');
@@ -48,33 +51,18 @@ export default function Pedidos() {
 
   return (
     <>
-      <nav className="navbar">
-        <Link className="navbar-brand" to="/dashboard-comprador">
-          <span className="logo-icon">🌿</span><span>AgroMarket</span>
-        </Link>
-        <div className="navbar-links" id="navLinks">
-          <Link to="/dashboard-comprador">Mi Panel</Link>
-          <Link to="/catalogo">Catálogo</Link>
-          <Link to="/pedidos" className="active">Pedidos</Link>
-          <Link to="/mensajeria">Mensajes</Link>
-          <Link to="/envios">Envíos</Link>
-        </div>
-        <div className="navbar-right" id="navActions">
-          <div className="avatar avatar-blue">MT</div>
-          <Link to="/login" className="btn btn-secondary btn-sm">Salir</Link>
-        </div>
-      </nav>
+      <Navbar />
 
       <main style={{ padding: '28px 32px', maxWidth: '1280px', margin: '0 auto' }}>
         {/* SUCCESS BANNER */}
         {successBanner && (
           <div id="successBanner" style={{ background: 'var(--green-bg)', border: '1px solid #1f4d2a', borderRadius: 'var(--radius)', padding: '14px 18px', marginBottom: '20px', color: 'var(--green-light)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            ✅ ¡Pedido realizado con éxito! Ya está siendo procesado por el productor.
+            {t('pedidos.successMessage', '✅ ¡Pedido realizado con éxito! Ya está siendo procesado por el productor.')}
           </div>
         )}
 
         <div className="section-header">
-          <span className="section-title">🧾 Mis Pedidos</span>
+          <span className="section-title">🧾 {t('pedidos.title', 'Mis Pedidos')}</span>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <select
               className="form-select"
@@ -83,13 +71,13 @@ export default function Pedidos() {
               value={filtroEstado}
               onChange={(e) => { setFiltroEstado(e.target.value); filtrar(); }}
             >
-              <option value="">Todos los estados</option>
-              <option>Pendiente</option>
-              <option>Enviado</option>
-              <option>Entregado</option>
-              <option>Cancelado</option>
+              <option value="">{t('pedidos.allStates', 'Todos los estados')}</option>
+              <option value="Pendiente">{t('pedidos.status.pendiente', 'Pendiente')}</option>
+              <option value="Enviado">{t('pedidos.status.enviado', 'Enviado')}</option>
+              <option value="Entregado">{t('pedidos.status.entregado', 'Entregado')}</option>
+              <option value="Cancelado">{t('pedidos.status.cancelado', 'Cancelado')}</option>
             </select>
-            <Link to="/catalogo" className="btn btn-primary">+ Nuevo pedido</Link>
+            <Link to="/catalogo" className="btn btn-primary">{t('pedidos.newOrder', '+ Nuevo pedido')}</Link>
           </div>
         </div>
 
@@ -97,27 +85,27 @@ export default function Pedidos() {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Producto</th>
-                <th>Productor</th>
-                <th>Cantidad</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th>{t('pedidos.id', 'ID')}</th>
+                <th>{t('pedidos.product', 'Producto')}</th>
+                <th>{t('pedidos.producer', 'Productor')}</th>
+                <th>{t('pedidos.quantity', 'Cantidad')}</th>
+                <th>{t('pedidos.total', 'Total')}</th>
+                <th>{t('pedidos.statusHeader', 'Estado')}</th>
+                <th>{t('pedidos.actions', 'Acciones')}</th>
               </tr>
             </thead>
             <tbody id="tbPedidos">
               {pedidosFiltrados.map((p) => (
                 <tr key={p.id}>
-                  <td data-label="ID">#{p.id}</td>
-                  <td data-label="Producto">{p.producto || p.nombreProducto || '—'}</td>
-                  <td data-label="Productor">{p.productor || p.nombreProductor || '—'}</td>
-                  <td data-label="Cantidad">{p.cantidad} kg</td>
-                  <td data-label="Total">${Number(p.total).toLocaleString('es-CO')}</td>
-                  <td data-label="Estado"><span className={badgeClass(p.estado)}>{p.estado}</span></td>
-                  <td data-label="Acciones">
-                    <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>📄 Factura</button>
-                    <Link to="/envios" className="btn btn-secondary btn-sm" style={{ marginLeft: '6px' }}>🚚 Rastrear</Link>
+                  <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
+                  <td data-label={t('pedidos.product', 'Producto')}>{p.producto || p.nombreProducto || '—'}</td>
+                  <td data-label={t('pedidos.producer', 'Productor')}>{p.productor || p.nombreProductor || '—'}</td>
+                  <td data-label={t('pedidos.quantity', 'Cantidad')}>{p.cantidad} kg</td>
+                  <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
+                  <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
+                  <td data-label={t('pedidos.actions', 'Acciones')}>
+                    <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>{t('pedidos.invoice', '📄 Factura')}</button>
+                    <Link to="/envios" className="btn btn-secondary btn-sm" style={{ marginLeft: '6px' }}>{t('pedidos.track', '🚚 Rastrear')}</Link>
                   </td>
                 </tr>
               ))}
@@ -131,24 +119,24 @@ export default function Pedidos() {
         <div className="modal-overlay open" id="modalFactura">
           <div className="modal" style={{ maxWidth: '480px' }}>
             <div className="modal-header">
-              <span className="modal-title">Factura de Pedido</span>
+              <span className="modal-title">{t('pedidos.invoiceTitle', 'Factura de Pedido')}</span>
               <button className="modal-close" onClick={closeFactura}>✕</button>
             </div>
             <div id="facturaBody" style={{ padding: '24px' }}>
               {facturaData && (
                 <>
-                  <p><strong>Pedido #:</strong> {facturaData.id}</p>
-                  <p><strong>Producto:</strong> {facturaData.producto || facturaData.nombreProducto}</p>
-                  <p><strong>Productor:</strong> {facturaData.productor || facturaData.nombreProductor}</p>
-                  <p><strong>Cantidad:</strong> {facturaData.cantidad} kg</p>
-                  <p><strong>Total:</strong> ${Number(facturaData.total).toLocaleString('es-CO')}</p>
-                  <p><strong>Estado:</strong> {facturaData.estado}</p>
+                  <p><strong>{t('pedidos.invoiceDetail.id', 'Pedido #:')}</strong> {facturaData.id}</p>
+                  <p><strong>{t('pedidos.invoiceDetail.product', 'Producto:')}</strong> {facturaData.producto || facturaData.nombreProducto}</p>
+                  <p><strong>{t('pedidos.invoiceDetail.producer', 'Productor:')}</strong> {facturaData.productor || facturaData.nombreProductor}</p>
+                  <p><strong>{t('pedidos.invoiceDetail.quantity', 'Cantidad:')}</strong> {facturaData.cantidad} kg</p>
+                  <p><strong>{t('pedidos.invoiceDetail.total', 'Total:')}</strong> ${Number(facturaData.total).toLocaleString('es-CO')}</p>
+                  <p><strong>{t('pedidos.invoiceDetail.status', 'Estado:')}</strong> {t('pedidos.status.' + facturaData.estado?.toLowerCase(), facturaData.estado)}</p>
                 </>
               )}
             </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={closeFactura}>Cerrar</button>
-              <button className="btn btn-primary" onClick={() => alert('Factura enviada al correo registrado exitosamente.')}>📧 Enviar por correo</button>
+              <button className="btn btn-secondary" onClick={closeFactura}>{t('pedidos.close', 'Cerrar')}</button>
+              <button className="btn btn-primary" onClick={() => alert(t('pedidos.invoiceSent', 'Factura enviada al correo registrado exitosamente.'))}>{t('pedidos.sendEmail', '📧 Enviar por correo')}</button>
             </div>
           </div>
         </div>
@@ -156,3 +144,4 @@ export default function Pedidos() {
     </>
   );
 }
+

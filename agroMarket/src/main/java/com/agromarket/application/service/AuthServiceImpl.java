@@ -239,9 +239,8 @@ public class AuthServiceImpl implements AuthService {
                 existingUser.setGoogleId(googleId);
                 existingUser.setProveedor("GOOGLE");
                 if (picture != null && !picture.isEmpty()) existingUser.setFoto(picture);
-                if (existingUser.getRol() != RolUsuario.PRODUCTOR) {
-                    existingUser.setActivo(true); // Ensure user is active after OAuth2 login, unless pending producer
-                }
+                existingUser.setActivo(true); // Ensure user is active after OAuth2 login for all roles
+                existingUser.setEmailVerificado(true); // Google emails are verified
                 return existingUser;
             })
             .orElseGet(() -> {

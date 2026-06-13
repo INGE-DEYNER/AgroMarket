@@ -77,7 +77,7 @@ export default function Catalogo() {
       setCartOpen(false);
       navigate('/pedidos');
     } catch (err) {
-      alert('Error al procesar el pedido: ' + (err.message || 'Inténtalo de nuevo.'));
+      alert(t('catalog.alertCheckoutError', 'Error al procesar el pedido: ') + (err.message || t('errors.tryAgain', 'Inténtalo de nuevo.')));
     }
   };
 
@@ -90,14 +90,13 @@ export default function Catalogo() {
           {/* ─── HERO BANNER ─── */}
           <div className="catalog-hero">
             <div className="catalog-hero-text">
-              <div className="catalog-hero-badge">🌿 ASAFRUT · Chigorodó, Antioquia</div>
+              <div className="catalog-hero-badge">{t('catalog.heroBadge', '🌿 ASAFRUT · Chigorodó, Antioquia')}</div>
               <h1 className="catalog-hero-title">
-                Frutas tropicales<br />
-                <span>directo del campo</span>
+                {t('catalog.heroTitle', 'Frutas tropicales')}<br />
+                <span>{t('catalog.heroTitleSpan', 'directo del campo')}</span>
               </h1>
               <p className="catalog-hero-sub">
-                Productos frescos de los agricultores de ASAFRUT.<br />
-                Sin intermediarios, precios justos.
+                {t('catalog.heroSub', 'Productos frescos de los agricultores de ASAFRUT. Sin intermediarios, precios justos.')}
               </p>
             </div>
             <div className="catalog-hero-emoji">🍌</div>
@@ -111,14 +110,14 @@ export default function Catalogo() {
                 className="search-input"
                 type="text"
                 id="searchCatalog"
-                placeholder="Buscar productos..."
+                placeholder={t('catalog.searchPlaceholder', 'Buscar productos...')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             {count > 0 && (
               <button className="cart-btn-floating" onClick={() => setCartOpen(true)}>
-                🛒 Carrito
+                🛒 {t('catalog.cartButton', 'Carrito')}
                 <span className="cart-badge">{count}</span>
               </button>
             )}
@@ -133,7 +132,7 @@ export default function Catalogo() {
                 onClick={() => setFiltroTipo(cat.value)}
               >
                 <span className="chip-emoji">{cat.emoji}</span>
-                {cat.label}
+                {t('catalog.category.' + (cat.value || 'all'), cat.label)}
               </button>
             ))}
           </div>
@@ -142,8 +141,8 @@ export default function Catalogo() {
           {!loading && (
             <div className="catalog-meta">
               <p className="catalog-meta-count">
-                <strong>{filtered.length}</strong> producto{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
-                {filtroTipo && ` · ${filtroTipo}`}
+                <strong>{filtered.length}</strong> {filtered.length === 1 ? t('catalog.resultsFound', 'producto encontrado') : t('catalog.resultsFoundPlural', 'productos encontrados')}
+                {filtroTipo && ` · ${t('catalog.category.' + filtroTipo, filtroTipo)}`}
                 {search && ` · "${search}"`}
               </p>
             </div>
@@ -156,9 +155,9 @@ export default function Catalogo() {
             ) : filtered.length === 0 ? (
               <div className="catalog-empty">
                 <div className="catalog-empty-icon">🔍</div>
-                <div className="catalog-empty-title">No se encontraron productos</div>
+                <div className="catalog-empty-title">{t('catalog.noProducts', 'No se encontraron productos')}</div>
                 <div className="catalog-empty-sub">
-                  Intenta con otra búsqueda o categoría
+                  {t('catalog.noProductsDesc', 'Intenta con otra búsqueda o categoría')}
                 </div>
               </div>
             ) : (
@@ -174,9 +173,9 @@ export default function Catalogo() {
                       loading="lazy"
                     />
                     <span className={`catalog-card-badge${p.stock <= 0 ? ' out' : ''}`}>
-                      {p.stock > 0 ? '✓ Disponible' : '✗ Agotado'}
+                      {p.stock > 0 ? t('catalog.available', '✓ Disponible') : t('catalog.soldOut', '✗ Agotado')}
                     </span>
-                    <button className="catalog-card-fav" title="Favorito">❤️</button>
+                    <button className="catalog-card-fav" title={t('catalog.favorite', 'Favorito')}>❤️</button>
                   </div>
                   <div className="catalog-card-body">
                     {p.tipo && <div className="catalog-card-tipo">{p.tipo}</div>}
@@ -194,14 +193,14 @@ export default function Catalogo() {
                     <div className="catalog-card-footer">
                       <div className="catalog-card-price">
                         ${Number(p.precio).toLocaleString('es-CO')}
-                        <small>/kg</small>
+                        <small>{t('catalog.perKg', '/kg')}</small>
                       </div>
                       <button
                         className="catalog-card-add"
                         onClick={() => addToCart(p)}
                         disabled={p.stock <= 0}
                       >
-                        + Agregar
+                        {t('catalog.addToCart', '+ Agregar')}
                       </button>
                     </div>
                   </div>
@@ -219,9 +218,9 @@ export default function Catalogo() {
       <div className={`cart-drawer${cartOpen ? ' open' : ''}`} id="cartDrawer">
         <div className="cart-header">
           <div className="cart-header-title">
-            🛒 Mi carrito
+            🛒 {t('catalog.cartTitle', 'Mi carrito')}
             <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: '400' }}>
-              ({count} items)
+              ({count} {t('catalog.cartItems', 'items')})
             </span>
           </div>
           <button className="cart-close" onClick={() => setCartOpen(false)}>✕</button>
@@ -231,7 +230,7 @@ export default function Catalogo() {
           {cart.length === 0 ? (
             <div className="cart-empty">
               <div className="cart-empty-icon">🛒</div>
-              <div className="cart-empty-text">Tu carrito está vacío</div>
+              <div className="cart-empty-text">{t('catalog.emptyCart', 'Tu carrito está vacío')}</div>
             </div>
           ) : (
             cart.map((item) => (
@@ -243,7 +242,7 @@ export default function Catalogo() {
                 />
                 <div className="cart-item-info">
                   <div className="cart-item-name">{item.nombre}</div>
-                  <div className="cart-item-price">${Number(item.precio).toLocaleString('es-CO')}/kg</div>
+                  <div className="cart-item-price">${Number(item.precio).toLocaleString('es-CO')}{t('catalog.perKg', '/kg')}</div>
                   <div className="cart-qty-controls">
                     <button className="qty-btn" onClick={() => updateQty(item.id, item.qty - 1)}>−</button>
                     <span className="qty-val">{item.qty}</span>
@@ -258,22 +257,22 @@ export default function Catalogo() {
 
         <div className="cart-footer" id="cartFooter">
           <div className="cart-subtotal-row">
-            <span>Subtotal</span>
+            <span>{t('catalog.subtotal', 'Subtotal')}</span>
             <span>${total.toLocaleString('es-CO')}</span>
           </div>
           <div className="cart-subtotal-row">
-            <span>Envío estimado</span>
+            <span>{t('catalog.shippingEst', 'Envío estimado')}</span>
             <span>$15.000</span>
           </div>
           <div className="cart-total-row">
-            <span>TOTAL</span>
+            <span>{t('catalog.total', 'TOTAL')}</span>
             <span>${(total + 15000).toLocaleString('es-CO')}</span>
           </div>
           <button className="btn-checkout" onClick={handleCheckout}>
-            Proceder al pago →
+            {t('catalog.checkoutBtn', 'Proceder al pago →')}
           </button>
           <button className="btn-keep-shopping" onClick={() => setCartOpen(false)}>
-            Seguir comprando
+            {t('catalog.keepShopping', 'Seguir comprando')}
           </button>
         </div>
       </div>

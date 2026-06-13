@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import useStyles from '../hooks/useStyles';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 import api from '../utils/api';
 
 export default function Mensajeria() {
   useStyles(["/css/styles.css","/css/mensajeria.css"]);
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [contactos, setContactos] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
@@ -60,22 +63,7 @@ export default function Mensajeria() {
   return (
     <div className="page-wrap">
       {/* NAVBAR */}
-      <nav className="navbar">
-        <Link className="navbar-brand" to="/dashboard-comprador">
-          <span className="logo-icon">🌿</span><span>AgroMarket</span>
-        </Link>
-        <div className="navbar-links" id="navLinks">
-          <Link to="/dashboard-comprador">Mi Panel</Link>
-          <Link to="/catalogo">Catálogo</Link>
-          <Link to="/pedidos">Pedidos</Link>
-          <Link to="/mensajeria" className="active">Mensajes</Link>
-          <Link to="/envios">Envíos</Link>
-        </div>
-        <div className="navbar-right" id="navActions">
-          <div className="avatar avatar-blue">MT</div>
-          <Link to="/login" className="btn btn-secondary btn-sm">Salir</Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* CHAT LAYOUT */}
       <div className="chat-layout">
@@ -91,9 +79,9 @@ export default function Mensajeria() {
               <div className="avatar avatar-green">{c.iniciales}</div>
               <div>
                 <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{c.nombre}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{c.rol}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('auth.' + c.rol?.toLowerCase(), c.rol)}</div>
               </div>
-              {c.online && <span className="badge badge-green" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>● En línea</span>}
+              {c.online && <span className="badge badge-green" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>● {t('mensajeria.online', 'En línea')}</span>}
             </div>
           ))}
         </div>
@@ -106,15 +94,15 @@ export default function Mensajeria() {
             </div>
             <div>
               <div className="chat-name" id="chatName">
-                {selectedContact?.nombre || 'Selecciona una conversación'}
+                {selectedContact?.nombre || t('mensajeria.selectContact', 'Selecciona un contacto')}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }} id="chatRole">
-                {selectedContact?.rol || ''}
+                {selectedContact?.rol ? t('auth.' + selectedContact.rol?.toLowerCase(), selectedContact.rol) : ''}
               </div>
             </div>
             <div style={{ marginLeft: 'auto' }}>
               {selectedContact?.online && (
-                <span className="badge badge-green" id="onlineBadge">● En línea</span>
+                <span className="badge badge-green" id="onlineBadge">● {t('mensajeria.online', 'En línea')}</span>
               )}
             </div>
           </div>
@@ -123,11 +111,11 @@ export default function Mensajeria() {
             {!selectedContact ? (
               <div className="empty-state" style={{ margin: 'auto' }}>
                 <div className="empty-icon">💬</div>
-                <div>Selecciona un contacto para iniciar la conversación.</div>
+                <div>{t('mensajeria.selectContact', 'Selecciona un contacto para iniciar la conversación.')}</div>
               </div>
             ) : messages.length === 0 ? (
               <div className="empty-state" style={{ margin: 'auto' }}>
-                <div>No hay mensajes aún. ¡Sé el primero en escribir!</div>
+                <div>{t('mensajeria.emptyMessages', 'No hay mensajes aún. ¡Sé el primero en escribir!')}</div>
               </div>
             ) : (
               messages.map((m) => (
@@ -145,7 +133,7 @@ export default function Mensajeria() {
             <input
               className="chat-input"
               id="msgInput"
-              placeholder="Escribe un mensaje..."
+              placeholder={t('mensajeria.typeMessage', 'Escribe un mensaje...')}
               value={msgInput}
               onChange={(e) => setMsgInput(e.target.value)}
               onKeyDown={handleKey}
@@ -167,3 +155,4 @@ export default function Mensajeria() {
     </div>
   );
 }
+

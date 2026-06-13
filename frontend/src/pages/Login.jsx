@@ -22,19 +22,33 @@ export default function Login() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('oauth2') === 'success') {
+      const urlToken = params.get('token');
       (async () => {
         try {
-          const res = await api.get('/auth/token-exchange');
-          const authData = res.data || res;
-          if (authData?.token) {
-            localStorage.setItem('token', authData.token);
-            login(authData.user || authData, authData.token);
+          let authData = null;
+          let token = urlToken;
+
+          if (token) {
+            // Se recibió el token directamente en la URL (evita problemas de SameSite/cookies)
+            localStorage.setItem('token', token);
+            const res = await api.get('/usuarios/me');
+            authData = res.data || res;
+          } else {
+            // Intenta el intercambio de cookies tradicional como fallback
+            const res = await api.get('/auth/token-exchange');
+            authData = res.data || res;
+            token = authData?.token;
+          }
+
+          if (token && authData) {
+            localStorage.setItem('token', token);
+            login(authData.user || authData, token);
             redirectByRole((authData.user || authData)?.role || authData.rol);
           } else {
-            throw new Error('Token no recibido');
+            throw new Error('Token o datos de usuario no recibidos');
           }
         } catch (e) {
-          setGlobalError('Error al verificar sesión OAuth2.');
+          setGlobalError(e.message || 'Error al verificar sesión OAuth2.');
         }
       })();
     } else if (params.get('oauth2') === 'pending') {

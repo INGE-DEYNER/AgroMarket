@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import useStyles from '../hooks/useStyles';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 
 export default function Envios() {
   useStyles(["/css/styles.css","/css/envios.css"]);
+  const { t } = useTranslation();
   const [shipments, setShipments] = useState([]);
   const [historial, setHistorial] = useState([]);
 
@@ -32,26 +34,11 @@ export default function Envios() {
 
   return (
     <>
-      <nav className="navbar">
-        <Link className="navbar-brand" to="/dashboard-comprador">
-          <span className="logo-icon">🌿</span><span>AgroMarket</span>
-        </Link>
-        <div className="navbar-links" id="navLinks">
-          <Link to="/dashboard-comprador">Mi Panel</Link>
-          <Link to="/catalogo">Catálogo</Link>
-          <Link to="/pedidos">Pedidos</Link>
-          <Link to="/mensajeria">Mensajes</Link>
-          <Link to="/envios" className="active">Envíos</Link>
-        </div>
-        <div className="navbar-right" id="navActions">
-          <div className="avatar avatar-blue">MT</div>
-          <Link to="/login" className="btn btn-secondary btn-sm">Salir</Link>
-        </div>
-      </nav>
+      <Navbar />
 
       <main style={{ padding: '28px 32px', maxWidth: '1100px', margin: '0 auto' }}>
         <div className="section-header" style={{ marginBottom: '24px' }}>
-          <span className="section-title">🚚 Seguimiento de Envíos</span>
+          <span className="section-title">🚚 {t('envios.title', 'Seguimiento de Envíos')}</span>
         </div>
 
         {/* ACTIVE SHIPMENTS */}
@@ -59,7 +46,7 @@ export default function Envios() {
           {shipments.length === 0 ? (
             <div className="empty-state" style={{ padding: '40px', textAlign: 'center' }}>
               <div className="empty-icon">📦</div>
-              <div>No hay envíos activos en este momento.</div>
+              <div>{t('envios.noActive', 'No hay envíos activos en este momento.')}</div>
             </div>
           ) : (
             shipments.map((s) => (
@@ -71,12 +58,12 @@ export default function Envios() {
                       📍 {s.origen} → {s.destino} · {s.transportista}
                     </div>
                   </div>
-                  <span className="badge-status status-shipped">{s.estado}</span>
+                  <span className="badge-status status-shipped">{t('pedidos.status.' + s.estado?.toLowerCase(), s.estado)}</span>
                 </div>
                 <div style={{ background: 'var(--border-light)', borderRadius: '4px', height: '8px', overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${s.progreso || 0}%`, background: progressColor(s.estado), borderRadius: '4px', transition: 'width 0.5s ease' }}></div>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>{s.progreso || 0}% completado</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>{s.progreso || 0}% {t('envios.completed', 'completado')}</div>
               </div>
             ))
           )}
@@ -85,29 +72,29 @@ export default function Envios() {
         {/* HISTORY TABLE */}
         <div style={{ marginTop: '32px' }}>
           <h3 style={{ fontFamily: 'var(--font-title)', fontSize: '1.05rem', marginBottom: '16px' }}>
-            📋 Historial de todos los envíos
+            📋 {t('envios.historyTitle', 'Historial de todos los envíos')}
           </h3>
           <div className="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>ID Envío</th>
-                  <th>Producto</th>
-                  <th>Origen → Destino</th>
-                  <th>Transportista</th>
-                  <th>Estado</th>
-                  <th>Fecha</th>
+                  <th>{t('envios.id', 'ID Envío')}</th>
+                  <th>{t('envios.product', 'Producto')}</th>
+                  <th>{t('envios.route', 'Origen → Destino')}</th>
+                  <th>{t('envios.carrier', 'Transportista')}</th>
+                  <th>{t('envios.status', 'Estado')}</th>
+                  <th>{t('envios.date', 'Fecha')}</th>
                 </tr>
               </thead>
               <tbody id="tbHistorial">
                 {historial.map((e) => (
                   <tr key={e.id}>
-                    <td data-label="ID Envío">{e.id}</td>
-                    <td data-label="Producto">{e.producto}</td>
-                    <td data-label="Origen → Destino">{e.origen} → {e.destino}</td>
-                    <td data-label="Transportista">{e.transportista}</td>
-                    <td data-label="Estado"><span className={`badge-status ${e.estado === 'Entregado' ? 'status-shipped' : 'status-pending'}`}>{e.estado}</span></td>
-                    <td data-label="Fecha">{e.fecha}</td>
+                    <td data-label={t('envios.id', 'ID Envío')}>{e.id}</td>
+                    <td data-label={t('envios.product', 'Producto')}>{e.producto}</td>
+                    <td data-label={t('envios.route', 'Origen → Destino')}>{e.origen} → {e.destino}</td>
+                    <td data-label={t('envios.carrier', 'Transportista')}>{e.transportista}</td>
+                    <td data-label={t('envios.status', 'Estado')}><span className={`badge-status ${e.estado === 'Entregado' ? 'status-shipped' : 'status-pending'}`}>{t('pedidos.status.' + e.estado?.toLowerCase(), e.estado)}</span></td>
+                    <td data-label={t('envios.date', 'Fecha')}>{e.fecha}</td>
                   </tr>
                 ))}
               </tbody>
@@ -118,3 +105,4 @@ export default function Envios() {
     </>
   );
 }
+

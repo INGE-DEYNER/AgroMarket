@@ -15,8 +15,14 @@ export function AuthProvider({ children }) {
           setLoading(false);
           return;
         }
-        const data = await api.get('/auth/me');
-        setUser(data);
+        const res = await api.get('/usuarios/me');
+        const userData = res.data || res;
+        const normalizedUser = {
+          ...userData,
+          role: userData.role || userData.rol?.name || userData.rol,
+          email: userData.email || userData.correo,
+        };
+        setUser(normalizedUser);
       } catch {
         localStorage.removeItem('token');
         setUser(null);
@@ -29,7 +35,12 @@ export function AuthProvider({ children }) {
 
   const login = (userData, token) => {
     if (token) localStorage.setItem('token', token);
-    setUser(userData);
+    const normalizedUser = {
+      ...userData,
+      role: userData.role || userData.rol?.name || userData.rol,
+      email: userData.email || userData.correo,
+    };
+    setUser(normalizedUser);
   };
 
   const logout = async () => {
