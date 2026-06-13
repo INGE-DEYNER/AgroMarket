@@ -81,15 +81,26 @@ export default function Admin() {
   }, []);
 
   const loadAll = async () => {
+    const extractArray = (res) => {
+      if (!res) return [];
+      if (Array.isArray(res)) return res;
+      if (res.data) {
+        if (Array.isArray(res.data)) return res.data;
+        if (res.data.content && Array.isArray(res.data.content)) return res.data.content;
+      }
+      if (res.content && Array.isArray(res.content)) return res.content;
+      return [];
+    };
+
     try {
       const [u, p, r] = await Promise.all([
         api.get('/admin/usuarios').catch(() => []),
         api.get('/productos').catch(() => []),
         api.get('/resenas').catch(() => []),
       ]);
-      setUsuarios(Array.isArray(u) ? u : u.content || []);
-      setProductos(Array.isArray(p) ? p : p.content || []);
-      setResenas(Array.isArray(r) ? r : r.content || []);
+      setUsuarios(extractArray(u));
+      setProductos(extractArray(p));
+      setResenas(extractArray(r));
     } catch {}
   };
 

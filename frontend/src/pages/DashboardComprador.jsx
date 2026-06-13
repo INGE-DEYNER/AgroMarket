@@ -29,6 +29,16 @@ const REVIEW_PRODUCTOS = [
 
 export default function DashboardComprador() {
   const { t, i18n } = useTranslation();
+  const extractArray = (res) => {
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (res.data) {
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data.content && Array.isArray(res.data.content)) return res.data.content;
+    }
+    if (res.content && Array.isArray(res.content)) return res.content;
+    return [];
+  };
   const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -96,7 +106,7 @@ export default function DashboardComprador() {
   const loadPedidos = async () => {
     try {
       const data = await api.get('/pedidos/mis-pedidos');
-      setPedidos(Array.isArray(data) ? data : data.content || []);
+      setPedidos(extractArray(data));
     } catch (err) {
       console.error('Error loadPedidos:', err);
       setPedidos([]);
@@ -125,7 +135,7 @@ export default function DashboardComprador() {
     setCatalogLoading(true);
     try {
       const data = await api.get('/productos');
-      setCatalogProducts(Array.isArray(data) ? data : data.content || []);
+      setCatalogProducts(extractArray(data));
     } catch (err) {
       console.error('Error loadCatalogProducts:', err);
       setCatalogProducts([]);
@@ -138,7 +148,7 @@ export default function DashboardComprador() {
   const loadEnvios = async () => {
     try {
       const data = await api.get('/envios/mis-envios');
-      const list = Array.isArray(data) ? data : data.content || [];
+      const list = extractArray(data);
       setShipments(list.filter(e => e.estado !== 'Entregado'));
       setHistorialEnvios(list);
     } catch (err) {
@@ -152,7 +162,7 @@ export default function DashboardComprador() {
   const loadContactos = async () => {
     try {
       const data = await api.get('/mensajeria/contactos');
-      setContactos(Array.isArray(data) ? data : []);
+      setContactos(extractArray(data));
     } catch (err) {
       console.error('Error loadContactos:', err);
       setContactos([]);
@@ -163,7 +173,7 @@ export default function DashboardComprador() {
     setSelectedContact(contacto);
     try {
       const data = await api.get(`/mensajeria/conversacion/${contacto.id}`);
-      setMessages(Array.isArray(data) ? data : []);
+      setMessages(extractArray(data));
     } catch (err) {
       console.error('Error loadMessages:', err);
       setMessages([]);
@@ -198,7 +208,7 @@ export default function DashboardComprador() {
   const loadReviews = async () => {
     try {
       const data = await api.get('/resenas');
-      setReviews(Array.isArray(data) ? data : data.content || []);
+      setReviews(extractArray(data));
     } catch (err) {
       console.error('Error loadReviews:', err);
       setReviews([]);

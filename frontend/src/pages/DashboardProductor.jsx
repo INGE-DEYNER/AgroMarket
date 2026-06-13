@@ -11,6 +11,16 @@ const TIPOS = ['Banano', 'Piña', 'Mango', 'Maracuyá', 'Guanábana', 'Naranja',
 
 export default function DashboardProductor() {
   const { t } = useTranslation();
+  const extractArray = (res) => {
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (res.data) {
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data.content && Array.isArray(res.data.content)) return res.data.content;
+    }
+    if (res.content && Array.isArray(res.content)) return res.content;
+    return [];
+  };
   const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,7 +73,7 @@ export default function DashboardProductor() {
   const loadProductos = async () => {
     try {
       const data = await api.get('/productos/mis-productos');
-      setProductos(Array.isArray(data) ? data : data.content || []);
+      setProductos(extractArray(data));
     } catch (err) {
       console.error('Error loadProductos:', err);
       setProductos([]);
@@ -73,7 +83,7 @@ export default function DashboardProductor() {
   const loadPedidos = async () => {
     try {
       const data = await api.get('/pedidos/recibidos');
-      setPedidos(Array.isArray(data) ? data : data.content || []);
+      setPedidos(extractArray(data));
     } catch (err) {
       console.error('Error loadPedidos:', err);
       setPedidos([]);
@@ -97,7 +107,7 @@ export default function DashboardProductor() {
   const loadEnvios = async () => {
     try {
       const data = await api.get('/envios/mis-despachos');
-      setShipments(Array.isArray(data) ? data : data.content || []);
+      setShipments(extractArray(data));
     } catch (err) {
       console.error('Error loadEnvios:', err);
       setShipments([]);
@@ -130,7 +140,7 @@ export default function DashboardProductor() {
   const loadContactos = async () => {
     try {
       const data = await api.get('/mensajeria/contactos');
-      setContactos(Array.isArray(data) ? data : []);
+      setContactos(extractArray(data));
     } catch (err) {
       console.error('Error loadContactos:', err);
       setContactos([]);
@@ -141,7 +151,7 @@ export default function DashboardProductor() {
     setSelectedContact(contacto);
     try {
       const data = await api.get(`/mensajeria/conversacion/${contacto.id}`);
-      setMessages(Array.isArray(data) ? data : []);
+      setMessages(extractArray(data));
     } catch (err) {
       console.error('Error loadMessages:', err);
       setMessages([]);

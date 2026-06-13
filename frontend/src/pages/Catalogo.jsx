@@ -61,7 +61,17 @@ export default function Catalogo() {
     (async () => {
       try {
         const data = await api.get('/productos');
-        setProductos(Array.isArray(data) ? data : data.content || []);
+        const extractArray = (res) => {
+          if (!res) return [];
+          if (Array.isArray(res)) return res;
+          if (res.data) {
+            if (Array.isArray(res.data)) return res.data;
+            if (res.data.content && Array.isArray(res.data.content)) return res.data.content;
+          }
+          if (res.content && Array.isArray(res.content)) return res.content;
+          return [];
+        };
+        setProductos(extractArray(data));
       } catch (error) {
         console.error('Error fetching products:', error);
         setProductos([]);

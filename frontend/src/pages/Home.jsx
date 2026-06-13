@@ -2,21 +2,113 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import '../styles/home.css';
 
+const PLACEHOLDER_PRODUCTS = [
+  {
+    id: 'p1',
+    nombre: 'Banano Premium',
+    productor: 'Asociación ASAFRUT',
+    precio: 3500,
+    calificacion: '4.9',
+    stock: 100,
+    imagenUrl: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500',
+    enPromocion: true
+  },
+  {
+    id: 'p2',
+    nombre: 'Aguacate Hass',
+    productor: 'Asociación ASAFRUT',
+    precio: 8000,
+    calificacion: '4.8',
+    stock: 80,
+    imagenUrl: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=500'
+  },
+  {
+    id: 'p3',
+    nombre: 'Mango de Hilacha',
+    productor: 'Asociación ASAFRUT',
+    precio: 4000,
+    calificacion: '4.7',
+    stock: 120,
+    imagenUrl: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=500'
+  },
+  {
+    id: 'p4',
+    nombre: 'Guanábana Fresca',
+    productor: 'Asociación ASAFRUT',
+    precio: 7500,
+    calificacion: '4.9',
+    stock: 50,
+    imagenUrl: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=500'
+  }
+];
+
 export default function Home() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [productos, setProductos] = useState([]);
   const [resenas, setResenas] = useState([]);
+  const [metrics, setMetrics] = useState({
+    productos: '—',
+    productores: '—',
+    precio: '—',
+    calificacion: '—'
+  });
+
+  const extractArray = (res) => {
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (res.data) {
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data.content && Array.isArray(res.data.content)) return res.data.content;
+    }
+    if (res.content && Array.isArray(res.content)) return res.content;
+    return [];
+  };
 
   useEffect(() => {
     (async () => {
       try {
         const data = await api.get('/productos');
-        setProductos(Array.isArray(data) ? data : data.content || []);
+        const items = extractArray(data);
+        setProductos(items);
+
+        if (items.length > 0) {
+          const uniqueProducers = new Set(
+            items.map((p) => p.productor || p.nombreProductor || p.productorNombre).filter(Boolean)
+          ).size || 1;
+          const avgPrice = Math.round(
+            items.reduce((sum, p) => sum + Number(p.precio || 0), 0) / items.length
+          );
+          const avgRating = (
+            items.reduce((sum, p) => sum + Number(p.calificacion || p.calificacionPromedio || 4.8), 0) / items.length
+          ).toFixed(1);
+
+          setMetrics({
+            productos: String(items.length),
+            productores: String(uniqueProducers),
+            precio: `$${avgPrice.toLocaleString('es-CO')}`,
+            calificacion: `${avgRating}★`
+          });
+        } else {
+          setMetrics({
+            productos: '4+',
+            productores: '50+',
+            precio: '$4.500',
+            calificacion: '4.9★'
+          });
+        }
       } catch (err) {
         console.error('Error loading seasonal products:', err);
+        setMetrics({
+          productos: '—',
+          productores: '—',
+          precio: '—',
+          calificacion: '—'
+        });
       }
     })();
   }, []);
@@ -25,7 +117,8 @@ export default function Home() {
     (async () => {
       try {
         const data = await api.get('/resenas');
-        setResenas(Array.isArray(data) ? data : data.content || []);
+        const items = extractArray(data);
+        setResenas(items);
       } catch (err) {
         console.error('Error loading reviews:', err);
       }
@@ -52,10 +145,34 @@ export default function Home() {
     elements.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, [productos, resenas]);
+
+  const STATIC_TESTIMONIALS = [
+    {
+      id: 't1',
+      avatar: 'JC',
+      name: t('home.testimonials.t1.name', 'Cliente verificado'),
+      role: t('home.testimonials.t1.role', 'Comprador · Urabá'),
+      content: t('home.testimonials.t1.content', 'La plataforma hace más claro el origen de lo que compro y me permite revisar el catálogo sin depender de intermediarios.')
+    },
+    {
+      id: 't2',
+      avatar: 'AP',
+      name: t('home.testimonials.t2.name', 'Productor verificado'),
+      role: t('home.testimonials.t2.role', 'Productor · Chigorodó'),
+      content: t('home.testimonials.t2.content', 'El panel centraliza pedidos, mensajes y envíos en un solo lugar, así el trabajo diario se vuelve más simple.')
+    },
+    {
+      id: 't3',
+      avatar: 'MM',
+      name: t('home.testimonials.t3.name', 'Usuario verificado'),
+      role: t('home.testimonials.t3.role', 'Comprador · AgroMarket'),
+      content: t('home.testimonials.t3.content', 'Tener trazabilidad, reseñas y seguimiento en tiempo real cambia por completo la experiencia de compra.')
+    }
+  ];
 
   return (
-    <>
+    <div className="home-root">
       <Navbar />
 
       {/* HERO */}
@@ -69,7 +186,7 @@ export default function Home() {
               {t('home.heroTitle', 'Del campo de Urabá directamente a tu mesa.')}
             </h1>
             <p className="hero-sub animate-fade-up" style={{ transitionDelay: '0.2s' }}>
-              {t('home.heroSub', 'Conectamos productores agrícolas con compradores, eliminando intermediarios.')}
+              {t('home.heroSub', 'Conectamos productores agrícolas con compradores, eliminando intermediarios. Frutas frescas, precios justos, trazabilidad total.')}
             </p>
 
             <div className="hero-bullets animate-fade-up" style={{ transitionDelay: '0.3s' }}>
@@ -77,7 +194,7 @@ export default function Home() {
                 <svg viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
-                {t('home.bullet1', 'Conexión directa con productores locales')}
+                {t('home.bullet1', 'Más de 50 productores activos en Urabá')}
               </div>
               <div className="hero-bullet">
                 <svg viewBox="0 0 24 24">
@@ -97,9 +214,23 @@ export default function Home() {
               <Link to="/catalogo" className="btn btn-primary btn-lg">
                 {t('home.viewCatalog', 'Ver catálogo →')}
               </Link>
-              <Link to="/registro" className="btn btn-secondary btn-lg">
-                {t('home.iAmProducer', 'Soy productor')}
-              </Link>
+              {!user && (
+                <Link to="/registro" className="btn btn-secondary btn-lg">
+                  {t('home.iAmProducer', 'Soy productor')}
+                </Link>
+              )}
+            </div>
+
+            <div className="hero-avatars animate-fade-up" style={{ transitionDelay: '0.5s' }}>
+              <div className="avatar-group">
+                <div className="avatar">AS</div>
+                <div className="avatar">AG</div>
+                <div className="avatar">PM</div>
+                <div className="avatar">UR</div>
+              </div>
+              <div className="hero-avatars-text">
+                {t('home.avatarsText', 'Un mercado agrícola vivo, conectado con datos reales')}
+              </div>
             </div>
           </div>
 
@@ -111,6 +242,17 @@ export default function Home() {
                 className="hero-img"
               />
             </div>
+            <div className="float-card float-card-1">
+              <div className="float-card-1-title">{t('home.floatCard1.title', '🚚 Pedido en camino')}</div>
+              <div className="float-card-1-sub">{t('home.floatCard1.desc', 'Banano Premium · 50 kg')}</div>
+              <div className="progress-bar-bg">
+                <div className="progress-bar-fill"></div>
+              </div>
+            </div>
+            <div className="float-card float-card-2">
+              <div className="float-card-2-val">{t('home.floatCard2.val', '⭐ 4.9')}</div>
+              <div className="float-card-2-sub">{t('home.floatCard2.desc', 'Calificación promedio')}</div>
+            </div>
           </div>
         </div>
       </section>
@@ -119,20 +261,20 @@ export default function Home() {
       <section className="metrics">
         <div className="metrics-grid">
           <div className="metric-item animate-fade-up">
-            <div className="metric-val">Urabá</div>
-            <div className="metric-label">{t('home.metrics.origin', 'Origen 100% local, cultivado en Chigorodó')}</div>
+            <div className="metric-val" id="metricProductos">{metrics.productos}</div>
+            <div className="metric-label">{t('home.metrics.published', 'Productos publicados')}</div>
           </div>
           <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.1s' }}>
-            <div className="metric-val">Fresco</div>
-            <div className="metric-label">{t('home.metrics.fresh', 'Cosechado bajo pedido para garantizar la máxima frescura')}</div>
+            <div className="metric-val" id="metricProductores">{metrics.productores}</div>
+            <div className="metric-label">{t('home.metrics.producers', 'Productores visibles')}</div>
           </div>
           <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.2s' }}>
-            <div className="metric-val">Directo</div>
-            <div className="metric-label">{t('home.metrics.fairTrade', 'Comercio justo sin intermediarios para apoyar al productor')}</div>
+            <div className="metric-val" id="metricPrecio">{metrics.precio}</div>
+            <div className="metric-label">{t('home.metrics.avgPrice', 'Precio promedio del catálogo')}</div>
           </div>
           <div className="metric-item animate-fade-up" style={{ transitionDelay: '0.3s' }}>
-            <div className="metric-val">Seguro</div>
-            <div className="metric-label">{t('home.metrics.payments', 'Transacciones y pagos electrónicos 100% protegidos')}</div>
+            <div className="metric-val" id="metricCalificacion">{metrics.calificacion}</div>
+            <div className="metric-label">{t('home.metrics.avgRating', 'Calificación promedio real')}</div>
           </div>
         </div>
       </section>
@@ -202,38 +344,46 @@ export default function Home() {
         </div>
 
         <div className="products-grid">
-          {productos.length === 0 ? (
-            <div className="empty-state animate-fade-up" style={{ padding: '40px', width: '100%', textAlign: 'center', gridColumn: '1 / -1' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🍊</div>
-              <div>{t('home.featured.noProducts', 'No hay productos de temporada disponibles en este momento. ¡Pronto añadiremos más!')}</div>
-            </div>
-          ) : (
-            productos.slice(0, 4).map((p, i) => (
-              <div key={p.id} className="product-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
-                <img src={p.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'} alt={p.nombre} className="product-img" />
+          {(productos.length === 0 ? PLACEHOLDER_PRODUCTS : productos).slice(0, 4).map((p, i) => {
+            const hasStock = (p.stock !== undefined ? p.stock : p.cantidadDisponible) > 0;
+            const price = p.precio;
+            const producer = p.productor || p.nombreProductor || p.productorNombre || 'Productor';
+            const rating = p.calificacion || p.calificacionPromedio || '4.8';
+            return (
+              <div key={p.id || i} className="product-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
+                <img
+                  src={p.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'}
+                  alt={p.nombre}
+                  className="product-img"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500';
+                  }}
+                />
                 <div className="product-info">
                   <h3 className="product-name">{p.nombre}</h3>
                   <div className="product-producer">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                     </svg>
-                    {p.productor || p.nombreProductor || 'Productor'}
+                    {producer}
                   </div>
-                  <div className="product-price">${Number(p.precio).toLocaleString('es-CO')}/kg</div>
+                  <div className="product-price">${Number(price).toLocaleString('es-CO')}/kg</div>
                   <div className="product-meta">
                     <div className="product-rating">
-                      ★★★★★
-                      <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>({p.calificacion || '4.8'})</span>
+                      ★ {rating}
                     </div>
-                    <div className="product-badge">{p.stock > 0 ? t('home.featured.available', 'Disponible') : t('home.featured.soldOut', 'Agotado')}</div>
+                    <div className="product-badge">
+                      {hasStock ? t('home.featured.available', 'Disponible') : t('home.featured.soldOut', 'Sin stock')}
+                    </div>
                   </div>
                   <Link to="/catalogo" className="btn btn-primary product-btn">
                     {t('home.featured.orderNow', 'Pedir ahora')}
                   </Link>
                 </div>
               </div>
-            ))
-          )}
+            );
+          })}
         </div>
       </section>
 
@@ -277,6 +427,11 @@ export default function Home() {
                 className="fp-img"
               />
             </div>
+            <div className="fp-float">
+              <div className="fp-float-title">{t('home.fpFloat.title', '📦 Nuevo pedido recibido')}</div>
+              <div className="fp-float-desc">{t('home.fpFloat.desc', 'Detalles del pedido')}</div>
+              <div className="fp-float-badge">{t('home.fpFloat.badge', 'Pendiente')}</div>
+            </div>
           </div>
         </div>
       </section>
@@ -284,45 +439,33 @@ export default function Home() {
       {/* TESTIMONIALS */}
       <section className="testimonials" id="testimonios">
         <div className="test-header animate-fade-up">
-          <div className="section-eyebrow">{t('home.testimonials.eyebrow', 'ASOCIACIÓN')}</div>
-          <h2 className="section-title">{t('home.testimonials.title', 'Nuestra Comunidad ASAFRUT')}</h2>
+          <div className="section-eyebrow">{t('home.testimonials.eyebrow', 'TESTIMONIOS')}</div>
+          <h2 className="section-title">{t('home.testimonials.title', 'Lo que dicen nuestros usuarios')}</h2>
         </div>
 
-        {resenas.length > 0 ? (
-          <div className="test-grid">
-            {resenas.slice(0, 3).map((item, i) => (
-              <div key={item.id} className="test-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
+        <div className="test-grid">
+          {(resenas.length === 0 ? STATIC_TESTIMONIALS : resenas.slice(0, 3)).map((item, i) => {
+            const avatar = item.avatar || (item.compradorNombre || 'C').substring(0, 2).toUpperCase();
+            const name = item.name || item.compradorNombre || 'Usuario verificado';
+            const role = item.role || (item.productoNombre ? `${t('home.testimonials.buyer', 'Comprador')} · ${item.productoNombre}` : t('home.testimonials.buyer', 'Comprador'));
+            const content = item.content || item.comentario;
+            const calificacion = item.calificacion || 5;
+            return (
+              <div key={item.id || i} className="test-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
                 <div className="test-quote-mark">"</div>
-                <div className="test-stars">{"★".repeat(item.calificacion || 5)}</div>
-                <div className="test-content">{item.comentario}</div>
+                <div className="test-stars">{"★".repeat(calificacion)}</div>
+                <div className="test-content">{content}</div>
                 <div className="test-author">
-                  <div className="test-avatar">
-                    {(item.compradorNombre || 'C').substring(0, 2).toUpperCase()}
-                  </div>
+                  <div className="test-avatar">{avatar}</div>
                   <div>
-                    <div className="test-name">{item.compradorNombre || 'Comprador'}</div>
-                    <div className="test-role">{t('home.testimonials.buyer', 'Comprador')}</div>
+                    <div className="test-name">{name}</div>
+                    <div className="test-role">{role}</div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="test-grid">
-            <div className="test-card animate-fade-up" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
-              <div className="test-quote-mark" style={{ position: 'relative', top: '0', display: 'inline-block', marginBottom: '16px' }}>"</div>
-              <div className="test-content" style={{ fontSize: '1.25rem', fontStyle: 'italic', maxWidth: '800px', margin: '0 auto 24px', color: 'var(--text-color)' }}>
-                {t('home.coopQuote', '“Nuestra misión en la Asociación de Agricultores de Chigorodó (ASAFRUT) es empoderar a los productores de la región de Urabá, facilitando la comercialización directa de sus cosechas y garantizando que cada hogar reciba productos frescos y de la más alta calidad, bajo un esquema de comercio justo.”')}
-              </div>
-              <div className="test-author" style={{ justifyContent: 'center' }}>
-                <div>
-                  <div className="test-name">{t('home.coopAuthor', 'Junta Directiva ASAFRUT')}</div>
-                  <div className="test-role">{t('home.coopRole', 'Chigorodó, Urabá')}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+            );
+          })}
+        </div>
       </section>
 
       {/* CTA FINAL */}
@@ -395,6 +538,6 @@ export default function Home() {
           © 2026 AgroMarket · ASAFRUT · {t('home.footer.rights', 'Todos los derechos reservados')} · Desarrollado por Deyner Chaverra
         </div>
       </footer>
-    </>
+    </div>
   );
 }
