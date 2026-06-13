@@ -139,11 +139,11 @@ export default function Home() {
               🌿 ASAFRUT · Chigorodó, Urabá
             </div>
             <h1 className="hero-title animate-fade-up" style={{ transitionDelay: '0.1s' }}>
-              {t('home.heroTitle', 'Del campo de')} <span>{t('home.heroTitleSpan', 'Urabá')}</span>{' '}
-              {t('home.heroTitleEnd', 'directamente a tu mesa.')}
+              {t('home.heroTitle', 'Del campo de Urabá directamente a tu mesa.').split('Urabá')[0]}<span>Urabá</span>{t('home.heroTitle', 'Del campo de Urabá directamente a tu mesa.').split('Urabá')[1]}
             </h1>
             <p className="hero-sub animate-fade-up" style={{ transitionDelay: '0.2s' }}>
-              {t('home.heroSub', 'Conectamos productores agrícolas con compradores, eliminando intermediarios. Frutas frescas, precios justos, trazabilidad total.')}
+              {t('home.heroSub', 'Conectamos productores agrícolas con compradores, eliminando intermediarios.')}{' '}
+              {t('home.heroSubExtra', 'Frutas frescas, precios justos, trazabilidad total.')}
             </p>
 
             <div className="hero-bullets animate-fade-up" style={{ transitionDelay: '0.3s' }}>
