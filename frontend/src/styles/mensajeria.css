@@ -1,7 +1,4 @@
 /* Mensajeria Page Styles */
-body {
-  overflow: hidden;
-}
 .page-wrap {
   display: flex;
   flex-direction: column;
