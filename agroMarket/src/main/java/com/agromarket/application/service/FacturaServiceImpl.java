@@ -39,6 +39,56 @@ public class FacturaServiceImpl implements FacturaService {
         return facturaMapper.toResponse(factura);
     }
 
+    @Override
+    public java.util.List<FacturaResponse> getMisFacturas(Long compradorId) {
+        return facturaJpaRepository.findByPedidoCompradorId(compradorId).stream()
+                .map(facturaMapper::toResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public byte[] getFacturaPdf(Long id, Long solicitanteId) {
+        FacturaEntity factura = facturaJpaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Factura no encontrada"));
+        validarPropietario(factura.getPedido(), solicitanteId);
+
+        try (java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
+            com.lowagie.text.Document document = new com.lowagie.text.Document();
+            com.lowagie.text.pdf.PdfWriter.getInstance(document, baos);
+            document.open();
+            
+            document.add(new com.lowagie.text.Paragraph("AGROMARKET - ASAFRUT"));
+            document.add(new com.lowagie.text.Paragraph("Asociacion Agropecuaria El Sabor de las Frutas y el Campo"));
+            document.add(new com.lowagie.text.Paragraph("Chigorodo, Antioquia, Colombia"));
+            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            document.add(new com.lowagie.text.Paragraph("FACTURA ELECTRONICA: " + factura.getNumeroFactura()));
+            document.add(new com.lowagie.text.Paragraph("Fecha de emision: " + factura.getFechaEmision()));
+            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            
+            PedidoEntity pedido = factura.getPedido();
+            if (pedido != null) {
+                document.add(new com.lowagie.text.Paragraph("Pedido #" + pedido.getId()));
+                document.add(new com.lowagie.text.Paragraph("Comprador: " + (pedido.getComprador() != null ? pedido.getComprador().getNombre() + " " + pedido.getComprador().getApellido() : "N/A")));
+                document.add(new com.lowagie.text.Paragraph("Productor: " + (pedido.getProducto() != null && pedido.getProducto().getProductor() != null ? pedido.getProducto().getProductor().getNombre() : "N/A")));
+                document.add(new com.lowagie.text.Paragraph("Producto: " + (pedido.getProducto() != null ? pedido.getProducto().getNombre() : "N/A")));
+                document.add(new com.lowagie.text.Paragraph("Cantidad: " + pedido.getCantidad() + " kg"));
+                document.add(new com.lowagie.text.Paragraph("Precio unitario: $" + pedido.getPrecioUnitario() + "/kg"));
+            }
+            
+            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            document.add(new com.lowagie.text.Paragraph("Subtotal: $" + factura.getSubtotal()));
+            document.add(new com.lowagie.text.Paragraph("IVA (19%): $" + factura.getImpuesto()));
+            document.add(new com.lowagie.text.Paragraph("TOTAL: $" + factura.getTotal()));
+            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            document.add(new com.lowagie.text.Paragraph("Gracias por su compra y por apoyar a nuestros agricultores locales!"));
+            
+            document.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar PDF de la factura", e);
+        }
+    }
+
     private void validarPropietario(PedidoEntity pedido, Long solicitanteId) {
         UsuarioEntity usuario = usuarioJpaRepository.findById(solicitanteId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));

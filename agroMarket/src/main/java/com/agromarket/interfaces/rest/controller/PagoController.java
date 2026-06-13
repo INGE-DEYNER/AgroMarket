@@ -32,7 +32,19 @@ public class PagoController {
         return ResponseEntity.ok(ApiResponse.<PagoResponse>builder().success(true).message("Pago procesado").data(pagoService.procesar(request, principal.getUserId())).build());
     }
 
-    @GetMapping("/pedido/{pedidoId}")
+    @PostMapping("/iniciar")
+    @PreAuthorize("hasAnyRole('COMPRADOR','ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<com.agromarket.application.dto.IniciarPagoResponse>> iniciar(@Valid @RequestBody com.agromarket.application.dto.IniciarPagoRequest request, @AuthenticationPrincipal JwtUserPrincipal principal) {
+        return ResponseEntity.ok(ApiResponse.<com.agromarket.application.dto.IniciarPagoResponse>builder().success(true).message("Pago iniciado").data(pagoService.iniciar(request, principal.getUserId())).build());
+    }
+
+    @PostMapping("/confirmar")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<PagoResponse>> confirmar(@Valid @RequestBody com.agromarket.application.dto.ConfirmarPagoRequest request) {
+        return ResponseEntity.ok(ApiResponse.<PagoResponse>builder().success(true).message("Pago confirmado").data(pagoService.confirmar(request)).build());
+    }
+
+    @GetMapping({"/pedido/{pedidoId}", "/{pedidoId}"})
     @PreAuthorize("hasAnyRole('COMPRADOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<PagoResponse>> getByPedidoId(@PathVariable Long pedidoId, @AuthenticationPrincipal JwtUserPrincipal principal) {
         return ResponseEntity.ok(ApiResponse.<PagoResponse>builder().success(true).message("Pago recuperado").data(pagoService.getByPedidoId(pedidoId, principal.getUserId())).build());

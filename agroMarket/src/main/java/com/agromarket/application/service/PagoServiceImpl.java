@@ -35,8 +35,105 @@ public class PagoServiceImpl implements PagoService {
     private final FacturaJpaRepository facturaJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PagoMapper pagoMapper;
+    private final EmailService emailService;
     private final PagoDomainService pagoDomainService = new PagoDomainService();
     private final FacturaDomainService facturaDomainService = new FacturaDomainService();
+
+    @Override
+    public com.agromarket.application.dto.IniciarPagoResponse iniciar(com.agromarket.application.dto.IniciarPagoRequest request, Long compradorId) {
+        PedidoEntity pedido = obtenerPedido(request.getPedidoId());
+        validarPropietarioPedido(pedido, compradorId);
+
+        pagoJpaRepository.findByPedidoId(pedido.getId()).ifPresent(pagoExistente -> {
+            if (pagoExistente.getEstado() == EstadoPago.CONFIRMADO) {
+                throw new IllegalStateException("El pedido ya está pagado");
+            }
+            pagoJpaRepository.delete(pagoExistente);
+            pagoJpaRepository.flush();
+        });
+
+        String referencia = "REF-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        PagoEntity pago = PagoEntity.builder()
+                .pedido(pedido)
+                .monto(pedido.getTotal())
+                .metodoPago(request.getMetodoPago())
+                .estado(EstadoPago.PENDIENTE)
+                .referenciaPasarela(referencia)
+                .build();
+        PagoEntity guardado = pagoJpaRepository.save(pago);
+
+        String urlPasarela = "/pago-pasarela?pagoId=" + guardado.getId() + "&referencia=" + referencia;
+
+        return com.agromarket.application.dto.IniciarPagoResponse.builder()
+                .pagoId(guardado.getId())
+                .urlPasarela(urlPasarela)
+                .referencia(referencia)
+                .build();
+    }
+
+    @Override
+    public PagoResponse confirmar(com.agromarket.application.dto.ConfirmarPagoRequest request) {
+        PagoEntity pago = pagoJpaRepository.findById(request.getPagoId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado"));
+
+        if (!pago.getReferenciaPasarela().equals(request.getReferencia())) {
+            throw new IllegalArgumentException("La referencia del pago no coincide");
+        }
+
+        if (pago.getEstado() == EstadoPago.CONFIRMADO) {
+            return pagoMapper.toResponse(pago);
+        }
+
+        if ("APROBADO".equalsIgnoreCase(request.getEstado())) {
+            pago.setEstado(EstadoPago.CONFIRMADO);
+            PedidoEntity pedido = pago.getPedido();
+            pedido.setEstado(com.agromarket.domain.model.EstadoPedido.CONFIRMADO);
+            pedidoJpaRepository.save(pedido);
+
+            FacturaEntity factura = facturaJpaRepository.findByPedidoId(pedido.getId())
+                    .orElseGet(() -> {
+                        FacturaEntity f = FacturaEntity.builder()
+                                .pedido(pedido)
+                                .subtotal(pedido.getTotal())
+                                .impuesto(facturaDomainService.calcularImpuesto(pedido.getTotal()))
+                                .total(facturaDomainService.calcularTotal(pedido.getTotal()))
+                                .numeroFactura("FAC-" + pedido.getId() + "-" + java.time.LocalDate.now().getYear())
+                                .pago(pago)
+                                .estado("PAGADA")
+                                .build();
+                        return facturaJpaRepository.save(f);
+                    });
+
+            try {
+                String email = pedido.getComprador() != null ? pedido.getComprador().getCorreo() : null;
+                if (email != null) {
+                    String htmlContent = "<h2>Factura de Compra - AgroMarket</h2>" +
+                            "<p>Estimado/a comprador/a,</p>" +
+                            "<p>Tu pago ha sido confirmado exitosamente para el pedido #" + pedido.getId() + ".</p>" +
+                            "<p>Detalles de facturación:</p>" +
+                            "<ul>" +
+                            "<li>Número de factura: " + factura.getNumeroFactura() + "</li>" +
+                            "<li>Subtotal: $" + factura.getSubtotal() + "</li>" +
+                            "<li>IVA (19%): $" + factura.getImpuesto() + "</li>" +
+                            "<li>Total: $" + factura.getTotal() + "</li>" +
+                            "</ul>" +
+                            "<p>Gracias por apoyar a los productores de ASAFRUT.</p>";
+                    emailService.sendHtmlMessage(email, "Factura de Compra " + factura.getNumeroFactura(), htmlContent);
+                }
+            } catch (Exception e) {
+                System.err.println("Error enviando correo de factura: " + e.getMessage());
+            }
+
+        } else {
+            pago.setEstado(EstadoPago.RECHAZADO);
+            PedidoEntity pedido = pago.getPedido();
+            pedido.setEstado(com.agromarket.domain.model.EstadoPedido.CANCELADO);
+            pedidoJpaRepository.save(pedido);
+        }
+
+        PagoEntity guardado = pagoJpaRepository.save(pago);
+        return pagoMapper.toResponse(guardado);
+    }
 
     @Override
     public PagoResponse procesar(ProcesarPagoRequest request, Long compradorId) {

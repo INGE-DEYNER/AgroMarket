@@ -7,4 +7,8 @@ public interface PagoService {
     PagoResponse procesar(ProcesarPagoRequest request, Long compradorId);
 
     PagoResponse getByPedidoId(Long pedidoId, Long solicitanteId);
+
+    com.agromarket.application.dto.IniciarPagoResponse iniciar(com.agromarket.application.dto.IniciarPagoRequest request, Long compradorId);
+
+    PagoResponse confirmar(com.agromarket.application.dto.ConfirmarPagoRequest request);
 }

@@ -18,6 +18,7 @@ import Envios from './pages/Envios';
 import Mensajeria from './pages/Mensajeria';
 import Resenas from './pages/Resenas';
 import Perfil from './pages/Perfil';
+import PagoPasarela from './pages/PagoPasarela';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
           <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
           <Route path="/catalogo" element={<Catalogo />} />
+          <Route path="/pago-pasarela" element={<PagoPasarela />} />
 
           {/* Protegidas Generales */}
           <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />

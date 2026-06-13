@@ -50,4 +50,11 @@ public class FacturaEntity {
 
     @Column(nullable = false, unique = true)
     private String numeroFactura;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pago_id")
+    private PagoEntity pago;
+
+    @Column(nullable = true)
+    private String estado;
 }

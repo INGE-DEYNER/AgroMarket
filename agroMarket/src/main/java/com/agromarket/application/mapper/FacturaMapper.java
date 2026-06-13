@@ -20,6 +20,8 @@ public interface FacturaMapper {
                 .impuesto(entity.getImpuesto())
                 .total(entity.getTotal())
                 .fechaEmision(entity.getFechaEmision())
+                .pagoId(entity.getPago() != null ? entity.getPago().getId() : null)
+                .estado(entity.getEstado())
                 .build();
     }
 

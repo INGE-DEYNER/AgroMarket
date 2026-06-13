@@ -94,6 +94,46 @@ export default function DashboardComprador() {
   const [perfilMsg, setPerfilMsg] = useState({ type: '', text: '' });
   const [pwMsg, setPwMsg] = useState({ type: '', text: '' });
 
+  // Invoices and Payment states
+  const [facturas, setFacturas] = useState([]);
+  const [checkoutPedido, setCheckoutPedido] = useState(null);
+  const [metodoPago, setMetodoPago] = useState('PSE');
+  const [pagoModalOpen, setPagoModalOpen] = useState(false);
+
+  const loadFacturas = async () => {
+    try {
+      const data = await api.get('/facturas/mis-facturas');
+      setFacturas(extractArray(data));
+    } catch (err) {
+      console.error('Error loadFacturas:', err);
+      setFacturas([]);
+    }
+  };
+
+  const descargarPdf = (facturaId) => {
+    const token = localStorage.getItem('token');
+    const url = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:8080'
+      : 'https://agromarket-vj8x.onrender.com') + `/api/facturas/${facturaId}/pdf`;
+    
+    fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(res => res.blob())
+    .then(blob => {
+      const fileUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = `factura-${facturaId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    })
+    .catch(err => alert('Error al descargar el PDF: ' + err.message));
+  };
+
   const currentDate = new Date().toLocaleDateString(i18n.language || 'es-CO', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
@@ -123,6 +163,8 @@ export default function DashboardComprador() {
       loadContactos();
     } else if (activeSection === 'resenas' || activeSection === 'resumen') {
       loadReviews();
+    } else if (activeSection === 'misFacturas') {
+      loadFacturas();
     } else if (activeSection === 'perfil' && user) {
       setPerfilForm({ nombre: user.nombre || '', telefono: user.telefono || '' });
       setPerfilMsg({ type: '', text: '' });
@@ -286,15 +328,16 @@ export default function DashboardComprador() {
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     try {
-      await api.post('/pedidos', {
+      const res = await api.post('/pedidos', {
         items: cart.map((i) => ({ productoId: i.id, cantidad: i.qty })),
       });
+      const pedidoObj = res.data || res;
+      setCheckoutPedido(pedidoObj);
       clearCart();
       setCartOpen(false);
-      loadPedidos();
-      setActiveSection('misPedidos');
+      setPagoModalOpen(true);
     } catch (err) {
-      alert('Error al procesar el pedido: ' + (err.message || 'Inténtalo de nuevo.'));
+      alert('Error al crear el pedido: ' + (err.message || 'Inténtalo de nuevo.'));
     }
   };
 
@@ -362,6 +405,9 @@ export default function DashboardComprador() {
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'misPedidos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}>
           <span className="icon">🧾</span> {t('dashboardComprador.nav.myOrders', 'Mis Pedidos')} <span className="badge-count">{pedidos.length}</span>
+        </a>
+        <a href="#" className={`sidebar-link${activeSection === 'misFacturas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misFacturas'); }}>
+          <span className="icon">📄</span> {t('dashboardComprador.nav.myInvoices', 'Mis Facturas')} <span className="badge-count">{facturas.length}</span>
         </a>
 
         <div className="sidebar-divider"></div>
@@ -468,6 +514,9 @@ export default function DashboardComprador() {
                         <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
+                          {p.estado?.toLowerCase() === 'pendiente' && (
+                            <button onClick={() => { setCheckoutPedido(p); setPagoModalOpen(true); }} className="btn btn-primary btn-sm" style={{ marginRight: '6px' }}>Pagar 💳</button>
+                          )}
                           <button onClick={() => setActiveSection('seguimiento')} className="btn btn-secondary btn-sm">{t('pedidos.track', 'Rastrear')}</button>
                         </td>
                       </tr>
@@ -602,6 +651,9 @@ export default function DashboardComprador() {
                         <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
+                          {p.estado?.toLowerCase() === 'pendiente' && (
+                            <button onClick={() => { setCheckoutPedido(p); setPagoModalOpen(true); }} className="btn btn-primary btn-sm" style={{ marginRight: '6px' }}>Pagar 💳</button>
+                          )}
                           <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>{t('pedidos.invoice', '📄 Factura')}</button>
                         </td>
                       </tr>
@@ -842,7 +894,110 @@ export default function DashboardComprador() {
             </div>
           </div>
         )}
+        {/* ─── MIS FACTURAS ─── */}
+        {activeSection === 'misFacturas' && (
+          <div className="section active">
+            <div className="dash-header">
+              <div className="dash-welcome">
+                <h1>📄 Mis Facturas de Compra</h1>
+                <p>Descarga tus comprobantes electrónicos detallados de ASAFRUT</p>
+              </div>
+            </div>
+            <div className="card-table">
+              <div className="table-wrap">
+                <table className="table-responsive">
+                  <thead>
+                    <tr>
+                      <th>Factura N°</th>
+                      <th>Pedido ID</th>
+                      <th>Subtotal</th>
+                      <th>IVA (19%)</th>
+                      <th>Total</th>
+                      <th>Fecha Emisión</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {facturas.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>No tienes facturas emitidas en este momento.</td>
+                      </tr>
+                    ) : (
+                      facturas.map((f) => (
+                        <tr key={f.id}>
+                          <td data-label="Factura N°">{f.numeroFactura}</td>
+                          <td data-label="Pedido ID">#{f.pedidoId}</td>
+                          <td data-label="Subtotal">${Number(f.subtotal).toLocaleString('es-CO')}</td>
+                          <td data-label="IVA">${Number(f.impuesto).toLocaleString('es-CO')}</td>
+                          <td data-label="Total" style={{ fontWeight: '600', color: 'var(--primary)' }}>${Number(f.total).toLocaleString('es-CO')}</td>
+                          <td data-label="Fecha">{new Date(f.fechaEmision).toLocaleDateString()}</td>
+                          <td data-label="Acciones">
+                            <button className="btn btn-secondary btn-sm" onClick={() => descargarPdf(f.id)}>Descargar PDF 📥</button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* MODAL PROCESAR PAGO (PSE/TARJETA/EFECTIVO) */}
+      {pagoModalOpen && checkoutPedido && (
+        <div className="modal-overlay open" id="modalPago">
+          <div className="modal" style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <span className="modal-title">💳 Completar Pago en Línea</span>
+              <button className="modal-close" onClick={() => { setPagoModalOpen(false); loadPedidos(); setActiveSection('misPedidos'); }}>✕</button>
+            </div>
+            <div style={{ padding: '24px' }}>
+              <h4 style={{ marginBottom: '12px', fontSize: '1rem', fontWeight: '700' }}>Resumen del Pedido</h4>
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.85rem' }}>
+                <p><strong>Pedido #:</strong> {checkoutPedido.id}</p>
+                <p><strong>Total a pagar:</strong> ${(checkoutPedido.total || 0).toLocaleString('es-CO')}</p>
+                <p><strong>Estado:</strong> Pendiente de Pago</p>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label className="form-label" style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>Método de Pago</label>
+                <select 
+                  className="form-select" 
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-light)' }}
+                  value={metodoPago}
+                  onChange={(e) => setMetodoPago(e.target.value)}
+                >
+                  <option value="PSE">PSE (Débito Cuenta de Ahorros/Corriente)</option>
+                  <option value="TARJETA_CREDITO">Tarjeta de Crédito</option>
+                  <option value="EFECTIVO">Efectivo (Corresponsal Bancario)</option>
+                </select>
+              </div>
+
+              <button 
+                className="btn btn-primary" 
+                style={{ width: '100%', padding: '12px', fontWeight: '600' }}
+                onClick={async () => {
+                  try {
+                    const res = await api.post('/pagos/iniciar', {
+                      pedidoId: checkoutPedido.id,
+                      metodoPago: metodoPago
+                    });
+                    const data = res.data || res;
+                    setPagoModalOpen(false);
+                    navigate(data.urlPasarela);
+                  } catch (err) {
+                    alert('Error al iniciar el pago: ' + err.message);
+                  }
+                }}
+              >
+                Proceder a Pagar →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL FACTURA */}
       {modalFactura && (

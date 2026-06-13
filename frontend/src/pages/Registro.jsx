@@ -22,13 +22,38 @@ export default function Registro() {
 
   const selectRole = (r) => setRol(r);
 
+  const handlePasswordChange = (val) => {
+    setPassword(val);
+    const errs = { ...errors };
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/;
+    if (!val) {
+      errs.password = t('errors.required', 'Campo requerido.');
+    } else if (val.length < 8) {
+      errs.password = 'La contraseña debe tener al menos 8 caracteres.';
+    } else if (!strongPasswordRegex.test(val)) {
+      errs.password = 'Debe contener al menos 1 mayúscula, 1 número y 1 carácter especial (ej: @$!%*?&.).';
+    } else {
+      delete errs.password;
+    }
+    setErrors(errs);
+  };
+
   const validate = () => {
     const errs = {};
     if (!nombre.trim()) errs.nombre = t('errors.required', 'Campo requerido.');
     if (!apellido.trim()) errs.apellido = t('errors.required', 'Campo requerido.');
     if (!email || !/\S+@\S+\.\S+/.test(email)) errs.email = t('errors.invalidEmail', 'Ingresa un correo válido.');
     if (!telefono.trim()) errs.telefono = t('errors.required', 'Campo requerido.');
-    if (password.length < 6) errs.password = t('errors.minPassword', 'Mínimo 6 caracteres.');
+    
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/;
+    if (!password) {
+      errs.password = t('errors.required', 'Campo requerido.');
+    } else if (password.length < 8) {
+      errs.password = 'La contraseña debe tener al menos 8 caracteres.';
+    } else if (!strongPasswordRegex.test(password)) {
+      errs.password = 'Debe contener al menos 1 mayúscula, 1 número y 1 carácter especial (ej: @$!%*?&.).';
+    }
+
     if (password !== confirmPass) errs.confirmPass = t('errors.passwordMismatch', 'Las contraseñas no coinciden.');
     if (rol === 'productor' && !ubicacion.trim()) errs.ubicacion = 'Campo requerido para productores.';
     return errs;
@@ -41,7 +66,7 @@ export default function Registro() {
     if (Object.keys(errs).length > 0) return;
     setLoading(true);
     try {
-      await api.post('/auth/register', {
+      await api.post('/auth/registro', {
         nombre,
         apellido,
         email,
@@ -142,7 +167,7 @@ export default function Registro() {
           <div className="form-row">
             <div className="form-group">
               <label className="form-label" htmlFor="password">{t('auth.password', 'Contraseña')}</label>
-              <input className="form-input" type="password" id="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input className="form-input" type="password" id="password" placeholder="••••••••" value={password} onChange={(e) => handlePasswordChange(e.target.value)} />
               {errors.password && <span className="form-error" id="passwordError">{errors.password}</span>}
             </div>
             <div className="form-group">

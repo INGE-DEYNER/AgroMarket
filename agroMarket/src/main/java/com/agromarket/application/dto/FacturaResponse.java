@@ -20,4 +20,6 @@ public class FacturaResponse {
     private BigDecimal impuesto;
     private BigDecimal total;
     private LocalDateTime fechaEmision;
+    private Long pagoId;
+    private String estado;
 }

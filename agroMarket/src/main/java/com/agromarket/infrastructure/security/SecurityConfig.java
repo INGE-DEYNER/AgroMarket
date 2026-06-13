@@ -56,6 +56,7 @@ public class SecurityConfig {
                                 "/api/auth/enviar-verificacion",
                                 "/api/auth/reenviar-verificacion",
                                 "/api/auth/verificar-correo",
+                                "/api/pagos/confirmar",
                                 "/api/public/**",
                                 "/oauth2/**",
                                 "/login/oauth2/code/**",
