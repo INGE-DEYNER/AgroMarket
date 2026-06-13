@@ -71,6 +71,10 @@ public class BrevoEmailService implements EmailService {
             log.info("Subject: {}", subject);
             log.info("HTML Content: {}", html);
             log.info("-----------------------------");
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new RuntimeException("API error", e);
         }
     }
 

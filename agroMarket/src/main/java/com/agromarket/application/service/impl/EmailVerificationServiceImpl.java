@@ -74,7 +74,12 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
                 "codigo", token,
                 "correo", usuario.getCorreo(),
                 "correoMascarado", enmascararCorreo(usuario.getCorreo()));
-        mailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Verifica tu correo", "email-verification", model);
+        try {
+            mailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Verifica tu correo", "email-verification", model);
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(EmailVerificationServiceImpl.class)
+                    .error("Failed to send verification email to {}: {}", usuario.getCorreo(), e.getMessage());
+        }
     }
 
     @Override
@@ -105,6 +110,9 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         usuarioJpaRepository.save(usuario);
         entity.setVerificado(true);
         repository.save(entity);
+
+        sendWelcomeEmailIfComprador(usuario);
+
         return usuario;
     }
 
@@ -132,6 +140,22 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         usuarioJpaRepository.save(usuario);
         entity.setVerificado(true);
         repository.save(entity);
+
+        sendWelcomeEmailIfComprador(usuario);
+
         return usuario;
+    }
+
+    private void sendWelcomeEmailIfComprador(UsuarioEntity usuario) {
+        if (usuario.getRol() == com.agromarket.domain.model.RolUsuario.COMPRADOR) {
+            try {
+                mailService.sendTemplateMessage(usuario.getCorreo(), "¡Bienvenido a AgroMarket!", "welcome", java.util.Map.of());
+                org.slf4j.LoggerFactory.getLogger(EmailVerificationServiceImpl.class)
+                        .info("Welcome email successfully sent/logged to comprador {}", usuario.getCorreo());
+            } catch (Exception e) {
+                org.slf4j.LoggerFactory.getLogger(EmailVerificationServiceImpl.class)
+                        .error("Failed to send welcome email to comprador {}: {}", usuario.getCorreo(), e.getMessage());
+            }
+        }
     }
 }

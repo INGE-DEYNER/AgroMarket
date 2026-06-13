@@ -65,7 +65,12 @@ public class AdminServiceImpl implements AdminService {
 
         // Send approval email
         java.util.Map<String, String> model = java.util.Map.of("nombre", usuario.getNombre());
-        emailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Cuenta de Productor Aprobada", "productor-aprobado", model);
+        try {
+            emailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Cuenta de Productor Aprobada", "productor-aprobado", model);
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(AdminServiceImpl.class)
+                .error("Failed to send approval email to producer {}: {}", usuario.getCorreo(), e.getMessage());
+        }
     }
 
     @Override
@@ -85,7 +90,12 @@ public class AdminServiceImpl implements AdminService {
             "nombre", usuario.getNombre(),
             "motivo", motivo != null ? motivo : "No cumple con los requisitos mínimos de la plataforma."
         );
-        emailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Registro de Productor Rechazado", "productor-rechazado", model);
+        try {
+            emailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Registro de Productor Rechazado", "productor-rechazado", model);
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(AdminServiceImpl.class)
+                .error("Failed to send rejection email to producer {}: {}", usuario.getCorreo(), e.getMessage());
+        }
 
         // Delete user
         usuarioJpaRepository.delete(usuario);

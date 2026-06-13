@@ -44,6 +44,16 @@ public class PedidoController {
         return ResponseEntity.ok(ApiResponse.<List<PedidoResponse>>builder().success(true).message("Compras listadas").data(pedidoService.getMisCompras(principal.getUserId())).build());
     }
 
+    @GetMapping("/mis-pedidos")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<PedidoResponse>>> misPedidos(@AuthenticationPrincipal JwtUserPrincipal principal) {
+        if (principal.getRol() == com.agromarket.domain.model.RolUsuario.PRODUCTOR) {
+            return ResponseEntity.ok(ApiResponse.<List<PedidoResponse>>builder().success(true).message("Ventas listadas").data(pedidoService.getMisVentas(principal.getUserId())).build());
+        } else {
+            return ResponseEntity.ok(ApiResponse.<List<PedidoResponse>>builder().success(true).message("Compras listadas").data(pedidoService.getMisCompras(principal.getUserId())).build());
+        }
+    }
+
     @GetMapping("/mis-ventas")
     @PreAuthorize("hasAnyRole('PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<List<PedidoResponse>>> misVentas(@AuthenticationPrincipal JwtUserPrincipal principal) {

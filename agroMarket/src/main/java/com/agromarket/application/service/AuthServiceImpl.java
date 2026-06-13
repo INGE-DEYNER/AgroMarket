@@ -205,6 +205,19 @@ public class AuthServiceImpl implements AuthService {
         if (usuarioJpaRepository.existsByCorreo(request.getCorreo())) {
             throw new UsuarioYaExisteException("Ya existe un usuario con ese correo");
         }
+
+        if (usuarioJpaRepository.existsByTelefono(request.getTelefono())) {
+            throw new UsuarioYaExisteException("Ya existe un usuario con ese número de teléfono");
+        }
+
+        // Validate that password is unique across all users in the database
+        java.util.List<UsuarioEntity> todosLosUsuarios = usuarioJpaRepository.findAll();
+        for (UsuarioEntity u : todosLosUsuarios) {
+            if (passwordEncoder.matches(request.getContrasena(), u.getContrasena())) {
+                throw new CredencialesInvalidasException("La contraseña ingresada ya está siendo utilizada por otro usuario. Por favor elige otra contraseña única.");
+            }
+        }
+
         passwordPolicyService.validarContrasenaRegistro(request.getContrasena());
         UsuarioEntity usuario = crearEntidad(request);
         // Producers require admin approval after email verification
