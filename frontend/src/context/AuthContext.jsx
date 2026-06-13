@@ -7,6 +7,15 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const normalizeRole = (rawRole) => {
+    if (!rawRole) return '';
+    const r = rawRole.toUpperCase();
+    if (r === 'ADMINISTRADOR' || r === 'ADMIN') return 'admin';
+    if (r === 'PRODUCTOR') return 'productor';
+    if (r === 'COMPRADOR') return 'comprador';
+    return rawRole.toLowerCase();
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -19,7 +28,7 @@ export function AuthProvider({ children }) {
         const userData = res.data || res;
         const normalizedUser = {
           ...userData,
-          role: userData.role || userData.rol?.name || userData.rol,
+          role: normalizeRole(userData.role || userData.rol?.name || userData.rol),
           email: userData.email || userData.correo,
         };
         setUser(normalizedUser);
@@ -37,7 +46,7 @@ export function AuthProvider({ children }) {
     if (token) localStorage.setItem('token', token);
     const normalizedUser = {
       ...userData,
-      role: userData.role || userData.rol?.name || userData.rol,
+      role: normalizeRole(userData.role || userData.rol?.name || userData.rol),
       email: userData.email || userData.correo,
     };
     setUser(normalizedUser);
