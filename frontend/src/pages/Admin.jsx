@@ -136,9 +136,17 @@ export default function Admin() {
     ? usuarios.filter((u) => u.nombre?.toLowerCase().includes(searchUsuarios.toLowerCase()) || u.email?.toLowerCase().includes(searchUsuarios.toLowerCase()))
     : usuarios;
 
-  const desactivarUsuario = async (id) => {
-    try { await api.put(`/admin/usuarios/${id}/desactivar`); loadAll(); }
-    catch (err) { alert(err.message); }
+  const toggleUsuarioActivo = async (u) => {
+    try {
+      if (u.activo !== false) {
+        await api.put(`/usuarios/${u.id}/deshabilitar`);
+      } else {
+        await api.put(`/usuarios/${u.id}/habilitar`);
+      }
+      loadAll();
+    } catch (err) {
+      alert(err.message || 'Error al cambiar estado del usuario.');
+    }
   };
 
   const eliminarProducto = async (id) => {
@@ -239,105 +247,111 @@ export default function Admin() {
           <div className="grid-columns" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
             <div className="card-table">
               {/* USUARIOS */}
-              <div className={`section${activeSection === 'usuarios' ? ' active' : ''}`} id="sec-usuarios">
-                <div className="table-header"><h3 className="card-title">{t('admin.usersManagement', '👥 Gestión de Usuarios')}</h3></div>
-                <div className="table-filters">
-                  <div className="search-box">
-                    <input type="text" id="searchUsuarios" placeholder={t('admin.searchUsers', 'Buscar por nombre o correo...')} value={searchUsuarios} onChange={(e) => setSearchUsuarios(e.target.value)} />
+              {activeSection === 'usuarios' && (
+                <div className="section active" id="sec-usuarios">
+                  <div className="table-header"><h3 className="card-title">{t('admin.usersManagement', '👥 Gestión de Usuarios')}</h3></div>
+                  <div className="table-filters">
+                    <div className="search-box">
+                      <input type="text" id="searchUsuarios" placeholder={t('admin.searchUsers', 'Buscar por nombre o correo...')} value={searchUsuarios} onChange={(e) => setSearchUsuarios(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="table-wrap">
+                    <table className="table-responsive">
+                      <thead>
+                        <tr>
+                          <th>{t('auth.firstName', 'Nombre')}</th>
+                          <th>{t('auth.email', 'Correo')}</th>
+                          <th>{t('profile.role', 'Rol')}</th>
+                          <th>{t('pedidos.statusHeader', 'Estado')}</th>
+                          <th>{t('pedidos.actions', 'Acciones')}</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tbUsuarios">
+                        {usuariosFiltrados.map((u) => (
+                          <tr key={u.id}>
+                            <td data-label={t('auth.firstName', 'Nombre')}>{u.nombre} {u.apellido}</td>
+                            <td data-label={t('auth.email', 'Correo')}>{u.email}</td>
+                            <td data-label={t('profile.role', 'Rol')}><span className="badge-status">{t('auth.' + (u.role || u.rol)?.toLowerCase(), u.role || u.rol)}</span></td>
+                            <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={`badge-status ${u.activo !== false ? 'status-shipped' : 'status-pending'}`}>{u.activo !== false ? t('admin.active', 'Activo') : t('admin.inactive', 'Inactivo')}</span></td>
+                            <td data-label={t('pedidos.actions', 'Acciones')}>
+                              <button className="btn btn-secondary btn-sm" onClick={() => toggleUsuarioActivo(u)}>
+                                {u.activo !== false ? t('admin.deactivate', 'Desactivar') : t('admin.activate', 'Activar')}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-                <div className="table-wrap">
-                  <table className="table-responsive">
-                    <thead>
-                      <tr>
-                        <th>{t('auth.firstName', 'Nombre')}</th>
-                        <th>{t('auth.email', 'Correo')}</th>
-                        <th>{t('profile.role', 'Rol')}</th>
-                        <th>{t('pedidos.statusHeader', 'Estado')}</th>
-                        <th>{t('pedidos.actions', 'Acciones')}</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbUsuarios">
-                      {usuariosFiltrados.map((u) => (
-                        <tr key={u.id}>
-                          <td data-label={t('auth.firstName', 'Nombre')}>{u.nombre} {u.apellido}</td>
-                          <td data-label={t('auth.email', 'Correo')}>{u.email}</td>
-                          <td data-label={t('profile.role', 'Rol')}><span className="badge-status">{t('auth.' + (u.role || u.rol)?.toLowerCase(), u.role || u.rol)}</span></td>
-                          <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={`badge-status ${u.activo !== false ? 'status-shipped' : 'status-pending'}`}>{u.activo !== false ? t('admin.active', 'Activo') : t('admin.inactive', 'Inactivo')}</span></td>
-                          <td data-label={t('pedidos.actions', 'Acciones')}>
-                            <button className="btn btn-secondary btn-sm" onClick={() => desactivarUsuario(u.id)}>
-                              {u.activo !== false ? t('admin.deactivate', 'Desactivar') : t('admin.activate', 'Activar')}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              )}
 
               {/* PRODUCTOS */}
-              <div className={`section${activeSection === 'productos' ? ' active' : ''}`} id="sec-productos">
-                <div className="table-header"><h3 className="card-title">{t('admin.globalInventory', '📦 Inventario Global')}</h3></div>
-                <div className="table-wrap">
-                  <table className="table-responsive">
-                    <thead>
-                      <tr>
-                        <th>{t('dashboardProductor.product', 'Producto')}</th>
-                        <th>{t('pedidos.producer', 'Productor')}</th>
-                        <th>{t('dashboardProductor.pricePerKg', 'Precio/kg')}</th>
-                        <th>{t('dashboardProductor.stock', 'Stock')}</th>
-                        <th>{t('pedidos.actions', 'Acciones')}</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbProductos">
-                      {productos.map((p) => (
-                        <tr key={p.id}>
-                          <td data-label={t('dashboardProductor.product', 'Producto')}>{p.nombre}</td>
-                          <td data-label={t('pedidos.producer', 'Productor')}>{p.productor || p.nombreProductor || '—'}</td>
-                          <td data-label={t('dashboardProductor.pricePerKg', 'Precio/kg')}>${Number(p.precio).toLocaleString('es-CO')}</td>
-                          <td data-label={t('dashboardProductor.stock', 'Stock')}>{p.stock} kg</td>
-                          <td data-label={t('pedidos.actions', 'Acciones')}>
-                            <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)' }} onClick={() => eliminarProducto(p.id)}>{t('admin.delete', '🗑️ Eliminar')}</button>
-                          </td>
+              {activeSection === 'productos' && (
+                <div className="section active" id="sec-productos">
+                  <div className="table-header"><h3 className="card-title">{t('admin.globalInventory', '📦 Inventario Global')}</h3></div>
+                  <div className="table-wrap">
+                    <table className="table-responsive">
+                      <thead>
+                        <tr>
+                          <th>{t('dashboardProductor.product', 'Producto')}</th>
+                          <th>{t('pedidos.producer', 'Productor')}</th>
+                          <th>{t('dashboardProductor.pricePerKg', 'Precio/kg')}</th>
+                          <th>{t('dashboardProductor.stock', 'Stock')}</th>
+                          <th>{t('pedidos.actions', 'Acciones')}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody id="tbProductos">
+                        {productos.map((p) => (
+                          <tr key={p.id}>
+                            <td data-label={t('dashboardProductor.product', 'Producto')}>{p.nombre}</td>
+                            <td data-label={t('pedidos.producer', 'Productor')}>{p.productor || p.nombreProductor || '—'}</td>
+                            <td data-label={t('dashboardProductor.pricePerKg', 'Precio/kg')}>${Number(p.precio).toLocaleString('es-CO')}</td>
+                            <td data-label={t('dashboardProductor.stock', 'Stock')}>{p.stock} kg</td>
+                            <td data-label={t('pedidos.actions', 'Acciones')}>
+                              <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)' }} onClick={() => eliminarProducto(p.id)}>{t('admin.delete', '🗑️ Eliminar')}</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* RESEÑAS */}
-              <div className={`section${activeSection === 'resenas' ? ' active' : ''}`} id="sec-resenas">
-                <div className="table-header"><h3 className="card-title">{t('admin.reviewsModeration', '⭐ Moderación de Reseñas')}</h3></div>
-                <div className="table-wrap">
-                  <table className="table-responsive">
-                    <thead>
-                      <tr>
-                        <th>{t('admin.user', 'Usuario')}</th>
-                        <th>{t('dashboardProductor.stats.rating', 'Calificación')}</th>
-                        <th>{t('dashboardProductor.description', 'Comentario')}</th>
-                        <th>{t('pedidos.statusHeader', 'Estado')}</th>
-                        <th>{t('pedidos.actions', 'Acciones')}</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbResenas">
-                      {resenas.map((r) => (
-                        <tr key={r.id}>
-                          <td data-label={t('admin.user', 'Usuario')}>{r.compradorNombre || r.usuario || r.nombreUsuario || '—'}</td>
-                          <td data-label={t('dashboardProductor.stats.rating', 'Calificación')}>{'★'.repeat(r.calificacion || 5)}</td>
-                          <td data-label={t('dashboardProductor.description', 'Comentario')}>{r.comentario}</td>
-                          <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={`badge-status ${r.aprobada ? 'status-shipped' : 'status-pending'}`}>{r.aprobada ? t('pedidos.status.aprobada', 'Aprobada') : t('pedidos.status.pendiente', 'Pendiente')}</span></td>
-                          <td data-label={t('pedidos.actions', 'Acciones')}>
-                            <button className="btn btn-secondary btn-sm" onClick={() => moderarResena(r.id, true)}>{t('admin.approve', '✅ Aprobar')}</button>
-                            <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)', marginLeft: '6px' }} onClick={() => moderarResena(r.id, false)}>{t('admin.reject', '❌ Rechazar')}</button>
-                          </td>
+              {activeSection === 'resenas' && (
+                <div className="section active" id="sec-resenas">
+                  <div className="table-header"><h3 className="card-title">{t('admin.reviewsModeration', '⭐ Moderación de Reseñas')}</h3></div>
+                  <div className="table-wrap">
+                    <table className="table-responsive">
+                      <thead>
+                        <tr>
+                          <th>{t('admin.user', 'Usuario')}</th>
+                          <th>{t('dashboardProductor.stats.rating', 'Calificación')}</th>
+                          <th>{t('dashboardProductor.description', 'Comentario')}</th>
+                          <th>{t('pedidos.statusHeader', 'Estado')}</th>
+                          <th>{t('pedidos.actions', 'Acciones')}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody id="tbResenas">
+                        {resenas.map((r) => (
+                          <tr key={r.id}>
+                            <td data-label={t('admin.user', 'Usuario')}>{r.compradorNombre || r.usuario || r.nombreUsuario || '—'}</td>
+                            <td data-label={t('dashboardProductor.stats.rating', 'Calificación')}>{'★'.repeat(r.calificacion || 5)}</td>
+                            <td data-label={t('dashboardProductor.description', 'Comentario')}>{r.comentario}</td>
+                            <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={`badge-status ${r.aprobada ? 'status-shipped' : 'status-pending'}`}>{r.aprobada ? t('pedidos.status.aprobada', 'Aprobada') : t('pedidos.status.pendiente', 'Pendiente')}</span></td>
+                            <td data-label={t('pedidos.actions', 'Acciones')}>
+                              <button className="btn btn-secondary btn-sm" onClick={() => moderarResena(r.id, true)}>{t('admin.approve', '✅ Aprobar')}</button>
+                              <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)', marginLeft: '6px' }} onClick={() => moderarResena(r.id, false)}>{t('admin.reject', '❌ Rechazar')}</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* SIDEBAR INFO ADMIN */}

@@ -104,52 +104,197 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public byte[] getReportePdf() {
         try (java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
-            com.lowagie.text.Document document = new com.lowagie.text.Document();
+            com.lowagie.text.Document document = new com.lowagie.text.Document(com.lowagie.text.PageSize.A4, 36, 36, 54, 36);
             com.lowagie.text.pdf.PdfWriter.getInstance(document, baos);
             document.open();
             
-            document.add(new com.lowagie.text.Paragraph("AGROMARKET - ASAFRUT"));
-            document.add(new com.lowagie.text.Paragraph("REPORTE MENSUAL DE ADMINISTRACION Y CONTROL"));
-            document.add(new com.lowagie.text.Paragraph("Fecha de emision: " + java.time.LocalDate.now()));
-            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+            // Fonts definition
+            com.lowagie.text.Font titleFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 18, com.lowagie.text.Font.BOLD, java.awt.Color.WHITE);
+            com.lowagie.text.Font subTitleFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 11, com.lowagie.text.Font.NORMAL, new java.awt.Color(230, 245, 230));
+            com.lowagie.text.Font dateFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 9, com.lowagie.text.Font.ITALIC, new java.awt.Color(120, 120, 120));
+            com.lowagie.text.Font sectionFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 13, com.lowagie.text.Font.BOLD, new java.awt.Color(26, 92, 42));
+            com.lowagie.text.Font headerFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10, com.lowagie.text.Font.BOLD, java.awt.Color.WHITE);
+            com.lowagie.text.Font cellFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 9, com.lowagie.text.Font.NORMAL, new java.awt.Color(26, 46, 30));
+            com.lowagie.text.Font footerFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 9, com.lowagie.text.Font.NORMAL, new java.awt.Color(150, 150, 150));
+
+            // Colors definition
+            java.awt.Color primaryColor = new java.awt.Color(26, 92, 42); // #1a5c2a
+            java.awt.Color secondaryColor = new java.awt.Color(45, 122, 58); // #2d7a3a
+            java.awt.Color lightGreenBg = new java.awt.Color(238, 247, 238); // #eef7ee
+            java.awt.Color lightGrayBg = new java.awt.Color(245, 247, 245);
+            java.awt.Color borderLight = new java.awt.Color(220, 230, 220);
+
+            // 1. Header Banner
+            com.lowagie.text.pdf.PdfPTable headerTable = new com.lowagie.text.pdf.PdfPTable(1);
+            headerTable.setWidthPercentage(100);
             
-            document.add(new com.lowagie.text.Paragraph("RESUMEN DE PLATAFORMA:"));
-            document.add(new com.lowagie.text.Paragraph("- Total Usuarios Registrados: " + usuarioJpaRepository.count()));
-            document.add(new com.lowagie.text.Paragraph("- Total Productos en Catalogo: " + productoJpaRepository.count()));
-            document.add(new com.lowagie.text.Paragraph("- Total Pedidos Realizados: " + pedidoJpaRepository.count()));
+            com.lowagie.text.pdf.PdfPCell titleCell = new com.lowagie.text.pdf.PdfPCell();
+            titleCell.setBackgroundColor(primaryColor);
+            titleCell.setPadding(18);
+            titleCell.setBorder(com.lowagie.text.Rectangle.NO_BORDER);
             
-            BigDecimal ingresos = pagoJpaRepository.findAll().stream()
+            com.lowagie.text.Paragraph titlePara = new com.lowagie.text.Paragraph("AGROMARKET - ASAFRUT", titleFont);
+            titlePara.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+            titleCell.addElement(titlePara);
+            
+            com.lowagie.text.Paragraph subtitlePara = new com.lowagie.text.Paragraph("Reporte Mensual de Administración y Control", subTitleFont);
+            subtitlePara.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+            subtitlePara.setSpacingBefore(4);
+            titleCell.addElement(subtitlePara);
+            
+            headerTable.addCell(titleCell);
+            document.add(headerTable);
+
+            // Date paragraph
+            com.lowagie.text.Paragraph datePara = new com.lowagie.text.Paragraph("Fecha de emisión: " + java.time.LocalDate.now(), dateFont);
+            datePara.setAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
+            datePara.setSpacingAfter(20);
+            document.add(datePara);
+
+            // 2. Platform Summary Title
+            com.lowagie.text.Paragraph kpiTitle = new com.lowagie.text.Paragraph("RESUMEN DE LA PLATAFORMA", sectionFont);
+            kpiTitle.setSpacingAfter(10);
+            document.add(kpiTitle);
+
+            // KPI Grid (2x2)
+            com.lowagie.text.pdf.PdfPTable kpiTable = new com.lowagie.text.pdf.PdfPTable(4);
+            kpiTable.setWidthPercentage(100);
+            kpiTable.setSpacingAfter(25);
+            
+            // Get KPI values
+            long totalUsers = usuarioJpaRepository.count();
+            long totalProducts = productoJpaRepository.count();
+            long totalOrders = pedidoJpaRepository.count();
+            BigDecimal totalEarnings = pagoJpaRepository.findAll().stream()
                     .filter(pago -> pago.getEstado() != null && pago.getEstado().name().equals("CONFIRMADO"))
                     .map(PagoEntity::getMonto)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            document.add(new com.lowagie.text.Paragraph("- Ingresos Totales Confirmados: $" + ingresos.setScale(2, java.math.RoundingMode.HALF_UP)));
-            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
+
+            addKpiCell(kpiTable, "Total Usuarios", String.valueOf(totalUsers), lightGreenBg, borderLight, cellFont);
+            addKpiCell(kpiTable, "Productos Globales", String.valueOf(totalProducts), lightGreenBg, borderLight, cellFont);
+            addKpiCell(kpiTable, "Pedidos Realizados", String.valueOf(totalOrders), lightGreenBg, borderLight, cellFont);
+            addKpiCell(kpiTable, "Ingresos Totales", "$" + totalEarnings.setScale(2, java.math.RoundingMode.HALF_UP).toString(), lightGreenBg, borderLight, cellFont);
             
-            document.add(new com.lowagie.text.Paragraph("ULTIMOS USUARIOS REGISTRADOS:"));
+            document.add(kpiTable);
+
+            // 3. Recent Users
+            com.lowagie.text.Paragraph usersTitle = new com.lowagie.text.Paragraph("ÚLTIMOS USUARIOS REGISTRADOS", sectionFont);
+            usersTitle.setSpacingAfter(10);
+            document.add(usersTitle);
+
+            com.lowagie.text.pdf.PdfPTable usersTable = new com.lowagie.text.pdf.PdfPTable(new float[]{3, 4, 2, 2});
+            usersTable.setWidthPercentage(100);
+            usersTable.setSpacingAfter(25);
+
+            addTableHeaderCell(usersTable, "Nombre", secondaryColor, headerFont);
+            addTableHeaderCell(usersTable, "Correo", secondaryColor, headerFont);
+            addTableHeaderCell(usersTable, "Rol", secondaryColor, headerFont);
+            addTableHeaderCell(usersTable, "Estado", secondaryColor, headerFont);
+
             List<UsuarioEntity> usuarios = usuarioJpaRepository.findAll();
             int uCount = 0;
+            boolean alternate = false;
             for (UsuarioEntity u : usuarios) {
                 if (uCount++ >= 10) break;
-                document.add(new com.lowagie.text.Paragraph(String.format("  * %s (%s) - Rol: %s - Activo: %s", 
-                        u.getNombre(), u.getCorreo(), u.getRol(), u.isActivo() ? "SI" : "NO")));
+                java.awt.Color rowBg = alternate ? lightGrayBg : java.awt.Color.WHITE;
+                addTableCell(usersTable, u.getNombre(), rowBg, borderLight, cellFont);
+                addTableCell(usersTable, u.getCorreo(), rowBg, borderLight, cellFont);
+                addTableCell(usersTable, u.getRol() != null ? u.getRol().name() : "—", rowBg, borderLight, cellFont);
+                addTableCell(usersTable, u.isActivo() ? "Activo" : "Inactivo", rowBg, borderLight, cellFont);
+                alternate = !alternate;
             }
-            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
-            
-            document.add(new com.lowagie.text.Paragraph("PRODUCTOS RECIENTES EN CATALOGO:"));
+            if (usuarios.isEmpty()) {
+                com.lowagie.text.pdf.PdfPCell emptyCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Paragraph("No hay usuarios registrados", cellFont));
+                emptyCell.setColspan(4);
+                emptyCell.setPadding(8);
+                emptyCell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+                usersTable.addCell(emptyCell);
+            }
+            document.add(usersTable);
+
+            // 4. Recent Products
+            com.lowagie.text.Paragraph prodsTitle = new com.lowagie.text.Paragraph("PRODUCTOS RECIENTES EN CATÁLOGO", sectionFont);
+            prodsTitle.setSpacingAfter(10);
+            document.add(prodsTitle);
+
+            com.lowagie.text.pdf.PdfPTable prodsTable = new com.lowagie.text.pdf.PdfPTable(new float[]{4, 3, 3});
+            prodsTable.setWidthPercentage(100);
+            prodsTable.setSpacingAfter(30);
+
+            addTableHeaderCell(prodsTable, "Producto", secondaryColor, headerFont);
+            addTableHeaderCell(prodsTable, "Precio/Kg", secondaryColor, headerFont);
+            addTableHeaderCell(prodsTable, "Stock Disponible", secondaryColor, headerFont);
+
             List<com.agromarket.infrastructure.persistence.entity.ProductoEntity> productos = productoJpaRepository.findAll();
             int pCount = 0;
+            alternate = false;
             for (com.agromarket.infrastructure.persistence.entity.ProductoEntity p : productos) {
                 if (pCount++ >= 10) break;
-                document.add(new com.lowagie.text.Paragraph(String.format("  * %s - Precio: $%s/kg - Stock: %s kg", 
-                        p.getNombre(), p.getPrecio(), p.getCantidadDisponible())));
+                java.awt.Color rowBg = alternate ? lightGrayBg : java.awt.Color.WHITE;
+                addTableCell(prodsTable, p.getNombre(), rowBg, borderLight, cellFont);
+                addTableCell(prodsTable, "$" + p.getPrecio() + "/kg", rowBg, borderLight, cellFont);
+                addTableCell(prodsTable, p.getCantidadDisponible() + " kg", rowBg, borderLight, cellFont);
+                alternate = !alternate;
             }
-            document.add(new com.lowagie.text.Paragraph("------------------------------------------------------------------"));
-            document.add(new com.lowagie.text.Paragraph("Fin del Reporte Oficial - Administracion AgroMarket."));
-            
+            if (productos.isEmpty()) {
+                com.lowagie.text.pdf.PdfPCell emptyCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Paragraph("No hay productos registrados", cellFont));
+                emptyCell.setColspan(3);
+                emptyCell.setPadding(8);
+                emptyCell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+                prodsTable.addCell(emptyCell);
+            }
+            document.add(prodsTable);
+
+            // 5. Divider and Footer
+            com.lowagie.text.Paragraph footerLine = new com.lowagie.text.Paragraph("----------------------------------------------------------------------------------------------------------------", footerFont);
+            footerLine.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+            document.add(footerLine);
+
+            com.lowagie.text.Paragraph footerText = new com.lowagie.text.Paragraph("Fin del Reporte Oficial - Generado automáticamente por el Sistema AgroMarket", footerFont);
+            footerText.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+            footerText.setSpacingBefore(5);
+            document.add(footerText);
+
             document.close();
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Error al generar PDF del reporte mensual", e);
         }
+    }
+
+    private void addKpiCell(com.lowagie.text.pdf.PdfPTable table, String label, String value, java.awt.Color bg, java.awt.Color borderColor, com.lowagie.text.Font textFont) {
+        com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell();
+        cell.setBackgroundColor(bg);
+        cell.setBorderColor(borderColor);
+        cell.setPadding(10);
+        
+        com.lowagie.text.Paragraph labelPara = new com.lowagie.text.Paragraph(label.toUpperCase(), new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 7, com.lowagie.text.Font.BOLD, new java.awt.Color(80, 110, 80)));
+        labelPara.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+        cell.addElement(labelPara);
+        
+        com.lowagie.text.Paragraph valuePara = new com.lowagie.text.Paragraph(value, new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 13, com.lowagie.text.Font.BOLD, new java.awt.Color(26, 92, 42)));
+        valuePara.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+        valuePara.setSpacingBefore(4);
+        cell.addElement(valuePara);
+        
+        table.addCell(cell);
+    }
+
+    private void addTableHeaderCell(com.lowagie.text.pdf.PdfPTable table, String text, java.awt.Color bg, com.lowagie.text.Font font) {
+        com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Paragraph(text, font));
+        cell.setBackgroundColor(bg);
+        cell.setPadding(8);
+        cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_LEFT);
+        cell.setBorder(com.lowagie.text.Rectangle.NO_BORDER);
+        table.addCell(cell);
+    }
+
+    private void addTableCell(com.lowagie.text.pdf.PdfPTable table, String text, java.awt.Color bg, java.awt.Color borderColor, com.lowagie.text.Font font) {
+        com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Paragraph(text, font));
+        cell.setBackgroundColor(bg);
+        cell.setBorderColor(borderColor);
+        cell.setPadding(8);
+        cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_LEFT);
+        table.addCell(cell);
     }
 }
