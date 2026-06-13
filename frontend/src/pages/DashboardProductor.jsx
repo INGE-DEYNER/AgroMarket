@@ -41,7 +41,9 @@ export default function DashboardProductor() {
   const [pedidos, setPedidos] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState({ nombre: '', tipo: 'Banano', precio: '', stock: '', descripcion: '' });
+  const [form, setForm] = useState({ nombre: '', tipo: 'Banano', precio: '', stock: '', descripcion: '', imagenUrl: '' });
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('');
 
   // Shipments (Despachos) state
   const [shipments, setShipments] = useState([]);
@@ -73,7 +75,12 @@ export default function DashboardProductor() {
   const loadProductos = async () => {
     try {
       const data = await api.get('/productos/mis-productos');
-      setProductos(extractArray(data));
+      const items = extractArray(data).map(p => ({
+        ...p,
+        tipo: p.tipo || p.tipoFruta || 'Banano',
+        stock: p.stock !== undefined ? p.stock : p.cantidadDisponible
+      }));
+      setProductos(items);
     } catch (err) {
       console.error('Error loadProductos:', err);
       setProductos([]);
@@ -222,25 +229,82 @@ export default function DashboardProductor() {
 
   // Products Modal
   const openProductoModal = (prod = null) => {
+    setSelectedImageFile(null);
+    setImagePreviewUrl('');
     if (prod) {
       setEditId(prod.id);
-      setForm({ nombre: prod.nombre, tipo: prod.tipo, precio: prod.precio, stock: prod.stock, descripcion: prod.descripcion || '' });
+      setForm({
+        nombre: prod.nombre,
+        tipo: prod.tipo || prod.tipoFruta || 'Banano',
+        precio: prod.precio,
+        stock: prod.stock !== undefined ? prod.stock : prod.cantidadDisponible,
+        descripcion: prod.descripcion || '',
+        imagenUrl: prod.imagenUrl || ''
+      });
+      if (prod.imagenUrl) {
+        // Resolve absolute url for display if relative
+        const resolvedUrl = prod.imagenUrl.startsWith('http') 
+          ? prod.imagenUrl 
+          : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+              ? `http://localhost:8080${prod.imagenUrl}`
+              : `https://agromarket-vj8x.onrender.com${prod.imagenUrl}`);
+        setImagePreviewUrl(resolvedUrl);
+      }
     } else {
       setEditId(null);
-      setForm({ nombre: '', tipo: 'Banano', precio: '', stock: '', descripcion: '' });
+      setForm({ nombre: '', tipo: 'Banano', precio: '', stock: '', descripcion: '', imagenUrl: '' });
     }
     setModalOpen(true);
   };
 
-  const closeProductoModal = () => setModalOpen(false);
+  const closeProductoModal = () => {
+    setSelectedImageFile(null);
+    setImagePreviewUrl('');
+    setModalOpen(false);
+  };
 
   const guardarProducto = async () => {
+    const mapTipoToEnum = (tipo) => {
+      const mapping = {
+        'Banano': 'BANANO',
+        'Piña': 'PINA',
+        'Mango': 'MANGO',
+        'Maracuyá': 'MARACUYA',
+        'Guanábana': 'GUANABANA',
+        'Naranja': 'NARANJA',
+        'Coco': 'COCO',
+        'Limón': 'LIMON'
+      };
+      return mapping[tipo] || 'BANANO';
+    };
+
+    const payload = {
+      nombre: form.nombre,
+      tipoFruta: mapTipoToEnum(form.tipo),
+      precio: Number(form.precio),
+      cantidadDisponible: Number(form.stock),
+      descripcion: form.descripcion,
+      imagenUrl: form.imagenUrl || ''
+    };
+
     try {
+      let res;
       if (editId) {
-        await api.put(`/productos/${editId}`, form);
+        res = await api.put(`/productos/${editId}`, payload);
       } else {
-        await api.post('/productos', form);
+        res = await api.post('/productos', payload);
       }
+      
+      const savedProduct = res?.data || res;
+      const productId = savedProduct?.id || editId;
+
+      // Upload selected image file if present
+      if (productId && selectedImageFile) {
+        const formData = new FormData();
+        formData.append('imagen', selectedImageFile);
+        await api.post(`/productos/${productId}/imagen`, formData);
+      }
+
       closeProductoModal();
       loadProductos();
     } catch (err) {
@@ -678,6 +742,52 @@ export default function DashboardProductor() {
               <label className="form-label">{t('dashboardProductor.description', 'Descripción')}</label>
               <textarea className="form-textarea" id="pDesc" rows="3" placeholder={t('dashboardProductor.placeholderDesc', 'Describe la calidad, procedencia...')} value={form.descripcion} onChange={(e) => setForm({ ...form, descripcion: e.target.value })}></textarea>
             </div>
+            
+            <div className="form-group" style={{ marginBottom: '16px' }}>
+              <label className="form-label">{t('dashboardProductor.image', 'Imagen del Producto')}</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
+                {imagePreviewUrl ? (
+                  <div style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-light)' }}>
+                    <img src={imagePreviewUrl} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button 
+                      type="button" 
+                      onClick={() => { setSelectedImageFile(null); setImagePreviewUrl(''); setForm(prev => ({ ...prev, imagenUrl: '' })); }} 
+                      style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(255, 0, 0, 0.8)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px', fontWeight: 'bold' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ width: '80px', height: '80px', borderRadius: '8px', border: '2px dashed var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-light)', fontSize: '1.5rem' }}>
+                    🖼️
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button 
+                    className="btn btn-secondary btn-sm" 
+                    type="button"
+                    onClick={() => document.getElementById('product-image-input').click()}
+                  >
+                    {imagePreviewUrl ? t('dashboardProductor.changeImage', 'Cambiar imagen') : t('dashboardProductor.selectImage', 'Seleccionar imagen')}
+                  </button>
+                  <input 
+                    id="product-image-input" 
+                    type="file" 
+                    accept="image/*" 
+                    style={{ display: 'none' }} 
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setSelectedImageFile(file);
+                        setImagePreviewUrl(URL.createObjectURL(file));
+                      }
+                    }} 
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>JPG, PNG. Máx 5MB.</span>
+                </div>
+              </div>
+            </div>
+
             <div className="modal-footer" style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
               <button className="btn btn-secondary" style={{ flex: 1 }} onClick={closeProductoModal}>{t('dashboardProductor.cancel', 'Cancelar')}</button>
               <button className="btn btn-primary" style={{ flex: 2 }} onClick={guardarProducto}>{t('dashboardProductor.save', 'Guardar producto')}</button>
