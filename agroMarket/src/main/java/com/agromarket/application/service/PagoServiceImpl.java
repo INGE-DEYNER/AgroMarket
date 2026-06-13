@@ -87,7 +87,7 @@ public class PagoServiceImpl implements PagoService {
         if ("APROBADO".equalsIgnoreCase(request.getEstado())) {
             pago.setEstado(EstadoPago.CONFIRMADO);
             PedidoEntity pedido = pago.getPedido();
-            pedido.setEstado(com.agromarket.domain.model.EstadoPedido.CONFIRMADO);
+            pedido.setEstado(com.agromarket.domain.model.EstadoPedido.PENDIENTE);
             pedidoJpaRepository.save(pedido);
 
             FacturaEntity factura = facturaJpaRepository.findByPedidoId(pedido.getId())

@@ -58,7 +58,7 @@ export default function Login() {
   const redirectByRole = (role) => {
     const r = role?.toLowerCase();
     if (r === 'productor') navigate('/dashboard-productor');
-    else if (r === 'admin') navigate('/admin');
+    else if (r === 'admin' || r === 'administrador') navigate('/admin');
     else navigate('/dashboard-comprador');
   };
 

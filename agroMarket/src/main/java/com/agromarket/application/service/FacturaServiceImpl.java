@@ -68,7 +68,7 @@ public class FacturaServiceImpl implements FacturaService {
             PedidoEntity pedido = factura.getPedido();
             if (pedido != null) {
                 document.add(new com.lowagie.text.Paragraph("Pedido #" + pedido.getId()));
-                document.add(new com.lowagie.text.Paragraph("Comprador: " + (pedido.getComprador() != null ? pedido.getComprador().getNombre() + " " + pedido.getComprador().getApellido() : "N/A")));
+                document.add(new com.lowagie.text.Paragraph("Comprador: " + (pedido.getComprador() != null ? pedido.getComprador().getNombre() : "N/A")));
                 document.add(new com.lowagie.text.Paragraph("Productor: " + (pedido.getProducto() != null && pedido.getProducto().getProductor() != null ? pedido.getProducto().getProductor().getNombre() : "N/A")));
                 document.add(new com.lowagie.text.Paragraph("Producto: " + (pedido.getProducto() != null ? pedido.getProducto().getNombre() : "N/A")));
                 document.add(new com.lowagie.text.Paragraph("Cantidad: " + pedido.getCantidad() + " kg"));

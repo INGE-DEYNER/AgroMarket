@@ -143,46 +143,46 @@ export default function Registro() {
             <div className="form-group">
               <label className="form-label" htmlFor="nombre">{t('auth.firstName', 'Nombre')}</label>
               <input className="form-input" type="text" id="nombre" placeholder="Juan" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-              {errors.nombre && <span className="form-error" id="nombreError">{errors.nombre}</span>}
+              {errors.nombre && <span className="form-error visible" id="nombreError">{errors.nombre}</span>}
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="apellido">{t('auth.lastName', 'Apellido')}</label>
               <input className="form-input" type="text" id="apellido" placeholder="Pérez" value={apellido} onChange={(e) => setApellido(e.target.value)} />
-              {errors.apellido && <span className="form-error" id="apellidoError">{errors.apellido}</span>}
+              {errors.apellido && <span className="form-error visible" id="apellidoError">{errors.apellido}</span>}
             </div>
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="email">{t('auth.email', 'Correo electrónico')}</label>
             <input className="form-input" type="email" id="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-            {errors.email && <span className="form-error" id="emailError">{errors.email}</span>}
+            {errors.email && <span className="form-error visible" id="emailError">{errors.email}</span>}
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="telefono">{t('auth.phone', 'Teléfono')}</label>
             <input className="form-input" type="tel" id="telefono" placeholder="3001234567" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
-            {errors.telefono && <span className="form-error" id="telefonoError">{errors.telefono}</span>}
+            {errors.telefono && <span className="form-error visible" id="telefonoError">{errors.telefono}</span>}
           </div>
 
           <div className="form-row">
             <div className="form-group">
               <label className="form-label" htmlFor="password">{t('auth.password', 'Contraseña')}</label>
               <input className="form-input" type="password" id="password" placeholder="••••••••" value={password} onChange={(e) => handlePasswordChange(e.target.value)} />
-              {errors.password && <span className="form-error" id="passwordError">{errors.password}</span>}
+              {errors.password && <span className="form-error visible" id="passwordError">{errors.password}</span>}
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="confirmPass">{t('auth.confirmPassword', 'Confirmar contraseña')}</label>
               <input className="form-input" type="password" id="confirmPass" placeholder="••••••••" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
-              {errors.confirmPass && <span className="form-error" id="confirmError">{errors.confirmPass}</span>}
+              {errors.confirmPass && <span className="form-error visible" id="confirmError">{errors.confirmPass}</span>}
             </div>
           </div>
 
           {/* EXTRA FIELD FOR PRODUCER */}
           {rol === 'productor' && (
-            <div className="form-group extra-field" id="ubicacionGroup">
+            <div className="form-group extra-field visible" id="ubicacionGroup">
               <label className="form-label" htmlFor="ubicacion">{t('auth.location', 'Ubicación / Vereda')}</label>
               <input className="form-input" type="text" id="ubicacion" placeholder="Ej. Vereda Las Margaritas, Chigorodó" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} />
-              {errors.ubicacion && <span className="form-error" id="ubicacionError">{errors.ubicacion}</span>}
+              {errors.ubicacion && <span className="form-error visible" id="ubicacionError">{errors.ubicacion}</span>}
             </div>
           )}
 
@@ -193,7 +193,7 @@ export default function Registro() {
           </button>
 
           {success && (
-            <div className="success-msg" id="successMsg" style={{ display: 'flex' }}>
+            <div className="success-msg visible" id="successMsg">
               <span>✔</span>
               <span>{t('auth.accountCreated', 'Cuenta creada. Redirigiendo a verificación...')}</span>
             </div>
