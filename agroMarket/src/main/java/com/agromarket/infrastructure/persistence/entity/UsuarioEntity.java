@@ -81,7 +81,7 @@ public abstract class UsuarioEntity {
     @Column(name = "google_id")
     private String googleId;
 
-    @Column(name = "email_verificado", nullable = false)
+    @Column(name = "email_verificado", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private boolean emailVerificado = false;
 
@@ -113,15 +113,15 @@ public abstract class UsuarioEntity {
     @Builder.Default
     private Boolean esEmpresa = false;
 
-    @Column(name = "telefono_verificado", nullable = false)
+    @Column(name = "telefono_verificado", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean telefonoVerificado = false;
 
-    @Column(name = "cuenta_aprobada", nullable = false)
+    @Column(name = "cuenta_aprobada", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean cuentaAprobada = false;
 
-    @Column(name = "cuenta_completa", nullable = false)
+    @Column(name = "cuenta_completa", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean cuentaCompleta = false;
 
@@ -150,7 +150,7 @@ public abstract class UsuarioEntity {
     @Column(name = "cuenta_bancaria")
     private String cuentaBancaria;
 
-    @Column(name = "cupon_primer_envio_usado", nullable = false)
+    @Column(name = "cupon_primer_envio_usado", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean cuponPrimerEnvioUsado = false;
 

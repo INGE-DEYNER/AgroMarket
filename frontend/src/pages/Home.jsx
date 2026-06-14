@@ -474,7 +474,7 @@ export default function Home() {
           </div>
         </div>
         <div className="footer-bottom">
-          © 2026 AgroMarket · ASAFRUT · {t('home.footer.rights', 'Todos los derechos reservados')}
+          © 2026 AgroMarket · ASAFRUT · {t('home.footer.rights', 'Todos los derechos reservados')} · Desarrollado por Deyner Chaverra
         </div>
       </footer>
 

@@ -49,7 +49,7 @@ export default function CompletarCuentaModal({ onComplete }) {
         onComplete();
       }
     } catch (err) {
-      setError(err.response?.data?.message || t('completar.error.general', 'Error al guardar los datos'));
+      setError(err.message || t('completar.error.general', 'Error al guardar los datos'));
     } finally {
       setLoading(false);
     }

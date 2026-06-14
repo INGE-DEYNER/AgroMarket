@@ -218,7 +218,7 @@ export default function Login() {
         </div>
 
         <div style={{ marginTop: 'auto', paddingTop: '24px', fontSize: '0.75rem', color: '#9a9a9a' }}>
-          &copy; 2026 AgroMarket ASAFRUT. Todos los derechos reservados.
+          &copy; 2026 AgroMarket ASAFRUT. Todos los derechos reservados · Desarrollado por Deyner Chaverra
         </div>
       </div>
 

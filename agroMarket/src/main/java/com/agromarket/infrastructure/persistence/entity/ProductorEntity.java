@@ -24,9 +24,6 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue("PRODUCTOR")
 public class ProductorEntity extends UsuarioEntity {
     @Column(nullable = true)
-    private String ubicacion;
-
-    @Column(nullable = true)
     @Builder.Default
     private Boolean verificado = false;
 
