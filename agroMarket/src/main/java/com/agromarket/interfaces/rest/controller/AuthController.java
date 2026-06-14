@@ -149,8 +149,12 @@ public class AuthController {
     @PostMapping("/enviar-sms-verificacion")
     public ResponseEntity<ApiResponse<Void>> enviarSmsVerificacion(@RequestBody java.util.Map<String, String> body) {
         String telefono = body.get("telefono");
-        if (telefono == null || telefono.isBlank()) {
-            throw new IllegalArgumentException("El teléfono es obligatorio");
+        if (telefono == null || !telefono.matches("^\\+?[0-9]{7,15}$")) {
+            throw new IllegalArgumentException("Número de teléfono inválido. Debe incluir código de país (ej. +573126547896)");
+        }
+        // Verificar que el teléfono NO esté ya registrado
+        if (usuarioJpaRepository.existsByTelefono(telefono)) {
+            throw new IllegalArgumentException("Este número de teléfono ya está registrado en otra cuenta");
         }
         smsVerificationService.enviarSms(telefono);
         return ok("Código SMS enviado correctamente");

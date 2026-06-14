@@ -61,7 +61,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         } catch (Exception e) {
             org.slf4j.LoggerFactory.getLogger(PasswordResetServiceImpl.class)
                     .error("Failed to send password reset email to {}: {}", usuario.getCorreo(), e.getMessage());
-            throw new RuntimeException("Error al enviar el correo de recuperación", e);
+            throw new IllegalArgumentException("No se pudo enviar el correo de recuperación. Intenta de nuevo en unos minutos.");
         }
     }
 

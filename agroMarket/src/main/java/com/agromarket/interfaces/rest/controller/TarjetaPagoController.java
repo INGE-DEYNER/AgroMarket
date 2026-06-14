@@ -51,22 +51,27 @@ public class TarjetaPagoController {
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         String numero = (String) body.get("numero");
-        String tipoStr = (String) body.get("tipoTarjeta");
+        if (numero == null) {
+            throw new IllegalArgumentException("El número de tarjeta es obligatorio");
+        }
+        String numeroLimpio = numero.replaceAll("\\s", "");
+        if (numeroLimpio.length() < 13 || numeroLimpio.length() > 19) {
+            throw new IllegalArgumentException("Longitud de tarjeta inválida");
+        }
+
+        String ultimos4 = numeroLimpio.substring(numeroLimpio.length() - 4);
+        
+        // Auto-detect type based on clean number prefix
+        TipoTarjeta tipo = TipoTarjeta.OTHER;
+        if (numeroLimpio.startsWith("4")) {
+            tipo = TipoTarjeta.VISA;
+        } else if (numeroLimpio.matches("^5[1-5].*") || numeroLimpio.matches("^2(2[2-9]|[3-6]|7[01]).*")) {
+            tipo = TipoTarjeta.MC;
+        } else if (numeroLimpio.matches("^3[47].*")) {
+            tipo = TipoTarjeta.AMEX;
+        }
+
         Boolean predeterminada = (Boolean) body.getOrDefault("predeterminada", false);
-
-        String ultimos4 = "4242";
-        if (numero != null && numero.length() >= 4) {
-            ultimos4 = numero.substring(numero.length() - 4);
-        }
-
-        TipoTarjeta tipo = TipoTarjeta.VISA;
-        if (tipoStr != null) {
-            try {
-                tipo = TipoTarjeta.valueOf(tipoStr.toUpperCase());
-            } catch (Exception e) {
-                // Default to VISA
-            }
-        }
 
         if (predeterminada) {
             List<TarjetaPago> existing = tarjetaRepository.findByUsuarioIdAndActivaTrue(principal.getUserId());
