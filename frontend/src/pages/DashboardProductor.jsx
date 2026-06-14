@@ -381,7 +381,7 @@ export default function DashboardProductor() {
     <div className="app-layout">
       {/* SIDEBAR */}
       <aside className="sidebar">
-        <div className="sidebar-user" style={{ cursor: 'pointer' }} onClick={() => setActiveSection('perfil')}>
+        <div className="sidebar-user" style={{ cursor: 'pointer' }} onClick={() => navigate('/perfil')}>
           <div className="avatar avatar-green" style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}>{iniciales}</div>
           <div className="sidebar-user-info">
             <span className="name">{user?.nombre || 'Luis Palacios'}</span>
@@ -419,9 +419,9 @@ export default function DashboardProductor() {
         <a href="#" className={`sidebar-link${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('mensajeria'); }}>
           <span className="icon">💬</span> {t('dashboardProductor.logistics.messaging', 'Mensajería')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'perfil' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('perfil'); }}>
+        <Link to="/perfil" className="sidebar-link">
           <span className="icon">👤</span> {t('profile.title', 'Mi Perfil')}
-        </a>
+        </Link>
 
         <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); await logout(); navigate('/login'); }}>
           <span className="icon">🔒</span> {t('dashboardProductor.logistics.logout', 'Cerrar sesión')}
@@ -444,6 +444,35 @@ export default function DashboardProductor() {
               </div>
               <button className="btn-cta" onClick={() => openProductoModal()}>{t('dashboardProductor.publishProduct', 'Publicar Producto +')}</button>
             </div>
+
+            {!user?.verificado && (
+              <div style={{
+                background: 'linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%)',
+                border: '1px solid #ffe8a1',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                  <div>
+                    <strong style={{ color: '#856404', display: 'block' }}>Tu cuenta de productor aún no está verificada</strong>
+                    <span style={{ color: '#856404', fontSize: '0.85rem' }}>Completa tu información personal y cuenta bancaria para ser aprobado por el administrador.</span>
+                  </div>
+                </div>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => navigate('/perfil')}
+                  style={{ background: '#856404', color: '#fff', border: 'none', padding: '8px 16px' }}
+                >
+                  Verificar Perfil
+                </button>
+              </div>
+            )}
 
             <div className="stats-grid">
               <div className="stat-card color-1">

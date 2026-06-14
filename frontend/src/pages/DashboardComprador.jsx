@@ -12,14 +12,11 @@ import '../styles/resenas.css';
 
 const CATEGORIES = [
   { label: 'Todos', emoji: '🌿', value: '' },
-  { label: 'Banano', emoji: '🍌', value: 'Banano' },
-  { label: 'Piña', emoji: '🍍', value: 'Piña' },
-  { label: 'Mango', emoji: '🥭', value: 'Mango' },
-  { label: 'Maracuyá', emoji: '🍊', value: 'Maracuyá' },
-  { label: 'Guanábana', emoji: '🍈', value: 'Guanábana' },
-  { label: 'Naranja', emoji: '🍊', value: 'Naranja' },
-  { label: 'Coco', emoji: '🥥', value: 'Coco' },
-  { label: 'Limón', emoji: '🍋', value: 'Limón' },
+  { label: 'Frutas', emoji: '🍌', value: 'Frutas' },
+  { label: 'Verduras', emoji: '🥦', value: 'Verduras' },
+  { label: 'Tubérculos', emoji: '🥔', value: 'Tubérculos' },
+  { label: 'Granos', emoji: '🫘', value: 'Granos' },
+  { label: 'Otros', emoji: '⚙️', value: 'Otros' },
 ];
 
 const REVIEW_PRODUCTOS = [
@@ -64,9 +61,21 @@ export default function DashboardComprador() {
   const { cart, addToCart, removeFromCart, updateQty, total, count, clearCart } = useCart();
   const [catalogProducts, setCatalogProducts] = useState([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogSearchQuery, setCatalogSearchQuery] = useState('');
   const [catalogSearch, setCatalogSearch] = useState('');
   const [filtroTipoCatalog, setFiltroTipoCatalog] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [soloPromo, setSoloPromo] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+
+  // Debounced search logic for catalog
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setCatalogSearch(catalogSearchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [catalogSearchQuery]);
 
   // Shipments state
   const [shipments, setShipments] = useState([]);
@@ -405,9 +414,23 @@ export default function DashboardComprador() {
     const matchSearch =
       !catalogSearch ||
       p.nombre?.toLowerCase().includes(catalogSearch.toLowerCase()) ||
-      p.tipo?.toLowerCase().includes(catalogSearch.toLowerCase());
-    const matchTipo = !filtroTipoCatalog || p.tipo === filtroTipoCatalog;
-    return matchSearch && matchTipo;
+      p.tipoFruta?.toLowerCase().includes(catalogSearch.toLowerCase()) ||
+      p.descripcion?.toLowerCase().includes(catalogSearch.toLowerCase());
+    const matchTipo = !filtroTipoCatalog || (
+      filtroTipoCatalog === 'Frutas' && ['BANANO', 'MANGO', 'PINA', 'MARACUYA', 'GUANABANA', 'NARANJA', 'COCO', 'LIMON'].includes(p.tipoFruta)
+    ) || (
+      filtroTipoCatalog === 'Otros' && p.tipoFruta === 'OTRO'
+    ) || (
+      filtroTipoCatalog === 'Verduras' && false
+    ) || (
+      filtroTipoCatalog === 'Tubérculos' && false
+    ) || (
+      filtroTipoCatalog === 'Granos' && false
+    );
+    const matchMin = !minPrice || Number(p.precio) >= Number(minPrice);
+    const matchMax = !maxPrice || Number(p.precio) <= Number(maxPrice);
+    const matchPromo = !soloPromo || p.enPromocion === true;
+    return matchSearch && matchTipo && matchMin && matchMax && matchPromo;
   });
 
   const nombreUsuario = user?.nombre || 'María';
@@ -441,7 +464,7 @@ export default function DashboardComprador() {
     <div className="app-layout">
       {/* SIDEBAR */}
       <aside className="sidebar">
-        <div className="sidebar-user" style={{ cursor: 'pointer' }} onClick={() => setActiveSection('perfil')}>
+        <div className="sidebar-user" style={{ cursor: 'pointer' }} onClick={() => navigate('/perfil')}>
           <div className="avatar avatar-blue" style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}>{iniciales}</div>
           <div className="sidebar-user-info">
             <span className="name">{user?.nombre || 'María Torres'}</span>
@@ -477,9 +500,9 @@ export default function DashboardComprador() {
         <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resenas'); }}>
           <span className="icon">⭐</span> {t('dashboardComprador.services.reviews', 'Mis Reseñas')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'perfil' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('perfil'); }}>
+        <Link to="/perfil" className="sidebar-link">
           <span className="icon">👤</span> {t('profile.title', 'Mi Perfil')}
-        </a>
+        </Link>
 
         <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); await logout(); navigate('/login'); }}>
           <span className="icon">🔒</span> {t('dashboardComprador.services.logout', 'Cerrar sesión')}
@@ -500,9 +523,9 @@ export default function DashboardComprador() {
         <a href="#" className={`mobile-nav-item${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('mensajeria'); }}>
           <span className="icon">💬</span><span>{t('dashboardComprador.mobileNav.chat', 'Chat')}</span>
         </a>
-        <a href="#" className={`mobile-nav-item${activeSection === 'perfil' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('perfil'); }}>
+        <Link to="/perfil" className="mobile-nav-item">
           <span className="icon">👤</span><span>{t('dashboardComprador.mobileNav.profile', 'Perfil')}</span>
-        </a>
+        </Link>
       </nav>
 
       {/* MAIN CONTAINER */}
@@ -521,6 +544,35 @@ export default function DashboardComprador() {
               </div>
               <button className="btn-cta" onClick={() => setActiveSection('catalogo')}>{t('dashboardComprador.exploreCatalog', 'Explorar catálogo →')}</button>
             </div>
+
+            {(!user?.telefono) && (
+              <div style={{
+                background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+                border: '1px solid #7dd3fc',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>📱</span>
+                  <div>
+                    <strong style={{ color: '#0369a1', display: 'block' }}>¡Mejora la seguridad de tu cuenta!</strong>
+                    <span style={{ color: '#0369a1', fontSize: '0.85rem' }}>Agrega tu número de teléfono y verifica tu perfil para facilitar el contacto con los productores.</span>
+                  </div>
+                </div>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => navigate('/perfil')}
+                  style={{ background: '#0369a1', color: '#fff', border: 'none', padding: '8px 16px' }}
+                >
+                  Configurar Perfil
+                </button>
+              </div>
+            )}
 
             <div className="stats-grid">
               <div className="stat-card color-1">
@@ -611,17 +663,65 @@ export default function DashboardComprador() {
               )}
             </div>
 
-            {/* CATEGORY CHIPS */}
-            <div className="category-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.value}
-                  className={`chip${filtroTipoCatalog === cat.value ? ' active' : ''}`}
-                  onClick={() => setFiltroTipoCatalog(cat.value)}
-                >
-                  <span>{cat.emoji}</span> {t('catalog.category.' + (cat.value || 'all'), cat.label)}
-                </button>
-              ))}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'flex-start' }} className="catalog-layout-grid">
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="catalog-controls" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                  <div className="search-wrapper" style={{ flex: 1, position: 'relative' }}>
+                    <input
+                      className="search-input"
+                      style={{ width: '100%', padding: '12px 16px 12px 40px', borderRadius: '8px', border: '1px solid var(--border-light)' }}
+                      type="text"
+                      placeholder={t('catalog.searchPlaceholder', 'Buscar productos...')}
+                      value={catalogSearchQuery}
+                      onChange={(e) => setCatalogSearchQuery(e.target.value)}
+                    />
+                    <span style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }}>🔍</span>
+                  </div>
+                  {count > 0 && (
+                    <button className="btn btn-primary" onClick={() => setCartOpen(true)}>
+                      🛒 {t('catalog.cartButton', 'Carrito')} ({count})
+                    </button>
+                  )}
+                </div>
+
+                {/* CATEGORY CHIPS */}
+                <div className="category-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.value}
+                      className={`chip${filtroTipoCatalog === cat.value ? ' active' : ''}`}
+                      onClick={() => setFiltroTipoCatalog(cat.value)}
+                    >
+                      <span>{cat.emoji}</span> {t('catalog.category.' + (cat.value || 'all'), cat.label)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* SIDE FILTER CONTROLS */}
+              <div className="card-table" style={{ padding: '20px', borderRadius: 'var(--radius)', background: '#fff' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
+                  ⚙️ Filtros
+                </h4>
+                <div className="form-group" style={{ marginBottom: '12px' }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Precio Mínimo (COP)</label>
+                  <input className="form-input" type="number" placeholder="$ Mín" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
+                </div>
+                <div className="form-group" style={{ marginBottom: '12px' }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Precio Máximo (COP)</label>
+                  <input className="form-input" type="number" placeholder="$ Máx" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                  <input type="checkbox" id="promoToggleCatalog" checked={soloPromo} onChange={(e) => setSoloPromo(e.target.checked)} style={{ width: '16px', height: '16px' }} />
+                  <label htmlFor="promoToggleCatalog" style={{ fontSize: '0.8rem', fontWeight: '500', cursor: 'pointer' }}>🔥 Sólo Promociones</label>
+                </div>
+                {(minPrice || maxPrice || soloPromo || filtroTipoCatalog) && (
+                  <button className="btn btn-secondary btn-sm" style={{ width: '100%', marginTop: '16px' }} onClick={() => { setMinPrice(''); setMaxPrice(''); setSoloPromo(false); setFiltroTipoCatalog(''); setCatalogSearchQuery(''); }}>
+                    Limpiar
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* PRODUCT GRID */}
@@ -635,7 +735,12 @@ export default function DashboardComprador() {
                 </div>
               ) : (
                 catalogFiltered.map((p) => (
-                  <div key={p.id} className="catalog-card" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'hidden' }}>
+                  <div key={p.id} className="catalog-card" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'hidden', position: 'relative' }}>
+                    {p.enPromocion && (
+                      <span className="badge-promo" style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--red)', color: '#fff', fontSize: '0.65rem', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', zIndex: 5 }}>
+                        % PROMO
+                      </span>
+                    )}
                     <div className="catalog-card-img-wrap" style={{ position: 'relative', height: '180px' }}>
                       <img
                         src={p.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'}
@@ -672,7 +777,19 @@ export default function DashboardComprador() {
                       )}
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                        <span style={{ fontWeight: '800', color: 'var(--primary)', fontSize: '1.15rem' }}>${Number(p.precio).toLocaleString('es-CO')}<small style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>/kg</small></span>
+                        <span style={{ fontWeight: '800', color: p.enPromocion ? 'var(--red)' : 'var(--primary)', fontSize: '1.15rem' }}>
+                          {p.enPromocion && p.precioPromocion ? (
+                            <>
+                              <span style={{ textDecoration: 'line-through', color: 'var(--text-dim)', fontSize: '0.8rem', marginRight: '6px' }}>
+                                ${Number(p.precio).toLocaleString('es-CO')}
+                              </span>
+                              ${Number(p.precioPromocion).toLocaleString('es-CO')}
+                            </>
+                          ) : (
+                            `$${Number(p.precio).toLocaleString('es-CO')}`
+                          )}
+                          <small style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>/kg</small>
+                        </span>
                         <button
                           className="btn btn-primary btn-sm"
                           onClick={() => addToCart(p)}

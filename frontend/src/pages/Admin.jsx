@@ -79,6 +79,29 @@ export default function Admin() {
   const [pagosFideicomiso, setPagosFideicomiso] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [searchUsuarios, setSearchUsuarios] = useState('');
+  const [usuariosPendientes, setUsuariosPendientes] = useState([]);
+
+  const handleAprobarUsuario = async (userId) => {
+    try {
+      await api.post(`/admin/aprobar-usuario/${userId}`);
+      alert('Usuario aprobado con éxito.');
+      loadAll();
+    } catch (err) {
+      alert('Error al aprobar usuario: ' + err.message);
+    }
+  };
+
+  const handleRechazarUsuario = async (userId) => {
+    const motivo = window.prompt('Introduce el motivo del rechazo (opcional):');
+    if (motivo === null) return;
+    try {
+      await api.post(`/admin/rechazar-usuario/${userId}`, { motivo });
+      alert('Usuario rechazado con éxito.');
+      loadAll();
+    } catch (err) {
+      alert('Error al rechazar usuario: ' + err.message);
+    }
+  };
 
   const extractArray = (res) => {
     if (!res) return [];
@@ -103,16 +126,18 @@ export default function Admin() {
 
   const loadAll = async () => {
     try {
-      const [u, p, r, db] = await Promise.all([
+      const [u, p, r, db, up] = await Promise.all([
         api.get('/admin/usuarios').catch(() => []),
         api.get('/productos').catch(() => []),
         api.get('/resenas').catch(() => []),
         api.get('/admin/dashboard').catch(() => null),
+        api.get('/admin/usuarios-pendientes').catch(() => []),
       ]);
       setUsuarios(extractArray(u));
       setProductos(extractArray(p));
       setResenas(extractArray(r));
       if (db) setDashboardData(db.data || db);
+      setUsuariosPendientes(extractArray(up));
     } catch {}
   };
 
@@ -234,9 +259,9 @@ export default function Admin() {
         <a href="#" className={`sidebar-link${activeSection === 'escrow' ? ' active' : ''}`} id="link-escrow" onClick={(e) => { e.preventDefault(); setActiveSection('escrow'); }}>
           <span className="icon">💳</span> Fideicomiso (Escrow)
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'perfil' ? ' active' : ''}`} id="link-perfil" onClick={(e) => { e.preventDefault(); setActiveSection('perfil'); }}>
+        <Link to="/perfil" className="sidebar-link" id="link-perfil">
           <span className="icon">👤</span> {t('profile.title', 'Mi Perfil')}
-        </a>
+        </Link>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('admin.reports.title', 'Reportes')}</div>
@@ -302,6 +327,47 @@ export default function Admin() {
               {activeSection === 'usuarios' && (
                 <div className="section active" id="sec-usuarios">
                   <div className="table-header"><h3 className="card-title">{t('admin.usersManagement', '👥 Gestión de Usuarios')}</h3></div>
+                  
+                  {/* PENDING APPROVALS */}
+                  <div style={{ padding: '20px 24px', borderBottom: '1px dashed var(--border)' }}>
+                    <h4 style={{ color: 'var(--gold)', marginBottom: '12px', fontSize: '0.95rem', fontWeight: 'bold' }}>⏳ Cuentas de Productores Pendientes de Aprobación</h4>
+                    {usuariosPendientes.length === 0 ? (
+                      <p style={{ color: 'var(--text-dim)', fontStyle: 'italic', fontSize: '0.85rem' }}>
+                        No hay solicitudes de aprobación pendientes.
+                      </p>
+                    ) : (
+                      <div className="table-wrap" style={{ marginBottom: '10px' }}>
+                        <table className="table-responsive" style={{ border: '1px solid var(--gold-border)', borderRadius: '8px', overflow: 'hidden' }}>
+                          <thead>
+                            <tr style={{ background: 'var(--gold-bg)' }}>
+                              <th>Nombre</th>
+                              <th>Correo</th>
+                              <th>Ubicación</th>
+                              <th>Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {usuariosPendientes.map((u) => (
+                              <tr key={u.id}>
+                                <td data-label="Nombre">{u.nombre} {u.apellido}</td>
+                                <td data-label="Correo">{u.email}</td>
+                                <td data-label="Ubicación">{u.ubicacion || '—'}</td>
+                                <td data-label="Acciones">
+                                  <button className="btn btn-primary btn-sm" onClick={() => handleAprobarUsuario(u.id)}>
+                                    Aprobar ✓
+                                  </button>
+                                  <button className="btn btn-danger btn-sm" style={{ marginLeft: '6px' }} onClick={() => handleRechazarUsuario(u.id)}>
+                                    Rechazar ❌
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="table-filters">
                     <div className="search-box">
                       <input type="text" id="searchUsuarios" placeholder={t('admin.searchUsers', 'Buscar por nombre o correo...')} value={searchUsuarios} onChange={(e) => setSearchUsuarios(e.target.value)} />

@@ -19,6 +19,8 @@ import Mensajeria from './pages/Mensajeria';
 import Resenas from './pages/Resenas';
 import Perfil from './pages/Perfil';
 import PagoPasarela from './pages/PagoPasarela';
+import ChatbotSoporte from './components/ChatbotSoporte';
+
 
 function App() {
   return (
@@ -73,6 +75,7 @@ function App() {
           {/* 404 */}
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
+        <ChatbotSoporte />
       </Router>
     </AuthProvider>
   );
