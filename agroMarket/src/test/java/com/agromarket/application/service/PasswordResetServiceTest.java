@@ -37,6 +37,7 @@ public class PasswordResetServiceTest {
                 .correo("reset-test@example.com")
                 .contrasena("secret")
                 .telefono("3001234567")
+                .emailVerificado(true)
                 .build();
 
         usuarioJpaRepository.save(java.util.Objects.requireNonNull(comprador));

@@ -26,7 +26,7 @@ public class ProductorEntity extends UsuarioEntity {
     @Column(nullable = true)
     private String ubicacion;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Builder.Default
     private Boolean verificado = false;
 
