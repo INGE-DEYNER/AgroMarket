@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import org.springframework.data.jpa.repository.Query;
+
 public interface ProductoJpaRepository extends JpaRepository<ProductoEntity, Long>, JpaSpecificationExecutor<ProductoEntity> {
     List<ProductoEntity> findByNombreContainingIgnoreCase(String keyword);
 
@@ -23,4 +25,12 @@ public interface ProductoJpaRepository extends JpaRepository<ProductoEntity, Lon
     List<ProductoEntity> findByProductorId(Long productorId);
 
     Page<ProductoEntity> findByProductorId(Long productorId, Pageable pageable);
+
+    @Query("SELECT p FROM ProductoEntity p WHERE p.activo=true ORDER BY p.totalVendido ASC")
+    List<ProductoEntity> findMenosVendidos(Pageable pageable);
+
+    @Query("SELECT COUNT(p) FROM ProductoEntity p WHERE p.activo=true")
+    long countActivos();
+
+    boolean existsByNombreIgnoreCaseAndProductorId(String nombre, Long productorId);
 }

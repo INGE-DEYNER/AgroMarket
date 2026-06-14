@@ -47,8 +47,26 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public UsuarioResponse actualizar(Long id, ActualizarUsuarioRequest request) {
         UsuarioEntity usuario = findUsuario(Objects.requireNonNull(id, "id"));
-        usuario.setNombre(request.getNombre().trim());
-        usuario.setTelefono(request.getTelefono().trim());
+        if (request.getNombre() != null) usuario.setNombre(request.getNombre().trim());
+        if (request.getApellido() != null) usuario.setApellido(request.getApellido().trim());
+        if (request.getTelefono() != null) usuario.setTelefono(request.getTelefono().trim());
+        if (request.getCodigoPais() != null) usuario.setCodigoPais(request.getCodigoPais().trim());
+        if (request.getUbicacion() != null) usuario.setUbicacion(request.getUbicacion().trim());
+        if (request.getCedula() != null) usuario.setCedula(request.getCedula().trim());
+        if (request.getFechaNacimiento() != null) usuario.setFechaNacimiento(request.getFechaNacimiento());
+        if (request.getTipoDocumento() != null) usuario.setTipoDocumento(request.getTipoDocumento().trim());
+        if (request.getNombreEmpresa() != null) usuario.setNombreEmpresa(request.getNombreEmpresa().trim());
+        if (request.getNit() != null) usuario.setNit(request.getNit().trim());
+        if (request.getFotoUrl() != null) {
+            usuario.setFotoUrl(request.getFotoUrl().trim());
+            usuario.setFoto(request.getFotoUrl().trim());
+        }
+        if (request.getDivisaPreferida() != null) usuario.setDivisaPreferida(request.getDivisaPreferida().trim());
+
+        boolean complete = usuario.getCedula() != null && !usuario.getCedula().isBlank() && usuario.getFechaNacimiento() != null;
+        usuario.setCuentaCompleta(complete);
+        usuario.setActualizadoEn(java.time.LocalDateTime.now());
+
         return usuarioMapper.toResponse(usuarioJpaRepository.save(usuario));
     }
 

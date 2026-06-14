@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
+import LoadingScreen from '../components/LoadingScreen';
+import CompletarCuentaModal from '../components/CompletarCuentaModal';
 
 const AuthContext = createContext(null);
 
@@ -16,6 +18,24 @@ export function AuthProvider({ children }) {
     return rawRole.toLowerCase();
   };
 
+  const refetchUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const res = await api.get('/usuarios/me');
+      const userData = res.data || res;
+      const normalizedUser = {
+        ...userData,
+        role: normalizeRole(userData.role || userData.rol?.name || userData.rol),
+        email: userData.email || userData.correo,
+      };
+      setUser(normalizedUser);
+    } catch {
+      localStorage.removeItem('token');
+      setUser(null);
+    }
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -24,14 +44,7 @@ export function AuthProvider({ children }) {
           setLoading(false);
           return;
         }
-        const res = await api.get('/usuarios/me');
-        const userData = res.data || res;
-        const normalizedUser = {
-          ...userData,
-          role: normalizeRole(userData.role || userData.rol?.name || userData.rol),
-          email: userData.email || userData.correo,
-        };
-        setUser(normalizedUser);
+        await refetchUser();
       } catch {
         localStorage.removeItem('token');
         setUser(null);
@@ -61,8 +74,16 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  if (user && !user.cuentaCompleta) {
+    return <CompletarCuentaModal onComplete={() => refetchUser()} />;
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, setUser, refetchUser }}>
       {children}
     </AuthContext.Provider>
   );

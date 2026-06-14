@@ -52,6 +52,8 @@ public class AuthController {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final SafeRedirectUtil safeRedirectUtil;
+    private final com.agromarket.application.service.SmsVerificationService smsVerificationService;
+    private final com.agromarket.config.properties.AppProperties appProperties;
 
     private static final String OAUTH2_TEMP_COOKIE = "agromarket_oauth2_token";
 
@@ -136,6 +138,45 @@ public class AuthController {
                 .message(pendiente ? "Correo verificado. Tu cuenta está pendiente de aprobación por un administrador." : "Correo verificado")
                 .data(java.util.Map.of("pendiente", pendiente))
                 .build());
+    }
+
+    @GetMapping("/verificar-email")
+    public RedirectView verificarEmailGet(@RequestParam String token) {
+        authService.verificarEmail(token);
+        String redirectUrl = appProperties.frontendUrl() + "/login?verified=true";
+        return new RedirectView(redirectUrl);
+    }
+
+    @PostMapping("/enviar-sms-verificacion")
+    public ResponseEntity<ApiResponse<Void>> enviarSmsVerificacion(@RequestBody java.util.Map<String, String> body) {
+        String telefono = body.get("telefono");
+        if (telefono == null || telefono.isBlank()) {
+            throw new IllegalArgumentException("El teléfono es obligatorio");
+        }
+        smsVerificationService.enviarSms(telefono);
+        return ok("Código SMS enviado correctamente");
+    }
+
+    @PostMapping("/verificar-sms")
+    public ResponseEntity<ApiResponse<Void>> verificarSms(@RequestBody java.util.Map<String, String> body) {
+        String telefono = body.get("telefono");
+        String codigo = body.get("codigo");
+        if (telefono == null || codigo == null) {
+            throw new IllegalArgumentException("Teléfono y código son obligatorios");
+        }
+        boolean ok = smsVerificationService.verificarSms(telefono, codigo);
+        if (!ok) {
+            throw new IllegalArgumentException("Código de verificación SMS inválido o expirado");
+        }
+        
+        java.util.Optional<com.agromarket.infrastructure.persistence.entity.UsuarioEntity> opt = usuarioJpaRepository.findByTelefono(telefono);
+        if (opt.isPresent()) {
+            com.agromarket.infrastructure.persistence.entity.UsuarioEntity usuario = opt.get();
+            usuario.setTelefonoVerificado(true);
+            usuarioJpaRepository.save(usuario);
+        }
+        
+        return ok("Teléfono verificado correctamente");
     }
 
     @PostMapping("/2fa/setup")

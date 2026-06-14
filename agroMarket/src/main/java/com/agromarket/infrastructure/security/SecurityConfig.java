@@ -45,6 +45,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/actuator/health/**",
                                 "/api/health", // Added health endpoint
+                                "/api/auth/verificar-email",
+                                "/api/auth/enviar-sms-verificacion",
+                                "/api/auth/verificar-sms",
+                                "/api/divisas/conversion",
                                 "/api/auth/verificar",
                                 "/api/auth/recuperar-contrasena",
                                 "/api/auth/restablecer-contrasena",

@@ -9,7 +9,7 @@ import com.agromarket.application.dto.ProductoResponse;
 import com.agromarket.domain.model.TipoFruta;
 
 public interface ProductoService {
-    PageResponse<ProductoResponse> getAll(int page, int size, String search, TipoFruta tipo, BigDecimal precioMin, BigDecimal precioMax);
+    PageResponse<ProductoResponse> getAll(int page, int size, String search, TipoFruta tipo, BigDecimal precioMin, BigDecimal precioMax, String sort, String categoria);
 
     ProductoResponse getById(Long id);
 

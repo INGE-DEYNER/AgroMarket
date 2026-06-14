@@ -44,6 +44,11 @@ public interface ProductoMapper {
                 .calificacionPromedio(promedio)
                 .totalResenas(totalResenas)
                 .productorVerificado(entity.getProductor() != null && Boolean.TRUE.equals(entity.getProductor().getVerificado()))
+                .totalVendido(entity.getTotalVendido() != null ? entity.getTotalVendido() : 0)
+                .precioPromocion(entity.getPrecioPromocion())
+                .fechaFinPromocion(entity.getFechaFinPromocion())
+                .cantMinMayorista(entity.getCantidadMinimaMayorista())
+                .categoria(entity.getTipoFruta() != null ? entity.getTipoFruta().name() : "OTRO")
                 .build();
     }
 

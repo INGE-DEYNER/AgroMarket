@@ -62,26 +62,46 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public void aprobarUsuario(Long id) {
         UsuarioEntity usuario = usuarioJpaRepository.findById(id)
                 .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
         usuario.setAprobado(true);
+        usuario.setCuentaAprobada(true);
         usuario.setActivo(true);
+        usuario.setEstadoCuenta("ACTIVA");
         usuarioJpaRepository.save(usuario);
 
-        // Send approval email
-        java.util.Map<String, String> model = java.util.Map.of("nombre", usuario.getNombre());
-        try {
-            emailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Cuenta de Productor Aprobada", "productor-aprobado", model);
-        } catch (Exception e) {
-            org.slf4j.LoggerFactory.getLogger(AdminServiceImpl.class)
-                .error("Failed to send approval email to producer {}: {}", usuario.getCorreo(), e.getMessage());
+        // Send approval email depending on role
+        if (usuario.getRol() == com.agromarket.domain.model.RolUsuario.PRODUCTOR) {
+            try {
+                emailService.sendTemplateMessage(usuario.getCorreo(), "¡Tu cuenta de productor fue aprobada! 🌾", "welcome-productor", java.util.Map.of(
+                    "nombre", usuario.getNombre(),
+                    "dashboardUrl", "https://agro-market.app/perfil"
+                ));
+            } catch (Exception e) {
+                org.slf4j.LoggerFactory.getLogger(AdminServiceImpl.class).error("Failed to send welcome email to approved producer", e);
+            }
+        } else if (Boolean.TRUE.equals(usuario.getEsEmpresa())) {
+            try {
+                emailService.sendTemplateMessage(usuario.getCorreo(), "¡Bienvenido a AgroMarket! 🎉", "welcome", java.util.Map.of(
+                    "nombre", usuario.getNombre()
+                ));
+            } catch (Exception e) {
+                org.slf4j.LoggerFactory.getLogger(AdminServiceImpl.class).error("Failed to send welcome email to approved empresa", e);
+            }
         }
     }
 
     @Override
     public List<UsuarioResponse> productoresPendientes() {
         List<UsuarioEntity> pendientes = usuarioJpaRepository.findByRolAndAprobadoFalse(com.agromarket.domain.model.RolUsuario.PRODUCTOR);
+        return usuarioMapper.toResponseList(pendientes);
+    }
+
+    @Override
+    public List<UsuarioResponse> usuariosPendientes() {
+        List<UsuarioEntity> pendientes = usuarioJpaRepository.findByEstadoCuenta("PENDIENTE_APROBACION");
         return usuarioMapper.toResponseList(pendientes);
     }
 
@@ -105,6 +125,30 @@ public class AdminServiceImpl implements AdminService {
 
         // Delete user
         usuarioJpaRepository.delete(usuario);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void rechazarUsuario(Long id, String motivo) {
+        UsuarioEntity usuario = usuarioJpaRepository.findById(id)
+                .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
+        
+        usuario.setEstadoCuenta("RECHAZADA");
+        usuario.setCuentaAprobada(false);
+        usuario.setAprobado(false);
+        usuarioJpaRepository.save(usuario);
+
+        // Send rejection email
+        java.util.Map<String, String> model = java.util.Map.of(
+            "nombre", usuario.getNombre(),
+            "motivo", motivo != null ? motivo : "No cumple con los requisitos de la plataforma."
+        );
+        try {
+            emailService.sendTemplateMessage(usuario.getCorreo(), "Registro no aprobado - AgroMarket", "productor-rechazado", model);
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(AdminServiceImpl.class)
+                .error("Failed to send rejection email to user {}: {}", usuario.getCorreo(), e.getMessage());
+        }
     }
 
     @Override

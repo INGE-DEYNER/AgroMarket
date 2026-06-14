@@ -58,10 +58,11 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
         java.util.Map<String, String> model = java.util.Map.of("codigo", codigo);
         try {
-            mailService.sendTemplateMessage(usuario.getCorreo(), "AgroMarket - Código de recuperación", "password-reset", model);
+            mailService.sendTemplateMessage(usuario.getCorreo(), "Código de recuperación AgroMarket 🔐", "password-reset", model);
         } catch (Exception e) {
             org.slf4j.LoggerFactory.getLogger(PasswordResetServiceImpl.class)
                     .error("Failed to send password reset email to {}: {}", usuario.getCorreo(), e.getMessage());
+            throw new RuntimeException("Error al enviar el correo de recuperación", e);
         }
     }
 

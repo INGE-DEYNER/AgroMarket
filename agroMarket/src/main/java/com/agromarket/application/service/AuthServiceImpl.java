@@ -41,6 +41,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordPolicyService passwordPolicyService;
     private final TwoFactorAuthenticatorService twoFactorAuthenticatorService;
     private final com.agromarket.infrastructure.validation.DeepEmailValidatorService deepEmailValidatorService;
+    private final com.agromarket.application.service.EmailService mailService;
+    private final com.agromarket.config.properties.AppProperties appProperties;
+    private final com.agromarket.application.service.CuponDescuentoService cuponService;
 
     @Override
     public AuthResponse login(LoginRequest request) {
@@ -195,16 +198,37 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    private boolean isStrongPassword(String password) {
+        if (password == null || password.length() < 8) return false;
+        boolean hasUpper = false;
+        boolean hasDigit = false;
+        boolean hasSpecial = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            else if ("!@#$%^&*()_+-={};'\",./?".indexOf(c) >= 0) hasSpecial = true;
+        }
+        return hasUpper && hasDigit && hasSpecial;
+    }
+
     @Override
     @Transactional
     public void registro(RegistroRequest request) {
-        if (!deepEmailValidatorService.isEmailValid(request.getCorreo())) {
-            throw new CredencialesInvalidasException("El correo electrónico no existe o no puede recibir mensajes.");
-        }
-        
-        if (usuarioJpaRepository.existsByCorreo(request.getCorreo())) {
-            throw new UsuarioYaExisteException("Ya existe un usuario con ese correo");
-        }
+        // Validar que passwords coincidan
+        if (request.getPassword() == null || request.getConfirmPassword() == null || !request.getPassword().equals(request.getConfirmPassword()))
+            throw new IllegalArgumentException("Las contraseñas no coinciden");
+
+        // Validar que email no exista
+        if (usuarioJpaRepository.existsByCorreo(request.getEmail()))
+            throw new IllegalArgumentException("El correo ya está registrado");
+
+        // Validar fortaleza de contraseña
+        if (!isStrongPassword(request.getPassword()))
+            throw new IllegalArgumentException("Contraseña débil: mínimo 8 caracteres, mayúscula, número y símbolo");
+
+        // Validar teléfono (solo dígitos después del código de país o prefijo opcional +)
+        if (request.getTelefono() == null || !request.getTelefono().matches("^\\+?[0-9]{7,15}$"))
+            throw new IllegalArgumentException("Teléfono inválido");
 
         if (usuarioJpaRepository.existsByTelefono(request.getTelefono())) {
             throw new UsuarioYaExisteException("Ya existe un usuario con ese número de teléfono");
@@ -213,29 +237,49 @@ public class AuthServiceImpl implements AuthService {
         // Validate that password is unique across all users in the database
         java.util.List<UsuarioEntity> todosLosUsuarios = usuarioJpaRepository.findAll();
         for (UsuarioEntity u : todosLosUsuarios) {
-            if (passwordEncoder.matches(request.getContrasena(), u.getContrasena())) {
+            if (passwordEncoder.matches(request.getPassword(), u.getContrasena())) {
                 throw new CredencialesInvalidasException("La contraseña ingresada ya está siendo utilizada por otro usuario. Por favor elige otra contraseña única.");
             }
         }
 
-        passwordPolicyService.validarContrasenaRegistro(request.getContrasena());
+        passwordPolicyService.validarContrasenaRegistro(request.getPassword());
         UsuarioEntity usuario = crearEntidad(request);
-        // Producers require admin approval after email verification
-        if (request.getRol() == RolUsuario.PRODUCTOR) {
-            usuario.setAprobado(false);
-        } else {
-            usuario.setAprobado(true);
-        }
-        usuario.setNombre(compactarNombre(request.getNombre(), request.getApellido()));
-        usuario.setContrasena(passwordEncoder.encode(request.getContrasena()));
+        
+        usuario.setNombre(request.getNombre().trim());
+        usuario.setApellido(request.getApellido().trim());
+        usuario.setContrasena(passwordEncoder.encode(request.getPassword()));
         usuario.setTelefono(request.getTelefono());
-        // Require email verification before activating the account
-        usuario.setActivo(false);
-        usuario.setFechaRegistro(LocalDateTime.now());
+        usuario.setCodigoPais(request.getCodigoPais());
+        usuario.setUbicacion(request.getUbicacion());
+        usuario.setEmailVerificado(false);
+        usuario.setTelefonoVerificado(false);
+        usuario.setCuentaAprobada(false);
+        usuario.setCuentaCompleta(false);
+        usuario.setEstadoCuenta("PENDIENTE_EMAIL");
+        usuario.setCreadoEn(LocalDateTime.now());
+        
+        // Generate verify token and expiration
+        String token = UUID.randomUUID().toString();
+        usuario.setTokenVerificacionEmail(token);
+        usuario.setTokenEmailExpira(LocalDateTime.now().plusHours(24));
+
         UsuarioEntity guardado = usuarioJpaRepository.save(usuario);
         passwordPolicyService.registrarContrasenaEnHistorial(guardado);
-        // send verification email
-        emailVerificationService.sendVerificationEmail(guardado);
+        
+        // Send verification email using Brevo
+        try {
+            String verifyUrl = appProperties.frontendUrl() + "/verificar-correo?token=" + token;
+            java.util.Map<String, String> model = java.util.Map.of(
+                    "verifyUrl", verifyUrl,
+                    "codigo", token.substring(0, 6).toUpperCase(),
+                    "correo", guardado.getCorreo(),
+                    "correoMascarado", obfuscateEmail(guardado.getCorreo())
+            );
+            mailService.sendTemplateMessage(guardado.getCorreo(), "Verifica tu correo en AgroMarket 🌿", "email-verification", model);
+        } catch (Exception e) {
+            log.error("Failed to send verification email to {}: {}", guardado.getCorreo(), e.getMessage());
+            throw new RuntimeException("Error al enviar el correo de verificación", e);
+        }
     }
 
     @Override
@@ -339,17 +383,25 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private UsuarioEntity crearEntidad(RegistroRequest request) {
-        if (request.getRol() == RolUsuario.PRODUCTOR) {
+        String rolStr = request.getRol() != null ? request.getRol().toUpperCase() : "COMPRADOR";
+        if (rolStr.equals("PRODUCTOR")) {
             if (request.getUbicacion() == null || request.getUbicacion().isBlank()) {
-                throw new CredencialesInvalidasException("La ubicación es obligatoria para un productor");
+                throw new IllegalArgumentException("La ubicación es obligatoria para un productor");
             }
             ProductorEntity productor = ProductorEntity.builder().ubicacion(request.getUbicacion()).build();
             productor.setRol(RolUsuario.PRODUCTOR);
             return completarBase(productor, request);
         }
-        if (request.getRol() == RolUsuario.COMPRADOR) {
+        if (rolStr.equals("COMPRADOR") || rolStr.equals("COMPRADOR_EMPRESA")) {
             CompradorEntity comprador = CompradorEntity.builder().build();
             comprador.setRol(RolUsuario.COMPRADOR);
+            if (rolStr.equals("COMPRADOR_EMPRESA")) {
+                comprador.setEsEmpresa(true);
+                comprador.setNombreEmpresa(request.getNombreEmpresa());
+                comprador.setNit(request.getNit());
+            } else {
+                comprador.setEsEmpresa(false);
+            }
             return completarBase(comprador, request);
         }
         AdministradorEntity administrador = AdministradorEntity.builder().build();
@@ -360,6 +412,9 @@ public class AuthServiceImpl implements AuthService {
     private UsuarioEntity completarBase(UsuarioEntity usuario, RegistroRequest request) {
         usuario.setCorreo(request.getCorreo());
         usuario.setTelefono(request.getTelefono());
+        usuario.setApellido(request.getApellido());
+        usuario.setCodigoPais(request.getCodigoPais());
+        usuario.setUbicacion(request.getUbicacion());
         return usuario;
     }
 
@@ -368,5 +423,60 @@ public class AuthServiceImpl implements AuthService {
             return nombre;
         }
         return nombre + " " + apellido.trim();
+    }
+
+    @Override
+    @Transactional
+    public void verificarEmail(String token) {
+        UsuarioEntity usuario = usuarioJpaRepository.findByTokenVerificacionEmail(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token de verificación inválido"));
+
+        if (usuario.getTokenEmailExpira() != null && usuario.getTokenEmailExpira().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("El token de verificación ha expirado");
+        }
+
+        usuario.setEmailVerificado(true);
+        usuario.setTokenVerificacionEmail(null);
+        usuario.setTokenEmailExpira(null);
+
+        boolean isEmpresa = Boolean.TRUE.equals(usuario.getEsEmpresa());
+        if (usuario.getRol() == RolUsuario.COMPRADOR && !isEmpresa) {
+            // Buyer (comprador natural)
+            usuario.setEstadoCuenta("ACTIVA");
+            usuario.setCuentaAprobada(true);
+            usuario.setActivo(true);
+            usuarioJpaRepository.save(usuario);
+
+            // Generate welcome coupon
+            com.agromarket.infrastructure.persistence.entity.CuponDescuento cupon = cuponService.generarCuponPrimerEnvio(usuario.getId());
+
+            // Send welcome email with coupon
+            try {
+                java.util.Map<String, String> model = java.util.Map.of(
+                    "nombre", usuario.getNombre(),
+                    "codigoCupon", cupon.getCodigo(),
+                    "catalogUrl", appProperties.frontendUrl() + "/catalogo"
+                );
+                mailService.sendTemplateMessage(usuario.getCorreo(), "¡Bienvenido a AgroMarket! 🎉 Tienes un regalo", "welcome-comprador", model);
+            } catch (Exception e) {
+                log.error("Failed to send welcome email to buyer {}", usuario.getCorreo(), e);
+            }
+        } else {
+            // Productor or Comprador Empresa
+            usuario.setEstadoCuenta("PENDIENTE_APROBACION");
+            usuario.setCuentaAprobada(false);
+            usuario.setActivo(true); // Allow active status but pending approval
+            usuarioJpaRepository.save(usuario);
+
+            // Send pending approval email
+            try {
+                java.util.Map<String, String> model = java.util.Map.of(
+                    "nombre", usuario.getNombre()
+                );
+                mailService.sendTemplateMessage(usuario.getCorreo(), "Tu solicitud está en revisión ⏳", "aprobacion-pendiente", model);
+            } catch (Exception e) {
+                log.error("Failed to send pending approval email to {}", usuario.getCorreo(), e);
+            }
+        }
     }
 }

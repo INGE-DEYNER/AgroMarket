@@ -70,6 +70,16 @@ public class ProductoEntity {
     @Column(nullable = false)
     private boolean enPromocion;
 
+    @Column(nullable = true, precision = 19, scale = 2)
+    private BigDecimal precioPromocion;
+
+    @Column(nullable = true)
+    private LocalDateTime fechaFinPromocion;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer totalVendido = 0;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean activo = true;

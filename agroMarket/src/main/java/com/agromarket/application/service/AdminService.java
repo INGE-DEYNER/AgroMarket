@@ -24,6 +24,10 @@ public interface AdminService {
 
     void toggleVerificarProductor(Long id);
 
+    List<UsuarioResponse> usuariosPendientes();
+
+    void rechazarUsuario(Long id, String motivo);
+
     List<PagoResponse> getPagosFideicomiso();
 
     void liberarPago(Long pagoId);

@@ -22,4 +22,6 @@ public interface AuthService {
     void disableTwoFactor(Long userId, String codigo);
 
     boolean isTwoFactorEnabled(Long userId);
+
+    void verificarEmail(String token);
 }

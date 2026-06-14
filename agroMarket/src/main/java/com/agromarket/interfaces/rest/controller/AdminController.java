@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -93,6 +95,42 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
                 .message("Productor rechazado exitosamente")
+                .build());
+    }
+
+    @GetMapping("/usuarios-pendientes")
+    public ResponseEntity<ApiResponse<List<UsuarioResponse>>> usuariosPendientes() {
+        List<UsuarioResponse> pendientes = adminService.usuariosPendientes();
+        pendientes.forEach(u -> u.setIdEncriptado(idEncryptionUtil.encryptId(u.getId())));
+        return ResponseEntity.ok(ApiResponse.<List<UsuarioResponse>>builder()
+                .success(true)
+                .message("Usuarios pendientes recuperados")
+                .data(pendientes)
+                .build());
+    }
+
+    @PostMapping("/aprobar-usuario/{id}")
+    public ResponseEntity<ApiResponse<Void>> aprobarUsuario(@PathVariable Long id) {
+        adminService.aprobarUsuario(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Usuario aprobado exitosamente")
+                .build());
+    }
+
+    @PostMapping("/rechazar-usuario/{id}")
+    public ResponseEntity<ApiResponse<Void>> rechazarUsuario(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, String> body,
+            @RequestParam(required = false) String motivo) {
+        String motivoFinal = motivo;
+        if (motivoFinal == null && body != null) {
+            motivoFinal = body.get("motivo");
+        }
+        adminService.rechazarUsuario(id, motivoFinal);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Usuario rechazado exitosamente")
                 .build());
     }
 

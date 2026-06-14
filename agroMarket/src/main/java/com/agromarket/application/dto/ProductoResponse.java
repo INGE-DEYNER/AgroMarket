@@ -32,4 +32,9 @@ public class ProductoResponse {
     private double calificacionPromedio;
     private long totalResenas;
     private boolean productorVerificado;
+    private Integer totalVendido;
+    private BigDecimal precioPromocion;
+    private LocalDateTime fechaFinPromocion;
+    private Integer cantMinMayorista;
+    private String categoria;
 }

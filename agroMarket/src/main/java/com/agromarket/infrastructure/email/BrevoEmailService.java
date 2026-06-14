@@ -118,6 +118,12 @@ public class BrevoEmailService implements EmailService {
             return "reset_" + lang;
         } else if ("welcome".equals(templateName) || "bienvenida".equals(templateName)) {
             return "bienvenida_" + lang;
+        } else if ("welcome-comprador".equals(templateName) || "bienvenida-comprador".equals(templateName)) {
+            return "bienvenida_comprador_" + lang;
+        } else if ("welcome-productor".equals(templateName) || "bienvenida-productor".equals(templateName)) {
+            return "bienvenida_productor_" + lang;
+        } else if ("aprobacion-pendiente".equals(templateName) || "pendiente".equals(templateName)) {
+            return "pendiente_" + lang;
         } else if ("productor-aprobado".equals(templateName)) {
             return "aprobacion_" + lang;
         } else if ("productor-rechazado".equals(templateName)) {

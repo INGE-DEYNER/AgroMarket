@@ -44,6 +44,11 @@ public class UsuarioController {
                 .build());
     }
 
+    @PutMapping("/mi-perfil")
+    public ResponseEntity<ApiResponse<UsuarioResponse>> actualizarMiPerfil(@AuthenticationPrincipal JwtUserPrincipal principal, @Valid @RequestBody ActualizarUsuarioRequest request) {
+        return actualizarMe(principal, request);
+    }
+
     @PutMapping("/me/contrasena")
     public ResponseEntity<ApiResponse<Void>> actualizarContrasena(@AuthenticationPrincipal JwtUserPrincipal principal,
                                                                   @Valid @RequestBody CambiarContrasenaRequest request) {

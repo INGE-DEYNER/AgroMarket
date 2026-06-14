@@ -1,11 +1,7 @@
 package com.agromarket.application.dto;
 
-import com.agromarket.domain.model.RolUsuario;
-
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,32 +13,54 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegistroRequest {
-    @NotBlank
-    @Size(min = 2, max = 100)
-    @Pattern(regexp = "^[A-Za-z\\u00C0-\\u024F\\s]+$", message = "Solo se permiten letras y espacios")
+    @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
-    @Size(max = 100)
-    @Pattern(regexp = "^$|^[A-Za-z\\u00C0-\\u024F\\s]+$", message = "Solo se permiten letras y espacios")
+    @NotBlank(message = "El apellido es obligatorio")
     private String apellido;
 
-    @NotBlank
-    @Email
-    @Size(max = 255)
-    private String correo;
+    private String correo; // for backward compatibility
 
-    @NotBlank
-    @Pattern(regexp = "^[0-9]{10}$", message = "Debe contener 10 dígitos numéricos")
+    @Email
+    private String email;
+
+    private String contrasena; // for backward compatibility
+
+    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+    private String password;
+
+    private String confirmPassword;
+
+    @NotBlank(message = "El teléfono es obligatorio")
     private String telefono;
 
-    @NotBlank
-    @Size(min = 8, max = 100)
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={};\'\",./?]).{8,100}$", message = "Debe tener al menos 1 mayuscula, 1 numero y 1 caracter especial")
-    private String contrasena;
+    @NotBlank(message = "El código de país es obligatorio")
+    private String codigoPais;
 
-    @NotNull
-    private RolUsuario rol;
-
-    @Size(max = 255)
+    @NotBlank(message = "La ubicación es obligatoria")
     private String ubicacion;
+
+    @NotBlank(message = "El rol es obligatorio")
+    private String rol; // COMPRADOR | COMPRADOR_EMPRESA | PRODUCTOR | ADMIN
+
+    // Opcionales para empresa
+    private String nombreEmpresa;
+    private String nit;
+
+    // Helper methods to bind email and password
+    public String getCorreo() {
+        return email != null ? email : correo;
+    }
+
+    public String getEmail() {
+        return email != null ? email : correo;
+    }
+
+    public String getContrasena() {
+        return password != null ? password : contrasena;
+    }
+
+    public String getPassword() {
+        return password != null ? password : contrasena;
+    }
 }

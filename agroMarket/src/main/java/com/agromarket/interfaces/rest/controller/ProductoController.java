@@ -47,8 +47,14 @@ public class ProductoController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) TipoFruta tipo,
             @RequestParam(required = false) BigDecimal precioMin,
-            @RequestParam(required = false) BigDecimal precioMax) {
-        ApiResponse<PageResponse<ProductoResponse>> body = ApiResponse.<PageResponse<ProductoResponse>>builder().success(true).message("Productos listados").data(productoService.getAll(page, size, search, tipo, precioMin, precioMax)).build();
+            @RequestParam(required = false) BigDecimal precioMax,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String categoria) {
+        ApiResponse<PageResponse<ProductoResponse>> body = ApiResponse.<PageResponse<ProductoResponse>>builder()
+            .success(true)
+            .message("Productos listados")
+            .data(productoService.getAll(page, size, search, tipo, precioMin, precioMax, sort, categoria))
+            .build();
         return ResponseEntity.ok()
             .cacheControl(CacheControl.maxAge(30, java.util.concurrent.TimeUnit.SECONDS).cachePublic())
             .body(body);

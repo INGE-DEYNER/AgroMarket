@@ -85,6 +85,113 @@ public abstract class UsuarioEntity {
     @Builder.Default
     private boolean emailVerificado = false;
 
+    @Column(name = "apellido")
+    private String apellido;
+
+    @Column(name = "codigo_pais")
+    private String codigoPais;
+
+    @Column(name = "ubicacion")
+    private String ubicacion;
+
+    @Column(name = "cedula")
+    private String cedula;
+
+    @Column(name = "fecha_nacimiento")
+    private java.time.LocalDate fechaNacimiento;
+
+    @Column(name = "tipo_documento")
+    private String tipoDocumento;
+
+    @Column(name = "nombre_empresa")
+    private String nombreEmpresa;
+
+    @Column(name = "nit")
+    private String nit;
+
+    @Column(name = "es_empresa")
+    @Builder.Default
+    private Boolean esEmpresa = false;
+
+    @Column(name = "telefono_verificado", nullable = false)
+    @Builder.Default
+    private Boolean telefonoVerificado = false;
+
+    @Column(name = "cuenta_aprobada", nullable = false)
+    @Builder.Default
+    private Boolean cuentaAprobada = false;
+
+    @Column(name = "cuenta_completa", nullable = false)
+    @Builder.Default
+    private Boolean cuentaCompleta = false;
+
+    @Column(name = "estado_cuenta")
+    @Builder.Default
+    private String estadoCuenta = "PENDIENTE_EMAIL";
+
+    @Column(name = "token_verificacion_email")
+    private String tokenVerificacionEmail;
+
+    @Column(name = "token_email_expira")
+    private LocalDateTime tokenEmailExpira;
+
+    @Column(name = "token_verificacion_telefono")
+    private String tokenVerificacionTelefono;
+
+    @Column(name = "token_telefono_expira")
+    private LocalDateTime tokenTelefonoExpira;
+
+    @Column(name = "token_recuperacion_password")
+    private String tokenRecuperacionPassword;
+
+    @Column(name = "token_recuperacion_expira")
+    private LocalDateTime tokenRecuperacionExpira;
+
+    @Column(name = "cuenta_bancaria")
+    private String cuentaBancaria;
+
+    @Column(name = "cupon_primer_envio_usado", nullable = false)
+    @Builder.Default
+    private Boolean cuponPrimerEnvioUsado = false;
+
+    @Column(name = "divisa_preferida")
+    @Builder.Default
+    private String divisaPreferida = "COP";
+
+    @Column(name = "creado_en")
+    private LocalDateTime creadoEn;
+
+    @Column(name = "actualizado_en")
+    private LocalDateTime actualizadoEn;
+
+    @Column(name = "ultimo_login")
+    private LocalDateTime ultimoLogin;
+
+    @Column(name = "foto_url")
+    private String fotoUrl;
+
+    @Column(name = "calificacion_promedio")
+    @Builder.Default
+    private Double calificacionPromedio = 0.0;
+
+    @Column(name = "total_resenas")
+    @Builder.Default
+    private Integer totalResenas = 0;
+
+    // Helper alias methods for email and password
+    public String getEmail() {
+        return this.correo;
+    }
+    public void setEmail(String email) {
+        this.correo = email;
+    }
+    public String getPasswordHash() {
+        return this.contrasena;
+    }
+    public void setPasswordHash(String passwordHash) {
+        this.contrasena = passwordHash;
+    }
+
     // Explicit setter to satisfy IDE / LSP when Lombok annotation processing is unavailable
     public void setActivo(boolean activo) {
         this.activo = activo;

@@ -25,4 +25,17 @@ public class UsuarioResponse {
     private String proveedor;
     private String idEncriptado;
     private boolean verificado;
+    private String apellido;
+    private String cedula;
+    private java.time.LocalDate fechaNacimiento;
+    private String tipoDocumento;
+    private String nombreEmpresa;
+    private String nit;
+    private Boolean esEmpresa;
+    private boolean cuentaCompleta;
+    private String estadoCuenta;
+    private String codigoPais;
+    private String fotoUrl;
+    private Boolean cuponPrimerEnvioUsado;
+    private String divisaPreferida;
 }

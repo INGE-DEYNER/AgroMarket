@@ -22,6 +22,7 @@ public interface UsuarioMapper {
         if (entity == null) {
             return null;
         }
+        boolean isComplete = Boolean.TRUE.equals(entity.getCuentaCompleta()) || (entity.getCedula() != null && !entity.getCedula().isBlank() && entity.getFechaNacimiento() != null);
         return UsuarioResponse.builder()
                 .id(entity.getId())
                 .nombre(entity.getNombre())
@@ -31,10 +32,23 @@ public interface UsuarioMapper {
                 .activo(entity.isActivo())
                 .aprobado(entity.isAprobado())
                 .twoFactorEnabled(entity.isTotpEnabled())
-                .ubicacion(entity instanceof ProductorEntity productorEntity ? productorEntity.getUbicacion() : null)
+                .ubicacion(entity.getUbicacion())
                 .emailVerificado(entity.isEmailVerificado())
                 .proveedor(entity.getProveedor())
                 .verificado(entity instanceof ProductorEntity productorEntity ? Boolean.TRUE.equals(productorEntity.getVerificado()) : false)
+                .apellido(entity.getApellido())
+                .cedula(entity.getCedula())
+                .fechaNacimiento(entity.getFechaNacimiento())
+                .tipoDocumento(entity.getTipoDocumento())
+                .nombreEmpresa(entity.getNombreEmpresa())
+                .nit(entity.getNit())
+                .esEmpresa(entity.getEsEmpresa())
+                .cuentaCompleta(isComplete)
+                .estadoCuenta(entity.getEstadoCuenta())
+                .codigoPais(entity.getCodigoPais())
+                .fotoUrl(entity.getFotoUrl() != null ? entity.getFotoUrl() : entity.getFoto())
+                .cuponPrimerEnvioUsado(entity.getCuponPrimerEnvioUsado())
+                .divisaPreferida(entity.getDivisaPreferida() != null ? entity.getDivisaPreferida() : "COP")
                 .build();
     }
 
