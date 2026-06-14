@@ -78,6 +78,25 @@ public class BrevoEmailService implements EmailService {
     }
 
     @Override
+    public void sendPasswordResetEmail(String to, String userName, String resetCode, String locale) {
+        String resolvedLocale = (locale != null && List.of("es","en","pt","fr","de","zh","ar").contains(locale)) ? locale : "es";
+        String resolvedTemplateName = "reset_" + resolvedLocale;
+        try {
+            ClassPathResource res = new ClassPathResource("email-templates/" + resolvedTemplateName + ".html");
+            String template = StreamUtils.copyToString(res.getInputStream(), StandardCharsets.UTF_8);
+            template = template.replace("${codigo}", resetCode)
+                               .replace("{{reset_code}}", resetCode)
+                               .replace("${user_name}", userName != null ? userName : "Usuario")
+                               .replace("{{user_name}}", userName != null ? userName : "Usuario");
+            String subject = resolvedLocale.equals("en") ? "AgroMarket - Password Recovery Code" : "Código de recuperación AgroMarket";
+            sendHtmlMessage(to, subject, template);
+        } catch (java.io.IOException ex) {
+            log.error("Error loading password reset template for locale {}: {}", resolvedLocale, ex.getMessage());
+            throw new RuntimeException("Error loading email template: " + resolvedTemplateName, ex);
+        }
+    }
+
+    @Override
     public void sendTemplateMessage(String to, String subject, String templateName, Map<String, String> model) {
         String resolvedTemplateName = resolveLocalizedTemplateName(templateName);
         try {

@@ -18,9 +18,11 @@ import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import com.agromarket.infrastructure.security.JwtTokenProvider;
 import com.agromarket.infrastructure.security.SafeRedirectUtil;
+import com.agromarket.infrastructure.sms.TwilioSmsService;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,7 +53,7 @@ public class AuthController {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final SafeRedirectUtil safeRedirectUtil;
-    private final com.agromarket.application.service.SmsVerificationService smsVerificationService;
+    private final TwilioSmsService twilioSmsService;
     private final com.agromarket.config.properties.AppProperties appProperties;
 
     private static final String OAUTH2_TEMP_COOKIE = "agromarket_oauth2_token";
@@ -146,40 +148,28 @@ public class AuthController {
         return new RedirectView(redirectUrl);
     }
 
-    @PostMapping("/enviar-sms-verificacion")
-    public ResponseEntity<ApiResponse<Void>> enviarSmsVerificacion(@RequestBody java.util.Map<String, String> body) {
+    @PostMapping("/enviar-verificacion-sms")
+    public ResponseEntity<?> enviarVerificacionSms(@RequestBody Map<String,String> body) {
         String telefono = body.get("telefono");
-        if (telefono == null || !telefono.matches("^\\+?[0-9]{7,15}$")) {
-            throw new IllegalArgumentException("Número de teléfono inválido. Debe incluir código de país (ej. +573126547896)");
+        if (telefono == null || !telefono.matches("^\\+[0-9]{7,15}$")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Número inválido. Formato: +573126547896"));
         }
-        // Verificar que el teléfono NO esté ya registrado
         if (usuarioJpaRepository.existsByTelefono(telefono)) {
-            throw new IllegalArgumentException("Este número de teléfono ya está registrado en otra cuenta");
+            return ResponseEntity.badRequest().body(Map.of("error", "Este número ya está registrado en otra cuenta"));
         }
-        smsVerificationService.enviarSms(telefono);
-        return ok("Código SMS enviado correctamente");
+        twilioSmsService.enviarCodigoVerificacion(telefono);
+        return ResponseEntity.ok(Map.of("mensaje", "Código enviado por SMS"));
     }
 
     @PostMapping("/verificar-sms")
-    public ResponseEntity<ApiResponse<Void>> verificarSms(@RequestBody java.util.Map<String, String> body) {
+    public ResponseEntity<?> verificarSms(@RequestBody Map<String,String> body) {
         String telefono = body.get("telefono");
         String codigo = body.get("codigo");
-        if (telefono == null || codigo == null) {
-            throw new IllegalArgumentException("Teléfono y código son obligatorios");
+        boolean valido = twilioSmsService.verificarCodigo(telefono, codigo);
+        if (!valido) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Código incorrecto o expirado"));
         }
-        boolean ok = smsVerificationService.verificarSms(telefono, codigo);
-        if (!ok) {
-            throw new IllegalArgumentException("Código de verificación SMS inválido o expirado");
-        }
-        
-        java.util.Optional<com.agromarket.infrastructure.persistence.entity.UsuarioEntity> opt = usuarioJpaRepository.findByTelefono(telefono);
-        if (opt.isPresent()) {
-            com.agromarket.infrastructure.persistence.entity.UsuarioEntity usuario = opt.get();
-            usuario.setTelefonoVerificado(true);
-            usuarioJpaRepository.save(usuario);
-        }
-        
-        return ok("Teléfono verificado correctamente");
+        return ResponseEntity.ok(Map.of("verificado", true));
     }
 
     @PostMapping("/2fa/setup")
@@ -257,6 +247,46 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> recuperarContrasena(@Valid @RequestBody PasswordResetRequest request) {
         passwordResetService.requestPasswordReset(request.getCorreo());
         return ok("Si la cuenta existe, recibirás un código de recuperación");
+    }
+
+    @PostMapping("/verificar-codigo-recuperacion")
+    public ResponseEntity<?> verificarCodigoRecuperacion(@RequestBody Map<String,String> body) {
+        String email = body.get("email");
+        String codigo = body.get("codigo");
+
+        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(email).orElse(null);
+
+        if (usuario == null
+            || !codigo.equals(usuario.getTokenRecuperacionPassword())
+            || LocalDateTime.now().isAfter(usuario.getTokenRecuperacionExpira())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Código inválido o expirado"));
+        }
+
+        String tokenTemporal = java.util.UUID.randomUUID().toString();
+        usuario.setTokenRecuperacionPassword(tokenTemporal);
+        usuario.setTokenRecuperacionExpira(LocalDateTime.now().plusMinutes(10));
+        usuarioJpaRepository.save(usuario);
+
+        return ResponseEntity.ok(Map.of("tokenTemporal", tokenTemporal));
+    }
+
+    @PostMapping("/cambiar-contrasena")
+    public ResponseEntity<?> cambiarContrasena(@RequestBody Map<String,String> body) {
+        String email = body.get("email");
+        String token = body.get("token");
+        String nuevaPassword = body.get("nuevaPassword");
+
+        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(email)
+            .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
+
+        if (!token.equals(usuario.getTokenRecuperacionPassword())
+            || LocalDateTime.now().isAfter(usuario.getTokenRecuperacionExpira())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Token expirado. Solicita nuevo código."));
+        }
+
+        passwordResetService.resetPassword(token, nuevaPassword);
+
+        return ResponseEntity.ok(Map.of("mensaje", "Contraseña cambiada exitosamente"));
     }
 
     @PostMapping("/verify-code")

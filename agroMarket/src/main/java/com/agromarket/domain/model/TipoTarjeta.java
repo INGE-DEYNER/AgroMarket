@@ -2,7 +2,9 @@ package com.agromarket.domain.model;
 
 public enum TipoTarjeta {
     VISA,
-    MC,
+    MASTERCARD,
     AMEX,
-    OTHER
+    DINERS,
+    DISCOVER,
+    OTRO
 }

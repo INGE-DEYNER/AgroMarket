@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import api from '../utils/api';
 
 export default function ChatbotSoporte() {
   const [isOpen, setIsOpen] = useState(false);
@@ -6,38 +7,23 @@ export default function ChatbotSoporte() {
     {
       id: 1,
       sender: 'bot',
-      text: '¡Hola! Soy el asistente virtual de AgroMarket. 🌾 ¿En qué puedo ayudarte hoy?',
+      text: '¡Hola! Soy el asistente virtual de AgroMarket. ¿En qué puedo ayudarte hoy?',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
   const [inputText, setInputText] = useState('');
+  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const FAQ_KEYWORDS = [
-    {
-      keywords: ['descuento', 'cupon', 'cupón', 'promocion', 'promoción', 'codigo', 'código'],
-      answer: '¡Claro! En AgroMarket ofrecemos cupones de descuento especiales para nuestros compradores. Puedes ver tus cupones activos en la sección de "Mis Cupones" en tu Perfil y aplicarlos en el carrito.'
-    },
-    {
-      keywords: ['envio', 'envío', 'despacho', 'entrega', 'transporte', 'llegar'],
-      answer: 'Los envíos se realizan directamente desde Urabá por los productores asociados. Puedes realizar el seguimiento de tu despacho en tiempo real en la pestaña "Despachos" de tu panel.'
-    },
-    {
-      keywords: ['pago', 'tarjeta', 'fideicomiso', 'escrow', 'seguro', 'comprar', 'precio', 'divisa', 'moneda'],
-      answer: 'Soportamos pagos seguros en línea con tarjetas de crédito/débito. Usamos un sistema de Fideicomiso (Escrow) que retiene el dinero de forma segura hasta que confirmes la entrega. También puedes cambiar tu divisa preferida (COP, USD, EUR) en Perfil.'
-    },
-    {
-      keywords: ['productor', 'vender', 'agricultor', 'cosecha', 'finca', 'nit', 'cuenta', 'aprobar', 'aprobacion'],
-      answer: '¡Excelente que quieras vender! Regístrate como Productor, completa tu perfil con tu ubicación/vereda y cuenta bancaria. Un administrador revisará tu solicitud y, una vez aprobada, podrás publicar tus productos.'
-    },
-    {
-      keywords: ['soporte', 'ayuda', 'contacto', 'reclamar', 'problema', 'error', 'correo'],
-      answer: 'Estamos aquí para ayudarte en todo momento. Puedes comunicarte por el chat interno en "Mensajería" directamente con el productor del producto, o escribirnos a soporte@agromarket.com.'
-    }
+    { label: 'Descuentos', value: 'Quiero saber sobre descuentos y promociones' },
+    { label: 'Envíos', value: 'Cómo funcionan los envíos y despachos' },
+    { label: 'Pagos', value: 'Qué métodos de pago aceptan' },
+    { label: 'Vender', value: 'Cómo puedo registrarme para vender mis productos como productor' }
   ];
 
-  const handleSend = (text) => {
-    if (!text.trim()) return;
+  const handleSend = async (text) => {
+    if (!text.trim() || loading) return;
 
     const userMsg = {
       id: Date.now(),
@@ -48,43 +34,46 @@ export default function ChatbotSoporte() {
 
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
+    setLoading(true);
 
-    // Bot response simulation with slight delay
-    setTimeout(() => {
-      const lowerText = text.toLowerCase();
-      let matchedAnswer = '';
+    try {
+      const historial = messages.slice(1).map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.text
+      }));
 
-      for (const faq of FAQ_KEYWORDS) {
-        if (faq.keywords.some(kw => lowerText.includes(kw))) {
-          matchedAnswer = faq.answer;
-          break;
-        }
-      }
-
-      if (!matchedAnswer) {
-        matchedAnswer = 'Entiendo. Como asistente virtual puedo ayudarte con temas sobre Descuentos, Envíos, Pagos o cómo ser Productor. Prueba a pulsar alguno de los botones rápidos o reformular tu duda.';
-      }
+      const res = await api.post('/public/chatbot', { mensaje: text, historial: historial });
 
       const botMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: matchedAnswer,
+        text: res.data?.respuesta || res.respuesta || 'Lo siento, no pude procesar tu solicitud.',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setMessages(prev => [...prev, botMsg]);
-    }, 600);
+    } catch (error) {
+      const errorMsg = {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: 'Lo siento, hay un problema de conexión con el servicio. Por favor, intenta de nuevo más tarde.',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleQuickAction = (topic, label) => {
-    handleSend(`Quiero saber sobre ${label}`);
+  const handleQuickAction = (topic, value) => {
+    handleSend(value);
   };
 
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages, loading]);
 
   return (
     <div className="chatbot-widget-container">
@@ -184,6 +173,7 @@ export default function ChatbotSoporte() {
           justify-content: center;
           font-size: 1.2rem;
           border: 1px solid rgba(255, 255, 255, 0.3);
+          font-weight: bold;
         }
         .chatbot-title {
           font-weight: 700;
@@ -255,6 +245,7 @@ export default function ChatbotSoporte() {
           font-size: 0.88rem;
           line-height: 1.4;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+          white-space: pre-wrap;
         }
         .chat-message.bot .message-bubble {
           background: white;
@@ -275,6 +266,26 @@ export default function ChatbotSoporte() {
         }
         .chat-message.user .message-time {
           align-self: flex-end;
+        }
+        .chatbot-typing {
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 16px;
+        }
+        .chatbot-typing span {
+          width: 6px;
+          height: 6px;
+          background: #94a3b8;
+          border-radius: 50%;
+          animation: typing 1.4s infinite ease-in-out both;
+        }
+        .chatbot-typing span:nth-child(1) { animation-delay: -0.32s; }
+        .chatbot-typing span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+          0%, 80%, 100% { transform: scale(0); }
+          40% { transform: scale(1); }
         }
         .chatbot-quick-actions {
           padding: 12px 20px;
@@ -369,7 +380,7 @@ export default function ChatbotSoporte() {
       <div className={`chatbot-window ${isOpen ? 'open' : ''}`}>
         <div className="chatbot-header">
           <div className="chatbot-header-info">
-            <div className="chatbot-avatar">🌾</div>
+            <div className="chatbot-avatar">A</div>
             <div>
               <h4 className="chatbot-title">Soporte AgroMarket</h4>
               <p className="chatbot-status">En línea</p>
@@ -387,19 +398,26 @@ export default function ChatbotSoporte() {
               <span className="message-time">{msg.time}</span>
             </div>
           ))}
+          {loading && (
+            <div className="chat-message bot">
+              <div className="message-bubble chatbot-typing">
+                <span /><span /><span />
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
         {/* QUICK ACTION CHIPS */}
-        <div className="chatbot-quick-actions">
-          <p className="quick-actions-title">Preguntas Frecuentes</p>
-          <div className="chips-container">
-            <button className="quick-chip" onClick={() => handleQuickAction('descuento', 'Descuentos')}>💸 Descuentos</button>
-            <button className="quick-chip" onClick={() => handleQuickAction('envio', 'Envíos')}>🚚 Envíos</button>
-            <button className="quick-chip" onClick={() => handleQuickAction('pago', 'Pagos')}>💳 Métodos de Pago</button>
-            <button className="quick-chip" onClick={() => handleQuickAction('productor', 'Vender')}>👨‍🌾 Ser Productor</button>
+        {messages.length <= 1 && (
+          <div className="chatbot-quick-actions">
+            <div className="chips-container">
+              {FAQ_KEYWORDS.map((faq, i) => (
+                <button key={i} className="quick-chip" onClick={() => handleQuickAction(faq.label, faq.value)}>{faq.label}</button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* INPUT FOOTER */}
         <div className="chatbot-footer">
@@ -412,18 +430,23 @@ export default function ChatbotSoporte() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSend(inputText);
             }}
+            disabled={loading}
           />
-          <button className="chatbot-send" onClick={() => handleSend(inputText)} aria-label="Send Message">
-            ➤
+          <button className="chatbot-send" onClick={() => handleSend(inputText)} aria-label="Send Message" disabled={loading || !inputText.trim()}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
           </button>
         </div>
       </div>
 
       {/* FLOATING TRIGGER BUTTON */}
       <div className="chatbot-trigger" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Support Chatbot">
-        <span style={{ display: 'inline-block', transition: 'transform 0.3s', transform: isOpen ? 'rotate(90deg)' : 'none' }}>
-          {isOpen ? '💬' : '💬'}
-        </span>
+        {isOpen ? (
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        ) : (
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        )}
         <div className="pulse"></div>
       </div>
     </div>

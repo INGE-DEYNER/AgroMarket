@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api, { API_BASE } from '../utils/api';
 import '../styles/registro.css';
@@ -18,6 +18,7 @@ const COUNTRY_CODES = [
 export default function Registro() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [rol, setRol] = useState('comprador'); // comprador | comprador_empresa | productor
   const [nombre, setNombre] = useState('');
@@ -43,6 +44,23 @@ export default function Registro() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (success) {
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get('redirect');
+      const accion = params.get('accion');
+
+      if (redirect) {
+        const productoPendiente = localStorage.getItem('producto_pendiente');
+        if (productoPendiente && accion === 'comprar') {
+          navigate(redirect + '?accion=comprar');
+        } else {
+          navigate(redirect);
+        }
+      }
+    }
+  }, [success, location.search, navigate]);
 
   // Real-time validations on changes
   useEffect(() => {
@@ -80,6 +98,12 @@ export default function Registro() {
   useEffect(() => {
     if (nit) validateField('nit', nit);
   }, [nit, rol]);
+
+  const handleGoogleRegistro = () => {
+    const rolSeleccionado = rol === 'comprador_empresa' ? 'EMPRESA' : rol.toUpperCase();
+    document.cookie = `oauth2_rol_solicitado=${rolSeleccionado}; path=/; max-age=300; SameSite=Lax; Secure`;
+    window.location.href = `${API_BASE.replace('/api', '')}/oauth2/authorization/google`;
+  };
 
   const validateField = (field, val) => {
     const errs = { ...errors };
@@ -555,8 +579,9 @@ export default function Registro() {
                 <span style={{ flex: 1, borderBottom: '1px solid #ddd' }}></span>
               </div>
 
-              <a 
-                href={`${API_BASE.replace('/api', '')}/oauth2/authorization/google`} 
+              <button
+                type="button"
+                onClick={handleGoogleRegistro}
                 className="btn-submit" 
                 style={{ backgroundColor: '#fff', color: '#444', border: '1px solid #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', textDecoration: 'none' }}
               >
@@ -568,7 +593,7 @@ export default function Registro() {
                   <path fill="none" d="M0 0h48v48H0z"/>
                 </svg>
                 {t('auth.registerWithGoogle', 'Registrarse con Google')}
-              </a>
+              </button>
             </form>
 
             <div className="form-footer">

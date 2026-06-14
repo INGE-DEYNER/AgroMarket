@@ -51,14 +51,14 @@ export default function Envios() {
 
       <main style={{ padding: '28px 32px', maxWidth: '1100px', margin: '0 auto' }}>
         <div className="section-header" style={{ marginBottom: '24px' }}>
-          <span className="section-title">🚚 {t('envios.title', 'Seguimiento de Envíos')}</span>
+          <span className="section-title">{t('envios.title', 'Seguimiento de Envíos')}</span>
         </div>
 
         {/* ACTIVE SHIPMENTS */}
         <div id="shipmentsContainer">
           {shipments.length === 0 ? (
             <div className="empty-state" style={{ padding: '40px', textAlign: 'center' }}>
-              <div className="empty-icon">📦</div>
+              <div className="empty-icon"></div>
               <div>{t('envios.noActive', 'No hay envíos activos en este momento.')}</div>
             </div>
           ) : (
@@ -68,7 +68,7 @@ export default function Envios() {
                   <div>
                     <div style={{ fontWeight: '700', fontSize: '1.05rem' }}>{s.producto}</div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                      📍 {s.origen} → {s.destino} · {s.transportista}
+                       {s.origen} → {s.destino} · {s.transportista}
                     </div>
                   </div>
                   <span className="badge-status status-shipped">{t('pedidos.status.' + s.estado?.toLowerCase(), s.estado)}</span>
@@ -85,7 +85,7 @@ export default function Envios() {
         {/* HISTORY TABLE */}
         <div style={{ marginTop: '32px' }}>
           <h3 style={{ fontFamily: 'var(--font-title)', fontSize: '1.05rem', marginBottom: '16px' }}>
-            📋 {t('envios.historyTitle', 'Historial de todos los envíos')}
+            {t('envios.historyTitle', 'Historial de todos los envíos')}
           </h3>
           <div className="table-wrap">
             <table>
@@ -118,4 +118,3 @@ export default function Envios() {
     </>
   );
 }
-

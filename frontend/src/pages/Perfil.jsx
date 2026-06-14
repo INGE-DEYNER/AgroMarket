@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSecureParams } from '../utils/useSecureParams';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import '../styles/styles.css';
@@ -14,19 +15,17 @@ const CURRENCIES = [
   { code: 'CLP', name: 'Peso Chileno (CLP)' },
 ];
 
-const CARD_TYPES = [
-  { code: 'VISA', name: 'Visa' },
-  { code: 'MASTERCARD', name: 'Mastercard' },
-  { code: 'AMEX', name: 'American Express' },
-  { code: 'DISCOVER', name: 'Discover' },
-];
-
 export default function Perfil() {
   const { user, setUser, logout, refetchUser } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [params, setParams] = useSecureParams();
 
-  const [activeTab, setActiveTab] = useState('personal');
+  const [activeTab, setActiveTab] = useState(params.tab || 'personal');
+
+  useEffect(() => {
+    setParams({ tab: activeTab });
+  }, [activeTab, setParams]);
 
   // Personal Info Form
   const [nombre, setNombre] = useState(user?.nombre || '');
@@ -50,7 +49,8 @@ export default function Perfil() {
   const [tarjetas, setTarjetas] = useState([]);
   const [tarjetaModalOpen, setTarjetaModalOpen] = useState(false);
   const [numeroTarjeta, setNumeroTarjeta] = useState('');
-  const [tipoTarjeta, setTipoTarjeta] = useState('VISA');
+  const [tipoDetectado, setTipoDetectado] = useState(null);
+  const [tarjetaValida, setTarjetaValida] = useState(false);
   const [tarjetaPredeterminada, setTarjetaPredeterminada] = useState(false);
   
   // Coupons state
@@ -184,10 +184,45 @@ export default function Perfil() {
     }
   };
 
+  const detectarTipo = (numero) => {
+    const n = numero.replace(/\s/g, '');
+    if (/^4/.test(n)) return { tipo: 'VISA', logo: '💳', color: '#1A1F71' };
+    if (/^5[1-5]|^2[2-7]/.test(n)) return { tipo: 'MASTERCARD', logo: '💳', color: '#EB001B' };
+    if (/^3[47]/.test(n)) return { tipo: 'AMEX', logo: '💳', color: '#007BC1' };
+    if (/^3[068]/.test(n)) return { tipo: 'DINERS', logo: '💳', color: '#004B87' };
+    return null;
+  };
+
+  const validarLuhn = (numero) => {
+    const n = numero.replace(/\s/g, '');
+    let suma = 0;
+    let impar = false;
+    for (let i = n.length - 1; i >= 0; i--) {
+      let digito = parseInt(n[i]);
+      if (impar) {
+        digito *= 2;
+        if (digito > 9) digito -= 9;
+      }
+      suma += digito;
+      impar = !impar;
+    }
+    return suma % 10 === 0;
+  };
+
+  const handleNumeroChange = (e) => {
+    const valor = e.target.value.replace(/\D/g, '').substring(0, 16);
+    const formateado = valor.replace(/(.{4})/g, '$1 ').trim();
+    setNumeroTarjeta(formateado);
+    const tipo = detectarTipo(valor);
+    setTipoDetectado(tipo);
+    const esValida = valor.length >= 13 && validarLuhn(valor);
+    setTarjetaValida(esValida);
+  };
+
   const handleSaveTarjeta = async (e) => {
     e.preventDefault();
     setCardMsg({ type: '', text: '' });
-    if (!numeroTarjeta || numeroTarjeta.trim().length < 4) {
+    if (!tarjetaValida) {
       setCardMsg({ type: 'error', text: 'Número de tarjeta inválido.' });
       return;
     }
@@ -195,11 +230,12 @@ export default function Perfil() {
     setLoading(true);
     try {
       await api.post('/tarjetas', {
-        numero: numeroTarjeta.trim(),
-        tipoTarjeta,
+        numero: numeroTarjeta.replace(/\s/g, ''),
         predeterminada: tarjetaPredeterminada,
       });
       setNumeroTarjeta('');
+      setTipoDetectado(null);
+      setTarjetaValida(false);
       setTarjetaPredeterminada(false);
       setTarjetaModalOpen(false);
       setCardMsg({ type: 'success', text: 'Tarjeta agregada exitosamente.' });
@@ -253,9 +289,9 @@ export default function Perfil() {
     if (/[0-9]/.test(pass)) score += 1;
     if (/[@$!%*?&.]/.test(pass)) score += 1;
 
-    if (score <= 1) return { label: 'Débil ❌', color: '#e53935', width: '33%' };
-    if (score <= 3) return { label: 'Media ⚡', color: '#ff9800', width: '66%' };
-    return { label: 'Fuerte 💪', color: '#4caf50', width: '100%' };
+    if (score <= 1) return { label: 'Débil', color: '#e53935', width: '33%' };
+    if (score <= 3) return { label: 'Media', color: '#ff9800', width: '66%' };
+    return { label: 'Fuerte', color: '#4caf50', width: '100%' };
   };
 
   const passwordStrength = getPasswordStrength(nuevaContrasena);
@@ -274,7 +310,7 @@ export default function Perfil() {
       <main style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div>
-            <h1 style={{ fontFamily: 'var(--font-title)', fontWeight: 800, fontSize: '2rem' }}>👤 Mi Perfil</h1>
+            <h1 style={{ fontFamily: 'var(--font-title)', fontWeight: 800, fontSize: '2rem' }}>Mi Perfil</h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Administra tu configuración personal, métodos de pago y seguridad</p>
           </div>
           <Link to={getPanelLink()} className="btn btn-secondary">
@@ -290,35 +326,35 @@ export default function Perfil() {
               onClick={() => setActiveTab('personal')}
               style={{ justifyContent: 'flex-start', width: '100%' }}
             >
-              📝 Datos Personales
+              Datos Personales
             </button>
             <button 
               className={`btn ${activeTab === 'tarjetas' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('tarjetas')}
               style={{ justifyContent: 'flex-start', width: '100%' }}
             >
-              💳 Métodos de Pago
+              Métodos de Pago
             </button>
             <button 
               className={`btn ${activeTab === 'security' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('security')}
               style={{ justifyContent: 'flex-start', width: '100%' }}
             >
-              🔐 Seguridad y Acceso
+              Seguridad y Acceso
             </button>
             <button 
               className={`btn ${activeTab === 'cupones' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('cupones')}
               style={{ justifyContent: 'flex-start', width: '100%' }}
             >
-              🎁 Mis Cupones
+              Mis Cupones
             </button>
             <button 
               className={`btn ${activeTab === 'preferencias' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('preferencias')}
               style={{ justifyContent: 'flex-start', width: '100%' }}
             >
-              ⚙️ Preferencias de Divisa
+              Preferencias de Divisa
             </button>
             
             <div style={{ marginTop: '24px', borderTop: '1px solid var(--border)', paddingTop: '16px', textAlign: 'center' }}>
@@ -338,7 +374,7 @@ export default function Perfil() {
             {/* 1. PERSONAL DETAILS */}
             {activeTab === 'personal' && (
               <div>
-                <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>📝 Información Personal</h3>
+                <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>Información Personal</h3>
                 
                 {personalMsg.text && (
                   <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.85rem', background: personalMsg.type === 'success' ? 'var(--green-bg)' : 'var(--red-bg)', color: personalMsg.type === 'success' ? 'var(--primary-dark)' : 'var(--red)' }}>
@@ -411,7 +447,7 @@ export default function Perfil() {
             {activeTab === 'tarjetas' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>
-                  <h3>💳 Métodos de Pago</h3>
+                  <h3>Métodos de Pago</h3>
                   <button className="btn btn-primary btn-sm" onClick={() => setTarjetaModalOpen(true)}>+ Agregar Tarjeta</button>
                 </div>
 
@@ -424,7 +460,7 @@ export default function Perfil() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {tarjetas.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)' }}>
-                      <p style={{ fontSize: '1.2rem', marginBottom: '8px' }}>💳</p>
+                      <p style={{ fontSize: '1.2rem', marginBottom: '8px' }}></p>
                       <p>No tienes tarjetas guardadas en este momento.</p>
                     </div>
                   ) : (
@@ -434,9 +470,7 @@ export default function Perfil() {
                         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface2)' }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                          <span style={{ fontSize: '1.8rem' }}>
-                            {card.tipoTarjeta?.toUpperCase() === 'VISA' ? '💳' : '💳'}
-                          </span>
+                          <span style={{ fontSize: '1.8rem' }}></span>
                           <div>
                             <strong style={{ display: 'block' }}>{card.tipoTarjeta} •••• {card.ultimosCuatroDigitos}</strong>
                             {card.predeterminada && (
@@ -463,7 +497,7 @@ export default function Perfil() {
             {/* 3. SECURITY & ACCESS */}
             {activeTab === 'security' && (
               <div>
-                <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>🔐 Seguridad de la Cuenta</h3>
+                <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>Seguridad de la Cuenta</h3>
 
                 {securityMsg.text && (
                   <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.85rem', background: securityMsg.type === 'success' ? 'var(--green-bg)' : 'var(--red-bg)', color: securityMsg.type === 'success' ? 'var(--primary-dark)' : 'var(--red)' }}>
@@ -557,12 +591,12 @@ export default function Perfil() {
             {/* 4. ACTIVE COUPONS */}
             {activeTab === 'cupones' && (
               <div>
-                <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>🎁 Mis Cupones de Descuento</h3>
+                <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>Mis Cupones de Descuento</h3>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
                   {cupones.length === 0 ? (
                     <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)' }}>
-                      <p style={{ fontSize: '1.2rem', marginBottom: '8px' }}>🎟️</p>
+                      <p style={{ fontSize: '1.2rem', marginBottom: '8px' }}></p>
                       <p>No tienes cupones disponibles.</p>
                     </div>
                   ) : (
@@ -595,7 +629,7 @@ export default function Perfil() {
             {/* 5. PREFERENCES OF CURRENCY */}
             {activeTab === 'preferencias' && (
               <div>
-                <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>⚙️ Preferencias del Sistema</h3>
+                <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>Preferencias del Sistema</h3>
 
                 {prefMsg.text && (
                   <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.85rem', background: prefMsg.type === 'success' ? 'var(--green-bg)' : 'var(--red-bg)', color: prefMsg.type === 'success' ? 'var(--primary-dark)' : 'var(--red)' }}>
@@ -636,34 +670,33 @@ export default function Perfil() {
         <div className="modal-overlay open">
           <div className="modal">
             <div className="modal-header">
-              <span className="modal-title">💳 Registrar Tarjeta de Pago</span>
+              <span className="modal-title">Registrar Tarjeta de Pago</span>
               <button className="modal-close" onClick={() => setTarjetaModalOpen(false)}>✕</button>
             </div>
             <form onSubmit={handleSaveTarjeta}>
               <div className="form-group" style={{ marginBottom: '16px' }}>
                 <label className="form-label">Número de Tarjeta</label>
-                <input 
-                  className="form-input" 
-                  type="text" 
-                  placeholder="4242 4242 4242 4242" 
-                  maxLength={16}
-                  value={numeroTarjeta} 
-                  onChange={(e) => setNumeroTarjeta(e.target.value)} 
-                  required 
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label className="form-label">Franquicia / Tipo de Tarjeta</label>
-                <select 
-                  className="form-select" 
-                  value={tipoTarjeta} 
-                  onChange={(e) => setTipoTarjeta(e.target.value)}
-                >
-                  {CARD_TYPES.map((t) => (
-                    <option key={t.code} value={t.code}>{t.name}</option>
-                  ))}
-                </select>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    className="form-input"
+                    type="text"
+                    placeholder="1234 5678 9012 3456"
+                    maxLength={19}
+                    value={numeroTarjeta}
+                    onChange={handleNumeroChange}
+                    required
+                  />
+                  {tipoDetectado && (
+                    <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 'bold', color: tipoDetectado.color }}>
+                      {tipoDetectado.tipo}
+                    </span>
+                  )}
+                </div>
+                {numeroTarjeta.replace(/\s/g,'').length >= 13 && (
+                  <span style={{ color: tarjetaValida ? 'green' : 'red', fontSize: '12px', display: 'block', marginTop: '4px' }}>
+                    {tarjetaValida ? '✓ Tarjeta válida' : '✗ Número inválido'}
+                  </span>
+                )}
               </div>
 
               <div className="form-group" style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -679,7 +712,7 @@ export default function Perfil() {
 
               <div className="modal-footer" style={{ display: 'flex', gap: '12px' }}>
                 <button className="btn btn-secondary" type="button" onClick={() => setTarjetaModalOpen(false)} style={{ flex: 1 }}>Cancelar</button>
-                <button className="btn btn-primary" type="submit" disabled={loading} style={{ flex: 2 }}>Registrar Tarjeta</button>
+                <button className="btn btn-primary" type="submit" disabled={loading || !tarjetaValida} style={{ flex: 2 }}>Registrar Tarjeta</button>
               </div>
             </form>
           </div>

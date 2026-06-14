@@ -435,49 +435,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── FOOTER ───────────────────────────────────────────── */}
-      <footer className="footer">
-        <div className="footer-grid">
-          <div>
-            <div className="nav-brand" style={{ color: '#fff', marginBottom: '16px' }}>
-              <svg viewBox="0 0 24 24" style={{ fill: 'var(--green-light)' }}>
-                <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
-              </svg>
-              AgroMarket
-            </div>
-            <p className="footer-desc">
-              {t('home.footer.desc', 'Plataforma oficial de comercialización para la Asociación de Agricultores ASAFRUT.')}
-            </p>
-          </div>
-          <div>
-            <h3 className="footer-col-title">{t('home.footer.platform', 'Plataforma')}</h3>
-            <div className="footer-links">
-              <Link to="/catalogo">{t('nav.catalogo', 'Catálogo')}</Link>
-              <a href="#como-funciona">{t('nav.howItWorks', 'Cómo funciona')}</a>
-              <a href="#asafrut">{t('nav.about', 'Sobre ASAFRUT')}</a>
-            </div>
-          </div>
-          <div>
-            <h3 className="footer-col-title">{t('home.footer.access', 'Acceso')}</h3>
-            <div className="footer-links">
-              <Link to="/login">{t('nav.ingresa', 'Iniciar sesión')}</Link>
-              <Link to="/registro">{t('nav.registrate', 'Registrarse')}</Link>
-            </div>
-          </div>
-          <div>
-            <h3 className="footer-col-title">{t('home.footer.contact', 'Contacto')}</h3>
-            <div className="footer-contact">
-              <span>📍 {t('home.footer.address', 'Chigorodó, Antioquia')}</span>
-              <span>📧 contacto@agromarket.co</span>
-              <span>📞 +57 310 000 0000</span>
-            </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          © 2026 AgroMarket · ASAFRUT · {t('home.footer.rights', 'Todos los derechos reservados')} · Desarrollado por Deyner Chaverra
-        </div>
-      </footer>
-
       {/* Estilos para skeleton animation */}
       <style>{`
         @keyframes shimmer {

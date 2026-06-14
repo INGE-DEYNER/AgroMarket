@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../context/AuthContext';
+import { useSecureParams } from '../utils/useSecureParams';
 import api from '../utils/api';
 import '../styles/catalogo.css';
 
 const CATEGORIES = [
-  { label: 'Todos', emoji: '🌿', value: '' },
-  { label: 'Frutas', emoji: '🍌', value: 'Frutas' },
-  { label: 'Verduras', emoji: '🥦', value: 'Verduras' },
-  { label: 'Tubérculos', emoji: '🥔', value: 'Tubérculos' },
-  { label: 'Granos', emoji: '🫘', value: 'Granos' },
-  { label: 'Otros', emoji: '⚙️', value: 'Otros' },
+  { label: 'Todos', value: '' },
+  { label: 'Frutas', value: 'Frutas' },
+  { label: 'Verduras', value: 'Verduras' },
+  { label: 'Tubérculos', value: 'Tubérculos' },
+  { label: 'Granos', value: 'Granos' },
+  { label: 'Otros', value: 'Otros' },
 ];
 
 function SkeletonCard() {
@@ -34,18 +35,7 @@ export default function Catalogo() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  // Redirect if logged in to their specific dashboard catalog
-  if (user) {
-    const role = user.role?.toLowerCase();
-    if (role === 'comprador') {
-      return <Navigate to="/dashboard-comprador?section=catalogo" replace />;
-    } else if (role === 'productor') {
-      return <Navigate to="/dashboard-productor?section=misProductos" replace />;
-    } else if (role === 'admin') {
-      return <Navigate to="/admin" replace />;
-    }
-  }
+  const [params, setParams] = useSecureParams();
 
   const { cart, addToCart, removeFromCart, updateQty, total, count, clearCart } = useCart();
 
@@ -54,12 +44,12 @@ export default function Catalogo() {
   const [error, setError] = useState(null);
   
   // Search & Filter states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [search, setSearch] = useState('');
-  const [filtroTipo, setFiltroTipo] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [soloPromo, setSoloPromo] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(params.search || '');
+  const [search, setSearch] = useState(params.search || '');
+  const [filtroTipo, setFiltroTipo] = useState(params.tipo || '');
+  const [minPrice, setMinPrice] = useState(params.min || '');
+  const [maxPrice, setMaxPrice] = useState(params.max || '');
+  const [soloPromo, setSoloPromo] = useState(params.promo === 'true');
   
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -70,6 +60,18 @@ export default function Catalogo() {
     }, 300);
     return () => clearTimeout(handler);
   }, [searchQuery]);
+
+  // Update URL params
+  useEffect(() => {
+    setParams({
+      search: search || undefined,
+      tipo: filtroTipo || undefined,
+      min: minPrice || undefined,
+      max: maxPrice || undefined,
+      promo: soloPromo ? 'true' : undefined
+    });
+  }, [search, filtroTipo, minPrice, maxPrice, soloPromo, setParams]);
+
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -127,8 +129,27 @@ export default function Catalogo() {
     return matchSearch && matchTipo && matchMin && matchMax && matchPromo;
   });
 
+  const handlePedirAhora = (producto) => {
+    if (!user) {
+      localStorage.setItem('producto_pendiente', JSON.stringify({
+        productoId: producto.id,
+        nombre: producto.nombre,
+        precio: producto.precio,
+        cantidad: 1,
+      }));
+      navigate('/registro?redirect=/catalogo&accion=comprar');
+      return;
+    }
+    addToCart(producto);
+  };
+
   const handleCheckout = async () => {
     if (cart.length === 0) return;
+    if (!user) {
+      localStorage.setItem('carrito_pendiente', JSON.stringify(cart));
+      navigate('/registro?redirect=/catalogo&accion=checkout');
+      return;
+    }
     try {
       await api.post('/pedidos', {
         items: cart.map((i) => ({ productoId: i.id, cantidad: i.qty })),
@@ -150,7 +171,7 @@ export default function Catalogo() {
           {/* ─── HERO BANNER ─── */}
           <div className="catalog-hero" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #1f4d2a 100%)' }}>
             <div className="catalog-hero-text">
-              <div className="catalog-hero-badge">{t('catalog.heroBadge', '🌿 ASAFRUT · Chigorodó, Antioquia')}</div>
+              <div className="catalog-hero-badge">{t('catalog.heroBadge', ' ASAFRUT · Chigorodó, Antioquia')}</div>
               <h1 className="catalog-hero-title">
                 {t('catalog.heroTitle', 'Frutas tropicales')}<br />
                 <span>{t('catalog.heroTitleSpan', 'directo del campo')}</span>
@@ -159,7 +180,7 @@ export default function Catalogo() {
                 {t('catalog.heroSub', 'Productos frescos de los agricultores de ASAFRUT. Sin intermediarios, precios justos.')}
               </p>
             </div>
-            <div className="catalog-hero-emoji">🍌</div>
+            <div className="catalog-hero-emoji"></div>
           </div>
 
           {/* ERROR STATUS */}
@@ -188,7 +209,7 @@ export default function Catalogo() {
                 </div>
                 {count > 0 && (
                   <button className="cart-btn-floating" onClick={() => setCartOpen(true)}>
-                    🛒 {t('catalog.cartButton', 'Carrito')}
+                     {t('catalog.cartButton', 'Carrito')}
                     <span className="cart-badge">{count}</span>
                   </button>
                 )}
@@ -212,7 +233,7 @@ export default function Catalogo() {
             {/* SIDE FILTER CONTROLS */}
             <div className="card-table" style={{ padding: '20px', borderRadius: 'var(--radius)', background: '#fff' }}>
               <h4 style={{ fontSize: '0.95rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
-                ⚙️ Filtros Avanzados
+                 Filtros Avanzados
               </h4>
               
               <div className="form-group" style={{ marginBottom: '14px' }}>
@@ -246,7 +267,7 @@ export default function Catalogo() {
                   style={{ width: '18px', height: '18px' }}
                 />
                 <label htmlFor="promoToggle" style={{ fontSize: '0.85rem', fontWeight: '500', cursor: 'pointer' }}>
-                  🔥 Sólo Promociones
+                   Sólo Promociones
                 </label>
               </div>
 
@@ -279,7 +300,7 @@ export default function Catalogo() {
               Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             ) : filtered.length === 0 ? (
               <div className="catalog-empty">
-                <div className="catalog-empty-icon">🔍</div>
+                <div className="catalog-empty-icon"></div>
                 <div className="catalog-empty-title">{t('catalog.noProducts', 'No se encontraron productos')}</div>
                 <div className="catalog-empty-sub">
                   {t('catalog.noProductsDesc', 'Intenta con otra búsqueda o filtros')}
@@ -298,7 +319,7 @@ export default function Catalogo() {
                       loading="lazy"
                     />
                     <span className={`catalog-card-badge${p.stock <= 0 ? ' out' : ''}`}>
-                      {p.stock > 0 ? t('catalog.available', '✓ Disponible') : t('catalog.soldOut', '✗ Agotado')}
+                      {p.stock > 0 ? t('catalog.available', 'Disponible') : t('catalog.soldOut', 'Agotado')}
                     </span>
                     {p.enPromocion && (
                       <span className="badge-promo" style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--red)', color: '#fff', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}>
@@ -316,7 +337,7 @@ export default function Catalogo() {
                       {p.productorNombre || p.productor || 'Productor ASAFRUT'}
                       {p.productorVerificado && (
                         <span style={{ background: '#e2f0d9', color: '#385723', padding: '1px 5px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: '700', border: '1px solid #385723' }}>
-                          ⭐ Gold Supplier
+                           Gold Supplier
                         </span>
                       )}
                     </div>
@@ -355,7 +376,7 @@ export default function Catalogo() {
                       </div>
                       <button
                         className="catalog-card-add"
-                        onClick={() => addToCart(p)}
+                        onClick={() => handlePedirAhora(p)}
                         disabled={p.stock <= 0}
                       >
                         {t('catalog.addToCart', '+ Agregar')}
@@ -376,7 +397,7 @@ export default function Catalogo() {
       <div className={`cart-drawer${cartOpen ? ' open' : ''}`} id="cartDrawer">
         <div className="cart-header">
           <div className="cart-header-title">
-            🛒 {t('catalog.cartTitle', 'Mi carrito')}
+             {t('catalog.cartTitle', 'Mi carrito')}
             <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: '400' }}>
               ({count} {t('catalog.cartItems', 'items')})
             </span>
@@ -387,7 +408,7 @@ export default function Catalogo() {
         <div className="cart-items" id="cartItemsContainer">
           {cart.length === 0 ? (
             <div className="cart-empty">
-              <div className="cart-empty-icon">🛒</div>
+              <div className="cart-empty-icon"></div>
               <div className="cart-empty-text">{t('catalog.emptyCart', 'Tu carrito está vacío')}</div>
             </div>
           ) : (

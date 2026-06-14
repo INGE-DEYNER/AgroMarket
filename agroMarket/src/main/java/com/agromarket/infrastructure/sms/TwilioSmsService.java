@@ -24,11 +24,14 @@ public class TwilioSmsService {
 
     @PostConstruct
     public void init() {
-        Twilio.init(accountSid, authToken);
+        if (accountSid != null && !accountSid.isEmpty() && authToken != null && !authToken.isEmpty()) {
+            Twilio.init(accountSid, authToken);
+        } else {
+            log.warn("Twilio no está configurado correctamente");
+        }
     }
 
     public void enviarCodigoVerificacion(String telefono) {
-        // telefono debe incluir código de país: +573126547896
         try {
             Verification verification = Verification.creator(
                 verifyServiceSid, telefono, "sms"

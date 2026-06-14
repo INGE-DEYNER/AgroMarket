@@ -57,7 +57,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String rolSolicitado = "COMPRADOR"; // Default
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
-                if ("agromarket_oauth2_role".equals(c.getName())) {
+                if ("oauth2_rol_solicitado".equals(c.getName())) {
                     rolSolicitado = c.getValue();
                     break;
                 }

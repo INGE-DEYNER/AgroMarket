@@ -3,12 +3,14 @@ import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
+import { useSecureParams } from '../utils/useSecureParams';
 import api from '../utils/api';
 
 export default function Pedidos() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [params] = useSecureParams();
 
   if (user) {
     const role = user.role?.toLowerCase();
@@ -28,10 +30,9 @@ export default function Pedidos() {
   const [successBanner, setSuccessBanner] = useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === '1') setSuccessBanner(true);
+    if (params.success === '1') setSuccessBanner(true);
     loadPedidos();
-  }, []);
+  }, [params]);
 
   const loadPedidos = async () => {
     try {
@@ -69,12 +70,12 @@ export default function Pedidos() {
         {/* SUCCESS BANNER */}
         {successBanner && (
           <div id="successBanner" style={{ background: 'var(--green-bg)', border: '1px solid #1f4d2a', borderRadius: 'var(--radius)', padding: '14px 18px', marginBottom: '20px', color: 'var(--green-light)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {t('pedidos.successMessage', '✅ ¡Pedido realizado con éxito! Ya está siendo procesado por el productor.')}
+            {t('pedidos.successMessage', '¡Pedido realizado con éxito! Ya está siendo procesado por el productor.')}
           </div>
         )}
 
         <div className="section-header">
-          <span className="section-title">🧾 {t('pedidos.title', 'Mis Pedidos')}</span>
+          <span className="section-title"> {t('pedidos.title', 'Mis Pedidos')}</span>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <select
               className="form-select"
@@ -116,8 +117,8 @@ export default function Pedidos() {
                   <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
                   <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                   <td data-label={t('pedidos.actions', 'Acciones')}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>{t('pedidos.invoice', '📄 Factura')}</button>
-                    <Link to="/envios" className="btn btn-secondary btn-sm" style={{ marginLeft: '6px' }}>{t('pedidos.track', '🚚 Rastrear')}</Link>
+                    <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>{t('pedidos.invoice', 'Factura')}</button>
+                    <Link to="/envios" className="btn btn-secondary btn-sm" style={{ marginLeft: '6px' }}>{t('pedidos.track', 'Rastrear')}</Link>
                   </td>
                 </tr>
               ))}
@@ -148,7 +149,7 @@ export default function Pedidos() {
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={closeFactura}>{t('pedidos.close', 'Cerrar')}</button>
-              <button className="btn btn-primary" onClick={() => alert(t('pedidos.invoiceSent', 'Factura enviada al correo registrado exitosamente.'))}>{t('pedidos.sendEmail', '📧 Enviar por correo')}</button>
+              <button className="btn btn-primary" onClick={() => alert(t('pedidos.invoiceSent', 'Factura enviada al correo registrado exitosamente.'))}>{t('pedidos.sendEmail', 'Enviar por correo')}</button>
             </div>
           </div>
         </div>
@@ -156,4 +157,3 @@ export default function Pedidos() {
     </>
   );
 }
-

@@ -295,40 +295,52 @@ public class AuthServiceImpl implements AuthService {
                 existingUser.setGoogleId(googleId);
                 existingUser.setProveedor("GOOGLE");
                 if (picture != null && !picture.isEmpty()) existingUser.setFoto(picture);
-                existingUser.setActivo(true); // Ensure user is active after OAuth2 login for all roles
-                existingUser.setEmailVerificado(true); // Google emails are verified
+                existingUser.setActivo(true);
+                existingUser.setEmailVerificado(true);
                 return existingUser;
             })
             .orElseGet(() -> {
-                RolUsuario rol = "PRODUCTOR".equalsIgnoreCase(rolSolicitado) ? RolUsuario.PRODUCTOR : RolUsuario.COMPRADOR;
+                RolUsuario rol;
+                if ("PRODUCTOR".equalsIgnoreCase(rolSolicitado)) {
+                    rol = RolUsuario.PRODUCTOR;
+                } else if ("EMPRESA".equalsIgnoreCase(rolSolicitado)) {
+                    rol = RolUsuario.COMPRADOR;
+                } else {
+                    rol = RolUsuario.COMPRADOR;
+                }
+
                 UsuarioEntity nuevo;
                 if (rol == RolUsuario.PRODUCTOR) {
                     ProductorEntity p = new ProductorEntity();
                     p.setUbicacion("Pendiente de definir");
                     nuevo = p;
                 } else {
-                    nuevo = new CompradorEntity();
+                    CompradorEntity c = new CompradorEntity();
+                    if ("EMPRESA".equalsIgnoreCase(rolSolicitado)) {
+                        c.setEsEmpresa(true);
+                    }
+                    nuevo = c;
                 }
 
                 nuevo.setRol(rol);
                 nuevo.setCorreo(email);
                 nuevo.setNombre(nombre);
                 nuevo.setFoto(picture);
-                nuevo.setTelefono("0000000000"); // Default phone
-                nuevo.setContrasena(passwordEncoder.encode(UUID.randomUUID().toString())); // Random password for OAuth2 users
+                nuevo.setTelefono("0000000000");
+                nuevo.setContrasena(passwordEncoder.encode(UUID.randomUUID().toString()));
                 
                 if (rol == RolUsuario.PRODUCTOR) {
                     nuevo.setActivo(true);
-                    nuevo.setAprobado(false); // Espera aprobación
+                    nuevo.setAprobado(false);
                 } else {
                     nuevo.setActivo(true);
                     nuevo.setAprobado(true);
                 }
                 
                 nuevo.setFechaRegistro(LocalDateTime.now());
-                nuevo.setProveedor("GOOGLE"); // Set provider
+                nuevo.setProveedor("GOOGLE");
                 nuevo.setGoogleId(googleId);
-                nuevo.setEmailVerificado(true); // Email is verified by Google
+                nuevo.setEmailVerificado(true);
                 return nuevo;
             });
 

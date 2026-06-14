@@ -251,13 +251,13 @@ export default function Admin() {
           <span className="icon">👥</span> {t('admin.nav.users', 'Usuarios')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'productos' ? ' active' : ''}`} id="link-productos" onClick={(e) => { e.preventDefault(); setActiveSection('productos'); }}>
-          <span className="icon">📦</span> {t('admin.nav.products', 'Productos')}
+          <span className="icon"></span> {t('admin.nav.products', 'Productos')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} id="link-resenas" onClick={(e) => { e.preventDefault(); setActiveSection('resenas'); }}>
-          <span className="icon">⭐</span> {t('admin.nav.moderation', 'Moderación')}
+          <span className="icon"></span> {t('admin.nav.moderation', 'Moderación')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'escrow' ? ' active' : ''}`} id="link-escrow" onClick={(e) => { e.preventDefault(); setActiveSection('escrow'); }}>
-          <span className="icon">💳</span> Fideicomiso (Escrow)
+          <span className="icon"></span> Fideicomiso (Escrow)
         </a>
         <Link to="/perfil" className="sidebar-link" id="link-perfil">
           <span className="icon">👤</span> {t('profile.title', 'Mi Perfil')}
@@ -265,11 +265,11 @@ export default function Admin() {
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('admin.reports.title', 'Reportes')}</div>
-        <a href="#" className="sidebar-link"><span className="icon">📈</span> {t('admin.reports.finance', 'Finanzas')}</a>
-        <a href="#" className="sidebar-link"><span className="icon">🚛</span> {t('admin.reports.logistics', 'Logística')}</a>
+        <a href="#" className="sidebar-link"><span className="icon"></span> {t('admin.reports.finance', 'Finanzas')}</a>
+        <a href="#" className="sidebar-link"><span className="icon"></span> {t('admin.reports.logistics', 'Logística')}</a>
 
         <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); await logout(); navigate('/login'); }}>
-          <span className="icon">🔒</span> {t('admin.logout', 'Cerrar sesión')}
+          <span className="icon"></span> {t('admin.logout', 'Cerrar sesión')}
         </a>
       </aside>
 
@@ -281,29 +281,29 @@ export default function Admin() {
 
         <div className="dash-header">
           <div className="dash-welcome">
-            <h1>{t('admin.title', 'Panel de Administración 🛠️')}</h1>
+            <h1>{t('admin.title', 'Panel de Administración')}</h1>
             <p>{t('admin.sub', 'Monitoreo global de la plataforma AgroMarket Urabá')}</p>
           </div>
           <button className="btn-cta" style={{ background: 'var(--primary-dark)' }} onClick={handleGenerateReport}>
-            {t('admin.generateReport', 'Generar Reporte Mensual 📊')}
+            {t('admin.generateReport', 'Generar Reporte Mensual')}
           </button>
         </div>
 
         <div className="stats-grid">
           <div className="stat-card color-1">
-            <span className="stat-icon-lg">👥</span>
+            <span className="stat-icon-lg"></span>
             <div className="stat-label">{t('admin.stats.totalUsers', 'Total Usuarios')}</div>
             <div className="stat-value" id="statUsuarios">{String(usuarios.length).padStart(2, '0')}</div>
             <div className="stat-trend up">{t('admin.stats.trendUsers', 'Usuarios registrados')}</div>
           </div>
           <div className="stat-card color-2">
-            <span className="stat-icon-lg">📦</span>
+            <span className="stat-icon-lg"></span>
             <div className="stat-label">{t('admin.stats.globalProducts', 'Productos Globales')}</div>
             <div className="stat-value" id="statProductos">{String(productos.length).padStart(2, '0')}</div>
             <div className="stat-trend">{t('admin.stats.trendProducts', 'En catálogo')}</div>
           </div>
           <div className="stat-card color-3">
-            <span className="stat-icon-lg">💰</span>
+            <span className="stat-icon-lg"></span>
             <div className="stat-label">{t('admin.stats.totalEarnings', 'Ingresos Totales')}</div>
             <div className="stat-value">
               {dashboardData?.ingresos !== undefined && dashboardData?.ingresos !== null
@@ -313,7 +313,7 @@ export default function Admin() {
             <div className="stat-trend up">{t('admin.stats.trendEarnings', 'Ingresos confirmados')}</div>
           </div>
           <div className="stat-card color-4">
-            <span className="stat-icon-lg">⭐</span>
+            <span className="stat-icon-lg"></span>
             <div className="stat-label">{t('admin.stats.alerts', 'Alertas Moderación')}</div>
             <div className="stat-value" id="statResenas">{String(resenas.filter(r => !r.aprobada).length).padStart(2, '0')}</div>
             <div className="stat-trend down" style={{ color: 'orange' }}>{t('admin.stats.trendAlerts', 'Acción requerida')}</div>
@@ -326,11 +326,11 @@ export default function Admin() {
               {/* USUARIOS */}
               {activeSection === 'usuarios' && (
                 <div className="section active" id="sec-usuarios">
-                  <div className="table-header"><h3 className="card-title">{t('admin.usersManagement', '👥 Gestión de Usuarios')}</h3></div>
+                  <div className="table-header"><h3 className="card-title">{t('admin.usersManagement', 'Gestión de Usuarios')}</h3></div>
                   
                   {/* PENDING APPROVALS */}
                   <div style={{ padding: '20px 24px', borderBottom: '1px dashed var(--border)' }}>
-                    <h4 style={{ color: 'var(--gold)', marginBottom: '12px', fontSize: '0.95rem', fontWeight: 'bold' }}>⏳ Cuentas de Productores Pendientes de Aprobación</h4>
+                    <h4 style={{ color: 'var(--gold)', marginBottom: '12px', fontSize: '0.95rem', fontWeight: 'bold' }}>Cuentas de Productores Pendientes de Aprobación</h4>
                     {usuariosPendientes.length === 0 ? (
                       <p style={{ color: 'var(--text-dim)', fontStyle: 'italic', fontSize: '0.85rem' }}>
                         No hay solicitudes de aprobación pendientes.
@@ -354,10 +354,10 @@ export default function Admin() {
                                 <td data-label="Ubicación">{u.ubicacion || '—'}</td>
                                 <td data-label="Acciones">
                                   <button className="btn btn-primary btn-sm" onClick={() => handleAprobarUsuario(u.id)}>
-                                    Aprobar ✓
+                                    Aprobar
                                   </button>
                                   <button className="btn btn-danger btn-sm" style={{ marginLeft: '6px' }} onClick={() => handleRechazarUsuario(u.id)}>
-                                    Rechazar ❌
+                                    Rechazar
                                   </button>
                                 </td>
                               </tr>
@@ -397,7 +397,7 @@ export default function Admin() {
                               </button>
                               {(u.role || u.rol)?.toUpperCase() === 'PRODUCTOR' && (
                                 <button className="btn btn-secondary btn-sm" style={{ marginLeft: '6px', background: u.verificado ? '#385723' : '#6b7280', color: '#fff' }} onClick={() => toggleVerificarProductor(u)}>
-                                  {u.verificado ? '⭐ Verificado' : 'Verificar'}
+                                  {u.verificado ? 'Verificado' : 'Verificar'}
                                 </button>
                               )}
                             </td>
@@ -412,7 +412,7 @@ export default function Admin() {
               {/* PRODUCTOS */}
               {activeSection === 'productos' && (
                 <div className="section active" id="sec-productos">
-                  <div className="table-header"><h3 className="card-title">{t('admin.globalInventory', '📦 Inventario Global')}</h3></div>
+                  <div className="table-header"><h3 className="card-title">{t('admin.globalInventory', 'Inventario Global')}</h3></div>
                   <div className="table-wrap">
                     <table className="table-responsive">
                       <thead>
@@ -432,7 +432,7 @@ export default function Admin() {
                             <td data-label={t('dashboardProductor.pricePerKg', 'Precio/kg')}>${Number(p.precio).toLocaleString('es-CO')}</td>
                             <td data-label={t('dashboardProductor.stock', 'Stock')}>{p.stock} kg</td>
                             <td data-label={t('pedidos.actions', 'Acciones')}>
-                              <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)' }} onClick={() => eliminarProducto(p.id)}>{t('admin.delete', '🗑️ Eliminar')}</button>
+                              <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)' }} onClick={() => eliminarProducto(p.id)}>{t('admin.delete', 'Eliminar')}</button>
                             </td>
                           </tr>
                         ))}
@@ -445,7 +445,7 @@ export default function Admin() {
               {/* RESEÑAS */}
               {activeSection === 'resenas' && (
                 <div className="section active" id="sec-resenas">
-                  <div className="table-header"><h3 className="card-title">{t('admin.reviewsModeration', '⭐ Moderación de Reseñas')}</h3></div>
+                  <div className="table-header"><h3 className="card-title">{t('admin.reviewsModeration', 'Moderación de Reseñas')}</h3></div>
                   <div className="table-wrap">
                     <table className="table-responsive">
                       <thead>
@@ -465,8 +465,8 @@ export default function Admin() {
                             <td data-label={t('dashboardProductor.description', 'Comentario')}>{r.comentario}</td>
                             <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={`badge-status ${r.aprobada ? 'status-shipped' : 'status-pending'}`}>{r.aprobada ? t('pedidos.status.aprobada', 'Aprobada') : t('pedidos.status.pendiente', 'Pendiente')}</span></td>
                             <td data-label={t('pedidos.actions', 'Acciones')}>
-                              <button className="btn btn-secondary btn-sm" onClick={() => moderarResena(r.id, true)}>{t('admin.approve', '✅ Aprobar')}</button>
-                              <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)', marginLeft: '6px' }} onClick={() => moderarResena(r.id, false)}>{t('admin.reject', '❌ Rechazar')}</button>
+                              <button className="btn btn-secondary btn-sm" onClick={() => moderarResena(r.id, true)}>{t('admin.approve', 'Aprobar')}</button>
+                              <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)', marginLeft: '6px' }} onClick={() => moderarResena(r.id, false)}>{t('admin.reject', 'Rechazar')}</button>
                             </td>
                           </tr>
                         ))}
@@ -479,7 +479,7 @@ export default function Admin() {
               {/* FIDEICOMISO (ESCROW) */}
               {activeSection === 'escrow' && (
                 <div className="section active" id="sec-escrow">
-                  <div className="table-header"><h3 className="card-title">💳 Transacciones en Fideicomiso</h3></div>
+                  <div className="table-header"><h3 className="card-title">Transacciones en Fideicomiso</h3></div>
                   <div className="table-wrap">
                     <table className="table-responsive">
                       <thead>
@@ -526,7 +526,7 @@ export default function Admin() {
             {/* SIDEBAR INFO ADMIN */}
             <div className="side-info">
               <div className="card-table" style={{ padding: '24px', marginBottom: '24px' }}>
-                <h3 className="card-title" style={{ marginBottom: '16px' }}>{t('admin.topProducers', 'Top Productores 🏆')}</h3>
+                <h3 className="card-title" style={{ marginBottom: '16px' }}>{t('admin.topProducers', 'Top Productores')}</h3>
                 <ul style={{ listStyle: 'none' }}>
                   <li style={{ padding: '8px 0', color: 'var(--text-muted)' }}>
                     {t('admin.noData', 'No hay datos suficientes')}
@@ -641,4 +641,3 @@ export default function Admin() {
     </div>
   );
 }
-

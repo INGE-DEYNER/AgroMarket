@@ -60,16 +60,7 @@ public class TarjetaPagoController {
         }
 
         String ultimos4 = numeroLimpio.substring(numeroLimpio.length() - 4);
-        
-        // Auto-detect type based on clean number prefix
-        TipoTarjeta tipo = TipoTarjeta.OTHER;
-        if (numeroLimpio.startsWith("4")) {
-            tipo = TipoTarjeta.VISA;
-        } else if (numeroLimpio.matches("^5[1-5].*") || numeroLimpio.matches("^2(2[2-9]|[3-6]|7[01]).*")) {
-            tipo = TipoTarjeta.MC;
-        } else if (numeroLimpio.matches("^3[47].*")) {
-            tipo = TipoTarjeta.AMEX;
-        }
+        TipoTarjeta tipo = detectarTipoTarjeta(numeroLimpio);
 
         Boolean predeterminada = (Boolean) body.getOrDefault("predeterminada", false);
 
@@ -122,5 +113,14 @@ public class TarjetaPagoController {
                 .success(true)
                 .message("Tarjeta eliminada exitosamente")
                 .build());
+    }
+
+    private TipoTarjeta detectarTipoTarjeta(String numero) {
+        if (numero.startsWith("4")) return TipoTarjeta.VISA;
+        if (numero.matches("^5[1-5].*") || numero.matches("^2(2[2-9]|[3-6]|7[01]).*")) return TipoTarjeta.MASTERCARD;
+        if (numero.matches("^3[47].*")) return TipoTarjeta.AMEX;
+        if (numero.matches("^3(?:0[0-5]|[68]).*")) return TipoTarjeta.DINERS;
+        if (numero.startsWith("6011") || numero.startsWith("65")) return TipoTarjeta.DISCOVER;
+        return TipoTarjeta.OTRO;
     }
 }

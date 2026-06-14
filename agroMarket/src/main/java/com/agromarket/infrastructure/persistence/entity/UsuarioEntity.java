@@ -273,4 +273,20 @@ public abstract class UsuarioEntity {
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
+
+    public void setTokenRecuperacionPassword(String token) {
+        this.tokenRecuperacionPassword = token;
+    }
+
+    public void setTokenRecuperacionExpira(LocalDateTime expira) {
+        this.tokenRecuperacionExpira = expira;
+    }
+    
+    public LocalDateTime getTokenRecuperacionExpira() {
+        return this.tokenRecuperacionExpira;
+    }
+    
+    public String getTokenRecuperacionPassword() {
+        return this.tokenRecuperacionPassword;
+    }
 }

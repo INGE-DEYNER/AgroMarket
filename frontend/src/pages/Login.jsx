@@ -224,9 +224,9 @@ export default function Login() {
 
       {/* RIGHT PANEL: IMAGE & OVERLAY */}
       <div className="right-panel">
-        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200" alt="Cultivos" className="bg-img" />
+        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200" alt="Cultivos" className="bg-img" loading="lazy" />
         <div className="right-overlay">
-          <div className="right-badge">🌿 Plataforma oficial de la Asociación</div>
+          <div className="right-badge"> Plataforma oficial de la Asociación</div>
           <h2 className="right-title">Conectando el campo con tu mesa.</h2>
           <p className="right-sub">
             Accede a tu panel de control para gestionar tus productos, pedidos o realizar compras frescas directo a los productores de Urabá.

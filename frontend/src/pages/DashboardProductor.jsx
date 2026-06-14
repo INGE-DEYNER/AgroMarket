@@ -389,42 +389,42 @@ export default function DashboardProductor() {
               {t('dashboardProductor.producerRole', 'Productor ASAFRUT')}
               {user?.verificado && (
                 <span style={{ display: 'inline-block', marginLeft: '6px', background: '#385723', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: '700' }}>
-                  ⭐ Gold
+                  Verificado
                 </span>
               )}
             </span>
-            <div className="rating">⭐ {user?.calificacion || '4.9'}</div>
+            <div className="rating"> {user?.calificacion || '4.9'}</div>
           </div>
         </div>
 
         <div className="sidebar-label">{t('dashboardProductor.nav.title', 'Gestión Comercial')}</div>
         <a href="#" className={`sidebar-link${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('resumen'); }}>
-          <span className="icon">📊</span> {t('dashboardProductor.nav.summary', 'Panel General')}
+          <span className="icon"></span> {t('dashboardProductor.nav.summary', 'Panel General')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'misProductos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('misProductos'); }}>
-          <span className="icon">📦</span> {t('dashboardProductor.nav.inventory', 'Inventario')}
+          <span className="icon"></span> {t('dashboardProductor.nav.inventory', 'Inventario')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'pedidosRec' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('pedidosRec'); }}>
-          <span className="icon">🧾</span> {t('dashboardProductor.nav.sales', 'Ventas')} <span className="badge-count">{pedidos.length}</span>
+          <span className="icon"></span> {t('dashboardProductor.nav.sales', 'Ventas')} <span className="badge-count">{pedidos.length}</span>
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'rfq' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('rfq'); }}>
-          <span className="icon">📋</span> Oportunidades Comerciales
+          <span className="icon"></span> Oportunidades Comerciales
         </a>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('dashboardProductor.logistics.title', 'Logística')}</div>
         <a href="#" className={`sidebar-link${activeSection === 'seguimiento' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('seguimiento'); }}>
-          <span className="icon">🚚</span> {t('dashboardProductor.logistics.dispatch', 'Despachos')}
+          <span className="icon"></span> {t('dashboardProductor.logistics.dispatch', 'Despachos')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('mensajeria'); }}>
-          <span className="icon">💬</span> {t('dashboardProductor.logistics.messaging', 'Mensajería')}
+          <span className="icon"></span> {t('dashboardProductor.logistics.messaging', 'Mensajería')}
         </a>
         <Link to="/perfil" className="sidebar-link">
-          <span className="icon">👤</span> {t('profile.title', 'Mi Perfil')}
+          <span className="icon"></span> {t('profile.title', 'Mi Perfil')}
         </Link>
 
         <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); await logout(); navigate('/login'); }}>
-          <span className="icon">🔒</span> {t('dashboardProductor.logistics.logout', 'Cerrar sesión')}
+          <span className="icon"></span> {t('dashboardProductor.logistics.logout', 'Cerrar sesión')}
         </a>
       </aside>
 
@@ -439,7 +439,7 @@ export default function DashboardProductor() {
           <div className="section active" id="sec-resumen">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>{t('dashboardProductor.welcome', '¡Excelente día, {{name}}! 👨‍🌾', { name: user?.nombre || 'Luis' })}</h1>
+                <h1>{t('dashboardProductor.welcome', '¡Excelente día, {{name}}!', { name: user?.nombre || 'Luis' })}</h1>
                 <p>{t('dashboardProductor.sub', 'Tu cosecha está teniendo un gran rendimiento este mes en Urabá.')}</p>
               </div>
               <button className="btn-cta" onClick={() => openProductoModal()}>{t('dashboardProductor.publishProduct', 'Publicar Producto +')}</button>
@@ -458,7 +458,7 @@ export default function DashboardProductor() {
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                  <span style={{ fontSize: '1.5rem' }}></span>
                   <div>
                     <strong style={{ color: '#856404', display: 'block' }}>Tu cuenta de productor aún no está verificada</strong>
                     <span style={{ color: '#856404', fontSize: '0.85rem' }}>Completa tu información personal y cuenta bancaria para ser aprobado por el administrador.</span>
@@ -476,22 +476,22 @@ export default function DashboardProductor() {
 
             <div className="stats-grid">
               <div className="stat-card color-1">
-                <span className="stat-icon-lg">📦</span>
+                <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardProductor.stats.activeProducts', 'Productos Activos')}</div>
                 <div className="stat-value">{String(productos.length).padStart(2, '0')}</div>
               </div>
               <div className="stat-card color-2">
-                <span className="stat-icon-lg">🧾</span>
+                <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardProductor.stats.monthlySales', 'Ventas del Mes')}</div>
                 <div className="stat-value">{String(pedidos.length).padStart(2, '0')}</div>
               </div>
               <div className="stat-card color-3">
-                <span className="stat-icon-lg">💰</span>
+                <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardProductor.stats.totalEarnings', 'Ingresos Totales')}</div>
                 <div className="stat-value">${pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0).toLocaleString('es-CO')}</div>
               </div>
               <div className="stat-card color-4">
-                <span className="stat-icon-lg">⭐</span>
+                <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardProductor.stats.rating', 'Calificación')}</div>
                 <div className="stat-value">{user?.calificacion || '4.9'}</div>
               </div>
@@ -499,7 +499,7 @@ export default function DashboardProductor() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
               <div className="card-table">
-                <div className="table-header"><h3 className="card-title">🧾 {t('dashboardProductor.recentSales', 'Últimas ventas')}</h3></div>
+                <div className="table-header"><h3 className="card-title"> {t('dashboardProductor.recentSales', 'Últimas ventas')}</h3></div>
                 <div className="table-wrap">
                   <table className="table-responsive">
                     <thead>
@@ -556,8 +556,8 @@ export default function DashboardProductor() {
                         <td data-label="Stock">{p.stock} kg</td>
                         <td data-label="Estado"><span className="badge-status status-shipped">{t('dashboardProductor.active', 'Activo')}</span></td>
                         <td data-label="Acciones">
-                          <button className="btn btn-secondary btn-sm" onClick={() => openProductoModal(p)}>{t('dashboardProductor.edit', '✏️ Editar')}</button>
-                          <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)', marginLeft: '6px' }} onClick={() => eliminarProducto(p.id)}>🗑️</button>
+                          <button className="btn btn-secondary btn-sm" onClick={() => openProductoModal(p)}>{t('dashboardProductor.edit', 'Editar')}</button>
+                          <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)', marginLeft: '6px' }} onClick={() => eliminarProducto(p.id)}></button>
                         </td>
                       </tr>
                     ))}
@@ -621,7 +621,7 @@ export default function DashboardProductor() {
         {activeSection === 'seguimiento' && (
           <div className="section active">
             <div className="dash-header">
-              <h1>🚚 Gestión de Despachos</h1>
+              <h1>Gestión de Despachos</h1>
               <p>Monitorea y actualiza la información de entrega de tus productos vendidos</p>
             </div>
 
@@ -651,7 +651,7 @@ export default function DashboardProductor() {
                         <td data-label="Fecha Estimada">{s.fechaEstimadaEntrega || '—'}</td>
                         <td data-label="Estado"><span className={badgeClass(s.estado)}>{s.estado}</span></td>
                         <td data-label="Acciones">
-                          <button className="btn btn-secondary btn-sm" onClick={() => openUpdateShipment(s)}>✏️ Actualizar</button>
+                          <button className="btn btn-secondary btn-sm" onClick={() => openUpdateShipment(s)}>Actualizar</button>
                         </td>
                       </tr>
                     ))}
@@ -701,7 +701,7 @@ export default function DashboardProductor() {
                 <div className="chat-messages" ref={chatRef} style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {!selectedContact ? (
                     <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--text-muted)' }}>
-                      <div style={{ fontSize: '2.5rem' }}>💬</div>
+                      <div style={{ fontSize: '2.5rem' }}></div>
                       <div>Selecciona un contacto para iniciar la conversación.</div>
                     </div>
                   ) : messages.length === 0 ? (
@@ -740,7 +740,7 @@ export default function DashboardProductor() {
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>👤 Ajustes de Mi Perfil</h1>
+                <h1>Ajustes de Mi Perfil</h1>
                 <p>Administra tu información de agricultor y credenciales de acceso</p>
               </div>
             </div>
@@ -846,7 +846,7 @@ export default function DashboardProductor() {
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>📋 Licitaciones / Oportunidades Comerciales</h1>
+                <h1>Licitaciones / Oportunidades Comerciales</h1>
                 <p>Encuentra solicitudes de compra al por mayor y envía tus cotizaciones de forma segura</p>
               </div>
             </div>
@@ -874,7 +874,7 @@ export default function DashboardProductor() {
                           <div>
                             {yaOferto ? (
                               <div style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', textAlign: 'right' }}>
-                                ✓ Ofertado: ${Number(yaOferto.precioPropuesto).toLocaleString('es-CO')}/kg
+                                Ofertado: ${Number(yaOferto.precioPropuesto).toLocaleString('es-CO')}/kg
                               </div>
                             ) : (
                               <button className="btn btn-primary" onClick={() => { setBiddingRfq(rfq); setBidMsg({ type: '', text: '' }); }}>
@@ -986,7 +986,6 @@ export default function DashboardProductor() {
                   </div>
                 ) : (
                   <div style={{ width: '80px', height: '80px', borderRadius: '8px', border: '2px dashed var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-light)', fontSize: '1.5rem' }}>
-                    🖼️
                   </div>
                 )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1064,3 +1063,4 @@ export default function DashboardProductor() {
     </div>
   );
 }
+

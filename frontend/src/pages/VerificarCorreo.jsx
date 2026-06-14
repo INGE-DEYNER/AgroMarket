@@ -89,18 +89,18 @@ export default function VerificarCorreo() {
         </Link>
 
         <div style={{ margin: 'auto 0', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '24px' }}>📧</div>
+          <div style={{ fontSize: '4rem', marginBottom: '24px' }}></div>
           <h1 className="page-title">{success && pendiente ? t('verifyEmail.pendingTitle', '¡Casi listo!') : t('verifyEmail.title', 'Verifica tu correo')}</h1>
           
           {error && <div className="global-error" style={{ display: 'block', marginBottom: '16px' }}>{error}</div>}
           
           {success ? (
             <div style={{ padding: '24px 0' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '16px' }}>✅</div>
+              <div style={{ fontSize: '3rem', marginBottom: '16px' }}></div>
               <p style={{ fontWeight: '500', color: '#2c3e50', marginBottom: '16px' }}>{success}</p>
               {pendiente && (
                 <p style={{ color: '#e67e22', fontSize: '0.9rem', marginBottom: '24px', backgroundColor: '#fff3e0', padding: '12px', borderRadius: '8px' }}>
-                  {t('verifyEmail.pendingProducerDesc', '⏳ Como Productor, tu cuenta está ahora en revisión por un administrador. Te notificaremos cuando puedas acceder.')}
+                  {t('verifyEmail.pendingProducerDesc', ' Como Productor, tu cuenta está ahora en revisión por un administrador. Te notificaremos cuando puedas acceder.')}
                 </p>
               )}
               <Link to="/login" className="btn-submit" style={{ display: 'inline-block', textDecoration: 'none' }}>
@@ -136,9 +136,9 @@ export default function VerificarCorreo() {
       </div>
 
       <div className="right-panel">
-        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200" alt="Cultivos" className="bg-img" />
+        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200" alt="Cultivos" className="bg-img" loading="lazy" />
         <div className="right-overlay">
-          <div className="right-badge">{t('verifyEmail.badge', '🌿 Plataforma oficial de la Asociación')}</div>
+          <div className="right-badge">{t('verifyEmail.badge', ' Plataforma oficial de la Asociación')}</div>
           <h2 className="right-title">{t('verifyEmail.rightTitle', '¡Ya casi estás!')}</h2>
           <p className="right-sub">{t('verifyEmail.rightSub', 'Verifica tu correo para comenzar a comprar o vender en AgroMarket.')}</p>
         </div>

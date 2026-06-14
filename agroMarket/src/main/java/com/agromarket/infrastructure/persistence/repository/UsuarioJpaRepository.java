@@ -26,4 +26,6 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, Long>
     Optional<UsuarioEntity> findByTelefono(String telefono);
 
     List<UsuarioEntity> findByEstadoCuenta(String estadoCuenta);
+    
+    Optional<UsuarioEntity> findByTokenRecuperacionPassword(String token);
 }

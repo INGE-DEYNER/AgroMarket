@@ -20,8 +20,8 @@ const CATEGORIES = [
 ];
 
 const REVIEW_PRODUCTOS = [
-  '🍌 Banano Urabá', '🍍 Piña Manzana', '🥭 Mango Tommy', '🫐 Maracuyá',
-  '🍈 Guanábana', '🍊 Naranja Valencia', '🥥 Coco Fresco', '🍋 Limón Tahití'
+  'Banano Urabá', 'Piña Manzana', 'Mango Tommy', 'Maracuyá',
+  'Guanábana', 'Naranja Valencia', 'Coco Fresco', 'Limón Tahití'
 ];
 
 export default function DashboardComprador() {
@@ -474,57 +474,57 @@ export default function DashboardComprador() {
 
         <div className="sidebar-label">{t('dashboardComprador.nav.title', 'Navegación')}</div>
         <a href="#" className={`sidebar-link${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resumen'); }}>
-          <span className="icon">📊</span> {t('dashboardComprador.nav.summary', 'Resumen')}
+          <span className="icon"></span> {t('dashboardComprador.nav.summary', 'Resumen')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'catalogo' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('catalogo'); }}>
-          <span className="icon">🛍️</span> {t('dashboardComprador.nav.explore', 'Explorar Catálogo')}
+          <span className="icon"></span> {t('dashboardComprador.nav.explore', 'Explorar Catálogo')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'misPedidos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}>
-          <span className="icon">🧾</span> {t('dashboardComprador.nav.myOrders', 'Mis Pedidos')} <span className="badge-count">{pedidos.length}</span>
+          <span className="icon"></span> {t('dashboardComprador.nav.myOrders', 'Mis Pedidos')} <span className="badge-count">{pedidos.length}</span>
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'misFacturas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misFacturas'); }}>
-          <span className="icon">📄</span> {t('dashboardComprador.nav.myInvoices', 'Mis Facturas')} <span className="badge-count">{facturas.length}</span>
+          <span className="icon"></span> {t('dashboardComprador.nav.myInvoices', 'Mis Facturas')} <span className="badge-count">{facturas.length}</span>
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'rfq' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('rfq'); }}>
-          <span className="icon">📋</span> Licitaciones B2B (RFQ)
+          <span className="icon"></span> Licitaciones B2B (RFQ)
         </a>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('dashboardComprador.services.title', 'Servicios')}</div>
         <a href="#" className={`sidebar-link${activeSection === 'seguimiento' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('seguimiento'); }}>
-          <span className="icon">🚚</span> {t('dashboardComprador.services.tracking', 'Seguimiento')}
+          <span className="icon"></span> {t('dashboardComprador.services.tracking', 'Seguimiento')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('mensajeria'); }}>
-          <span className="icon">💬</span> {t('dashboardComprador.services.messaging', 'Mensajería')}
+          <span className="icon"></span> {t('dashboardComprador.services.messaging', 'Mensajería')}
         </a>
         <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resenas'); }}>
-          <span className="icon">⭐</span> {t('dashboardComprador.services.reviews', 'Mis Reseñas')}
+          <span className="icon"></span> {t('dashboardComprador.services.reviews', 'Mis Reseñas')}
         </a>
         <Link to="/perfil" className="sidebar-link">
-          <span className="icon">👤</span> {t('profile.title', 'Mi Perfil')}
+          <span className="icon"></span> {t('profile.title', 'Mi Perfil')}
         </Link>
 
         <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); await logout(); navigate('/login'); }}>
-          <span className="icon">🔒</span> {t('dashboardComprador.services.logout', 'Cerrar sesión')}
+          <span className="icon"></span> {t('dashboardComprador.services.logout', 'Cerrar sesión')}
         </a>
       </aside>
 
       {/* MOBILE NAV */}
       <nav className="mobile-nav">
         <a href="#" className={`mobile-nav-item${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resumen'); }}>
-          <span className="icon">🏠</span><span>{t('dashboardComprador.mobileNav.home', 'Inicio')}</span>
+          <span className="icon"></span><span>{t('dashboardComprador.mobileNav.home', 'Inicio')}</span>
         </a>
         <a href="#" className={`mobile-nav-item${activeSection === 'catalogo' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('catalogo'); }}>
-          <span className="icon">🛍️</span><span>{t('dashboardComprador.mobileNav.shop', 'Tienda')}</span>
+          <span className="icon"></span><span>{t('dashboardComprador.mobileNav.shop', 'Tienda')}</span>
         </a>
         <a href="#" className={`mobile-nav-item${activeSection === 'misPedidos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}>
-          <span className="icon">🧾</span><span>{t('dashboardComprador.mobileNav.orders', 'Pedidos')}</span>
+          <span className="icon"></span><span>{t('dashboardComprador.mobileNav.orders', 'Pedidos')}</span>
         </a>
         <a href="#" className={`mobile-nav-item${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('mensajeria'); }}>
-          <span className="icon">💬</span><span>{t('dashboardComprador.mobileNav.chat', 'Chat')}</span>
+          <span className="icon"></span><span>{t('dashboardComprador.mobileNav.chat', 'Chat')}</span>
         </a>
         <Link to="/perfil" className="mobile-nav-item">
-          <span className="icon">👤</span><span>{t('dashboardComprador.mobileNav.profile', 'Perfil')}</span>
+          <span className="icon"></span><span>{t('dashboardComprador.mobileNav.profile', 'Perfil')}</span>
         </Link>
       </nav>
 
@@ -539,8 +539,8 @@ export default function DashboardComprador() {
           <div className="section active" id="sec-resumen">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>{t('dashboardComprador.welcome', '¡Hola de nuevo, {{name}}! 👋', { name: nombreUsuario })}</h1>
-                <p>{currentDate} • ☀️ 28°C {t('dashboardComprador.sub', 'Urabá')}</p>
+                <h1>{t('dashboardComprador.welcome', '¡Hola de nuevo, {{name}}!', { name: nombreUsuario })}</h1>
+                <p>{currentDate} • 28°C {t('dashboardComprador.sub', 'Urabá')}</p>
               </div>
               <button className="btn-cta" onClick={() => setActiveSection('catalogo')}>{t('dashboardComprador.exploreCatalog', 'Explorar catálogo →')}</button>
             </div>
@@ -558,7 +558,7 @@ export default function DashboardComprador() {
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '1.5rem' }}>📱</span>
+                  <span style={{ fontSize: '1.5rem' }}></span>
                   <div>
                     <strong style={{ color: '#0369a1', display: 'block' }}>¡Mejora la seguridad de tu cuenta!</strong>
                     <span style={{ color: '#0369a1', fontSize: '0.85rem' }}>Agrega tu número de teléfono y verifica tu perfil para facilitar el contacto con los productores.</span>
@@ -576,22 +576,22 @@ export default function DashboardComprador() {
 
             <div className="stats-grid">
               <div className="stat-card color-1">
-                <span className="stat-icon-lg">📦</span>
+                <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardComprador.stats.ordersPlaced', 'Pedidos Realizados')}</div>
                 <div className="stat-value">{String(pedidos.length).padStart(2, '0')}</div>
               </div>
               <div className="stat-card color-2">
-                <span className="stat-icon-lg">💰</span>
+                <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardComprador.stats.totalInvestment', 'Inversión Total')}</div>
                 <div className="stat-value">${totalInvestment.toLocaleString('es-CO')}</div>
               </div>
               <div className="stat-card color-3">
-                <span className="stat-icon-lg">⭐</span>
+                <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardComprador.stats.reviewsLeft', 'Reseñas Dejadas')}</div>
                 <div className="stat-value">{reviewsDejadasCount}</div>
               </div>
               <div className="stat-card color-4">
-                <span className="stat-icon-lg">🤝</span>
+                <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardComprador.stats.producers', 'Productores')}</div>
                 <div className="stat-value">{uniqueProducersCount}</div>
               </div>
@@ -600,7 +600,7 @@ export default function DashboardComprador() {
             {/* TABLA RECIENTES */}
             <div className="card-table" style={{ marginBottom: '32px' }}>
               <div className="table-header">
-                <h3 className="card-title">📦 {t('dashboardComprador.recentOrders', 'Pedidos Recientes')}</h3>
+                <h3 className="card-title"> {t('dashboardComprador.recentOrders', 'Pedidos Recientes')}</h3>
                 <a href="#" onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }} style={{ fontSize: '0.8rem', fontWeight: '600' }}>{t('dashboardComprador.viewAllOrders', 'Ver todos los pedidos')}</a>
               </div>
               <div className="table-wrap">
@@ -623,7 +623,7 @@ export default function DashboardComprador() {
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
                           {p.estado?.toLowerCase() === 'pendiente' && (
-                            <button onClick={() => { setCheckoutPedido(p); setPagoModalOpen(true); }} className="btn btn-primary btn-sm" style={{ marginRight: '6px' }}>Pagar 💳</button>
+                            <button onClick={() => { setCheckoutPedido(p); setPagoModalOpen(true); }} className="btn btn-primary btn-sm" style={{ marginRight: '6px' }}>Pagar</button>
                           )}
                           <button onClick={() => setActiveSection('seguimiento')} className="btn btn-secondary btn-sm">{t('pedidos.track', 'Rastrear')}</button>
                         </td>
@@ -654,11 +654,11 @@ export default function DashboardComprador() {
                   value={catalogSearch}
                   onChange={(e) => setCatalogSearch(e.target.value)}
                 />
-                <span style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }}>🔍</span>
+                <span style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }}></span>
               </div>
               {count > 0 && (
                 <button className="btn btn-primary" onClick={() => setCartOpen(true)}>
-                  🛒 {t('catalog.cartButton', 'Carrito')} ({count})
+                  {t('catalog.cartButton', 'Carrito')} ({count})
                 </button>
               )}
             </div>
@@ -676,11 +676,11 @@ export default function DashboardComprador() {
                       value={catalogSearchQuery}
                       onChange={(e) => setCatalogSearchQuery(e.target.value)}
                     />
-                    <span style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }}>🔍</span>
+                    <span style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }}></span>
                   </div>
                   {count > 0 && (
                     <button className="btn btn-primary" onClick={() => setCartOpen(true)}>
-                      🛒 {t('catalog.cartButton', 'Carrito')} ({count})
+                       {t('catalog.cartButton', 'Carrito')} ({count})
                     </button>
                   )}
                 </div>
@@ -693,7 +693,7 @@ export default function DashboardComprador() {
                       className={`chip${filtroTipoCatalog === cat.value ? ' active' : ''}`}
                       onClick={() => setFiltroTipoCatalog(cat.value)}
                     >
-                      <span>{cat.emoji}</span> {t('catalog.category.' + (cat.value || 'all'), cat.label)}
+                      <span>{cat.label}</span>
                     </button>
                   ))}
                 </div>
@@ -702,7 +702,7 @@ export default function DashboardComprador() {
               {/* SIDE FILTER CONTROLS */}
               <div className="card-table" style={{ padding: '20px', borderRadius: 'var(--radius)', background: '#fff' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
-                  ⚙️ Filtros
+                   Filtros
                 </h4>
                 <div className="form-group" style={{ marginBottom: '12px' }}>
                   <label className="form-label" style={{ fontSize: '0.75rem' }}>Precio Mínimo (COP)</label>
@@ -714,7 +714,7 @@ export default function DashboardComprador() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
                   <input type="checkbox" id="promoToggleCatalog" checked={soloPromo} onChange={(e) => setSoloPromo(e.target.checked)} style={{ width: '16px', height: '16px' }} />
-                  <label htmlFor="promoToggleCatalog" style={{ fontSize: '0.8rem', fontWeight: '500', cursor: 'pointer' }}>🔥 Sólo Promociones</label>
+                  <label htmlFor="promoToggleCatalog" style={{ fontSize: '0.8rem', fontWeight: '500', cursor: 'pointer' }}> Sólo Promociones</label>
                 </div>
                 {(minPrice || maxPrice || soloPromo || filtroTipoCatalog) && (
                   <button className="btn btn-secondary btn-sm" style={{ width: '100%', marginTop: '16px' }} onClick={() => { setMinPrice(''); setMaxPrice(''); setSoloPromo(false); setFiltroTipoCatalog(''); setCatalogSearchQuery(''); }}>
@@ -730,7 +730,7 @@ export default function DashboardComprador() {
                 <div style={{ padding: '48px', textAlign: 'center', gridColumn: '1 / -1' }}>{t('catalog.loading', 'Cargando catálogo...')}</div>
               ) : catalogFiltered.length === 0 ? (
                 <div className="catalog-empty" style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '2.5rem' }}>🔍</div>
+                  <div style={{ fontSize: '2.5rem' }}></div>
                   <h3>{t('catalog.noProducts', 'No se encontraron productos')}</h3>
                 </div>
               ) : (
@@ -748,17 +748,17 @@ export default function DashboardComprador() {
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                       <span className={`catalog-card-badge${p.stock <= 0 ? ' out' : ''}`} style={{ position: 'absolute', top: '10px', left: '10px', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', background: p.stock > 0 ? 'var(--green-bg)' : 'var(--red-bg)', color: p.stock > 0 ? 'var(--primary)' : 'var(--red)' }}>
-                        {p.stock > 0 ? '✓ Disponible' : '✗ Agotado'}
+                        {p.stock > 0 ? 'Disponible' : 'Agotado'}
                       </span>
                     </div>
                     <div className="catalog-card-body" style={{ padding: '16px' }}>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{p.tipo}</div>
                       <h4 style={{ margin: '4px 0 8px 0', fontSize: '1.05rem', fontWeight: '700' }}>{p.nombre}</h4>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                        📍 {p.productorNombre || p.productor || p.nombreProductor || 'Productor ASAFRUT'}
+                         {p.productorNombre || p.productor || p.nombreProductor || 'Productor ASAFRUT'}
                         {p.productorVerificado && (
                           <span style={{ background: '#e2f0d9', color: '#385723', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: '700', border: '1px solid #385723' }}>
-                            ⭐ Gold Supplier
+                             Gold Supplier
                           </span>
                         )}
                       </div>
@@ -846,9 +846,9 @@ export default function DashboardComprador() {
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
                           {p.estado?.toLowerCase() === 'pendiente' && (
-                            <button onClick={() => { setCheckoutPedido(p); setPagoModalOpen(true); }} className="btn btn-primary btn-sm" style={{ marginRight: '6px' }}>Pagar 💳</button>
+                            <button onClick={() => { setCheckoutPedido(p); setPagoModalOpen(true); }} className="btn btn-primary btn-sm" style={{ marginRight: '6px' }}>Pagar</button>
                           )}
-                          <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>{t('pedidos.invoice', '📄 Factura')}</button>
+                          <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>{t('pedidos.invoice', 'Factura')}</button>
                         </td>
                       </tr>
                     ))}
@@ -864,7 +864,7 @@ export default function DashboardComprador() {
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>🚚 {t('envios.title', 'Seguimiento de Envíos')}</h1>
+                <h1> {t('envios.title', 'Seguimiento de Envíos')}</h1>
                 <p>Monitorea tus pedidos en ruta en tiempo real</p>
               </div>
             </div>
@@ -872,7 +872,7 @@ export default function DashboardComprador() {
             <div id="shipmentsContainer" style={{ marginTop: '20px' }}>
               {shipments.length === 0 ? (
                 <div className="empty-state" style={{ padding: '40px', textAlign: 'center', background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
-                  <div style={{ fontSize: '2rem' }}>📦</div>
+                  <div style={{ fontSize: '2rem' }}></div>
                   <div style={{ marginTop: '8px' }}>{t('envios.noActive', 'No hay envíos activos en este momento.')}</div>
                 </div>
               ) : (
@@ -882,7 +882,7 @@ export default function DashboardComprador() {
                       <div>
                         <div style={{ fontWeight: '700', fontSize: '1.05rem' }}>{s.producto || 'Producto ASAFRUT'}</div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                          📍 {s.origen || 'Chigorodó'} → {s.direccionDestino || 'Destino'} · {s.transportista || 'Pendiente'}
+                           {s.origen || 'Chigorodó'} → {s.direccionDestino || 'Destino'} · {s.transportista || 'Pendiente'}
                         </div>
                       </div>
                       <span className="badge-status status-shipped">{t('pedidos.status.' + s.estado?.toLowerCase(), s.estado)}</span>
@@ -897,7 +897,7 @@ export default function DashboardComprador() {
             </div>
 
             <div style={{ marginTop: '32px' }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '16px' }}>📋 {t('envios.historyTitle', 'Historial de todos los envíos')}</h3>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '16px' }}> {t('envios.historyTitle', 'Historial de todos los envíos')}</h3>
               <div className="table-wrap">
                 <table>
                   <thead>
@@ -942,7 +942,7 @@ export default function DashboardComprador() {
                       onClick={() => selectContact(c)}
                       style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', cursor: 'pointer', borderBottom: '1px solid var(--border-light)', background: selectedContact?.id === c.id ? 'var(--primary-bg)' : 'transparent' }}
                     >
-                      <div className="avatar avatar-green">{c.nombre?.charAt(0).toUpperCase() || 'P'}</div>
+                      <div className="avatar avatar-blue">{c.nombre?.charAt(0).toUpperCase() || 'C'}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{c.nombre}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('auth.' + c.rol?.toLowerCase(), c.rol)}</div>
@@ -955,7 +955,7 @@ export default function DashboardComprador() {
               {/* WINDOW */}
               <div className="chat-window" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <div className="chat-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 20px', borderBottom: '1px solid var(--border-light)' }}>
-                  <div className="avatar avatar-green">{selectedContact?.nombre?.charAt(0).toUpperCase() || '--'}</div>
+                  <div className="avatar avatar-blue">{selectedContact?.nombre?.charAt(0).toUpperCase() || '--'}</div>
                   <div>
                     <div className="chat-name" style={{ fontWeight: '700' }}>{selectedContact?.nombre || 'Selecciona un contacto'}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{selectedContact?.rol || ''}</div>
@@ -965,7 +965,7 @@ export default function DashboardComprador() {
                 <div className="chat-messages" ref={chatRef} style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {!selectedContact ? (
                     <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--text-muted)' }}>
-                      <div style={{ fontSize: '2.5rem' }}>💬</div>
+                      <div style={{ fontSize: '2.5rem' }}></div>
                       <div>Selecciona un contacto para iniciar la conversación.</div>
                     </div>
                   ) : messages.length === 0 ? (
@@ -1003,14 +1003,14 @@ export default function DashboardComprador() {
         {activeSection === 'resenas' && (
           <div className="section active">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <span className="section-title" style={{ fontSize: '1.25rem', fontWeight: '700' }}>⭐ Mis Reseñas de Productos</span>
+              <span className="section-title" style={{ fontSize: '1.25rem', fontWeight: '700' }}> Mis Reseñas de Productos</span>
               <button className="btn btn-primary" onClick={() => setReviewModalOpen(true)}>+ Nueva reseña</button>
             </div>
 
             <div id="reviewsList">
               {reviews.length === 0 ? (
                 <div className="empty-state" style={{ padding: '60px', textAlign: 'center', background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
-                  <div style={{ fontSize: '2rem' }}>⭐</div>
+                  <div style={{ fontSize: '2rem' }}></div>
                   <div>No hay reseñas registradas aún.</div>
                 </div>
               ) : (
@@ -1034,7 +1034,7 @@ export default function DashboardComprador() {
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>👤 Ajustes de Mi Perfil</h1>
+                <h1> Ajustes de Mi Perfil</h1>
                 <p>Administra tu información personal y la seguridad de tu cuenta</p>
               </div>
             </div>
@@ -1172,7 +1172,7 @@ export default function DashboardComprador() {
                           <td data-label="Total" style={{ fontWeight: '600', color: 'var(--primary)' }}>${Number(f.total).toLocaleString('es-CO')}</td>
                           <td data-label="Fecha">{new Date(f.fechaEmision).toLocaleDateString()}</td>
                           <td data-label="Acciones">
-                            <button className="btn btn-secondary btn-sm" onClick={() => descargarPdf(f.id)}>Descargar PDF 📥</button>
+                            <button className="btn btn-secondary btn-sm" onClick={() => descargarPdf(f.id)}>Descargar PDF</button>
                           </td>
                         </tr>
                       ))
@@ -1189,7 +1189,7 @@ export default function DashboardComprador() {
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>📋 Licitaciones B2B (RFQ)</h1>
+                <h1> Licitaciones B2B (RFQ)</h1>
                 <p>Publica solicitudes de cotización al por mayor para recibir ofertas competitivas de productores verificados</p>
               </div>
             </div>
@@ -1207,14 +1207,14 @@ export default function DashboardComprador() {
                   <div className="form-group" style={{ marginBottom: '16px' }}>
                     <label className="form-label">Tipo de Fruta *</label>
                     <select className="form-select" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-light)', borderRadius: '6px' }} value={rfqForm.tipoFruta} onChange={(e) => setRfqForm({ ...rfqForm, tipoFruta: e.target.value })}>
-                      <option value="BANANO">🍌 Banano</option>
-                      <option value="PINA">🍍 Piña</option>
-                      <option value="MANGO">🥭 Mango</option>
-                      <option value="MARACUYA">🍊 Maracuyá</option>
-                      <option value="GUANABANA">🍈 Guanábana</option>
-                      <option value="NARANJA">🍊 Naranja</option>
-                      <option value="COCO">🥥 Coco</option>
-                      <option value="LIMON">🍋 Limón</option>
+                      <option value="BANANO"> Banano</option>
+                      <option value="PINA"> Piña</option>
+                      <option value="MANGO"> Mango</option>
+                      <option value="MARACUYA"> Maracuyá</option>
+                      <option value="GUANABANA"> Guanábana</option>
+                      <option value="NARANJA"> Naranja</option>
+                      <option value="COCO"> Coco</option>
+                      <option value="LIMON"> Limón</option>
                     </select>
                   </div>
                   <div className="form-group" style={{ marginBottom: '16px' }}>
@@ -1288,7 +1288,7 @@ export default function DashboardComprador() {
         <div className="modal-overlay open" id="modalPago">
           <div className="modal" style={{ maxWidth: '480px' }}>
             <div className="modal-header">
-              <span className="modal-title">💳 Completar Pago en Línea</span>
+              <span className="modal-title"> Completar Pago en Línea</span>
               <button className="modal-close" onClick={() => { setPagoModalOpen(false); loadPedidos(); setActiveSection('misPedidos'); }}>✕</button>
             </div>
             <div style={{ padding: '24px' }}>
@@ -1357,7 +1357,7 @@ export default function DashboardComprador() {
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={() => setModalFactura(false)}>{t('pedidos.close', 'Cerrar')}</button>
-              <button className="btn btn-primary" onClick={() => alert(t('pedidos.invoiceSent', 'Factura enviada al correo registrado.'))}>{t('pedidos.sendPdf', '📧 Enviar PDF')}</button>
+              <button className="btn btn-primary" onClick={() => alert(t('pedidos.invoiceSent', 'Factura enviada al correo registrado.'))}>{t('pedidos.sendPdf', ' Enviar PDF')}</button>
             </div>
           </div>
         </div>
@@ -1412,7 +1412,7 @@ export default function DashboardComprador() {
 
             <div className="modal-footer" style={{ display: 'flex', gap: '12px' }}>
               <button className="btn btn-secondary" onClick={() => setReviewModalOpen(false)}>Cancelar</button>
-              <button className="btn btn-primary" onClick={publicarResena}>⭐ Publicar reseña</button>
+              <button className="btn btn-primary" onClick={publicarResena}> Publicar reseña</button>
             </div>
           </div>
         </div>
@@ -1424,7 +1424,7 @@ export default function DashboardComprador() {
           <div className="cart-drawer-overlay" onClick={() => setCartOpen(false)} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 1000 }} />
           <div className="cart-drawer open" style={{ position: 'fixed', right: 0, top: 0, height: '100%', width: '380px', background: 'var(--card-bg)', zIndex: 1001, padding: '24px', display: 'flex', flexDirection: 'column' }}>
             <div className="cart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>🛒 Mi Carrito</h3>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}> Mi Carrito</h3>
               <button className="cart-close" onClick={() => setCartOpen(false)}>✕</button>
             </div>
             <div className="cart-items" style={{ flex: 1, overflowY: 'auto' }}>

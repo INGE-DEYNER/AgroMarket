@@ -49,7 +49,7 @@ export default function RecuperarContrasena() {
 
           {sent ? (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <div style={{ fontSize: '3rem' }}>✅</div>
+              <div style={{ fontSize: '3rem' }}></div>
               <p style={{ marginTop: '16px' }}>{t('forgotPass.sentSuccess', 'Código enviado. Redirigiendo para que lo ingreses...')}</p>
             </div>
           ) : (
@@ -72,9 +72,9 @@ export default function RecuperarContrasena() {
       </div>
 
       <div className="right-panel">
-        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200" alt="Cultivos" className="bg-img" />
+        <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200" alt="Cultivos" className="bg-img" loading="lazy" />
         <div className="right-overlay">
-          <div className="right-badge">{t('forgotPass.badge', '🌿 AgroMarket ASAFRUT')}</div>
+          <div className="right-badge">{t('forgotPass.badge', 'AgroMarket ASAFRUT')}</div>
           <h2 className="right-title">{t('forgotPass.rightTitle', 'Recupera tu acceso fácilmente.')}</h2>
           <p className="right-sub">{t('forgotPass.rightSub', 'Tu cuenta está a salvo. Solo sigue las instrucciones y verifica con el código.')}</p>
         </div>

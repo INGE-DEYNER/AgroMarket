@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import '../styles/resenas.css';
 
-const PRODUCTOS = ['🍌 Banano Urabá', '🍍 Piña Manzana', '🥭 Mango Tommy', '🫐 Maracuyá', '🍈 Guanábana', '🍊 Naranja Valencia', '🥥 Coco Fresco', '🍋 Limón Tahití'];
+const PRODUCTOS = ['Banano Urabá', 'Piña Manzana', 'Mango Tommy', 'Maracuyá', 'Guanábana', 'Naranja Valencia', 'Coco Fresco', 'Limón Tahití'];
 
 export default function Resenas() {
   const { t } = useTranslation();
@@ -80,14 +80,14 @@ export default function Resenas() {
 
       <main style={{ padding: '28px 32px', maxWidth: '860px', margin: '0 auto' }}>
         <div className="section-header">
-          <span className="section-title">⭐ {t('resenas.title', 'Reseñas de Productos')}</span>
+          <span className="section-title"> {t('resenas.title', 'Reseñas de Productos')}</span>
           <button className="btn btn-primary" onClick={openModal}>{t('resenas.newReview', '+ Nueva reseña')}</button>
         </div>
 
         <div id="reviewsList">
           {reviews.length === 0 ? (
             <div className="empty-state" style={{ padding: '60px', textAlign: 'center' }}>
-              <div className="empty-icon">⭐</div>
+              <div className="empty-icon"></div>
               <div>{t('resenas.emptyReviews', 'No hay reseñas aún. ¡Sé el primero en dejar una!')}</div>
             </div>
           ) : (
@@ -157,7 +157,7 @@ export default function Resenas() {
 
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={closeModal}>{t('resenas.cancel', 'Cancelar')}</button>
-              <button className="btn btn-primary" onClick={publicarResena}>{t('resenas.publish', '⭐ Publicar reseña')}</button>
+              <button className="btn btn-primary" onClick={publicarResena}>{t('resenas.publish', ' Publicar reseña')}</button>
             </div>
           </div>
         </div>
