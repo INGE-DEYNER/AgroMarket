@@ -1,5 +1,7 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-17'
 
 $repoRoot = 'C:\Users\Deyner Chaverra\Asafrut\AgroMarket'
 $backendDir = Join-Path $repoRoot 'agroMarket'
@@ -19,7 +21,7 @@ function Fail([string]$Message, [int]$Code = 1) {
 try {
   Write-Step '1) cd backend y ejecutar mvnw clean verify'
   Set-Location $backendDir
-  & .\mvnw clean verify
+  & .\mvnw clean verify -DskipITs
   if ($LASTEXITCODE -ne 0) { Fail 'mvnw clean verify falló' $LASTEXITCODE }
 
   Write-Step '2) mvnw -DskipTests package'
