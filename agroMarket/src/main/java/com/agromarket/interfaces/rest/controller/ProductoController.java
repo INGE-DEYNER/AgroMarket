@@ -36,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
 @Slf4j
-@SuppressWarnings({"null", "unused"})
 public class ProductoController {
     private final ProductoService productoService;
 

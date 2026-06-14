@@ -43,7 +43,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@SuppressWarnings({"null", "unused"})
 public class AuthController {
     private final AuthService authService;
     private final com.agromarket.application.service.PasswordResetService passwordResetService;
@@ -301,3 +300,4 @@ public class AuthController {
         response.addHeader("Set-Cookie", cookie.toString());
     }
 }
+// Touch file to clear JDT language server cache

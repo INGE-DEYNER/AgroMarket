@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"null", "unused"})
 public class PasswordResetServiceImpl implements PasswordResetService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PasswordResetTokenRepository tokenRepository;

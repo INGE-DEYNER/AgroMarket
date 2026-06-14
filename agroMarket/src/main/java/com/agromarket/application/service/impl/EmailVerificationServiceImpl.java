@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"null", "unused"})
 public class EmailVerificationServiceImpl implements EmailVerificationService {
     private final EmailVerificationTokenRepository repository;
     private final UsuarioJpaRepository usuarioJpaRepository;

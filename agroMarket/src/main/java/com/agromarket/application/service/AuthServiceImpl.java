@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@SuppressWarnings({"null", "unused"})
 public class AuthServiceImpl implements AuthService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PasswordEncoder passwordEncoder;

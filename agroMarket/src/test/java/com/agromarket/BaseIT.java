@@ -11,7 +11,7 @@ import org.springframework.test.context.DynamicPropertySource;
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration-tests")
-@SuppressWarnings({"resource", "unused"})
+@SuppressWarnings("resource")
 public abstract class BaseIT {
 
     @Container

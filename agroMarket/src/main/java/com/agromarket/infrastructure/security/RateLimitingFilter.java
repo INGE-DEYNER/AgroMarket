@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
-@SuppressWarnings({"deprecation", "null", "unused"})
+@SuppressWarnings("deprecation")
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final ConcurrentMap<String, Bucket> buckets = new ConcurrentHashMap<>();

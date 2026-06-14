@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"null", "unused"})
 @Slf4j
 public class PasswordPolicyService {
     private final UsuarioJpaRepository usuarioJpaRepository;

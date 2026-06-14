@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"null", "unused"})
 public class FacturaServiceImpl implements FacturaService {
     private final FacturaJpaRepository facturaJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;

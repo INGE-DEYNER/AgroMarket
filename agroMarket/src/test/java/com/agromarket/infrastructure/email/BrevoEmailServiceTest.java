@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings({"null", "unchecked"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class BrevoEmailServiceTest {
 
     private BrevoEmailService emailService;

@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
  * Uses a mocked RestTemplate — no SMTP dependency.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings({"null", "unchecked"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 class EmailServiceTest {
 
     private RestTemplate restTemplate;
@@ -45,7 +45,6 @@ class EmailServiceTest {
 
         emailService.sendSimpleMessage("user@example.com", "Test Subject", "Hello");
 
-        @SuppressWarnings("unchecked")
         ArgumentCaptor<HttpEntity<Map<String, Object>>> captor = ArgumentCaptor.forClass(HttpEntity.class);
         verify(restTemplate).postForEntity(
                 eq("https://api.brevo.com/v3/smtp/email"),

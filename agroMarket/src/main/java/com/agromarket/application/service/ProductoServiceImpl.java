@@ -32,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"null", "unused"})
 public class ProductoServiceImpl implements ProductoService {
     private final ProductoJpaRepository productoJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;

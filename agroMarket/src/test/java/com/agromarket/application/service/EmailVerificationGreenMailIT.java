@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
  * Replaces GreenMail-based IT — email sending is mocked via Brevo/EmailService mock.
  */
 @SpringBootTest(classes = com.asafrut.agroMarket.AgroMarketApplication.class)
-@SuppressWarnings({"null", "unused"})
 public class EmailVerificationGreenMailIT {
 
     @Autowired

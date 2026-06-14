@@ -76,9 +76,9 @@ public class SmsVerificationService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
         try {
-            ResponseEntity<java.util.Map> response = restTemplate.postForEntity(url, request, java.util.Map.class);
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                String status = (String) response.getBody().get("status");
+            ResponseEntity<?> response = restTemplate.postForEntity(url, request, java.util.Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() instanceof java.util.Map<?, ?> body) {
+                String status = (String) body.get("status");
                 return "approved".equals(status);
             }
             return false;

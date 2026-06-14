@@ -9,7 +9,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import jakarta.servlet.Filter;
 
 @Configuration
-@SuppressWarnings({"null", "unused"})
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override

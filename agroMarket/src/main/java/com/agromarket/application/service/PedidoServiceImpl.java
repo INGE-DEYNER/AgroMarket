@@ -34,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@SuppressWarnings({"null", "unused"})
 public class PedidoServiceImpl implements PedidoService {
     private final PedidoJpaRepository pedidoJpaRepository;
     private final ProductoJpaRepository productoJpaRepository;
