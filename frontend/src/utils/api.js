@@ -2,11 +2,7 @@
  * api.js — Utilidad central de peticiones HTTP para AgroMarket
  */
 
-const API_BASE =
-  window.location.hostname === 'localhost' ||
-  window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8080/api'
-    : 'https://agromarket-vj8x.onrender.com/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://agromarket-vj8x.onrender.com/api';
 
 async function request(method, path, body) {
   const token = localStorage.getItem('token');

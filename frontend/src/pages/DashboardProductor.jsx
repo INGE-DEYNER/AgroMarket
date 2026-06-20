@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import api from '../utils/api';
+import api, { API_BASE } from '../utils/api';
 import '../styles/envios.css';
 import '../styles/mensajeria.css';
 
@@ -290,9 +290,7 @@ export default function DashboardProductor() {
         // Resolve absolute url for display if relative
         const resolvedUrl = prod.imagenUrl.startsWith('http') 
           ? prod.imagenUrl 
-          : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-              ? `http://localhost:8080${prod.imagenUrl}`
-              : `https://agromarket-vj8x.onrender.com${prod.imagenUrl}`);
+          : `${API_BASE.replace('/api', '')}${prod.imagenUrl}`;
         setImagePreviewUrl(resolvedUrl);
       }
     } else {

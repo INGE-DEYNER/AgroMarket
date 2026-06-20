@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import api from '../utils/api';
+import api, { API_BASE } from '../utils/api';
 import { useCart } from '../hooks/useCart';
 import '../styles/catalogo.css';
 import '../styles/envios.css';
@@ -128,9 +128,7 @@ export default function DashboardComprador() {
 
   const descargarPdf = (facturaId) => {
     const token = localStorage.getItem('token');
-    const url = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:8080'
-      : 'https://agromarket-vj8x.onrender.com') + `/api/facturas/${facturaId}/pdf`;
+    const url = `${API_BASE.replace('/api', '')}/api/facturas/${facturaId}/pdf`;
     
     fetch(url, {
       headers: {
