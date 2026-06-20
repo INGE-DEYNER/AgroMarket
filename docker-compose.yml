@@ -30,6 +30,7 @@ services:
     build:
       context: ./agroMarket
       dockerfile: Dockerfile
+    image: agromarket-app:latest
     container_name: agromarket-app
     restart: unless-stopped
     ports:
