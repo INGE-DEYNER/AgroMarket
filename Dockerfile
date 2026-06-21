@@ -2,8 +2,9 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY agroMarket/pom.xml ./agroMarket/
+RUN mvn -f agroMarket/pom.xml dependency:go-offline -B
 COPY agroMarket/src ./agroMarket/src
-RUN mvn -f agroMarket/pom.xml package -DskipTests -B
+RUN mvn -f agroMarket/pom.xml clean package -DskipTests -B
 
 # Stage 2: Runtime image
 FROM eclipse-temurin:21-jdk
