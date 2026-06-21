@@ -38,6 +38,26 @@ mysql --socket=/app/mysql/run/mysqld.sock -u root -e "GRANT ALL PRIVILEGES ON ag
 mysql --socket=/app/mysql/run/mysqld.sock -u root -e "FLUSH PRIVILEGES;"
 echo "MySQL configuration completed."
 
+# Start background loop to auto-promote deyner.ingsoftware@gmail.com to ADMINISTRADOR
+(
+    while true; do
+        sleep 10
+        if mysql --socket=/app/mysql/run/mysqld.sock -u root -e "USE agromarket_db; SELECT 1 FROM usuarios WHERE correo = 'deyner.ingsoftware@gmail.com';" 2>/dev/null | grep -q "1"; then
+            mysql --socket=/app/mysql/run/mysqld.sock -u root -e "
+                USE agromarket_db;
+                UPDATE usuarios 
+                SET rol = 'ADMINISTRADOR', 
+                    estado_cuenta = 'ACTIVA', 
+                    cuenta_aprobada = 1, 
+                    cuenta_completa = 1, 
+                    email_verificado = 1, 
+                    aprobado = 1 
+                WHERE correo = 'deyner.ingsoftware@gmail.com' AND rol != 'ADMINISTRADOR';
+            " >/dev/null 2>&1
+        fi
+    done
+) &
+
 # Start Spring Boot Application
 echo "Starting AgroMarket Spring Boot backend on port 7860..."
 exec java -Djava.security.egd=file:/dev/./urandom \
