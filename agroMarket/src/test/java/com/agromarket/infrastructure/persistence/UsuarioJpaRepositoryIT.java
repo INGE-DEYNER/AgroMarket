@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 @DataJpaTest
+@org.springframework.test.context.ContextConfiguration(classes = com.asafrut.agroMarket.AgroMarketApplication.class)
 public class UsuarioJpaRepositoryIT {
 
     @Autowired
