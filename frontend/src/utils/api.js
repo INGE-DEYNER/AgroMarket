@@ -2,7 +2,8 @@
  * api.js — Utilidad central de peticiones HTTP para AgroMarket
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 async function request(method, path, body) {
   const token = localStorage.getItem('token');
