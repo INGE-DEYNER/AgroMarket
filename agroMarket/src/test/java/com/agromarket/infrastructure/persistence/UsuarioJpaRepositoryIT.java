@@ -16,6 +16,12 @@ public class UsuarioJpaRepositoryIT {
     UsuarioJpaRepository usuarioJpaRepository;
 
     @Test
+    public void generateHash() {
+        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        System.out.println("BCRYPT_HASH_START:" + encoder.encode("Password123!") + ":BCRYPT_HASH_END");
+    }
+
+    @Test
     public void saveFindDelete_usuarioEntity() {
         CompradorEntity comprador = CompradorEntity.builder()
                 .nombre("Juan")
