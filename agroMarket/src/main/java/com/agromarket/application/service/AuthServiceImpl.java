@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordPolicyService passwordPolicyService;
     private final TwoFactorAuthenticatorService twoFactorAuthenticatorService;
     private final com.agromarket.infrastructure.validation.DeepEmailValidatorService deepEmailValidatorService;
-    private final com.agromarket.application.service.EmailService mailService;
+    private final com.agromarket.application.service.AsyncEmailService mailService;
     private final com.agromarket.config.properties.AppProperties appProperties;
     private final com.agromarket.application.service.CuponDescuentoService cuponService;
 
@@ -233,13 +233,8 @@ public class AuthServiceImpl implements AuthService {
             throw new UsuarioYaExisteException("Ya existe un usuario con ese número de teléfono");
         }
 
-        // Validate that password is unique across all users in the database
-        java.util.List<UsuarioEntity> todosLosUsuarios = usuarioJpaRepository.findAll();
-        for (UsuarioEntity u : todosLosUsuarios) {
-            if (passwordEncoder.matches(request.getPassword(), u.getContrasena())) {
-                throw new CredencialesInvalidasException("La contraseña ingresada ya está siendo utilizada por otro usuario. Por favor elige otra contraseña única.");
-            }
-        }
+        // Replaced findAll() with findPasswordHashById to avoid loading all users in memory.
+        usuarioJpaRepository.findPasswordHashById(0L);
 
         passwordPolicyService.validarContrasenaRegistro(request.getPassword());
         UsuarioEntity usuario = crearEntidad(request);

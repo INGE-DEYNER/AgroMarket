@@ -33,4 +33,8 @@ public interface ProductoJpaRepository extends JpaRepository<ProductoEntity, Lon
     long countActivos();
 
     boolean existsByNombreIgnoreCaseAndProductorId(String nombre, Long productorId);
+
+    java.util.Optional<ProductoEntity> findByProductorIdAndTipoFruta(Long productorId, TipoFruta tipoFruta);
+
+    List<ProductoEntity> findByEnPromocionTrueAndFechaFinPromocionBefore(java.time.LocalDateTime fecha);
 }

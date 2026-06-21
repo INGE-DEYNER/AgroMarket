@@ -91,4 +91,8 @@ public class ProductoEntity {
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
     @Builder.Default
     private List<ResenaEntity> resenas = new ArrayList<>();
+
+    @jakarta.persistence.Version
+    @Column(name = "version")
+    private Long version;
 }

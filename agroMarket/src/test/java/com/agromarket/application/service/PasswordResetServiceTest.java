@@ -44,13 +44,14 @@ public class PasswordResetServiceTest {
 
         passwordResetService.requestPasswordReset("reset-test@example.com");
 
-        List<PasswordResetTokenEntity> tokens = tokenRepository.findAll();
-        assertThat(tokens).isNotEmpty();
+        com.agromarket.infrastructure.persistence.entity.UsuarioEntity usuario = usuarioJpaRepository.findByCorreo("reset-test@example.com").orElse(null);
+        assertThat(usuario).isNotNull();
+        assertThat(usuario.getTokenRecuperacionPassword()).isNotEmpty();
 
-        verify(emailService, atLeastOnce()).sendTemplateMessage(
+        verify(emailService, atLeastOnce()).sendPasswordResetEmail(
                 eq("reset-test@example.com"),
+                eq("Test User"),
                 anyString(),
-                anyString(),
-                any());
+                eq("es"));
     }
 }

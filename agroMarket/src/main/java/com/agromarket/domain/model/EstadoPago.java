@@ -7,5 +7,6 @@ public enum EstadoPago {
     REVERTIDO,
     EN_FIDEICOMISO,
     LIBERADO,
-    REEMBOLSADO
+    REEMBOLSADO,
+    EN_PROCESO
 }

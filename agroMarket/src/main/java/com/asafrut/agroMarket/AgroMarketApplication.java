@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @EnableJpaRepositories(basePackages = "com.agromarket.infrastructure.persistence.repository")
 @EnableScheduling
 @EnableCaching
+@org.springframework.scheduling.annotation.EnableAsync
 public class AgroMarketApplication {
 
 	public static void main(String[] args) {

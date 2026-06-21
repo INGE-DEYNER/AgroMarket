@@ -49,4 +49,17 @@ public class DescuentoAutomaticoJob {
         }
         log.info("Descuento aplicado a {} productos menos vendidos", menosVendidos.size());
     }
+
+    @Scheduled(cron = "0 0 * * * *")
+    @Transactional
+    public void expirarPromociones() {
+        List<ProductoEntity> expira = productoRepository.findByEnPromocionTrueAndFechaFinPromocionBefore(LocalDateTime.now());
+        for (ProductoEntity p : expira) {
+            p.setEnPromocion(false);
+            p.setPrecioPromocion(null);
+            p.setFechaFinPromocion(null);
+            productoRepository.save(p);
+        }
+        log.info("Se expiraron {} promociones vencidas", expira.size());
+    }
 }

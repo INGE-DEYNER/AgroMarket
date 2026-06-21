@@ -110,8 +110,17 @@ public class AdminController {
     }
 
     @PostMapping("/aprobar-usuario/{id}")
-    public ResponseEntity<ApiResponse<Void>> aprobarUsuario(@PathVariable Long id) {
-        adminService.aprobarUsuario(id);
+    public ResponseEntity<ApiResponse<Void>> aprobarUsuario(@PathVariable("id") String id) {
+        Long decryptedId;
+        try {
+            decryptedId = idEncryptionUtil.decryptId(id);
+            if (decryptedId == null) {
+                throw new IllegalArgumentException("ID inválido");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("ID inválido", e);
+        }
+        adminService.aprobarUsuario(decryptedId);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
                 .message("Usuario aprobado exitosamente")
@@ -120,14 +129,23 @@ public class AdminController {
 
     @PostMapping("/rechazar-usuario/{id}")
     public ResponseEntity<ApiResponse<Void>> rechazarUsuario(
-            @PathVariable Long id,
+            @PathVariable("id") String id,
             @RequestBody(required = false) java.util.Map<String, String> body,
             @RequestParam(required = false) String motivo) {
+        Long decryptedId;
+        try {
+            decryptedId = idEncryptionUtil.decryptId(id);
+            if (decryptedId == null) {
+                throw new IllegalArgumentException("ID inválido");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("ID inválido", e);
+        }
         String motivoFinal = motivo;
         if (motivoFinal == null && body != null) {
             motivoFinal = body.get("motivo");
         }
-        adminService.rechazarUsuario(id, motivoFinal);
+        adminService.rechazarUsuario(decryptedId, motivoFinal);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
                 .message("Usuario rechazado exitosamente")

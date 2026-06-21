@@ -17,8 +17,10 @@ import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import com.agromarket.infrastructure.security.JwtTokenProvider;
+import com.agromarket.application.service.SmsVerificationService;
 import com.agromarket.infrastructure.security.SafeRedirectUtil;
-import com.agromarket.infrastructure.sms.TwilioSmsService;
+import com.agromarket.config.properties.AppProperties;
+
 import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
 
@@ -54,7 +56,7 @@ public class AuthController {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final SafeRedirectUtil safeRedirectUtil;
-    private final TwilioSmsService twilioSmsService;
+    private final SmsVerificationService twilioSmsService;
     private final com.agromarket.config.properties.AppProperties appProperties;
 
     private static final String OAUTH2_TEMP_COOKIE = "agromarket_oauth2_token";
@@ -158,7 +160,7 @@ public class AuthController {
         if (usuarioJpaRepository.existsByTelefono(telefono)) {
             return ResponseEntity.badRequest().body(Map.of("error", "Este número ya está registrado en otra cuenta"));
         }
-        twilioSmsService.enviarCodigoVerificacion(telefono);
+        twilioSmsService.enviarCodigo(telefono);
         return ResponseEntity.ok(Map.of("mensaje", "Código enviado por SMS"));
     }
 

@@ -377,10 +377,22 @@ public class AdminServiceImpl implements AdminService {
         if (pago.getEstado() != EstadoPago.EN_FIDEICOMISO) {
             throw new com.agromarket.domain.exception.CredencialesInvalidasException("El pago no está en fideicomiso");
         }
-        pago.setEstado(EstadoPago.LIBERADO);
+        pago.setEstado(EstadoPago.CONFIRMADO);
         if (pago.getPedido() != null) {
             pago.getPedido().setEstado(EstadoPedido.ENTREGADO);
             pedidoJpaRepository.save(pago.getPedido());
+            try {
+                String productorEmail = pago.getPedido().getProducto().getProductor().getCorreo();
+                if (productorEmail != null) {
+                    emailService.sendHtmlMessage(
+                        productorEmail,
+                        "Pago liberado - Pedido #" + pago.getPedido().getId(),
+                        "<h2>Fondos Liberados</h2><p>El pago para tu pedido #" + pago.getPedido().getId() + " ha sido liberado del fideicomiso y transferido a tu cuenta.</p>"
+                    );
+                }
+            } catch (Exception e) {
+                org.slf4j.LoggerFactory.getLogger(AdminServiceImpl.class).error("Error notificando liberación de pago al productor", e);
+            }
         }
         pagoJpaRepository.save(pago);
     }

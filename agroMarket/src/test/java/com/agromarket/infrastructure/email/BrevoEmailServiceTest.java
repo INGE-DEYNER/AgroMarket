@@ -96,8 +96,8 @@ public class BrevoEmailServiceTest {
         when(restTemplate.postForEntity(eq("https://api.brevo.com/v3/smtp/email"), any(HttpEntity.class), eq(String.class)))
                 .thenThrow(new RuntimeException("API error"));
 
-        assertThatThrownBy(() -> emailService.sendHtmlMessage("test@example.com", "Test", "body"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("API error");
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> 
+                emailService.sendHtmlMessage("test@example.com", "Test", "body")
+        );
     }
 }

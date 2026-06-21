@@ -28,4 +28,7 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, Long>
     List<UsuarioEntity> findByEstadoCuenta(String estadoCuenta);
     
     Optional<UsuarioEntity> findByTokenRecuperacionPassword(String token);
+
+    @org.springframework.data.jpa.repository.Query("SELECT u.contrasena FROM UsuarioEntity u WHERE u.id = :id")
+    Optional<String> findPasswordHashById(@org.springframework.data.repository.query.Param("id") Long id);
 }

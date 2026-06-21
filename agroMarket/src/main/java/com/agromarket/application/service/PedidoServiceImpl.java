@@ -49,11 +49,15 @@ public class PedidoServiceImpl implements PedidoService {
         if (producto.getProductor() != null && producto.getProductor().getId() != null && producto.getProductor().getId().equals(compradorId)) {
             throw new AccesoDenegadoException("Un comprador no puede comprar su propio producto");
         }
-        if (producto.getCantidadDisponible() == null || producto.getCantidadDisponible() < request.getCantidad()) {
-            throw new StockInsuficienteException("Stock insuficiente para crear el pedido");
+        try {
+            if (producto.getCantidadDisponible() == null || producto.getCantidadDisponible() < request.getCantidad()) {
+                throw new StockInsuficienteException("Stock insuficiente para crear el pedido");
+            }
+            producto.setCantidadDisponible(producto.getCantidadDisponible() - request.getCantidad());
+            productoJpaRepository.save(producto);
+        } catch (org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+            throw new StockInsuficienteException("Producto agotado, intente de nuevo");
         }
-        producto.setCantidadDisponible(producto.getCantidadDisponible() - request.getCantidad());
-        productoJpaRepository.save(producto);
 
         PedidoEntity pedido = PedidoEntity.builder()
                 .comprador(comprador)

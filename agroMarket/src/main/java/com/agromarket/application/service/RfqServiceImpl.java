@@ -129,9 +129,7 @@ public class RfqServiceImpl implements RfqService {
         UsuarioEntity productor = oferta.getProductor();
 
         // Buscar producto de este productor o crear uno temporal
-        ProductoEntity producto = productoJpaRepository.findAll().stream()
-                .filter(p -> p.getProductor() != null && p.getProductor().getId().equals(productor.getId()) && p.getTipoFruta() == rfq.getTipoFruta())
-                .findFirst()
+        ProductoEntity producto = productoJpaRepository.findByProductorIdAndTipoFruta(productor.getId(), rfq.getTipoFruta())
                 .orElse(null);
 
         if (producto == null) {

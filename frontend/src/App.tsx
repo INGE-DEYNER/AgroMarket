@@ -25,7 +25,7 @@ const Resenas = lazy(() => import('./pages/Resenas'));
 const Perfil = lazy(() => import('./pages/Perfil'));
 const PagoPasarela = lazy(() => import('./pages/PagoPasarela'));
 
-function App() {
+function App(): JSX.Element {
   return (
     <AuthProvider>
       <Router>

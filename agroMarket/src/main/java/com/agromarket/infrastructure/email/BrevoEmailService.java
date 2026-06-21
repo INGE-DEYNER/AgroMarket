@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BrevoEmailService implements EmailService {
 
     private final RestTemplate restTemplate;
+    private final Map<String, String> templateCache = new ConcurrentHashMap<>();
 
     @Value("${brevo.api.key}")
     private String apiKey;
@@ -33,10 +35,6 @@ public class BrevoEmailService implements EmailService {
 
     @Value("${brevo.sender.name}")
     private String senderName;
-
-    public BrevoEmailService() {
-        this.restTemplate = new RestTemplate();
-    }
 
     public BrevoEmailService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -82,20 +80,30 @@ public class BrevoEmailService implements EmailService {
         }
     }
 
+    private String getTemplateFromCache(String templateName) {
+        return templateCache.computeIfAbsent(templateName, name -> {
+            try {
+                ClassPathResource res = new ClassPathResource("email-templates/" + name + ".html");
+                return StreamUtils.copyToString(res.getInputStream(), StandardCharsets.UTF_8);
+            } catch (IOException ex) {
+                throw new RuntimeException("Error loading email template: " + name, ex);
+            }
+        });
+    }
+
     @Override
     public void sendPasswordResetEmail(String to, String userName, String resetCode, String locale) {
         String resolvedLocale = (locale != null && List.of("es","en","pt","fr","de","zh","ar").contains(locale)) ? locale : "es";
         String resolvedTemplateName = "reset_" + resolvedLocale;
         try {
-            ClassPathResource res = new ClassPathResource("email-templates/" + resolvedTemplateName + ".html");
-            String template = StreamUtils.copyToString(res.getInputStream(), StandardCharsets.UTF_8);
+            String template = getTemplateFromCache(resolvedTemplateName);
             template = template.replace("${codigo}", resetCode)
                                .replace("{{reset_code}}", resetCode)
                                .replace("${user_name}", userName != null ? userName : "Usuario")
                                .replace("{{user_name}}", userName != null ? userName : "Usuario");
             String subject = resolvedLocale.equals("en") ? "AgroMarket - Password Recovery Code" : "Código de recuperación AgroMarket";
             sendHtmlMessage(to, subject, template);
-        } catch (java.io.IOException ex) {
+        } catch (Exception ex) {
             log.error("Error loading password reset template for locale {}: {}", resolvedLocale, ex.getMessage());
             throw new RuntimeException("Error loading email template: " + resolvedTemplateName, ex);
         }
@@ -105,15 +113,14 @@ public class BrevoEmailService implements EmailService {
     public void sendTemplateMessage(String to, String subject, String templateName, Map<String, String> model) {
         String resolvedTemplateName = resolveLocalizedTemplateName(templateName);
         try {
-            ClassPathResource res = new ClassPathResource("email-templates/" + resolvedTemplateName + ".html");
-            String template = StreamUtils.copyToString(res.getInputStream(), StandardCharsets.UTF_8);
+            String template = getTemplateFromCache(resolvedTemplateName);
             if (model != null) {
                 for (Map.Entry<String, String> e : model.entrySet()) {
                     template = template.replace("${" + e.getKey() + "}", e.getValue());
                 }
             }
             sendHtmlMessage(to, subject, template);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new RuntimeException("Error loading email template: " + resolvedTemplateName, ex);
         }
     }

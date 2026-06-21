@@ -20,6 +20,8 @@ import com.agromarket.infrastructure.persistence.repository.PagoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.PedidoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
 
+import com.agromarket.application.service.PasarelaPagoService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +36,8 @@ public class PagoServiceImpl implements PagoService {
     private final FacturaJpaRepository facturaJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final PagoMapper pagoMapper;
-    private final EmailService emailService;
+    private final AsyncEmailService emailService;
+    private final PasarelaPagoService pasarelaPagoService;
     private final PagoDomainService pagoDomainService = new PagoDomainService();
     private final FacturaDomainService facturaDomainService = new FacturaDomainService();
 
@@ -44,29 +47,27 @@ public class PagoServiceImpl implements PagoService {
         validarPropietarioPedido(pedido, compradorId);
 
         pagoJpaRepository.findByPedidoId(pedido.getId()).ifPresent(pagoExistente -> {
-            if (pagoExistente.getEstado() == EstadoPago.CONFIRMADO) {
+            if (pagoExistente.getEstado() == EstadoPago.CONFIRMADO || pagoExistente.getEstado() == EstadoPago.EN_FIDEICOMISO) {
                 throw new IllegalStateException("El pedido ya está pagado");
             }
             pagoJpaRepository.delete(pagoExistente);
             pagoJpaRepository.flush();
         });
 
-        String referencia = "REF-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        PagoEntity pago = PagoEntity.builder()
-                .pedido(pedido)
-                .monto(pedido.getTotal())
-                .metodoPago(request.getMetodoPago())
-                .estado(EstadoPago.PENDIENTE)
-                .referenciaPasarela(referencia)
-                .build();
-        PagoEntity guardado = pagoJpaRepository.save(pago);
+        com.agromarket.application.dto.PagoIniciadoDTO iniciado = pasarelaPagoService.iniciarPago(pedido);
 
-        String urlPasarela = "/pago-pasarela?pagoId=" + guardado.getId() + "&referencia=" + referencia;
+        PagoEntity guardado = pagoJpaRepository.findByPedidoId(pedido.getId())
+                .orElseThrow(() -> new IllegalStateException("No se pudo iniciar el pago"));
+
+        if (request.getMetodoPago() != null) {
+            guardado.setMetodoPago(request.getMetodoPago());
+            guardado = pagoJpaRepository.save(guardado);
+        }
 
         return com.agromarket.application.dto.IniciarPagoResponse.builder()
                 .pagoId(guardado.getId())
-                .urlPasarela(urlPasarela)
-                .referencia(referencia)
+                .urlPasarela(iniciado.getRedirectUrl())
+                .referencia(iniciado.getReferencia())
                 .build();
     }
 
@@ -84,7 +85,7 @@ public class PagoServiceImpl implements PagoService {
         }
 
         if ("APROBADO".equalsIgnoreCase(request.getEstado())) {
-            pago.setEstado(EstadoPago.CONFIRMADO);
+            pago.setEstado(EstadoPago.EN_FIDEICOMISO);
             PedidoEntity pedido = pago.getPedido();
             pedido.setEstado(com.agromarket.domain.model.EstadoPedido.PENDIENTE);
             pedidoJpaRepository.save(pedido);

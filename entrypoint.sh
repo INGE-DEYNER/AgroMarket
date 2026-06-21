@@ -39,36 +39,27 @@ mysql --socket=/app/mysql/run/mysqld.sock -u root -e "FLUSH PRIVILEGES;"
 
 echo "MySQL configuration completed."
 
-# Start background loop to insert test accounts and promote administrator once tables are created by Hibernate
+# Start background thread to insert test accounts and promote administrator once tables are created by Hibernate
 (
     set +e
-    accounts_inserted=false
-    while true; do
-        sleep 10
+    attempts=0
+    max_attempts=30
+    while [ $attempts -lt $max_attempts ]; do
+        sleep 2
         # Check if table 'usuarios' exists
         if mysql --socket=/app/mysql/run/mysqld.sock -u root -e "USE agromarket_db; SHOW TABLES LIKE 'usuarios';" 2>/dev/null | grep -q "usuarios"; then
+            echo "Table 'usuarios' exists. Inserting test accounts..."
+            mysql --socket=/app/mysql/run/mysqld.sock -u root -e "
+                USE agromarket_db;
+                INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, totp_enabled, fecha_registro, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, verificado, codigo_pais, ubicacion)
+                VALUES ('Pedro', 'Perez', 'producer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3001234567', 'PRODUCTOR', 1, 1, 0, NOW(), 1, 1, 1, 'ACTIVA', 1, '57', 'Urabá')
+                ON DUPLICATE KEY UPDATE correo = 'producer@test.com';
+                
+                INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, totp_enabled, fecha_registro, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, codigo_pais, ubicacion)
+                VALUES ('Juan', 'Gomez', 'buyer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3009876543', 'COMPRADOR', 1, 1, 0, NOW(), 1, 1, 1, 'ACTIVA', '57', 'Bogotá')
+                ON DUPLICATE KEY UPDATE correo = 'buyer@test.com';
+            "
             
-            # Insert test accounts if not done yet
-            if [ "$accounts_inserted" = "false" ]; then
-                echo "Table 'usuarios' exists. Inserting test accounts..."
-                mysql --socket=/app/mysql/run/mysqld.sock -u root -e "
-                    USE agromarket_db;
-                    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, totp_enabled, fecha_registro, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, verificado, codigo_pais, ubicacion)
-                    VALUES ('Pedro', 'Perez', 'producer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3001234567', 'PRODUCTOR', 1, 1, 0, NOW(), 1, 1, 1, 'ACTIVA', 1, '57', 'Urabá')
-                    ON DUPLICATE KEY UPDATE correo = 'producer@test.com';
-                    
-                    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, totp_enabled, fecha_registro, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, codigo_pais, ubicacion)
-                    VALUES ('Juan', 'Gomez', 'buyer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3009876543', 'COMPRADOR', 1, 1, 0, NOW(), 1, 1, 1, 'ACTIVA', '57', 'Bogotá')
-                    ON DUPLICATE KEY UPDATE correo = 'buyer@test.com';
-                "
-                if [ $? -eq 0 ]; then
-                    accounts_inserted=true
-                    echo "Test accounts inserted successfully."
-                else
-                    echo "Test accounts insertion failed, will retry."
-                fi
-            fi
-
             # Auto-promote deyner.ingsoftware@gmail.com to ADMINISTRADOR if exists
             if mysql --socket=/app/mysql/run/mysqld.sock -u root -e "USE agromarket_db; SELECT 1 FROM usuarios WHERE correo = 'deyner.ingsoftware@gmail.com';" 2>/dev/null | grep -q "1"; then
                 mysql --socket=/app/mysql/run/mysqld.sock -u root -e "
@@ -83,8 +74,11 @@ echo "MySQL configuration completed."
                     WHERE correo = 'deyner.ingsoftware@gmail.com' AND rol != 'ADMINISTRADOR';
                 " >/dev/null 2>&1
             fi
+            exit 0
         fi
+        attempts=$((attempts+1))
     done
+    exit 0
 ) &
 
 # Start Spring Boot Application

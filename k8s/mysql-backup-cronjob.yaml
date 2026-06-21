@@ -12,7 +12,7 @@ spec:
             - name: backup
               image: mysql:8.4
               command: ["/bin/sh","-c"]
-              args: ['mysqldump -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME | gzip > /backups/$DB_NAME-$(date +%Y%m%dT%H%M%S).sql.gz']
+              args: ['mysqldump -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME | gzip > /backups/$DB_NAME-$(date +%Y%m%dT%H%M%S).sql.gz; find /backups -type f -name "*.sql.gz" -mtime +30 -delete']
               env:
                 - name: DB_HOST
                   value: mysql

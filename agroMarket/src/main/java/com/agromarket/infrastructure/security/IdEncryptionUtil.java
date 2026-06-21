@@ -19,7 +19,7 @@ public class IdEncryptionUtil {
     private static final int GCM_IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH = 128; // in bits
 
-    @Value("${app.security.id-encryption-secret:DefaultSecretKeyForIdEncryption32Bytes12345!}")
+    @Value("${app.security.id-encryption-secret:}")
     private String secretKeyString;
 
     private SecretKey secretKey;
@@ -27,6 +27,9 @@ public class IdEncryptionUtil {
 
     @PostConstruct
     public void init() {
+        if (secretKeyString == null || secretKeyString.isBlank()) {
+            throw new IllegalStateException("La variable de entorno app.security.id-encryption-secret no está definida");
+        }
         // Asegurar longitud de 32 bytes para AES-256
         byte[] keyBytes = new byte[32];
         byte[] providedBytes = secretKeyString.getBytes(StandardCharsets.UTF_8);
