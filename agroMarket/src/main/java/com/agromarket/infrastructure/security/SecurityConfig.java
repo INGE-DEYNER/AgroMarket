@@ -69,7 +69,9 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/login/oauth2/code/**",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/api-docs/**",
+                                "/api-docs"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/resenas/**").permitAll()
