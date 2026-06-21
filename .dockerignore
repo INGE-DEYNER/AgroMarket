@@ -1,0 +1,8 @@
+# Avoid copying source code and node modules to keep the context clean
+.git
+.github
+node_modules
+frontend/node_modules
+
+# Do not exclude target jar
+!agroMarket/target/*.jar
