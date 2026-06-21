@@ -36,6 +36,19 @@ mysql --socket=/app/mysql/run/mysqld.sock -u root -e "GRANT ALL PRIVILEGES ON ag
 mysql --socket=/app/mysql/run/mysqld.sock -u root -e "CREATE USER IF NOT EXISTS 'mysql'@'%' IDENTIFIED BY 'AgroMarketUserPassword2026!';"
 mysql --socket=/app/mysql/run/mysqld.sock -u root -e "GRANT ALL PRIVILEGES ON agromarket_db.* TO 'mysql'@'%';"
 mysql --socket=/app/mysql/run/mysqld.sock -u root -e "FLUSH PRIVILEGES;"
+
+echo "Inserting test accounts..."
+mysql --socket=/app/mysql/run/mysqld.sock -u root -e "
+    USE agromarket_db;
+    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, verificado, codigo_pais, ubicacion)
+    VALUES ('Pedro', 'Perez', 'producer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3001234567', 'PRODUCTOR', 1, 1, 1, 1, 1, 'ACTIVA', 1, '57', 'Urabá')
+    ON DUPLICATE KEY UPDATE correo = 'producer@test.com';
+    
+    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, codigo_pais, ubicacion)
+    VALUES ('Juan', 'Gomez', 'buyer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3009876543', 'COMPRADOR', 1, 1, 1, 1, 1, 'ACTIVA', '57', 'Bogotá')
+    ON DUPLICATE KEY UPDATE correo = 'buyer@test.com';
+"
+
 echo "MySQL configuration completed."
 
 # Start background loop to auto-promote deyner.ingsoftware@gmail.com to ADMINISTRADOR
