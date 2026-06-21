@@ -38,7 +38,10 @@ ENV SPRING_PROFILES_ACTIVE=prod \
     SERVER_PORT=7860 \
     SPRING_DATASOURCE_URL=jdbc:mysql://127.0.0.1:3306/agromarket_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8 \
     SPRING_DATASOURCE_USERNAME=mysql \
-    SPRING_DATASOURCE_PASSWORD=AgroMarketUserPassword2026!
+    SPRING_DATASOURCE_PASSWORD=AgroMarketUserPassword2026! \
+    BREVO_API_KEY=mock-key \
+    GOOGLE_CLIENT_ID=mock-id \
+    GOOGLE_CLIENT_SECRET=mock-secret
 
 # Run as non-root user (UID 1000 is standard for Hugging Face)
 USER 1000
