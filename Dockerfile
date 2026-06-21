@@ -41,7 +41,9 @@ ENV SPRING_PROFILES_ACTIVE=prod \
     SPRING_DATASOURCE_PASSWORD=AgroMarketUserPassword2026! \
     BREVO_API_KEY=mock-key \
     GOOGLE_CLIENT_ID=mock-id \
-    GOOGLE_CLIENT_SECRET=mock-secret
+    GOOGLE_CLIENT_SECRET=mock-secret \
+    APP_FRONTEND_URL=https://www.agro-market.app \
+    CORS_ALLOWED_ORIGINS=https://www.agro-market.app,https://agro-market.app,https://8e1277fa.agromarket-1n0.pages.dev
 
 # Run as non-root user (UID 1000 is standard for Hugging Face)
 USER 1000
