@@ -52,16 +52,16 @@ echo "MySQL configuration completed."
                 echo "Table 'usuarios' exists. Inserting test accounts..."
                 mysql --socket=/app/mysql/run/mysqld.sock -u root -e "
                     USE agromarket_db;
-                    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, verificado, codigo_pais, ubicacion)
-                    VALUES ('Pedro', 'Perez', 'producer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3001234567', 'PRODUCTOR', 1, 1, 1, 1, 1, 'ACTIVA', 1, '57', 'Urabá')
+                    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, totp_enabled, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, verificado, codigo_pais, ubicacion)
+                    VALUES ('Pedro', 'Perez', 'producer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3001234567', 'PRODUCTOR', 1, 1, 0, 1, 1, 1, 'ACTIVA', 1, '57', 'Urabá')
                     ON DUPLICATE KEY UPDATE correo = 'producer@test.com';
                     
-                    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, codigo_pais, ubicacion)
-                    VALUES ('Juan', 'Gomez', 'buyer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3009876543', 'COMPRADOR', 1, 1, 1, 1, 1, 'ACTIVA', '57', 'Bogotá')
+                    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol, activo, aprobado, totp_enabled, email_verificado, cuenta_aprobada, cuenta_completa, estado_cuenta, codigo_pais, ubicacion)
+                    VALUES ('Juan', 'Gomez', 'buyer@test.com', '\$2a\$10\$7Z8oK50fE3bYnF4gO2.KJuV58mC87qXg6uC5K5EfeV81U.1QzK02C', '3009876543', 'COMPRADOR', 1, 1, 0, 1, 1, 1, 'ACTIVA', '57', 'Bogotá')
                     ON DUPLICATE KEY UPDATE correo = 'buyer@test.com';
-                " >/dev/null 2>&1
+                "
                 accounts_inserted=true
-                echo "Test accounts inserted successfully."
+                echo "Test accounts insertion attempted."
             fi
 
             # Auto-promote deyner.ingsoftware@gmail.com to ADMINISTRADOR if exists
