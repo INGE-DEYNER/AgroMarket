@@ -37,8 +37,9 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Checking database seed...");
 
         // 1. Seed Admin
-        if (!usuarioJpaRepository.existsByCorreo("admin@agromarket.com")) {
-            AdministradorEntity admin = AdministradorEntity.builder()
+        AdministradorEntity admin = (AdministradorEntity) usuarioJpaRepository.findByCorreo("admin@agromarket.com").orElse(null);
+        if (admin == null) {
+            admin = AdministradorEntity.builder()
                     .nombre("Administrador")
                     .correo("admin@agromarket.com")
                     .contrasena(passwordEncoder.encode("admin123"))
@@ -54,11 +55,21 @@ public class DataInitializer implements CommandLineRunner {
             admin.setRol(RolUsuario.ADMINISTRADOR);
             usuarioJpaRepository.save(admin);
             log.info("Seeded admin@agromarket.com");
+        } else {
+            admin.setContrasena(passwordEncoder.encode("admin123"));
+            admin.setActivo(true);
+            admin.setAprobado(true);
+            admin.setEmailVerificado(true);
+            admin.setCuentaAprobada(true);
+            admin.setCuentaCompleta(true);
+            admin.setEstadoCuenta("ACTIVA");
+            usuarioJpaRepository.save(admin);
+            log.info("Reset credentials for existing admin@agromarket.com");
         }
 
         // 2. Seed Test Producer
-        ProductorEntity producer = null;
-        if (!usuarioJpaRepository.existsByCorreo("producer@test.com")) {
+        ProductorEntity producer = (ProductorEntity) usuarioJpaRepository.findByCorreo("producer@test.com").orElse(null);
+        if (producer == null) {
             producer = ProductorEntity.builder()
                     .nombre("Pedro")
                     .apellido("Perez")
@@ -80,15 +91,22 @@ public class DataInitializer implements CommandLineRunner {
             producer = usuarioJpaRepository.save(producer);
             log.info("Seeded producer@test.com");
         } else {
-            var existing = usuarioJpaRepository.findByCorreo("producer@test.com").orElse(null);
-            if (existing instanceof ProductorEntity) {
-                producer = (ProductorEntity) existing;
-            }
+            producer.setContrasena(passwordEncoder.encode("Password123!"));
+            producer.setActivo(true);
+            producer.setAprobado(true);
+            producer.setEmailVerificado(true);
+            producer.setCuentaAprobada(true);
+            producer.setCuentaCompleta(true);
+            producer.setEstadoCuenta("ACTIVA");
+            producer.setVerificado(true);
+            producer = usuarioJpaRepository.save(producer);
+            log.info("Reset credentials for existing producer@test.com");
         }
 
         // 3. Seed Test Buyer
-        if (!usuarioJpaRepository.existsByCorreo("buyer@test.com")) {
-            CompradorEntity buyer = CompradorEntity.builder()
+        CompradorEntity buyer = (CompradorEntity) usuarioJpaRepository.findByCorreo("buyer@test.com").orElse(null);
+        if (buyer == null) {
+            buyer = CompradorEntity.builder()
                     .nombre("Juan")
                     .apellido("Gomez")
                     .correo("buyer@test.com")
@@ -106,6 +124,16 @@ public class DataInitializer implements CommandLineRunner {
             buyer.setRol(RolUsuario.COMPRADOR);
             usuarioJpaRepository.save(buyer);
             log.info("Seeded buyer@test.com");
+        } else {
+            buyer.setContrasena(passwordEncoder.encode("Password123!"));
+            buyer.setActivo(true);
+            buyer.setAprobado(true);
+            buyer.setEmailVerificado(true);
+            buyer.setCuentaAprobada(true);
+            buyer.setCuentaCompleta(true);
+            buyer.setEstadoCuenta("ACTIVA");
+            usuarioJpaRepository.save(buyer);
+            log.info("Reset credentials for existing buyer@test.com");
         }
 
         // 4. Seed Dev producers if they don't exist
