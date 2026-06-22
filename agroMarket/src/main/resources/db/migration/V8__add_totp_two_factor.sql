@@ -1,3 +1,0 @@
-ALTER TABLE usuarios
-    ADD COLUMN totp_enabled BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN totp_secret VARCHAR(128) NULL;
