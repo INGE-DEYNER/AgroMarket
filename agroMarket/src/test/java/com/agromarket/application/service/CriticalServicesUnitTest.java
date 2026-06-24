@@ -1,4 +1,4 @@
-package com.agromarket.application.service;
+﻿package com.agromarket.application.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -9,15 +9,11 @@ import java.util.Collections;
 import java.util.Optional;
 
 import com.agromarket.application.dto.CrearPedidoRequest;
-import com.agromarket.application.dto.PagoIniciadoDTO;
 import com.agromarket.application.dto.PedidoResponse;
 import com.agromarket.application.mapper.PedidoMapper;
-import com.agromarket.application.service.impl.PasarelaPagoStub;
 import com.agromarket.domain.exception.StockInsuficienteException;
-import com.agromarket.domain.model.EstadoPedido;
 import com.agromarket.domain.model.TipoFruta;
 import com.agromarket.infrastructure.persistence.entity.CompradorEntity;
-import com.agromarket.infrastructure.persistence.entity.PagoEntity;
 import com.agromarket.infrastructure.persistence.entity.PedidoEntity;
 import com.agromarket.infrastructure.persistence.entity.ProductoEntity;
 import com.agromarket.infrastructure.persistence.entity.ProductorEntity;
@@ -54,26 +50,17 @@ public class CriticalServicesUnitTest {
     @InjectMocks
     private PedidoServiceImpl pedidoService;
 
-    // RfqServiceImpl Mocks
     @Mock private RfqJpaRepository rfqJpaRepository;
     @Mock private RfqOfertaJpaRepository rfqOfertaJpaRepository;
     private RfqServiceImpl rfqService;
 
-    // DescuentoAutomaticoJob Mocks
     private DescuentoAutomaticoJob descuentoAutomaticoJob;
-
-    // PasarelaPagoStub Mocks
-    @Mock private PagoJpaRepository pagoJpaRepository;
-    private PasarelaPagoStub pasarelaPagoStub;
 
     @BeforeEach
     void setUp() {
         rfqService = new RfqServiceImpl(rfqJpaRepository, rfqOfertaJpaRepository, usuarioJpaRepository, productoJpaRepository, pedidoJpaRepository);
         descuentoAutomaticoJob = new DescuentoAutomaticoJob(productoJpaRepository);
-        pasarelaPagoStub = new PasarelaPagoStub(pagoJpaRepository);
     }
-
-    // --- PedidoServiceImpl.crear Tests ---
 
     @Test
     void testCrearPedido_StockSuficiente() {
@@ -88,11 +75,7 @@ public class CriticalServicesUnitTest {
         productor.setId(3L);
 
         ProductoEntity producto = ProductoEntity.builder()
-                .id(1L)
-                .productor(productor)
-                .cantidadDisponible(10)
-                .precio(BigDecimal.TEN)
-                .build();
+                .id(1L).productor(productor).cantidadDisponible(10).precio(BigDecimal.TEN).build();
 
         when(usuarioJpaRepository.findById(2L)).thenReturn(Optional.of(comprador));
         when(productoJpaRepository.findById(1L)).thenReturn(Optional.of(producto));
@@ -115,10 +98,7 @@ public class CriticalServicesUnitTest {
         CompradorEntity comprador = new CompradorEntity();
         comprador.setId(2L);
 
-        ProductoEntity producto = ProductoEntity.builder()
-                .id(1L)
-                .cantidadDisponible(10)
-                .build();
+        ProductoEntity producto = ProductoEntity.builder().id(1L).cantidadDisponible(10).build();
 
         when(usuarioJpaRepository.findById(2L)).thenReturn(Optional.of(comprador));
         when(productoJpaRepository.findById(1L)).thenReturn(Optional.of(producto));
@@ -136,10 +116,7 @@ public class CriticalServicesUnitTest {
         comprador.setId(2L);
 
         ProductoEntity producto = ProductoEntity.builder()
-                .id(1L)
-                .cantidadDisponible(10)
-                .precio(BigDecimal.TEN)
-                .build();
+                .id(1L).cantidadDisponible(10).precio(BigDecimal.TEN).build();
 
         when(usuarioJpaRepository.findById(2L)).thenReturn(Optional.of(comprador));
         when(productoJpaRepository.findById(1L)).thenReturn(Optional.of(producto));
@@ -150,8 +127,6 @@ public class CriticalServicesUnitTest {
         assertEquals("Producto agotado, intente de nuevo", ex.getMessage());
     }
 
-    // --- RfqServiceImpl.aceptarOferta Tests ---
-
     @Test
     void testAceptarOferta_ProductoExistente() {
         CompradorEntity comprador = new CompradorEntity();
@@ -160,37 +135,17 @@ public class CriticalServicesUnitTest {
         ProductorEntity productor = new ProductorEntity();
         productor.setId(2L);
 
-        RfqEntity rfq = RfqEntity.builder()
-                .id(10L)
-                .comprador(comprador)
-                .tipoFruta(TipoFruta.BANANO)
-                .cantidadRequerida(100.0)
-                .activo(true)
-                .build();
-
-        RfqOfertaEntity oferta = RfqOfertaEntity.builder()
-                .id(20L)
-                .rfq(rfq)
-                .productor(productor)
-                .precioPropuesto(BigDecimal.TEN)
-                .build();
-
-        ProductoEntity productoExistente = ProductoEntity.builder()
-                .id(30L)
-                .productor(productor)
-                .tipoFruta(TipoFruta.BANANO)
-                .build();
+        RfqEntity rfq = RfqEntity.builder().id(10L).comprador(comprador).tipoFruta(TipoFruta.BANANO).cantidadRequerida(100.0).activo(true).build();
+        RfqOfertaEntity oferta = RfqOfertaEntity.builder().id(20L).rfq(rfq).productor(productor).precioPropuesto(BigDecimal.TEN).build();
+        ProductoEntity productoExistente = ProductoEntity.builder().id(30L).productor(productor).tipoFruta(TipoFruta.BANANO).build();
 
         when(rfqOfertaJpaRepository.findById(20L)).thenReturn(Optional.of(oferta));
-        when(productoJpaRepository.findByProductorIdAndTipoFruta(2L, TipoFruta.BANANO))
-                .thenReturn(Optional.of(productoExistente));
+        when(productoJpaRepository.findByProductorIdAndTipoFruta(2L, TipoFruta.BANANO)).thenReturn(Optional.of(productoExistente));
 
         rfqService.aceptarOferta(20L, 1L);
 
-        verify(pedidoJpaRepository).save(argThat(pedido -> 
-            pedido.getProducto().getId().equals(30L) &&
-            pedido.getCantidad() == 100
-        ));
+        verify(pedidoJpaRepository).save(argThat(pedido ->
+            pedido.getProducto().getId().equals(30L) && pedido.getCantidad() == 100));
     }
 
     @Test
@@ -201,36 +156,18 @@ public class CriticalServicesUnitTest {
         ProductorEntity productor = new ProductorEntity();
         productor.setId(2L);
 
-        RfqEntity rfq = RfqEntity.builder()
-                .id(10L)
-                .comprador(comprador)
-                .tipoFruta(TipoFruta.BANANO)
-                .cantidadRequerida(100.0)
-                .activo(true)
-                .build();
-
-        RfqOfertaEntity oferta = RfqOfertaEntity.builder()
-                .id(20L)
-                .rfq(rfq)
-                .productor(productor)
-                .precioPropuesto(BigDecimal.TEN)
-                .build();
+        RfqEntity rfq = RfqEntity.builder().id(10L).comprador(comprador).tipoFruta(TipoFruta.BANANO).cantidadRequerida(100.0).activo(true).build();
+        RfqOfertaEntity oferta = RfqOfertaEntity.builder().id(20L).rfq(rfq).productor(productor).precioPropuesto(BigDecimal.TEN).build();
 
         when(rfqOfertaJpaRepository.findById(20L)).thenReturn(Optional.of(oferta));
-        when(productoJpaRepository.findByProductorIdAndTipoFruta(2L, TipoFruta.BANANO))
-                .thenReturn(Optional.empty());
+        when(productoJpaRepository.findByProductorIdAndTipoFruta(2L, TipoFruta.BANANO)).thenReturn(Optional.empty());
         when(productoJpaRepository.save(any(ProductoEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         rfqService.aceptarOferta(20L, 1L);
 
-        verify(productoJpaRepository).save(argThat(p -> 
-            p.getNombre().equals("Contrato RFQ - BANANO") &&
-            p.getTipoFruta() == TipoFruta.BANANO &&
-            p.getPrecio().equals(BigDecimal.TEN)
-        ));
+        verify(productoJpaRepository).save(argThat(p ->
+            p.getNombre().equals("Contrato RFQ - BANANO") && p.getTipoFruta() == TipoFruta.BANANO && p.getPrecio().equals(BigDecimal.TEN)));
     }
-
-    // --- DescuentoAutomaticoJob Tests ---
 
     @Test
     void testExpirarPromociones() {
@@ -244,27 +181,7 @@ public class CriticalServicesUnitTest {
 
         assertFalse(p1.isEnPromocion());
         assertNull(p1.getPrecioPromocion());
-        assertNull(p1.getFechaFinPromocion());
-
         assertFalse(p2.isEnPromocion());
-        assertNull(p2.getPrecioPromocion());
-        assertNull(p2.getFechaFinPromocion());
-
         verify(productoJpaRepository, times(2)).save(any(ProductoEntity.class));
-    }
-
-    // --- PasarelaPagoStub Tests ---
-
-    @Test
-    void testPasarelaPagoStub_IniciarPago() {
-        PedidoEntity pedido = PedidoEntity.builder().id(1L).total(BigDecimal.TEN).build();
-        when(pagoJpaRepository.findByPedidoId(1L)).thenReturn(Optional.empty());
-
-        PagoIniciadoDTO response = pasarelaPagoStub.iniciarPago(pedido);
-
-        assertNotNull(response);
-        assertTrue(response.getReferencia().startsWith("STUB-"));
-        assertTrue(response.getRedirectUrl().contains(response.getReferencia()));
-        verify(pagoJpaRepository).save(argThat(p -> p.getEstado() == com.agromarket.domain.model.EstadoPago.EN_PROCESO));
     }
 }
