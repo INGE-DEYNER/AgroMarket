@@ -19,7 +19,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 
-
 import com.agromarket.config.properties.AppProperties;
 import com.agromarket.domain.model.RolUsuario;
 
@@ -47,7 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/actuator/health/**",
-                                "/api/health", // Added health endpoint
+                                "/api/health",
                                 "/api/auth/verificar-email",
                                 "/api/auth/enviar-sms-verificacion",
                                 "/api/auth/enviar-verificacion-sms",
@@ -78,10 +77,10 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/resenas/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(RolUsuario.ADMINISTRADOR.name())
                         .anyRequest().authenticated()
                 )
-                // OAuth2 requiere sesión temporal para el flujo de autorización
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
@@ -101,14 +100,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        // Todos los orígenes válidos — con y sin www + localhost
         configuration.setAllowedOrigins(List.of(
-            appProperties.frontendUrl(),          // lee de app.frontend-url
+            "https://www.agro-market.app",
+            "https://agro-market.app",
             "http://localhost:5173",
             "http://localhost:3000"
         ));
         configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);  // CRÍTICO para cookies cross-domain
+        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
