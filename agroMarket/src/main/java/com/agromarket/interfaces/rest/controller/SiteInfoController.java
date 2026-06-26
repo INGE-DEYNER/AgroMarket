@@ -130,7 +130,9 @@ public class SiteInfoController {
 
             return ResponseEntity.ok(Map.of("respuesta", respuesta));
         } catch (Exception e) {
-            return ResponseEntity.ok(Map.of("respuesta", "Lo siento, hay un problema de conexión con el servicio de IA. Inténtalo más tarde."));
+            e.printStackTrace();
+            System.err.println("Error en el chatbot de Gemini: " + e.getMessage());
+            return ResponseEntity.ok(Map.of("respuesta", "Lo siento, hay un problema de conexión con el servicio de IA. Detalle: " + e.getMessage()));
         }
     }
 }
