@@ -35,7 +35,6 @@ public class AdminServiceImpl implements AdminService {
     private final PedidoMapper pedidoMapper;
     private final PagoMapper pagoMapper;
     private final com.agromarket.application.mapper.ProductoMapper productoMapper;
-    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
     private final com.agromarket.application.service.EmailService emailService;
 
     @Override
@@ -446,25 +445,4 @@ public class AdminServiceImpl implements AdminService {
                 .build();
     }
 
-    @Override
-    @org.springframework.transaction.annotation.Transactional
-    public void limpiarDatosFalsos() {
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
-        try {
-            jdbcTemplate.execute("TRUNCATE TABLE resenas;");
-            jdbcTemplate.execute("TRUNCATE TABLE pagos;");
-            jdbcTemplate.execute("TRUNCATE TABLE envios;");
-            jdbcTemplate.execute("TRUNCATE TABLE facturas;");
-            jdbcTemplate.execute("TRUNCATE TABLE mensajes;");
-            jdbcTemplate.execute("TRUNCATE TABLE cupones_descuento;");
-            jdbcTemplate.execute("TRUNCATE TABLE rfq_ofertas;");
-            jdbcTemplate.execute("TRUNCATE TABLE rfqs;");
-            jdbcTemplate.execute("TRUNCATE TABLE pedidos;");
-            jdbcTemplate.execute("TRUNCATE TABLE productos;");
-            jdbcTemplate.execute("DELETE FROM usuarios WHERE id > 1;");
-            jdbcTemplate.execute("ALTER TABLE usuarios AUTO_INCREMENT = 2;");
-        } finally {
-            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
-        }
-    }
 }

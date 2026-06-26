@@ -75,11 +75,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.<com.agromarket.application.dto.PageResponse<ProductoResponse>>builder().success(true).message("Productos recuperados").data(res).build());
     }
 
-    @PostMapping("/limpiar-datos-falsos")
-    public ResponseEntity<ApiResponse<Void>> limpiarDatosFalsos() {
-        adminService.limpiarDatosFalsos();
-        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Datos falsos eliminados y base de datos reseteada").build());
-    }
+
 
     @DeleteMapping("/resenas/{id}")
     public ResponseEntity<ApiResponse<Void>> eliminarResena(@PathVariable Long id, @AuthenticationPrincipal JwtUserPrincipal principal) {
