@@ -50,10 +50,8 @@ export default function Navbar() {
     <header className="navbar-header">
       {/* Barra superior */}
       <div className="navbar-top">
-        <Link to="/home" className="nav-logo">
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="var(--primary)">
-            <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z"/>
-          </svg>
+        <Link to="/home" className="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src="/logo-asafrut.jpg" alt="Asafrut Logo" style={{ height: '40px', width: 'auto', borderRadius: '6px' }} />
           <span>AgroMarket</span>
         </Link>
 
