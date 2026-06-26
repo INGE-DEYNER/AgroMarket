@@ -279,10 +279,6 @@ public abstract class UsuarioEntity {
         return this.nombre;
     }
 
-    public RolUsuario getRol() {
-        return this.rol;
-    }
-
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }

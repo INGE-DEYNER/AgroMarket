@@ -7,7 +7,7 @@ import '../styles/login.css';
 
 export default function Login() {
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -18,6 +18,19 @@ export default function Login() {
   const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const redirectByRole = (role) => {
+    const r = role?.toLowerCase();
+    if (r === 'productor') navigate('/dashboard-productor');
+    else if (r === 'admin' || r === 'administrador') navigate('/admin');
+    else navigate('/dashboard-comprador');
+  };
+
+  useEffect(() => {
+    if (user) {
+      redirectByRole(user.role);
+    }
+  }, [user]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -33,7 +46,6 @@ export default function Login() {
           if (token && authData) {
             localStorage.setItem('token', token);
             login(authData.user || authData, token);
-            redirectByRole((authData.user || authData)?.role || authData.rol);
           } else {
             throw new Error('Token o datos de usuario no recibidos del intercambio OAuth2');
           }
@@ -45,13 +57,6 @@ export default function Login() {
       setGlobalError('Tu cuenta ha sido registrada con éxito mediante Google, pero está pendiente de aprobación por un administrador.');
     }
   }, [location.search]);
-
-  const redirectByRole = (role) => {
-    const r = role?.toLowerCase();
-    if (r === 'productor') navigate('/dashboard-productor');
-    else if (r === 'admin' || r === 'administrador') navigate('/admin');
-    else navigate('/dashboard-comprador');
-  };
 
   const validate = () => {
     let valid = true;
@@ -77,7 +82,6 @@ export default function Login() {
       const res = await api.post('/auth/login', { email, password });
       const authData = res.data || res;
       login(authData.user || authData, authData.token);
-      redirectByRole((authData.user || authData)?.role || authData.rol);
     } catch (err) {
       setGlobalError(err.message || 'Credenciales incorrectas.');
     } finally {
