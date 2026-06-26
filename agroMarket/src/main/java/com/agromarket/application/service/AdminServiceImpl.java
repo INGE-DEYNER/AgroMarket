@@ -19,6 +19,7 @@ import com.agromarket.infrastructure.persistence.repository.PagoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.PedidoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.ProductoJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
+import com.agromarket.infrastructure.persistence.repository.EnvioJpaRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ public class AdminServiceImpl implements AdminService {
     private final ProductoJpaRepository productoJpaRepository;
     private final PedidoJpaRepository pedidoJpaRepository;
     private final PagoJpaRepository pagoJpaRepository;
+    private final EnvioJpaRepository envioJpaRepository;
     private final UsuarioMapper usuarioMapper;
     private final PedidoMapper pedidoMapper;
     private final PagoMapper pagoMapper;
@@ -445,4 +447,71 @@ public class AdminServiceImpl implements AdminService {
                 .build();
     }
 
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public com.agromarket.application.dto.ReporteFinanzasResponse getReporteFinanzas() {
+        java.util.List<PagoEntity> pagos = pagoJpaRepository.findAll();
+        
+        java.math.BigDecimal totalIngresos = pagos.stream()
+                .filter(p -> p.getEstado() == EstadoPago.CONFIRMADO || p.getEstado() == EstadoPago.LIBERADO)
+                .map(PagoEntity::getMonto)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                
+        java.math.BigDecimal totalFideicomiso = pagos.stream()
+                .filter(p -> p.getEstado() == EstadoPago.EN_FIDEICOMISO)
+                .map(PagoEntity::getMonto)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                
+        long totalTransacciones = pagos.size();
+        
+        java.util.Map<String, Long> transaccionesPorEstado = new java.util.HashMap<>();
+        java.util.Map<String, java.math.BigDecimal> montoPorEstado = new java.util.HashMap<>();
+        java.util.Map<String, Long> transaccionesPorMetodo = new java.util.HashMap<>();
+        java.util.Map<String, java.math.BigDecimal> montoPorMetodo = new java.util.HashMap<>();
+        
+        for (PagoEntity p : pagos) {
+            String estadoStr = p.getEstado() != null ? p.getEstado().name() : "DESCONOCIDO";
+            transaccionesPorEstado.put(estadoStr, transaccionesPorEstado.getOrDefault(estadoStr, 0L) + 1);
+            montoPorEstado.put(estadoStr, montoPorEstado.getOrDefault(estadoStr, java.math.BigDecimal.ZERO).add(p.getMonto()));
+            
+            String metodoStr = p.getMetodoPago() != null ? p.getMetodoPago().name() : "DESCONOCIDO";
+            transaccionesPorMetodo.put(metodoStr, transaccionesPorMetodo.getOrDefault(metodoStr, 0L) + 1);
+            montoPorMetodo.put(metodoStr, montoPorMetodo.getOrDefault(metodoStr, java.math.BigDecimal.ZERO).add(p.getMonto()));
+        }
+        
+        return com.agromarket.application.dto.ReporteFinanzasResponse.builder()
+                .totalIngresos(totalIngresos)
+                .totalFideicomiso(totalFideicomiso)
+                .totalTransacciones(totalTransacciones)
+                .transaccionesPorEstado(transaccionesPorEstado)
+                .montoPorEstado(montoPorEstado)
+                .transaccionesPorMetodo(transaccionesPorMetodo)
+                .montoPorMetodo(montoPorMetodo)
+                .build();
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public com.agromarket.application.dto.ReporteLogisticaResponse getReporteLogistica() {
+        java.util.List<com.agromarket.infrastructure.persistence.entity.EnvioEntity> envios = envioJpaRepository.findAll();
+        
+        long totalEnvios = envios.size();
+        
+        java.util.Map<String, Long> enviosPorEstado = new java.util.HashMap<>();
+        java.util.Map<String, Long> enviosPorTransportista = new java.util.HashMap<>();
+        
+        for (com.agromarket.infrastructure.persistence.entity.EnvioEntity e : envios) {
+            String estadoStr = e.getEstado() != null ? e.getEstado().name() : "DESCONOCIDO";
+            enviosPorEstado.put(estadoStr, enviosPorEstado.getOrDefault(estadoStr, 0L) + 1);
+            
+            String transportistaStr = e.getTransportista() != null && !e.getTransportista().isBlank() ? e.getTransportista() : "SIN_TRANSPORTISTA";
+            enviosPorTransportista.put(transportistaStr, enviosPorTransportista.getOrDefault(transportistaStr, 0L) + 1);
+        }
+        
+        return com.agromarket.application.dto.ReporteLogisticaResponse.builder()
+                .totalEnvios(totalEnvios)
+                .enviosPorEstado(enviosPorEstado)
+                .enviosPorTransportista(enviosPorTransportista)
+                .build();
+    }
 }

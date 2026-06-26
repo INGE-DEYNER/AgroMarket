@@ -8,6 +8,8 @@ import com.agromarket.application.dto.PedidoResponse;
 import com.agromarket.application.dto.UsuarioResponse;
 import com.agromarket.application.dto.PagoResponse;
 import com.agromarket.application.dto.ProductoResponse;
+import com.agromarket.application.dto.ReporteFinanzasResponse;
+import com.agromarket.application.dto.ReporteLogisticaResponse;
 import com.agromarket.application.service.AdminService;
 import com.agromarket.application.service.ProductoService;
 import com.agromarket.application.service.ResenaService;
@@ -213,6 +215,24 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
                 .message("Fondos reembolsados exitosamente al comprador")
+                .build());
+    }
+
+    @GetMapping("/reportes/finanzas")
+    public ResponseEntity<ApiResponse<ReporteFinanzasResponse>> getReporteFinanzas() {
+        return ResponseEntity.ok(ApiResponse.<ReporteFinanzasResponse>builder()
+                .success(true)
+                .message("Reporte de finanzas recuperado")
+                .data(adminService.getReporteFinanzas())
+                .build());
+    }
+
+    @GetMapping("/reportes/logistica")
+    public ResponseEntity<ApiResponse<ReporteLogisticaResponse>> getReporteLogistica() {
+        return ResponseEntity.ok(ApiResponse.<ReporteLogisticaResponse>builder()
+                .success(true)
+                .message("Reporte de logística recuperado")
+                .data(adminService.getReporteLogistica())
                 .build());
     }
 }
