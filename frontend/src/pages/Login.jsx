@@ -22,33 +22,23 @@ export default function Login() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('oauth2') === 'success') {
-      const urlToken = params.get('token');
       (async () => {
         try {
-          let authData = null;
-          let token = urlToken;
-
-          if (token) {
-            // Se recibió el token directamente en la URL (evita problemas de SameSite/cookies)
-            localStorage.setItem('token', token);
-            const res = await api.get('/usuarios/me');
-            authData = res.data || res;
-          } else {
-            // Intenta el intercambio de cookies tradicional como fallback
-            const res = await api.get('/auth/token-exchange');
-            authData = res.data || res;
-            token = authData?.token;
-          }
-
+          // SECURITY: el token ya NO viene en la URL — se obtiene via cookie httpOnly + /auth/token-exchange
+          // Pequeño delay para asegurar que la cookie esté disponible
+          await new Promise(r => setTimeout(r, 800));
+          const res = await api.get('/auth/token-exchange');
+          const authData = res?.data || res;
+          const token = authData?.token;
           if (token && authData) {
             localStorage.setItem('token', token);
             login(authData.user || authData, token);
             redirectByRole((authData.user || authData)?.role || authData.rol);
           } else {
-            throw new Error('Token o datos de usuario no recibidos');
+            throw new Error('Token o datos de usuario no recibidos del intercambio OAuth2');
           }
         } catch (e) {
-          setGlobalError(e.message || 'Error al verificar sesión OAuth2.');
+          setGlobalError(e.message || 'Error al verificar sesión OAuth2. Intenta iniciar sesión de nuevo.');
         }
       })();
     } else if (params.get('oauth2') === 'pending') {

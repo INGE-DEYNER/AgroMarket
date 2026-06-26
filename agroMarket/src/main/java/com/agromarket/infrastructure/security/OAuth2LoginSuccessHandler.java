@@ -87,10 +87,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         String redirect = UriComponentsBuilder
-            .fromUriString(appProperties.frontendUrl()) // debe ser https://agro-market.app
+            .fromUriString(appProperties.frontendUrl())
             .path("/login")
             .queryParam("oauth2", "success")
-            .queryParam("token", authResponse.getToken())
+            // SECURITY: token ELIMINADO de la URL — viajaba en historial/logs/Referer.
+            // El frontend obtiene el token vía /auth/token-exchange usando la cookie httpOnly.
             .build(true).toUriString();
         response.sendRedirect(redirect);
     }

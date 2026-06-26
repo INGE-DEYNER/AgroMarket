@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -34,7 +33,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         UsuarioEntity usuario = usuarioRepository.findByCorreo(email)
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe cuenta con ese correo"));
 
-        String codigo = String.format("%06d", new Random().nextInt(999999));
+        // SecureRandom para evitar predictibilidad del código
+        String codigo = String.format("%06d", new SecureRandom().nextInt(999999));
         LocalDateTime expira = LocalDateTime.now().plusMinutes(15);
 
         usuario.setTokenRecuperacionPassword(codigo);
@@ -58,12 +58,28 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     @Override
     @Transactional
     public String verifyCode(String email, String codigo) {
-        UsuarioEntity usuario = usuarioRepository.findByCorreo(email)
-                .orElseThrow(() -> new CredencialesInvalidasException("Código inválido o expirado"));
+        log.info("verifyCode — intentando verificar código para: {}", email);
 
-        if (!codigo.equals(usuario.getTokenRecuperacionPassword())
-                || LocalDateTime.now().isAfter(usuario.getTokenRecuperacionExpira())) {
-            throw new CredencialesInvalidasException("Código inválido o expirado");
+        UsuarioEntity usuario = usuarioRepository.findByCorreo(email)
+                .orElseThrow(() -> {
+                    log.warn("verifyCode — usuario no encontrado para correo: {}", email);
+                    return new CredencialesInvalidasException("Código inválido o expirado");
+                });
+
+        String storedToken = usuario.getTokenRecuperacionPassword();
+        LocalDateTime expira = usuario.getTokenRecuperacionExpira();
+
+        // Verificar expiración primero para dar log más descriptivo
+        if (expira == null || LocalDateTime.now().isAfter(expira)) {
+            log.warn("verifyCode — token expirado para usuario: {}. Expiró: {}", email, expira);
+            throw new CredencialesInvalidasException("El código ha expirado. Solicita uno nuevo.");
+        }
+
+        // Comparar código ingresado vs almacenado
+        if (storedToken == null || !codigo.equals(storedToken)) {
+            log.warn("verifyCode — código incorrecto para usuario: {}. Recibido: '{}', Almacenado (primeros 2 chars): '{}'",
+                    email, codigo, storedToken != null && storedToken.length() >= 2 ? storedToken.substring(0, 2) + "****" : "null");
+            throw new CredencialesInvalidasException("Código incorrecto. Verifica e intenta de nuevo.");
         }
 
         String tokenTemporal = UUID.randomUUID().toString();
@@ -71,6 +87,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         usuario.setTokenRecuperacionExpira(LocalDateTime.now().plusMinutes(10));
         usuarioRepository.save(usuario);
 
+        log.info("verifyCode — código verificado exitosamente para: {}. Token temporal generado.", email);
         return tokenTemporal;
     }
 

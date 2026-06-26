@@ -82,6 +82,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess
+                        // IF_REQUIRED es correcto para apps híbridas JWT+OAuth2.
+                        // STATELESS rompe el flujo OAuth2 que necesita sesión para el estado de autorización.
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

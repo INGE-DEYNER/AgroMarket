@@ -1,12 +1,16 @@
 package com.agromarket.interfaces.rest.controller;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,14 +18,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpEntity;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/public")
+@RequiredArgsConstructor
 public class SiteInfoController {
+
+    // Usa el bean RestTemplate con timeouts configurados — no instanciar por request
+    private final RestTemplate restTemplate;
 
     @Value("${spring.application.name:AgroMarket}")
     private String appName;
@@ -29,7 +35,8 @@ public class SiteInfoController {
     @Value("${app.version:1.0.0}")
     private String appVersion;
 
-    @Value("${anthropic.api.key:}")
+    // Nombre correcto de propiedad: anthropic.api-key (con guión)
+    @Value("${anthropic.api-key:}")
     private String anthropicApiKey;
 
     @GetMapping("/site-info")
@@ -43,24 +50,31 @@ public class SiteInfoController {
     }
 
     @PostMapping("/chatbot")
-    public ResponseEntity<?> chatbot(@RequestBody Map<String,Object> body) {
+    public ResponseEntity<?> chatbot(@RequestBody Map<String, Object> body) {
         String mensaje = (String) body.get("mensaje");
-        List<Map<String,String>> historial = (List) body.getOrDefault("historial", List.of());
+        if (mensaje == null || mensaje.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El mensaje no puede estar vacío"));
+        }
+        if (mensaje.length() > 2000) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Mensaje demasiado largo"));
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, String>> historial = (List<Map<String, String>>) body.getOrDefault("historial", List.of());
 
         if (anthropicApiKey == null || anthropicApiKey.isEmpty()) {
             return ResponseEntity.ok(Map.of("respuesta", "La IA no está configurada. Por favor contacte soporte."));
         }
 
-        RestTemplate rt = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-api-key", anthropicApiKey);
         headers.set("anthropic-version", "2023-06-01");
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        List<Map<String,String>> messages = new ArrayList<>(historial);
+        List<Map<String, String>> messages = new ArrayList<>(historial);
         messages.add(Map.of("role", "user", "content", mensaje));
 
-        Map<String,Object> requestBody = Map.of(
+        Map<String, Object> requestBody = Map.of(
             "model", "claude-3-5-sonnet-20241022",
             "max_tokens", 500,
             "system", "Eres el asistente virtual de AgroMarket, plataforma de comercio agrícola de ASAFRUT " +
@@ -79,14 +93,15 @@ public class SiteInfoController {
         );
 
         try {
-            ResponseEntity<Map> response = rt.exchange(
+            @SuppressWarnings("rawtypes")
+            ResponseEntity<Map> response = restTemplate.exchange(
                 "https://api.anthropic.com/v1/messages",
                 HttpMethod.POST,
                 new HttpEntity<>(requestBody, headers),
                 Map.class
             );
-
-            List<Map> content = (List) response.getBody().get("content");
+            @SuppressWarnings("unchecked")
+            List<Map<?, ?>> content = (List<Map<?, ?>>) response.getBody().get("content");
             String respuesta = (String) content.get(0).get("text");
             return ResponseEntity.ok(Map.of("respuesta", respuesta));
         } catch (Exception e) {

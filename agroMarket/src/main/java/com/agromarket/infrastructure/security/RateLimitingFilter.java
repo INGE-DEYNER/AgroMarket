@@ -22,7 +22,12 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        return !("POST".equalsIgnoreCase(request.getMethod()) && ("/api/auth/login".equalsIgnoreCase(path) || "/api/auth/recuperar-contrasena".equalsIgnoreCase(path)));
+        String method = request.getMethod();
+        return !("POST".equalsIgnoreCase(method) && (
+            "/api/auth/login".equalsIgnoreCase(path) ||
+            "/api/auth/recuperar-contrasena".equalsIgnoreCase(path) ||
+            "/api/auth/verify-code".equalsIgnoreCase(path)
+        ));
     }
 
     @Override
@@ -48,6 +53,16 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                 response.getWriter().write("{\"message\":\"Límite de solicitudes alcanzado. Intenta más tarde.\"}");
                 return;
             }
+        } else if ("/api/auth/verify-code".equalsIgnoreCase(path)) {
+            // 10 intentos por hora para prevenir fuerza bruta sobre códigos de 6 dígitos
+            boolean allowed = rateLimitingRedisService.isAllowed("verifycode:" + ip, 10, 3600);
+            if (!allowed) {
+                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                response.setHeader("Retry-After", "3600");
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"message\":\"Demasiados intentos de verificación. Solicita un nuevo código.\"}");
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);
@@ -56,7 +71,10 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private String extractClientIp(HttpServletRequest request) {
         String xf = request.getHeader("X-Forwarded-For");
         if (xf != null && !xf.isBlank()) {
-            return xf.split(",")[0].trim();
+            // SECURITY FIX: tomamos la ÚLTIMA IP del chain, no la primera.
+            // La primera puede ser falsificada por el cliente. La última es la del proxy más cercano (confiable en Railway).
+            String[] ips = xf.split(",");
+            return ips[ips.length - 1].trim();
         }
         return request.getRemoteAddr();
     }

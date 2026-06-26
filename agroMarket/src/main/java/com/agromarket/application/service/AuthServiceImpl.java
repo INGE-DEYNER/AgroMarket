@@ -44,6 +44,10 @@ public class AuthServiceImpl implements AuthService {
     private final com.agromarket.config.properties.AppProperties appProperties;
     private final com.agromarket.application.service.CuponDescuentoService cuponService;
 
+    @jakarta.annotation.PostConstruct
+    public void validateJwtConfig() {
+        jwtTokenProvider.validateSecretStrength();
+    }
     @Override
     public AuthResponse login(LoginRequest request) {
         try {
@@ -225,6 +229,12 @@ public class AuthServiceImpl implements AuthService {
         if (!isStrongPassword(request.getPassword()))
             throw new IllegalArgumentException("Contraseña débil: mínimo 8 caracteres, mayúscula, número y símbolo");
 
+        // SECURITY: impedir auto-registro como administrador desde el endpoint público
+        String rolStr = request.getRol() != null ? request.getRol().toUpperCase() : "COMPRADOR";
+        if (rolStr.equals("ADMINISTRADOR") || rolStr.equals("ADMIN")) {
+            throw new IllegalArgumentException("No se puede registrar un usuario con rol de administrador");
+        }
+
         // Validar teléfono (solo dígitos después del código de país o prefijo opcional +)
         if (request.getTelefono() == null || !request.getTelefono().matches("^\\+?[0-9]{7,15}$"))
             throw new IllegalArgumentException("Teléfono inválido");
@@ -232,9 +242,6 @@ public class AuthServiceImpl implements AuthService {
         if (usuarioJpaRepository.existsByTelefono(request.getTelefono())) {
             throw new UsuarioYaExisteException("Ya existe un usuario con ese número de teléfono");
         }
-
-        // Replaced findAll() with findPasswordHashById to avoid loading all users in memory.
-        usuarioJpaRepository.findPasswordHashById(0L);
 
         passwordPolicyService.validarContrasenaRegistro(request.getPassword());
         UsuarioEntity usuario = crearEntidad(request);
