@@ -44,6 +44,20 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
             return;
         }
 
+        String roleParam = request.getParameter("role");
+        if (roleParam == null || roleParam.isBlank()) {
+            roleParam = request.getParameter("rol");
+        }
+        if (roleParam != null && !roleParam.isBlank()) {
+            ResponseCookie roleCookie = ResponseCookie.from("oauth2_rol_solicitado", roleParam)
+                    .secure(request.isSecure())
+                    .path("/")
+                    .maxAge(COOKIE_EXPIRE_SECONDS)
+                    .sameSite("Lax")
+                    .build();
+            response.addHeader("Set-Cookie", roleCookie.toString());
+        }
+
         ResponseCookie cookie = ResponseCookie.from(OAUTH2_AUTH_REQUEST_COOKIE_NAME, Base64.getUrlEncoder().encodeToString(serialize(authorizationRequest)))
                 .httpOnly(true)
                 .secure(request.isSecure())

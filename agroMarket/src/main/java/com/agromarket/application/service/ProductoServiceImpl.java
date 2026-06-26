@@ -43,7 +43,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<ProductoResponse> getAll(int page, int size, String search, TipoFruta tipo, BigDecimal precioMin, BigDecimal precioMax, String sort, String categoria) {
+    public PageResponse<ProductoResponse> getAll(int page, int size, String search, TipoFruta tipo, BigDecimal precioMin, BigDecimal precioMax, String sort, String categoria, Boolean enPromocion) {
         org.springframework.data.domain.Sort sortOrder = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "fechaCreacion");
         if (sort != null) {
             if (sort.equalsIgnoreCase("masVendidos")) {
@@ -65,7 +65,10 @@ public class ProductoServiceImpl implements ProductoService {
         }
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size), sortOrder);
         Specification<ProductoEntity> spec = (root, query, cb) -> cb.equal(root.get("activo"), true);
-        spec = spec.and((root, query, cb) -> cb.greaterThan(root.get("cantidadDisponible"), 0));
+
+        if (Boolean.TRUE.equals(enPromocion)) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("enPromocion"), true));
+        }
         
         if (search != null && !search.isBlank()) {
             String keyword = "%" + search.toLowerCase() + "%";
@@ -75,12 +78,18 @@ public class ProductoServiceImpl implements ProductoService {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoFruta"), tipo));
         }
         if (categoria != null && !categoria.isBlank()) {
-            try {
-                TipoFruta tf = TipoFruta.valueOf(categoria.toUpperCase());
-                spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoFruta"), tf));
-            } catch (IllegalArgumentException e) {
-                if (!categoria.equalsIgnoreCase("Frutas") && !categoria.equalsIgnoreCase("Todos")) {
-                    spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("tipoFruta").as(String.class)), "%" + categoria.toLowerCase() + "%"));
+            if (categoria.equalsIgnoreCase("Otros")) {
+                spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoFruta"), TipoFruta.OTRO));
+            } else if (categoria.equalsIgnoreCase("Frutas")) {
+                spec = spec.and((root, query, cb) -> cb.notEqual(root.get("tipoFruta"), TipoFruta.OTRO));
+            } else {
+                try {
+                    TipoFruta tf = TipoFruta.valueOf(categoria.toUpperCase());
+                    spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoFruta"), tf));
+                } catch (IllegalArgumentException e) {
+                    if (!categoria.equalsIgnoreCase("Todos")) {
+                        spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("tipoFruta").as(String.class)), "%" + categoria.toLowerCase() + "%"));
+                    }
                 }
             }
         }

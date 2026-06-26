@@ -48,11 +48,12 @@ public class ProductoController {
             @RequestParam(required = false) BigDecimal precioMin,
             @RequestParam(required = false) BigDecimal precioMax,
             @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String categoria) {
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) Boolean enPromocion) {
         ApiResponse<PageResponse<ProductoResponse>> body = ApiResponse.<PageResponse<ProductoResponse>>builder()
             .success(true)
             .message("Productos listados")
-            .data(productoService.getAll(page, size, search, tipo, precioMin, precioMax, sort, categoria))
+            .data(productoService.getAll(page, size, search, tipo, precioMin, precioMax, sort, categoria, enPromocion))
             .build();
         return ResponseEntity.ok()
             .cacheControl(CacheControl.maxAge(30, java.util.concurrent.TimeUnit.SECONDS).cachePublic())

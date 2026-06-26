@@ -236,7 +236,7 @@ export default function DashboardComprador() {
   const loadCatalogProducts = async () => {
     setCatalogLoading(true);
     try {
-      const data = await api.get('/productos');
+      const data = await api.get('/productos?size=100');
       setCatalogProducts(extractArray(data));
     } catch (err) {
       console.error('Error loadCatalogProducts:', err);

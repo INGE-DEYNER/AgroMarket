@@ -34,6 +34,8 @@ public class AdminServiceImpl implements AdminService {
     private final UsuarioMapper usuarioMapper;
     private final PedidoMapper pedidoMapper;
     private final PagoMapper pagoMapper;
+    private final com.agromarket.application.mapper.ProductoMapper productoMapper;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
     private final com.agromarket.application.service.EmailService emailService;
 
     @Override
@@ -422,5 +424,47 @@ public class AdminServiceImpl implements AdminService {
             pedidoJpaRepository.save(pago.getPedido());
         }
         pagoJpaRepository.save(pago);
+    }
+
+    @Override
+    public com.agromarket.application.dto.PageResponse<com.agromarket.application.dto.ProductoResponse> productos(int page, int size, String search) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(Math.max(0, page), Math.max(1, size), org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
+        org.springframework.data.domain.Page<com.agromarket.infrastructure.persistence.entity.ProductoEntity> pageResult;
+        if (search != null && !search.isBlank()) {
+            org.springframework.data.jpa.domain.Specification<com.agromarket.infrastructure.persistence.entity.ProductoEntity> spec = (root, query, cb) -> cb.like(cb.lower(root.get("nombre")), "%" + search.toLowerCase() + "%");
+            pageResult = productoJpaRepository.findAll(spec, pageable);
+        } else {
+            pageResult = productoJpaRepository.findAll(pageable);
+        }
+        java.util.List<com.agromarket.application.dto.ProductoResponse> content = pageResult.getContent().stream().map(productoMapper::toResponse).collect(java.util.stream.Collectors.toList());
+        return com.agromarket.application.dto.PageResponse.<com.agromarket.application.dto.ProductoResponse>builder()
+                .content(content)
+                .page(pageResult.getNumber())
+                .size(pageResult.getSize())
+                .totalElements((int) pageResult.getTotalElements())
+                .totalPages(pageResult.getTotalPages())
+                .build();
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void limpiarDatosFalsos() {
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
+        try {
+            jdbcTemplate.execute("TRUNCATE TABLE resenas;");
+            jdbcTemplate.execute("TRUNCATE TABLE pagos;");
+            jdbcTemplate.execute("TRUNCATE TABLE envios;");
+            jdbcTemplate.execute("TRUNCATE TABLE facturas;");
+            jdbcTemplate.execute("TRUNCATE TABLE mensajes;");
+            jdbcTemplate.execute("TRUNCATE TABLE cupones_descuento;");
+            jdbcTemplate.execute("TRUNCATE TABLE rfq_ofertas;");
+            jdbcTemplate.execute("TRUNCATE TABLE rfqs;");
+            jdbcTemplate.execute("TRUNCATE TABLE pedidos;");
+            jdbcTemplate.execute("TRUNCATE TABLE productos;");
+            jdbcTemplate.execute("DELETE FROM usuarios WHERE id > 1;");
+            jdbcTemplate.execute("ALTER TABLE usuarios AUTO_INCREMENT = 2;");
+        } finally {
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+        }
     }
 }

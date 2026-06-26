@@ -33,4 +33,8 @@ public interface AdminService {
     void liberarPago(Long pagoId);
 
     void reembolsarPago(Long pagoId);
+
+    com.agromarket.application.dto.PageResponse<com.agromarket.application.dto.ProductoResponse> productos(int page, int size, String search);
+
+    void limpiarDatosFalsos();
 }

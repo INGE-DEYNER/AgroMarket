@@ -101,8 +101,7 @@ export default function Registro() {
 
   const handleGoogleRegistro = () => {
     const rolSeleccionado = rol === 'comprador_empresa' ? 'EMPRESA' : rol.toUpperCase();
-    document.cookie = `oauth2_rol_solicitado=${rolSeleccionado}; path=/; max-age=300; SameSite=Lax; Secure`;
-    window.location.href = `${API_BASE.replace('/api', '')}/oauth2/authorization/google`;
+    window.location.href = `${API_BASE.replace('/api', '')}/oauth2/authorization/google?role=${rolSeleccionado}`;
   };
 
   const validateField = (field, val) => {

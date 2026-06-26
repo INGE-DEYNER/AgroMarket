@@ -7,6 +7,7 @@ import com.agromarket.application.dto.ApiResponse;
 import com.agromarket.application.dto.PedidoResponse;
 import com.agromarket.application.dto.UsuarioResponse;
 import com.agromarket.application.dto.PagoResponse;
+import com.agromarket.application.dto.ProductoResponse;
 import com.agromarket.application.service.AdminService;
 import com.agromarket.application.service.ProductoService;
 import com.agromarket.application.service.ResenaService;
@@ -63,6 +64,21 @@ public class AdminController {
     public ResponseEntity<ApiResponse<Void>> eliminarProducto(@PathVariable Long id, @AuthenticationPrincipal JwtUserPrincipal principal) {
         productoService.eliminar(id, principal.getUserId());
         return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Producto eliminado").build());
+    }
+
+    @GetMapping("/productos")
+    public ResponseEntity<ApiResponse<com.agromarket.application.dto.PageResponse<ProductoResponse>>> productos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(required = false) String search) {
+        com.agromarket.application.dto.PageResponse<ProductoResponse> res = adminService.productos(page, size, search);
+        return ResponseEntity.ok(ApiResponse.<com.agromarket.application.dto.PageResponse<ProductoResponse>>builder().success(true).message("Productos recuperados").data(res).build());
+    }
+
+    @PostMapping("/limpiar-datos-falsos")
+    public ResponseEntity<ApiResponse<Void>> limpiarDatosFalsos() {
+        adminService.limpiarDatosFalsos();
+        return ResponseEntity.ok(ApiResponse.<Void>builder().success(true).message("Datos falsos eliminados y base de datos reseteada").build());
     }
 
     @DeleteMapping("/resenas/{id}")

@@ -51,6 +51,9 @@ export default function Catalogo() {
   const [maxPrice, setMaxPrice] = useState(params.max || '');
   const [soloPromo, setSoloPromo] = useState(params.promo === 'true');
   
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
   const [cartOpen, setCartOpen] = useState(false);
 
   // Debounced search logic
@@ -77,7 +80,16 @@ export default function Catalogo() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.get('/productos');
+      const queryParams = new URLSearchParams();
+      queryParams.set('page', page);
+      queryParams.set('size', 16);
+      if (search) queryParams.set('search', search);
+      if (filtroTipo) queryParams.set('categoria', filtroTipo);
+      if (minPrice) queryParams.set('precioMin', minPrice);
+      if (maxPrice) queryParams.set('precioMax', maxPrice);
+      if (soloPromo) queryParams.set('enPromocion', 'true');
+
+      const data = await api.get(`/productos?${queryParams.toString()}`);
       const extractArray = (res) => {
         if (!res) return [];
         if (Array.isArray(res)) return res;
@@ -89,45 +101,29 @@ export default function Catalogo() {
         return [];
       };
       setProductos(extractArray(data));
+      const resData = data.data || data;
+      setTotalPages(resData.totalPages || 1);
+      setTotalElements(resData.totalElements || 0);
     } catch (err) {
       console.error('Error fetching products:', err);
       setError('Error al conectar con la plataforma AgroMarket. Por favor verifica tu conexión.');
       setProductos([]);
+      setTotalPages(1);
+      setTotalElements(0);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    setPage(0);
+  }, [search, filtroTipo, minPrice, maxPrice, soloPromo]);
+
+  useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [page, search, filtroTipo, minPrice, maxPrice, soloPromo]);
 
-  const filtered = productos.filter((p) => {
-    const matchSearch =
-      !search ||
-      p.nombre?.toLowerCase().includes(search.toLowerCase()) ||
-      p.tipoFruta?.toLowerCase().includes(search.toLowerCase()) ||
-      p.descripcion?.toLowerCase().includes(search.toLowerCase());
-
-    // Category mappings in frontend
-    const matchTipo = !filtroTipo || (
-      filtroTipo === 'Frutas' && ['BANANO', 'MANGO', 'PINA', 'MARACUYA', 'GUANABANA', 'NARANJA', 'COCO', 'LIMON'].includes(p.tipoFruta)
-    ) || (
-      filtroTipo === 'Otros' && p.tipoFruta === 'OTRO'
-    ) || (
-      filtroTipo === 'Verduras' && false
-    ) || (
-      filtroTipo === 'Tubérculos' && false
-    ) || (
-      filtroTipo === 'Granos' && false
-    );
-
-    const matchMin = !minPrice || Number(p.precio) >= Number(minPrice);
-    const matchMax = !maxPrice || Number(p.precio) <= Number(maxPrice);
-    const matchPromo = !soloPromo || p.enPromocion === true;
-
-    return matchSearch && matchTipo && matchMin && matchMax && matchPromo;
-  });
+  const filtered = productos;
 
   const handlePedirAhora = (producto) => {
     if (!user) {
@@ -387,6 +383,31 @@ export default function Catalogo() {
               ))
             )}
           </div>
+
+          {/* PAGINATION CONTROLS */}
+          {!loading && totalPages > 1 && (
+            <div className="pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '32px', marginBottom: '16px' }}>
+              <button 
+                className="btn-cta" 
+                style={{ background: page === 0 ? '#ccc' : 'var(--primary)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: page === 0 ? 'not-allowed' : 'pointer' }}
+                onClick={() => setPage(prev => Math.max(0, prev - 1))}
+                disabled={page === 0}
+              >
+                &larr; Anterior
+              </button>
+              <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-dark)' }}>
+                Página {page + 1} de {totalPages}
+              </span>
+              <button 
+                className="btn-cta" 
+                style={{ background: page === totalPages - 1 ? '#ccc' : 'var(--primary)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer' }}
+                onClick={() => setPage(prev => Math.min(totalPages - 1, prev + 1))}
+                disabled={page === totalPages - 1}
+              >
+                Siguiente &rarr;
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

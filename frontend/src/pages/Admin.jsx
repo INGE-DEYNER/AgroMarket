@@ -144,7 +144,7 @@ export default function Admin() {
 
   const loadProductos = async () => {
     try {
-      const res = await api.get(`/productos?page=${pageProductos}&size=15&search=${searchProductos}`);
+      const res = await api.get(`/admin/productos?page=${pageProductos}&size=15&search=${searchProductos}`);
       const data = res.data || res;
       setProductos(extractArray(data));
       setTotalPagesProductos(data.totalPages || 1);
@@ -276,6 +276,19 @@ export default function Admin() {
     }
   };
 
+  const handleLimpiarDatosFalsos = async () => {
+    if (!window.confirm('🚨 ¡ATENCIÓN! Esta acción eliminará permanentemente todos los datos de prueba transaccionales, productos y usuarios (excepto su propia cuenta de administrador). ¿Está seguro de que desea continuar?')) {
+      return;
+    }
+    try {
+      await api.post('/admin/limpiar-datos-falsos');
+      alert('Base de datos limpiada exitosamente. La página se recargará.');
+      window.location.reload();
+    } catch (err) {
+      alert('Error al limpiar base de datos: ' + err.message);
+    }
+  };
+
   const usuariosFiltrados = searchUsuarios
     ? usuarios.filter((u) => u.nombre?.toLowerCase().includes(searchUsuarios.toLowerCase()) || u.email?.toLowerCase().includes(searchUsuarios.toLowerCase()))
     : usuarios;
@@ -354,9 +367,14 @@ export default function Admin() {
             <h1>{t('admin.title', 'Panel de Administración')}</h1>
             <p>{t('admin.sub', 'Monitoreo global de la plataforma AgroMarket Urabá')}</p>
           </div>
-          <button className="btn-cta" style={{ background: 'var(--primary-dark)' }} onClick={handleGenerateReport}>
-            {t('admin.generateReport', 'Generar Reporte Mensual')}
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button className="btn-cta" style={{ background: 'var(--red)', color: '#fff', border: 'none' }} onClick={handleLimpiarDatosFalsos}>
+              Limpiar Base de Datos 🗑️
+            </button>
+            <button className="btn-cta" style={{ background: 'var(--primary-dark)' }} onClick={handleGenerateReport}>
+              {t('admin.generateReport', 'Generar Reporte Mensual')}
+            </button>
+          </div>
         </div>
 
         <div className="stats-grid">
