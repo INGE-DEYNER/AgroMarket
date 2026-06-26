@@ -78,7 +78,21 @@ export default function Admin() {
   const [resenas, setResenas] = useState([]);
   const [pagosFideicomiso, setPagosFideicomiso] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
+
+  // Pagination & Search States for Users
   const [searchUsuarios, setSearchUsuarios] = useState('');
+  const [searchUsuariosInput, setSearchUsuariosInput] = useState('');
+  const [pageUsuarios, setPageUsuarios] = useState(0);
+  const [totalPagesUsuarios, setTotalPagesUsuarios] = useState(1);
+  const [totalElementsUsuarios, setTotalElementsUsuarios] = useState(0);
+
+  // Pagination & Search States for Products
+  const [searchProductos, setSearchProductos] = useState('');
+  const [searchProductosInput, setSearchProductosInput] = useState('');
+  const [pageProductos, setPageProductos] = useState(0);
+  const [totalPagesProductos, setTotalPagesProductos] = useState(1);
+  const [totalElementsProductos, setTotalElementsProductos] = useState(0);
+
   const [usuariosPendientes, setUsuariosPendientes] = useState([]);
 
   const handleAprobarUsuario = async (userId) => {
@@ -86,6 +100,7 @@ export default function Admin() {
       await api.post(`/admin/aprobar-usuario/${userId}`);
       alert('Usuario aprobado con éxito.');
       loadAll();
+      loadUsuarios();
     } catch (err) {
       alert('Error al aprobar usuario: ' + err.message);
     }
@@ -98,6 +113,7 @@ export default function Admin() {
       await api.post(`/admin/rechazar-usuario/${userId}`, { motivo });
       alert('Usuario rechazado con éxito.');
       loadAll();
+      loadUsuarios();
     } catch (err) {
       alert('Error al rechazar usuario: ' + err.message);
     }
@@ -114,8 +130,66 @@ export default function Admin() {
     return [];
   };
 
+  const loadUsuarios = async () => {
+    try {
+      const res = await api.get(`/admin/usuarios?page=${pageUsuarios}&size=20&search=${searchUsuarios}`);
+      const data = res.data || res;
+      setUsuarios(extractArray(data));
+      setTotalPagesUsuarios(data.totalPages || 1);
+      setTotalElementsUsuarios(data.totalElements || 0);
+    } catch (err) {
+      console.error('Error loading users:', err);
+    }
+  };
+
+  const loadProductos = async () => {
+    try {
+      const res = await api.get(`/productos?page=${pageProductos}&size=15&search=${searchProductos}`);
+      const data = res.data || res;
+      setProductos(extractArray(data));
+      setTotalPagesProductos(data.totalPages || 1);
+      setTotalElementsProductos(data.totalElements || 0);
+    } catch (err) {
+      console.error('Error loading products:', err);
+    }
+  };
+
+  // Debounced search for users
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchUsuarios(searchUsuariosInput);
+      setPageUsuarios(0);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchUsuariosInput]);
+
+  // Debounced search for products
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchProductos(searchProductosInput);
+      setPageProductos(0);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchProductosInput]);
+
+  // Load users when page/search changes
+  useEffect(() => {
+    if (activeSection === 'usuarios') {
+      loadUsuarios();
+    }
+  }, [pageUsuarios, searchUsuarios, activeSection]);
+
+  // Load products when page/search changes
+  useEffect(() => {
+    if (activeSection === 'productos') {
+      loadProductos();
+    }
+  }, [pageProductos, searchProductos, activeSection]);
+
   useEffect(() => {
     loadAll();
+    loadUsuarios();
+    loadProductos();
   }, []);
 
   useEffect(() => {
@@ -126,15 +200,11 @@ export default function Admin() {
 
   const loadAll = async () => {
     try {
-      const [u, p, r, db, up] = await Promise.all([
-        api.get('/admin/usuarios').catch(() => []),
-        api.get('/productos').catch(() => []),
+      const [r, db, up] = await Promise.all([
         api.get('/resenas').catch(() => []),
         api.get('/admin/dashboard').catch(() => null),
         api.get('/admin/usuarios-pendientes').catch(() => []),
       ]);
-      setUsuarios(extractArray(u));
-      setProductos(extractArray(p));
       setResenas(extractArray(r));
       if (db) setDashboardData(db.data || db);
       setUsuariosPendientes(extractArray(up));
@@ -370,7 +440,7 @@ export default function Admin() {
 
                   <div className="table-filters">
                     <div className="search-box">
-                      <input type="text" id="searchUsuarios" placeholder={t('admin.searchUsers', 'Buscar por nombre o correo...')} value={searchUsuarios} onChange={(e) => setSearchUsuarios(e.target.value)} />
+                      <input type="text" id="searchUsuarios" placeholder={t('admin.searchUsers', 'Buscar por nombre o correo...')} value={searchUsuariosInput} onChange={(e) => setSearchUsuariosInput(e.target.value)} />
                     </div>
                   </div>
                   <div className="table-wrap">
@@ -385,7 +455,7 @@ export default function Admin() {
                         </tr>
                       </thead>
                       <tbody id="tbUsuarios">
-                        {usuariosFiltrados.map((u) => (
+                        {usuarios.map((u) => (
                           <tr key={u.id}>
                             <td data-label={t('auth.firstName', 'Nombre')}>{u.nombre} {u.apellido}</td>
                             <td data-label={t('auth.email', 'Correo')}>{u.email}</td>
@@ -406,13 +476,46 @@ export default function Admin() {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Pagination Controls for Users */}
+                  {totalPagesUsuarios > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', padding: '16px 24px', borderTop: '1px solid var(--border-light)' }}>
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        disabled={pageUsuarios === 0}
+                        onClick={() => setPageUsuarios(p => Math.max(0, p - 1))}
+                      >
+                        Anterior
+                      </button>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
+                        Página <strong>{pageUsuarios + 1}</strong> de <strong>{totalPagesUsuarios}</strong> ({totalElementsUsuarios} usuarios)
+                      </span>
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        disabled={pageUsuarios >= totalPagesUsuarios - 1}
+                        onClick={() => setPageUsuarios(p => p + 1)}
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
-
+ 
               {/* PRODUCTOS */}
               {activeSection === 'productos' && (
                 <div className="section active" id="sec-productos">
-                  <div className="table-header"><h3 className="card-title">{t('admin.globalInventory', 'Inventario Global')}</h3></div>
+                  <div className="table-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                    <h3 className="card-title">{t('admin.globalInventory', 'Inventario Global')}</h3>
+                    <div className="search-box" style={{ maxWidth: '280px', width: '100%', margin: 0 }}>
+                      <input 
+                        type="text" 
+                        placeholder="Buscar productos..." 
+                        value={searchProductosInput} 
+                        onChange={(e) => setSearchProductosInput(e.target.value)} 
+                      />
+                    </div>
+                  </div>
                   <div className="table-wrap">
                     <table className="table-responsive">
                       <thead>
@@ -439,6 +542,29 @@ export default function Admin() {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Pagination Controls for Products */}
+                  {totalPagesProductos > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', padding: '16px 24px', borderTop: '1px solid var(--border-light)' }}>
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        disabled={pageProductos === 0}
+                        onClick={() => setPageProductos(p => Math.max(0, p - 1))}
+                      >
+                        Anterior
+                      </button>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
+                        Página <strong>{pageProductos + 1}</strong> de <strong>{totalPagesProductos}</strong> ({totalElementsProductos} productos)
+                      </span>
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        disabled={pageProductos >= totalPagesProductos - 1}
+                        onClick={() => setPageProductos(p => p + 1)}
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

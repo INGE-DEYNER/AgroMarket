@@ -12,7 +12,7 @@ public interface AdminService {
 
     List<PedidoResponse> pedidos();
 
-    List<UsuarioResponse> usuarios();
+    com.agromarket.application.dto.PageResponse<UsuarioResponse> usuarios(int page, int size, String search);
 
     void aprobarUsuario(Long id);
 

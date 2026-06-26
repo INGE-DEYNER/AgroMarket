@@ -31,4 +31,17 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, Long>
 
     @org.springframework.data.jpa.repository.Query("SELECT u.contrasena FROM UsuarioEntity u WHERE u.id = :id")
     Optional<String> findPasswordHashById(@org.springframework.data.repository.query.Param("id") Long id);
+
+    @org.springframework.data.jpa.repository.Query("SELECT u FROM UsuarioEntity u WHERE LOWER(u.nombre) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(u.correo) LIKE LOWER(CONCAT('%', :search, '%'))")
+    org.springframework.data.domain.Page<UsuarioEntity> searchUsuarios(@org.springframework.data.repository.query.Param("search") String search, org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true, flushAutomatically = true)
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Query(value = "UPDATE usuarios SET rol = :rol WHERE id = :id", nativeQuery = true)
+    void updateUserRoleNatively(@org.springframework.data.repository.query.Param("id") Long id, @org.springframework.data.repository.query.Param("rol") String rol);
+
+    @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true, flushAutomatically = true)
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Query(value = "UPDATE usuarios SET aprobado = :aprobado WHERE id = :id", nativeQuery = true)
+    void updateUserApprovalNatively(@org.springframework.data.repository.query.Param("id") Long id, @org.springframework.data.repository.query.Param("aprobado") boolean aprobado);
 }

@@ -38,10 +38,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public AdminDashboardResponse dashboard() {
-        BigDecimal ingresos = pagoJpaRepository.findAll().stream()
-                .filter(pago -> pago.getEstado() != null && pago.getEstado().name().equals("CONFIRMADO"))
-                .map(PagoEntity::getMonto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal ingresos = pagoJpaRepository.sumMontoConfirmado();
         return AdminDashboardResponse.builder()
                 .totalUsuarios(usuarioJpaRepository.count())
                 .totalProductos(productoJpaRepository.count())
@@ -56,8 +53,22 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<UsuarioResponse> usuarios() {
-        return usuarioMapper.toResponseList(usuarioJpaRepository.findAll());
+    public com.agromarket.application.dto.PageResponse<UsuarioResponse> usuarios(int page, int size, String search) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(Math.max(0, page), Math.max(1, size), org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
+        org.springframework.data.domain.Page<UsuarioEntity> pageResult;
+        if (search != null && !search.isBlank()) {
+            pageResult = usuarioJpaRepository.searchUsuarios(search, pageable);
+        } else {
+            pageResult = usuarioJpaRepository.findAll(pageable);
+        }
+        List<UsuarioResponse> content = usuarioMapper.toResponseList(pageResult.getContent());
+        return com.agromarket.application.dto.PageResponse.<UsuarioResponse>builder()
+                .content(content)
+                .page(pageResult.getNumber())
+                .size(pageResult.getSize())
+                .totalElements(pageResult.getTotalElements())
+                .totalPages(pageResult.getTotalPages())
+                .build();
     }
 
     @Override

@@ -309,6 +309,20 @@ public class AuthServiceImpl implements AuthService {
                 if (picture != null && !picture.isEmpty()) existingUser.setFoto(picture);
                 existingUser.setActivo(true);
                 existingUser.setEmailVerificado(true);
+                
+                // Synchronize role if existing user's role is different from requested role
+                RolUsuario targetRol = "PRODUCTOR".equalsIgnoreCase(rolSolicitado) ? RolUsuario.PRODUCTOR : RolUsuario.COMPRADOR;
+                if (existingUser.getRol() != targetRol) {
+                    usuarioJpaRepository.updateUserRoleNatively(existingUser.getId(), targetRol.name());
+                    if (targetRol == RolUsuario.PRODUCTOR) {
+                        usuarioJpaRepository.updateUserApprovalNatively(existingUser.getId(), false);
+                        existingUser.setAprobado(false);
+                    } else {
+                        usuarioJpaRepository.updateUserApprovalNatively(existingUser.getId(), true);
+                        existingUser.setAprobado(true);
+                    }
+                    return usuarioJpaRepository.findById(existingUser.getId()).orElse(existingUser);
+                }
                 return existingUser;
             })
             .orElseGet(() -> {

@@ -50,10 +50,13 @@ public class AdminController {
     }
 
     @GetMapping("/usuarios")
-    public ResponseEntity<ApiResponse<List<UsuarioResponse>>> usuarios() {
-        List<UsuarioResponse> list = adminService.usuarios();
-        list.forEach(u -> u.setIdEncriptado(idEncryptionUtil.encryptId(u.getId())));
-        return ResponseEntity.ok(ApiResponse.<List<UsuarioResponse>>builder().success(true).message("Usuarios recuperados").data(list).build());
+    public ResponseEntity<ApiResponse<com.agromarket.application.dto.PageResponse<UsuarioResponse>>> usuarios(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search) {
+        com.agromarket.application.dto.PageResponse<UsuarioResponse> res = adminService.usuarios(page, size, search);
+        res.getContent().forEach(u -> u.setIdEncriptado(idEncryptionUtil.encryptId(u.getId())));
+        return ResponseEntity.ok(ApiResponse.<com.agromarket.application.dto.PageResponse<UsuarioResponse>>builder().success(true).message("Usuarios recuperados").data(res).build());
     }
 
     @DeleteMapping("/productos/{id}")
