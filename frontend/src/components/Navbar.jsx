@@ -117,7 +117,13 @@ export default function Navbar() {
                 {menuUsuario && (
                   <div className="nav-dropdown">
                     <Link to="/perfil">{t('nav.myAccount', 'Mi cuenta')}</Link>
-                    <Link to={user.role?.toLowerCase() === 'productor' ? '/dashboard-productor' : '/dashboard-comprador'}>
+                    <Link to={
+                      user.role?.toLowerCase() === 'productor' 
+                        ? '/dashboard-productor' 
+                        : user.role?.toLowerCase() === 'admin' 
+                          ? '/admin' 
+                          : '/dashboard-comprador'
+                    }>
                       {t('nav.myPanel', 'Mi panel')}
                     </Link>
                     <Link to="/pedidos">{t('nav.myOrders', 'Mis pedidos')}</Link>
@@ -132,7 +138,7 @@ export default function Navbar() {
             </>
           )}
         </div>
-
+ 
         {/* Hamburguesa móvil */}
         <button className="nav-hamburger" onClick={() => setMenuMovil(!menuMovil)}>
           <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -140,7 +146,7 @@ export default function Navbar() {
           </svg>
         </button>
       </div>
-
+ 
       {/* Barra de categorías */}
       <nav className="navbar-categories">
         <div className="nav-cats-inner">
@@ -152,7 +158,7 @@ export default function Navbar() {
           {user?.role?.toLowerCase() === 'admin' && <Link to="/admin">{t('nav.admin', 'Admin')}</Link>}
         </div>
       </nav>
-
+ 
       {/* Menú móvil */}
       {menuMovil && (
         <div className="nav-mobile-menu">
@@ -166,7 +172,13 @@ export default function Navbar() {
           ) : (
             <>
                <Link to="/perfil" onClick={() => setMenuMovil(false)}>Mi Perfil</Link>
-               <Link to={user.role?.toLowerCase() === 'productor' ? '/dashboard-productor' : '/dashboard-comprador'} onClick={() => setMenuMovil(false)}>Mi Panel</Link>
+               <Link to={
+                 user.role?.toLowerCase() === 'productor' 
+                   ? '/dashboard-productor' 
+                   : user.role?.toLowerCase() === 'admin' 
+                     ? '/admin' 
+                     : '/dashboard-comprador'
+               } onClick={() => setMenuMovil(false)}>Mi Panel</Link>
                <button onClick={() => { handleLogout(); setMenuMovil(false); }} className="nav-logout" style={{ textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', width: '100%', fontSize: '1rem', color: '#ef4444' }}>Cerrar sesión</button>
             </>
           )}

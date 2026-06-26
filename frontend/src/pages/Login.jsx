@@ -7,7 +7,7 @@ import '../styles/login.css';
 
 export default function Login() {
   const { t } = useTranslation();
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -18,25 +18,14 @@ export default function Login() {
   const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  // Bandera que indica que el login fue exitoso y debemos redirigir cuando user se actualice
-  const [pendingRedirect, setPendingRedirect] = useState(false);
-
-  // Redirigir DESPUÉS de que React confirme el user state (evita race condition con ProtectedRoute)
-  useEffect(() => {
-    if (pendingRedirect && user?.role) {
-      setPendingRedirect(false);
-      const r = user.role.toLowerCase();
-      if (r === 'productor') navigate('/dashboard-productor');
-      else if (r === 'admin' || r === 'administrador') navigate('/admin');
-      else navigate('/dashboard-comprador');
-    }
-  }, [user, pendingRedirect]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('oauth2') === 'success') {
       (async () => {
         try {
+          // SECURITY: el token ya NO viene en la URL — se obtiene via cookie httpOnly + /auth/token-exchange
+          // Pequeño delay para asegurar que la cookie esté disponible
           await new Promise(r => setTimeout(r, 800));
           const res = await api.get('/auth/token-exchange');
           const authData = res?.data || res;
@@ -44,7 +33,7 @@ export default function Login() {
           if (token && authData) {
             localStorage.setItem('token', token);
             login(authData.user || authData, token);
-            setPendingRedirect(true); // navega en el useEffect cuando user se actualice
+            redirectByRole((authData.user || authData)?.role || authData.rol);
           } else {
             throw new Error('Token o datos de usuario no recibidos del intercambio OAuth2');
           }
@@ -57,6 +46,12 @@ export default function Login() {
     }
   }, [location.search]);
 
+  const redirectByRole = (role) => {
+    const r = role?.toLowerCase();
+    if (r === 'productor') navigate('/dashboard-productor');
+    else if (r === 'admin' || r === 'administrador') navigate('/admin');
+    else navigate('/dashboard-comprador');
+  };
 
   const validate = () => {
     let valid = true;
@@ -82,7 +77,7 @@ export default function Login() {
       const res = await api.post('/auth/login', { email, password });
       const authData = res.data || res;
       login(authData.user || authData, authData.token);
-      setPendingRedirect(true); // navega en el useEffect cuando user se actualice
+      redirectByRole((authData.user || authData)?.role || authData.rol);
     } catch (err) {
       setGlobalError(err.message || 'Credenciales incorrectas.');
     } finally {

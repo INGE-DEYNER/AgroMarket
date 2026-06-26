@@ -172,13 +172,20 @@ export default function Home() {
               )}
               {user && (
                 <Link
-                  to={user.rol === 'PRODUCTOR' ? '/dashboard-productor' : '/dashboard-comprador'}
+                  to={
+                    user.role === 'productor'
+                      ? '/dashboard-productor'
+                      : user.role === 'admin'
+                        ? '/admin'
+                        : '/dashboard-comprador'
+                  }
                   className="btn btn-secondary btn-lg"
                 >
                   {t('home.goToDashboard', 'Mi panel →')}
                 </Link>
               )}
             </div>
+
           </div>
 
           <div className="hero-right animate-fade-up" style={{ transitionDelay: '0.3s' }}>

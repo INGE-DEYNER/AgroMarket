@@ -53,6 +53,19 @@ public abstract class UsuarioEntity {
     @Column(nullable = false, insertable = false, updatable = false)
     private RolUsuario rol;
 
+    public RolUsuario getRol() {
+        if (this instanceof AdministradorEntity) {
+            return RolUsuario.ADMINISTRADOR;
+        }
+        if (this instanceof ProductorEntity) {
+            return RolUsuario.PRODUCTOR;
+        }
+        if (this instanceof CompradorEntity) {
+            return RolUsuario.COMPRADOR;
+        }
+        return this.rol;
+    }
+
     @Column(nullable = false)
     @Builder.Default
     private boolean activo = true;
