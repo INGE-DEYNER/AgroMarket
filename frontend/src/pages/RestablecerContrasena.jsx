@@ -38,7 +38,7 @@ export default function RestablecerContrasena() {
     setError('');
     try {
       const res = await api.post('/auth/verify-code', { correo: email, codigo });
-      setTempToken(res.tempToken);
+      setTempToken(res.tempToken || res.data?.tempToken || res);
       setStep(2);
       setSuccess(t('resetPass.codeVerified', 'Código verificado. Ahora ingresa tu nueva contraseña.'));
     } catch (err) {
@@ -226,3 +226,4 @@ export default function RestablecerContrasena() {
     </div>
   );
 }
+
