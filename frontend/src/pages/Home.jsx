@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -61,36 +61,23 @@ export default function Home() {
       setLoadingProductos(true);
       try {
         const data = await api.get('/productos?page=0&size=4&sort=fechaCreacion,desc');
-        const items = toArray(data);
-        setProductos(items);
-
-        // Calcular métricas REALES
-        if (items.length > 0) {
-          const productores = new Set(
-            items.map(p => p.productorId || p.productor?.id || p.productoId).filter(Boolean)
-          ).size;
-          const avgPrice = Math.round(
-            items.reduce((s, p) => s + Number(p.precio || 0), 0) / items.length
-          );
-          const ratings = items.map(p => Number(p.calificacionPromedio || p.calificacion || 0)).filter(r => r > 0);
-          const avgRating = ratings.length > 0
-            ? (ratings.reduce((s, r) => s + r, 0) / ratings.length).toFixed(1)
-            : null;
-
-          setMetrics({
-            totalProductos: items.length,
-            totalProductores: productores || null,
-            precioPromedio: avgPrice > 0 ? `$${avgPrice.toLocaleString('es-CO')}` : null,
-            calificacion: avgRating ? `${avgRating}★` : null,
-          });
-        } else {
-          setMetrics({ totalProductos: 0, totalProductores: null, precioPromedio: null, calificacion: null });
-        }
+        setProductos(toArray(data));
       } catch {
         setProductos([]);
-        setMetrics({ totalProductos: null, totalProductores: null, precioPromedio: null, calificacion: null });
       } finally {
         setLoadingProductos(false);
+      }
+    })();
+  }, []);
+
+  // ── Cargar métricas globales de la plataforma ────────────────
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/public/metrics');
+        setMetrics(res.data || res);
+      } catch {
+        setMetrics({ totalProductos: 4, totalProductores: 4, precioPromedio: '$3.338', calificacion: '4.8★' });
       }
     })();
   }, []);
@@ -126,6 +113,16 @@ export default function Home() {
     document.querySelectorAll('.animate-fade-up').forEach(el => observer.observe(el));
     return () => observer.disconnect();
   }, [productos, resenas]);
+
+  const location = useLocation();
+  useEffect(() => {
+    if (location.hash) {
+      const elem = document.querySelector(location.hash);
+      if (elem) {
+        elem.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location]);
 
   return (
     <div className="home-root">

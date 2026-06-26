@@ -91,7 +91,7 @@ export default function Footer() {
           <Link to="/privacidad">Privacidad</Link>
           <Link to="/cookies">Cookies</Link>
         </div>
-        <span>Hecho con cariño en Colombia</span>
+        <span>Hecho con cariño en Colombia | Desarrollado por Deyner Chaverra</span>
       </div>
     </footer>
   );

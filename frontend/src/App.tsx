@@ -24,6 +24,8 @@ const Mensajeria = lazy(() => import('./pages/Mensajeria'));
 const Resenas = lazy(() => import('./pages/Resenas'));
 const Perfil = lazy(() => import('./pages/Perfil'));
 const PagoPasarela = lazy(() => import('./pages/PagoPasarela'));
+const Productores = lazy(() => import('./pages/Productores'));
+const InfoLegal = lazy(() => import('./pages/InfoLegal'));
 
 function App(): JSX.Element {
   return (
@@ -44,6 +46,10 @@ function App(): JSX.Element {
                 <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
                 <Route path="/catalogo" element={<Catalogo />} />
                 <Route path="/pago-pasarela" element={<PagoPasarela />} />
+                <Route path="/productores" element={<Productores />} />
+                <Route path="/terminos" element={<InfoLegal />} />
+                <Route path="/privacidad" element={<InfoLegal />} />
+                <Route path="/cookies" element={<InfoLegal />} />
 
                 {/* Protegidas Generales */}
                 <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />

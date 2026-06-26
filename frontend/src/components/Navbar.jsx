@@ -153,7 +153,7 @@ export default function Navbar() {
           <Link to="/catalogo" style={{ fontWeight: 'bold' }}>≡ Categorías</Link>
           <Link to="/catalogo?sort=masVendidos">{t('nav.trending', 'Más vendidos')}</Link>
           <Link to="/catalogo?enPromocion=true">{t('nav.deals', 'Ofertas')}</Link>
-          <Link to="/catalogo">{t('nav.producers', 'Productores')}</Link>
+          <Link to="/productores">{t('nav.producers', 'Productores')}</Link>
           <Link to="/home#como-funciona">{t('nav.howItWorks', 'Cómo funciona')}</Link>
           {user?.role?.toLowerCase() === 'admin' && <Link to="/admin">{t('nav.admin', 'Admin')}</Link>}
         </div>
@@ -163,6 +163,7 @@ export default function Navbar() {
       {menuMovil && (
         <div className="nav-mobile-menu">
           <Link to="/catalogo" onClick={() => setMenuMovil(false)}>Catálogo</Link>
+          <Link to="/productores" onClick={() => setMenuMovil(false)}>Productores</Link>
           <Link to="/home#como-funciona" onClick={() => setMenuMovil(false)}>Cómo funciona</Link>
           {!user ? (
             <>
