@@ -81,13 +81,18 @@ public class AuthServiceImpl implements AuthService {
                         .build();
             }
             String token = jwtTokenProvider.generateToken(usuario.getCorreo(), usuario.getId(), usuario.getRol());
+            boolean isComplete = Boolean.TRUE.equals(usuario.getCuentaCompleta())
+                    || (usuario.getCedula() != null && !usuario.getCedula().isBlank() && usuario.getFechaNacimiento() != null);
             return AuthResponse.builder()
                     .token(token)
                     .tipo("Bearer")
                     .userId(usuario.getId())
                     .nombre(usuario.getNombre())
+                    .apellido(usuario.getApellido())
                     .correo(usuario.getCorreo())
                     .rol(usuario.getRol())
+                    .cuentaCompleta(isComplete)
+                    .fotoUrl(usuario.getFotoUrl() != null ? usuario.getFotoUrl() : usuario.getFoto())
                     .build();
         } catch (CredencialesInvalidasException | com.agromarket.domain.exception.AccesoDenegadoException ex) {
             // already logged above when appropriate
@@ -189,15 +194,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private AuthResponse buildAuthenticatedResponse(UsuarioEntity usuario, String token) {
+        boolean isComplete = Boolean.TRUE.equals(usuario.getCuentaCompleta())
+                || (usuario.getCedula() != null && !usuario.getCedula().isBlank() && usuario.getFechaNacimiento() != null);
         return AuthResponse.builder()
                 .token(token)
                 .tipo("Bearer")
                 .userId(usuario.getId())
                 .nombre(usuario.getNombre())
+                .apellido(usuario.getApellido())
                 .correo(usuario.getCorreo())
                 .rol(usuario.getRol())
                 .twoFactorRequired(false)
                 .tempToken(null)
+                .cuentaCompleta(isComplete)
+                .fotoUrl(usuario.getFotoUrl() != null ? usuario.getFotoUrl() : usuario.getFoto())
                 .build();
     }
 

@@ -78,9 +78,8 @@ export function AuthProvider({ children }) {
     return <LoadingScreen />;
   }
 
-  // No mostrar el modal para administradores ni para usuarios OAuth2 que aún no han completado el flujo normal
-  const esAdmin = user?.role === 'admin' || user?.rol === 'ADMINISTRADOR';
-  const esOAuth2SinKyc = user?.proveedor === 'GOOGLE' && !user?.cuentaCompleta;
+  // No mostrar el modal para administradores (no necesitan KYC)
+  const esAdmin = user?.role === 'admin' || user?.role === 'administrador';
 
   if (user && !user.cuentaCompleta && !esAdmin) {
     return <CompletarCuentaModal onComplete={() => refetchUser()} />;

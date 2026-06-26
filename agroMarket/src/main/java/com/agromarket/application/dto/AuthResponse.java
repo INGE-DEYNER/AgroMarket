@@ -21,4 +21,8 @@ public class AuthResponse {
     private boolean twoFactorRequired;
     private String tempToken;
     private boolean pendienteAprobacion;
+    // Incluido en login para evitar un segundo /me call en el frontend
+    private boolean cuentaCompleta;
+    private String fotoUrl;
+    private String apellido;
 }

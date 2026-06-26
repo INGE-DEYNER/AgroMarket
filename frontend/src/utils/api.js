@@ -32,10 +32,10 @@ async function request(method, path, body) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }));
-    // Si el token expiró o es inválido, limpiar sesión y redirigir al login
     if (res.status === 401) {
       const isAuthEndpoint = path.startsWith('/auth/');
-      if (!isAuthEndpoint) {
+      const isOnLoginPage = window.location.pathname === '/login' || window.location.pathname === '/';
+      if (!isAuthEndpoint && !isOnLoginPage) {
         localStorage.removeItem('token');
         localStorage.removeItem('agromarket_cart');
         window.location.href = '/login';
