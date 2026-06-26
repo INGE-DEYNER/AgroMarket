@@ -50,13 +50,32 @@ export function AuthProvider({ children }) {
         setLoading(false);
         return;
       }
+
+      // Verificar expiración client-side sin hacer request al servidor
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('agromarket_cart');
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // Token malformado — limpiar
+        localStorage.removeItem('token');
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       try {
         await refetchUser();
       } catch (err) {
-        // Solo limpiar si es 401 explícito
-        const is401 = err?.message?.includes('401') || err?.status === 401;
+        const is401 = err?.status === 401 || err?.message?.includes('401');
         if (is401) {
           localStorage.removeItem('token');
+          localStorage.removeItem('agromarket_cart');
           setUser(null);
         }
       } finally {
