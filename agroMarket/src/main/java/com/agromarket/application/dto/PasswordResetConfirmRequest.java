@@ -24,3 +24,4 @@ public class PasswordResetConfirmRequest {
             message = "Debe tener al menos 1 mayúscula, 1 número y 1 carácter especial")
     private String nuevaContrasena;
 }
+
