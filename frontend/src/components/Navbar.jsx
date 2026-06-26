@@ -14,6 +14,18 @@ export default function Navbar() {
   const [menuMovil, setMenuMovil] = useState(false);
   const navigate = useNavigate();
   const searchTimeoutRef = useRef(null);
+  const userMenuRef = useRef(null);
+
+  // Cierra dropdown al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setMenuUsuario(false);
+      }
+    };
+    if (menuUsuario) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuUsuario]);
 
   const handleBusqueda = (e) => {
     e.preventDefault();
@@ -102,7 +114,7 @@ export default function Navbar() {
               </Link>
 
               {/* Usuario dropdown */}
-              <div className="nav-user" onClick={() => setMenuUsuario(!menuUsuario)}>
+              <div className="nav-user" ref={userMenuRef} onClick={() => setMenuUsuario(!menuUsuario)}>
                 <div className="nav-avatar">
                   {user.fotoUrl
                     ? <img src={user.fotoUrl} alt={user.nombre} loading="lazy" />
@@ -114,18 +126,18 @@ export default function Navbar() {
 
                 {menuUsuario && (
                   <div className="nav-dropdown">
-                    <Link to="/perfil">{t('nav.myAccount', 'Mi cuenta')}</Link>
+                    <Link to="/perfil" onClick={() => setMenuUsuario(false)}>{t('nav.myAccount', 'Mi cuenta')}</Link>
                     <Link to={
                       user.role?.toLowerCase() === 'productor' 
                         ? '/dashboard-productor' 
                         : user.role?.toLowerCase() === 'admin' 
                           ? '/admin' 
                           : '/dashboard-comprador'
-                    }>
+                    } onClick={() => setMenuUsuario(false)}>
                       {t('nav.myPanel', 'Mi panel')}
                     </Link>
-                    <Link to="/pedidos">{t('nav.myOrders', 'Mis pedidos')}</Link>
-                    <Link to="/perfil">{t('nav.coupons', 'Mis cupones')}</Link>
+                    <Link to="/pedidos" onClick={() => setMenuUsuario(false)}>{t('nav.myOrders', 'Mis pedidos')}</Link>
+                    <Link to="/perfil#cupones" onClick={() => setMenuUsuario(false)}>{t('nav.coupons', 'Mis cupones')}</Link>
                     <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
                     <button onClick={handleLogout} className="nav-logout">
                       {t('nav.logout', 'Cerrar sesión')}

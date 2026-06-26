@@ -51,6 +51,27 @@ public class SiteInfoController {
         return ResponseEntity.ok(m);
     }
 
+    /**
+     * Endpoint público que devuelve la lista de productores registrados.
+     * Solo expone datos públicos: nombre, ubicación, foto y calificación.
+     */
+    @GetMapping("/productores")
+    public ResponseEntity<List<Map<String, Object>>> getProductores() {
+        List<Map<String, Object>> productores = usuarioJpaRepository.findAll().stream()
+                .filter(u -> u.getRol() == com.agromarket.domain.model.RolUsuario.PRODUCTOR)
+                .map(u -> {
+                    Map<String, Object> p = new HashMap<>();
+                    p.put("id", u.getId());
+                    p.put("nombre", u.getNombre() != null ? u.getNombre() : "Productor ASAFRUT");
+                    p.put("ubicacion", u.getUbicacion() != null ? u.getUbicacion() : "Urabá, Antioquia");
+                    p.put("fotoUrl", u.getFotoUrl() != null ? u.getFotoUrl() : u.getFoto());
+                    p.put("calificacionPromedio", u.getCalificacionPromedio());
+                    return p;
+                })
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(productores);
+    }
+
     @GetMapping("/metrics")
     public ResponseEntity<Map<String, Object>> getMetrics() {
         long totalProductos = productoJpaRepository.count();

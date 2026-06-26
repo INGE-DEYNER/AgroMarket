@@ -75,7 +75,7 @@ export default function RestablecerContrasena() {
       <div className="left-panel">
         <Link to="/home" className="brand">
           <div className="brand-logo">
-            <svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" /></svg>
+            <img src="/logo-asafrut.jpg" alt="Asafrut Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
           </div>
           <div>
             <div className="brand-name">AgroMarket</div>
