@@ -29,7 +29,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuarios", indexes = {
+    @jakarta.persistence.Index(name = "idx_usuario_rol", columnList = "rol")
+})
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "rol")
 public abstract class UsuarioEntity {

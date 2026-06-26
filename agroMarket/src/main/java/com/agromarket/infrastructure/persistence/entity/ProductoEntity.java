@@ -33,7 +33,12 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "productos")
+@Table(name = "productos", indexes = {
+    @jakarta.persistence.Index(name = "idx_producto_activo_cant", columnList = "activo, cantidadDisponible"),
+    @jakarta.persistence.Index(name = "idx_producto_fecha", columnList = "fechaCreacion"),
+    @jakarta.persistence.Index(name = "idx_producto_productor", columnList = "productor_id"),
+    @jakarta.persistence.Index(name = "idx_producto_tipo", columnList = "tipoFruta")
+})
 public class ProductoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

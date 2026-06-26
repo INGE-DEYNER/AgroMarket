@@ -30,7 +30,11 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "pedidos")
+@Table(name = "pedidos", indexes = {
+    @jakarta.persistence.Index(name = "idx_pedido_comprador", columnList = "comprador_id"),
+    @jakarta.persistence.Index(name = "idx_pedido_producto", columnList = "producto_id"),
+    @jakarta.persistence.Index(name = "idx_pedido_fecha", columnList = "fechaCreacion")
+})
 public class PedidoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

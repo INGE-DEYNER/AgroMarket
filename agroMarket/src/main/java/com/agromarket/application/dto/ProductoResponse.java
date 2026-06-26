@@ -20,6 +20,7 @@ public class ProductoResponse {
     private String descripcion;
     private BigDecimal precio;
     private Integer cantidadDisponible;
+    private Integer stock;
     private String imagenUrl;
     private TipoFruta tipoFruta;
     private Long productorId;

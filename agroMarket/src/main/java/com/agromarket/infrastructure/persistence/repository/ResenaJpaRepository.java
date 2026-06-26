@@ -14,16 +14,11 @@ public interface ResenaJpaRepository extends JpaRepository<ResenaEntity, Long> {
     boolean existsByCompradorIdAndProductoId(Long compradorId, Long productoId);
 
     @Query("""
-            select case when count(r) > 0 then true else false end
-            from ResenaEntity r
-            where r.comprador.id = :compradorId
-              and r.producto.id = :productoId
-              and exists (
-                  select 1 from PedidoEntity p
-                  where p.comprador.id = :compradorId
-                    and p.producto.id = :productoId
-                    and p.estado = com.agromarket.domain.model.EstadoPedido.ENTREGADO
-              )
+            select case when count(p) > 0 then true else false end
+            from PedidoEntity p
+            where p.comprador.id = :compradorId
+              and p.producto.id = :productoId
+              and p.estado = com.agromarket.domain.model.EstadoPedido.ENTREGADO
             """)
     boolean tieneEntregado(@Param("compradorId") Long compradorId, @Param("productoId") Long productoId);
 }

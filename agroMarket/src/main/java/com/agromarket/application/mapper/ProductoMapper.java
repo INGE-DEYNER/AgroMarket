@@ -32,6 +32,7 @@ public interface ProductoMapper {
                 .descripcion(entity.getDescripcion())
                 .precio(entity.getPrecio())
                 .cantidadDisponible(entity.getCantidadDisponible())
+                .stock(entity.getCantidadDisponible())
                 .imagenUrl(entity.getImagenUrl())
                 .tipoFruta(entity.getTipoFruta())
                 .productorId(entity.getProductor() != null ? entity.getProductor().getId() : null)
