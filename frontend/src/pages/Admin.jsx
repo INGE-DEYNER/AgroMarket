@@ -79,6 +79,14 @@ export default function Admin() {
   const [pagosFideicomiso, setPagosFideicomiso] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
 
+  // States for Finanzas and Logística Reports
+  const [finanzasData, setFinanzasData] = useState(null);
+  const [logisticaData, setLogisticaData] = useState(null);
+  const [loadingFinanzas, setLoadingFinanzas] = useState(false);
+  const [loadingLogistica, setLoadingLogistica] = useState(false);
+  const [errorFinanzas, setErrorFinanzas] = useState('');
+  const [errorLogistica, setErrorLogistica] = useState('');
+
   // Pagination & Search States for Users
   const [searchUsuarios, setSearchUsuarios] = useState('');
   const [searchUsuariosInput, setSearchUsuariosInput] = useState('');
@@ -221,6 +229,42 @@ export default function Admin() {
     }
   };
 
+  const loadFinanzas = async () => {
+    setLoadingFinanzas(true);
+    setErrorFinanzas('');
+    try {
+      const res = await api.get('/admin/reportes/finanzas');
+      setFinanzasData(res.data || res);
+    } catch (err) {
+      console.error('Error loading finanzas:', err);
+      setErrorFinanzas(err.message || 'Error al cargar reporte de finanzas.');
+    } finally {
+      setLoadingFinanzas(false);
+    }
+  };
+
+  const loadLogistica = async () => {
+    setLoadingLogistica(true);
+    setErrorLogistica('');
+    try {
+      const res = await api.get('/admin/reportes/logistica');
+      setLogisticaData(res.data || res);
+    } catch (err) {
+      console.error('Error loading logistica:', err);
+      setErrorLogistica(err.message || 'Error al cargar reporte de logística.');
+    } finally {
+      setLoadingLogistica(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeSection === 'finanzas') {
+      loadFinanzas();
+    } else if (activeSection === 'logistica') {
+      loadLogistica();
+    }
+  }, [activeSection]);
+
   const liberarPago = async (pagoId) => {
     if (!window.confirm('¿Está seguro de que desea liberar estos fondos al productor?')) return;
     try {
@@ -337,8 +381,12 @@ export default function Admin() {
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('admin.reports.title', 'Reportes')}</div>
-        <a href="#" className="sidebar-link"><span className="icon"></span> {t('admin.reports.finance', 'Finanzas')}</a>
-        <a href="#" className="sidebar-link"><span className="icon"></span> {t('admin.reports.logistics', 'Logística')}</a>
+        <a href="#" className={`sidebar-link${activeSection === 'finanzas' ? ' active' : ''}`} id="link-finanzas" onClick={(e) => { e.preventDefault(); setActiveSection('finanzas'); }}>
+          <span className="icon">💵</span> {t('admin.reports.finance', 'Finanzas')}
+        </a>
+        <a href="#" className={`sidebar-link${activeSection === 'logistica' ? ' active' : ''}`} id="link-logistica" onClick={(e) => { e.preventDefault(); setActiveSection('logistica'); }}>
+          <span className="icon">🚚</span> {t('admin.reports.logistics', 'Logística')}
+        </a>
 
         <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); await logout(); navigate('/login'); }}>
           <span className="icon"></span> {t('admin.logout', 'Cerrar sesión')}
@@ -647,6 +695,202 @@ export default function Admin() {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              )}
+
+              {/* FINANZAS */}
+              {activeSection === 'finanzas' && (
+                <div className="section active" id="sec-finanzas" style={{ padding: '24px' }}>
+                  <div className="table-header" style={{ marginBottom: '20px' }}>
+                    <h3 className="card-title" style={{ fontSize: '1.25rem', color: 'var(--primary-dark)' }}>Reporte Financiero Global</h3>
+                  </div>
+
+                  {loadingFinanzas ? (
+                    <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-dim)' }}>Cargando datos financieros...</div>
+                  ) : errorFinanzas ? (
+                    <div style={{ color: 'var(--red)', padding: '20px' }}>{errorFinanzas}</div>
+                  ) : finanzasData ? (
+                    <div>
+                      {/* Financial KPI Cards */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                        <div style={{ background: 'var(--green-bg)', padding: '16px', borderRadius: '8px', border: '1px solid var(--primary-light)' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--primary-dark)', textTransform: 'uppercase' }}>Ingresos Confirmados</span>
+                          <h2 style={{ fontSize: '1.8rem', color: 'var(--primary)', margin: '8px 0 0 0' }}>
+                            ${Number(finanzasData.totalIngresos || 0).toLocaleString('es-CO')}
+                          </h2>
+                        </div>
+                        <div style={{ background: '#fef3c7', padding: '16px', borderRadius: '8px', border: '1px solid #f59e0b' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#b45309', textTransform: 'uppercase' }}>Fondos en Fideicomiso</span>
+                          <h2 style={{ fontSize: '1.8rem', color: '#d97706', margin: '8px 0 0 0' }}>
+                            ${Number(finanzasData.totalFideicomiso || 0).toLocaleString('es-CO')}
+                          </h2>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        {/* Payments by Method */}
+                        <div>
+                          <h4 style={{ marginBottom: '12px', fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text)' }}>Por Método de Pago</h4>
+                          <div className="table-wrap">
+                            <table className="table-responsive" style={{ fontSize: '0.85rem' }}>
+                              <thead>
+                                <tr>
+                                  <th>Método</th>
+                                  <th>Transacciones</th>
+                                  <th>Monto Total</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.keys(finanzasData.transaccionesPorMetodo || {}).length === 0 ? (
+                                  <tr><td colSpan="3" style={{ textAlign: 'center' }}>No hay transacciones</td></tr>
+                                ) : (
+                                  Object.keys(finanzasData.transaccionesPorMetodo).map((metodo) => (
+                                    <tr key={metodo}>
+                                      <td data-label="Método" style={{ fontWeight: 'bold' }}>{metodo.replace('_', ' ')}</td>
+                                      <td data-label="Transacciones">{finanzasData.transaccionesPorMetodo[metodo]}</td>
+                                      <td data-label="Monto Total">${Number(finanzasData.montoPorMetodo[metodo] || 0).toLocaleString('es-CO')}</td>
+                                    </tr>
+                                  ))
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        {/* Payments by Status */}
+                        <div>
+                          <h4 style={{ marginBottom: '12px', fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text)' }}>Por Estado de Transacción</h4>
+                          <div className="table-wrap">
+                            <table className="table-responsive" style={{ fontSize: '0.85rem' }}>
+                              <thead>
+                                <tr>
+                                  <th>Estado</th>
+                                  <th>Transacciones</th>
+                                  <th>Monto Total</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.keys(finanzasData.transaccionesPorEstado || {}).length === 0 ? (
+                                  <tr><td colSpan="3" style={{ textAlign: 'center' }}>No hay transacciones</td></tr>
+                                ) : (
+                                  Object.keys(finanzasData.transaccionesPorEstado).map((estado) => (
+                                    <tr key={estado}>
+                                      <td data-label="Estado" style={{ fontWeight: 'bold' }}>{estado.replace('_', ' ')}</td>
+                                      <td data-label="Transacciones">{finanzasData.transaccionesPorEstado[estado]}</td>
+                                      <td data-label="Monto Total">${Number(finanzasData.montoPorEstado[estado] || 0).toLocaleString('es-CO')}</td>
+                                    </tr>
+                                  ))
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: '20px', fontSize: '0.85rem', color: 'var(--text-dim)', textAlign: 'right' }}>
+                        Total transacciones registradas: <strong>{finanzasData.totalTransacciones}</strong>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '20px', textAlign: 'center' }}>Sin datos disponibles.</div>
+                  )}
+                </div>
+              )}
+
+              {/* LOGISTICA */}
+              {activeSection === 'logistica' && (
+                <div className="section active" id="sec-logistica" style={{ padding: '24px' }}>
+                  <div className="table-header" style={{ marginBottom: '20px' }}>
+                    <h3 className="card-title" style={{ fontSize: '1.25rem', color: 'var(--primary-dark)' }}>Reporte de Logística y Envíos</h3>
+                  </div>
+
+                  {loadingLogistica ? (
+                    <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-dim)' }}>Cargando datos logísticos...</div>
+                  ) : errorLogistica ? (
+                    <div style={{ color: 'var(--red)', padding: '20px' }}>{errorLogistica}</div>
+                  ) : logisticaData ? (
+                    <div>
+                      {/* Logistics KPI Cards */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                        <div style={{ background: 'var(--green-bg)', padding: '12px', borderRadius: '8px', border: '1px solid var(--primary-light)', textAlign: 'center' }}>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--primary-dark)', textTransform: 'uppercase' }}>Total Envíos</span>
+                          <h2 style={{ fontSize: '1.6rem', color: 'var(--primary)', margin: '4px 0 0 0' }}>
+                            {logisticaData.totalEnvios}
+                          </h2>
+                        </div>
+                        <div style={{ background: '#e0f2fe', padding: '12px', borderRadius: '8px', border: '1px solid #38bdf8', textAlign: 'center' }}>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#0369a1', textTransform: 'uppercase' }}>En Camino</span>
+                          <h2 style={{ fontSize: '1.6rem', color: '#0284c7', margin: '4px 0 0 0' }}>
+                            {logisticaData.enviosPorEstado?.['EN_CAMINO'] || 0}
+                          </h2>
+                        </div>
+                        <div style={{ background: '#dcfce7', padding: '12px', borderRadius: '8px', border: '1px solid #4ade80', textAlign: 'center' }}>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#15803d', textTransform: 'uppercase' }}>Entregados</span>
+                          <h2 style={{ fontSize: '1.6rem', color: '#16a34a', margin: '4px 0 0 0' }}>
+                            {logisticaData.enviosPorEstado?.['ENTREGADO'] || 0}
+                          </h2>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        {/* Shipments by Status */}
+                        <div>
+                          <h4 style={{ marginBottom: '12px', fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text)' }}>Por Estado del Envío</h4>
+                          <div className="table-wrap">
+                            <table className="table-responsive" style={{ fontSize: '0.85rem' }}>
+                              <thead>
+                                <tr>
+                                  <th>Estado</th>
+                                  <th>Envíos</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.keys(logisticaData.enviosPorEstado || {}).length === 0 ? (
+                                  <tr><td colSpan="2" style={{ textAlign: 'center' }}>No hay envíos registrados</td></tr>
+                                ) : (
+                                  Object.keys(logisticaData.enviosPorEstado).map((estado) => (
+                                    <tr key={estado}>
+                                      <td data-label="Estado" style={{ fontWeight: 'bold' }}>{estado.replace('_', ' ')}</td>
+                                      <td data-label="Envíos">{logisticaData.enviosPorEstado[estado]}</td>
+                                    </tr>
+                                  ))
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        {/* Shipments by Carrier */}
+                        <div>
+                          <h4 style={{ marginBottom: '12px', fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text)' }}>Distribución por Transportista</h4>
+                          <div className="table-wrap">
+                            <table className="table-responsive" style={{ fontSize: '0.85rem' }}>
+                              <thead>
+                                <tr>
+                                  <th>Transportista</th>
+                                  <th>Envíos</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.keys(logisticaData.enviosPorTransportista || {}).length === 0 ? (
+                                  <tr><td colSpan="2" style={{ textAlign: 'center' }}>No hay envíos registrados</td></tr>
+                                ) : (
+                                  Object.keys(logisticaData.enviosPorTransportista).map((transportista) => (
+                                    <tr key={transportista}>
+                                      <td data-label="Transportista" style={{ fontWeight: 'bold' }}>{transportista}</td>
+                                      <td data-label="Envíos">{logisticaData.enviosPorTransportista[transportista]}</td>
+                                    </tr>
+                                  ))
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '20px', textAlign: 'center' }}>Sin datos disponibles.</div>
+                  )}
                 </div>
               )}
             </div>
