@@ -1,27 +1,16 @@
 package com.agromarket.infrastructure.security;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class RateLimitingRedisService {
-
-    private final StringRedisTemplate redisTemplate;
-
-    public RateLimitingRedisService(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    private final ConcurrentHashMap<String, AtomicLong> counters = new ConcurrentHashMap<>();
 
     public boolean isAllowed(String key, int limit, long durationInSeconds) {
-        String redisKey = "rate_limit:" + key;
-        Long count = redisTemplate.opsForValue().increment(redisKey);
-        if (count == null) {
-            return true;
-        }
-        if (count == 1) {
-            redisTemplate.expire(redisKey, Duration.ofSeconds(durationInSeconds));
-        }
+        counters.putIfAbsent(key, new AtomicLong(0));
+        long count = counters.get(key).incrementAndGet();
         return count <= limit;
     }
 }

@@ -1,23 +1,19 @@
 package com.agromarket.interfaces.rest.controller;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/divisas")
 public class DivisaController {
-
     private final RestTemplate restTemplate;
-    private final StringRedisTemplate redisTemplate;
+    private final ConcurrentHashMap<String, Double> cache = new ConcurrentHashMap<>();
 
-    public DivisaController(RestTemplate restTemplate, StringRedisTemplate redisTemplate) {
+    public DivisaController(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.redisTemplate = redisTemplate;
     }
 
     @GetMapping("/conversion")
@@ -25,11 +21,10 @@ public class DivisaController {
             @RequestParam(defaultValue = "COP") String desde,
             @RequestParam String hacia) {
         String cacheKey = "divisa:" + hacia.toUpperCase();
-        String cachedRate = redisTemplate.opsForValue().get(cacheKey);
-
         double rate;
-        if (cachedRate != null) {
-            rate = Double.parseDouble(cachedRate);
+
+        if (cache.containsKey(cacheKey)) {
+            rate = cache.get(cacheKey);
         } else {
             Map<?, ?> response = restTemplate.getForObject("https://open.er-api.com/v6/latest/COP", Map.class);
             if (response == null) {
@@ -37,7 +32,7 @@ public class DivisaController {
             }
             Map<?, ?> rates = (Map<?, ?>) response.get("rates");
             rate = Double.parseDouble(rates.get(hacia.toUpperCase()).toString());
-            redisTemplate.opsForValue().set(cacheKey, String.valueOf(rate), 1, TimeUnit.HOURS);
+            cache.put(cacheKey, rate);
         }
 
         return ResponseEntity.ok(Map.of(
@@ -46,7 +41,7 @@ public class DivisaController {
             "tasa", rate,
             "tasaCambio", rate,
             "tasa_cambio", rate,
-            "actualizado", "Cached/Live"
+            "actualizado", "Live"
         ));
     }
 }
