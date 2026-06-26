@@ -19,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import org.hibernate.annotations.BatchSize;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -94,6 +95,7 @@ public class ProductoEntity {
     private LocalDateTime fechaCreacion;
 
     @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     @Builder.Default
     private List<ResenaEntity> resenas = new ArrayList<>();
 

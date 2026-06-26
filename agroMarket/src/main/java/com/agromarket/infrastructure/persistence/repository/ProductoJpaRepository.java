@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface ProductoJpaRepository extends JpaRepository<ProductoEntity, Long>, JpaSpecificationExecutor<ProductoEntity> {
 
     @Override
-    @EntityGraph(attributePaths = {"productor", "resenas"})
+    @EntityGraph(attributePaths = {"productor"})
     Page<ProductoEntity> findAll(Specification<ProductoEntity> spec, Pageable pageable);
 
     List<ProductoEntity> findByNombreContainingIgnoreCase(String keyword);
