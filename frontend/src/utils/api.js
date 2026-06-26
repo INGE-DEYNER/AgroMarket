@@ -41,7 +41,8 @@ async function request(method, path, body) {
         window.location.href = '/login';
       }
     }
-    throw new Error(err.message || `HTTP ${res.status}`);
+    throw Object.assign(new Error(err.message || `HTTP ${res.status}`), { status: res.status });
+
   }
   return res.status === 204 ? null : res.json();
 }

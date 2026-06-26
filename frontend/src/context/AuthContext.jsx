@@ -30,24 +30,35 @@ export function AuthProvider({ children }) {
         email: userData.email || userData.correo,
       };
       setUser(normalizedUser);
-    } catch {
-      localStorage.removeItem('token');
-      setUser(null);
+    } catch (err) {
+      // Solo limpiar sesión si el servidor explícitamente rechaza el token (401)
+      // Errores de red, 500, etc. NO deben cerrar la sesión del usuario
+      const is401 = err?.message?.includes('401') || err?.status === 401;
+      if (is401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('agromarket_cart');
+        setUser(null);
+      }
+      // Para otros errores: mantener el user actual si ya existe
     }
   };
 
   useEffect(() => {
     const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setLoading(false);
-          return;
-        }
         await refetchUser();
-      } catch {
-        localStorage.removeItem('token');
-        setUser(null);
+      } catch (err) {
+        // Solo limpiar si es 401 explícito
+        const is401 = err?.message?.includes('401') || err?.status === 401;
+        if (is401) {
+          localStorage.removeItem('token');
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
