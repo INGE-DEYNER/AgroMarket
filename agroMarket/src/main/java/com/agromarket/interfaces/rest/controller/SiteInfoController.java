@@ -35,9 +35,9 @@ public class SiteInfoController {
     @Value("${app.version:1.0.0}")
     private String appVersion;
 
-    // Nombre correcto de propiedad: anthropic.api-key (con guión)
-    @Value("${anthropic.api-key:}")
-    private String anthropicApiKey;
+    // Gemini API key — configura GEMINI_API_KEY en Railway
+    @Value("${gemini.api-key:}")
+    private String geminiApiKey;
 
     @GetMapping("/site-info")
     public ResponseEntity<Map<String, Object>> siteInfo() {
@@ -60,49 +60,74 @@ public class SiteInfoController {
         }
 
         @SuppressWarnings("unchecked")
-        List<Map<String, String>> historial = (List<Map<String, String>>) body.getOrDefault("historial", List.of());
+        List<Map<String, Object>> historial = (List<Map<String, Object>>) body.getOrDefault("historial", List.of());
 
-        if (anthropicApiKey == null || anthropicApiKey.isEmpty()) {
+        if (geminiApiKey == null || geminiApiKey.isEmpty()) {
             return ResponseEntity.ok(Map.of("respuesta", "La IA no está configurada. Por favor contacte soporte."));
         }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-api-key", anthropicApiKey);
-        headers.set("anthropic-version", "2023-06-01");
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        List<Map<String, String>> messages = new ArrayList<>(historial);
-        messages.add(Map.of("role", "user", "content", mensaje));
+        // Gemini REST API — no requiere SDK, solo HTTP
+        // Convierte historial de formato {role, content} → {role, parts:[{text}]}
+        // Gemini usa "model" en lugar de "assistant" para el rol del asistente
+        List<Map<String, Object>> contents = new ArrayList<>();
+        for (Map<String, Object> h : historial) {
+            String role = String.valueOf(h.getOrDefault("role", "user"));
+            String content = String.valueOf(h.getOrDefault("content", ""));
+            String geminiRole = "assistant".equals(role) ? "model" : "user";
+            contents.add(Map.of(
+                "role", geminiRole,
+                "parts", List.of(Map.of("text", content))
+            ));
+        }
+        // Agrega el mensaje actual del usuario
+        contents.add(Map.of(
+            "role", "user",
+            "parts", List.of(Map.of("text", mensaje))
+        ));
 
         Map<String, Object> requestBody = Map.of(
-            "model", "claude-3-5-sonnet-20241022",
-            "max_tokens", 500,
-            "system", "Eres el asistente virtual de AgroMarket, plataforma de comercio agrícola de ASAFRUT " +
-                      "en Chigorodó, Urabá, Colombia. Ayudas a compradores y productores con: " +
-                      "- Información sobre productos agrícolas de Urabá " +
-                      "- Cómo registrarse y usar la plataforma " +
-                      "- Cómo hacer pedidos y pagos " +
-                      "- Cómo publicar productos (productores) " +
-                      "- Estado de pedidos y envíos " +
-                      "- Resolución de problemas técnicos " +
-                      "- Cualquier pregunta general sobre agricultura y frutas " +
-                      "Responde siempre en el idioma del usuario. Sé amable, profesional y conciso. " +
-                      "Si no sabes algo específico de la plataforma, di que lo escalarás al equipo de soporte. " +
-                      "No uses emojis excesivos. Respuestas máximo 150 palabras.",
-            "messages", messages
+            "systemInstruction", Map.of(
+                "parts", List.of(Map.of("text",
+                    "Eres el asistente virtual de AgroMarket, plataforma de comercio agrícola de ASAFRUT " +
+                    "en Chigorodó, Urabá, Colombia. Ayudas a compradores y productores con: " +
+                    "información sobre productos agrícolas de Urabá, cómo registrarse y usar la plataforma, " +
+                    "cómo hacer pedidos y pagos, cómo publicar productos (productores), " +
+                    "estado de pedidos y envíos, y resolución de problemas técnicos. " +
+                    "Responde siempre en el idioma del usuario. Sé amable, profesional y conciso. " +
+                    "Si no sabes algo específico de la plataforma, di que lo escalarás al equipo de soporte. " +
+                    "No uses emojis excesivos. Respuestas máximo 150 palabras."
+                ))
+            ),
+            "contents", contents,
+            "generationConfig", Map.of(
+                "maxOutputTokens", 500,
+                "temperature", 0.7
+            )
         );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey;
 
         try {
             @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.exchange(
-                "https://api.anthropic.com/v1/messages",
+                url,
                 HttpMethod.POST,
                 new HttpEntity<>(requestBody, headers),
                 Map.class
             );
+
+            // Estructura respuesta Gemini: candidates[0].content.parts[0].text
             @SuppressWarnings("unchecked")
-            List<Map<?, ?>> content = (List<Map<?, ?>>) response.getBody().get("content");
-            String respuesta = (String) content.get(0).get("text");
+            List<Map<?, ?>> candidates = (List<Map<?, ?>>) response.getBody().get("candidates");
+            @SuppressWarnings("unchecked")
+            Map<?, ?> content = (Map<?, ?>) candidates.get(0).get("content");
+            @SuppressWarnings("unchecked")
+            List<Map<?, ?>> parts = (List<Map<?, ?>>) content.get("parts");
+            String respuesta = (String) parts.get(0).get("text");
+
             return ResponseEntity.ok(Map.of("respuesta", respuesta));
         } catch (Exception e) {
             return ResponseEntity.ok(Map.of("respuesta", "Lo siento, hay un problema de conexión con el servicio de IA. Inténtalo más tarde."));
