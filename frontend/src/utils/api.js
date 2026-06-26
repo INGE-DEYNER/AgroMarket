@@ -49,12 +49,24 @@ async function request(method, path, body) {
     }
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers,
-    credentials: 'include',
-    ...(requestBody !== undefined ? { body: requestBody } : {}),
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers,
+      credentials: 'include',
+      ...(requestBody !== undefined ? { body: requestBody } : {}),
+    });
+    // Connection restored — hide network error overlay
+    window.dispatchEvent(new CustomEvent('agromarket:network-ok'));
+  } catch (networkErr) {
+    // True network failure (no internet, server unreachable, CORS preflight fail)
+    window.dispatchEvent(new CustomEvent('agromarket:network-error'));
+    throw Object.assign(
+      new Error('Sin conexión. Verifica tu internet e intenta de nuevo.'),
+      { status: 0, isNetworkError: true }
+    );
+  }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }));

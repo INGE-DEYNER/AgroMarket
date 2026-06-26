@@ -11,12 +11,12 @@ import '../styles/mensajeria.css';
 import '../styles/resenas.css';
 
 const CATEGORIES = [
-  { label: 'Todos', emoji: '🌿', value: '' },
-  { label: 'Frutas', emoji: '🍌', value: 'Frutas' },
-  { label: 'Verduras', emoji: '🥦', value: 'Verduras' },
-  { label: 'Tubérculos', emoji: '🥔', value: 'Tubérculos' },
-  { label: 'Granos', emoji: '🫘', value: 'Granos' },
-  { label: 'Otros', emoji: '⚙️', value: 'Otros' },
+  { label: 'Todos',     emoji: '',   value: '' },
+  { label: 'Frutas',    emoji: '',   value: 'Frutas' },
+  { label: 'Verduras',  emoji: '',   value: 'Verduras' },
+  { label: 'Tubérculos',emoji: '',   value: 'Tubérculos' },
+  { label: 'Granos',    emoji: '',   value: 'Granos' },
+  { label: 'Otros',     emoji: '',   value: 'Otros' },
 ];
 
 const REVIEW_PRODUCTOS = [

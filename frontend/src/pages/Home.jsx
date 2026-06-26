@@ -133,7 +133,8 @@ export default function Home() {
         <div className="hero-content">
           <div className="hero-left">
             <div className="hero-badge animate-fade-up">
-              🌿 ASAFRUT · Chigorodó, Urabá
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ display: 'inline', verticalAlign: 'middle' }}><path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z"/></svg>
+              {' '}ASAFRUT · Chigorodó, Urabá
             </div>
             <h1 className="hero-title animate-fade-up" style={{ transitionDelay: '0.1s' }}>
               {t('home.heroTitle', 'Del campo de Urabá directamente a tu mesa.').split('Urabá')[0]}<span>Urabá</span>{t('home.heroTitle', 'Del campo de Urabá directamente a tu mesa.').split('Urabá')[1]}
@@ -194,7 +195,10 @@ export default function Home() {
               />
             </div>
             <div className="float-card float-card-1">
-              <div className="float-card-1-title">🚚 {t('home.floatCard1.title', 'Pedido en camino')}</div>
+              <div className="float-card-1-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }}><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                {t('home.floatCard1.title', 'Pedido en camino')}
+              </div>
               <div className="float-card-1-sub">{t('home.floatCard1.desc', 'Seguimiento en tiempo real')}</div>
               <div className="progress-bar-bg">
                 <div className="progress-bar-fill" />
@@ -287,7 +291,11 @@ export default function Home() {
           ) : productos.length === 0 ? (
             // Sin productos aún — placeholder neutro
             <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', color: '#999' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🌱</div>
+              <div style={{ marginBottom: '12px' }}>
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="#52b788" opacity="0.6">
+                  <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z"/>
+                </svg>
+              </div>
               <p>{t('home.featured.empty', 'Los productos aparecerán aquí cuando los productores publiquen su catálogo.')}</p>
               <Link to="/registro" className="btn btn-primary" style={{ marginTop: '16px', display: 'inline-block' }}>
                 {t('home.featured.beFirst', 'Sé el primero en publicar')}
@@ -378,7 +386,10 @@ export default function Home() {
               />
             </div>
             <div className="fp-float">
-              <div className="fp-float-title">📦 {t('home.fpFloat.title', 'Nuevo pedido recibido')}</div>
+              <div className="fp-float-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }}><path d="M20 6h-2.18c.07-.44.18-.88.18-1.36C18 2.54 16.46 1 14.55 1c-1.09 0-1.95.4-2.75 1.21L11 4l-.8-1.79C9.45 1.4 8.59 1 7.45 1 5.54 1 4 2.54 4 4.64c0 .48.11.92.18 1.36H2c-1.1 0-1.99.9-1.99 2L0 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5.45-3.09c.48 0 .92.38.92.86l.01.03L14 7H11.99l1.64-3.72c.2-.21.5-.37.92-.37zM7.45 2.91c.42 0 .72.16.93.38L10.01 7H8L6.54 3.8l.01-.03c0-.48.43-.86.9-.86zM20 19H2V9h16v10z"/></svg>
+                {t('home.fpFloat.title', 'Nuevo pedido recibido')}
+              </div>
               <div className="fp-float-desc">{t('home.fpFloat.desc', 'Notificaciones en tiempo real')}</div>
               <div className="fp-float-badge">{t('home.fpFloat.badge', 'En proceso')}</div>
             </div>

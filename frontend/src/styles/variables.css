@@ -1,0 +1,222 @@
+/* ─── AGROMARKET DESIGN TOKENS ─────────────────────────────────────── */
+/* Single source of truth for all visual design decisions               */
+
+:root {
+  /* ── Brand Colors */
+  --color-primary:       #2d6a4f;
+  --color-primary-light: #52b788;
+  --color-primary-dark:  #1b4332;
+  --color-accent:        #f4a261;
+  --color-accent-dark:   #e07841;
+
+  /* ── Backgrounds */
+  --color-bg:            #f8fdf9;
+  --color-surface:       #ffffff;
+  --color-surface-2:     #f0f7f2;
+  --color-surface-3:     #e8f5ec;
+
+  /* ── Text */
+  --color-text:          #1a1a2e;
+  --color-text-muted:    #4a5568;
+  --color-text-dim:      #94a3b8;
+
+  /* ── Status */
+  --color-success:       #10b981;
+  --color-error:         #ef4444;
+  --color-warning:       #f59e0b;
+  --color-info:          #3b82f6;
+
+  /* ── Borders */
+  --color-border:        rgba(45, 106, 79, 0.12);
+  --color-border-light:  rgba(45, 106, 79, 0.06);
+
+  /* ── Border Radius */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* ── Shadows */
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+  --shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-xl:  0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-green-sm: 0 4px 14px rgba(45, 106, 79, 0.20);
+  --shadow-green-md: 0 8px 24px rgba(45, 106, 79, 0.25);
+
+  /* ── Typography */
+  --font-display: 'Playfair Display', 'Outfit', serif;
+  --font-title:   'Outfit', 'Inter', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* ── Transitions */
+  --transition:       200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:  400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Layout */
+  --sidebar-w: 280px;
+  --navbar-h:  60px;
+  --max-width: 1440px;
+
+  /* ── Z-index scale */
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-modal:    300;
+  --z-toast:    400;
+  --z-loading:  500;
+}
+
+/* ─── ANIMATION KEYFRAMES ───────────────────────────────────────────── */
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* Fade up (Intersection Observer trigger) */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Scale in */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Slide in from right (toasts) */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Slide out to right (toasts) */
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+/* Slide in from top */
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Float (empty state illustrations) */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+/* Pulse (logo on loading screen) */
+@keyframes pulseSoft {
+  0%, 100% { transform: scale(1);    opacity: 1;   }
+  50%       { transform: scale(1.08); opacity: 0.9; }
+}
+
+/* Progress bar fill */
+@keyframes progressFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* Dots bounce (loading) */
+@keyframes dotBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+/* Ripple effect */
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+/* Count up (handled via JS, this is just the reveal) */
+@keyframes countReveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Blur-up image reveal */
+@keyframes blurUp {
+  from { filter: blur(12px); opacity: 0.5; }
+  to   { filter: blur(0);    opacity: 1; }
+}
+
+/* ─── UTILITY ANIMATION CLASSES ─────────────────────────────────────── */
+
+.animate-fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.animate-fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.animate-scale-in {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.animate-scale-in.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ─── SKELETON BASE ──────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f4f0 25%,
+    #e2eae2 50%,
+    #f0f4f0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── RIPPLE BUTTON ──────────────────────────────────────────────────── */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple .ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+/* ─── PAGE TRANSITION ────────────────────────────────────────────────── */
+.page-enter {
+  animation: fadeIn 0.2s ease-in-out;
+}
