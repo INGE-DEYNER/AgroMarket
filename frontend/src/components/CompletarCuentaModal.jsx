@@ -49,6 +49,15 @@ export default function CompletarCuentaModal({ onComplete }) {
         onComplete();
       }
     } catch (err) {
+      // 401 → sesión expirada, redirige a login (el auto-logout de api.js ya lo maneja,
+      // pero por si acaso capturamos aquí también)
+      const msg = err.message || '';
+      if (msg.includes('401') || msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('expirado')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('agromarket_cart');
+        window.location.href = '/login';
+        return;
+      }
       setError(err.message || t('completar.error.general', 'Error al guardar los datos'));
     } finally {
       setLoading(false);
