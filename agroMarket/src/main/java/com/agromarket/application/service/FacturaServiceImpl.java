@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@org.springframework.transaction.annotation.Transactional(readOnly = true)
 public class FacturaServiceImpl implements FacturaService {
     private final FacturaJpaRepository facturaJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
