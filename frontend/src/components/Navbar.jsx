@@ -5,18 +5,21 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../hooks/useCart';
 import LanguageSwitcher from './LanguageSwitcher';
+import CartDrawer from './CartDrawer';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { count: totalItems } = useCart();
+  const { count: totalItems, cartOpen, setCartOpen } = useCart();
   const { t } = useTranslation();
   const [busqueda, setBusqueda] = useState('');
   const [menuUsuario, setMenuUsuario] = useState(false);
   const [menuMovil, setMenuMovil] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [animateBadge, setAnimateBadge] = useState(false);
   const navigate = useNavigate();
   const searchTimeoutRef = useRef(null);
   const userMenuRef = useRef(null);
+  const prevItemsRef = useRef(totalItems);
 
   // Glassmorphism on scroll
   useEffect(() => {
@@ -24,6 +27,16 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Animación del badge al agregar productos
+  useEffect(() => {
+    if (totalItems > prevItemsRef.current) {
+      setAnimateBadge(true);
+      const timer = setTimeout(() => setAnimateBadge(false), 500);
+      return () => clearTimeout(timer);
+    }
+    prevItemsRef.current = totalItems;
+  }, [totalItems]);
 
   // Cierra dropdown al hacer clic fuera
   useEffect(() => {
@@ -99,25 +112,31 @@ export default function Navbar() {
 
         {/* Acciones derechas */}
         <div className="nav-actions">
+          <LanguageSwitcher />
+          
+          {/* Botón Carrito que abre el Drawer */}
+          <button 
+            type="button" 
+            onClick={() => setCartOpen(true)} 
+            className="nav-icon-btn" 
+            title="Carrito" 
+            aria-label="Ver carrito"
+          >
+            <CartIcon />
+            {totalItems > 0 && (
+              <span className={`nav-badge ${animateBadge ? 'badge-bounce' : ''}`}>
+                {totalItems}
+              </span>
+            )}
+          </button>
+
           {!user ? (
             <>
-              <LanguageSwitcher />
-              <Link to="/catalogo" className="nav-icon-btn" title="Carrito" aria-label="Ver carrito">
-                <CartIcon />
-                {totalItems > 0 && <span className="nav-badge">{totalItems}</span>}
-              </Link>
               <Link to="/login" className="nav-btn-text">{t('nav.login', 'Iniciar sesión')}</Link>
               <Link to="/registro" className="nav-btn-primary">{t('nav.register', 'Registrarse')}</Link>
             </>
           ) : (
             <>
-              <LanguageSwitcher />
-              {/* Carrito */}
-              <Link to="/catalogo" className="nav-icon-btn" title="Carrito" aria-label="Ver carrito">
-                <CartIcon />
-                {totalItems > 0 && <span className="nav-badge">{totalItems}</span>}
-              </Link>
-
               <Link to="/mensajeria" className="nav-icon-btn" title="Mensajes" aria-label="Mensajes">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                   <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
@@ -133,7 +152,6 @@ export default function Navbar() {
                   }
                 </div>
                 <span className="nav-username">{user.nombre}</span>
-                {/* SVG chevron instead of ▼ */}
                 <svg
                   viewBox="0 0 24 24" width="14" height="14" fill="currentColor"
                   className="nav-arrow"
@@ -195,20 +213,14 @@ export default function Navbar() {
         </div>
 
         {/* Hamburguesa móvil */}
-        <button className="nav-hamburger" onClick={() => setMenuMovil(!menuMovil)} aria-label="Abrir menú">
-          {menuMovil ? (
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-              <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-            </svg>
-          )}
+        <button className={`nav-hamburger ${menuMovil ? 'active' : ''}`} onClick={() => setMenuMovil(!menuMovil)} aria-label="Abrir menú">
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
       </div>
 
-      {/* Barra de categorías */}
+      {/* Barra de categorías (desktop) */}
       <nav className="navbar-categories" aria-label="Categorías">
         <div className="nav-cats-inner">
           <Link to="/catalogo" style={{ fontWeight: 'bold' }}>
@@ -225,20 +237,62 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Menú móvil */}
-      {menuMovil && (
-        <div className="nav-mobile-menu" role="navigation" aria-label="Menú móvil">
-          <Link to="/catalogo" onClick={() => setMenuMovil(false)}>Catálogo</Link>
-          <Link to="/productores" onClick={() => setMenuMovil(false)}>Productores</Link>
-          <Link to="/home#como-funciona" onClick={() => setMenuMovil(false)}>Cómo funciona</Link>
+      {/* Drawer móvil izquierda */}
+      <div 
+        className={`mobile-drawer-overlay ${menuMovil ? 'open' : ''}`} 
+        onClick={() => setMenuMovil(false)} 
+      />
+      <div className={`mobile-drawer ${menuMovil ? 'open' : ''}`} role="navigation" aria-label="Menú móvil">
+        <div className="mobile-drawer-header">
+          <Link to="/home" className="nav-logo" onClick={() => setMenuMovil(false)}>
+            <img
+              src="/logo-asafrut.jpg"
+              alt="ASAFRUT Logo"
+              style={{ height: '36px', width: '36px', objectFit: 'contain', borderRadius: '8px' }}
+            />
+            <span>AgroMarket</span>
+          </Link>
+          <button className="mobile-drawer-close" onClick={() => setMenuMovil(false)} aria-label="Cerrar menú">✕</button>
+        </div>
+
+        <div className="mobile-drawer-links">
+          <Link to="/catalogo" onClick={() => setMenuMovil(false)}>{t('nav.catalog', 'Catálogo')}</Link>
+          <Link to="/productores" onClick={() => setMenuMovil(false)}>{t('nav.producers', 'Productores')}</Link>
+          <Link to="/home#como-funciona" onClick={() => setMenuMovil(false)}>{t('nav.howItWorks', 'Cómo funciona')}</Link>
+          {user?.role?.toLowerCase() === 'admin' && (
+            <Link to="/admin" onClick={() => setMenuMovil(false)}>{t('nav.admin', 'Admin')}</Link>
+          )}
+          
+          <hr className="mobile-drawer-divider" />
+          
           {!user ? (
-            <>
-              <Link to="/login" onClick={() => setMenuMovil(false)}>Iniciar sesión</Link>
-              <Link to="/registro" onClick={() => setMenuMovil(false)}>Registrarse</Link>
-            </>
+            <div className="mobile-drawer-auth">
+              <Link to="/login" className="mobile-drawer-btn-text" onClick={() => setMenuMovil(false)}>
+                {t('nav.login', 'Iniciar sesión')}
+              </Link>
+              <Link to="/registro" className="mobile-drawer-btn-primary" onClick={() => setMenuMovil(false)}>
+                {t('nav.register', 'Registrarse')}
+              </Link>
+            </div>
           ) : (
-            <>
-              <Link to="/perfil" onClick={() => setMenuMovil(false)}>Mi Perfil</Link>
+            <div className="mobile-drawer-user">
+              <div className="user-profile-summary">
+                <div className="nav-avatar">
+                  {user.fotoUrl ? (
+                    <img src={user.fotoUrl} alt={user.nombre} />
+                  ) : (
+                    <span>{(user.nombre || 'U').charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                <div className="user-info">
+                  <div className="user-name">{user.nombre}</div>
+                  <div className="user-role">{user.role}</div>
+                </div>
+              </div>
+              
+              <Link to="/perfil" onClick={() => setMenuMovil(false)}>
+                {t('nav.myAccount', 'Mi cuenta')}
+              </Link>
               <Link
                 to={
                   user.role?.toLowerCase() === 'productor'
@@ -249,19 +303,25 @@ export default function Navbar() {
                 }
                 onClick={() => setMenuMovil(false)}
               >
-                Mi Panel
+                {t('nav.myPanel', 'Mi panel')}
               </Link>
-              <button
-                onClick={() => { handleLogout(); setMenuMovil(false); }}
-                className="nav-logout"
-                style={{ textAlign: 'left', padding: '12px 16px', background: 'none', border: 'none', width: '100%', fontSize: '1rem', color: '#ef4444' }}
-              >
-                Cerrar sesión
+              <Link to="/pedidos" onClick={() => setMenuMovil(false)}>
+                {t('nav.myOrders', 'Mis pedidos')}
+              </Link>
+              <Link to="/perfil#cupones" onClick={() => setMenuMovil(false)}>
+                {t('nav.coupons', 'Mis cupones')}
+              </Link>
+              
+              <button onClick={() => { handleLogout(); setMenuMovil(false); }} className="nav-logout-mobile">
+                {t('nav.logout', 'Cerrar sesión')}
               </button>
-            </>
+            </div>
           )}
         </div>
-      )}
+      </div>
+
+      {/* Cart Drawer deslizable desde la derecha */}
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </header>
   );
 }

@@ -74,6 +74,14 @@
   --navbar-h:  60px;
   --max-width: 1440px;
 
+  /* ── Breakpoints */
+  --bp-xs: 390px;
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1281px;
+
   /* ── Z-index scale */
   --z-dropdown: 100;
   --z-sticky:   200;

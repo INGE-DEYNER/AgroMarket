@@ -12,6 +12,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('usuarios');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -352,8 +353,14 @@ export default function Admin() {
 
   return (
     <div className="app-layout">
+      {/* Overlay para sidebar móvil */}
+      <div 
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} 
+        onClick={() => setSidebarOpen(false)} 
+      />
+
       {/* SIDEBAR */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-user">
           <div className="avatar avatar-red" style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}>AD</div>
           <div className="sidebar-user-info">
@@ -363,39 +370,55 @@ export default function Admin() {
         </div>
 
         <div className="sidebar-label">{t('admin.nav.title', 'Panel de Control')}</div>
-        <a href="#" className={`sidebar-link${activeSection === 'usuarios' ? ' active' : ''}`} id="link-usuarios" onClick={(e) => { e.preventDefault(); setActiveSection('usuarios'); }}>
-          <span className="icon">👥</span> {t('admin.nav.users', 'Usuarios')}
+        <a href="#" className={`sidebar-link${activeSection === 'usuarios' ? ' active' : ''}`} id="link-usuarios" onClick={(e) => { e.preventDefault(); setActiveSection('usuarios'); setSidebarOpen(false); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          {t('admin.nav.users', 'Usuarios')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'productos' ? ' active' : ''}`} id="link-productos" onClick={(e) => { e.preventDefault(); setActiveSection('productos'); }}>
-          <span className="icon"></span> {t('admin.nav.products', 'Productos')}
+        <a href="#" className={`sidebar-link${activeSection === 'productos' ? ' active' : ''}`} id="link-productos" onClick={(e) => { e.preventDefault(); setActiveSection('productos'); setSidebarOpen(false); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm1-15l5 5h-4v6h-2v-6H7l5-5z"/></svg>
+          {t('admin.nav.products', 'Productos')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} id="link-resenas" onClick={(e) => { e.preventDefault(); setActiveSection('resenas'); }}>
-          <span className="icon"></span> {t('admin.nav.moderation', 'Moderación')}
+        <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} id="link-resenas" onClick={(e) => { e.preventDefault(); setActiveSection('resenas'); setSidebarOpen(false); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          {t('admin.nav.moderation', 'Moderación')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'escrow' ? ' active' : ''}`} id="link-escrow" onClick={(e) => { e.preventDefault(); setActiveSection('escrow'); }}>
-          <span className="icon"></span> Fideicomiso (Escrow)
+        <a href="#" className={`sidebar-link${activeSection === 'escrow' ? ' active' : ''}`} id="link-escrow" onClick={(e) => { e.preventDefault(); setActiveSection('escrow'); setSidebarOpen(false); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          Fideicomiso (Escrow)
         </a>
-        <Link to="/perfil" className="sidebar-link" id="link-perfil">
-          <span className="icon">👤</span> {t('profile.title', 'Mi Perfil')}
+        <Link to="/perfil" className="sidebar-link" id="link-perfil" onClick={() => setSidebarOpen(false)}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          {t('profile.title', 'Mi Perfil')}
         </Link>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('admin.reports.title', 'Reportes')}</div>
-        <a href="#" className={`sidebar-link${activeSection === 'finanzas' ? ' active' : ''}`} id="link-finanzas" onClick={(e) => { e.preventDefault(); setActiveSection('finanzas'); }}>
-          <span className="icon">💵</span> {t('admin.reports.finance', 'Finanzas')}
+        <a href="#" className={`sidebar-link${activeSection === 'finanzas' ? ' active' : ''}`} id="link-finanzas" onClick={(e) => { e.preventDefault(); setActiveSection('finanzas'); setSidebarOpen(false); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          {t('admin.reports.finance', 'Finanzas')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'logistica' ? ' active' : ''}`} id="link-logistica" onClick={(e) => { e.preventDefault(); setActiveSection('logistica'); }}>
-          <span className="icon">🚚</span> {t('admin.reports.logistics', 'Logística')}
+        <a href="#" className={`sidebar-link${activeSection === 'logistica' ? ' active' : ''}`} id="link-logistica" onClick={(e) => { e.preventDefault(); setActiveSection('logistica'); setSidebarOpen(false); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          {t('admin.reports.logistics', 'Logística')}
         </a>
 
         <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); await logout(); navigate('/login'); }}>
-          <span className="icon"></span> {t('admin.logout', 'Cerrar sesión')}
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+          {t('admin.logout', 'Cerrar sesión')}
         </a>
       </aside>
 
       <main className="main-content">
-        {/* Language Switcher Dropdown */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        {/* Top bar with sidebar toggle */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button 
+            type="button" 
+            className="sidebar-toggle-btn" 
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menú de navegación"
+          >
+            ☰ Menú
+          </button>
           <LanguageSwitcher />
         </div>
 

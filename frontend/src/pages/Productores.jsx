@@ -118,13 +118,19 @@ export default function Productores() {
                   </div>
                   <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                     {calificacion && (
-                      <span style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                        ⭐ {Number(calificacion).toFixed(1)} · Productor Certificado
+                      <span style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                        {Number(calificacion).toFixed(1)} · Productor Certificado
                       </span>
                     )}
                     <h3 style={{ color: '#1f2937', fontSize: '1.25rem', margin: '8px 0 4px 0' }}>{nombre}</h3>
-                    <span style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '12px', display: 'block' }}>
-                      📍 {ubicacion}
+                    <span style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                      </svg>
+                      {ubicacion}
                     </span>
                     <p style={{ color: '#9ca3af', fontSize: '0.9rem', marginBottom: '16px', flex: 1, lineHeight: '1.5' }}>{bio}</p>
                     {frutas.length > 0 && (

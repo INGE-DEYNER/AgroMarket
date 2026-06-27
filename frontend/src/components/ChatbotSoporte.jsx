@@ -374,6 +374,18 @@ export default function ChatbotSoporte() {
         .chatbot-send:active {
           transform: scale(0.95);
         }
+        @media (max-width: 768px) {
+          .chatbot-widget-container {
+            bottom: 80px;
+            right: 16px;
+          }
+          .chatbot-window {
+            bottom: 70px;
+            right: 0;
+            width: calc(100vw - 32px);
+            height: 400px;
+          }
+        }
       `}</style>
 
       {/* CHAT WINDOW */}

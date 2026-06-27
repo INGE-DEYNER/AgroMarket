@@ -443,6 +443,43 @@ ul {
     height: 300px;
   }
 }
+@media (max-width: 640px) {
+  .hero {
+    padding: 24px 16px;
+    min-height: auto;
+  }
+  .hero-title {
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
+    margin-bottom: 16px;
+  }
+  .hero-sub {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+  .hero-badge {
+    margin-bottom: 16px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+  }
+  .hero-bullets {
+    margin-bottom: 24px;
+    align-items: flex-start;
+  }
+  .hero-bullet {
+    font-size: 0.9rem;
+    text-align: left;
+  }
+  .hero-btns {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+  .hero-btns .btn {
+    width: 100%;
+    padding: 14px 24px;
+  }
+}
+
 
 /* ─── SECTION 2: METRICS ─── */
 .metrics {
@@ -1038,5 +1075,32 @@ ul {
 @media (max-width: 500px) {
   .footer-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .how-it-works,
+  .featured,
+  .for-producers,
+  .testimonials,
+  .cta-final {
+    padding: 3rem 16px !important;
+  }
+  .section-title {
+    font-size: 1.8rem !important;
+    margin-bottom: 12px !important;
+  }
+  .section-sub {
+    font-size: 0.95rem !important;
+    margin-bottom: 32px !important;
+  }
+  .fp-content {
+    gap: 32px !important;
+  }
+  .fp-title {
+    font-size: 1.8rem !important;
+  }
+  .cta-title {
+    font-size: 2rem !important;
   }
 }

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import CartDrawer from '../components/CartDrawer';
 import api, { API_BASE } from '../utils/api';
 import { useCart } from '../hooks/useCart';
 import '../styles/catalogo.css';
@@ -42,6 +43,7 @@ export default function DashboardComprador() {
 
   // Navigation state
   const [activeSection, setActiveSection] = useState('resumen');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -460,8 +462,14 @@ export default function DashboardComprador() {
 
   return (
     <div className="app-layout">
+      {/* Overlay para sidebar móvil */}
+      <div 
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} 
+        onClick={() => setSidebarOpen(false)} 
+      />
+
       {/* SIDEBAR */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-user" style={{ cursor: 'pointer' }} onClick={() => navigate('/perfil')}>
           <div className="avatar avatar-blue" style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}>{iniciales}</div>
           <div className="sidebar-user-info">
@@ -471,34 +479,34 @@ export default function DashboardComprador() {
         </div>
 
         <div className="sidebar-label">{t('dashboardComprador.nav.title', 'Navegación')}</div>
-        <a href="#" className={`sidebar-link${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resumen'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resumen'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardComprador.nav.summary', 'Resumen')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'catalogo' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('catalogo'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'catalogo' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('catalogo'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardComprador.nav.explore', 'Explorar Catálogo')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'misPedidos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misPedidos'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'misPedidos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misPedidos'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardComprador.nav.myOrders', 'Mis Pedidos')} <span className="badge-count">{pedidos.length}</span>
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'misFacturas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misFacturas'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'misFacturas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('misFacturas'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardComprador.nav.myInvoices', 'Mis Facturas')} <span className="badge-count">{facturas.length}</span>
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'rfq' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('rfq'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'rfq' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('rfq'); setSidebarOpen(false); }}>
           <span className="icon"></span> Licitaciones B2B (RFQ)
         </a>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('dashboardComprador.services.title', 'Servicios')}</div>
-        <a href="#" className={`sidebar-link${activeSection === 'seguimiento' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('seguimiento'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'seguimiento' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('seguimiento'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardComprador.services.tracking', 'Seguimiento')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('mensajeria'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('mensajeria'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardComprador.services.messaging', 'Mensajería')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resenas'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'resenas' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); showSection('resenas'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardComprador.services.reviews', 'Mis Reseñas')}
         </a>
-        <Link to="/perfil" className="sidebar-link">
+        <Link to="/perfil" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
           <span className="icon"></span> {t('profile.title', 'Mi Perfil')}
         </Link>
 
@@ -528,7 +536,16 @@ export default function DashboardComprador() {
 
       {/* MAIN CONTAINER */}
       <main className="main-content">
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        {/* Top bar with toggle button */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button 
+            type="button" 
+            className="sidebar-toggle-btn" 
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menú de navegación"
+          >
+            ☰ Menú
+          </button>
           <LanguageSwitcher />
         </div>
 
@@ -1417,59 +1434,7 @@ export default function DashboardComprador() {
       )}
 
       {/* CART DRAWER */}
-      {cartOpen && (
-        <>
-          <div className="cart-drawer-overlay" onClick={() => setCartOpen(false)} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 1000 }} />
-          <div className="cart-drawer open" style={{ position: 'fixed', right: 0, top: 0, height: '100%', width: '380px', background: 'var(--card-bg)', zIndex: 1001, padding: '24px', display: 'flex', flexDirection: 'column' }}>
-            <div className="cart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}> Mi Carrito</h3>
-              <button className="cart-close" onClick={() => setCartOpen(false)}>✕</button>
-            </div>
-            <div className="cart-items" style={{ flex: 1, overflowY: 'auto' }}>
-              {cart.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-muted)' }}>Tu carrito está vacío.</div>
-              ) : (
-                cart.map((item) => (
-                  <div key={item.id} className="cart-item-row" style={{ display: 'flex', gap: '12px', marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-light)' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '600' }}>{item.nombre}</div>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                        {item.cantidadMinimaMayorista && item.precioMayorista && item.qty >= item.cantidadMinimaMayorista ? (
-                          <>
-                            <span style={{ textDecoration: 'line-through', marginRight: '6px', fontSize: '0.75rem' }}>
-                              ${Number(item.precio).toLocaleString('es-CO')}/kg
-                            </span>
-                            <span style={{ color: 'var(--primary)', fontWeight: '600' }}>
-                              ${Number(item.precioMayorista).toLocaleString('es-CO')}/kg
-                            </span>
-                          </>
-                        ) : (
-                          `$${Number(item.precio).toLocaleString('es-CO')}/kg`
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
-                        <button className="btn btn-secondary btn-sm" onClick={() => updateQty(item.id, item.qty - 1)} style={{ padding: '2px 8px' }}>-</button>
-                        <span>{item.qty} kg</span>
-                        <button className="btn btn-secondary btn-sm" onClick={() => updateQty(item.id, item.qty + 1)} style={{ padding: '2px 8px' }}>+</button>
-                      </div>
-                    </div>
-                    <button className="btn btn-secondary btn-sm" onClick={() => removeFromCart(item.id)} style={{ color: 'var(--red)', alignSelf: 'center' }}>✕</button>
-                  </div>
-                ))
-              )}
-            </div>
-            {cart.length > 0 && (
-              <div className="cart-footer" style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', marginBottom: '16px' }}>
-                  <span>Total Pedido:</span>
-                  <span>${total.toLocaleString('es-CO')}</span>
-                </div>
-                <button className="btn btn-primary" onClick={handleCheckout} style={{ width: '100%' }}>Proceder al Pago →</button>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 }

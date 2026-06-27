@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { useCart } from '../hooks/useCart';
 import '../styles/login.css'; // Reuses base auth form/panel wrappers for clean style
 
 export default function PagoPasarela() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { clearCart } = useCart();
   const [pagoId, setPagoId] = useState(null);
   const [referencia, setReferencia] = useState('');
   const [monto, setMonto] = useState(0);
@@ -41,6 +43,11 @@ export default function PagoPasarela() {
         estado: approved ? 'APROBADO' : 'RECHAZADO'
       });
       setStatus(approved ? 'success' : 'error');
+      
+      if (approved) {
+        clearCart();
+      }
+
       setTimeout(() => {
         if (approved) {
           navigate('/dashboard-comprador?section=misPedidos&success=1');

@@ -205,8 +205,11 @@ export default function Home() {
               </div>
             </div>
             <div className="float-card float-card-2">
-              <div className="float-card-2-val">
-                {metrics?.calificacion ?? '⭐ —'}
+              <div className="float-card-2-val" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="#f59e0b">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+                {metrics?.calificacion ? Number(metrics.calificacion).toFixed(1) : '—'}
               </div>
               <div className="float-card-2-sub">{t('home.floatCard2.desc', 'Calificación promedio')}</div>
             </div>

@@ -43,3 +43,21 @@
   0%, 80%, 100% { opacity: 0.2; }
   40% { opacity: 1; }
 }
+
+@media (max-width: 768px) {
+  .chat-layout {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 650px !important;
+  }
+  .chat-contacts {
+    max-height: 180px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .chat-window {
+    flex: 1;
+    min-height: 0;
+  }
+}

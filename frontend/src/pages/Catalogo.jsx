@@ -1,3 +1,4 @@
+// src/pages/Catalogo.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,12 +10,12 @@ import api from '../utils/api';
 import '../styles/catalogo.css';
 
 const CATEGORIES = [
-  { label: 'Todos', value: '' },
-  { label: 'Frutas', value: 'Frutas' },
-  { label: 'Verduras', value: 'Verduras' },
-  { label: 'Tubérculos', value: 'Tubérculos' },
-  { label: 'Granos', value: 'Granos' },
-  { label: 'Otros', value: 'Otros' },
+  { label: 'Todos', value: '', emoji: '🌿' },
+  { label: 'Frutas', value: 'Frutas', emoji: '🍎' },
+  { label: 'Verduras', value: 'Verduras', emoji: '🥦' },
+  { label: 'Tubérculos', value: 'Tubérculos', emoji: '🥔' },
+  { label: 'Granos', value: 'Granos', emoji: '🌾' },
+  { label: 'Otros', value: 'Otros', emoji: '🍯' },
 ];
 
 function SkeletonCard() {
@@ -37,7 +38,7 @@ export default function Catalogo() {
   const { user } = useAuth();
   const [params, setParams] = useSecureParams();
 
-  const { cart, addToCart, removeFromCart, updateQty, total, count, clearCart } = useCart();
+  const { addToCart, count, cartOpen, setCartOpen } = useCart();
 
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,10 @@ export default function Catalogo() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
-  const [cartOpen, setCartOpen] = useState(false);
+
+  // Estados visuales móviles
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+  const [addedStates, setAddedStates] = useState({});
 
   // Debounced search logic
   useEffect(() => {
@@ -75,7 +79,6 @@ export default function Catalogo() {
     });
   }, [search, filtroTipo, minPrice, maxPrice, soloPromo, setParams]);
 
-
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
@@ -89,35 +92,24 @@ export default function Catalogo() {
       if (maxPrice) queryParams.set('precioMax', maxPrice);
       if (soloPromo) queryParams.set('enPromocion', 'true');
 
-      const data = await api.get(`/productos?${queryParams.toString()}`);
-      const extractArray = (res) => {
-        if (!res) return [];
-        if (Array.isArray(res)) return res;
-        if (res.data) {
-          if (Array.isArray(res.data)) return res.data;
-          if (res.data.content && Array.isArray(res.data.content)) return res.data.content;
-        }
-        if (res.content && Array.isArray(res.content)) return res.content;
-        return [];
-      };
-      setProductos(extractArray(data));
-      const resData = data.data || data;
-      setTotalPages(resData.totalPages || 1);
-      setTotalElements(resData.totalElements || 0);
+      const res = await api.get(`/productos?${queryParams.toString()}`);
+      const data = res.data || res;
+      
+      if (Array.isArray(data)) {
+        setProductos(data);
+        setTotalPages(1);
+      } else {
+        setProductos(data.content || []);
+        setTotalPages(data.totalPages || 1);
+        setTotalElements(data.totalElements || 0);
+      }
     } catch (err) {
-      console.error('Error fetching products:', err);
-      setError('Error al conectar con la plataforma AgroMarket. Por favor verifica tu conexión.');
-      setProductos([]);
-      setTotalPages(1);
-      setTotalElements(0);
+      setError(t('catalog.errorLoading', 'Error al cargar los productos. Por favor intenta de nuevo.'));
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    setPage(0);
-  }, [search, filtroTipo, minPrice, maxPrice, soloPromo]);
 
   useEffect(() => {
     fetchProducts();
@@ -137,25 +129,10 @@ export default function Catalogo() {
       return;
     }
     addToCart(producto);
-  };
-
-  const handleCheckout = async () => {
-    if (cart.length === 0) return;
-    if (!user) {
-      localStorage.setItem('carrito_pendiente', JSON.stringify(cart));
-      navigate('/registro?redirect=/catalogo&accion=checkout');
-      return;
-    }
-    try {
-      await api.post('/pedidos', {
-        items: cart.map((i) => ({ productoId: i.id, cantidad: i.qty })),
-      });
-      clearCart();
-      setCartOpen(false);
-      navigate('/pedidos');
-    } catch (err) {
-      alert(t('catalog.alertCheckoutError', 'Error al procesar el pedido: ') + (err.message || t('errors.tryAgain', 'Inténtalo de nuevo.')));
-    }
+    setAddedStates(prev => ({ ...prev, [producto.id]: true }));
+    setTimeout(() => {
+      setAddedStates(prev => ({ ...prev, [producto.id]: false }));
+    }, 2000);
   };
 
   return (
@@ -163,23 +140,25 @@ export default function Catalogo() {
       <Navbar />
       <div className="catalog-page">
         <div className="catalog-container">
-
-          {/* ─── HERO BANNER ─── */}
-          <div className="catalog-hero" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #1f4d2a 100%)' }}>
+          
+          {/* BANNER PRINCIPAL */}
+          <div className="catalog-hero">
             <div className="catalog-hero-text">
-              <div className="catalog-hero-badge">{t('catalog.heroBadge', ' ASAFRUT · Chigorodó, Antioquia')}</div>
+              <span className="catalog-hero-badge">
+                🌿 {t('catalog.bannerBadge', '100% Región de Urabá')}
+              </span>
               <h1 className="catalog-hero-title">
-                {t('catalog.heroTitle', 'Frutas tropicales')}<br />
-                <span>{t('catalog.heroTitleSpan', 'directo del campo')}</span>
+                {t('catalog.bannerTitle', 'Feria Digital ')}
+                <span>{t('catalog.bannerTitleSpan', 'AgroMarket')}</span>
               </h1>
               <p className="catalog-hero-sub">
-                {t('catalog.heroSub', 'Productos frescos de los agricultores de ASAFRUT. Sin intermediarios, precios justos.')}
+                {t('catalog.bannerSub', 'Compra frutas y verduras a precios de productor sin intermediarios con trazabilidad total.')}
               </p>
             </div>
-            <div className="catalog-hero-emoji"></div>
+            <div className="catalog-hero-emoji">🍎</div>
           </div>
 
-          {/* ERROR STATUS */}
+          {/* STATUS DE ERROR */}
           {error && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', background: '#fef2f2', border: '1px solid #dc2626', color: '#b91c1c', padding: '16px 20px', borderRadius: '12px', marginBottom: '24px' }}>
               <p style={{ fontWeight: '600' }}>⚠️ {error}</p>
@@ -187,9 +166,16 @@ export default function Catalogo() {
             </div>
           )}
 
+          {/* BOTÓN TOGGLE FILTROS MÓVIL */}
+          <button 
+            className="btn-toggle-filters-mobile" 
+            onClick={() => setShowFiltersMobile(!showFiltersMobile)}
+          >
+            {showFiltersMobile ? 'Ocultar Filtros ✕' : 'Filtros Avanzados ⚙️'}
+          </button>
+
           {/* ─── FILTERS & SEARCH CONTROL ─── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'flex-start', margin: '0 0 24px 0' }} className="catalog-layout-grid">
-            
+          <div className="catalog-layout-grid">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div className="catalog-controls">
                 <div className="search-wrapper">
@@ -211,7 +197,7 @@ export default function Catalogo() {
                 )}
               </div>
 
-              {/* CATEGORY CHIPS */}
+              {/* CATEGORIES */}
               <div className="category-chips" id="categoryChips">
                 {CATEGORIES.map((cat) => (
                   <button
@@ -227,9 +213,16 @@ export default function Catalogo() {
             </div>
 
             {/* SIDE FILTER CONTROLS */}
-            <div className="card-table" style={{ padding: '20px', borderRadius: 'var(--radius)', background: '#fff' }}>
-              <h4 style={{ fontSize: '0.95rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px' }}>
-                 Filtros Avanzados
+            <div className={`card-table catalog-filters-sidebar ${showFiltersMobile ? 'open' : ''}`}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Filtros Avanzados</span>
+                <button 
+                  className="close-filters-mobile-btn" 
+                  onClick={() => setShowFiltersMobile(false)}
+                  style={{ display: 'none', background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: 'var(--text-muted)' }}
+                >
+                  ✕
+                </button>
               </h4>
               
               <div className="form-group" style={{ marginBottom: '14px' }}>
@@ -284,7 +277,7 @@ export default function Catalogo() {
             <div className="catalog-meta">
               <p className="catalog-meta-count">
                 <strong>{filtered.length}</strong> {filtered.length === 1 ? t('catalog.resultsFound', 'producto encontrado') : t('catalog.resultsFoundPlural', 'productos encontrados')}
-                {filtroTipo && ` · ${t('catalog.category.' + filtroTipo, filtroTipo)}`}
+                {filtroTipo && ` · ${filtroTipo}`}
                 {search && ` · "${search}"`}
               </p>
             </div>
@@ -295,8 +288,7 @@ export default function Catalogo() {
             {loading ? (
               Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             ) : filtered.length === 0 ? (
-              <div className="catalog-empty">
-                <div className="catalog-empty-icon"></div>
+              <div className="catalog-empty-state">
                 <div className="catalog-empty-title">{t('catalog.noProducts', 'No se encontraron productos')}</div>
                 <div className="catalog-empty-sub">
                   {t('catalog.noProductsDesc', 'Intenta con otra búsqueda o filtros')}
@@ -371,11 +363,11 @@ export default function Catalogo() {
                         <small>{t('catalog.perKg', '/kg')}</small>
                       </div>
                       <button
-                        className="catalog-card-add"
+                        className={`catalog-card-add ${addedStates[p.id] ? 'added' : ''}`}
                         onClick={() => handlePedirAhora(p)}
                         disabled={p.stock <= 0}
                       >
-                        {t('catalog.addToCart', '+ Agregar')}
+                        {addedStates[p.id] ? '✓ Agregado' : t('catalog.addToCart', '+ Agregar')}
                       </button>
                     </div>
                   </div>
@@ -408,85 +400,6 @@ export default function Catalogo() {
               </button>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* ─── CART DRAWER ─── */}
-      {cartOpen && (
-        <div className="cart-drawer-overlay" id="cartOverlay" onClick={() => setCartOpen(false)} />
-      )}
-      <div className={`cart-drawer${cartOpen ? ' open' : ''}`} id="cartDrawer">
-        <div className="cart-header">
-          <div className="cart-header-title">
-             {t('catalog.cartTitle', 'Mi carrito')}
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: '400' }}>
-              ({count} {t('catalog.cartItems', 'items')})
-            </span>
-          </div>
-          <button className="cart-close" onClick={() => setCartOpen(false)}>✕</button>
-        </div>
-
-        <div className="cart-items" id="cartItemsContainer">
-          {cart.length === 0 ? (
-            <div className="cart-empty">
-              <div className="cart-empty-icon"></div>
-              <div className="cart-empty-text">{t('catalog.emptyCart', 'Tu carrito está vacío')}</div>
-            </div>
-          ) : (
-            cart.map((item) => (
-              <div key={item.id} className="cart-item-row">
-                <img
-                  src={item.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=120'}
-                  alt={item.nombre}
-                  className="cart-item-thumb"
-                />
-                <div className="cart-item-info">
-                  <div className="cart-item-name">{item.nombre}</div>
-                  <div className="cart-item-price">
-                    {item.cantidadMinimaMayorista && item.precioMayorista && item.qty >= item.cantidadMinimaMayorista ? (
-                      <>
-                        <span style={{ textDecoration: 'line-through', marginRight: '6px', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                          ${Number(item.precio).toLocaleString('es-CO')}/kg
-                        </span>
-                        <span style={{ color: 'var(--primary)', fontWeight: '600' }}>
-                          ${Number(item.precioMayorista).toLocaleString('es-CO')}/kg
-                        </span>
-                      </>
-                    ) : (
-                      `$${Number(item.precio).toLocaleString('es-CO')}/kg`
-                    )}
-                  </div>
-                  <div className="cart-qty-controls">
-                    <button className="qty-btn" onClick={() => updateQty(item.id, item.qty - 1)}>−</button>
-                    <span className="qty-val">{item.qty}</span>
-                    <button className="qty-btn" onClick={() => updateQty(item.id, item.qty + 1)}>+</button>
-                  </div>
-                </div>
-                <button className="cart-item-del" onClick={() => removeFromCart(item.id)}>✕</button>
-              </div>
-            ))
-          )}
-        </div>
-
-        <div className="cart-footer" id="cartFooter">
-          <div className="cart-subtotal-row">
-            <span>{t('catalog.subtotal', 'Subtotal')}</span>
-            <span>${total.toLocaleString('es-CO')}</span>
-          </div>
-          <div className="cart-subtotal-row">
-            <span>{t('catalog.shippingEst', 'Envío estimado')}</span>
-            <span>$15.000</span>
-          </div>
-          <div className="cart-total-row">
-            <span>{t('catalog.total', 'TOTAL')}</span>
-            <span>${(total + 15000).toLocaleString('es-CO')}</span>
-          </div>
-          <button className="btn-checkout" onClick={handleCheckout}>
-            {t('catalog.checkoutBtn', 'Proceder al pago →')}
-          </button>
-          <button className="btn-keep-shopping" onClick={() => setCartOpen(false)}>
-            {t('catalog.keepShopping', 'Seguir comprando')}
-          </button>
         </div>
       </div>
     </>

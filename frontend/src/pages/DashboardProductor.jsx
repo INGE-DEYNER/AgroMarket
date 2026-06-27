@@ -27,6 +27,7 @@ export default function DashboardProductor() {
 
   // Navigation state
   const [activeSection, setActiveSection] = useState('resumen');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -377,9 +378,15 @@ export default function DashboardProductor() {
 
   return (
     <div className="app-layout">
+      {/* Overlay para sidebar móvil */}
+      <div 
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} 
+        onClick={() => setSidebarOpen(false)} 
+      />
+
       {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="sidebar-user" style={{ cursor: 'pointer' }} onClick={() => navigate('/perfil')}>
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-user" style={{ cursor: 'pointer' }} onClick={() => { setSidebarOpen(false); navigate('/perfil'); }}>
           <div className="avatar avatar-green" style={{ width: '48px', height: '48px', fontSize: '1.2rem' }}>{iniciales}</div>
           <div className="sidebar-user-info">
             <span className="name">{user?.nombre || 'Luis Palacios'}</span>
@@ -396,39 +403,47 @@ export default function DashboardProductor() {
         </div>
 
         <div className="sidebar-label">{t('dashboardProductor.nav.title', 'Gestión Comercial')}</div>
-        <a href="#" className={`sidebar-link${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('resumen'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'resumen' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('resumen'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardProductor.nav.summary', 'Panel General')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'misProductos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('misProductos'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'misProductos' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('misProductos'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardProductor.nav.inventory', 'Inventario')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'pedidosRec' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('pedidosRec'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'pedidosRec' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('pedidosRec'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardProductor.nav.sales', 'Ventas')} <span className="badge-count">{pedidos.length}</span>
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'rfq' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('rfq'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'rfq' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('rfq'); setSidebarOpen(false); }}>
           <span className="icon"></span> Oportunidades Comerciales
         </a>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">{t('dashboardProductor.logistics.title', 'Logística')}</div>
-        <a href="#" className={`sidebar-link${activeSection === 'seguimiento' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('seguimiento'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'seguimiento' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('seguimiento'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardProductor.logistics.dispatch', 'Despachos')}
         </a>
-        <a href="#" className={`sidebar-link${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('mensajeria'); }}>
+        <a href="#" className={`sidebar-link${activeSection === 'mensajeria' ? ' active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('mensajeria'); setSidebarOpen(false); }}>
           <span className="icon"></span> {t('dashboardProductor.logistics.messaging', 'Mensajería')}
         </a>
-        <Link to="/perfil" className="sidebar-link">
+        <Link to="/perfil" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
           <span className="icon"></span> {t('profile.title', 'Mi Perfil')}
         </Link>
 
-        <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); await logout(); navigate('/login'); }}>
+        <a href="#" className="sidebar-link" style={{ marginTop: 'auto', color: 'var(--red)' }} onClick={async (e) => { e.preventDefault(); setSidebarOpen(false); await logout(); navigate('/login'); }}>
           <span className="icon"></span> {t('dashboardProductor.logistics.logout', 'Cerrar sesión')}
         </a>
       </aside>
 
       {/* MAIN CONTENT */}
       <main className="main-content">
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button 
+            type="button" 
+            className="sidebar-toggle-btn" 
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menú de navegación"
+          >
+            ☰ Menú
+          </button>
           <LanguageSwitcher />
         </div>
 
@@ -801,7 +816,17 @@ export default function DashboardProductor() {
                         }}
                         aria-label={showCurrentPassword ? "Hide password" : "Show password"}
                       >
-                        {showCurrentPassword ? '👁️' : '🙈'}
+                        {showCurrentPassword ? (
+                          // Eye-off SVG
+                          <svg viewBox="0 0 24 24" width="20" height="20" fill="#6b7280">
+                            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                          </svg>
+                        ) : (
+                          // Eye SVG
+                          <svg viewBox="0 0 24 24" width="20" height="20" fill="#6b7280">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                          </svg>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -828,7 +853,17 @@ export default function DashboardProductor() {
                         }}
                         aria-label={showNewPassword ? "Hide password" : "Show password"}
                       >
-                        {showNewPassword ? '👁️' : '🙈'}
+                        {showNewPassword ? (
+                          // Eye-off SVG
+                          <svg viewBox="0 0 24 24" width="20" height="20" fill="#6b7280">
+                            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                          </svg>
+                        ) : (
+                          // Eye SVG
+                          <svg viewBox="0 0 24 24" width="20" height="20" fill="#6b7280">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                          </svg>
+                        )}
                       </button>
                     </div>
                   </div>
