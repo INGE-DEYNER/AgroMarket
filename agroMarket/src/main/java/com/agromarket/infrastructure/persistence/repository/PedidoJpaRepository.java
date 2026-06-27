@@ -8,8 +8,14 @@ import com.agromarket.infrastructure.persistence.entity.PedidoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PedidoJpaRepository extends JpaRepository<PedidoEntity, Long> {
+    @Override
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"comprador", "producto", "producto.productor"})
+    List<PedidoEntity> findAll();
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"comprador", "producto", "producto.productor"})
     List<PedidoEntity> findByCompradorId(Long compradorId);
 
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"comprador", "producto", "producto.productor"})
     List<PedidoEntity> findByProductoProductorId(Long productorId);
 
     List<PedidoEntity> findByEstado(EstadoPedido estado);

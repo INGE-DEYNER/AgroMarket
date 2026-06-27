@@ -45,6 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                org.slf4j.MDC.put("userId", String.valueOf(userId));
             } else if (!valid) {
                 try {
                     String ip = request.getRemoteAddr();

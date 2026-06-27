@@ -29,6 +29,12 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, Long>
     
     Optional<UsuarioEntity> findByTokenRecuperacionPassword(String token);
 
+    @org.springframework.data.jpa.repository.Query("SELECT u FROM UsuarioEntity u WHERE TYPE(u) = ProductorEntity")
+    List<UsuarioEntity> findAllProductores();
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(u) FROM UsuarioEntity u WHERE TYPE(u) = ProductorEntity")
+    long countProductores();
+
     @org.springframework.data.jpa.repository.Query("SELECT u.contrasena FROM UsuarioEntity u WHERE u.id = :id")
     Optional<String> findPasswordHashById(@org.springframework.data.repository.query.Param("id") Long id);
 

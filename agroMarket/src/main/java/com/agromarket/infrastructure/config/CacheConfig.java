@@ -99,5 +99,17 @@ public class CacheConfig {
                 .maximumSize(100)
                 .build();
     }
+
+    /**
+     * Caché para tasas de cambio de divisas.
+     * Expira después de 1 hora.
+     */
+    @Bean
+    public Cache<String, Double> divisaCache() {
+        return Caffeine.newBuilder()
+                .expireAfterWrite(1, TimeUnit.HOURS)
+                .maximumSize(50)
+                .build();
+    }
 }
 

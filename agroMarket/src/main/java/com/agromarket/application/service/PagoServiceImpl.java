@@ -14,6 +14,7 @@ import com.agromarket.domain.service.PagoDomainService;
 import com.agromarket.infrastructure.persistence.entity.FacturaEntity;
 import com.agromarket.infrastructure.persistence.entity.PagoEntity;
 import com.agromarket.infrastructure.persistence.entity.PedidoEntity;
+import com.agromarket.infrastructure.persistence.entity.ProductoEntity;
 import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.FacturaJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.PagoJpaRepository;
@@ -35,6 +36,7 @@ public class PagoServiceImpl implements PagoService {
     private final PedidoJpaRepository pedidoJpaRepository;
     private final FacturaJpaRepository facturaJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
+    private final com.agromarket.infrastructure.persistence.repository.ProductoJpaRepository productoJpaRepository;
     private final PagoMapper pagoMapper;
     private final AsyncEmailService emailService;
     private final PasarelaPagoService pasarelaPagoService;
@@ -127,8 +129,15 @@ public class PagoServiceImpl implements PagoService {
         } else {
             pago.setEstado(EstadoPago.RECHAZADO);
             PedidoEntity pedido = pago.getPedido();
-            pedido.setEstado(com.agromarket.domain.model.EstadoPedido.CANCELADO);
-            pedidoJpaRepository.save(pedido);
+            if (pedido.getEstado() != com.agromarket.domain.model.EstadoPedido.CANCELADO) {
+                pedido.setEstado(com.agromarket.domain.model.EstadoPedido.CANCELADO);
+                ProductoEntity producto = pedido.getProducto();
+                if (producto != null) {
+                    producto.setCantidadDisponible(producto.getCantidadDisponible() + pedido.getCantidad());
+                    productoJpaRepository.save(producto);
+                }
+                pedidoJpaRepository.save(pedido);
+            }
         }
 
         PagoEntity guardado = pagoJpaRepository.save(pago);

@@ -43,4 +43,7 @@ public interface ProductoJpaRepository extends JpaRepository<ProductoEntity, Lon
     java.util.Optional<ProductoEntity> findByProductorIdAndTipoFruta(Long productorId, TipoFruta tipoFruta);
 
     List<ProductoEntity> findByEnPromocionTrueAndFechaFinPromocionBefore(java.time.LocalDateTime fecha);
+
+    @Query("SELECT AVG(p.precio) FROM ProductoEntity p")
+    Double getAveragePrice();
 }

@@ -32,6 +32,7 @@ public class ResenaServiceImpl implements ResenaService {
     private final ResenaJpaRepository resenaJpaRepository;
     private final ProductoJpaRepository productoJpaRepository;
     private final CompradorJpaRepository compradorJpaRepository;
+    private final com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository usuarioJpaRepository;
     private final ResenaMapper resenaMapper;
     private final InputSanitizerService inputSanitizerService;
     private final Cache<Long, Object> resenaCache;
@@ -77,7 +78,7 @@ public class ResenaServiceImpl implements ResenaService {
     public void eliminar(Long id, Long solicitanteId) {
         ResenaEntity resena = resenaJpaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Reseña no encontrada"));
-        boolean esAdmin = compradorJpaRepository.findById(solicitanteId)
+        boolean esAdmin = usuarioJpaRepository.findById(solicitanteId)
                 .map(u -> u.getRol() == com.agromarket.domain.model.RolUsuario.ADMINISTRADOR)
                 .orElse(false);
         boolean esDueno = resena.getComprador() != null && resena.getComprador().getId() != null && resena.getComprador().getId().equals(solicitanteId);
