@@ -390,14 +390,17 @@ export default function DashboardComprador() {
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     try {
-      const res = await api.post('/pedidos', {
-        items: cart.map((i) => ({ productoId: i.id, cantidad: i.qty })),
-      });
-      const pedidoObj = res.data || res;
-      setCheckoutPedido(pedidoObj);
+      // Crear pedidos individuales para cada producto en el carrito
+      const requests = cart.map(item => 
+        api.post('/pedidos', { productoId: item.id, cantidad: item.qty })
+      );
+      const responses = await Promise.all(requests);
+      const firstOrder = responses[0].data || responses[0];
+      setCheckoutPedido(firstOrder);
       clearCart();
       setCartOpen(false);
       setPagoModalOpen(true);
+      loadPedidos(); // Recargar el listado de pedidos
     } catch (err) {
       alert('Error al crear el pedido: ' + (err.message || 'Inténtalo de nuevo.'));
     }
@@ -450,8 +453,9 @@ export default function DashboardComprador() {
   };
 
   const progressColor = (estado) => {
-    if (estado === 'Entregado') return 'var(--primary)';
-    if (estado === 'En tránsito') return 'var(--blue)';
+    const e = estado?.toUpperCase();
+    if (e === 'ENTREGADO' || e === 'DELIVERED') return 'var(--primary)';
+    if (e === 'EN_CAMINO' || e === 'EN_TRANSITO' || e === 'EN TRÁNSITO') return 'var(--blue)';
     return 'var(--gold)';
   };
 
@@ -633,7 +637,7 @@ export default function DashboardComprador() {
                     {pedidos.slice(0, 5).map((p) => (
                       <tr key={p.id}>
                         <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
-                        <td data-label={t('pedidos.product', 'Producto')}>{p.producto || p.nombreProducto || '—'}</td>
+                        <td data-label={t('pedidos.product', 'Producto')}>{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
                         <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
@@ -855,7 +859,7 @@ export default function DashboardComprador() {
                     {pedidosFiltrados.map((p) => (
                       <tr key={p.id}>
                         <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
-                        <td data-label={t('pedidos.product', 'Producto')}>{p.producto || p.nombreProducto || '—'}</td>
+                        <td data-label={t('pedidos.product', 'Producto')}>{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
                         <td data-label={t('pedidos.quantity', 'Cantidad')}>{p.cantidad || '—'} kg</td>
                         <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
@@ -903,7 +907,7 @@ export default function DashboardComprador() {
                       <span className="badge-status status-shipped">{t('pedidos.status.' + s.estado?.toLowerCase(), s.estado)}</span>
                     </div>
                     <div style={{ background: 'var(--border-light)', borderRadius: '4px', height: '8px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${s.progreso || (s.estado === 'En tránsito' ? 50 : s.estado === 'Entregado' ? 100 : 10)}%`, background: progressColor(s.estado), borderRadius: '4px', transition: 'width 0.5s ease' }}></div>
+                      <div style={{ height: '100%', width: `${s.progreso || (s.estado === 'EN_CAMINO' || s.estado === 'En tránsito' ? 50 : s.estado === 'ENTREGADO' || s.estado === 'Entregado' ? 100 : 10)}%`, background: progressColor(s.estado), borderRadius: '4px', transition: 'width 0.5s ease' }}></div>
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>Guía: {s.guia || 'No asignada'}</div>
                   </div>

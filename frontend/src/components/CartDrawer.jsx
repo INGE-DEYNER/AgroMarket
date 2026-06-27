@@ -36,10 +36,11 @@ export default function CartDrawer({ isOpen, onClose }) {
       return;
     }
     try {
-      // Crear el pedido en el servidor
-      const res = await api.post('/pedidos', {
-        items: cart.map((i) => ({ productoId: i.id, cantidad: i.qty })),
-      });
+      // Crear pedidos individuales para cada producto en el carrito
+      const requests = cart.map(item => 
+        api.post('/pedidos', { productoId: item.id, cantidad: item.qty })
+      );
+      await Promise.all(requests);
       clearCart();
       onClose();
       // Redirigir a mis pedidos en el panel para proceder al pago

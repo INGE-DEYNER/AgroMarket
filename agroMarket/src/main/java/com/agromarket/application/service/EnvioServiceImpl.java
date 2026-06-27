@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class EnvioServiceImpl implements EnvioService {
     private final EnvioJpaRepository envioJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
+    private final com.agromarket.infrastructure.persistence.repository.PedidoJpaRepository pedidoJpaRepository;
     private final EnvioMapper envioMapper;
 
     @Override
@@ -66,6 +67,15 @@ public class EnvioServiceImpl implements EnvioService {
         }
         if (request.getEstado() != null) {
             envio.setEstado(request.getEstado());
+            if (envio.getPedido() != null) {
+                com.agromarket.infrastructure.persistence.entity.PedidoEntity pedido = envio.getPedido();
+                if (request.getEstado() == com.agromarket.domain.model.EstadoEnvio.EN_CAMINO) {
+                    pedido.setEstado(com.agromarket.domain.model.EstadoPedido.ENVIADO);
+                } else if (request.getEstado() == com.agromarket.domain.model.EstadoEnvio.ENTREGADO) {
+                    pedido.setEstado(com.agromarket.domain.model.EstadoPedido.ENTREGADO);
+                }
+                pedidoJpaRepository.save(pedido);
+            }
         }
         return envioMapper.toResponse(envioJpaRepository.save(envio));
     }

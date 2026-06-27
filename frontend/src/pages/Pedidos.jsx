@@ -111,7 +111,7 @@ export default function Pedidos() {
               {pedidosFiltrados.map((p) => (
                 <tr key={p.id}>
                   <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
-                  <td data-label={t('pedidos.product', 'Producto')}>{p.producto || p.nombreProducto || '—'}</td>
+                  <td data-label={t('pedidos.product', 'Producto')}>{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
                   <td data-label={t('pedidos.producer', 'Productor')}>{p.productor || p.nombreProductor || '—'}</td>
                   <td data-label={t('pedidos.quantity', 'Cantidad')}>{p.cantidad} kg</td>
                   <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>

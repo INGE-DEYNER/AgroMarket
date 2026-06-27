@@ -603,7 +603,7 @@ export default function DashboardProductor() {
                     {pedidos.map((p) => (
                       <tr key={p.id}>
                         <td data-label="ID">#{p.id}</td>
-                        <td data-label="Producto">{p.producto || p.nombreProducto || '—'}</td>
+                        <td data-label="Producto">{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
                         <td data-label="Comprador">{p.comprador || p.nombreComprador || '—'}</td>
                         <td data-label="Cant.">{p.cantidad} kg</td>
                         <td data-label="Total">${Number(p.total).toLocaleString('es-CO')}</td>
