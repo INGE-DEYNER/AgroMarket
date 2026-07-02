@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function ChatbotSoporte() {
+  const { user } = useAuth();
+  const esAdmin = user?.rol === 'ADMINISTRADOR' || user?.rol?.toUpperCase() === 'ADMINISTRADOR';
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -80,7 +83,7 @@ export default function ChatbotSoporte() {
       }));
 
       const storedKey = localStorage.getItem('user_gemini_key');
-      const key = storedKey || import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCbvIayeg8KKxDtbwvjf4SmoUhRRMe2Gp8';
+      const key = storedKey || import.meta.env.VITE_GEMINI_API_KEY || 'AQ.Ab8RN6IVWMS9H_ebCunvHsTXvVSK4F7cZK7O6TSzpjmHtmJs2A';
 
       // Call Gemini API directly from client side
       const response = await fetch(
@@ -469,13 +472,15 @@ export default function ChatbotSoporte() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <button 
-              onClick={() => setShowKeyInput(!showKeyInput)} 
-              style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1rem', padding: '4px', opacity: 0.8, display: 'flex', alignItems: 'center' }}
-              title="Configurar API Key de Gemini"
-            >
-              ⚙️
-            </button>
+            {esAdmin && (
+              <button 
+                onClick={() => setShowKeyInput(!showKeyInput)} 
+                style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1rem', padding: '4px', opacity: 0.8, display: 'flex', alignItems: 'center' }}
+                title="Configurar API Key de Gemini"
+              >
+                ⚙️
+              </button>
+            )}
             <button className="chatbot-close" onClick={() => setIsOpen(false)} aria-label="Close Chat">
               ✕
             </button>
