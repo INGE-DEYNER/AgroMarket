@@ -56,19 +56,22 @@ export default function DashboardComprador() {
     const contactName = params.get('contactName');
     const contactId = params.get('contactId');
     if (sec === 'mensajeria' && contactName) {
+      const realId = Number(contactId) || Math.floor(100 + Math.random() * 900);
       setContactos(prev => {
-        const existing = prev.find(c => c.nombre?.toLowerCase().includes(contactName.toLowerCase()));
+        const normalizedPrev = prev.map(c => ({ ...c, id: c.id || c.usuarioId }));
+        const existing = normalizedPrev.find(c => c.id === realId || c.nombre?.toLowerCase().includes(contactName.toLowerCase()));
         if (existing) {
           setSelectedContact(existing);
-          return prev;
+          return normalizedPrev;
         } else {
           const newContact = {
-            id: Number(contactId) || Math.floor(100 + Math.random() * 900),
+            id: realId,
+            usuarioId: realId,
             nombre: contactName,
             rol: 'PRODUCTOR'
           };
           setSelectedContact(newContact);
-          return [newContact, ...prev];
+          return [newContact, ...normalizedPrev];
         }
       });
     }
@@ -305,7 +308,11 @@ export default function DashboardComprador() {
   const loadContactos = async () => {
     try {
       const data = await api.get('/mensajes/contactos');
-      setContactos(extractArray(data));
+      const list = extractArray(data).map(c => ({
+        ...c,
+        id: c.id || c.usuarioId
+      }));
+      setContactos(list);
     } catch (err) {
       console.error('Error loadContactos:', err);
       setContactos([]);
