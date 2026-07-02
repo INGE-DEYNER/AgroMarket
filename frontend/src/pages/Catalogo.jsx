@@ -36,7 +36,7 @@ function SkeletonCard() {
 export default function Catalogo() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, formatPrice } = useAuth();
   const [params, setParams] = useSecureParams();
 
   const { cart, addToCart, count, setCartOpen } = useCart();
@@ -396,18 +396,18 @@ export default function Catalogo() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Precio por menor:</span>
                   <span style={{ fontWeight: '700', color: '#1e293b', fontSize: '1.1rem' }}>
-                    {selectedProduct.enPromocion && selectedProduct.precioPromocion ? (
-                      <>
-                        <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.9rem', marginRight: '8px' }}>
-                          ${Number(selectedProduct.precio).toLocaleString('es-CO')}
-                        </span>
-                        <span style={{ color: 'var(--red)' }}>
-                          ${Number(selectedProduct.precioPromocion).toLocaleString('es-CO')}
-                        </span>
-                      </>
-                    ) : (
-                      `$${Number(selectedProduct.precio).toLocaleString('es-CO')}`
-                    )}
+                     {selectedProduct.enPromocion && selectedProduct.precioPromocion ? (
+                       <>
+                         <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.9rem', marginRight: '8px' }}>
+                           {formatPrice(selectedProduct.precio)}
+                         </span>
+                         <span style={{ color: 'var(--red)' }}>
+                           {formatPrice(selectedProduct.precioPromocion)}
+                         </span>
+                       </>
+                     ) : (
+                       formatPrice(selectedProduct.precio)
+                     )}
                     <small style={{ fontWeight: '400', fontSize: '0.8rem', color: '#64748b' }}> /kg</small>
                   </span>
                 </div>
@@ -416,7 +416,7 @@ export default function Catalogo() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: '8px', marginTop: '8px' }}>
                     <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Precio por mayor (≥{selectedProduct.cantidadMinimaMayorista}kg):</span>
                     <span style={{ fontWeight: '800', color: 'var(--primary)', fontSize: '1.1rem' }}>
-                      ${Number(selectedProduct.precioMayorista).toLocaleString('es-CO')}
+                       {formatPrice(selectedProduct.precioMayorista)}
                       <small style={{ fontWeight: '400', fontSize: '0.8rem', color: '#64748b' }}> /kg</small>
                     </span>
                   </div>

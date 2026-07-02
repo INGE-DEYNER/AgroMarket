@@ -1,6 +1,9 @@
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const ProductCard = React.memo(({ p, t, addedStates, handlePedirAhora, onViewDetails, onContactProducer }) => {
+  const { formatPrice } = useAuth();
+
   return (
     <div className="catalog-card" style={{ cursor: 'pointer' }}>
       <div className="catalog-card-img-wrap" onClick={() => onViewDetails?.(p)}>
@@ -45,11 +48,11 @@ const ProductCard = React.memo(({ p, t, addedStates, handlePedirAhora, onViewDet
           <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', background: 'var(--card-bg-sub)', padding: '6px 8px', borderRadius: '6px', margin: '8px 0', border: '1px dashed var(--border-light)' }} onClick={() => onViewDetails?.(p)}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>Por menor:</span>
-              <span>${Number(p.precio).toLocaleString('es-CO')}/kg</span>
+              <span>{formatPrice(p.precio)}/kg</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600', color: 'var(--primary)' }}>
               <span>Por mayor (≥{p.cantidadMinimaMayorista}kg):</span>
-              <span>${Number(p.precioMayorista).toLocaleString('es-CO')}/kg</span>
+              <span>{formatPrice(p.precioMayorista)}/kg</span>
             </div>
           </div>
         )}
@@ -62,14 +65,14 @@ const ProductCard = React.memo(({ p, t, addedStates, handlePedirAhora, onViewDet
             {p.enPromocion && p.precioPromocion ? (
               <div>
                 <span style={{ textDecoration: 'line-through', color: 'var(--text-dim)', fontSize: '0.8rem', marginRight: '6px' }}>
-                  ${Number(p.precio).toLocaleString('es-CO')}
+                  {formatPrice(p.precio)}
                 </span>
                 <span style={{ color: 'var(--red)', fontWeight: 'bold' }}>
-                  ${Number(p.precioPromocion).toLocaleString('es-CO')}
+                  {formatPrice(p.precioPromocion)}
                 </span>
               </div>
             ) : (
-              `$${Number(p.precio).toLocaleString('es-CO')}`
+              formatPrice(p.precio)
             )}
             <small>{t('catalog.perKg', '/kg')}</small>
           </div>

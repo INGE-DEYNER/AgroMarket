@@ -35,7 +35,7 @@ function ProductCardSkeleton() {
 
 export default function Home() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, formatPrice } = useAuth();
 
   const [productos, setProductos] = useState([]);       // datos reales de la API
   const [resenas, setResenas] = useState([]);           // reseñas reales de la API
@@ -328,7 +328,7 @@ export default function Home() {
                       {productor}
                     </div>
                     <div className="product-price">
-                      ${Number(p.precio).toLocaleString('es-CO')}/kg
+                      {formatPrice(p.precio)}/kg
                     </div>
                     <div className="product-meta">
                       <div className="product-rating">

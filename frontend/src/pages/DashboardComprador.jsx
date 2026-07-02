@@ -38,7 +38,7 @@ export default function DashboardComprador() {
     if (res.content && Array.isArray(res.content)) return res.content;
     return [];
   };
-  const { user, setUser, logout } = useAuth();
+  const { user, setUser, logout, formatPrice } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -689,7 +689,7 @@ export default function DashboardComprador() {
               <div className="stat-card color-2">
                 <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardComprador.stats.totalInvestment', 'Inversión Total')}</div>
-                <div className="stat-value">${totalInvestment.toLocaleString('es-CO')}</div>
+                <div className="stat-value">{formatPrice(totalInvestment)}</div>
               </div>
               <div className="stat-card color-3">
                 <span className="stat-icon-lg"></span>
@@ -725,7 +725,7 @@ export default function DashboardComprador() {
                       <tr key={p.id}>
                         <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
                         <td data-label={t('pedidos.product', 'Producto')}>{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
-                        <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
+                        <td data-label={t('pedidos.total', 'Total')}>{formatPrice(p.total)}</td>
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
                           {p.estado?.toLowerCase() === 'pendiente' && (
@@ -896,7 +896,7 @@ export default function DashboardComprador() {
                         <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
                         <td data-label={t('pedidos.product', 'Producto')}>{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
                         <td data-label={t('pedidos.quantity', 'Cantidad')}>{p.cantidad || '—'} kg</td>
-                        <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
+                        <td data-label={t('pedidos.total', 'Total')}>{formatPrice(p.total)}</td>
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
                           {p.estado?.toLowerCase() === 'pendiente' && (
@@ -1350,9 +1350,9 @@ export default function DashboardComprador() {
                         <tr key={f.id}>
                           <td data-label="Factura N°">{f.numeroFactura}</td>
                           <td data-label="Pedido ID">#{f.pedidoId}</td>
-                          <td data-label="Subtotal">${Number(f.subtotal).toLocaleString('es-CO')}</td>
-                          <td data-label="IVA">${Number(f.impuesto).toLocaleString('es-CO')}</td>
-                          <td data-label="Total" style={{ fontWeight: '600', color: 'var(--primary)' }}>${Number(f.total).toLocaleString('es-CO')}</td>
+                          <td data-label="Subtotal">{formatPrice(f.subtotal)}</td>
+                          <td data-label="IVA">{formatPrice(f.impuesto)}</td>
+                          <td data-label="Total" style={{ fontWeight: '600', color: 'var(--primary)' }}>{formatPrice(f.total)}</td>
                           <td data-label="Fecha">{new Date(f.fechaEmision).toLocaleDateString()}</td>
                           <td data-label="Acciones">
                             <button className="btn btn-secondary btn-sm" onClick={() => descargarPdf(f.id)}>Descargar PDF</button>
@@ -1445,7 +1445,7 @@ export default function DashboardComprador() {
                           rfq.ofertas.map((of) => (
                             <div key={of.id} style={{ background: '#fff', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-light)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div>
-                                <strong>{of.productorNombre}</strong>: <span style={{ color: 'var(--primary)', fontWeight: '600' }}>${Number(of.precioPropuesto).toLocaleString('es-CO')}/kg</span>
+                                <strong>{of.productorNombre}</strong>: <span style={{ color: 'var(--primary)', fontWeight: '600' }}>{formatPrice(of.precioPropuesto)}/kg</span>
                                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>"{of.comentarios}"</div>
                               </div>
                               {rfq.activo && (
@@ -1478,7 +1478,7 @@ export default function DashboardComprador() {
               <h4 style={{ marginBottom: '12px', fontSize: '1rem', fontWeight: '700' }}>Resumen del Pedido</h4>
               <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.85rem' }}>
                 <p><strong>Pedido #:</strong> {checkoutPedido.id}</p>
-                <p><strong>Total a pagar:</strong> ${(checkoutPedido.total || 0).toLocaleString('es-CO')}</p>
+                <p><strong>Total a pagar:</strong> {formatPrice(checkoutPedido.total || 0)}</p>
                 <p><strong>Estado:</strong> Pendiente de Pago</p>
               </div>
 
@@ -1533,7 +1533,7 @@ export default function DashboardComprador() {
                 <div style={{ padding: '24px' }}>
                   <p><strong>{t('pedidos.invoiceDetail.id', 'Pedido #:')}</strong> {facturaData.id}</p>
                   <p><strong>{t('pedidos.invoiceDetail.product', 'Producto:')}</strong> {facturaData.producto || facturaData.nombreProducto}</p>
-                  <p><strong>{t('pedidos.invoiceDetail.total', 'Total:')}</strong> ${Number(facturaData.total).toLocaleString('es-CO')}</p>
+                  <p><strong>{t('pedidos.invoiceDetail.total', 'Total:')}</strong> {formatPrice(facturaData.total)}</p>
                   <p><strong>{t('pedidos.invoiceDetail.status', 'Estado:')}</strong> {t('pedidos.status.' + facturaData.estado?.toLowerCase(), facturaData.estado)}</p>
                 </div>
               )}
@@ -1653,14 +1653,14 @@ export default function DashboardComprador() {
                     {selectedProduct.enPromocion && selectedProduct.precioPromocion ? (
                       <>
                         <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.9rem', marginRight: '8px' }}>
-                          ${Number(selectedProduct.precio).toLocaleString('es-CO')}
+                          {formatPrice(selectedProduct.precio)}
                         </span>
                         <span style={{ color: 'var(--red)' }}>
-                          ${Number(selectedProduct.precioPromocion).toLocaleString('es-CO')}
+                          {formatPrice(selectedProduct.precioPromocion)}
                         </span>
                       </>
                     ) : (
-                      `$${Number(selectedProduct.precio).toLocaleString('es-CO')}`
+                      formatPrice(selectedProduct.precio)
                     )}
                     <small style={{ fontWeight: '400', fontSize: '0.8rem', color: '#64748b' }}> /kg</small>
                   </span>
@@ -1670,7 +1670,7 @@ export default function DashboardComprador() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: '8px', marginTop: '8px' }}>
                     <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Precio por mayor (≥{selectedProduct.cantidadMinimaMayorista}kg):</span>
                     <span style={{ fontWeight: '800', color: 'var(--primary)', fontSize: '1.1rem' }}>
-                      ${Number(selectedProduct.precioMayorista).toLocaleString('es-CO')}
+                      {formatPrice(selectedProduct.precioMayorista)}
                       <small style={{ fontWeight: '400', fontSize: '0.8rem', color: '#64748b' }}> /kg</small>
                     </span>
                   </div>

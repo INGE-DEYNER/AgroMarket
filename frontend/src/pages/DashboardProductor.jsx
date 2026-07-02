@@ -21,7 +21,7 @@ export default function DashboardProductor() {
     if (res.content && Array.isArray(res.content)) return res.content;
     return [];
   };
-  const { user, setUser, logout } = useAuth();
+  const { user, setUser, logout, formatPrice } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -509,7 +509,7 @@ export default function DashboardProductor() {
               <div className="stat-card color-3">
                 <span className="stat-icon-lg"></span>
                 <div className="stat-label">{t('dashboardProductor.stats.totalEarnings', 'Ingresos Totales')}</div>
-                <div className="stat-value">${pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0).toLocaleString('es-CO')}</div>
+                <div className="stat-value">{formatPrice(pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0))}</div>
               </div>
               <div className="stat-card color-4">
                 <span className="stat-icon-lg"></span>
@@ -536,7 +536,7 @@ export default function DashboardProductor() {
                         <tr key={p.id}>
                           <td data-label="Pedido">#{p.id}</td>
                           <td data-label="Comprador">{p.comprador || p.nombreComprador || '—'}</td>
-                          <td data-label="Total">${Number(p.total).toLocaleString('es-CO')}</td>
+                          <td data-label="Total">{formatPrice(p.total)}</td>
                           <td data-label="Estado"><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         </tr>
                       ))}
@@ -573,7 +573,7 @@ export default function DashboardProductor() {
                       <tr key={p.id}>
                         <td data-label="Producto">{p.nombre}</td>
                         <td data-label="Tipo">{p.tipo}</td>
-                        <td data-label="Precio/kg">${Number(p.precio).toLocaleString('es-CO')}</td>
+                        <td data-label="Precio/kg">{formatPrice(p.precio)}</td>
                         <td data-label="Stock">{p.stock} kg</td>
                         <td data-label="Estado"><span className="badge-status status-shipped">{t('dashboardProductor.active', 'Activo')}</span></td>
                         <td data-label="Acciones">
@@ -614,7 +614,7 @@ export default function DashboardProductor() {
                         <td data-label="Producto">{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
                         <td data-label="Comprador">{p.comprador || p.nombreComprador || '—'}</td>
                         <td data-label="Cant.">{p.cantidad} kg</td>
-                        <td data-label="Total">${Number(p.total).toLocaleString('es-CO')}</td>
+                        <td data-label="Total">{formatPrice(p.total)}</td>
                         <td data-label="Estado"><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label="Acciones">
                           <select className="form-select" style={{ width: '140px' }} onChange={async (e) => {
@@ -918,7 +918,7 @@ export default function DashboardProductor() {
                           <div>
                             {yaOferto ? (
                               <div style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', textAlign: 'right' }}>
-                                Ofertado: ${Number(yaOferto.precioPropuesto).toLocaleString('es-CO')}/kg
+                                Ofertado: {formatPrice(yaOferto.precioPropuesto)}/kg
                               </div>
                             ) : (
                               <button className="btn btn-primary" onClick={() => { setBiddingRfq(rfq); setBidMsg({ type: '', text: '' }); }}>

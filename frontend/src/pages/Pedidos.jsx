@@ -10,7 +10,7 @@ import PedidoCard from '../components/PedidoCard';
 export default function Pedidos() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, formatPrice } = useAuth();
   const [params] = useSecureParams();
 
   if (user) {
@@ -138,7 +138,7 @@ export default function Pedidos() {
                   <p><strong>{t('pedidos.invoiceDetail.product', 'Producto:')}</strong> {facturaData.producto || facturaData.nombreProducto}</p>
                   <p><strong>{t('pedidos.invoiceDetail.producer', 'Productor:')}</strong> {facturaData.productor || facturaData.nombreProductor}</p>
                   <p><strong>{t('pedidos.invoiceDetail.quantity', 'Cantidad:')}</strong> {facturaData.cantidad} kg</p>
-                  <p><strong>{t('pedidos.invoiceDetail.total', 'Total:')}</strong> ${Number(facturaData.total).toLocaleString('es-CO')}</p>
+                  <p><strong>{t('pedidos.invoiceDetail.total', 'Total:')}</strong> {formatPrice(facturaData.total)}</p>
                   <p><strong>{t('pedidos.invoiceDetail.status', 'Estado:')}</strong> {t('pedidos.status.' + facturaData.estado?.toLowerCase(), facturaData.estado)}</p>
                 </>
               )}
