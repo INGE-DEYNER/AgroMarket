@@ -22,6 +22,9 @@ export default function ChatbotSoporte() {
     { label: 'Vender', value: 'Cómo puedo registrarme para vender mis productos como productor' }
   ];
 
+  const [showKeyInput, setShowKeyInput] = useState(false);
+  const [userApiKey, setUserApiKey] = useState(localStorage.getItem('user_gemini_key') || '');
+
   const getLocalFallback = (text) => {
     const lower = text ? text.toLowerCase() : "";
     
@@ -76,7 +79,8 @@ export default function ChatbotSoporte() {
         parts: [{ text: m.text }]
       }));
 
-      const key = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCbvIayeg8KKxDtbwvjf4SmoUhRRMe2Gp8';
+      const storedKey = localStorage.getItem('user_gemini_key');
+      const key = storedKey || import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCbvIayeg8KKxDtbwvjf4SmoUhRRMe2Gp8';
 
       // Call Gemini API directly from client side
       const response = await fetch(
@@ -464,10 +468,51 @@ export default function ChatbotSoporte() {
               <p className="chatbot-status">En línea</p>
             </div>
           </div>
-          <button className="chatbot-close" onClick={() => setIsOpen(false)} aria-label="Close Chat">
-            ✕
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button 
+              onClick={() => setShowKeyInput(!showKeyInput)} 
+              style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1rem', padding: '4px', opacity: 0.8, display: 'flex', alignItems: 'center' }}
+              title="Configurar API Key de Gemini"
+            >
+              ⚙️
+            </button>
+            <button className="chatbot-close" onClick={() => setIsOpen(false)} aria-label="Close Chat">
+              ✕
+            </button>
+          </div>
         </div>
+
+        {showKeyInput && (
+          <div style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '0.72rem', fontWeight: '600', color: '#475569' }}>API Key Personal de Gemini:</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input 
+                type="text" 
+                placeholder="Pega tu API Key de Google..." 
+                value={userApiKey} 
+                onChange={(e) => {
+                  setUserApiKey(e.target.value);
+                  localStorage.setItem('user_gemini_key', e.target.value.trim());
+                }}
+                style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+              />
+              {userApiKey && (
+                <button 
+                  onClick={() => {
+                    setUserApiKey('');
+                    localStorage.removeItem('user_gemini_key');
+                  }} 
+                  style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '6px', fontSize: '0.7rem', cursor: 'pointer' }}
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+            <span style={{ fontSize: '0.62rem', color: '#64748b' }}>
+              Consigue una key gratis en <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" style={{ textDecoration: 'underline', color: 'var(--primary)' }}>Google AI Studio</a>.
+            </span>
+          </div>
+        )}
 
         <div className="chatbot-body">
           {messages.map((msg) => (
