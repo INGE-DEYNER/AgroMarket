@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../context/AuthContext';
 import { useSecureParams } from '../utils/useSecureParams';
+import ProductCard from '../components/ProductCard';
 import api from '../utils/api';
 import '../styles/catalogo.css';
 
@@ -296,82 +297,13 @@ export default function Catalogo() {
               </div>
             ) : (
               filtered.map((p) => (
-                <div key={p.id} className="catalog-card">
-                  <div className="catalog-card-img-wrap">
-                    <img
-                      src={
-                        p.imagenUrl ||
-                        'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'
-                      }
-                      alt={p.nombre}
-                      loading="lazy"
-                    />
-                    <span className={`catalog-card-badge${p.stock <= 0 ? ' out' : ''}`}>
-                      {p.stock > 0 ? t('catalog.available', 'Disponible') : t('catalog.soldOut', 'Agotado')}
-                    </span>
-                    {p.enPromocion && (
-                      <span className="badge-promo" style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--red)', color: '#fff', fontSize: '0.7rem', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}>
-                        % PROMO
-                      </span>
-                    )}
-                  </div>
-                  <div className="catalog-card-body">
-                    {p.tipoFruta && <div className="catalog-card-tipo">{p.tipoFruta}</div>}
-                    <div className="catalog-card-name">{p.nombre}</div>
-                    <div className="catalog-card-producer" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                      </svg>
-                      {p.productorNombre || p.productor || 'Productor ASAFRUT'}
-                      {p.productorVerificado && (
-                        <span style={{ background: '#e2f0d9', color: '#385723', padding: '1px 5px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: '700', border: '1px solid #385723' }}>
-                           Gold Supplier
-                        </span>
-                      )}
-                    </div>
-
-                    {p.cantidadMinimaMayorista && p.precioMayorista && (
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', background: 'var(--card-bg-sub)', padding: '6px 8px', borderRadius: '6px', margin: '8px 0', border: '1px dashed var(--border-light)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>Por menor:</span>
-                          <span>${Number(p.precio).toLocaleString('es-CO')}/kg</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600', color: 'var(--primary)' }}>
-                          <span>Por mayor (≥{p.cantidadMinimaMayorista}kg):</span>
-                          <span>${Number(p.precioMayorista).toLocaleString('es-CO')}/kg</span>
-                        </div>
-                      </div>
-                    )}
-                    <div className="catalog-card-rating">
-                      ★★★★★
-                      <span>({p.calificacion || '4.8'})</span>
-                    </div>
-                    <div className="catalog-card-footer">
-                      <div className="catalog-card-price">
-                        {p.enPromocion && p.precioPromocion ? (
-                          <div>
-                            <span style={{ textDecoration: 'line-through', color: 'var(--text-dim)', fontSize: '0.8rem', marginRight: '6px' }}>
-                              ${Number(p.precio).toLocaleString('es-CO')}
-                            </span>
-                            <span style={{ color: 'var(--red)', fontWeight: 'bold' }}>
-                              ${Number(p.precioPromocion).toLocaleString('es-CO')}
-                            </span>
-                          </div>
-                        ) : (
-                          `$${Number(p.precio).toLocaleString('es-CO')}`
-                        )}
-                        <small>{t('catalog.perKg', '/kg')}</small>
-                      </div>
-                      <button
-                        className={`catalog-card-add ${addedStates[p.id] ? 'added' : ''}`}
-                        onClick={() => handlePedirAhora(p)}
-                        disabled={p.stock <= 0}
-                      >
-                        {addedStates[p.id] ? '✓ Agregado' : t('catalog.addToCart', '+ Agregar')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <ProductCard
+                  key={p.id}
+                  p={p}
+                  t={t}
+                  addedStates={addedStates}
+                  handlePedirAhora={handlePedirAhora}
+                />
               ))
             )}
           </div>

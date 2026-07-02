@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { useSecureParams } from '../utils/useSecureParams';
 import api from '../utils/api';
+import PedidoCard from '../components/PedidoCard';
 
 export default function Pedidos() {
   const { t } = useTranslation();
@@ -109,18 +110,13 @@ export default function Pedidos() {
             </thead>
             <tbody id="tbPedidos">
               {pedidosFiltrados.map((p) => (
-                <tr key={p.id}>
-                  <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
-                  <td data-label={t('pedidos.product', 'Producto')}>{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
-                  <td data-label={t('pedidos.producer', 'Productor')}>{p.productor || p.nombreProductor || '—'}</td>
-                  <td data-label={t('pedidos.quantity', 'Cantidad')}>{p.cantidad} kg</td>
-                  <td data-label={t('pedidos.total', 'Total')}>${Number(p.total).toLocaleString('es-CO')}</td>
-                  <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
-                  <td data-label={t('pedidos.actions', 'Acciones')}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => openFactura(p)}>{t('pedidos.invoice', 'Factura')}</button>
-                    <Link to="/envios" className="btn btn-secondary btn-sm" style={{ marginLeft: '6px' }}>{t('pedidos.track', 'Rastrear')}</Link>
-                  </td>
-                </tr>
+                <PedidoCard
+                  key={p.id}
+                  p={p}
+                  t={t}
+                  badgeClass={badgeClass}
+                  openFactura={openFactura}
+                />
               ))}
             </tbody>
           </table>

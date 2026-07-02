@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 
 @Service
 @Slf4j
+@Async
 public class BrevoEmailService implements EmailService {
 
     private final RestTemplate restTemplate;
