@@ -191,7 +191,11 @@ export default function DashboardProductor() {
   const loadContactos = async () => {
     try {
       const data = await api.get('/mensajes/contactos');
-      setContactos(extractArray(data));
+      const list = extractArray(data).map(c => ({
+        ...c,
+        id: c.id || c.usuarioId
+      }));
+      setContactos(list);
     } catch (err) {
       console.error('Error loadContactos:', err);
       setContactos([]);
