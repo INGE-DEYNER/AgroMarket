@@ -6,6 +6,7 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import CartDrawer from '../components/CartDrawer';
 import api, { API_BASE } from '../utils/api';
 import { useCart } from '../hooks/useCart';
+import ProductCard from '../components/ProductCard';
 import '../styles/catalogo.css';
 import '../styles/envios.css';
 import '../styles/mensajeria.css';
@@ -51,6 +52,26 @@ export default function DashboardComprador() {
     if (sec) {
       setActiveSection(sec);
     }
+
+    const contactName = params.get('contactName');
+    const contactId = params.get('contactId');
+    if (sec === 'mensajeria' && contactName) {
+      setContactos(prev => {
+        const existing = prev.find(c => c.nombre?.toLowerCase().includes(contactName.toLowerCase()));
+        if (existing) {
+          setSelectedContact(existing);
+          return prev;
+        } else {
+          const newContact = {
+            id: Number(contactId) || Math.floor(100 + Math.random() * 900),
+            nombre: contactName,
+            rol: 'PRODUCTOR'
+          };
+          setSelectedContact(newContact);
+          return [newContact, ...prev];
+        }
+      });
+    }
   }, [location.search]);
 
   // Pedidos & Catalog state
@@ -70,6 +91,7 @@ export default function DashboardComprador() {
   const [maxPrice, setMaxPrice] = useState('');
   const [soloPromo, setSoloPromo] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Debounced search logic for catalog
   useEffect(() => {
@@ -355,15 +377,29 @@ export default function DashboardComprador() {
     try {
       const data = await api.get('/mensajes/contactos');
       const list = extractArray(data);
-      setContactos(list);
       const found = list.find(c => c.nombre?.toLowerCase().includes(productorNombre.toLowerCase()));
       if (found) {
+        setContactos(list);
         selectContact(found);
       } else {
-        alert(`No se pudo abrir chat directo con ${productorNombre}, pero puedes iniciar uno en la lista.`);
+        const newContact = {
+          id: Math.floor(100 + Math.random() * 900),
+          nombre: productorNombre,
+          rol: 'PRODUCTOR'
+        };
+        const updatedList = [newContact, ...list];
+        setContactos(updatedList);
+        selectContact(newContact);
       }
     } catch (err) {
       console.error(err);
+      const newContact = {
+        id: Math.floor(100 + Math.random() * 900),
+        nombre: productorNombre,
+        rol: 'PRODUCTOR'
+      };
+      setContactos([newContact]);
+      selectContact(newContact);
     }
   };
 
@@ -773,71 +809,19 @@ export default function DashboardComprador() {
                 </div>
               ) : (
                 catalogFiltered.map((p) => (
-                  <div key={p.id} className="catalog-card" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px', overflow: 'hidden', position: 'relative' }}>
-                    {p.enPromocion && (
-                      <span className="badge-promo" style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--red)', color: '#fff', fontSize: '0.65rem', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', zIndex: 5 }}>
-                        % PROMO
-                      </span>
-                    )}
-                    <div className="catalog-card-img-wrap" style={{ position: 'relative', height: '180px' }}>
-                      <img
-                        src={p.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'}
-                        alt={p.nombre}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                      <span className={`catalog-card-badge${p.stock <= 0 ? ' out' : ''}`} style={{ position: 'absolute', top: '10px', left: '10px', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', background: p.stock > 0 ? 'var(--green-bg)' : 'var(--red-bg)', color: p.stock > 0 ? 'var(--primary)' : 'var(--red)' }}>
-                        {p.stock > 0 ? 'Disponible' : 'Agotado'}
-                      </span>
-                    </div>
-                    <div className="catalog-card-body" style={{ padding: '16px' }}>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{p.tipo}</div>
-                      <h4 style={{ margin: '4px 0 8px 0', fontSize: '1.05rem', fontWeight: '700' }}>{p.nombre}</h4>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                         {p.productorNombre || p.productor || p.nombreProductor || 'Productor ASAFRUT'}
-                        {p.productorVerificado && (
-                          <span style={{ background: '#e2f0d9', color: '#385723', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: '700', border: '1px solid #385723' }}>
-                             Gold Supplier
-                          </span>
-                        )}
-                      </div>
-                      
-                      {p.cantidadMinimaMayorista && p.precioMayorista && (
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', margin: '8px 0', border: '1px dashed var(--border-light)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Por menor:</span>
-                            <span>${Number(p.precio).toLocaleString('es-CO')}/kg</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600', color: 'var(--primary)' }}>
-                            <span>Por mayor (≥{p.cantidadMinimaMayorista}kg):</span>
-                            <span>${Number(p.precioMayorista).toLocaleString('es-CO')}/kg</span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                        <span style={{ fontWeight: '800', color: p.enPromocion ? 'var(--red)' : 'var(--primary)', fontSize: '1.15rem' }}>
-                          {p.enPromocion && p.precioPromocion ? (
-                            <>
-                              <span style={{ textDecoration: 'line-through', color: 'var(--text-dim)', fontSize: '0.8rem', marginRight: '6px' }}>
-                                ${Number(p.precio).toLocaleString('es-CO')}
-                              </span>
-                              ${Number(p.precioPromocion).toLocaleString('es-CO')}
-                            </>
-                          ) : (
-                            `$${Number(p.precio).toLocaleString('es-CO')}`
-                          )}
-                          <small style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>/kg</small>
-                        </span>
-                        <button
-                          className="btn btn-primary btn-sm"
-                          onClick={() => addToCart(p)}
-                          disabled={p.stock <= 0}
-                        >
-                          {t('catalog.addToCart', '+ Agregar')}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <ProductCard
+                    key={p.id}
+                    p={{
+                      ...p,
+                      tipoFruta: p.tipoFruta || p.tipo,
+                      calificacion: p.calificacion || '4.8'
+                    }}
+                    t={t}
+                    addedStates={{}}
+                    handlePedirAhora={addToCart}
+                    onViewDetails={setSelectedProduct}
+                    onContactProducer={(prod) => contactProductor(prod.productorNombre || prod.productor || prod.nombreProductor)}
+                  />
                 ))
               )}
             </div>
@@ -1583,6 +1567,126 @@ export default function DashboardComprador() {
       )}
 
       {/* CART DRAWER */}
+      {/* MODAL DETALLE DE PRODUCTO */}
+      {selectedProduct && (
+        <div className="modal-overlay open" onClick={() => setSelectedProduct(null)}>
+          <div className="modal" style={{ maxWidth: '600px', width: '90%', padding: 0, overflow: 'hidden', borderRadius: '16px' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ position: 'relative', height: '280px' }}>
+              <img 
+                src={selectedProduct.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'} 
+                alt={selectedProduct.nombre} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <button 
+                onClick={() => setSelectedProduct(null)} 
+                style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}
+              >
+                ✕
+              </button>
+              {selectedProduct.enPromocion && (
+                <span style={{ position: 'absolute', top: '16px', left: '16px', background: 'var(--red)', color: '#fff', fontSize: '0.75rem', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold' }}>
+                  % PROMO
+                </span>
+              )}
+            </div>
+            
+            <div style={{ padding: '24px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: '600' }}>
+                {selectedProduct.tipoFruta || selectedProduct.tipo}
+              </span>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '4px 0 12px 0', color: 'var(--text-dark)' }}>
+                {selectedProduct.nombre}
+              </h2>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ color: 'var(--gold)', fontSize: '1rem' }}>★★★★★</div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>(4.8 de calificación)</span>
+                <span className={`catalog-card-badge${selectedProduct.stock <= 0 ? ' out' : ''}`} style={{ background: selectedProduct.stock > 0 ? 'var(--green-bg)' : 'var(--red-bg)', color: selectedProduct.stock > 0 ? 'var(--primary)' : 'var(--red)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                  {selectedProduct.stock > 0 ? `Stock: ${selectedProduct.stock} kg` : 'Agotado'}
+                </span>
+              </div>
+              
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '20px' }}>
+                {selectedProduct.descripcion || 'Fruta tropical fresca cosechada directamente en las fincas de Urabá, Antioquia. ASAFRUT garantiza el origen y la calidad del producto.'}
+              </p>
+              
+              {/* PRICES */}
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Precio por menor:</span>
+                  <span style={{ fontWeight: '700', color: '#1e293b', fontSize: '1.1rem' }}>
+                    {selectedProduct.enPromocion && selectedProduct.precioPromocion ? (
+                      <>
+                        <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.9rem', marginRight: '8px' }}>
+                          ${Number(selectedProduct.precio).toLocaleString('es-CO')}
+                        </span>
+                        <span style={{ color: 'var(--red)' }}>
+                          ${Number(selectedProduct.precioPromocion).toLocaleString('es-CO')}
+                        </span>
+                      </>
+                    ) : (
+                      `$${Number(selectedProduct.precio).toLocaleString('es-CO')}`
+                    )}
+                    <small style={{ fontWeight: '400', fontSize: '0.8rem', color: '#64748b' }}> /kg</small>
+                  </span>
+                </div>
+                
+                {selectedProduct.cantidadMinimaMayorista && selectedProduct.precioMayorista && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: '8px', marginTop: '8px' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Precio por mayor (≥{selectedProduct.cantidadMinimaMayorista}kg):</span>
+                    <span style={{ fontWeight: '800', color: 'var(--primary)', fontSize: '1.1rem' }}>
+                      ${Number(selectedProduct.precioMayorista).toLocaleString('es-CO')}
+                      <small style={{ fontWeight: '400', fontSize: '0.8rem', color: '#64748b' }}> /kg</small>
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              {/* PRODUCER DETAILS */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-3)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 16px', marginBottom: '24px' }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: '600' }}>Productor</div>
+                  <div style={{ fontWeight: '700', color: 'var(--text-dark)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {selectedProduct.productorNombre || selectedProduct.productor || selectedProduct.nombreProductor || 'Productor ASAFRUT'}
+                    {selectedProduct.productorVerificado && (
+                      <span style={{ background: '#e2f0d9', color: '#385723', padding: '1px 5px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: '700', border: '1px solid #385723' }}>
+                        Gold Supplier
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button 
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => contactProductor(selectedProduct.productorNombre || selectedProduct.productor || selectedProduct.nombreProductor)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  💬 Chat
+                </button>
+              </div>
+              
+              {/* BUTTONS */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ flex: 1 }}
+                  onClick={() => contactProductor(selectedProduct.productorNombre || selectedProduct.productor || selectedProduct.nombreProductor)}
+                >
+                  Contactar Productor
+                </button>
+                <button 
+                  className="btn btn-primary" 
+                  style={{ flex: 1.5 }}
+                  onClick={() => { addToCart(selectedProduct); setSelectedProduct(null); }}
+                  disabled={selectedProduct.stock <= 0}
+                >
+                  Agregar al Carrito
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );

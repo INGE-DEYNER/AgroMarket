@@ -39,7 +39,18 @@ export default function Catalogo() {
   const { user } = useAuth();
   const [params, setParams] = useSecureParams();
 
-  const { addToCart, count, cartOpen, setCartOpen } = useCart();
+  const { cart, addToCart, count, setCartOpen } = useCart();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const handleContactProductor = (producto) => {
+    if (!user) {
+      navigate('/login?redirect=/catalogo');
+      return;
+    }
+    const prodId = producto.productorId || producto.productor?.id || 1;
+    const prodName = producto.productorNombre || producto.productor || producto.nombreProductor || 'Productor';
+    navigate(`/dashboard-comprador?section=mensajeria&contactId=${prodId}&contactName=${encodeURIComponent(prodName)}`);
+  };
 
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -303,6 +314,8 @@ export default function Catalogo() {
                   t={t}
                   addedStates={addedStates}
                   handlePedirAhora={handlePedirAhora}
+                  onViewDetails={setSelectedProduct}
+                  onContactProducer={handleContactProductor}
                 />
               ))
             )}
@@ -334,6 +347,126 @@ export default function Catalogo() {
           )}
         </div>
       </div>
+
+      {/* MODAL DETALLE DE PRODUCTO */}
+      {selectedProduct && (
+        <div className="modal-overlay open" onClick={() => setSelectedProduct(null)}>
+          <div className="modal" style={{ maxWidth: '600px', width: '90%', padding: 0, overflow: 'hidden', borderRadius: '16px' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ position: 'relative', height: '280px' }}>
+              <img 
+                src={selectedProduct.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500'} 
+                alt={selectedProduct.nombre} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <button 
+                onClick={() => setSelectedProduct(null)} 
+                style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}
+              >
+                ✕
+              </button>
+              {selectedProduct.enPromocion && (
+                <span style={{ position: 'absolute', top: '16px', left: '16px', background: 'var(--red)', color: '#fff', fontSize: '0.75rem', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold' }}>
+                  % PROMO
+                </span>
+              )}
+            </div>
+            
+            <div style={{ padding: '24px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: '600' }}>
+                {selectedProduct.tipoFruta || selectedProduct.tipo}
+              </span>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '4px 0 12px 0', color: 'var(--text-dark)' }}>
+                {selectedProduct.nombre}
+              </h2>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ color: 'var(--gold)', fontSize: '1rem' }}>★★★★★</div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>(4.8 de calificación)</span>
+                <span className={`catalog-card-badge${selectedProduct.stock <= 0 ? ' out' : ''}`} style={{ background: selectedProduct.stock > 0 ? 'var(--green-bg)' : 'var(--red-bg)', color: selectedProduct.stock > 0 ? 'var(--primary)' : 'var(--red)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                  {selectedProduct.stock > 0 ? `Stock: ${selectedProduct.stock} kg` : 'Agotado'}
+                </span>
+              </div>
+              
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '20px' }}>
+                {selectedProduct.descripcion || 'Fruta tropical fresca cosechada directamente en las fincas de Urabá, Antioquia. ASAFRUT garantiza el origen y la calidad del producto.'}
+              </p>
+              
+              {/* PRICES */}
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Precio por menor:</span>
+                  <span style={{ fontWeight: '700', color: '#1e293b', fontSize: '1.1rem' }}>
+                    {selectedProduct.enPromocion && selectedProduct.precioPromocion ? (
+                      <>
+                        <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.9rem', marginRight: '8px' }}>
+                          ${Number(selectedProduct.precio).toLocaleString('es-CO')}
+                        </span>
+                        <span style={{ color: 'var(--red)' }}>
+                          ${Number(selectedProduct.precioPromocion).toLocaleString('es-CO')}
+                        </span>
+                      </>
+                    ) : (
+                      `$${Number(selectedProduct.precio).toLocaleString('es-CO')}`
+                    )}
+                    <small style={{ fontWeight: '400', fontSize: '0.8rem', color: '#64748b' }}> /kg</small>
+                  </span>
+                </div>
+                
+                {selectedProduct.cantidadMinimaMayorista && selectedProduct.precioMayorista && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: '8px', marginTop: '8px' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Precio por mayor (≥{selectedProduct.cantidadMinimaMayorista}kg):</span>
+                    <span style={{ fontWeight: '800', color: 'var(--primary)', fontSize: '1.1rem' }}>
+                      ${Number(selectedProduct.precioMayorista).toLocaleString('es-CO')}
+                      <small style={{ fontWeight: '400', fontSize: '0.8rem', color: '#64748b' }}> /kg</small>
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              {/* PRODUCER DETAILS */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-3)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 16px', marginBottom: '24px' }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: '600' }}>Productor</div>
+                  <div style={{ fontWeight: '700', color: 'var(--text-dark)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {selectedProduct.productorNombre || selectedProduct.productor || selectedProduct.nombreProductor || 'Productor ASAFRUT'}
+                    {selectedProduct.productorVerificado && (
+                      <span style={{ background: '#e2f0d9', color: '#385723', padding: '1px 5px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: '700', border: '1px solid #385723' }}>
+                        Gold Supplier
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button 
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => handleContactProductor(selectedProduct)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  💬 Chat
+                </button>
+              </div>
+              
+              {/* BUTTONS */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ flex: 1 }}
+                  onClick={() => handleContactProductor(selectedProduct)}
+                >
+                  Contactar Productor
+                </button>
+                <button 
+                  className="btn btn-primary" 
+                  style={{ flex: 1.5 }}
+                  onClick={() => { addToCart(selectedProduct); setSelectedProduct(null); }}
+                  disabled={selectedProduct.stock <= 0}
+                >
+                  Agregar al Carrito
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
