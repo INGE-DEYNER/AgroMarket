@@ -58,6 +58,7 @@ public class SiteInfoController {
         "pago", "Aceptamos pagos simulados por PSE y tarjeta. Si tuviste un problema con un pago, escríbenos a soporte@agro-market.app",
         "producto", "Tenemos frutas tropicales frescas de Urabá: banano, maracuyá, aguacate, piña y más. Visita nuestro catálogo para ver disponibilidad y precios.",
         "envio", "Los envíos se calculan según la distancia. Recibirás actualizaciones del estado de tu envío por email.",
+        "descuento", "Contamos con una sección de ofertas y promociones especiales en nuestro catálogo de frutas tropicales. ¡Busca los productos marcados con la etiqueta % PROMO!",
         "default", "Hola, soy el asistente de AgroMarket. ¿En qué puedo ayudarte hoy? Puedo ayudarte con pedidos, productos, pagos o información general."
     );
 
@@ -71,6 +72,8 @@ public class SiteInfoController {
             return fallbacks.get("producto");
         } else if (lower.contains("envio") || lower.contains("envío") || lower.contains("entrega") || lower.contains("distancia")) {
             return fallbacks.get("envio");
+        } else if (lower.contains("descuento") || lower.contains("oferta") || lower.contains("promo") || lower.contains("descuentos") || lower.contains("precio")) {
+            return fallbacks.get("descuento");
         }
         return fallbacks.get("default");
     }
