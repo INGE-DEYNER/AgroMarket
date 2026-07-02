@@ -22,6 +22,22 @@ export default function ChatbotSoporte() {
     { label: 'Vender', value: 'Cómo puedo registrarme para vender mis productos como productor' }
   ];
 
+  const getLocalFallback = (text) => {
+    const lower = text ? text.toLowerCase() : "";
+    if (lower.includes("pedido")) {
+      return "Para consultar tu pedido, ve a 'Mis Pedidos' en tu dashboard. Si tienes el número de pedido, nuestro equipo puede ayudarte en soporte@agro-market.app";
+    } else if (lower.includes("pago")) {
+      return "Aceptamos pagos simulados por PSE y tarjeta. Si tuviste un problema con un pago, escríbenos a soporte@agro-market.app";
+    } else if (lower.includes("producto") || lower.includes("fruta") || lower.includes("banano") || lower.includes("aguacate") || lower.includes("maracuyá") || lower.includes("piña") || lower.includes("mango")) {
+      return "Tenemos frutas tropicales frescas de Urabá: banano, maracuyá, aguacate, piña y más. Visita nuestro catálogo para ver disponibilidad y precios.";
+    } else if (lower.includes("envio") || lower.includes("envío") || lower.includes("entrega") || lower.includes("distancia")) {
+      return "Los envíos se calculan según la distancia. Recibirás actualizaciones del estado de tu envío por email.";
+    } else if (lower.includes("descuento") || lower.includes("oferta") || lower.includes("promo") || lower.includes("descuentos") || lower.includes("precio")) {
+      return "Contamos con una sección de ofertas y promociones especiales en nuestro catálogo de frutas tropicales. ¡Busca los productos marcados con la etiqueta % PROMO!";
+    }
+    return "Hola, soy el asistente de AgroMarket. ¿En qué puedo ayudarte hoy? Puedo ayudarte con pedidos, productos, pagos o información general.";
+  };
+
   const handleSend = async (text) => {
     if (!text.trim() || loading) return;
 
@@ -38,25 +54,57 @@ export default function ChatbotSoporte() {
 
     try {
       const historial = messages.slice(1).map(m => ({
-        role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.text
+        role: m.sender === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text }]
       }));
 
-      const res = await api.post('/public/chatbot', { mensaje: text, historial: historial });
+      const key = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCbvIayeg8KKxDtbwvjf4SmoUhRRMe2Gp8';
+
+      // Call Gemini API directly from client side
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: "Eres el asistente virtual de AgroMarket, la plataforma de ASAFRUT que conecta productores de frutas tropicales de Urabá, Antioquia, directamente con compradores. Ayudas con información sobre productos, pedidos, pagos y envíos. Responde siempre en español, de forma amable y concisa (máximo 3 párrafos)." }]
+            },
+            contents: [
+              ...historial,
+              { role: 'user', parts: [{ text: text }] }
+            ],
+            generationConfig: {
+              maxOutputTokens: 500,
+              temperature: 0.7
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Lo siento, no pude procesar tu solicitud.';
 
       const botMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: res.data?.respuesta || res.respuesta || 'Lo siento, no pude procesar tu solicitud.',
+        text: answer,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setMessages(prev => [...prev, botMsg]);
     } catch (error) {
+      console.error("Error calling Gemini API:", error);
       const errorMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: 'Lo siento, hay un problema de conexión con el servicio. Por favor, intenta de nuevo más tarde.',
+        text: getLocalFallback(text),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, errorMsg]);
