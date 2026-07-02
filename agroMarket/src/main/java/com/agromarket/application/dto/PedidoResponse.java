@@ -26,4 +26,5 @@ public class PedidoResponse {
     private EstadoPedido estado;
     private LocalDateTime fechaCreacion;
     private String checkoutId;
+    private boolean pagado;
 }

@@ -27,6 +27,11 @@ public interface PedidoMapper {
                 .estado(entity.getEstado())
                 .fechaCreacion(entity.getFechaCreacion())
                 .checkoutId(entity.getCheckoutId())
+                .pagado(entity.getPago() != null && (
+                        entity.getPago().getEstado() == com.agromarket.domain.model.EstadoPago.CONFIRMADO ||
+                        entity.getPago().getEstado() == com.agromarket.domain.model.EstadoPago.EN_FIDEICOMISO ||
+                        entity.getPago().getEstado() == com.agromarket.domain.model.EstadoPago.LIBERADO
+                ))
                 .build();
     }
 

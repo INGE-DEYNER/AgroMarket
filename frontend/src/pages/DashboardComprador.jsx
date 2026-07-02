@@ -227,7 +227,9 @@ export default function DashboardComprador() {
   };
 
   const descargarPdfGroup = (groupedFactura) => {
-    groupedFactura.originalFacturas.forEach(f => descargarPdf(f.id));
+    if (groupedFactura.originalFacturas && groupedFactura.originalFacturas.length > 0) {
+      descargarPdf(groupedFactura.originalFacturas[0].id);
+    }
   };
 
   // RFQ (Licitaciones) states

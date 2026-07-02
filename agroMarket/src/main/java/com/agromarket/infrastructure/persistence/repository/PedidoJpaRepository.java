@@ -19,4 +19,7 @@ public interface PedidoJpaRepository extends JpaRepository<PedidoEntity, Long> {
     List<PedidoEntity> findByProductoProductorId(Long productorId);
 
     List<PedidoEntity> findByEstado(EstadoPedido estado);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"comprador", "producto", "producto.productor"})
+    List<PedidoEntity> findByCheckoutId(String checkoutId);
 }

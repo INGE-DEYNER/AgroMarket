@@ -9,6 +9,7 @@ import com.agromarket.infrastructure.persistence.entity.PedidoEntity;
 import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
 import com.agromarket.infrastructure.persistence.repository.FacturaJpaRepository;
 import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
+import com.agromarket.infrastructure.persistence.repository.PedidoJpaRepository;
 import com.agromarket.domain.model.RolUsuario;
 
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class FacturaServiceImpl implements FacturaService {
     private final FacturaJpaRepository facturaJpaRepository;
     private final UsuarioJpaRepository usuarioJpaRepository;
+    private final PedidoJpaRepository pedidoJpaRepository;
     private final FacturaMapper facturaMapper;
 
     @Override
@@ -105,32 +107,59 @@ public class FacturaServiceImpl implements FacturaService {
             document.add(divider);
 
             // 2. Información de Factura y Partes
+            // 2. Información de Factura y Partes
             com.lowagie.text.pdf.PdfPTable infoTable = new com.lowagie.text.pdf.PdfPTable(2);
             infoTable.setWidthPercentage(100);
             infoTable.setSpacingAfter(20);
             infoTable.setWidths(new float[]{50, 50});
             
+            PedidoEntity pedido = factura.getPedido();
+            
+            // Fetch checkout orders if checkoutId exists
+            java.util.List<PedidoEntity> pedidos = new java.util.ArrayList<>();
+            if (pedido != null) {
+                if (pedido.getCheckoutId() != null && !pedido.getCheckoutId().isBlank()) {
+                    pedidos.addAll(pedidoJpaRepository.findByCheckoutId(pedido.getCheckoutId()));
+                } else {
+                    pedidos.add(pedido);
+                }
+            }
+
             // Bloque Factura
+            String numFacturaPdf = factura.getNumeroFactura();
+            if (pedido != null && pedido.getCheckoutId() != null && !pedido.getCheckoutId().isBlank()) {
+                numFacturaPdf = "FAC-" + pedido.getCheckoutId() + "-" + java.time.LocalDate.now().getYear();
+            }
+            
             com.lowagie.text.pdf.PdfPCell invCell = new com.lowagie.text.pdf.PdfPCell();
             invCell.setBorder(com.lowagie.text.Rectangle.BOX);
             invCell.setBorderColor(new java.awt.Color(224, 224, 224));
             invCell.setPadding(10);
             invCell.setBackgroundColor(new java.awt.Color(245, 245, 245));
             invCell.addElement(new com.lowagie.text.Paragraph("FACTURA ELECTRÓNICA", sectionFont));
-            invCell.addElement(new com.lowagie.text.Paragraph("Número: " + factura.getNumeroFactura(), boldFont));
+            invCell.addElement(new com.lowagie.text.Paragraph("Número: " + numFacturaPdf, boldFont));
             invCell.addElement(new com.lowagie.text.Paragraph("Fecha Emisión: " + (factura.getFechaEmision() != null ? factura.getFechaEmision().toString().replace('T', ' ').substring(0, 16) : "N/A"), normalFont));
             invCell.addElement(new com.lowagie.text.Paragraph("Estado: PAGADA", boldFont));
             infoTable.addCell(invCell);
             
             // Bloque Partes
-            PedidoEntity pedido = factura.getPedido();
             com.lowagie.text.pdf.PdfPCell clientCell = new com.lowagie.text.pdf.PdfPCell();
             clientCell.setBorder(com.lowagie.text.Rectangle.BOX);
             clientCell.setBorderColor(new java.awt.Color(224, 224, 224));
             clientCell.setPadding(10);
             clientCell.addElement(new com.lowagie.text.Paragraph("DETALLES DE ENTREGA", sectionFont));
             clientCell.addElement(new com.lowagie.text.Paragraph("Comprador: " + (pedido != null && pedido.getComprador() != null ? pedido.getComprador().getNombre() : "N/A"), normalFont));
-            clientCell.addElement(new com.lowagie.text.Paragraph("Productor: " + (pedido != null && pedido.getProducto() != null && pedido.getProducto().getProductor() != null ? pedido.getProducto().getProductor().getNombre() : "N/A"), normalFont));
+            
+            // Producers list
+            java.util.Set<String> productoresNames = new java.util.LinkedHashSet<>();
+            for (PedidoEntity p : pedidos) {
+                if (p.getProducto() != null && p.getProducto().getProductor() != null) {
+                    productoresNames.add(p.getProducto().getProductor().getNombre());
+                }
+            }
+            String prodStr = productoresNames.isEmpty() ? "N/A" : String.join(", ", productoresNames);
+            clientCell.addElement(new com.lowagie.text.Paragraph("Productor(es): " + prodStr, normalFont));
+            
             if (pedido != null && pedido.getEnvio() != null) {
                 clientCell.addElement(new com.lowagie.text.Paragraph("Dirección: " + pedido.getEnvio().getDireccionDestino(), normalFont));
             }
@@ -154,11 +183,14 @@ public class FacturaServiceImpl implements FacturaService {
                 itemsTable.addCell(cell);
             }
             
-            if (pedido != null) {
-                String prodNombre = pedido.getProducto() != null ? pedido.getProducto().getNombre() : "Producto ASAFRUT";
-                String cantidad = pedido.getCantidad() + " kg";
-                String precio = "$" + String.format(java.util.Locale.US, "%,.2f", pedido.getPrecioUnitario().doubleValue()).replace(',', '.');
-                String totalItem = "$" + String.format(java.util.Locale.US, "%,.2f", pedido.getTotal().doubleValue()).replace(',', '.');
+            java.math.BigDecimal subtotalAcumulado = java.math.BigDecimal.ZERO;
+            for (PedidoEntity p : pedidos) {
+                String prodNombre = p.getProducto() != null ? p.getProducto().getNombre() : "Producto ASAFRUT";
+                String cantidad = p.getCantidad() + " kg";
+                String precio = "$" + String.format(java.util.Locale.US, "%,.2f", p.getPrecioUnitario().doubleValue()).replace(',', '.');
+                String totalItem = "$" + String.format(java.util.Locale.US, "%,.2f", p.getTotal().doubleValue()).replace(',', '.');
+                
+                subtotalAcumulado = subtotalAcumulado.add(p.getTotal());
                 
                 com.lowagie.text.pdf.PdfPCell c1 = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(prodNombre, normalFont));
                 c1.setPadding(8);
@@ -193,13 +225,16 @@ public class FacturaServiceImpl implements FacturaService {
             totalsTable.setWidths(new float[]{50, 50});
             totalsTable.setSpacingAfter(30);
             
+            java.math.BigDecimal impuestoAcumulado = subtotalAcumulado.multiply(java.math.BigDecimal.valueOf(0.19)).setScale(2, java.math.RoundingMode.HALF_UP);
+            java.math.BigDecimal totalAcumulado = subtotalAcumulado.add(impuestoAcumulado).setScale(2, java.math.RoundingMode.HALF_UP);
+            
             // Subtotal
             com.lowagie.text.pdf.PdfPCell subLabel = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase("Subtotal:", boldFont));
             subLabel.setPadding(6);
             subLabel.setBorderColor(new java.awt.Color(240, 240, 240));
             totalsTable.addCell(subLabel);
             
-            com.lowagie.text.pdf.PdfPCell subCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase("$" + String.format(java.util.Locale.US, "%,.2f", factura.getSubtotal().doubleValue()).replace(',', '.'), normalFont));
+            com.lowagie.text.pdf.PdfPCell subCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase("$" + String.format(java.util.Locale.US, "%,.2f", subtotalAcumulado.doubleValue()).replace(',', '.'), normalFont));
             subCell.setPadding(6);
             subCell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
             subCell.setBorderColor(new java.awt.Color(240, 240, 240));
@@ -211,7 +246,7 @@ public class FacturaServiceImpl implements FacturaService {
             ivaLabel.setBorderColor(new java.awt.Color(240, 240, 240));
             totalsTable.addCell(ivaLabel);
             
-            com.lowagie.text.pdf.PdfPCell ivaCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase("$" + String.format(java.util.Locale.US, "%,.2f", factura.getImpuesto().doubleValue()).replace(',', '.'), normalFont));
+            com.lowagie.text.pdf.PdfPCell ivaCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase("$" + String.format(java.util.Locale.US, "%,.2f", impuestoAcumulado.doubleValue()).replace(',', '.'), normalFont));
             ivaCell.setPadding(6);
             ivaCell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
             ivaCell.setBorderColor(new java.awt.Color(240, 240, 240));
@@ -224,7 +259,7 @@ public class FacturaServiceImpl implements FacturaService {
             labelTotal.setBorderColor(new java.awt.Color(46, 125, 50));
             totalsTable.addCell(labelTotal);
             
-            com.lowagie.text.pdf.PdfPCell valTotal = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase("$" + String.format(java.util.Locale.US, "%,.2f", factura.getTotal().doubleValue()).replace(',', '.'), whiteHeaderFont));
+            com.lowagie.text.pdf.PdfPCell valTotal = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase("$" + String.format(java.util.Locale.US, "%,.2f", totalAcumulado.doubleValue()).replace(',', '.'), whiteHeaderFont));
             valTotal.setBackgroundColor(new java.awt.Color(46, 125, 50));
             valTotal.setPadding(8);
             valTotal.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
