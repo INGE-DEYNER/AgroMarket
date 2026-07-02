@@ -175,16 +175,7 @@ export default function Registro() {
       setSmsError('Ingresa un teléfono válido antes de verificar.');
       return;
     }
-    setSmsLoading(true);
-    const fullPhone = codigoPais + telefono.trim();
-    try {
-      await api.post('/auth/enviar-sms-verificacion', { telefono: fullPhone });
-      setSmsEnviado(true);
-    } catch (err) {
-      setSmsError(err.message || 'Error al enviar código SMS.');
-    } finally {
-      setSmsLoading(false);
-    }
+    setTelefonoVerificado(true);
   };
 
   const handleVerifySms = async () => {

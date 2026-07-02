@@ -264,7 +264,7 @@ public class AuthServiceImpl implements AuthService {
         usuario.setUbicacion(request.getUbicacion());
         usuario.setActivo(false);
         usuario.setEmailVerificado(false);
-        usuario.setTelefonoVerificado(false);
+        usuario.setTelefonoVerificado(true);
         usuario.setCuentaAprobada(false);
         usuario.setCuentaCompleta(false);
         usuario.setEstadoCuenta("PENDIENTE_EMAIL");
