@@ -66,9 +66,14 @@ public class PagoServiceImpl implements PagoService {
             guardado = pagoJpaRepository.save(guardado);
         }
 
+        String url = iniciado.getRedirectUrl() + "&monto=" + pedido.getTotal();
+        if (guardado.getMetodoPago() != null) {
+            url += "&metodo=" + guardado.getMetodoPago().name();
+        }
+
         return com.agromarket.application.dto.IniciarPagoResponse.builder()
                 .pagoId(guardado.getId())
-                .urlPasarela(iniciado.getRedirectUrl())
+                .urlPasarela(url)
                 .referencia(iniciado.getReferencia())
                 .build();
     }
