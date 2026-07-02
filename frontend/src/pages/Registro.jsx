@@ -175,7 +175,17 @@ export default function Registro() {
       setSmsError('Ingresa un teléfono válido antes de verificar.');
       return;
     }
-    setTelefonoVerificado(true);
+    setSmsLoading(true);
+    const fullPhone = codigoPais + telefono.trim();
+    try {
+      await api.post('/auth/enviar-verificacion-sms', { telefono: fullPhone });
+      setSmsEnviado(true);
+      setSmsCodigo('');
+    } catch (err) {
+      setSmsError(err.message || 'Error al enviar código SMS.');
+    } finally {
+      setSmsLoading(false);
+    }
   };
 
   const handleVerifySms = async () => {
@@ -429,7 +439,11 @@ export default function Registro() {
                 {errors.telefono && <span className="form-error visible" id="telefonoError">{errors.telefono}</span>}
                 
                 {smsEnviado && (
-                  <div className="sms-verify-container">
+                  <>
+                    <div style={{ fontSize: '0.8rem', color: '#2d6a4f', marginTop: '8px', marginBottom: '8px', fontWeight: '600' }}>
+                      📱 Modo demo: usa cualquier código de 6 dígitos (ej. 123456)
+                    </div>
+                    <div className="sms-verify-container">
                     <input 
                       className="form-input" 
                       type="text" 
@@ -447,8 +461,9 @@ export default function Registro() {
                     >
                       Confirmar
                     </button>
-                  </div>
-                )}
+                </div>
+              </>
+            )}
                 {smsError && <div style={{ color: '#e53935', fontSize: '0.75rem', marginTop: '6px' }}>{smsError}</div>}
                 {telefonoVerificado && <div style={{ color: '#4caf50', fontSize: '0.75rem', marginTop: '6px', fontWeight: 'bold' }}>✓ Teléfono verificado por SMS</div>}
               </div>

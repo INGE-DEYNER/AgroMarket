@@ -172,6 +172,10 @@ public class AuthController {
         if (!valido) {
             return ResponseEntity.badRequest().body(Map.of("error", "Código incorrecto o expirado"));
         }
+        usuarioJpaRepository.findByTelefono(telefono).ifPresent(usuario -> {
+            usuario.setTelefonoVerificado(true);
+            usuarioJpaRepository.save(usuario);
+        });
         return ResponseEntity.ok(Map.of("verificado", true));
     }
 
