@@ -31,7 +31,7 @@ public class CuponDescuento {
     @Column(nullable = false)
     private BigDecimal montoMinimo;
 
-    @Column(name = "usuario_id", nullable = false)
+    @Column(name = "usuario_id", nullable = true)
     private Long usuarioId;
 
     @Column(nullable = false)

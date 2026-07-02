@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/public")
 @RequiredArgsConstructor
 public class SiteInfoController {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SiteInfoController.class);
 
     private final RestTemplate restTemplate;
     private final com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository usuarioJpaRepository;
@@ -140,73 +141,82 @@ public class SiteInfoController {
     }
 
     @PostMapping("/chatbot")
-    public java.util.concurrent.CompletableFuture<ResponseEntity<?>> chatbot(@RequestBody Map<String, Object> body) {
-        return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-            String mensaje = (String) body.get("mensaje");
-            if (mensaje == null || mensaje.isBlank()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El mensaje no puede estar vacío"));
-            }
-            if (mensaje.length() > 500) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Mensaje demasiado largo (máximo 500 caracteres)"));
-            }
-
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> historial = (List<Map<String, Object>>) body.getOrDefault("historial", List.of());
-
-            if (geminiApiKey == null || geminiApiKey.isEmpty() || geminiApiKey.startsWith("mock") || geminiApiKey.equals("changeme")) {
-                return ResponseEntity.ok(Map.of("respuesta", getFallbackResponse(mensaje)));
-            }
-
-            List<Map<String, Object>> contents = new ArrayList<>();
-            for (Map<String, Object> h : historial) {
-                String role = String.valueOf(h.getOrDefault("role", "user"));
-                String content = String.valueOf(h.getOrDefault("content", ""));
-                String geminiRole = "assistant".equals(role) ? "model" : "user";
-                contents.add(Map.of(
-                    "role", geminiRole,
-                    "parts", List.of(Map.of("text", content))
-                ));
-            }
-            contents.add(Map.of(
-                "role", "user",
-                "parts", List.of(Map.of("text", mensaje))
-            ));
-
-            Map<String, Object> requestBody = Map.of(
-                "systemInstruction", Map.of(
-                    "parts", List.of(Map.of("text", systemPrompt))
-                ),
-                "contents", contents,
+    public ResponseEntity<?> chatbot(@RequestBody Map<String, String> body) {
+        String mensaje = body.getOrDefault("mensaje", "").trim();
+        
+        if (mensaje.isEmpty() || mensaje.length() > 500) {
+            return ResponseEntity.badRequest().body(Map.of("respuesta", 
+                "Por favor escribe un mensaje válido (máximo 500 caracteres)."));
+        }
+        
+        try {
+            String systemContext = """
+                Eres el asistente virtual de AgroMarket, plataforma de ASAFRUT que conecta 
+                productores de frutas tropicales de Urabá, Antioquia, Colombia, con compradores.
+                Responde SIEMPRE en español. Sé amable, conciso y útil.
+                Solo respondes sobre: productos agrícolas, pedidos, envíos, pagos, registro, 
+                productores de Urabá, frutas tropicales colombianas.
+                Si preguntan algo fuera de tema, redirígelos amablemente al tema de AgroMarket.
+                Máximo 3 párrafos por respuesta.
+                """;
+            
+            Map<String, Object> geminiRequest = Map.of(
+                "contents", List.of(Map.of(
+                    "parts", List.of(
+                        Map.of("text", systemContext + "\n\nUsuario: " + mensaje)
+                    )
+                )),
                 "generationConfig", Map.of(
+                    "temperature", 0.7,
                     "maxOutputTokens", 500,
-                    "temperature", 0.7
+                    "topP", 0.8
                 )
             );
-
+            
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiApiKey,
+                new HttpEntity<>(geminiRequest, headers),
+                Map.class
+            );
+            
+            String respuesta = extraerTextoGemini(response.getBody());
+            return ResponseEntity.ok(Map.of("respuesta", respuesta));
+            
+        } catch (Exception e) {
+            log.error("Error en chatbot Gemini: {}", e.getMessage());
+            String respuestaFallback = obtenerRespuestaFallback(mensaje);
+            return ResponseEntity.ok(Map.of("respuesta", respuestaFallback));
+        }
+    }
 
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiApiKey;
+    private String extraerTextoGemini(Map<?, ?> body) {
+        try {
+            List<?> candidates = (List<?>) body.get("candidates");
+            Map<?, ?> candidate = (Map<?, ?>) candidates.get(0);
+            Map<?, ?> content = (Map<?, ?>) candidate.get("content");
+            List<?> parts = (List<?>) content.get("parts");
+            Map<?, ?> part = (Map<?, ?>) parts.get(0);
+            return (String) part.get("text");
+        } catch (Exception e) {
+            return "Hola, soy el asistente de AgroMarket. ¿En qué puedo ayudarte?";
+        }
+    }
 
-            try {
-                @SuppressWarnings("rawtypes")
-                ResponseEntity<Map> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.POST,
-                    new HttpEntity<>(requestBody, headers),
-                    Map.class
-                );
-
-                List<Map<?, ?>> candidates = (List<Map<?, ?>>) response.getBody().get("candidates");
-                Map<?, ?> content = (Map<?, ?>) candidates.get(0).get("content");
-                List<Map<?, ?>> parts = (List<Map<?, ?>>) content.get("parts");
-                String respuesta = (String) parts.get(0).get("text");
-
-                return ResponseEntity.ok(Map.of("respuesta", respuesta));
-            } catch (Exception e) {
-                System.err.println("Error en el chatbot de Gemini: " + e.getMessage());
-                return ResponseEntity.ok(Map.of("respuesta", getFallbackResponse(mensaje)));
-            }
-        }, chatbotTaskExecutor);
+    private String obtenerRespuestaFallback(String mensaje) {
+        String lower = mensaje.toLowerCase();
+        if (lower.contains("pedido") || lower.contains("orden")) 
+            return "Para consultar tu pedido ve a 'Mis Pedidos' en tu dashboard. ¿Tienes el número de pedido?";
+        if (lower.contains("pago") || lower.contains("pagar"))
+            return "Aceptamos PSE, tarjeta de crédito/débito, Nequi y Daviplata. ¿Tuviste algún problema con tu pago?";
+        if (lower.contains("envio") || lower.contains("envío") || lower.contains("entrega"))
+            return "Los envíos desde Chigorodó toman 1-4 días según tu ciudad. Recibirás actualizaciones por email.";
+        if (lower.contains("producto") || lower.contains("fruta"))
+            return "Tenemos frutas tropicales frescas de Urabá: banano, maracuyá, aguacate, piña, papaya y más. ¡Visita nuestro catálogo!";
+        if (lower.contains("registro") || lower.contains("cuenta"))
+            return "Puedes registrarte como Comprador, Empresa o Productor. El proceso toma menos de 2 minutos.";
+        return "Hola, soy el asistente de AgroMarket. Puedo ayudarte con pedidos, productos, pagos o envíos. ¿Qué necesitas?";
     }
 }

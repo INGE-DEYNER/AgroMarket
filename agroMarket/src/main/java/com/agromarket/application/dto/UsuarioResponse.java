@@ -38,4 +38,9 @@ public class UsuarioResponse {
     private String fotoUrl;
     private Boolean cuponPrimerEnvioUsado;
     private String divisaPreferida;
+    private String departamento;
+    private String ciudad;
+    private String direccionCompleta;
+    private String referencia;
+    private String codigoPostal;
 }

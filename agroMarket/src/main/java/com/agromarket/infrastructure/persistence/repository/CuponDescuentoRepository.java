@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface CuponDescuentoRepository extends JpaRepository<CuponDescuento, Long> {
     Optional<CuponDescuento> findByCodigo(String codigo);
-    List<CuponDescuento> findByUsuarioId(Long usuarioId);
+    List<CuponDescuento> findByUsuarioIdOrUsuarioIdIsNull(Long usuarioId);
 }

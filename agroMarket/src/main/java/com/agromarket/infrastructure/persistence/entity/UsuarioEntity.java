@@ -173,6 +173,21 @@ public abstract class UsuarioEntity {
     @Builder.Default
     private String divisaPreferida = "COP";
 
+    @Column(name = "departamento")
+    private String departamento;
+
+    @Column(name = "ciudad")
+    private String ciudad;
+
+    @Column(name = "direccion_completa")
+    private String direccionCompleta;
+
+    @Column(name = "referencia")
+    private String referencia;
+
+    @Column(name = "codigo_postal")
+    private String codigoPostal;
+
     @Column(name = "creado_en")
     private LocalDateTime creadoEn;
 
@@ -300,4 +315,15 @@ public abstract class UsuarioEntity {
     public String getTokenRecuperacionPassword() {
         return this.tokenRecuperacionPassword;
     }
+
+    public String getDepartamento() { return departamento; }
+    public void setDepartamento(String departamento) { this.departamento = departamento; }
+    public String getCiudad() { return ciudad; }
+    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public String getDireccionCompleta() { return direccionCompleta; }
+    public void setDireccionCompleta(String direccionCompleta) { this.direccionCompleta = direccionCompleta; }
+    public String getReferencia() { return referencia; }
+    public void setReferencia(String referencia) { this.referencia = referencia; }
+    public String getCodigoPostal() { return codigoPostal; }
+    public void setCodigoPostal(String codigoPostal) { this.codigoPostal = codigoPostal; }
 }

@@ -26,6 +26,7 @@ public class EnvioServiceImpl implements EnvioService {
     private final UsuarioJpaRepository usuarioJpaRepository;
     private final com.agromarket.infrastructure.persistence.repository.PedidoJpaRepository pedidoJpaRepository;
     private final EnvioMapper envioMapper;
+    private final DeliveryCalculatorService deliveryCalculatorService;
 
     @Override
     public EnvioResponse getByPedidoId(Long pedidoId, Long solicitanteId) {
@@ -93,31 +94,6 @@ public class EnvioServiceImpl implements EnvioService {
 
     @Override
     public int calcularDiasEntrega(String ciudadOrigen, String ciudadDestino) {
-        if (ciudadOrigen == null || ciudadDestino == null) {
-            return 3;
-        }
-        String orig = ciudadOrigen.toLowerCase().trim();
-        String dest = ciudadDestino.toLowerCase().trim();
-        if (orig.equals(dest)) {
-            return 1; // MISMO_MUNICIPIO
-        }
-        boolean origAntioquia = orig.contains("antioquia") || orig.contains("chigorodó") || orig.contains("apartadó") || orig.contains("turbo") || orig.contains("carepa");
-        boolean destAntioquia = dest.contains("antioquia") || dest.contains("medellín") || dest.contains("envigado") || dest.contains("sabaneta") || dest.contains("bello") || dest.contains("rionegro");
-        
-        if (origAntioquia && destAntioquia) {
-            return 2; // MISMO_DEPARTAMENTO
-        }
-        
-        boolean destCaribe = dest.contains("cartagena") || dest.contains("barranquilla") || dest.contains("santa marta") || dest.contains("montería") || dest.contains("sincelejo") || dest.contains("bolívar") || dest.contains("atlántico") || dest.contains("magdalena") || dest.contains("córdoba") || dest.contains("sucre");
-        if (destCaribe) {
-            return 2; // COSTA_CARIBE
-        }
-        
-        boolean destCercano = dest.contains("bogotá") || dest.contains("cali") || dest.contains("valle del cauca") || dest.contains("cundinamarca");
-        if (destCercano) {
-            return 3; // DEPARTAMENTO_CERCANO
-        }
-        
-        return 4; // OTRO_DEPARTAMENTO
+        return deliveryCalculatorService.calcularDias(ciudadDestino);
     }
 }

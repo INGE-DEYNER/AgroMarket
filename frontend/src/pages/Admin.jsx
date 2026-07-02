@@ -80,6 +80,12 @@ export default function Admin() {
   const [pagosFideicomiso, setPagosFideicomiso] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
 
+  // States for Coupons and Config
+  const [todosCupones, setTodosCupones] = useState([]);
+  const [nuevoCupon, setNuevoCupon] = useState({ codigo: '', tipo: 'ENVIO_GRATIS', valor: 0, montoMinimo: 0, usuarioId: '', fechaExpiracion: '' });
+  const [costoEnvioNacional, setCostoEnvioNacional] = useState(Number(localStorage.getItem('costo_envio')) || 15000);
+  const [mantenimientoMode, setMantenimientoMode] = useState(localStorage.getItem('mantenimiento_mode') === 'true');
+
   // States for Finanzas and Logística Reports
   const [finanzasData, setFinanzasData] = useState(null);
   const [logisticaData, setLogisticaData] = useState(null);
@@ -230,6 +236,48 @@ export default function Admin() {
     }
   };
 
+  const loadTodosCupones = async () => {
+    try {
+      const res = await api.get('/cupones/todos');
+      setTodosCupones(extractArray(res));
+    } catch (err) {
+      console.error('Error loadTodosCupones:', err);
+    }
+  };
+
+  const handleCrearCupon = async (e) => {
+    e.preventDefault();
+    if (!nuevoCupon.codigo.trim()) return alert('El código de cupón es obligatorio.');
+    try {
+      const payload = {
+        codigo: nuevoCupon.codigo.toUpperCase().trim(),
+        tipo: nuevoCupon.tipo,
+        valor: Number(nuevoCupon.valor) || 0,
+        montoMinimo: Number(nuevoCupon.montoMinimo) || 0,
+        usuarioId: nuevoCupon.usuarioId ? Number(nuevoCupon.usuarioId) : null,
+        usado: false,
+        fechaExpiracion: nuevoCupon.fechaExpiracion ? `${nuevoCupon.fechaExpiracion}T23:59:59` : null
+      };
+      await api.post('/cupones', payload);
+      alert('Cupón creado con éxito.');
+      setNuevoCupon({ codigo: '', tipo: 'ENVIO_GRATIS', valor: 0, montoMinimo: 0, usuarioId: '', fechaExpiracion: '' });
+      loadTodosCupones();
+    } catch (err) {
+      alert('Error al crear cupón: ' + err.message);
+    }
+  };
+
+  const handleEliminarCupon = async (id) => {
+    if (!window.confirm('¿Está seguro de que desea eliminar este cupón?')) return;
+    try {
+      await api.delete(`/cupones/${id}`);
+      alert('Cupón eliminado con éxito.');
+      loadTodosCupones();
+    } catch (err) {
+      alert('Error al eliminar cupón: ' + err.message);
+    }
+  };
+
   const loadFinanzas = async () => {
     setLoadingFinanzas(true);
     setErrorFinanzas('');
@@ -263,6 +311,8 @@ export default function Admin() {
       loadFinanzas();
     } else if (activeSection === 'logistica') {
       loadLogistica();
+    } else if (activeSection === 'cupones') {
+      loadTodosCupones();
     }
   }, [activeSection]);
 
@@ -385,6 +435,14 @@ export default function Admin() {
         <a href="#" className={`sidebar-link${activeSection === 'escrow' ? ' active' : ''}`} id="link-escrow" onClick={(e) => { e.preventDefault(); setActiveSection('escrow'); setSidebarOpen(false); }}>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
           Fideicomiso (Escrow)
+        </a>
+        <a href="#" className={`sidebar-link${activeSection === 'cupones' ? ' active' : ''}`} id="link-cupones" onClick={(e) => { e.preventDefault(); setActiveSection('cupones'); setSidebarOpen(false); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-1.99.9-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2-1.1 0-2-.9-2-2z"/></svg>
+          Cupones Descuento
+        </a>
+        <a href="#" className={`sidebar-link${activeSection === 'configuracion' ? ' active' : ''}`} id="link-configuracion" onClick={(e) => { e.preventDefault(); setActiveSection('configuracion'); setSidebarOpen(false); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          Configuración
         </a>
         <Link to="/perfil" className="sidebar-link" id="link-perfil" onClick={() => setSidebarOpen(false)}>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -914,6 +972,123 @@ export default function Admin() {
                   ) : (
                     <div style={{ padding: '20px', textAlign: 'center' }}>Sin datos disponibles.</div>
                   )}
+                </div>
+              )}
+
+              {/* CUPONES */}
+              {activeSection === 'cupones' && (
+                <div className="section active">
+                  <div className="table-header">
+                    <h3 className="card-title">Gestión de Cupones de Descuento</h3>
+                  </div>
+
+                  <form onSubmit={handleCrearCupon} style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <h4 style={{ margin: 0, color: 'var(--primary-dark)', fontSize: '0.95rem', fontWeight: 'bold' }}>Crear Nuevo Cupón</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }} className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.85rem' }}>Código *</label>
+                        <input className="form-input" style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }} placeholder="DESCUENTO10" value={nuevoCupon.codigo} onChange={(e) => setNuevoCupon({ ...nuevoCupon, codigo: e.target.value })} required />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.85rem' }}>Tipo *</label>
+                        <select className="form-input" style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }} value={nuevoCupon.tipo} onChange={(e) => setNuevoCupon({ ...nuevoCupon, tipo: e.target.value })}>
+                          <option value="ENVIO_GRATIS">Envío Gratis</option>
+                          <option value="PORCENTAJE">Porcentaje de Descuento</option>
+                          <option value="MONTO_FIJO">Monto Fijo</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }} className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.85rem' }}>Valor Descuento / Porcentaje</label>
+                        <input type="number" className="form-input" style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }} value={nuevoCupon.valor} onChange={(e) => setNuevoCupon({ ...nuevoCupon, valor: e.target.value })} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.85rem' }}>Monto Mínimo Compra</label>
+                        <input type="number" className="form-input" style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }} value={nuevoCupon.montoMinimo} onChange={(e) => setNuevoCupon({ ...nuevoCupon, montoMinimo: e.target.value })} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }} className="form-row">
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.85rem' }}>ID Usuario (Opcional, vacío para global)</label>
+                        <input type="text" className="form-input" style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }} placeholder="Opcional" value={nuevoCupon.usuarioId} onChange={(e) => setNuevoCupon({ ...nuevoCupon, usuarioId: e.target.value })} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.85rem' }}>Fecha Expiración (Opcional)</label>
+                        <input type="date" className="form-input" style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }} value={nuevoCupon.fechaExpiracion} onChange={(e) => setNuevoCupon({ ...nuevoCupon, fechaExpiracion: e.target.value })} />
+                      </div>
+                    </div>
+
+                    <button className="btn btn-primary btn-sm" type="submit" style={{ alignSelf: 'flex-start', marginTop: '6px' }}>Crear Cupón</button>
+                  </form>
+
+                  <div className="table-wrap">
+                    <table className="table-responsive">
+                      <thead>
+                        <tr>
+                          <th>Código</th>
+                          <th>Tipo</th>
+                          <th>Valor</th>
+                          <th>Monto Min.</th>
+                          <th>Usuario ID</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {todosCupones.length === 0 ? (
+                          <tr><td colSpan="6" style={{ textAlign: 'center', padding: '16px', color: 'var(--text-muted)' }}>No hay cupones registrados.</td></tr>
+                        ) : (
+                          todosCupones.map((c) => (
+                            <tr key={c.id}>
+                              <td data-label="Código" style={{ fontWeight: 'bold' }}>{c.codigo}</td>
+                              <td data-label="Tipo">{c.tipo}</td>
+                              <td data-label="Valor">{c.tipo === 'PORCENTAJE' ? `${c.valor}%` : `$${Number(c.valor).toLocaleString('es-CO')}`}</td>
+                              <td data-label="Monto Min.">${Number(c.montoMinimo || 0).toLocaleString('es-CO')}</td>
+                              <td data-label="Usuario ID">{c.usuarioId || 'Global'}</td>
+                              <td data-label="Acciones">
+                                <button className="btn btn-danger btn-sm" onClick={() => handleEliminarCupon(c.id)}>Eliminar</button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* CONFIGURACION */}
+              {activeSection === 'configuracion' && (
+                <div className="section active">
+                  <div className="table-header">
+                    <h3 className="card-title">Configuración del Sistema</h3>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* Costo envío */}
+                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                      <h4 style={{ margin: 0, marginBottom: '12px', color: 'var(--primary-dark)', fontSize: '0.95rem', fontWeight: 'bold' }}>Costos de Envío</h4>
+                      <div className="form-group" style={{ maxWidth: '300px' }}>
+                        <label className="form-label" style={{ fontSize: '0.85rem' }}>Costo de Envío Estándar Nacional (COP)</label>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                          <input type="number" className="form-input" value={costoEnvioNacional} onChange={(e) => setCostoEnvioNacional(Number(e.target.value))} />
+                          <button className="btn btn-primary" onClick={() => { localStorage.setItem('costo_envio', costoEnvioNacional); alert('Costo de envío guardado.'); }}>Guardar</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mantenimiento mode */}
+                    <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                      <h4 style={{ margin: 0, marginBottom: '12px', color: 'var(--primary-dark)', fontSize: '0.95rem', fontWeight: 'bold' }}>Modo Mantenimiento</h4>
+                      <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '12px' }}>Activar el modo de mantenimiento bloquea el acceso de clientes a la tienda, permitiendo únicamente el acceso de administradores.</p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <input type="checkbox" checked={mantenimientoMode} onChange={(e) => { setMantenimientoMode(e.target.checked); localStorage.setItem('mantenimiento_mode', e.target.checked); alert(`Modo mantenimiento ${e.target.checked ? 'ACTIVADO' : 'DESACTIVADO'}.`); }} id="chkMantenimiento" style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
+                        <label htmlFor="chkMantenimiento" style={{ fontWeight: 'bold', cursor: 'pointer' }}>Activar Modo Mantenimiento</label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

@@ -85,9 +85,39 @@ export default function InfoLegal() {
           <h1 style={{ color: 'var(--primary-dark)', fontSize: '2.2rem', marginBottom: '10px' }}>{info.title}</h1>
           <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontStyle: 'italic', marginBottom: '30px' }}>{info.sub}</p>
           
+          <div style={{
+            background: '#fcfdfc',
+            border: '1px solid #e2ece2',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '32px',
+          }}>
+            <h4 style={{ color: 'var(--primary-dark)', fontSize: '1rem', marginBottom: '12px', fontWeight: '600' }}>Contenido de esta página:</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {info.sections.map((sec, idx) => (
+                <li key={idx}>
+                  <a 
+                    href={`#section-${idx}`}
+                    style={{
+                      color: '#2d6a4f',
+                      textDecoration: 'none',
+                      fontSize: '0.95rem',
+                      fontWeight: '500',
+                      transition: 'color 0.2s',
+                    }}
+                    onMouseOver={(e) => e.target.style.color = '#52b788'}
+                    onMouseOut={(e) => e.target.style.color = '#2d6a4f'}
+                  >
+                    {sec.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {info.sections.map((sec, idx) => (
-              <div key={idx} style={{ borderBottom: '1px solid #f0f4f0', paddingBottom: '20px' }}>
+              <div key={idx} id={`section-${idx}`} style={{ borderBottom: '1px solid #f0f4f0', paddingBottom: '20px', scrollMarginTop: '100px' }}>
                 <h3 style={{ color: 'var(--primary)', fontSize: '1.2rem', marginBottom: '8px' }}>{sec.title}</h3>
                 <p style={{ color: 'var(--text)', lineHeight: '1.6', fontSize: '0.95rem' }}>{sec.content}</p>
               </div>

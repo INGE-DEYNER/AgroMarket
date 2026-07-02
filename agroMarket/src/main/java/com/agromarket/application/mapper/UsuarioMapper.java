@@ -49,6 +49,11 @@ public interface UsuarioMapper {
                 .fotoUrl(entity.getFotoUrl() != null ? entity.getFotoUrl() : entity.getFoto())
                 .cuponPrimerEnvioUsado(entity.getCuponPrimerEnvioUsado())
                 .divisaPreferida(entity.getDivisaPreferida() != null ? entity.getDivisaPreferida() : "COP")
+                .departamento(entity.getDepartamento())
+                .ciudad(entity.getCiudad())
+                .direccionCompleta(entity.getDireccionCompleta())
+                .referencia(entity.getReferencia())
+                .codigoPostal(entity.getCodigoPostal())
                 .build();
     }
 

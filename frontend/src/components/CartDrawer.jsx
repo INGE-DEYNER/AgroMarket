@@ -7,7 +7,7 @@ import { useCart } from '../hooks/useCart';
 import api from '../utils/api';
 
 export default function CartDrawer({ isOpen, onClose }) {
-  const { user } = useAuth();
+  const { user, formatPrice } = useAuth();
   const { cart, removeFromCart, updateQuantity, total, count, clearCart } = useCart();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -30,24 +30,13 @@ export default function CartDrawer({ isOpen, onClose }) {
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     if (!user) {
-      localStorage.setItem('carrito_pendiente', JSON.stringify(cart));
+      localStorage.setItem('redirect_after_login', '/checkout');
       onClose();
-      navigate('/registro?redirect=/catalogo&accion=checkout');
+      navigate('/login?message=inicia_sesion');
       return;
     }
-    try {
-      // Crear pedidos individuales para cada producto en el carrito
-      const requests = cart.map(item => 
-        api.post('/pedidos', { productoId: item.id, cantidad: item.qty })
-      );
-      await Promise.all(requests);
-      clearCart();
-      onClose();
-      // Redirigir a mis pedidos en el panel para proceder al pago
-      navigate('/pedidos');
-    } catch (err) {
-      alert(t('catalog.alertCheckoutError', 'Error al procesar el pedido: ') + (err.message || t('errors.tryAgain', 'Inténtalo de nuevo.')));
-    }
+    onClose();
+    navigate('/checkout');
   };
 
   return (
@@ -109,23 +98,23 @@ export default function CartDrawer({ isOpen, onClose }) {
                       {isWholesale ? (
                         <>
                           <span className="price-old">
-                            ${Number(item.precio).toLocaleString('es-CO')}/kg
+                            {formatPrice(item.precio)}/kg
                           </span>
                           <span className="price-wholesale">
-                            ${unitPrice.toLocaleString('es-CO')}/kg
+                            {formatPrice(unitPrice)}/kg
                           </span>
                         </>
                       ) : isPromotion ? (
                         <>
                           <span className="price-old">
-                            ${Number(item.precio).toLocaleString('es-CO')}/kg
+                            {formatPrice(item.precio)}/kg
                           </span>
                           <span className="price-promo" style={{ color: '#e53e3e', marginLeft: '6px', fontWeight: 'bold' }}>
-                            ${unitPrice.toLocaleString('es-CO')}/kg
+                            {formatPrice(unitPrice)}/kg
                           </span>
                         </>
                       ) : (
-                        `$${unitPrice.toLocaleString('es-CO')}/kg`
+                        `${formatPrice(unitPrice)}/kg`
                       )}
                     </div>
                     <div className="cart-qty-controls">
@@ -145,15 +134,15 @@ export default function CartDrawer({ isOpen, onClose }) {
           <div className="cart-footer">
             <div className="cart-subtotal-row">
               <span>{t('catalog.subtotal', 'Subtotal')}</span>
-              <span className="cart-footer-price">${total.toLocaleString('es-CO')}</span>
+              <span className="cart-footer-price">{formatPrice(total)}</span>
             </div>
             <div className="cart-subtotal-row">
               <span>{t('catalog.shippingEst', 'Envío estimado')}</span>
-              <span className="cart-footer-price">$15.000</span>
+              <span className="cart-footer-price">{formatPrice(15000)}</span>
             </div>
             <div className="cart-total-row">
               <span>{t('catalog.total', 'TOTAL')}</span>
-              <span className="cart-footer-price-total">${(total + 15000).toLocaleString('es-CO')}</span>
+              <span className="cart-footer-price-total">{formatPrice(total + 15000)}</span>
             </div>
             <button className="btn-checkout" onClick={handleCheckout}>
               {t('catalog.checkoutBtn', 'Proceder al pago →')}

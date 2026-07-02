@@ -76,45 +76,15 @@ export default function ChatbotSoporte() {
     setInputText('');
     setLoading(true);
 
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('TIMEOUT')), 10000)
+    );
+
     try {
-      const historial = messages.slice(1).map(m => ({
-        role: m.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: m.text }]
-      }));
-
-      const storedKey = localStorage.getItem('user_gemini_key');
-      const key = storedKey || import.meta.env.VITE_GEMINI_API_KEY || 'AQ.Ab8RN6IVWMS9H_ebCunvHsTXvVSK4F7cZK7O6TSzpjmHtmJs2A';
-
-      // Call Gemini API directly from client side
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [{ text: "Eres el asistente virtual de AgroMarket, la plataforma de ASAFRUT que conecta productores de frutas tropicales de Urabá, Antioquia, directamente con compradores. Ayudas con información sobre productos, pedidos, pagos y envíos. Responde siempre en español, de forma amable y concisa (máximo 3 párrafos)." }]
-            },
-            contents: [
-              ...historial,
-              { role: 'user', parts: [{ text: text }] }
-            ],
-            generationConfig: {
-              maxOutputTokens: 500,
-              temperature: 0.7
-            }
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-
-      const data = await response.json();
-      const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Lo siento, no pude procesar tu solicitud.';
+      const requestPromise = api.post('/public/chatbot', { mensaje: text });
+      const res = await Promise.race([requestPromise, timeoutPromise]);
+      const data = res.data || res;
+      const answer = data.respuesta || 'Lo siento, no pude procesar tu solicitud.';
 
       const botMsg = {
         id: Date.now() + 1,
@@ -550,7 +520,7 @@ export default function ChatbotSoporte() {
           <input
             type="text"
             className="chatbot-input"
-            placeholder="Escribe un mensaje..."
+            placeholder="Pregunta sobre pedidos, productos, envíos..."
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => {

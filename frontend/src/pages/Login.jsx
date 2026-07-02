@@ -20,6 +20,12 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const redirectByRole = (role) => {
+    const pendingRedirect = localStorage.getItem('redirect_after_login');
+    if (pendingRedirect) {
+      localStorage.removeItem('redirect_after_login');
+      navigate(pendingRedirect);
+      return;
+    }
     const r = role?.toLowerCase();
     if (r === 'productor') navigate('/dashboard-productor');
     else if (r === 'admin' || r === 'administrador') navigate('/admin');
@@ -34,6 +40,9 @@ export default function Login() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    if (params.get('message') === 'inicia_sesion') {
+      setGlobalError('Inicia sesión para completar tu compra de forma segura.');
+    }
     if (params.get('oauth2') === 'success') {
       (async () => {
         try {

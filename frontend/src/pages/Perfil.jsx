@@ -16,7 +16,7 @@ const CURRENCIES = [
 ];
 
 export default function Perfil() {
-  const { user, setUser, logout, refetchUser } = useAuth();
+  const { user, setUser, logout, refetchUser, setDivisaActual } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [params, setParams] = useSecureParams();
@@ -36,6 +36,13 @@ export default function Perfil() {
   const [nombreEmpresa, setNombreEmpresa] = useState(user?.nombreEmpresa || '');
   const [nit, setNit] = useState(user?.nit || '');
   const [cuentaBancaria, setCuentaBancaria] = useState(user?.cuentaBancaria || '');
+  
+  // Shipping Address Form
+  const [departamento, setDepartamento] = useState(user?.departamento || '');
+  const [ciudad, setCiudad] = useState(user?.ciudad || '');
+  const [direccionCompleta, setDireccionCompleta] = useState(user?.direccionCompleta || '');
+  const [referencia, setReferencia] = useState(user?.referencia || '');
+  const [codigoPostal, setCodigoPostal] = useState(user?.codigoPostal || '');
   
   // Security Form
   const [contrasenaActual, setContrasenaActual] = useState('');
@@ -71,13 +78,26 @@ export default function Perfil() {
     if (user) {
       setNombre(user.nombre || '');
       setApellido(user.apellido || '');
-      setTelefono(user.telefono || '');
-      setCodigoPais(user.codigoPais || '+57');
+      
+      // Parse phone prefix out for display
+      let rawPhone = user.telefono || '';
+      const prefix = user.codigoPais || '+57';
+      if (rawPhone.startsWith(prefix)) {
+        rawPhone = rawPhone.substring(prefix.length);
+      }
+      setTelefono(rawPhone);
+      
+      setCodigoPais(prefix);
       setUbicacion(user.ubicacion || '');
       setNombreEmpresa(user.nombreEmpresa || '');
       setNit(user.nit || '');
       setCuentaBancaria(user.cuentaBancaria || '');
       setDivisaPreferida(user.divisaPreferida || 'COP');
+      setDepartamento(user.departamento || '');
+      setCiudad(user.ciudad || '');
+      setDireccionCompleta(user.direccionCompleta || '');
+      setReferencia(user.referencia || '');
+      setCodigoPostal(user.codigoPostal || '');
     }
   }, [user]);
 
@@ -121,8 +141,13 @@ export default function Perfil() {
       const payload = {
         nombre: nombre.trim(),
         apellido: apellido.trim(),
-        telefono: telefono.trim(),
+        telefono: codigoPais + telefono.trim(),
         codigoPais,
+        departamento: departamento.trim(),
+        ciudad: ciudad.trim(),
+        direccionCompleta: direccionCompleta.trim(),
+        referencia: referencia.trim(),
+        codigoPostal: codigoPostal.trim(),
         ubicacion: user?.role === 'productor' ? ubicacion.trim() : undefined,
         nombreEmpresa: user?.esEmpresa || user?.role === 'comprador_empresa' ? nombreEmpresa.trim() : undefined,
         nit: user?.esEmpresa || user?.role === 'comprador_empresa' ? nit.trim() : undefined,
@@ -272,6 +297,7 @@ export default function Perfil() {
         ...user,
         divisaPreferida: updatedUser.divisaPreferida || divisaPreferida,
       });
+      setDivisaActual(updatedUser.divisaPreferida || divisaPreferida);
       setPrefMsg({ type: 'success', text: 'Preferencias actualizadas correctamente.' });
       refetchUser();
     } catch (err) {
@@ -436,7 +462,38 @@ export default function Perfil() {
                     </div>
                   )}
 
-                  <button className="btn btn-primary" type="submit" disabled={loading} style={{ alignSelf: 'flex-start', marginTop: '16px' }}>
+                  {/* Dirección de Envío para Compradores y Empresas */}
+                  {user?.role !== 'productor' && (
+                    <div style={{ background: '#fcfdfc', border: '1px solid #eef2ee', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
+                      <h4 style={{ color: '#1b4332', marginBottom: '16px', fontWeight: 'bold' }}>Dirección de Envío</h4>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label className="form-label">Departamento</label>
+                          <input className="form-input" value={departamento} onChange={(e) => setDepartamento(e.target.value)} placeholder="Ej. Antioquia" />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Ciudad</label>
+                          <input className="form-input" value={ciudad} onChange={(e) => setCiudad(e.target.value)} placeholder="Ej. Medellín" />
+                        </div>
+                      </div>
+                      <div className="form-group" style={{ marginTop: '16px' }}>
+                        <label className="form-label">Dirección Completa</label>
+                        <input className="form-input" value={direccionCompleta} onChange={(e) => setDireccionCompleta(e.target.value)} placeholder="Ej. Calle 10 # 5-20, Apto 301" />
+                      </div>
+                      <div className="form-row" style={{ marginTop: '16px' }}>
+                        <div className="form-group">
+                          <label className="form-label">Puntos de Referencia</label>
+                          <input className="form-input" value={referencia} onChange={(e) => setReferencia(e.target.value)} placeholder="Ej. Junto a la panadería" />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Código Postal</label>
+                          <input className="form-input" value={codigoPostal} onChange={(e) => setCodigoPostal(e.target.value)} placeholder="Ej. 05001" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <button className="btn btn-primary" type="submit" disabled={loading} style={{ alignSelf: 'flex-start', marginTop: '24px' }}>
                     {loading ? 'Guardando...' : 'Guardar Cambios'}
                   </button>
                 </form>

@@ -29,6 +29,11 @@ const Perfil = lazy(() => import('./pages/Perfil'));
 const PagoPasarela = lazy(() => import('./pages/PagoPasarela'));
 const Productores = lazy(() => import('./pages/Productores'));
 const InfoLegal = lazy(() => import('./pages/InfoLegal'));
+const ComoFunciona = lazy(() => import('./pages/ComoFunciona'));
+const SobreAsafrut = lazy(() => import('./pages/SobreAsafrut'));
+const Ayuda = lazy(() => import('./pages/Ayuda'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Checkout = lazy(() => import('./pages/Checkout'));
 
 function App(): JSX.Element {
   return (
@@ -55,6 +60,9 @@ function App(): JSX.Element {
                     <Route path="/terminos" element={<InfoLegal />} />
                     <Route path="/privacidad" element={<InfoLegal />} />
                     <Route path="/cookies" element={<InfoLegal />} />
+                    <Route path="/como-funciona" element={<ComoFunciona />} />
+                    <Route path="/sobre-asafrut" element={<SobreAsafrut />} />
+                    <Route path="/ayuda" element={<Ayuda />} />
 
                     {/* Protegidas Generales */}
                     <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
@@ -62,6 +70,7 @@ function App(): JSX.Element {
                     <Route path="/envios" element={<ProtectedRoute><Envios /></ProtectedRoute>} />
                     <Route path="/mensajeria" element={<ProtectedRoute><Mensajeria /></ProtectedRoute>} />
                     <Route path="/resenas" element={<ProtectedRoute><Resenas /></ProtectedRoute>} />
+                    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
 
                     {/* Dashboards por Rol */}
                     <Route
@@ -90,7 +99,7 @@ function App(): JSX.Element {
                     />
 
                     {/* 404 */}
-                    <Route path="*" element={<Navigate to="/home" replace />} />
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
               </main>

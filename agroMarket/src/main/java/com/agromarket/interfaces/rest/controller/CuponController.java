@@ -19,6 +19,7 @@ import java.util.Map;
 public class CuponController {
 
     private final CuponDescuentoService cuponService;
+    private final com.agromarket.infrastructure.persistence.repository.CuponDescuentoRepository cuponRepository;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -29,6 +30,40 @@ public class CuponController {
                 .success(true)
                 .message("Cupones recuperados")
                 .data(cupones)
+                .build());
+    }
+
+    @GetMapping("/todos")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<List<com.agromarket.infrastructure.persistence.entity.CuponDescuento>>> listarTodos() {
+        return ResponseEntity.ok(ApiResponse.<List<com.agromarket.infrastructure.persistence.entity.CuponDescuento>>builder()
+                .success(true)
+                .message("Todos los cupones recuperados")
+                .data(cuponRepository.findAll())
+                .build());
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<com.agromarket.infrastructure.persistence.entity.CuponDescuento>> crear(
+            @RequestBody com.agromarket.infrastructure.persistence.entity.CuponDescuento cupon) {
+        if (cupon.getFechaExpiracion() == null) {
+            cupon.setFechaExpiracion(java.time.LocalDateTime.now().plusDays(30));
+        }
+        return ResponseEntity.ok(ApiResponse.<com.agromarket.infrastructure.persistence.entity.CuponDescuento>builder()
+                .success(true)
+                .message("Cupón creado exitosamente")
+                .data(cuponRepository.save(cupon))
+                .build());
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id) {
+        cuponRepository.deleteById(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Cupón eliminado exitosamente")
                 .build());
     }
 

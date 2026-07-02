@@ -13,12 +13,14 @@ export default function Navbar() {
   const { t } = useTranslation();
   const [busqueda, setBusqueda] = useState('');
   const [menuUsuario, setMenuUsuario] = useState(false);
+  const [menuCategorias, setMenuCategorias] = useState(false);
   const [menuMovil, setMenuMovil] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [animateBadge, setAnimateBadge] = useState(false);
   const navigate = useNavigate();
   const searchTimeoutRef = useRef(null);
   const userMenuRef = useRef(null);
+  const categoriesMenuRef = useRef(null);
   const prevItemsRef = useRef(totalItems);
 
   // Glassmorphism on scroll
@@ -44,10 +46,13 @@ export default function Navbar() {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setMenuUsuario(false);
       }
+      if (categoriesMenuRef.current && !categoriesMenuRef.current.contains(e.target)) {
+        setMenuCategorias(false);
+      }
     };
-    if (menuUsuario) document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [menuUsuario]);
+  }, []);
 
   const handleBusqueda = (e) => {
     e.preventDefault();
@@ -223,16 +228,77 @@ export default function Navbar() {
       {/* Barra de categorías (desktop) */}
       <nav className="navbar-categories" aria-label="Categorías">
         <div className="nav-cats-inner">
-          <Link to="/catalogo" style={{ fontWeight: 'bold' }}>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ marginRight: '4px' }}>
-              <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-            </svg>
-            Categorías
-          </Link>
+          <div style={{ position: 'relative' }} ref={categoriesMenuRef}>
+            <button 
+              onClick={() => setMenuCategorias(!menuCategorias)}
+              className="nav-cats-btn"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+                padding: '4px 8px',
+                fontSize: 'inherit'
+              }}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ marginRight: '4px' }}>
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+              </svg>
+              Categorías
+            </button>
+            {menuCategorias && (
+              <div className="categories-dropdown" style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                backgroundColor: 'white',
+                minWidth: '180px',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                borderRadius: '8px',
+                zIndex: 1000,
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '8px 0',
+                border: '1px solid #e5e7eb',
+                marginTop: '4px'
+              }}>
+                <style>{`
+                  .category-item-link:hover {
+                    background-color: #f3f4f6;
+                    color: #385723 !important;
+                  }
+                `}</style>
+                {[
+                  'Banano', 'Mango', 'Piña', 'Maracuyá', 'Guanábana', 
+                  'Naranja', 'Coco', 'Limón', 'Otro'
+                ].map((cat) => (
+                  <Link 
+                    key={cat} 
+                    to={`/catalogo?categoria=${encodeURIComponent(cat)}`}
+                    onClick={() => setMenuCategorias(false)}
+                    style={{
+                      padding: '8px 16px',
+                      color: '#374151',
+                      textDecoration: 'none',
+                      fontSize: '0.9rem',
+                      display: 'block',
+                      transition: 'background-color 0.2s'
+                    }}
+                    className="category-item-link"
+                  >
+                    {cat}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
           <Link to="/catalogo?sort=masVendidos">{t('nav.trending', 'Más vendidos')}</Link>
           <Link to="/catalogo?enPromocion=true">{t('nav.deals', 'Ofertas')}</Link>
           <Link to="/productores">{t('nav.producers', 'Productores')}</Link>
-          <Link to="/home#como-funciona">{t('nav.howItWorks', 'Cómo funciona')}</Link>
+          <Link to="/como-funciona">{t('nav.howItWorks', 'Cómo funciona')}</Link>
           {user?.role?.toLowerCase() === 'admin' && <Link to="/admin">{t('nav.admin', 'Admin')}</Link>}
         </div>
       </nav>

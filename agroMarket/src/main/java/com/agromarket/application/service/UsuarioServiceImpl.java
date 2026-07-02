@@ -62,6 +62,11 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuario.setFoto(request.getFotoUrl().trim());
         }
         if (request.getDivisaPreferida() != null) usuario.setDivisaPreferida(request.getDivisaPreferida().trim());
+        if (request.getDepartamento() != null) usuario.setDepartamento(request.getDepartamento().trim());
+        if (request.getCiudad() != null) usuario.setCiudad(request.getCiudad().trim());
+        if (request.getDireccionCompleta() != null) usuario.setDireccionCompleta(request.getDireccionCompleta().trim());
+        if (request.getReferencia() != null) usuario.setReferencia(request.getReferencia().trim());
+        if (request.getCodigoPostal() != null) usuario.setCodigoPostal(request.getCodigoPostal().trim());
 
         boolean complete = usuario.getCedula() != null && !usuario.getCedula().isBlank() && usuario.getFechaNacimiento() != null;
         usuario.setCuentaCompleta(complete);

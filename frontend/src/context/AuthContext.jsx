@@ -104,6 +104,27 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const [divisaActual, setDivisaActual] = useState('COP');
+
+  useEffect(() => {
+    if (user && user.divisaPreferida) {
+      setDivisaActual(user.divisaPreferida);
+    } else {
+      setDivisaActual('COP');
+    }
+  }, [user]);
+
+  const formatPrice = (copPrice) => {
+    const val = Number(copPrice) || 0;
+    if (divisaActual === 'USD') {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val / 4000);
+    }
+    if (divisaActual === 'EUR') {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(val / 4300);
+    }
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(val);
+  };
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -116,7 +137,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, setUser, refetchUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, setUser, refetchUser, divisaActual, setDivisaActual, formatPrice }}>
       {children}
     </AuthContext.Provider>
   );

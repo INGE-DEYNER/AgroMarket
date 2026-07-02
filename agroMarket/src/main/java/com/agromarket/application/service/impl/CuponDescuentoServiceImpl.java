@@ -78,6 +78,6 @@ public class CuponDescuentoServiceImpl implements CuponDescuentoService {
     @Override
     @Transactional(readOnly = true)
     public List<CuponDescuento> obtenerCuponesUsuario(Long usuarioId) {
-        return repository.findByUsuarioId(usuarioId);
+        return repository.findByUsuarioIdOrUsuarioIdIsNull(usuarioId);
     }
 }

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 // Función para abrir el chatbot de soporte flotante
 function openChatbot() {
@@ -10,6 +11,7 @@ function openChatbot() {
 
 export default function Footer() {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <footer className="footer-pro">
@@ -51,8 +53,8 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Plataforma</h4>
           <Link to="/catalogo">Catálogo de productos</Link>
-          <Link to="/home#como-funciona">Cómo funciona</Link>
-          <Link to="/home#asafrut">Sobre ASAFRUT</Link>
+          <Link to="/como-funciona">Cómo funciona</Link>
+          <Link to="/sobre-asafrut">Sobre ASAFRUT</Link>
           <Link to="/productores">Nuestros productores</Link>
           <Link to="/home#testimonios">Testimonios</Link>
         </div>
@@ -63,28 +65,12 @@ export default function Footer() {
           <Link to="/registro">Registrarse gratis</Link>
           <Link to="/registro?rol=PRODUCTOR">Soy productor</Link>
           <Link to="/registro?rol=EMPRESA">Soy empresa / frutería</Link>
-          <Link to="/admin">Panel administrador</Link>
+          {user?.role === 'admin' && <Link to="/admin">Panel administrador</Link>}
         </div>
 
         <div className="footer-col">
           <h4>Soporte</h4>
-          {/* Centro de ayuda: abre el chatbot de IA */}
-          <button
-            type="button"
-            onClick={openChatbot}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-              color: "inherit",
-              textDecoration: "none",
-              fontSize: "inherit",
-              textAlign: "left",
-            }}
-          >
-            Centro de ayuda
-          </button>
+          <Link to="/ayuda">Centro de ayuda</Link>
           {/* Reportar problema: abre el chatbot para reportar */}
           <button
             type="button"

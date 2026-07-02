@@ -23,4 +23,9 @@ public class ActualizarUsuarioRequest {
     private String nit;
     private String fotoUrl;
     private String divisaPreferida;
+    private String departamento;
+    private String ciudad;
+    private String direccionCompleta;
+    private String referencia;
+    private String codigoPostal;
 }
