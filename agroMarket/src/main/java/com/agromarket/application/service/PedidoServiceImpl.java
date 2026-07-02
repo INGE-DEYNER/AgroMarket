@@ -103,12 +103,17 @@ public class PedidoServiceImpl implements PedidoService {
         if (pedido.getEstado() == EstadoPedido.PENDIENTE) {
             pedido.setEstado(EstadoPedido.ENVIADO);
             if (envioJpaRepository.findByPedidoId(pedidoId).isEmpty()) {
+                String destino = pedido.getComprador() != null ? pedido.getComprador().getUbicacion() : "Medellín, Antioquia";
+                if (destino == null || destino.isBlank()) {
+                    destino = "Medellín, Antioquia";
+                }
+                int dias = calcularDiasEntregaSimple("Chigorodó, Antioquia", destino);
                 EnvioEntity envio = EnvioEntity.builder()
                         .pedido(pedido)
-                        .direccionDestino("Por definir")
+                        .direccionDestino(destino)
                         .estado(EstadoEnvio.PREPARANDO)
                         .origen("Chigorodó, Antioquia")
-                        .fechaEstimadaEntrega(LocalDate.now().plusDays(2))
+                        .fechaEstimadaEntrega(LocalDate.now().plusDays(dias))
                         .build();
                 envioJpaRepository.save(envio);
             }
@@ -176,5 +181,31 @@ public class PedidoServiceImpl implements PedidoService {
     private PedidoEntity obtenerPedido(Long id) {
         return pedidoJpaRepository.findById(Objects.requireNonNull(id, "id"))
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pedido no encontrado"));
+    }
+
+    private int calcularDiasEntregaSimple(String ciudadOrigen, String ciudadDestino) {
+        if (ciudadOrigen == null || ciudadDestino == null) {
+            return 3;
+        }
+        String orig = ciudadOrigen.toLowerCase().trim();
+        String dest = ciudadDestino.toLowerCase().trim();
+        if (orig.equals(dest)) {
+            return 1;
+        }
+        boolean origAntioquia = orig.contains("antioquia") || orig.contains("chigorodó") || orig.contains("apartadó") || orig.contains("turbo") || orig.contains("carepa");
+        boolean destAntioquia = dest.contains("antioquia") || dest.contains("medellín") || dest.contains("envigado") || dest.contains("sabaneta") || dest.contains("bello") || dest.contains("rionegro");
+        
+        if (origAntioquia && destAntioquia) {
+            return 2;
+        }
+        boolean destCaribe = dest.contains("cartagena") || dest.contains("barranquilla") || dest.contains("santa marta") || dest.contains("montería") || dest.contains("sincelejo") || dest.contains("bolívar") || dest.contains("atlántico") || dest.contains("magdalena") || dest.contains("córdoba") || dest.contains("sucre");
+        if (destCaribe) {
+            return 2;
+        }
+        boolean destCercano = dest.contains("bogotá") || dest.contains("cali") || dest.contains("valle del cauca") || dest.contains("cundinamarca");
+        if (destCercano) {
+            return 3;
+        }
+        return 4;
     }
 }

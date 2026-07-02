@@ -82,6 +82,7 @@ export default function DashboardComprador() {
   // Shipments state
   const [shipments, setShipments] = useState([]);
   const [historialEnvios, setHistorialEnvios] = useState([]);
+  const [expandedShipmentId, setExpandedShipmentId] = useState(null);
 
   // Chat/Mensajeria state
   const [contactos, setContactos] = useState([]);
@@ -345,6 +346,24 @@ export default function DashboardComprador() {
       setComentario('');
     } catch (err) {
       alert(t('resenas.errorPublish', 'Error al publicar reseña: ') + (err.message || 'Inténtalo de nuevo.'));
+    }
+  };
+
+  const contactProductor = async (productorNombre) => {
+    if (!productorNombre) return;
+    setActiveSection('mensajeria');
+    try {
+      const data = await api.get('/mensajes/contactos');
+      const list = extractArray(data);
+      setContactos(list);
+      const found = list.find(c => c.nombre?.toLowerCase().includes(productorNombre.toLowerCase()));
+      if (found) {
+        selectContact(found);
+      } else {
+        alert(`No se pudo abrir chat directo con ${productorNombre}, pero puedes iniciar uno en la lista.`);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -895,23 +914,149 @@ export default function DashboardComprador() {
                   <div style={{ marginTop: '8px' }}>{t('envios.noActive', 'No hay envíos activos en este momento.')}</div>
                 </div>
               ) : (
-                shipments.map((s) => (
-                  <div key={s.id} className="shipment-card" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px', padding: '24px', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                      <div>
-                        <div style={{ fontWeight: '700', fontSize: '1.05rem' }}>{s.producto || 'Producto ASAFRUT'}</div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                           {s.origen || 'Chigorodó'} → {s.direccionDestino || 'Destino'} · {s.transportista || 'Pendiente'}
+                shipments.map((s) => {
+                  const isExpanded = expandedShipmentId === s.id;
+                  
+                  // Map state to active step (0-4)
+                  const getActiveStep = (estado) => {
+                    const est = estado?.toUpperCase();
+                    if (est === 'ENTREGADO' || est === 'DELIVERED') return 4;
+                    if (est === 'EN_REPARTO') return 3;
+                    if (est === 'EN_CAMINO' || est === 'EN_TRANSITO' || est === 'EN TRÁNSITO') return 2;
+                    if (est === 'PREPARANDO') return 1;
+                    return 0; // PEDIDO_CONFIRMADO
+                  };
+                  
+                  const activeStep = getActiveStep(s.estado);
+                  const progressPct = (activeStep + 1) * 20;
+
+                  const steps = [
+                    { label: 'Pago Confirmado', desc: 'Pago procesado y verificado.' },
+                    { label: 'Preparando Envío', desc: 'El productor está alistando los productos frescamente.' },
+                    { label: 'En Camino', desc: 'El paquete está en tránsito con la transportadora.' },
+                    { label: 'En Reparto', desc: 'El transportista está en ruta a tu ubicación de entrega.' },
+                    { label: 'Entregado', desc: 'El pedido ha sido entregado en la dirección indicada.' }
+                  ];
+
+                  const matchOrder = pedidos.find(p => p.id === s.pedidoId);
+                  const productorNombre = matchOrder ? matchOrder.productorNombre || matchOrder.productor : null;
+
+                  return (
+                    <div key={s.id} className="shipment-card" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-light)', borderRadius: '12px', padding: '24px', marginBottom: '20px', transition: 'all 0.3s ease' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                        <div>
+                          <div style={{ fontWeight: '700', fontSize: '1.05rem', color: 'var(--text-dark)' }}>{s.producto || 'Producto ASAFRUT'}</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            {s.origen || 'Chigorodó, Antioquia'} &rarr; {s.direccionDestino || 'Destino'}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <span className="badge-status status-shipped" style={{ textTransform: 'capitalize' }}>
+                            {t('pedidos.status.' + s.estado?.toLowerCase(), s.estado)}
+                          </span>
+                          <button 
+                            className="btn btn-secondary btn-sm" 
+                            onClick={() => setExpandedShipmentId(isExpanded ? null : s.id)}
+                          >
+                            {isExpanded ? 'Ocultar' : 'Rastrear'}
+                          </button>
                         </div>
                       </div>
-                      <span className="badge-status status-shipped">{t('pedidos.status.' + s.estado?.toLowerCase(), s.estado)}</span>
+
+                      <div style={{ background: 'var(--border-light)', borderRadius: '4px', height: '8px', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setExpandedShipmentId(isExpanded ? null : s.id)}>
+                        <div style={{ height: '100%', width: `${progressPct}%`, background: progressColor(s.estado), borderRadius: '4px', transition: 'width 0.5s ease' }}></div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                        <span>Guía: {s.guia || 'No asignada'}</span>
+                        <span>Transportista: {s.transportista || 'Por asignar'}</span>
+                      </div>
+
+                      {isExpanded && (
+                        <div style={{ marginTop: '24px', borderTop: '1px solid var(--border-light)', paddingTop: '20px', animation: 'fadeIn 0.4s ease' }}>
+                          <h4 style={{ fontSize: '0.95rem', fontWeight: 'bold', marginBottom: '16px', color: 'var(--text-dark)' }}>Detalles de Trazabilidad</h4>
+                          
+                          {/* ESTIMATED DATE */}
+                          {s.fechaEstimadaEntrega && (
+                            <div style={{ background: 'var(--color-surface-2)', color: 'var(--color-primary-dark)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '600', marginBottom: '20px', border: '1px solid var(--color-border)' }}>
+                              📅 Fecha estimada de entrega: {new Date(s.fechaEstimadaEntrega + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            </div>
+                          )}
+
+                          {/* ROUTE ILLUSTRATION */}
+                          <div style={{ position: 'relative', height: '54px', background: '#f8fafc', borderRadius: '10px', margin: '20px 0', overflow: 'hidden', display: 'flex', alignItems: 'center', padding: '0 20px', border: '1px solid #cbd5e1' }}>
+                            <div style={{ position: 'absolute', left: '16px', fontSize: '0.75rem', fontWeight: 'bold', color: '#475569' }}>📍 Chigorodó</div>
+                            <div style={{ position: 'absolute', right: '16px', fontSize: '0.75rem', fontWeight: 'bold', color: '#475569', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>🏡 {s.direccionDestino || 'Destino'}</div>
+                            {/* Moving Truck Emoji */}
+                            <div style={{ 
+                              position: 'absolute', 
+                              left: `${20 + (activeStep * 15)}%`, // Move truck based on step
+                              transition: 'left 1s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                              fontSize: '1.6rem',
+                              zIndex: 10
+                            }}>
+                              🚚
+                            </div>
+                            {/* Visual Dashed Route Line */}
+                            <div style={{ position: 'absolute', left: '10%', right: '10%', borderBottom: '2px dashed #cbd5e1', zIndex: 1 }}></div>
+                          </div>
+
+                          {/* VERTICAL TIMELINE */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingLeft: '8px', position: 'relative' }}>
+                            {/* Vertical Line Connector */}
+                            <div style={{ position: 'absolute', left: '18px', top: '10px', bottom: '10px', width: '2px', background: '#e2e8f0' }}></div>
+                            
+                            {steps.map((step, idx) => {
+                              const isCompleted = idx <= activeStep;
+                              const isActive = idx === activeStep;
+                              return (
+                                <div key={idx} style={{ display: 'flex', gap: '16px', position: 'relative', zIndex: 2 }}>
+                                  <div style={{ 
+                                    width: '22px', 
+                                    height: '22px', 
+                                    borderRadius: '50%', 
+                                    background: isCompleted ? '#2d6a4f' : '#cbd5e1', 
+                                    color: '#fff', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center', 
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold',
+                                    border: isActive ? '4px solid #b7e4c7' : 'none',
+                                    boxSizing: 'content-box'
+                                  }}>
+                                    {isCompleted ? '✓' : idx + 1}
+                                  </div>
+                                  <div>
+                                    <h5 style={{ fontSize: '0.88rem', fontWeight: isActive ? '700' : '600', color: isActive ? '#2d6a4f' : '#1e293b', margin: 0 }}>
+                                      {step.label}
+                                    </h5>
+                                    <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '4px 0 0 0' }}>{step.desc}</p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* CONTACT PRODUCER BUTTON */}
+                          {productorNombre && (
+                            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+                              <button 
+                                className="btn btn-primary" 
+                                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                                onClick={() => contactProductor(productorNombre)}
+                              >
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                  <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                                </svg>
+                                Contactar Productor ({productorNombre})
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ background: 'var(--border-light)', borderRadius: '4px', height: '8px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${s.progreso || (s.estado === 'EN_CAMINO' || s.estado === 'En tránsito' ? 50 : s.estado === 'ENTREGADO' || s.estado === 'Entregado' ? 100 : 10)}%`, background: progressColor(s.estado), borderRadius: '4px', transition: 'width 0.5s ease' }}></div>
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>Guía: {s.guia || 'No asignada'}</div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 

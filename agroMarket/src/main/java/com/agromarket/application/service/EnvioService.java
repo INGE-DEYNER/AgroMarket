@@ -13,4 +13,6 @@ public interface EnvioService {
     List<EnvioResponse> getMisDespachos(Long productorId);
 
     EnvioResponse actualizar(Long id, ActualizarEnvioRequest request, Long productorId);
+
+    int calcularDiasEntrega(String ciudadOrigen, String ciudadDestino);
 }
