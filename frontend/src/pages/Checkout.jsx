@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../hooks/useCart';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 export default function Checkout() {
   const { user, formatPrice, refetchUser } = useAuth();
@@ -239,7 +238,6 @@ export default function Checkout() {
             </button>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -619,8 +617,6 @@ export default function Checkout() {
         </div>
 
       </div>
-
-      <Footer />
 
       {/* Styled Components for Checkout */}
       <style>{`

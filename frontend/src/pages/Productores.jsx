@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import api from '../utils/api';
 
 export default function Productores() {
@@ -172,7 +171,6 @@ export default function Productores() {
           100% { background-position: 200% 0; }
         }
       `}</style>
-      <Footer />
     </div>
   );
 }

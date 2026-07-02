@@ -1,7 +1,6 @@
 // src/pages/Ayuda.jsx
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 export default function Ayuda() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -254,8 +253,6 @@ export default function Ayuda() {
         </div>
 
       </div>
-
-      <Footer />
     </div>
   );
 }

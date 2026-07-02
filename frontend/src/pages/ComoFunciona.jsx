@@ -1,7 +1,6 @@
 // src/pages/ComoFunciona.jsx
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 export default function ComoFunciona() {
   const steps = [
@@ -207,8 +206,6 @@ export default function ComoFunciona() {
           Ver Catálogo de Frutas
         </Link>
       </div>
-
-      <Footer />
       
       {/* Styles for animation and responsive */}
       <style>{`

@@ -1,7 +1,6 @@
 // src/pages/SobreAsafrut.jsx
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import api from '../utils/api';
 
 export default function SobreAsafrut() {
@@ -147,8 +146,6 @@ export default function SobreAsafrut() {
         </div>
 
       </div>
-
-      <Footer />
       
       {/* Styles for hover effect and responsive grid */}
       <style>{`

@@ -1,6 +1,5 @@
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 export default function InfoLegal() {
   const location = useLocation();
@@ -125,7 +124,6 @@ export default function InfoLegal() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
