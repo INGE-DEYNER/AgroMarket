@@ -400,41 +400,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS (siempre renderizado con reseñas reales o mock fallbacks) ── */}
-      <section className="testimonials" id="testimonios">
-        <div className="test-header animate-fade-up">
-          <div className="section-eyebrow">{t('home.testimonials.eyebrow', 'TESTIMONIOS')}</div>
-          <h2 className="section-title">{t('home.testimonials.title', 'Lo que dicen nuestros usuarios')}</h2>
-        </div>
-        <div className="test-grid">
-          {(resenas.length > 0 ? resenas : [
-            { id: 'm1', compradorNombre: 'María Camila Restrepo', calificacion: 5, comentario: 'Excelente calidad de las piñas manzana. Llegaron muy frescas y en el tiempo estimado. Volveré a comprar definitivamente.', productoNombre: 'Piña Manzana' },
-            { id: 'm2', compradorNombre: 'Carlos Arturo Gómez', calificacion: 5, comentario: 'Como dueño de frutería, comprar directo a los productores de ASAFRUT me ha ayudado a mejorar mis márgenes y ofrecer mejor calidad.', productoNombre: 'Banano Urabá' },
-            { id: 'm3', compradorNombre: 'Diana Marcela Hoyos', calificacion: 5, comentario: 'El proceso de pago con PSE fue súper rápido y el seguimiento de envío por transportadora fue impecable. Muy recomendado.', productoNombre: 'Mango Tommy' }
-          ]).slice(0, 3).map((r, i) => {
-            const nombre = r.compradorNombre || r.nombre || t('home.testimonials.verified', 'Usuario verificado');
-            const avatar = nombre.substring(0, 2).toUpperCase();
-            return (
-              <div key={r.id || i} className="test-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
-                <div className="test-quote-mark">"</div>
-                <div className="test-stars">{'★'.repeat(Math.min(r.calificacion || 5, 5))}</div>
-                <div className="test-content">{r.comentario}</div>
-                <div className="test-author">
-                  <div className="test-avatar">{avatar}</div>
-                  <div>
-                    <div className="test-name">{nombre}</div>
-                    <div className="test-role">
-                      {r.productoNombre
-                        ? `${t('home.testimonials.buyer', 'Comprador')} · ${r.productoNombre}`
-                        : t('home.testimonials.buyer', 'Comprador · AgroMarket')}
+      {/* ── TESTIMONIALS (solo si hay reseñas reales) ─────────── */}
+      {!loadingResenas && resenas.length > 0 && (
+        <section className="testimonials" id="testimonios">
+          <div className="test-header animate-fade-up">
+            <div className="section-eyebrow">{t('home.testimonials.eyebrow', 'TESTIMONIOS')}</div>
+            <h2 className="section-title">{t('home.testimonials.title', 'Lo que dicen nuestros usuarios')}</h2>
+          </div>
+          <div className="test-grid">
+            {resenas.slice(0, 3).map((r, i) => {
+              const nombre = r.compradorNombre || r.nombre || t('home.testimonials.verified', 'Usuario verificado');
+              const avatar = nombre.substring(0, 2).toUpperCase();
+              return (
+                <div key={r.id || i} className="test-card animate-fade-up" style={{ transitionDelay: `${0.1 * (i + 1)}s` }}>
+                  <div className="test-quote-mark">"</div>
+                  <div className="test-stars">{'★'.repeat(Math.min(r.calificacion || 5, 5))}</div>
+                  <div className="test-content">{r.comentario}</div>
+                  <div className="test-author">
+                    <div className="test-avatar">{avatar}</div>
+                    <div>
+                      <div className="test-name">{nombre}</div>
+                      <div className="test-role">
+                        {r.productoNombre
+                          ? `${t('home.testimonials.buyer', 'Comprador')} · ${r.productoNombre}`
+                          : t('home.testimonials.buyer', 'Comprador · AgroMarket')}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── CTA FINAL ────────────────────────────────────────── */}
       <section className="cta-final">
