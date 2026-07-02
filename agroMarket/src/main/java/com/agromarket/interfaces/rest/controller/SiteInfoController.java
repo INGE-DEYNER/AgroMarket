@@ -37,9 +37,43 @@ public class SiteInfoController {
     @Value("${app.version:1.0.0}")
     private String appVersion;
 
-    // Gemini API key — configura GEMINI_API_KEY en Railway
-    @Value("${gemini.api-key:}")
-    private String geminiApiKey;
+    @Value("${anthropic.api-key:}")
+    private String anthropicApiKey;
+
+    private final String systemPrompt = """
+        Eres el asistente virtual de AgroMarket, la plataforma de ASAFRUT 
+        que conecta productores de frutas tropicales de Urabá, Antioquia, 
+        directamente con compradores. Ayudas con:
+        - Información sobre productos (frutas tropicales de Urabá)
+        - Estado de pedidos y envíos
+        - Proceso de registro y verificación
+        - Pagos y devoluciones
+        - Contacto con productores
+        Responde siempre en español, de forma amable y concisa (máximo 3 párrafos).
+        Si no sabes algo específico de un pedido, pide el número de pedido.
+        """;
+
+    private final Map<String, String> fallbacks = Map.of(
+        "pedido", "Para consultar tu pedido, ve a 'Mis Pedidos' en tu dashboard. Si tienes el número de pedido, nuestro equipo puede ayudarte en soporte@agro-market.app",
+        "pago", "Aceptamos pagos simulados por PSE y tarjeta. Si tuviste un problema con un pago, escríbenos a soporte@agro-market.app",
+        "producto", "Tenemos frutas tropicales frescas de Urabá: banano, maracuyá, aguacate, piña y más. Visita nuestro catálogo para ver disponibilidad y precios.",
+        "envio", "Los envíos se calculan según la distancia. Recibirás actualizaciones del estado de tu envío por email.",
+        "default", "Hola, soy el asistente de AgroMarket. ¿En qué puedo ayudarte hoy? Puedo ayudarte con pedidos, productos, pagos o información general."
+    );
+
+    private String getFallbackResponse(String mensaje) {
+        String lower = mensaje != null ? mensaje.toLowerCase() : "";
+        if (lower.contains("pedido")) {
+            return fallbacks.get("pedido");
+        } else if (lower.contains("pago")) {
+            return fallbacks.get("pago");
+        } else if (lower.contains("producto") || lower.contains("fruta") || lower.contains("banano") || lower.contains("aguacate") || lower.contains("maracuyá") || lower.contains("piña") || lower.contains("mango")) {
+            return fallbacks.get("producto");
+        } else if (lower.contains("envio") || lower.contains("envío") || lower.contains("entrega") || lower.contains("distancia")) {
+            return fallbacks.get("envio");
+        }
+        return fallbacks.get("default");
+    }
 
     private final java.util.concurrent.Executor chatbotTaskExecutor = 
         new java.util.concurrent.ThreadPoolExecutor(
@@ -109,77 +143,62 @@ public class SiteInfoController {
             if (mensaje == null || mensaje.isBlank()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "El mensaje no puede estar vacío"));
             }
-            if (mensaje.length() > 2000) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Mensaje demasiado largo"));
+            if (mensaje.length() > 500) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Mensaje demasiado largo (máximo 500 caracteres)"));
             }
 
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> historial = (List<Map<String, Object>>) body.getOrDefault("historial", List.of());
 
-            if (geminiApiKey == null || geminiApiKey.isEmpty()) {
-                return ResponseEntity.ok(Map.of("respuesta", "La IA no está configurada. Por favor contacte soporte."));
+            if (anthropicApiKey == null || anthropicApiKey.isEmpty() || anthropicApiKey.startsWith("mock") || anthropicApiKey.equals("changeme")) {
+                return ResponseEntity.ok(Map.of("respuesta", getFallbackResponse(mensaje)));
             }
 
-            List<Map<String, Object>> contents = new ArrayList<>();
+            List<Map<String, Object>> anthropicMessages = new ArrayList<>();
             for (Map<String, Object> h : historial) {
                 String role = String.valueOf(h.getOrDefault("role", "user"));
                 String content = String.valueOf(h.getOrDefault("content", ""));
-                String geminiRole = "assistant".equals(role) ? "model" : "user";
-                contents.add(Map.of(
-                    "role", geminiRole,
-                    "parts", List.of(Map.of("text", content))
+                String anthropicRole = "assistant".equals(role) ? "assistant" : "user";
+                anthropicMessages.add(Map.of(
+                    "role", anthropicRole,
+                    "content", content
                 ));
             }
-            contents.add(Map.of(
+            anthropicMessages.add(Map.of(
                 "role", "user",
-                "parts", List.of(Map.of("text", mensaje))
+                "content", mensaje
             ));
 
             Map<String, Object> requestBody = Map.of(
-                "systemInstruction", Map.of(
-                    "parts", List.of(Map.of("text",
-                        "Eres el asistente virtual de AgroMarket, plataforma de comercio agrícola de ASAFRUT " +
-                        "en Chigorodó, Urabá, Colombia. Ayudas a compradores y productores con: " +
-                        "información sobre productos agrícolas de Urabá, cómo registrarse y usar la plataforma, " +
-                        "cómo hacer pedidos y pagos, cómo publicar productos (productores), " +
-                        "estado de pedidos y envíos, y resolución de problemas técnicos. " +
-                        "Responde siempre en el idioma del usuario. Sé amable, profesional y conciso. " +
-                        "Si no sabes algo específico de la plataforma, di que lo escalarás al equipo de soporte. " +
-                        "No uses emojis excesivos. Respuestas máximo 150 palabras."
-                    ))
-                ),
-                "contents", contents,
-                "generationConfig", Map.of(
-                    "maxOutputTokens", 500,
-                    "temperature", 0.7
-                )
+                "model", "claude-3-5-sonnet-20241022",
+                "max_tokens", 500,
+                "system", systemPrompt,
+                "messages", anthropicMessages
             );
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiApiKey;
+            headers.set("x-api-key", anthropicApiKey);
+            headers.set("anthropic-version", "2023-06-01");
 
             try {
                 @SuppressWarnings("rawtypes")
                 ResponseEntity<Map> response = restTemplate.exchange(
-                    url,
+                    "https://api.anthropic.com/v1/messages",
                     HttpMethod.POST,
                     new HttpEntity<>(requestBody, headers),
                     Map.class
                 );
 
-                List<Map<?, ?>> candidates = (List<Map<?, ?>>) response.getBody().get("candidates");
-                Map<?, ?> content = (Map<?, ?>) candidates.get(0).get("content");
-                List<Map<?, ?>> parts = (List<Map<?, ?>>) content.get("parts");
-                String respuesta = (String) parts.get(0).get("text");
+                List<Map<?, ?>> contentList = (List<Map<?, ?>>) response.getBody().get("content");
+                String respuesta = (String) contentList.get(0).get("text");
 
                 return ResponseEntity.ok(Map.of("respuesta", respuesta));
             } catch (Exception e) {
-                e.printStackTrace();
-                System.err.println("Error en el chatbot de Gemini: " + e.getMessage());
-                return ResponseEntity.ok(Map.of("respuesta", "Lo siento, hay un problema de conexión con el servicio de IA. Detalle: " + e.getMessage()));
+                System.err.println("Error en el chatbot de Anthropic: " + e.getMessage());
+                return ResponseEntity.ok(Map.of("respuesta", getFallbackResponse(mensaje)));
             }
         }, chatbotTaskExecutor);
     }
+}
 }

@@ -430,8 +430,6 @@ export default function ChatbotSoporte() {
             </div>
           </div>
         )}
-
-        {/* INPUT FOOTER */}
         <div className="chatbot-footer">
           <input
             type="text"
@@ -443,6 +441,7 @@ export default function ChatbotSoporte() {
               if (e.key === 'Enter') handleSend(inputText);
             }}
             disabled={loading}
+            maxLength={500}
           />
           <button className="chatbot-send" onClick={() => handleSend(inputText)} aria-label="Send Message" disabled={loading || !inputText.trim()}>
             <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
