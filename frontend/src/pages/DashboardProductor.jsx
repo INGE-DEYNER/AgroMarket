@@ -206,7 +206,11 @@ export default function DashboardProductor() {
     setSelectedContact(contacto);
     try {
       const data = await api.get(`/mensajes/conversacion/${contacto.id}`);
-      setMessages(extractArray(data));
+      const list = extractArray(data).map(m => ({
+        ...m,
+        mio: m.remitenteId === user?.id
+      }));
+      setMessages(list);
     } catch (err) {
       console.error('Error loadMessages:', err);
       setMessages([]);
@@ -724,14 +728,17 @@ export default function DashboardProductor() {
                   ) : messages.length === 0 ? (
                     <div style={{ margin: 'auto', color: 'var(--text-muted)' }}>No hay mensajes aún. ¡Sé el primero en escribir!</div>
                   ) : (
-                    messages.map((m) => (
-                      <div key={m.id} style={{ display: 'flex', justifyContent: m.mio ? 'flex-end' : 'flex-start' }}>
-                        <div style={{ maxWidth: '70%', background: m.mio ? 'var(--primary)' : 'var(--card-bg)', color: m.mio ? '#fff' : 'inherit', padding: '10px 14px', borderRadius: m.mio ? '16px 16px 4px 16px' : '16px 16px 16px 4px', border: m.mio ? 'none' : '1px solid var(--border-light)' }}>
-                          <div>{m.texto || m.contenido}</div>
-                          <div style={{ fontSize: '0.65rem', opacity: 0.7, marginTop: '4px', textAlign: 'right' }}>{m.hora || new Date(m.fechaEnvio).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</div>
+                    messages.map((m) => {
+                      const esMio = m.mio || m.remitenteId === user?.id;
+                      return (
+                        <div key={m.id} style={{ display: 'flex', justifyContent: esMio ? 'flex-end' : 'flex-start' }}>
+                          <div style={{ maxWidth: '70%', background: esMio ? 'var(--primary)' : 'var(--card-bg)', color: esMio ? '#fff' : 'inherit', padding: '10px 14px', borderRadius: esMio ? '16px 16px 4px 16px' : '16px 16px 16px 4px', border: esMio ? 'none' : '1px solid var(--border-light)' }}>
+                            <div>{m.texto || m.contenido}</div>
+                            <div style={{ fontSize: '0.65rem', opacity: 0.7, marginTop: '4px', textAlign: 'right' }}>{m.hora || new Date(m.fechaEnvio).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</div>
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
 
