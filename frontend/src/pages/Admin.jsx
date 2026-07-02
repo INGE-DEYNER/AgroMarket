@@ -8,7 +8,7 @@ import '../styles/admin.css';
 
 export default function Admin() {
   const { t } = useTranslation();
-  const { user, setUser, logout } = useAuth();
+  const { user, setUser, logout, formatPrice } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('usuarios');
@@ -508,7 +508,7 @@ export default function Admin() {
             <div className="stat-label">{t('admin.stats.totalEarnings', 'Ingresos Totales')}</div>
             <div className="stat-value">
               {dashboardData?.ingresos !== undefined && dashboardData?.ingresos !== null
-                ? `$${Number(dashboardData.ingresos).toLocaleString('es-CO')}`
+                ? formatPrice(dashboardData.ingresos)
                 : '—'}
             </div>
             <div className="stat-trend up">{t('admin.stats.trendEarnings', 'Ingresos confirmados')}</div>
@@ -663,7 +663,7 @@ export default function Admin() {
                           <tr key={p.id}>
                             <td data-label={t('dashboardProductor.product', 'Producto')}>{p.nombre}</td>
                             <td data-label={t('pedidos.producer', 'Productor')}>{p.productor || p.nombreProductor || '—'}</td>
-                            <td data-label={t('dashboardProductor.pricePerKg', 'Precio/kg')}>${Number(p.precio).toLocaleString('es-CO')}</td>
+                            <td data-label={t('dashboardProductor.pricePerKg', 'Precio/kg')}>{formatPrice(p.precio)}</td>
                             <td data-label={t('dashboardProductor.stock', 'Stock')}>{p.stock} kg</td>
                             <td data-label={t('pedidos.actions', 'Acciones')}>
                               <button className="btn btn-secondary btn-sm" style={{ color: 'var(--red)' }} onClick={() => eliminarProducto(p.id)}>{t('admin.delete', 'Eliminar')}</button>
@@ -759,7 +759,7 @@ export default function Admin() {
                             <tr key={p.id}>
                               <td data-label="Pago ID">#{p.id}</td>
                               <td data-label="Pedido ID">#{p.pedidoId}</td>
-                              <td data-label="Monto">${Number(p.monto).toLocaleString('es-CO')}</td>
+                              <td data-label="Monto">{formatPrice(p.monto)}</td>
                               <td data-label="Método">{p.metodoPago}</td>
                               <td data-label="Estado"><span className="badge-status status-pending">{p.estado}</span></td>
                               <td data-label="Acciones">
@@ -797,13 +797,13 @@ export default function Admin() {
                         <div style={{ background: 'var(--green-bg)', padding: '16px', borderRadius: '8px', border: '1px solid var(--primary-light)' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--primary-dark)', textTransform: 'uppercase' }}>Ingresos Confirmados</span>
                           <h2 style={{ fontSize: '1.8rem', color: 'var(--primary)', margin: '8px 0 0 0' }}>
-                            ${Number(finanzasData.totalIngresos || 0).toLocaleString('es-CO')}
+                            {formatPrice(finanzasData.totalIngresos || 0)}
                           </h2>
                         </div>
                         <div style={{ background: '#fef3c7', padding: '16px', borderRadius: '8px', border: '1px solid #f59e0b' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#b45309', textTransform: 'uppercase' }}>Fondos en Fideicomiso</span>
                           <h2 style={{ fontSize: '1.8rem', color: '#d97706', margin: '8px 0 0 0' }}>
-                            ${Number(finanzasData.totalFideicomiso || 0).toLocaleString('es-CO')}
+                            {formatPrice(finanzasData.totalFideicomiso || 0)}
                           </h2>
                         </div>
                       </div>
@@ -829,7 +829,7 @@ export default function Admin() {
                                     <tr key={metodo}>
                                       <td data-label="Método" style={{ fontWeight: 'bold' }}>{metodo.replace('_', ' ')}</td>
                                       <td data-label="Transacciones">{finanzasData.transaccionesPorMetodo[metodo]}</td>
-                                      <td data-label="Monto Total">${Number(finanzasData.montoPorMetodo[metodo] || 0).toLocaleString('es-CO')}</td>
+                                      <td data-label="Monto Total">{formatPrice(finanzasData.montoPorMetodo[metodo] || 0)}</td>
                                     </tr>
                                   ))
                                 )}
@@ -858,7 +858,7 @@ export default function Admin() {
                                     <tr key={estado}>
                                       <td data-label="Estado" style={{ fontWeight: 'bold' }}>{estado.replace('_', ' ')}</td>
                                       <td data-label="Transacciones">{finanzasData.transaccionesPorEstado[estado]}</td>
-                                      <td data-label="Monto Total">${Number(finanzasData.montoPorEstado[estado] || 0).toLocaleString('es-CO')}</td>
+                                      <td data-label="Monto Total">{formatPrice(finanzasData.montoPorEstado[estado] || 0)}</td>
                                     </tr>
                                   ))
                                 )}
@@ -1044,8 +1044,8 @@ export default function Admin() {
                             <tr key={c.id}>
                               <td data-label="Código" style={{ fontWeight: 'bold' }}>{c.codigo}</td>
                               <td data-label="Tipo">{c.tipo}</td>
-                              <td data-label="Valor">{c.tipo === 'PORCENTAJE' ? `${c.valor}%` : `$${Number(c.valor).toLocaleString('es-CO')}`}</td>
-                              <td data-label="Monto Min.">${Number(c.montoMinimo || 0).toLocaleString('es-CO')}</td>
+                              <td data-label="Valor">{c.tipo === 'PORCENTAJE' ? `${c.valor}%` : formatPrice(c.valor)}</td>
+                              <td data-label="Monto Min.">{formatPrice(c.montoMinimo || 0)}</td>
                               <td data-label="Usuario ID">{c.usuarioId || 'Global'}</td>
                               <td data-label="Acciones">
                                 <button className="btn btn-danger btn-sm" onClick={() => handleEliminarCupon(c.id)}>Eliminar</button>
