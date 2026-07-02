@@ -51,14 +51,14 @@ public class MensajeServiceImpl implements MensajeService {
         List<Long> contactos = mensajeJpaRepository.findContactosIds(userId);
         return contactos.stream().map(contactoId -> {
             UsuarioEntity contacto = obtenerUsuario(contactoId);
-            List<MensajeEntity> conversacion = mensajeJpaRepository.findConversacion(userId, contactoId);
-            MensajeEntity ultimo = conversacion.stream().max(Comparator.comparing(MensajeEntity::getFechaEnvio)).orElse(null);
+            MensajeEntity ultimo = mensajeJpaRepository.findUltimoMensaje(userId, contactoId);
+            long noLeidos = mensajeJpaRepository.countByDestinatarioIdAndRemitenteIdAndLeidoFalse(userId, contactoId);
             return ContactoResponse.builder()
                     .usuarioId(contacto.getId())
                     .nombre(contacto.getNombre())
                     .rol(contacto.getRol())
                     .ultimoMensaje(ultimo != null ? ultimo.getContenido() : null)
-                    .noLeidos(mensajeJpaRepository.countByDestinatarioIdAndLeidoFalse(userId))
+                    .noLeidos(noLeidos)
                     .build();
         }).collect(Collectors.toList());
     }

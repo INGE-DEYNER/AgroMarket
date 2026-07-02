@@ -250,7 +250,8 @@ public class FacturaServiceImpl implements FacturaService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
         boolean esAdmin = usuario.getRol() == RolUsuario.ADMINISTRADOR;
         boolean esDueno = pedido != null && pedido.getComprador() != null && pedido.getComprador().getId() != null && pedido.getComprador().getId().equals(solicitanteId);
-        if (!esAdmin && !esDueno) {
+        boolean esProductor = pedido != null && pedido.getProducto() != null && pedido.getProducto().getProductor() != null && pedido.getProducto().getProductor().getId() != null && pedido.getProducto().getProductor().getId().equals(solicitanteId);
+        if (!esAdmin && !esDueno && !esProductor) {
             throw new AccesoDenegadoException("No tiene permisos para ver esta factura");
         }
     }

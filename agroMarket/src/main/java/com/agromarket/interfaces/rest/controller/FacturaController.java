@@ -22,13 +22,13 @@ public class FacturaController {
     private final FacturaService facturaService;
 
     @GetMapping("/pedido/{pedidoId}")
-    @PreAuthorize("hasAnyRole('COMPRADOR','ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COMPRADOR','PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<FacturaResponse>> getByPedidoId(@PathVariable Long pedidoId, @AuthenticationPrincipal JwtUserPrincipal principal) {
         return ResponseEntity.ok(ApiResponse.<FacturaResponse>builder().success(true).message("Factura recuperada").data(facturaService.getByPedidoId(pedidoId, principal.getUserId())).build());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('COMPRADOR','ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COMPRADOR','PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<FacturaResponse>> getById(@PathVariable Long id, @AuthenticationPrincipal JwtUserPrincipal principal) {
         return ResponseEntity.ok(ApiResponse.<FacturaResponse>builder().success(true).message("Factura recuperada").data(facturaService.getById(id, principal.getUserId())).build());
     }
@@ -40,7 +40,7 @@ public class FacturaController {
     }
 
     @GetMapping("/{id}/pdf")
-    @PreAuthorize("hasAnyRole('COMPRADOR','ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COMPRADOR','PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<org.springframework.core.io.Resource> getFacturaPdf(@PathVariable Long id, @AuthenticationPrincipal JwtUserPrincipal principal) {
         byte[] pdfBytes = facturaService.getFacturaPdf(id, principal.getUserId());
         org.springframework.core.io.ByteArrayResource resource = new org.springframework.core.io.ByteArrayResource(pdfBytes);

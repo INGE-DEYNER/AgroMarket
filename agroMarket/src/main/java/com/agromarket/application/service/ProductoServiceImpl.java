@@ -115,8 +115,10 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional(readOnly = true)
     public ProductoResponse getById(Long id) {
-        ProductoEntity producto = (ProductoEntity) productoCache.get(id, k -> findProducto(id));
-        return productoMapper.toResponse(producto);
+        return (ProductoResponse) productoCache.get(id, k -> {
+            ProductoEntity producto = findProducto(id);
+            return productoMapper.toResponse(producto);
+        });
     }
 
     @Override

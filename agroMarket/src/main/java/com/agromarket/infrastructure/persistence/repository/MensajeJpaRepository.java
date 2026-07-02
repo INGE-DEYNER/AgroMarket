@@ -28,4 +28,14 @@ public interface MensajeJpaRepository extends JpaRepository<MensajeEntity, Long>
     List<Long> findContactosIds(@Param("userId") Long userId);
 
     long countByDestinatarioIdAndLeidoFalse(Long destinatarioId);
+
+    long countByDestinatarioIdAndRemitenteIdAndLeidoFalse(Long destinatarioId, Long remitenteId);
+
+    @Query(value = """
+            select * from mensajes
+            where (remitente_id = :userId1 and destinatario_id = :userId2)
+               or (remitente_id = :userId2 and destinatario_id = :userId1)
+            order by fecha_envio desc limit 1
+            """, nativeQuery = true)
+    MensajeEntity findUltimoMensaje(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
 }

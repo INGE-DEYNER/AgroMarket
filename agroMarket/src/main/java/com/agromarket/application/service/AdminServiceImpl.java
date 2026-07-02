@@ -228,10 +228,7 @@ public class AdminServiceImpl implements AdminService {
             long totalUsers = usuarioJpaRepository.count();
             long totalProducts = productoJpaRepository.count();
             long totalOrders = pedidoJpaRepository.count();
-            BigDecimal totalEarnings = pagoJpaRepository.findAll().stream()
-                    .filter(pago -> pago.getEstado() != null && pago.getEstado().name().equals("CONFIRMADO"))
-                    .map(PagoEntity::getMonto)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal totalEarnings = pagoJpaRepository.sumMontoConfirmado();
 
             addKpiCell(kpiTable, "Total Usuarios", String.valueOf(totalUsers), lightGreenBg, borderLight, cellFont);
             addKpiCell(kpiTable, "Productos Globales", String.valueOf(totalProducts), lightGreenBg, borderLight, cellFont);
@@ -377,8 +374,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<PagoResponse> getPagosFideicomiso() {
-        return pagoJpaRepository.findAll().stream()
-                .filter(pago -> pago.getEstado() == EstadoPago.EN_FIDEICOMISO)
+        return pagoJpaRepository.findByEstado(EstadoPago.EN_FIDEICOMISO).stream()
                 .map(pagoMapper::toResponse)
                 .collect(java.util.stream.Collectors.toList());
     }

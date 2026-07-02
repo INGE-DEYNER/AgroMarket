@@ -88,7 +88,14 @@ export default function CartDrawer({ isOpen, onClose }) {
           ) : (
             cart.map((item) => {
               const isWholesale = item.cantidadMinimaMayorista && item.precioMayorista && item.qty >= item.cantidadMinimaMayorista;
-              const unitPrice = isWholesale ? Number(item.precioMayorista) : Number(item.precio);
+              let unitPrice = Number(item.precio);
+              let isPromotion = false;
+              if (isWholesale) {
+                unitPrice = Number(item.precioMayorista);
+              } else if (item.enPromocion && item.precioPromocion) {
+                unitPrice = Number(item.precioPromocion);
+                isPromotion = true;
+              }
               return (
                 <div key={item.id} className="cart-item-row">
                   <img
@@ -105,6 +112,15 @@ export default function CartDrawer({ isOpen, onClose }) {
                             ${Number(item.precio).toLocaleString('es-CO')}/kg
                           </span>
                           <span className="price-wholesale">
+                            ${unitPrice.toLocaleString('es-CO')}/kg
+                          </span>
+                        </>
+                      ) : isPromotion ? (
+                        <>
+                          <span className="price-old">
+                            ${Number(item.precio).toLocaleString('es-CO')}/kg
+                          </span>
+                          <span className="price-promo" style={{ color: '#e53e3e', marginLeft: '6px', fontWeight: 'bold' }}>
                             ${unitPrice.toLocaleString('es-CO')}/kg
                           </span>
                         </>

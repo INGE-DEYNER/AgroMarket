@@ -84,8 +84,9 @@ public class EnvioServiceImpl implements EnvioService {
         UsuarioEntity solicitante = usuarioJpaRepository.findById(solicitanteId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
         boolean esAdmin = solicitante.getRol() == RolUsuario.ADMINISTRADOR;
-        boolean esDueno = envio.getPedido() != null && envio.getPedido().getComprador() != null && envio.getPedido().getComprador().getId() != null && envio.getPedido().getComprador().getId().equals(solicitanteId);
-        if (!esAdmin && !esDueno) {
+        boolean esComprador = envio.getPedido() != null && envio.getPedido().getComprador() != null && envio.getPedido().getComprador().getId() != null && envio.getPedido().getComprador().getId().equals(solicitanteId);
+        boolean esProductor = envio.getPedido() != null && envio.getPedido().getProducto() != null && envio.getPedido().getProducto().getProductor() != null && envio.getPedido().getProducto().getProductor().getId() != null && envio.getPedido().getProducto().getProductor().getId().equals(solicitanteId);
+        if (!esAdmin && !esComprador && !esProductor) {
             throw new AccesoDenegadoException("No tiene permisos para ver este envío");
         }
     }

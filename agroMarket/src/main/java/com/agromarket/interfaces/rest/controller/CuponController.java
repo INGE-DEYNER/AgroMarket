@@ -34,8 +34,23 @@ public class CuponController {
 
     @PostMapping("/validar")
     public ResponseEntity<ApiResponse<Map<String, Object>>> validarCupon(@RequestBody Map<String, Object> request) {
+        if (request == null || !request.containsKey("codigo") || !request.containsKey("totalPedido") 
+                || request.get("codigo") == null || request.get("totalPedido") == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.<Map<String, Object>>builder()
+                    .success(false)
+                    .message("Código y totalPedido son requeridos")
+                    .build());
+        }
         String codigo = (String) request.get("codigo");
-        BigDecimal totalPedido = new BigDecimal(request.get("totalPedido").toString());
+        BigDecimal totalPedido;
+        try {
+            totalPedido = new BigDecimal(request.get("totalPedido").toString());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.<Map<String, Object>>builder()
+                    .success(false)
+                    .message("totalPedido debe ser un número válido")
+                    .build());
+        }
         Map<String, Object> res = cuponService.validarCupon(codigo, totalPedido);
         return ResponseEntity.ok(ApiResponse.<Map<String, Object>>builder()
                 .success(Boolean.TRUE.equals(res.get("valido")))

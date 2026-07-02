@@ -29,7 +29,7 @@ public class EnvioController {
     private final EnvioService envioService;
 
     @GetMapping("/pedido/{pedidoId}")
-    @PreAuthorize("hasAnyRole('COMPRADOR','ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('COMPRADOR','PRODUCTOR','ADMINISTRADOR')")
     public ResponseEntity<ApiResponse<EnvioResponse>> getByPedidoId(@PathVariable Long pedidoId, @AuthenticationPrincipal JwtUserPrincipal principal) {
         return ResponseEntity.ok(ApiResponse.<EnvioResponse>builder().success(true).message("Envío recuperado").data(envioService.getByPedidoId(pedidoId, principal.getUserId())).build());
     }

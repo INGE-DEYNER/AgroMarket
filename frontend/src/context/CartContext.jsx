@@ -74,7 +74,12 @@ export function CartProvider({ children }) {
   const getTotal = () => {
     return cart.reduce((sum, item) => {
       const isWholesale = item.cantidadMinimaMayorista && item.precioMayorista && item.qty >= item.cantidadMinimaMayorista;
-      const price = isWholesale ? Number(item.precioMayorista) : Number(item.precio);
+      let price = Number(item.precio);
+      if (isWholesale) {
+        price = Number(item.precioMayorista);
+      } else if (item.enPromocion && item.precioPromocion) {
+        price = Number(item.precioPromocion);
+      }
       return sum + (price * item.qty);
     }, 0);
   };
