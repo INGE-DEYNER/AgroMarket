@@ -37,8 +37,8 @@ public class SiteInfoController {
     @Value("${app.version:1.0.0}")
     private String appVersion;
 
-    @Value("${anthropic.api-key:}")
-    private String anthropicApiKey;
+    @Value("${gemini.api-key:}")
+    private String geminiApiKey;
 
     private final String systemPrompt = """
         Eres el asistente virtual de AgroMarket, la plataforma de ASAFRUT 
@@ -150,52 +150,58 @@ public class SiteInfoController {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> historial = (List<Map<String, Object>>) body.getOrDefault("historial", List.of());
 
-            if (anthropicApiKey == null || anthropicApiKey.isEmpty() || anthropicApiKey.startsWith("mock") || anthropicApiKey.equals("changeme")) {
+            if (geminiApiKey == null || geminiApiKey.isEmpty() || geminiApiKey.startsWith("mock") || geminiApiKey.equals("changeme")) {
                 return ResponseEntity.ok(Map.of("respuesta", getFallbackResponse(mensaje)));
             }
 
-            List<Map<String, Object>> anthropicMessages = new ArrayList<>();
+            List<Map<String, Object>> contents = new ArrayList<>();
             for (Map<String, Object> h : historial) {
                 String role = String.valueOf(h.getOrDefault("role", "user"));
                 String content = String.valueOf(h.getOrDefault("content", ""));
-                String anthropicRole = "assistant".equals(role) ? "assistant" : "user";
-                anthropicMessages.add(Map.of(
-                    "role", anthropicRole,
-                    "content", content
+                String geminiRole = "assistant".equals(role) ? "model" : "user";
+                contents.add(Map.of(
+                    "role", geminiRole,
+                    "parts", List.of(Map.of("text", content))
                 ));
             }
-            anthropicMessages.add(Map.of(
+            contents.add(Map.of(
                 "role", "user",
-                "content", mensaje
+                "parts", List.of(Map.of("text", mensaje))
             ));
 
             Map<String, Object> requestBody = Map.of(
-                "model", "claude-3-5-sonnet-20241022",
-                "max_tokens", 500,
-                "system", systemPrompt,
-                "messages", anthropicMessages
+                "systemInstruction", Map.of(
+                    "parts", List.of(Map.of("text", systemPrompt))
+                ),
+                "contents", contents,
+                "generationConfig", Map.of(
+                    "maxOutputTokens", 500,
+                    "temperature", 0.7
+                )
             );
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("x-api-key", anthropicApiKey);
-            headers.set("anthropic-version", "2023-06-01");
+
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiApiKey;
 
             try {
                 @SuppressWarnings("rawtypes")
                 ResponseEntity<Map> response = restTemplate.exchange(
-                    "https://api.anthropic.com/v1/messages",
+                    url,
                     HttpMethod.POST,
                     new HttpEntity<>(requestBody, headers),
                     Map.class
                 );
 
-                List<Map<?, ?>> contentList = (List<Map<?, ?>>) response.getBody().get("content");
-                String respuesta = (String) contentList.get(0).get("text");
+                List<Map<?, ?>> candidates = (List<Map<?, ?>>) response.getBody().get("candidates");
+                Map<?, ?> content = (Map<?, ?>) candidates.get(0).get("content");
+                List<Map<?, ?>> parts = (List<Map<?, ?>>) content.get("parts");
+                String respuesta = (String) parts.get(0).get("text");
 
                 return ResponseEntity.ok(Map.of("respuesta", respuesta));
             } catch (Exception e) {
-                System.err.println("Error en el chatbot de Anthropic: " + e.getMessage());
+                System.err.println("Error en el chatbot de Gemini: " + e.getMessage());
                 return ResponseEntity.ok(Map.of("respuesta", getFallbackResponse(mensaje)));
             }
         }, chatbotTaskExecutor);
