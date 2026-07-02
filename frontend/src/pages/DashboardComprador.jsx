@@ -92,6 +92,22 @@ export default function DashboardComprador() {
   const [soloPromo, setSoloPromo] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [listaProductores, setListaProductores] = useState([]);
+
+  useEffect(() => {
+    const fetchProductores = async () => {
+      try {
+        const res = await api.get('/public/productores');
+        const data = res.data || res;
+        if (Array.isArray(data)) {
+          setListaProductores(data);
+        }
+      } catch (err) {
+        console.error("Error loading producers lookup list:", err);
+      }
+    };
+    fetchProductores();
+  }, []);
 
   // Debounced search logic for catalog
   useEffect(() => {
@@ -374,16 +390,21 @@ export default function DashboardComprador() {
   const contactProductor = async (productorNombre) => {
     if (!productorNombre) return;
     setActiveSection('mensajeria');
+    
+    // Attempt to locate real user ID of this producer in the lookup list
+    const matched = listaProductores.find(p => p.nombre?.toLowerCase().includes(productorNombre.toLowerCase()));
+    const realId = matched ? matched.id : Math.floor(100 + Math.random() * 900);
+    
     try {
       const data = await api.get('/mensajes/contactos');
       const list = extractArray(data);
-      const found = list.find(c => c.nombre?.toLowerCase().includes(productorNombre.toLowerCase()));
+      const found = list.find(c => c.nombre?.toLowerCase().includes(productorNombre.toLowerCase()) || c.id === realId);
       if (found) {
         setContactos(list);
         selectContact(found);
       } else {
         const newContact = {
-          id: Math.floor(100 + Math.random() * 900),
+          id: realId,
           nombre: productorNombre,
           rol: 'PRODUCTOR'
         };
@@ -394,7 +415,7 @@ export default function DashboardComprador() {
     } catch (err) {
       console.error(err);
       const newContact = {
-        id: Math.floor(100 + Math.random() * 900),
+        id: realId,
         nombre: productorNombre,
         rol: 'PRODUCTOR'
       };

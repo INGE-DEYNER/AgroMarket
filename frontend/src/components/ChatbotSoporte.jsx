@@ -24,17 +24,35 @@ export default function ChatbotSoporte() {
 
   const getLocalFallback = (text) => {
     const lower = text ? text.toLowerCase() : "";
-    if (lower.includes("pedido")) {
-      return "Para consultar tu pedido, ve a 'Mis Pedidos' en tu dashboard. Si tienes el número de pedido, nuestro equipo puede ayudarte en soporte@agro-market.app";
-    } else if (lower.includes("pago")) {
-      return "Aceptamos pagos simulados por PSE y tarjeta. Si tuviste un problema con un pago, escríbenos a soporte@agro-market.app";
-    } else if (lower.includes("producto") || lower.includes("fruta") || lower.includes("banano") || lower.includes("aguacate") || lower.includes("maracuyá") || lower.includes("piña") || lower.includes("mango")) {
-      return "Tenemos frutas tropicales frescas de Urabá: banano, maracuyá, aguacate, piña y más. Visita nuestro catálogo para ver disponibilidad y precios.";
-    } else if (lower.includes("envio") || lower.includes("envío") || lower.includes("entrega") || lower.includes("distancia")) {
-      return "Los envíos se calculan según la distancia. Recibirás actualizaciones del estado de tu envío por email.";
-    } else if (lower.includes("descuento") || lower.includes("oferta") || lower.includes("promo") || lower.includes("descuentos") || lower.includes("precio")) {
+    
+    if (lower.includes("pedido") || lower.includes("compra") || lower.includes("orden")) {
+      return "Para consultar tu pedido, ve a 'Mis Pedidos' en tu dashboard. Si tienes el número de pedido, nuestro equipo de soporte puede ayudarte en soporte@agro-market.app";
+    }
+    
+    if (lower.includes("pago") || lower.includes("tarjeta") || lower.includes("pse") || lower.includes("banco") || lower.includes("comprar")) {
+      return "Aceptamos pagos simulados por PSE y tarjeta en nuestra pasarela de pagos. Si tuviste un inconveniente al pagar, escríbenos a soporte@agro-market.app";
+    }
+    
+    if (lower.includes("producto") || lower.includes("fruta") || lower.includes("banano") || lower.includes("aguacate") || lower.includes("maracuyá") || lower.includes("piña") || lower.includes("mango")) {
+      return "Tenemos frutas tropicales frescas directo de Urabá: banano, maracuyá, aguacate, piña y más. Visita nuestro catálogo para ver disponibilidad y precios.";
+    }
+    
+    if (lower.includes("envio") || lower.includes("envío") || lower.includes("entrega") || lower.includes("distancia") || lower.includes("seguimiento") || lower.includes("ruta") || lower.includes("trazabilidad")) {
+      return "Los envíos se calculan automáticamente según la distancia desde Chigorodó, Antioquia. Recibirás actualizaciones detalladas del estado en tu dashboard de envíos.";
+    }
+    
+    if (lower.includes("descuento") || lower.includes("oferta") || lower.includes("promo") || lower.includes("precio")) {
       return "Contamos con una sección de ofertas y promociones especiales en nuestro catálogo de frutas tropicales. ¡Busca los productos marcados con la etiqueta % PROMO!";
     }
+    
+    if (lower.includes("problema") || lower.includes("peoble") || lower.includes("peobla") || lower.includes("falla") || lower.includes("error") || lower.includes("fallo") || lower.includes("soporte") || lower.includes("ayuda")) {
+      return "Lamento que tengas inconvenientes. Para soporte técnico, reclamos o ayuda con tu cuenta, escríbenos directamente a soporte@agro-market.app y nuestro equipo te asistirá en menos de 24 horas.";
+    }
+    
+    if (lower.includes("que haces") || lower.includes("quien eres") || lower.includes("ia") || lower.includes("asistente") || lower.includes("haces")) {
+      return "Soy el asistente inteligente de AgroMarket. Puedo orientarte sobre cómo comprar productos frescos, cómo realizar el pago por PSE/tarjeta, realizar el seguimiento de tus envíos y solucionar dudas generales.";
+    }
+    
     return "Hola, soy el asistente de AgroMarket. ¿En qué puedo ayudarte hoy? Puedo ayudarte con pedidos, productos, pagos o información general.";
   };
 
