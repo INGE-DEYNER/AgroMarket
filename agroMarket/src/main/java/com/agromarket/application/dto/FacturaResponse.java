@@ -22,4 +22,5 @@ public class FacturaResponse {
     private LocalDateTime fechaEmision;
     private Long pagoId;
     private String estado;
+    private String checkoutId;
 }

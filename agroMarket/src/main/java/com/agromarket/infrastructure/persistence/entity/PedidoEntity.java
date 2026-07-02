@@ -65,6 +65,9 @@ public class PedidoEntity {
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
+    @Column(name = "checkout_id", nullable = true)
+    private String checkoutId;
+
     @OneToOne(mappedBy = "pedido", fetch = FetchType.LAZY)
     private PagoEntity pago;
 

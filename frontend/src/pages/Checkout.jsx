@@ -150,10 +150,15 @@ export default function Checkout() {
     // Simulate transaction delay
     setTimeout(async () => {
       try {
+        const localCheckoutId = `CHK-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
         // Create order and initiate payment for each item in the cart
         const completedOrders = [];
         for (const item of cart) {
-          const orderRes = await api.post('/pedidos', { productoId: item.id, cantidad: item.qty });
+          const orderRes = await api.post('/pedidos', { 
+            productoId: item.id, 
+            cantidad: item.qty,
+            checkoutId: localCheckoutId
+          });
           const order = orderRes.data || orderRes;
           
           const initRes = await api.post('/pagos/iniciar', { pedidoId: order.id, metodoPago: metodoPago });
@@ -170,6 +175,7 @@ export default function Checkout() {
         const txnId = `TXN-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
         setSuccessData({
           txnId,
+          checkoutId: localCheckoutId,
           orders: completedOrders,
           deliveryDate: getEstimatedDate()
         });
@@ -202,8 +208,8 @@ export default function Checkout() {
                 <strong style={{ color: '#1b4332' }}>{successData.txnId}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.95rem' }}>
-                <span style={{ color: '#718096' }}>Números de Pedido:</span>
-                <strong style={{ color: '#1b4332' }}>#{successData.orders.join(', #')}</strong>
+                <span style={{ color: '#718096' }}>ID de Pedido (Checkout):</span>
+                <strong style={{ color: '#1b4332' }}>{successData.checkoutId}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.95rem' }}>
                 <span style={{ color: '#718096' }}>Estado:</span>

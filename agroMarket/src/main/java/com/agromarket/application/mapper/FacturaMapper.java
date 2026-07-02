@@ -22,6 +22,7 @@ public interface FacturaMapper {
                 .fechaEmision(entity.getFechaEmision())
                 .pagoId(entity.getPago() != null ? entity.getPago().getId() : null)
                 .estado(entity.getEstado())
+                .checkoutId(entity.getPedido() != null ? entity.getPedido().getCheckoutId() : null)
                 .build();
     }
 

@@ -25,6 +25,7 @@ public class Pedido {
     private BigDecimal total;
     private EstadoPedido estado;
     private LocalDateTime fechaCreacion;
+    private String checkoutId;
 
     public void avanzarEstado() {
         if (estado == EstadoPedido.PENDIENTE) {

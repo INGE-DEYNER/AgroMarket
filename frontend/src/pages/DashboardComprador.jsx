@@ -155,6 +155,81 @@ export default function DashboardComprador() {
   const [metodoPago, setMetodoPago] = useState('PSE');
   const [pagoModalOpen, setPagoModalOpen] = useState(false);
 
+  const getGroupedPedidos = (itemsList) => {
+    const groups = {};
+    itemsList.forEach(p => {
+      if (p.checkoutId) {
+        if (!groups[p.checkoutId]) {
+          groups[p.checkoutId] = {
+            id: p.id,
+            isGrouped: true,
+            checkoutId: p.checkoutId,
+            compradorNombre: p.compradorNombre,
+            items: [],
+            total: 0,
+            estado: p.estado,
+            fechaCreacion: p.fechaCreacion,
+            originalPedidos: []
+          };
+        }
+        groups[p.checkoutId].items.push(p);
+        groups[p.checkoutId].total += Number(p.total || 0);
+        groups[p.checkoutId].originalPedidos.push(p);
+        if (p.estado?.toLowerCase() === 'pendiente') {
+          groups[p.checkoutId].estado = p.estado;
+        }
+      } else {
+        const singleKey = `SINGLE-${p.id}`;
+        groups[singleKey] = {
+          ...p,
+          isGrouped: false,
+          items: [p],
+          originalPedidos: [p]
+        };
+      }
+    });
+    return Object.values(groups);
+  };
+
+  const getGroupedFacturas = (invoiceList) => {
+    const groups = {};
+    invoiceList.forEach(f => {
+      if (f.checkoutId) {
+        if (!groups[f.checkoutId]) {
+          groups[f.checkoutId] = {
+            id: f.id,
+            isGrouped: true,
+            checkoutId: f.checkoutId,
+            numeroFactura: `FAC-${f.checkoutId}`,
+            pedidoId: f.pedidoId,
+            subtotal: 0,
+            impuesto: 0,
+            total: 0,
+            fechaEmision: f.fechaEmision,
+            estado: f.estado,
+            originalFacturas: []
+          };
+        }
+        groups[f.checkoutId].subtotal += Number(f.subtotal || 0);
+        groups[f.checkoutId].impuesto += Number(f.impuesto || 0);
+        groups[f.checkoutId].total += Number(f.total || 0);
+        groups[f.checkoutId].originalFacturas.push(f);
+      } else {
+        const singleKey = `SINGLE-${f.id}`;
+        groups[singleKey] = {
+          ...f,
+          isGrouped: false,
+          originalFacturas: [f]
+        };
+      }
+    });
+    return Object.values(groups);
+  };
+
+  const descargarPdfGroup = (groupedFactura) => {
+    groupedFactura.originalFacturas.forEach(f => descargarPdf(f.id));
+  };
+
   // RFQ (Licitaciones) states
   const [rfqs, setRfqs] = useState([]);
   const [rfqForm, setRfqForm] = useState({ tipoFruta: 'BANANO', cantidadRequerida: '', descripcion: '', fechaLimite: '' });
@@ -721,10 +796,16 @@ export default function DashboardComprador() {
                     </tr>
                   </thead>
                   <tbody>
-                    {pedidos.slice(0, 5).map((p) => (
-                      <tr key={p.id}>
-                        <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
-                        <td data-label={t('pedidos.product', 'Producto')}>{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
+                    {getGroupedPedidos(pedidos).slice(0, 5).map((p) => (
+                      <tr key={p.checkoutId || p.id}>
+                        <td data-label={t('pedidos.id', 'ID')}>{p.checkoutId || `#${p.id}`}</td>
+                        <td data-label={t('pedidos.product', 'Producto')}>
+                          {p.items.map((item, idx) => (
+                            <div key={item.id || idx}>
+                              • {item.productoNombre || item.producto} ({item.cantidad} kg)
+                            </div>
+                          ))}
+                        </td>
                         <td data-label={t('pedidos.total', 'Total')}>{formatPrice(p.total)}</td>
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
@@ -891,11 +972,19 @@ export default function DashboardComprador() {
                     </tr>
                   </thead>
                   <tbody>
-                    {pedidosFiltrados.map((p) => (
-                      <tr key={p.id}>
-                        <td data-label={t('pedidos.id', 'ID')}>#{p.id}</td>
-                        <td data-label={t('pedidos.product', 'Producto')}>{p.productoNombre || p.producto || p.nombreProducto || '—'}</td>
-                        <td data-label={t('pedidos.quantity', 'Cantidad')}>{p.cantidad || '—'} kg</td>
+                    {getGroupedPedidos(pedidosFiltrados).map((p) => (
+                      <tr key={p.checkoutId || p.id}>
+                        <td data-label={t('pedidos.id', 'ID')}>{p.checkoutId || `#${p.id}`}</td>
+                        <td data-label={t('pedidos.product', 'Producto')}>
+                          {p.items.map((item, idx) => (
+                            <div key={item.id || idx}>
+                              • {item.productoNombre || item.producto} ({item.cantidad} kg)
+                            </div>
+                          ))}
+                        </td>
+                        <td data-label={t('pedidos.quantity', 'Cantidad')}>
+                          {p.items.reduce((sum, item) => sum + Number(item.cantidad || 0), 0)} kg
+                        </td>
                         <td data-label={t('pedidos.total', 'Total')}>{formatPrice(p.total)}</td>
                         <td data-label={t('pedidos.statusHeader', 'Estado')}><span className={badgeClass(p.estado)}>{t('pedidos.status.' + p.estado?.toLowerCase(), p.estado)}</span></td>
                         <td data-label={t('pedidos.actions', 'Acciones')}>
@@ -1346,16 +1435,16 @@ export default function DashboardComprador() {
                         <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>No tienes facturas emitidas en este momento.</td>
                       </tr>
                     ) : (
-                      facturas.map((f) => (
-                        <tr key={f.id}>
+                      getGroupedFacturas(facturas).map((f) => (
+                        <tr key={f.checkoutId || f.id}>
                           <td data-label="Factura N°">{f.numeroFactura}</td>
-                          <td data-label="Pedido ID">#{f.pedidoId}</td>
+                          <td data-label="Pedido ID">{f.checkoutId || `#${f.pedidoId}`}</td>
                           <td data-label="Subtotal">{formatPrice(f.subtotal)}</td>
                           <td data-label="IVA">{formatPrice(f.impuesto)}</td>
                           <td data-label="Total" style={{ fontWeight: '600', color: 'var(--primary)' }}>{formatPrice(f.total)}</td>
                           <td data-label="Fecha">{new Date(f.fechaEmision).toLocaleDateString()}</td>
                           <td data-label="Acciones">
-                            <button className="btn btn-secondary btn-sm" onClick={() => descargarPdf(f.id)}>Descargar PDF</button>
+                            <button className="btn btn-secondary btn-sm" onClick={() => descargarPdfGroup(f)}>Descargar PDF</button>
                           </td>
                         </tr>
                       ))
@@ -1501,13 +1590,23 @@ export default function DashboardComprador() {
                 style={{ width: '100%', padding: '12px', fontWeight: '600' }}
                 onClick={async () => {
                   try {
-                    const res = await api.post('/pagos/iniciar', {
-                      pedidoId: checkoutPedido.id,
-                      metodoPago: metodoPago
-                    });
-                    const data = res.data || res;
+                    const ordersToPay = checkoutPedido.isGrouped ? checkoutPedido.originalPedidos : [checkoutPedido];
+                    for (const ped of ordersToPay) {
+                      const res = await api.post('/pagos/iniciar', {
+                        pedidoId: ped.id,
+                        metodoPago: metodoPago
+                      });
+                      const data = res.data || res;
+                      await api.post('/pagos/confirmar', {
+                        pagoId: data.pagoId,
+                        referencia: data.referencia,
+                        estado: 'APROBADO'
+                      });
+                    }
+                    alert('Pago realizado con éxito para todos los productos de esta compra.');
                     setPagoModalOpen(false);
-                    navigate(data.urlPasarela);
+                    loadPedidos();
+                    loadFacturas();
                   } catch (err) {
                     alert('Error al iniciar el pago: ' + err.message);
                   }
@@ -1531,10 +1630,31 @@ export default function DashboardComprador() {
             <div id="facturaContent">
               {facturaData && (
                 <div style={{ padding: '24px' }}>
-                  <p><strong>{t('pedidos.invoiceDetail.id', 'Pedido #:')}</strong> {facturaData.id}</p>
-                  <p><strong>{t('pedidos.invoiceDetail.product', 'Producto:')}</strong> {facturaData.producto || facturaData.nombreProducto}</p>
-                  <p><strong>{t('pedidos.invoiceDetail.total', 'Total:')}</strong> {formatPrice(facturaData.total)}</p>
-                  <p><strong>{t('pedidos.invoiceDetail.status', 'Estado:')}</strong> {t('pedidos.status.' + facturaData.estado?.toLowerCase(), facturaData.estado)}</p>
+                  <p><strong>ID de Pedido:</strong> {facturaData.checkoutId || `#${facturaData.id}`}</p>
+                  <div style={{ margin: '12px 0', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', padding: '10px 0' }}>
+                    <strong style={{ display: 'block', marginBottom: '6px' }}>Detalle de Productos:</strong>
+                    {facturaData.isGrouped ? (
+                      facturaData.items.map((item, idx) => (
+                        <div key={item.id || idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '4px' }}>
+                          <span>• {item.productoNombre || item.producto} (x{item.cantidad} kg)</span>
+                          <span>{formatPrice(item.total)}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                        <span>• {facturaData.productoNombre || facturaData.producto} (x{facturaData.cantidad} kg)</span>
+                        <span>{formatPrice(facturaData.total)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.05rem', marginTop: '10px' }}>
+                    <span>Total General:</span>
+                    <span style={{ color: 'var(--primary)' }}>{formatPrice(facturaData.total)}</span>
+                  </div>
+                  <p style={{ marginTop: '12px', fontSize: '0.9rem' }}>
+                    <strong>{t('pedidos.invoiceDetail.status', 'Estado:')}</strong>{' '}
+                    <span className={badgeClass(facturaData.estado)}>{t('pedidos.status.' + facturaData.estado?.toLowerCase(), facturaData.estado)}</span>
+                  </p>
                 </div>
               )}
             </div>

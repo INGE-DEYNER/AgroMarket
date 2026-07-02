@@ -26,6 +26,7 @@ public interface PedidoMapper {
                 .total(entity.getTotal())
                 .estado(entity.getEstado())
                 .fechaCreacion(entity.getFechaCreacion())
+                .checkoutId(entity.getCheckoutId())
                 .build();
     }
 
@@ -44,6 +45,7 @@ public interface PedidoMapper {
                 .total(entity.getTotal())
                 .estado(entity.getEstado())
                 .fechaCreacion(entity.getFechaCreacion())
+                .checkoutId(entity.getCheckoutId())
                 .build();
     }
 }

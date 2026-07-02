@@ -25,4 +25,5 @@ public class PedidoResponse {
     private BigDecimal total;
     private EstadoPedido estado;
     private LocalDateTime fechaCreacion;
+    private String checkoutId;
 }

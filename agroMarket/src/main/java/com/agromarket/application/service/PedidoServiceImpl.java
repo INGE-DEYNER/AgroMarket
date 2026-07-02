@@ -66,6 +66,7 @@ public class PedidoServiceImpl implements PedidoService {
                 .precioUnitario(producto.getPrecio())
                 .total(producto.getPrecio().multiply(java.math.BigDecimal.valueOf(request.getCantidad())))
                 .estado(EstadoPedido.PENDIENTE)
+                .checkoutId(request.getCheckoutId())
                 .build();
         PedidoEntity guardado = pedidoJpaRepository.save(pedido);
         // invalidate caches
