@@ -354,13 +354,15 @@ export default function Perfil() {
             >
               Datos Personales
             </button>
-            <button 
-              className={`btn ${activeTab === 'tarjetas' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setActiveTab('tarjetas')}
-              style={{ justifyContent: 'flex-start', width: '100%' }}
-            >
-              Métodos de Pago
-            </button>
+            {user?.role?.toLowerCase() !== 'productor' && (
+              <button 
+                className={`btn ${activeTab === 'tarjetas' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setActiveTab('tarjetas')}
+                style={{ justifyContent: 'flex-start', width: '100%' }}
+              >
+                Métodos de Pago
+              </button>
+            )}
             <button 
               className={`btn ${activeTab === 'security' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('security')}
@@ -368,13 +370,15 @@ export default function Perfil() {
             >
               Seguridad y Acceso
             </button>
-            <button 
-              className={`btn ${activeTab === 'cupones' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setActiveTab('cupones')}
-              style={{ justifyContent: 'flex-start', width: '100%' }}
-            >
-              Mis Cupones
-            </button>
+            {user?.role?.toLowerCase() !== 'productor' && (
+              <button 
+                className={`btn ${activeTab === 'cupones' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setActiveTab('cupones')}
+                style={{ justifyContent: 'flex-start', width: '100%' }}
+              >
+                Mis Cupones
+              </button>
+            )}
             <button 
               className={`btn ${activeTab === 'preferencias' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('preferencias')}
@@ -501,7 +505,7 @@ export default function Perfil() {
             )}
 
             {/* 2. PAYMENT METHODS */}
-            {activeTab === 'tarjetas' && (
+            {activeTab === 'tarjetas' && user?.role?.toLowerCase() !== 'productor' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>
                   <h3>Métodos de Pago</h3>
@@ -646,7 +650,7 @@ export default function Perfil() {
             )}
 
             {/* 4. ACTIVE COUPONS */}
-            {activeTab === 'cupones' && (
+            {activeTab === 'cupones' && user?.role?.toLowerCase() !== 'productor' && (
               <div>
                 <h3 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '12px', marginBottom: '24px' }}>Mis Cupones de Descuento</h3>
                 

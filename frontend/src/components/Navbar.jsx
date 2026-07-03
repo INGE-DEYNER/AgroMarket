@@ -191,18 +191,22 @@ export default function Navbar() {
                       </svg>
                       {t('nav.myPanel', 'Mi panel')}
                     </Link>
-                    <Link to="/pedidos" onClick={() => setMenuUsuario(false)}>
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
-                      </svg>
-                      {t('nav.myOrders', 'Mis pedidos')}
-                    </Link>
-                    <Link to="/perfil#cupones" onClick={() => setMenuUsuario(false)}>
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-1.99.9-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2zm-2-1.46V18H6V6h12v4.54c-.6.69-.99 1.6-.99 2.46s.39 1.77.99 2.46z"/>
-                      </svg>
-                      {t('nav.coupons', 'Mis cupones')}
-                    </Link>
+                    {user.role?.toLowerCase() !== 'productor' && (
+                      <>
+                        <Link to="/pedidos" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
+                          </svg>
+                          {t('nav.myOrders', 'Mis pedidos')}
+                        </Link>
+                        <Link to="/perfil#cupones" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-1.99.9-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2zm-2-1.46V18H6V6h12v4.54c-.6.69-.99 1.6-.99 2.46s.39 1.77.99 2.46z"/>
+                          </svg>
+                          {t('nav.coupons', 'Mis cupones')}
+                        </Link>
+                      </>
+                    )}
                     <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
                     <button onClick={handleLogout} className="nav-logout">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
@@ -371,12 +375,16 @@ export default function Navbar() {
               >
                 {t('nav.myPanel', 'Mi panel')}
               </Link>
-              <Link to="/pedidos" onClick={() => setMenuMovil(false)}>
-                {t('nav.myOrders', 'Mis pedidos')}
-              </Link>
-              <Link to="/perfil#cupones" onClick={() => setMenuMovil(false)}>
-                {t('nav.coupons', 'Mis cupones')}
-              </Link>
+              {user.role?.toLowerCase() !== 'productor' && (
+                <>
+                  <Link to="/pedidos" onClick={() => setMenuMovil(false)}>
+                    {t('nav.myOrders', 'Mis pedidos')}
+                  </Link>
+                  <Link to="/perfil#cupones" onClick={() => setMenuMovil(false)}>
+                    {t('nav.coupons', 'Mis cupones')}
+                  </Link>
+                </>
+              )}
               
               <button onClick={() => { handleLogout(); setMenuMovil(false); }} className="nav-logout-mobile">
                 {t('nav.logout', 'Cerrar sesión')}
