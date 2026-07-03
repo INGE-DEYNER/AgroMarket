@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const ProductCard = React.memo(({ p, t, addedStates, handlePedirAhora, onViewDetails, onContactProducer }) => {
-  const { formatPrice } = useAuth();
+  const { formatPrice, user } = useAuth();
 
   return (
     <div className="catalog-card" style={{ cursor: 'pointer' }}>
@@ -76,13 +76,15 @@ const ProductCard = React.memo(({ p, t, addedStates, handlePedirAhora, onViewDet
             )}
             <small>{t('catalog.perKg', '/kg')}</small>
           </div>
-          <button
-            className={`catalog-card-add ${addedStates[p.id] ? 'added' : ''}`}
-            onClick={(e) => { e.stopPropagation(); handlePedirAhora(p); }}
-            disabled={p.stock <= 0}
-          >
-            {addedStates[p.id] ? '✓ Agregado' : t('catalog.addToCart', '+ Agregar')}
-          </button>
+          {(!user || (user.role?.toLowerCase() !== 'productor' && user.role?.toLowerCase() !== 'admin')) && (
+            <button
+              className={`catalog-card-add ${addedStates[p.id] ? 'added' : ''}`}
+              onClick={(e) => { e.stopPropagation(); handlePedirAhora(p); }}
+              disabled={p.stock <= 0}
+            >
+              {addedStates[p.id] ? '✓ Agregado' : t('catalog.addToCart', '+ Agregar')}
+            </button>
+          )}
         </div>
       </div>
     </div>

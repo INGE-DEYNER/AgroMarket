@@ -120,20 +120,22 @@ export default function Navbar() {
           <LanguageSwitcher />
           
           {/* Botón Carrito que abre el Drawer */}
-          <button 
-            type="button" 
-            onClick={() => setCartOpen(true)} 
-            className="nav-icon-btn" 
-            title="Carrito" 
-            aria-label="Ver carrito"
-          >
-            <CartIcon />
-            {totalItems > 0 && (
-              <span className={`nav-badge ${animateBadge ? 'badge-bounce' : ''}`}>
-                {totalItems}
-              </span>
-            )}
-          </button>
+          {(!user || (user.role?.toLowerCase() !== 'productor' && user.role?.toLowerCase() !== 'admin')) && (
+            <button 
+              type="button" 
+              onClick={() => setCartOpen(true)} 
+              className="nav-icon-btn" 
+              title="Carrito" 
+              aria-label="Ver carrito"
+            >
+              <CartIcon />
+              {totalItems > 0 && (
+                <span className={`nav-badge ${animateBadge ? 'badge-bounce' : ''}`}>
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          )}
 
           {!user ? (
             <>
