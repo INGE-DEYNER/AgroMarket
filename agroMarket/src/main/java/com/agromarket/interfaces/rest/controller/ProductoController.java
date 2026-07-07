@@ -60,6 +60,18 @@ public class ProductoController {
             .body(body);
     }
 
+    @GetMapping("/categorias")
+    public ResponseEntity<ApiResponse<java.util.List<String>>> getCategorias() {
+        java.util.List<String> cats = java.util.Arrays.stream(TipoFruta.values())
+                .map(Enum::name)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(ApiResponse.<java.util.List<String>>builder()
+                .success(true)
+                .message("Categorías listadas")
+                .data(cats)
+                .build());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductoResponse>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.<ProductoResponse>builder().success(true).message("Producto recuperado").data(productoService.getById(id)).build());

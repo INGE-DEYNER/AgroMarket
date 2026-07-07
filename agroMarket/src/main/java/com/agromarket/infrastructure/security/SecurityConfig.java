@@ -52,6 +52,7 @@ public class SecurityConfig {
                                 "/api/auth/enviar-verificacion-sms",
                                 "/api/auth/verificar-sms",
                                 "/api/divisas/conversion",
+                                "/api/divisas/tasas",
                                 "/api/auth/verificar",
                                 "/api/auth/recuperar-contrasena",
                                 "/api/auth/restablecer-contrasena",

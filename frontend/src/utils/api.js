@@ -38,6 +38,11 @@ async function request(method, path, body) {
 
   const headers = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
+  
+  const userGeminiKey = localStorage.getItem('user_gemini_key');
+  if (userGeminiKey) {
+    headers['X-Gemini-Key'] = userGeminiKey;
+  }
 
   let requestBody;
   if (body !== undefined) {
@@ -79,7 +84,15 @@ async function request(method, path, body) {
         window.location.href = '/login';
       }
     }
-    throw Object.assign(new Error(err.message || `HTTP ${res.status}`), { status: res.status });
+    throw Object.assign(
+      new Error(err.message || err.mensaje || `HTTP ${res.status}`), 
+      { 
+        status: res.status,
+        campos: err.campos || null,
+        fieldErrors: err.fieldErrors || null,
+        ...err
+      }
+    );
   }
   return res.status === 204 ? null : res.json();
 }

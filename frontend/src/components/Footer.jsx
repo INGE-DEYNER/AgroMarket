@@ -65,7 +65,6 @@ export default function Footer() {
           <Link to="/registro">Registrarse gratis</Link>
           <Link to="/registro?rol=PRODUCTOR">Soy productor</Link>
           <Link to="/registro?rol=EMPRESA">Soy empresa / frutería</Link>
-          {user?.role === 'admin' && <Link to="/admin">Panel administrador</Link>}
         </div>
 
         <div className="footer-col">
@@ -96,7 +95,7 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Contacto</h4>
           <span>Chigorodó, Antioquia</span>
-          <a href="mailto:contacto@agromarket.co">contacto@agromarket.co</a>
+          <a href="mailto:contacto@agro-market.app">contacto@agro-market.app</a>
           <a href="tel:+573127658412">+57 312 765 8412</a>
           <div className="footer-social">
             {/* Facebook — redirige al perfil oficial de ASAFRUT en Facebook */}

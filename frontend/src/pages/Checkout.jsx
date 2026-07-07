@@ -318,13 +318,23 @@ export default function Checkout() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }} className="form-row">
                     <div>
                       <label className="form-lbl">Departamento *</label>
-                      <input 
-                        type="text" 
+                      <select 
                         value={addressForm.departamento} 
                         onChange={(e) => setAddressForm({ ...addressForm, departamento: e.target.value })}
                         className="form-in"
-                        placeholder="Ej. Antioquia"
-                      />
+                        style={{ height: '44px', background: 'white' }}
+                      >
+                        <option value="">Selecciona departamento</option>
+                        {[
+                          "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá", "Caldas",
+                          "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba", "Cundinamarca",
+                          "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena", "Meta", "Nariño",
+                          "Norte de Santander", "Putumayo", "Quindío", "Risaralda", "San Andrés y Providencia",
+                          "Santander", "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada", "Bogotá D.C."
+                        ].sort().map(dept => (
+                          <option key={dept} value={dept}>{dept}</option>
+                        ))}
+                      </select>
                       {formErrors.departamento && <span className="form-err">{formErrors.departamento}</span>}
                     </div>
                     <div>

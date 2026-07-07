@@ -7,12 +7,19 @@ import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import '../styles/styles.css';
 
-const CURRENCIES = [
-  { code: 'COP', name: 'Peso Colombiano (COP)' },
-  { code: 'USD', name: 'Dólar Americano (USD)' },
-  { code: 'EUR', name: 'Euro (EUR)' },
-  { code: 'MXN', name: 'Peso Mexicano (MXN)' },
-  { code: 'CLP', name: 'Peso Chileno (CLP)' },
+const DIVISAS = [
+  { codigo: 'COP', nombre: 'Peso colombiano', bandera: '🇨🇴' },
+  { codigo: 'USD', nombre: 'Dólar estadounidense', bandera: '🇺🇸' },
+  { codigo: 'EUR', nombre: 'Euro', bandera: '🇪🇺' },
+  { codigo: 'GBP', nombre: 'Libra esterlina', bandera: '🇬🇧' },
+  { codigo: 'BRL', nombre: 'Real brasileño', bandera: '🇧🇷' },
+  { codigo: 'MXN', nombre: 'Peso mexicano', bandera: '🇲🇽' },
+  { codigo: 'CLP', nombre: 'Peso chileno', bandera: '🇨🇱' },
+  { codigo: 'PEN', nombre: 'Sol peruano', bandera: '🇵🇪' },
+  { codigo: 'ARS', nombre: 'Peso argentino', bandera: '🇦🇷' },
+  { codigo: 'CAD', nombre: 'Dólar canadiense', bandera: '🇨🇦' },
+  { codigo: 'JPY', nombre: 'Yen japonés', bandera: '🇯🇵' },
+  { codigo: 'CNY', nombre: 'Yuan chino', bandera: '🇨🇳' },
 ];
 
 export default function Perfil() {
@@ -473,7 +480,23 @@ export default function Perfil() {
                       <div className="form-row">
                         <div className="form-group">
                           <label className="form-label">Departamento</label>
-                          <input className="form-input" value={departamento} onChange={(e) => setDepartamento(e.target.value)} placeholder="Ej. Antioquia" />
+                          <select 
+                            className="form-input" 
+                            value={departamento} 
+                            onChange={(e) => setDepartamento(e.target.value)}
+                            style={{ height: '42px', background: 'white' }}
+                          >
+                            <option value="">Selecciona departamento</option>
+                            {[
+                              "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá", "Caldas",
+                              "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba", "Cundinamarca",
+                              "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena", "Meta", "Nariño",
+                              "Norte de Santander", "Putumayo", "Quindío", "Risaralda", "San Andrés y Providencia",
+                              "Santander", "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada", "Bogotá D.C."
+                            ].sort().map(dept => (
+                              <option key={dept} value={dept}>{dept}</option>
+                            ))}
+                          </select>
                         </div>
                         <div className="form-group">
                           <label className="form-label">Ciudad</label>
@@ -709,8 +732,10 @@ export default function Perfil() {
                       value={divisaPreferida} 
                       onChange={(e) => setDivisaPreferida(e.target.value)}
                     >
-                      {CURRENCIES.map((c) => (
-                        <option key={c.code} value={c.code}>{c.name}</option>
+                      {DIVISAS.map((d) => (
+                        <option key={d.codigo} value={d.codigo}>
+                          {d.bandera} {d.codigo} — {d.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>

@@ -78,17 +78,25 @@ public class ProductoServiceImpl implements ProductoService {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoFruta"), tipo));
         }
         if (categoria != null && !categoria.isBlank()) {
-            if (categoria.equalsIgnoreCase("Otros")) {
+            String cleanCategory = categoria.toLowerCase()
+                    .trim()
+                    .replace("á", "a")
+                    .replace("é", "e")
+                    .replace("í", "i")
+                    .replace("ó", "o")
+                    .replace("ú", "u")
+                    .replace("ñ", "n");
+            if (cleanCategory.equalsIgnoreCase("otros")) {
                 spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoFruta"), TipoFruta.OTRO));
-            } else if (categoria.equalsIgnoreCase("Frutas")) {
+            } else if (cleanCategory.equalsIgnoreCase("frutas")) {
                 spec = spec.and((root, query, cb) -> cb.notEqual(root.get("tipoFruta"), TipoFruta.OTRO));
             } else {
                 try {
-                    TipoFruta tf = TipoFruta.valueOf(categoria.toUpperCase());
+                    TipoFruta tf = TipoFruta.valueOf(cleanCategory.toUpperCase());
                     spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoFruta"), tf));
                 } catch (IllegalArgumentException e) {
                     if (!categoria.equalsIgnoreCase("Todos")) {
-                        spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("tipoFruta").as(String.class)), "%" + categoria.toLowerCase() + "%"));
+                        spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("tipoFruta").as(String.class)), "%" + cleanCategory + "%"));
                     }
                 }
             }

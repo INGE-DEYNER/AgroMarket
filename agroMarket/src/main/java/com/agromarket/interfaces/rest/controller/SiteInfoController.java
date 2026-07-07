@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -141,7 +142,8 @@ public class SiteInfoController {
     }
 
     @PostMapping("/chatbot")
-    public ResponseEntity<?> chatbot(@RequestBody Map<String, String> body) {
+    public ResponseEntity<?> chatbot(@RequestBody Map<String, String> body,
+                                     @RequestHeader(value = "X-Gemini-Key", required = false) String customApiKey) {
         String mensaje = body.getOrDefault("mensaje", "").trim();
         
         if (mensaje.isEmpty() || mensaje.length() > 500) {
@@ -176,8 +178,10 @@ public class SiteInfoController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             
+            String keyToUse = (customApiKey != null && !customApiKey.isBlank()) ? customApiKey : geminiApiKey;
+            
             ResponseEntity<Map> response = restTemplate.postForEntity(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiApiKey,
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + keyToUse,
                 new HttpEntity<>(geminiRequest, headers),
                 Map.class
             );

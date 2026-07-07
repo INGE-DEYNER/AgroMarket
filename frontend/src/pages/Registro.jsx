@@ -260,7 +260,19 @@ export default function Registro() {
       await api.post('/auth/registro', payload);
       setSuccess(true);
     } catch (err) {
-      setErrors({ global: err.message || 'Error al registrar.' });
+      if (err.campos) {
+        const mappedErrors = {};
+        Object.entries(err.campos).forEach(([field, msg]) => {
+          if (field === 'confirmPassword') {
+            mappedErrors.confirmPass = msg;
+          } else {
+            mappedErrors[field] = msg;
+          }
+        });
+        setErrors(mappedErrors);
+      } else {
+        setErrors({ global: err.message || 'Error al registrar.' });
+      }
     } finally {
       setLoading(false);
     }

@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,6 +42,20 @@ public class UsuarioController {
                 .success(true)
                 .message("Perfil actualizado")
                 .data(usuarioService.actualizar(principal.getUserId(), request))
+                .build());
+    }
+
+    @PatchMapping("/divisa")
+    public ResponseEntity<ApiResponse<Void>> actualizarDivisa(@AuthenticationPrincipal JwtUserPrincipal principal, @RequestBody java.util.Map<String, String> body) {
+        String divisa = body.get("divisa");
+        if (divisa != null) {
+            ActualizarUsuarioRequest request = new ActualizarUsuarioRequest();
+            request.setDivisaPreferida(divisa);
+            usuarioService.actualizar(principal.getUserId(), request);
+        }
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Divisa preferida actualizada")
                 .build());
     }
 

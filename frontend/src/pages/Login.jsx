@@ -42,6 +42,8 @@ export default function Login() {
     const params = new URLSearchParams(location.search);
     if (params.get('message') === 'inicia_sesion') {
       setGlobalError('Inicia sesión para completar tu compra de forma segura.');
+    } else if (params.get('message') === 'expired') {
+      setGlobalError('Tu sesión ha expirado por seguridad. Por favor inicia sesión nuevamente.');
     }
     if (params.get('oauth2') === 'success') {
       (async () => {

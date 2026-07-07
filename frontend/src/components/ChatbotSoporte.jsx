@@ -84,7 +84,23 @@ export default function ChatbotSoporte() {
       const requestPromise = api.post('/public/chatbot', { mensaje: text });
       const res = await Promise.race([requestPromise, timeoutPromise]);
       const data = res.data || res;
-      const answer = data.respuesta || 'Lo siento, no pude procesar tu solicitud.';
+      let answer = data.respuesta || 'Lo siento, no pude procesar tu solicitud.';
+
+      // Safeguard: Never render raw JSON as text
+      if (typeof answer === 'object') {
+        answer = JSON.stringify(answer);
+      }
+      if (typeof answer === 'string' && (answer.trim().startsWith('{') || answer.trim().startsWith('['))) {
+        try {
+          const parsed = JSON.parse(answer);
+          answer = parsed.respuesta || parsed.response || parsed.text || parsed.message || Object.values(parsed)[0];
+          if (typeof answer === 'object') {
+            answer = JSON.stringify(answer);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
 
       const botMsg = {
         id: Date.now() + 1,

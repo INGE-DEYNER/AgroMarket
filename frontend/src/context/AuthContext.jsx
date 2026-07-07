@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
 import LoadingScreen from '../components/LoadingScreen';
 import CompletarCuentaModal from '../components/CompletarCuentaModal';
+import { useDivisa } from './DivisaContext';
 
 const AuthContext = createContext(null);
 
@@ -85,7 +86,7 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  const login = (userData, token) => {
+  const login = async (userData, token) => {
     if (token) localStorage.setItem('token', token);
     const normalizedUser = {
       ...userData,
@@ -93,6 +94,19 @@ export function AuthProvider({ children }) {
       email: userData.email || userData.correo,
     };
     setUser(normalizedUser);
+
+    // Fetch full user details immediately to populate missing fields like phone, address, preferences
+    try {
+      const res = await api.get('/usuarios/me');
+      const fullUser = res.data || res;
+      setUser({
+        ...fullUser,
+        role: normalizeRole(fullUser.role || fullUser.rol?.name || fullUser.rol),
+        email: fullUser.email || fullUser.correo,
+      });
+    } catch (err) {
+      console.error('Error fetching full user profile after login:', err);
+    }
   };
 
   const logout = async () => {
@@ -104,25 +118,18 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const [divisaActual, setDivisaActual] = useState('COP');
+  const { divisaActual, cambiarDivisa, formatearPrecio } = useDivisa();
 
   useEffect(() => {
     if (user && user.divisaPreferida) {
-      setDivisaActual(user.divisaPreferida);
-    } else {
-      setDivisaActual('COP');
+      if (divisaActual !== user.divisaPreferida) {
+        cambiarDivisa(user.divisaPreferida);
+      }
     }
   }, [user]);
 
   const formatPrice = (copPrice) => {
-    const val = Number(copPrice) || 0;
-    if (divisaActual === 'USD') {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val / 4000);
-    }
-    if (divisaActual === 'EUR') {
-      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(val / 4300);
-    }
-    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(val);
+    return formatearPrecio(copPrice);
   };
 
   if (loading) {
@@ -137,7 +144,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, setUser, refetchUser, divisaActual, setDivisaActual, formatPrice }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, setUser, refetchUser, divisaActual, setDivisaActual: cambiarDivisa, formatPrice }}>
       {children}
     </AuthContext.Provider>
   );

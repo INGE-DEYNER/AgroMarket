@@ -5,7 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../hooks/useCart';
 import LanguageSwitcher from './LanguageSwitcher';
+import DivisaSwitcher from './DivisaSwitcher';
 import CartDrawer from './CartDrawer';
+import api from '../utils/api';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -22,6 +24,39 @@ export default function Navbar() {
   const userMenuRef = useRef(null);
   const categoriesMenuRef = useRef(null);
   const prevItemsRef = useRef(totalItems);
+  const [categorias, setCategorias] = useState([
+    'Banano', 'Mango', 'Piña', 'Maracuyá', 'Guanábana', 
+    'Naranja', 'Coco', 'Limón', 'Otro'
+  ]);
+
+  useEffect(() => {
+    let active = true;
+    const fetchCats = async () => {
+      try {
+        const res = await api.get('/productos/categorias');
+        const data = res.data || res;
+        if (Array.isArray(data) && active) {
+          const map = {
+            BANANO: 'Banano',
+            MANGO: 'Mango',
+            PINA: 'Piña',
+            MARACUYA: 'Maracuyá',
+            GUANABANA: 'Guanábana',
+            NARANJA: 'Naranja',
+            COCO: 'Coco',
+            LIMON: 'Limón',
+            OTRO: 'Otro'
+          };
+          const formatted = data.map(c => map[c] || (c.charAt(0).toUpperCase() + c.slice(1).toLowerCase()));
+          setCategorias(formatted);
+        }
+      } catch (err) {
+        console.error('Error fetching real categories:', err);
+      }
+    };
+    fetchCats();
+    return () => { active = false; };
+  }, []);
 
   // Glassmorphism on scroll
   useEffect(() => {
@@ -118,6 +153,7 @@ export default function Navbar() {
         {/* Acciones derechas */}
         <div className="nav-actions">
           <LanguageSwitcher />
+          <DivisaSwitcher />
           
           {/* Botón Carrito que abre el Drawer */}
           {(!user || (user.role?.toLowerCase() !== 'productor' && user.role?.toLowerCase() !== 'admin')) && (
@@ -158,7 +194,23 @@ export default function Navbar() {
                     : <span>{(user.nombre || 'U').charAt(0).toUpperCase()}</span>
                   }
                 </div>
-                <span className="nav-username">{user.nombre}</span>
+                <span className="nav-username" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  {user.nombre}
+                  {user.role?.toLowerCase() === 'admin' && (
+                    <span className="admin-badge" style={{
+                      backgroundColor: '#f4a261',
+                      color: 'white',
+                      fontSize: '0.65rem',
+                      fontWeight: 'bold',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Admin
+                    </span>
+                  )}
+                </span>
                 <svg
                   viewBox="0 0 24 24" width="14" height="14" fill="currentColor"
                   className="nav-arrow"
@@ -172,40 +224,84 @@ export default function Navbar() {
 
                 {menuUsuario && (
                   <div className="nav-dropdown">
-                    <Link to="/perfil" onClick={() => setMenuUsuario(false)}>
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-                      </svg>
-                      {t('nav.myAccount', 'Mi cuenta')}
-                    </Link>
-                    <Link
-                      to={
-                        user.role?.toLowerCase() === 'productor'
-                          ? '/dashboard-productor'
-                          : user.role?.toLowerCase() === 'admin'
-                            ? '/admin'
-                            : '/dashboard-comprador'
-                      }
-                      onClick={() => setMenuUsuario(false)}
-                    >
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-                      </svg>
-                      {t('nav.myPanel', 'Mi panel')}
-                    </Link>
-                    {user.role?.toLowerCase() !== 'productor' && (
+                    {/* COMPRADOR */}
+                    {(user.role?.toLowerCase() === 'comprador' || user.role?.toLowerCase() === 'comprador_empresa') && (
                       <>
-                        <Link to="/pedidos" onClick={() => setMenuUsuario(false)}>
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
-                          </svg>
-                          {t('nav.myOrders', 'Mis pedidos')}
+                        <Link to="/dashboard-comprador" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                          Mi dashboard
                         </Link>
-                        <Link to="/perfil#cupones" onClick={() => setMenuUsuario(false)}>
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                            <path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-1.99.9-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2zm-2-1.46V18H6V6h12v4.54c-.6.69-.99 1.6-.99 2.46s.39 1.77.99 2.46z"/>
-                          </svg>
-                          {t('nav.coupons', 'Mis cupones')}
+                        <Link to="/pedidos" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                          Mis pedidos
+                        </Link>
+                        <Link to="/dashboard-comprador?tab=favoritos" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                          Favoritos
+                        </Link>
+                        <Link to="/mensajeria" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                          Mensajes
+                        </Link>
+                        <Link to="/perfil" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                          Mi perfil
+                        </Link>
+                      </>
+                    )}
+
+                    {/* PRODUCTOR */}
+                    {user.role?.toLowerCase() === 'productor' && (
+                      <>
+                        <Link to="/dashboard-comprador" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                          Mi dashboard
+                        </Link>
+                        <Link to="/dashboard-productor" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+                          Panel productor
+                        </Link>
+                        <Link to="/pedidos" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                          Mis pedidos
+                        </Link>
+                        <Link to="/mensajeria" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                          Mensajes
+                        </Link>
+                        <Link to="/perfil" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                          Mi perfil
+                        </Link>
+                      </>
+                    )}
+
+                    {/* ADMIN */}
+                    {user.role?.toLowerCase() === 'admin' && (
+                      <>
+                        <Link to="/admin" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg>
+                          Panel admin
+                        </Link>
+                        <Link to="/dashboard-comprador" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                          Mi dashboard (compras)
+                        </Link>
+                        <Link to="/dashboard-productor" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+                          Panel productor
+                        </Link>
+                        <Link to="/pedidos" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                          Mis pedidos
+                        </Link>
+                        <Link to="/mensajeria" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                          Mensajes
+                        </Link>
+                        <Link to="/perfil" onClick={() => setMenuUsuario(false)}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                          Mi perfil
                         </Link>
                       </>
                     )}
@@ -277,10 +373,7 @@ export default function Navbar() {
                     color: #385723 !important;
                   }
                 `}</style>
-                {[
-                  'Banano', 'Mango', 'Piña', 'Maracuyá', 'Guanábana', 
-                  'Naranja', 'Coco', 'Limón', 'Otro'
-                ].map((cat) => (
+                 {categorias.map((cat) => (
                   <Link 
                     key={cat} 
                     to={`/catalogo?categoria=${encodeURIComponent(cat)}`}
@@ -362,29 +455,37 @@ export default function Navbar() {
                 </div>
               </div>
               
-              <Link to="/perfil" onClick={() => setMenuMovil(false)}>
-                {t('nav.myAccount', 'Mi cuenta')}
-              </Link>
-              <Link
-                to={
-                  user.role?.toLowerCase() === 'productor'
-                    ? '/dashboard-productor'
-                    : user.role?.toLowerCase() === 'admin'
-                      ? '/admin'
-                      : '/dashboard-comprador'
-                }
-                onClick={() => setMenuMovil(false)}
-              >
-                {t('nav.myPanel', 'Mi panel')}
-              </Link>
-              {user.role?.toLowerCase() !== 'productor' && (
+              {/* Para Comprador / Empresa */}
+              {(user.role?.toLowerCase() === 'comprador' || user.role?.toLowerCase() === 'comprador_empresa') && (
                 <>
-                  <Link to="/pedidos" onClick={() => setMenuMovil(false)}>
-                    {t('nav.myOrders', 'Mis pedidos')}
-                  </Link>
-                  <Link to="/perfil#cupones" onClick={() => setMenuMovil(false)}>
-                    {t('nav.coupons', 'Mis cupones')}
-                  </Link>
+                  <Link to="/dashboard-comprador" onClick={() => setMenuMovil(false)}>Mi dashboard</Link>
+                  <Link to="/pedidos" onClick={() => setMenuMovil(false)}>Mis pedidos</Link>
+                  <Link to="/dashboard-comprador?tab=favoritos" onClick={() => setMenuMovil(false)}>Favoritos</Link>
+                  <Link to="/mensajeria" onClick={() => setMenuMovil(false)}>Mensajes</Link>
+                  <Link to="/perfil" onClick={() => setMenuMovil(false)}>Mi perfil</Link>
+                </>
+              )}
+
+              {/* Para Productor */}
+              {user.role?.toLowerCase() === 'productor' && (
+                <>
+                  <Link to="/dashboard-comprador" onClick={() => setMenuMovil(false)}>Mi dashboard</Link>
+                  <Link to="/dashboard-productor" onClick={() => setMenuMovil(false)}>Panel productor</Link>
+                  <Link to="/pedidos" onClick={() => setMenuMovil(false)}>Mis pedidos</Link>
+                  <Link to="/mensajeria" onClick={() => setMenuMovil(false)}>Mensajes</Link>
+                  <Link to="/perfil" onClick={() => setMenuMovil(false)}>Mi perfil</Link>
+                </>
+              )}
+
+              {/* Para Admin */}
+              {user.role?.toLowerCase() === 'admin' && (
+                <>
+                  <Link to="/admin" onClick={() => setMenuMovil(false)}>Panel admin</Link>
+                  <Link to="/dashboard-comprador" onClick={() => setMenuMovil(false)}>Mi dashboard (compras)</Link>
+                  <Link to="/dashboard-productor" onClick={() => setMenuMovil(false)}>Panel productor</Link>
+                  <Link to="/pedidos" onClick={() => setMenuMovil(false)}>Mis pedidos</Link>
+                  <Link to="/mensajeria" onClick={() => setMenuMovil(false)}>Mensajes</Link>
+                  <Link to="/perfil" onClick={() => setMenuMovil(false)}>Mi perfil</Link>
                 </>
               )}
               

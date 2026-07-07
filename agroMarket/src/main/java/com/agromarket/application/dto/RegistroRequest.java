@@ -37,7 +37,6 @@ public class RegistroRequest {
     @NotBlank(message = "El código de país es obligatorio")
     private String codigoPais;
 
-    @NotBlank(message = "La ubicación es obligatoria")
     private String ubicacion;
 
     @NotBlank(message = "El rol es obligatorio")
