@@ -1,8 +1,8 @@
 package com.agromarket.application.mapper;
 
-import com.agromarket.application.dto.MensajeResponse;
-import com.agromarket.domain.model.Mensaje;
-import com.agromarket.infrastructure.persistence.entity.MensajeEntity;
+import com.agromarket.application.api.response.MensajeResponse;
+import com.agromarket.application.persistence.sql.entities.MensajeEntity;
+import com.agromarket.domain.models.Mensaje;
 
 import org.mapstruct.Mapper;
 

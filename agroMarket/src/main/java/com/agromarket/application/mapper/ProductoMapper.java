@@ -3,10 +3,10 @@ package com.agromarket.application.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.agromarket.application.dto.ProductoResponse;
-import com.agromarket.domain.model.Producto;
-import com.agromarket.infrastructure.persistence.entity.ProductoEntity;
-import com.agromarket.infrastructure.persistence.entity.ResenaEntity;
+import com.agromarket.application.api.response.ProductoResponse;
+import com.agromarket.application.persistence.sql.entities.ProductoEntity;
+import com.agromarket.application.persistence.sql.entities.ResenaEntity;
+import com.agromarket.domain.models.Producto;
 
 import org.mapstruct.Mapper;
 

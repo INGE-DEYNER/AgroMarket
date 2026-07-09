@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import com.agromarket.config.properties.AgroMarketJwtProperties;
 import com.agromarket.config.properties.JwtProperties;
-import com.agromarket.domain.model.RolUsuario;
+import com.agromarket.domain.models.enums.RolUsuario;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

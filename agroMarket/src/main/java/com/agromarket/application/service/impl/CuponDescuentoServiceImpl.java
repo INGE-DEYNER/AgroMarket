@@ -1,9 +1,10 @@
 package com.agromarket.application.service.impl;
 
-import com.agromarket.application.service.CuponDescuentoService;
-import com.agromarket.domain.model.TipoCupon;
-import com.agromarket.infrastructure.persistence.entity.CuponDescuento;
-import com.agromarket.infrastructure.persistence.repository.CuponDescuentoRepository;
+import com.agromarket.application.persistence.sql.entities.CuponDescuento;
+import com.agromarket.application.persistence.sql.repositories.CuponDescuentoRepository;
+import com.agromarket.domain.models.enums.TipoCupon;
+import com.agromarket.domain.ports.CuponDescuentoService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

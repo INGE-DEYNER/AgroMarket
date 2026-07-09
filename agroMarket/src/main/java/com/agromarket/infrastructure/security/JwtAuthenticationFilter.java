@@ -14,10 +14,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.agromarket.domain.models.enums.RolUsuario;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.agromarket.domain.model.RolUsuario;
 
 import lombok.RequiredArgsConstructor;
 

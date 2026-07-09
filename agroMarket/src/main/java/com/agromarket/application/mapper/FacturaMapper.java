@@ -1,8 +1,8 @@
 package com.agromarket.application.mapper;
 
-import com.agromarket.application.dto.FacturaResponse;
-import com.agromarket.domain.model.Factura;
-import com.agromarket.infrastructure.persistence.entity.FacturaEntity;
+import com.agromarket.application.api.response.FacturaResponse;
+import com.agromarket.application.persistence.sql.entities.FacturaEntity;
+import com.agromarket.domain.models.Factura;
 
 import org.mapstruct.Mapper;
 

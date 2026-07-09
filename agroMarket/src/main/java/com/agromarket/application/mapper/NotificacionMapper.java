@@ -1,8 +1,8 @@
 package com.agromarket.application.mapper;
 
-import com.agromarket.application.dto.NotificacionResponse;
-import com.agromarket.domain.model.Notificacion;
-import com.agromarket.infrastructure.persistence.entity.NotificacionEntity;
+import com.agromarket.application.api.response.NotificacionResponse;
+import com.agromarket.application.persistence.sql.entities.NotificacionEntity;
+import com.agromarket.domain.models.Notificacion;
 
 import org.mapstruct.Mapper;
 

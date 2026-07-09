@@ -3,9 +3,9 @@ package com.agromarket.application.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.agromarket.application.dto.ResenaResponse;
-import com.agromarket.domain.model.Resena;
-import com.agromarket.infrastructure.persistence.entity.ResenaEntity;
+import com.agromarket.application.api.response.ResenaResponse;
+import com.agromarket.application.persistence.sql.entities.ResenaEntity;
+import com.agromarket.domain.models.Resena;
 
 import org.mapstruct.Mapper;
 

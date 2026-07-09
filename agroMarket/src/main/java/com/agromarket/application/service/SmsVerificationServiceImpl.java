@@ -1,6 +1,9 @@
 package com.agromarket.application.service;
 
 import org.springframework.stereotype.Service;
+
+import com.agromarket.domain.ports.SmsVerificationService;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

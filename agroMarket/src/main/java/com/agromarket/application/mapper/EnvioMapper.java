@@ -1,8 +1,8 @@
 package com.agromarket.application.mapper;
 
-import com.agromarket.application.dto.EnvioResponse;
-import com.agromarket.domain.model.Envio;
-import com.agromarket.infrastructure.persistence.entity.EnvioEntity;
+import com.agromarket.application.api.response.EnvioResponse;
+import com.agromarket.application.persistence.sql.entities.EnvioEntity;
+import com.agromarket.domain.models.Envio;
 
 import org.mapstruct.Mapper;
 

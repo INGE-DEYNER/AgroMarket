@@ -20,7 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 
 import com.agromarket.config.properties.AppProperties;
-import com.agromarket.domain.model.RolUsuario;
+import com.agromarket.domain.models.enums.RolUsuario;
 
 import lombok.RequiredArgsConstructor;
 

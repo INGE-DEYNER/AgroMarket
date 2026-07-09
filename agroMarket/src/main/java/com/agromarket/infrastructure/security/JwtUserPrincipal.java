@@ -1,6 +1,6 @@
 package com.agromarket.infrastructure.security;
 
-import com.agromarket.domain.model.RolUsuario;
+import com.agromarket.domain.models.enums.RolUsuario;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

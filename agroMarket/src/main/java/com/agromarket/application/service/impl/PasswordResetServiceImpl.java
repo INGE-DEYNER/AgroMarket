@@ -1,12 +1,13 @@
 package com.agromarket.application.service.impl;
 
-import com.agromarket.application.service.EmailService;
-import com.agromarket.application.service.PasswordPolicyService;
-import com.agromarket.application.service.PasswordResetService;
+import com.agromarket.application.persistence.sql.entities.UsuarioEntity;
+import com.agromarket.application.persistence.sql.repositories.UsuarioJpaRepository;
 import com.agromarket.domain.exception.CredencialesInvalidasException;
 import com.agromarket.domain.exception.RecursoNoEncontradoException;
-import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
-import com.agromarket.infrastructure.persistence.repository.UsuarioJpaRepository;
+import com.agromarket.domain.ports.EmailService;
+import com.agromarket.domain.ports.PasswordResetService;
+import com.agromarket.domain.services.PasswordPolicyService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

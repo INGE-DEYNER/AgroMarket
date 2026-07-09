@@ -5,7 +5,8 @@ import java.time.Duration;
 import java.util.Optional;
 
 import com.agromarket.config.properties.AppProperties;
-import com.agromarket.application.service.AuthService;
+import com.agromarket.domain.ports.AuthService;
+
 import org.springframework.http.ResponseCookie;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;

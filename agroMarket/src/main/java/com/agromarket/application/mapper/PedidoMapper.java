@@ -3,9 +3,9 @@ package com.agromarket.application.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.agromarket.application.dto.PedidoResponse;
-import com.agromarket.domain.model.Pedido;
-import com.agromarket.infrastructure.persistence.entity.PedidoEntity;
+import com.agromarket.application.api.response.PedidoResponse;
+import com.agromarket.application.persistence.sql.entities.PedidoEntity;
+import com.agromarket.domain.models.Pedido;
 
 import org.mapstruct.Mapper;
 
@@ -28,9 +28,9 @@ public interface PedidoMapper {
                 .fechaCreacion(entity.getFechaCreacion())
                 .checkoutId(entity.getCheckoutId())
                 .pagado(entity.getPago() != null && (
-                        entity.getPago().getEstado() == com.agromarket.domain.model.EstadoPago.CONFIRMADO ||
-                        entity.getPago().getEstado() == com.agromarket.domain.model.EstadoPago.EN_FIDEICOMISO ||
-                        entity.getPago().getEstado() == com.agromarket.domain.model.EstadoPago.LIBERADO
+                        entity.getPago().getEstado() == com.agromarket.domain.models.enums.EstadoPago.CONFIRMADO ||
+                        entity.getPago().getEstado() == com.agromarket.domain.models.enums.EstadoPago.EN_FIDEICOMISO ||
+                        entity.getPago().getEstado() == com.agromarket.domain.models.enums.EstadoPago.LIBERADO
                 ))
                 .build();
     }

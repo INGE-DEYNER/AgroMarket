@@ -3,16 +3,16 @@ package com.agromarket.application.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.agromarket.application.dto.UsuarioResponse;
-import com.agromarket.domain.model.Administrador;
-import com.agromarket.domain.model.Comprador;
-import com.agromarket.domain.model.Productor;
-import com.agromarket.domain.model.RolUsuario;
-import com.agromarket.domain.model.Usuario;
-import com.agromarket.infrastructure.persistence.entity.AdministradorEntity;
-import com.agromarket.infrastructure.persistence.entity.CompradorEntity;
-import com.agromarket.infrastructure.persistence.entity.ProductorEntity;
-import com.agromarket.infrastructure.persistence.entity.UsuarioEntity;
+import com.agromarket.application.api.response.UsuarioResponse;
+import com.agromarket.application.persistence.sql.entities.AdministradorEntity;
+import com.agromarket.application.persistence.sql.entities.CompradorEntity;
+import com.agromarket.application.persistence.sql.entities.ProductorEntity;
+import com.agromarket.application.persistence.sql.entities.UsuarioEntity;
+import com.agromarket.domain.models.Administrador;
+import com.agromarket.domain.models.Comprador;
+import com.agromarket.domain.models.Productor;
+import com.agromarket.domain.models.Usuario;
+import com.agromarket.domain.models.enums.RolUsuario;
 
 import org.mapstruct.Mapper;
 

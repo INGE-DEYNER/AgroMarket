@@ -1,6 +1,5 @@
 package com.agromarket.infrastructure.email;
 
-import com.agromarket.application.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ClassPathResource;
@@ -10,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
+
+import com.agromarket.domain.ports.EmailService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -1,8 +1,8 @@
 package com.agromarket.application.mapper;
 
-import com.agromarket.application.dto.PagoResponse;
-import com.agromarket.domain.model.Pago;
-import com.agromarket.infrastructure.persistence.entity.PagoEntity;
+import com.agromarket.application.api.response.PagoResponse;
+import com.agromarket.application.persistence.sql.entities.PagoEntity;
+import com.agromarket.domain.models.Pago;
 
 import org.mapstruct.Mapper;
 
