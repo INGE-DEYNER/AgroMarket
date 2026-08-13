@@ -1,6 +1,6 @@
 package com.agromarket.infrastructure.security;
 
-import com.agromarket.config.properties.AppProperties;
+import com.agromarket.infrastructure.config.properties.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

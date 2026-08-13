@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.agromarket.domain.models.enums.TipoFruta;
 
@@ -26,12 +27,29 @@ public class Producto {
     private BigDecimal precio;
     private Integer cantidadDisponible;
     private String imagenUrl;
+    
+    private Integer cantidadMinimaMayorista;
+    private BigDecimal precioMayorista;
+    
     private TipoFruta tipoFruta;
     private Productor productor;
+    
     private boolean enPromocion;
+    private BigDecimal precioPromocion;
+    private LocalDateTime fechaFinPromocion;
+    
+    @Builder.Default
+    private Integer totalVendido = 0;
+    
     @Builder.Default
     private boolean activo = true;
+    
     private LocalDateTime fechaCreacion;
+    
+    @Builder.Default
+    private List<Resena> resenas = new ArrayList<>();
+    
+    private Long version;
 
     public boolean estaDisponible() {
         return activo && cantidadDisponible != null && cantidadDisponible > 0;

@@ -2,14 +2,13 @@ package com.agromarket.application.service.impl;
 
 import java.time.LocalDateTime;
 import java.security.SecureRandom;
-
-import com.agromarket.config.properties.AppProperties;
-import com.agromarket.application.persistence.sql.entities.EmailVerificationTokenEntity;
-import com.agromarket.application.persistence.sql.entities.UsuarioEntity;
-import com.agromarket.application.persistence.sql.repositories.EmailVerificationTokenRepository;
-import com.agromarket.application.persistence.sql.repositories.UsuarioJpaRepository;
+import com.agromarket.infrastructure.config.properties.AppProperties;
+import com.agromarket.infrastructure.persistence.sql.entities.EmailVerificationTokenEntity;
+import com.agromarket.infrastructure.persistence.sql.entities.UsuarioEntity;
+import com.agromarket.infrastructure.persistence.sql.repositories.EmailVerificationTokenRepository;
+import com.agromarket.infrastructure.persistence.sql.repositories.UsuarioJpaRepository;
 import com.agromarket.domain.exception.CredencialesInvalidasException;
-import com.agromarket.domain.ports.EmailVerificationService;
+import com.agromarket.application.ports.in.EmailVerificationService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class EmailVerificationServiceImpl implements EmailVerificationService {
     private final EmailVerificationTokenRepository repository;
     private final UsuarioJpaRepository usuarioJpaRepository;
-    private final com.agromarket.domain.ports.EmailService mailService;
-    private final com.agromarket.domain.ports.RateLimiterService rateLimiterService;
+    private final com.agromarket.application.ports.in.EmailService mailService;
+    private final com.agromarket.application.ports.in.RateLimiterService rateLimiterService;
     private final AppProperties appProperties;
     private final SecureRandom secureRandom = new SecureRandom();
 

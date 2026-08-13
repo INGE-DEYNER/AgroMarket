@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -9,15 +10,32 @@ function openChatbot() {
   if (trigger) trigger.click();
 }
 
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 export default function Footer() {
   const { t } = useTranslation();
   const { user } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  function handleNewsletterSubmit(e) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    // TODO: conectar con el endpoint real de suscripción
+    setSubscribed(true);
+    setEmail("");
+  }
+
+  const year = new Date().getFullYear();
 
   return (
     <footer className="footer-pro">
       {/* Fila 1: Links principales */}
       <div className="footer-main">
-        <div className="footer-col">
+        <div className="footer-col footer-col-brand">
           <Link
             to="/home"
             className="footer-logo"
@@ -48,55 +66,117 @@ export default function Footer() {
             Plataforma oficial de ASAFRUT — Asociación Agropecuaria El Sabor de
             las Frutas y el Campo. Chigorodó, Antioquia, Colombia.
           </p>
+
+          <form className="footer-newsletter" onSubmit={handleNewsletterSubmit}>
+            <label
+              htmlFor="footer-newsletter-email"
+              className="footer-newsletter-label"
+            >
+              Recibe las cosechas y ofertas de temporada
+            </label>
+            <div className="footer-newsletter-row">
+              <input
+                id="footer-newsletter-email"
+                type="email"
+                required
+                placeholder="tu@correo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-label="Correo electrónico para suscribirte"
+              />
+              <button type="submit">Suscribirme</button>
+            </div>
+            <p
+              className="footer-newsletter-msg"
+              role="status"
+              aria-live="polite"
+            >
+              {subscribed ? "¡Listo! Revisa tu correo pronto." : ""}
+            </p>
+          </form>
         </div>
 
-        <div className="footer-col">
-          <h4>Plataforma</h4>
+        <nav className="footer-col" aria-labelledby="footer-col-plataforma">
+          <h4 id="footer-col-plataforma">Plataforma</h4>
           <Link to="/catalogo">Catálogo de productos</Link>
           <Link to="/como-funciona">Cómo funciona</Link>
           <Link to="/sobre-asafrut">Sobre ASAFRUT</Link>
           <Link to="/productores">Nuestros productores</Link>
           <Link to="/home#testimonios">Testimonios</Link>
-        </div>
+        </nav>
 
-        <div className="footer-col">
-          <h4>Acceso</h4>
+        <nav className="footer-col" aria-labelledby="footer-col-acceso">
+          <h4 id="footer-col-acceso">Acceso</h4>
           <Link to="/login">Iniciar sesión</Link>
           <Link to="/registro">Registrarse gratis</Link>
           <Link to="/registro?rol=PRODUCTOR">Soy productor</Link>
           <Link to="/registro?rol=EMPRESA">Soy empresa / frutería</Link>
-        </div>
+        </nav>
 
-        <div className="footer-col">
-          <h4>Soporte</h4>
+        <nav className="footer-col" aria-labelledby="footer-col-soporte">
+          <h4 id="footer-col-soporte">Soporte</h4>
           <Link to="/ayuda">Centro de ayuda</Link>
           {/* Reportar problema: abre el chatbot para reportar */}
           <button
             type="button"
+            className="footer-link-btn"
             onClick={openChatbot}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-              color: "inherit",
-              textDecoration: "none",
-              fontSize: "inherit",
-              textAlign: "left",
-            }}
           >
             Reportar problema
           </button>
           <Link to="/terminos">Términos de uso</Link>
           <Link to="/privacidad">Política de privacidad</Link>
           <Link to="/cookies">Política de cookies</Link>
-        </div>
+        </nav>
 
         <div className="footer-col">
           <h4>Contacto</h4>
-          <span>Chigorodó, Antioquia</span>
-          <a href="mailto:contacto@agro-market.app">contacto@agro-market.app</a>
-          <a href="tel:+573127658412">+57 312 765 8412</a>
+
+          <span className="footer-contact-item">
+            <svg
+              className="footer-contact-icon"
+              viewBox="0 0 24 24"
+              width="15"
+              height="15"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M12 2C7.86 2 4.5 5.36 4.5 9.5c0 5.25 6.5 11.5 7.05 12 .26.24.64.24.9 0 .55-.5 7.05-6.75 7.05-12C19.5 5.36 16.14 2 12 2zm0 10.25a2.75 2.75 0 1 1 0-5.5 2.75 2.75 0 0 1 0 5.5z" />
+            </svg>
+            Chigorodó, Antioquia
+          </span>
+
+          <a
+            href="mailto:contacto@agro-market.app"
+            className="footer-contact-item"
+          >
+            <svg
+              className="footer-contact-icon"
+              viewBox="0 0 24 24"
+              width="15"
+              height="15"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M2 6.5A2.5 2.5 0 0 1 4.5 4h15A2.5 2.5 0 0 1 22 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5v-11zm2.2-.5 7.3 5.4a.8.8 0 0 0 .96 0L19.8 6H4.2z" />
+            </svg>
+            contacto@agro-market.app
+          </a>
+
+          <a href="tel:+573127658412" className="footer-contact-item">
+            <svg
+              className="footer-contact-icon"
+              viewBox="0 0 24 24"
+              width="15"
+              height="15"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z" />
+            </svg>
+            +57 312 765 8412
+          </a>
+
           <div className="footer-social">
             {/* Facebook — redirige al perfil oficial de ASAFRUT en Facebook */}
             <a
@@ -150,43 +230,69 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Fila 2: Métodos de pago */}
+      {/* Fila 2: Sello de seguridad + métodos de pago */}
       <div className="footer-payments">
+        <div className="footer-secure">
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3zm-1.2 14-3.3-3.3 1.4-1.4 1.9 1.9 4.9-4.9 1.4 1.4-6.3 6.3z" />
+          </svg>
+          Pago 100% seguro
+        </div>
         <span>Métodos de pago aceptados:</span>
         <div className="payment-logos">
-          <span className="payment-badge visa">VISA</span>
-          <span className="payment-badge mc">Mastercard</span>
-          <span className="payment-badge pse">PSE</span>
-          <span className="payment-badge nequi">Nequi</span>
-          <span className="payment-badge daviplata">Daviplata</span>
+          <img
+            src="/payments/visa.svg"
+            alt="Visa"
+            className="payment-badge visa"
+          />
+          <img
+            src="/payments/mastercard.svg"
+            alt="Mastercard"
+            className="payment-badge mc"
+          />
+          <img
+            src="/payments/mercadopago.svg"
+            alt="Mercado Pago"
+            className="payment-badge mercadopago"
+          />
+          <img
+            src="/payments/pse.svg"
+            alt="PSE"
+            className="payment-badge pse"
+          />
+          <img
+            src="/payments/nequi.svg"
+            alt="Nequi"
+            className="payment-badge nequi"
+          />
+          <img
+            src="/payments/daviplata.svg"
+            alt="Daviplata"
+            className="payment-badge daviplata"
+          />
         </div>
       </div>
 
       {/* Fila 3: Bottom bar */}
       <div className="footer-bottom">
-        <span>© 2026 AgroMarket · ASAFRUT · Todos los derechos reservados</span>
+        <span>
+          © {year} AgroMarket · ASAFRUT · Todos los derechos reservados ·
+          Desarrollado por Deyner Chaverra
+        </span>
         <div className="footer-bottom-links">
           <Link to="/terminos">Términos</Link>
           <Link to="/privacidad">Privacidad</Link>
           <Link to="/cookies">Cookies</Link>
+          <button type="button" className="back-to-top" onClick={scrollToTop}>
+            Volver arriba ↑
+          </button>
         </div>
-        <span>
-          Hecho con{" "}
-          <svg
-            viewBox="0 0 24 24"
-            width="14"
-            height="14"
-            fill="#ef4444"
-            style={{
-              display: "inline",
-              verticalAlign: "middle",
-              margin: "0 2px",
-            }}
-          >
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>{" "}
-          en Colombia · Desarrollado por Deyner Chaverra
-        </span>
       </div>
     </footer>
   );

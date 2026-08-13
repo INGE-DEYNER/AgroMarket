@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
 
-import com.agromarket.domain.ports.EmailService;
+import com.agromarket.application.ports.in.EmailService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

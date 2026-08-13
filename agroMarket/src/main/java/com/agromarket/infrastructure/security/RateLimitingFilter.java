@@ -83,7 +83,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String xf = request.getHeader("X-Forwarded-For");
         if (xf != null && !xf.isBlank()) {
             // SECURITY FIX: tomamos la ÚLTIMA IP del chain, no la primera.
-            // La primera puede ser falsificada por el cliente. La última es la del proxy más cercano (confiable en Railway).
+            // La primera puede ser falsificada por el cliente. La última es la del proxy más cercano y confiable.
             String[] ips = xf.split(",");
             return ips[ips.length - 1].trim();
         }

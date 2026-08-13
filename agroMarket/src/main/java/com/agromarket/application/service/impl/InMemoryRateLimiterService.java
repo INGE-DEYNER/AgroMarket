@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.stereotype.Service;
 
-import com.agromarket.domain.ports.RateLimiterService;
+import com.agromarket.application.ports.in.RateLimiterService;
 
 @Service
 public class InMemoryRateLimiterService implements RateLimiterService {

@@ -13,8 +13,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import com.agromarket.config.properties.AgroMarketJwtProperties;
-import com.agromarket.config.properties.JwtProperties;
+import com.agromarket.infrastructure.config.properties.JwtProperties;
+import com.agromarket.infrastructure.config.properties.AgroMarketJwtProperties;
 import com.agromarket.domain.models.enums.RolUsuario;
 
 import io.jsonwebtoken.Claims;

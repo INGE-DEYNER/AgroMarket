@@ -1,7 +1,7 @@
 package com.agromarket.infrastructure.scheduler;
 
-import com.agromarket.application.persistence.sql.entities.ProductoEntity;
-import com.agromarket.application.persistence.sql.repositories.ProductoJpaRepository;
+import com.agromarket.infrastructure.persistence.sql.entities.ProductoEntity;
+import com.agromarket.infrastructure.persistence.sql.repositories.ProductoJpaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -16,7 +16,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Productor extends Usuario {
-    private String ubicacion;
+    @Builder.Default
+    private Boolean verificado = false;
+    
     @Builder.Default
     private List<Producto> productosPublicados = new ArrayList<>();
 }

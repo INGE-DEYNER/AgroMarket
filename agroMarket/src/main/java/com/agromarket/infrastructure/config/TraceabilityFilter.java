@@ -1,4 +1,4 @@
-package com.agromarket.config;
+package 	com.agromarket.infrastructure.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

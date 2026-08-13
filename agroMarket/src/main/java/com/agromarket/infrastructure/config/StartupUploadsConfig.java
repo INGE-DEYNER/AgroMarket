@@ -1,6 +1,6 @@
-package com.agromarket.config;
+package 	com.agromarket.infrastructure.config;
 
-import com.agromarket.config.properties.AppProperties;
+import com.agromarket.infrastructure.config.properties.AppProperties;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 

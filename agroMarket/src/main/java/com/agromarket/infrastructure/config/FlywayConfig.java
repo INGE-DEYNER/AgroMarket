@@ -1,4 +1,4 @@
-package com.agromarket.config;
+package com.agromarket.infrastructure.config;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;

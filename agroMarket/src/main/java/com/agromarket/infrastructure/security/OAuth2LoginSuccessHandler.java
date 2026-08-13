@@ -3,9 +3,8 @@ package com.agromarket.infrastructure.security;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
-
-import com.agromarket.config.properties.AppProperties;
-import com.agromarket.domain.ports.AuthService;
+import com.agromarket.infrastructure.config.properties.AppProperties;
+import com.agromarket.application.ports.in.AuthService;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.context.annotation.Lazy;

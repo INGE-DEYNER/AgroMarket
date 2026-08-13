@@ -32,13 +32,6 @@ export default function Registro() {
   const [nombreEmpresa, setNombreEmpresa] = useState('');
   const [nit, setNit] = useState('');
 
-  // Phone validation states
-  const [smsEnviado, setSmsEnviado] = useState(false);
-  const [smsCodigo, setSmsCodigo] = useState('');
-  const [telefonoVerificado, setTelefonoVerificado] = useState(false);
-  const [smsError, setSmsError] = useState('');
-  const [smsLoading, setSmsLoading] = useState(false);
-
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -169,44 +162,6 @@ export default function Registro() {
 
   const passwordStrength = getPasswordStrength(password);
 
-  const handleSendSms = async () => {
-    setSmsError('');
-    if (!telefono || errors.telefono) {
-      setSmsError('Ingresa un teléfono válido antes de verificar.');
-      return;
-    }
-    setSmsLoading(true);
-    const fullPhone = codigoPais + telefono.trim();
-    try {
-      await api.post('/auth/enviar-verificacion-sms', { telefono: fullPhone });
-      setSmsEnviado(true);
-      setSmsCodigo('');
-    } catch (err) {
-      setSmsError(err.message || 'Error al enviar código SMS.');
-    } finally {
-      setSmsLoading(false);
-    }
-  };
-
-  const handleVerifySms = async () => {
-    setSmsError('');
-    if (!smsCodigo || smsCodigo.length !== 6) {
-      setSmsError('El código debe ser de 6 dígitos.');
-      return;
-    }
-    setSmsLoading(true);
-    const fullPhone = codigoPais + telefono.trim();
-    try {
-      await api.post('/auth/verificar-sms', { telefono: fullPhone, codigo: smsCodigo });
-      setTelefonoVerificado(true);
-      setSmsEnviado(false);
-    } catch (err) {
-      setSmsError(err.message || 'Código SMS incorrecto.');
-    } finally {
-      setSmsLoading(false);
-    }
-  };
-
   const validateAll = () => {
     const errs = {};
     if (!nombre.trim()) errs.nombre = t('errors.required', 'Campo requerido.');
@@ -235,11 +190,6 @@ export default function Registro() {
     const errs = validateAll();
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
-
-    if (!telefonoVerificado) {
-      setErrors({ global: 'Debes verificar tu número de teléfono por SMS antes de registrarte.' });
-      return;
-    }
 
     setLoading(true);
     try {
@@ -424,7 +374,6 @@ export default function Registro() {
                     className="form-select country-select" 
                     value={codigoPais} 
                     onChange={(e) => setCodigoPais(e.target.value)}
-                    disabled={telefonoVerificado}
                   >
                     {COUNTRY_CODES.map((c) => (
                       <option key={c.code} value={c.code}>{c.code}</option>
@@ -437,47 +386,10 @@ export default function Registro() {
                     placeholder="3001234567" 
                     value={telefono} 
                     onChange={(e) => setTelefono(e.target.value)} 
-                    disabled={telefonoVerificado}
                   />
-                  <button 
-                    type="button" 
-                    className="phone-verify-btn" 
-                    onClick={handleSendSms}
-                    disabled={telefonoVerificado || smsLoading}
-                  >
-                    {telefonoVerificado ? 'Verificado ✓' : smsEnviado ? 'Reenviar' : 'Verificar'}
-                  </button>
                 </div>
                 {errors.telefono && <span className="form-error visible" id="telefonoError">{errors.telefono}</span>}
                 
-                {smsEnviado && (
-                  <>
-                    <div style={{ fontSize: '0.8rem', color: '#2d6a4f', marginTop: '8px', marginBottom: '8px', fontWeight: '600' }}>
-                      📱 Modo demo: usa cualquier código de 6 dígitos (ej. 123456)
-                    </div>
-                    <div className="sms-verify-container">
-                    <input 
-                      className="form-input" 
-                      type="text" 
-                      placeholder="Código de 6 dígitos" 
-                      maxLength={6}
-                      value={smsCodigo} 
-                      onChange={(e) => setSmsCodigo(e.target.value)}
-                      style={{ letterSpacing: '4px', textAlign: 'center', maxWidth: '180px' }}
-                    />
-                    <button 
-                      type="button" 
-                      className="phone-verify-btn" 
-                      onClick={handleVerifySms}
-                      disabled={smsLoading}
-                    >
-                      Confirmar
-                    </button>
-                </div>
-              </>
-            )}
-                {smsError && <div style={{ color: '#e53935', fontSize: '0.75rem', marginTop: '6px' }}>{smsError}</div>}
-                {telefonoVerificado && <div style={{ color: '#4caf50', fontSize: '0.75rem', marginTop: '6px', fontWeight: 'bold' }}>✓ Teléfono verificado por SMS</div>}
               </div>
 
               {/* CONTRASEÑA */}
@@ -619,7 +531,7 @@ export default function Registro() {
 
               <input type="hidden" id="rolSelected" value={rol} />
 
-              <button type="submit" className="btn-submit" id="submitBtn" disabled={loading || !telefonoVerificado}>
+              <button type="submit" className="btn-submit" id="submitBtn" disabled={loading}>
                 {loading ? 'Creando cuenta...' : t('auth.createAccount', 'Crear cuenta')}
               </button>
 

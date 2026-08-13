@@ -19,7 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 
-import com.agromarket.config.properties.AppProperties;
+import com.agromarket.infrastructure.config.properties.AppProperties;
 import com.agromarket.domain.models.enums.RolUsuario;
 
 import lombok.RequiredArgsConstructor;
@@ -48,9 +48,6 @@ public class SecurityConfig {
                                 "/actuator/health/**",
                                 "/api/health",
                                 "/api/auth/verificar-email",
-                                "/api/auth/enviar-sms-verificacion",
-                                "/api/auth/enviar-verificacion-sms",
-                                "/api/auth/verificar-sms",
                                 "/api/divisas/conversion",
                                 "/api/divisas/tasas",
                                 "/api/auth/verificar",
@@ -67,7 +64,6 @@ public class SecurityConfig {
                                 "/api/auth/reenviar-verificacion",
                                 "/api/auth/verificar-correo",
                                 "/api/auth/verify-code",
-                                "/api/pagos/confirmar",
                                 "/api/public/**",
                                 "/oauth2/**",
                                 "/login/oauth2/code/**",
@@ -103,11 +99,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Todos los orígenes válidos — con y sin www + localhost
         configuration.setAllowedOrigins(List.of(
             "https://www.agro-market.app",
             "https://agro-market.app",
             "http://localhost:5173",
+            "http://localhost:5174",
             "http://localhost:3000"
         ));
         configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));

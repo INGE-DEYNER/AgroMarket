@@ -27,6 +27,10 @@ public class Pedido {
     private EstadoPedido estado;
     private LocalDateTime fechaCreacion;
     private String checkoutId;
+    
+    private Pago pago;
+    private Factura factura;
+    private Envio envio;
 
     public void avanzarEstado() {
         if (estado == EstadoPedido.PENDIENTE) {

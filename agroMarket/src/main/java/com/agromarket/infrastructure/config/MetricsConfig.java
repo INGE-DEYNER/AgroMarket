@@ -1,4 +1,4 @@
-package com.agromarket.config;
+package 	com.agromarket.infrastructure.config;
 
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;

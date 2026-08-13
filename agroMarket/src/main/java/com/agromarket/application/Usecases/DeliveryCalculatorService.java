@@ -1,4 +1,4 @@
-package com.agromarket.application.Usecases;
+package com.agromarket.application.usecases;
 
 import org.springframework.stereotype.Service;
 import java.util.Map;

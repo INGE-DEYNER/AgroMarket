@@ -1,9 +1,9 @@
-package com.agromarket.application.Usecases;
+package com.agromarket.application.usecases;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.agromarket.domain.ports.EmailService;
+import com.agromarket.application.ports.in.EmailService;
 
 import java.util.Map;
 

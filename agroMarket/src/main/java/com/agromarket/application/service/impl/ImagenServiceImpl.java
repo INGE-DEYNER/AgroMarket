@@ -15,9 +15,9 @@ import javax.imageio.ImageIO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.agromarket.application.api.request.ActualizarProductoRequest;
-import com.agromarket.domain.ports.ImagenService;
-import com.agromarket.domain.ports.ProductoService;
+import com.agromarket.interfaces.rest.request.ActualizarProductoRequest;
+import com.agromarket.application.ports.in.ImagenService;
+import com.agromarket.application.ports.in.ProductoService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 HOST=${DB_HOST:-localhost}
-PORT=${DB_PORT:-3306}
+PORT=${DB_PORT:-33060}
 DB=${DB_NAME:-agromarket_db}
 USER=${DB_USERNAME:-agromarket_user}
 PASS=${DB_PASSWORD:-}

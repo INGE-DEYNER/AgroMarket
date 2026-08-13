@@ -1,4 +1,4 @@
-package com.agromarket.application.Usecases;
+package com.agromarket.application.usecases;
 
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;

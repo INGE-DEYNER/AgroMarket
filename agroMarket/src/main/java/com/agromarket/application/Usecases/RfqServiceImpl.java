@@ -1,0 +1,196 @@
+package com.agromarket.application.usecases;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.agromarket.interfaces.rest.request.RfqOfertaRequest;
+import com.agromarket.interfaces.rest.request.RfqRequest;
+import com.agromarket.interfaces.rest.response.RfqOfertaResponse;
+import com.agromarket.interfaces.rest.response.RfqResponse;
+import com.agromarket.infrastructure.persistence.sql.entities.CompradorEntity;
+import com.agromarket.infrastructure.persistence.sql.entities.PedidoEntity;
+import com.agromarket.infrastructure.persistence.sql.entities.ProductoEntity;
+import com.agromarket.infrastructure.persistence.sql.entities.ProductorEntity;
+import com.agromarket.infrastructure.persistence.sql.entities.RfqEntity;
+import com.agromarket.infrastructure.persistence.sql.entities.RfqOfertaEntity;
+import com.agromarket.infrastructure.persistence.sql.entities.UsuarioEntity;
+import com.agromarket.infrastructure.persistence.sql.repositories.PedidoJpaRepository;
+import com.agromarket.infrastructure.persistence.sql.repositories.ProductoJpaRepository;
+import com.agromarket.infrastructure.persistence.sql.repositories.RfqJpaRepository;
+import com.agromarket.infrastructure.persistence.sql.repositories.RfqOfertaJpaRepository;
+import com.agromarket.infrastructure.persistence.sql.repositories.UsuarioJpaRepository;
+import com.agromarket.domain.exception.CredencialesInvalidasException;
+import com.agromarket.domain.exception.RecursoNoEncontradoException;
+import com.agromarket.domain.models.enums.EstadoPedido;
+import com.agromarket.domain.models.enums.RolUsuario;
+import com.agromarket.application.ports.in.RfqService;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class RfqServiceImpl implements RfqService {
+    private final RfqJpaRepository rfqJpaRepository;
+    private final RfqOfertaJpaRepository rfqOfertaJpaRepository;
+    private final UsuarioJpaRepository usuarioJpaRepository;
+    private final ProductoJpaRepository productoJpaRepository;
+    private final PedidoJpaRepository pedidoJpaRepository;
+
+    @Override
+    @Transactional
+    public RfqResponse crear(RfqRequest request, Long compradorId) {
+        UsuarioEntity comprador = usuarioJpaRepository.findById(compradorId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Comprador no encontrado"));
+
+        RfqEntity rfq = RfqEntity.builder()
+                .comprador(comprador)
+                .tipoFruta(request.getTipoFruta())
+                .cantidadRequerida(request.getCantidadRequerida())
+                .descripcion(request.getDescripcion())
+                .fechaLimite(request.getFechaLimite())
+                .activo(true)
+                .build();
+
+        return toResponse(rfqJpaRepository.save(rfq));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RfqResponse> getActivas() {
+        return rfqJpaRepository.findByActivoTrue().stream()
+                .filter(rfq -> rfq.getFechaLimite().isAfter(LocalDateTime.now()))
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public RfqOfertaResponse ofertar(Long rfqId, RfqOfertaRequest request, Long productorId) {
+        RfqEntity rfq = rfqJpaRepository.findById(rfqId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("RFQ no encontrada"));
+
+        if (!rfq.isActivo() || rfq.getFechaLimite().isBefore(LocalDateTime.now())) {
+            throw new CredencialesInvalidasException("La RFQ ya no está activa para cotizaciones");
+        }
+
+        UsuarioEntity productor = usuarioJpaRepository.findById(productorId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Productor no encontrado"));
+
+        if (rfqOfertaJpaRepository.existsByRfqIdAndProductorId(rfqId, productorId)) {
+            throw new CredencialesInvalidasException("Ya has enviado una oferta para esta licitación");
+        }
+
+        RfqOfertaEntity oferta = RfqOfertaEntity.builder()
+                .rfq(rfq)
+                .productor(productor)
+                .precioPropuesto(request.getPrecioPropuesto())
+                .comentarios(request.getComentarios())
+                .aceptada(false)
+                .build();
+
+        return toResponse(rfqOfertaJpaRepository.save(oferta));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RfqResponse> getMisSolicitudes(Long compradorId) {
+        return rfqJpaRepository.findByCompradorId(compradorId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void aceptarOferta(Long ofertaId, Long compradorId) {
+        RfqOfertaEntity oferta = rfqOfertaJpaRepository.findById(ofertaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Oferta no encontrada"));
+
+        RfqEntity rfq = oferta.getRfq();
+        if (!rfq.getComprador().getId().equals(compradorId)) {
+            throw new CredencialesInvalidasException("No estás autorizado para aceptar ofertas en esta solicitud");
+        }
+
+        if (!rfq.isActivo()) {
+            throw new CredencialesInvalidasException("La licitación ya no está activa");
+        }
+
+        // Marcar oferta como aceptada y cerrar licitación
+        oferta.setAceptada(true);
+        rfq.setActivo(false);
+        rfqOfertaJpaRepository.save(oferta);
+        rfqJpaRepository.save(rfq);
+
+        // Generar pedido automático
+        UsuarioEntity comprador = rfq.getComprador();
+        UsuarioEntity productor = oferta.getProductor();
+
+        // Buscar producto de este productor o crear uno temporal
+        ProductoEntity producto = productoJpaRepository.findByProductorIdAndTipoFruta(productor.getId(), rfq.getTipoFruta())
+                .orElse(null);
+
+        if (producto == null) {
+            producto = ProductoEntity.builder()
+                    .nombre("Contrato RFQ - " + rfq.getTipoFruta())
+                    .descripcion("Generado automáticamente al aceptar oferta en licitación #" + rfq.getId())
+                    .precio(oferta.getPrecioPropuesto())
+                    .cantidadDisponible(rfq.getCantidadRequerida().intValue())
+                    .tipoFruta(rfq.getTipoFruta())
+                    .productor((ProductorEntity) productor)
+                    .activo(false) // Oculto del catálogo general
+                    .build();
+            producto = productoJpaRepository.save(producto);
+        }
+
+        BigDecimal total = oferta.getPrecioPropuesto().multiply(BigDecimal.valueOf(rfq.getCantidadRequerida()));
+
+        PedidoEntity pedido = PedidoEntity.builder()
+                .comprador((CompradorEntity) comprador)
+                .producto(producto)
+                .cantidad(rfq.getCantidadRequerida().intValue())
+                .precioUnitario(oferta.getPrecioPropuesto())
+                .total(total)
+                .estado(EstadoPedido.PENDIENTE)
+                .build();
+
+        pedidoJpaRepository.save(pedido);
+    }
+
+    private RfqResponse toResponse(RfqEntity entity) {
+        if (entity == null) return null;
+        List<RfqOfertaResponse> ofertaResponses = entity.getOfertas() != null 
+                ? entity.getOfertas().stream().map(this::toResponse).collect(Collectors.toList())
+                : List.of();
+
+        return RfqResponse.builder()
+                .id(entity.getId())
+                .compradorId(entity.getComprador().getId())
+                .compradorNombre(entity.getComprador().getNombre())
+                .tipoFruta(entity.getTipoFruta())
+                .cantidadRequerida(entity.getCantidadRequerida())
+                .descripcion(entity.getDescripcion())
+                .fechaLimite(entity.getFechaLimite())
+                .activo(entity.isActivo())
+                .fechaCreacion(entity.getFechaCreacion())
+                .ofertas(ofertaResponses)
+                .build();
+    }
+
+    private RfqOfertaResponse toResponse(RfqOfertaEntity entity) {
+        if (entity == null) return null;
+        return RfqOfertaResponse.builder()
+                .id(entity.getId())
+                .rfqId(entity.getRfq().getId())
+                .productorId(entity.getProductor().getId())
+                .productorNombre(entity.getProductor().getNombre())
+                .precioPropuesto(entity.getPrecioPropuesto())
+                .comentarios(entity.getComentarios())
+                .aceptada(entity.isAceptada())
+                .fechaCreacion(entity.getFechaCreacion())
+                .build();
+    }
+}

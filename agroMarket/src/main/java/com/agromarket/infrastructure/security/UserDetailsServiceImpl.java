@@ -2,8 +2,8 @@ package com.agromarket.infrastructure.security;
 
 import java.util.List;
 
-import com.agromarket.application.persistence.sql.entities.UsuarioEntity;
-import com.agromarket.application.persistence.sql.repositories.UsuarioJpaRepository;
+import com.agromarket.infrastructure.persistence.sql.entities.UsuarioEntity;
+import com.agromarket.infrastructure.persistence.sql.repositories.UsuarioJpaRepository;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
