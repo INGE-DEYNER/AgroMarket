@@ -20,8 +20,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.agromarket.infrastructure.persistence.sql.entities.UserEntity;
+import com.agromarket.infrastructure.persistence.sql.repositories.ProductJpaRepository;
+import com.agromarket.infrastructure.persistence.sql.repositories.ReviewJpaRepository;
+import com.agromarket.infrastructure.persistence.sql.repositories.UserJpaRepository;
+
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Controlador REST para endpoints públicos de información del sitio.
+ * Proporciona información general sobre AgroMarket, listado de productores y métricas.
+ * 
+ * @author AgroMarket Team
+ */
 @RestController
 @RequestMapping("/api/public")
 @RequiredArgsConstructor
@@ -29,9 +40,9 @@ public class SiteInfoController {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SiteInfoController.class);
 
     private final RestTemplate restTemplate;
-    private final com.agromarket.infrastructure.persistence.sql.repositories.UsuarioJpaRepository usuarioJpaRepository;
-    private final com.agromarket.infrastructure.persistence.sql.repositories.ProductoJpaRepository productoJpaRepository;
-    private final com.agromarket.infrastructure.persistence.sql.repositories.ResenaJpaRepository resenaJpaRepository;
+    private final UserJpaRepository userJpaRepository;
+    private final ProductJpaRepository productJpaRepository;
+    private final ReviewJpaRepository reviewJpaRepository;
 
     @Value("${spring.application.name:AgroMarket}")
     private String appName;
@@ -103,41 +114,41 @@ public class SiteInfoController {
      * Endpoint público que devuelve la lista de productores registrados.
      * Solo expone datos públicos: nombre, ubicación, foto y calificación.
      */
-    @GetMapping("/productores")
-    public ResponseEntity<List<Map<String, Object>>> getProductores() {
-        List<Map<String, Object>> productores = usuarioJpaRepository.findAllProductores().stream()
+    @GetMapping("/producers")
+    public ResponseEntity<List<Map<String, Object>>> getProducers() {
+        List<Map<String, Object>> producers = userJpaRepository.findAllProducers().stream()
                 .map(u -> {
                     Map<String, Object> p = new HashMap<>();
                     p.put("id", u.getId());
-                    p.put("nombre", u.getNombre() != null ? u.getNombre() : "Productor ASAFRUT");
-                    p.put("ubicacion", u.getUbicacion() != null ? u.getUbicacion() : "Urabá, Antioquia");
-                    p.put("fotoUrl", u.getFotoUrl() != null ? u.getFotoUrl() : u.getFoto());
-                    p.put("calificacionPromedio", u.getCalificacionPromedio());
+                    p.put("name", u.getFirstName() != null ? u.getFirstName() : "Productor ASAFRUT");
+                    p.put("location", u.getLocation() != null ? u.getLocation() : "Urabá, Antioquia");
+                    p.put("photoUrl", u.getPhotoUrl() != null ? u.getPhotoUrl() : u.getFoto());
+                    p.put("averageRating", u.getAverageRating());
                     return p;
                 })
                 .collect(java.util.stream.Collectors.toList());
-        return ResponseEntity.ok(productores);
+        return ResponseEntity.ok(producers);
     }
 
     @GetMapping("/metrics")
     public ResponseEntity<Map<String, Object>> getMetrics() {
-        long totalProductos = productoJpaRepository.count();
-        long totalProductores = usuarioJpaRepository.countProductores();
+        long totalProducts = productJpaRepository.count();
+        long totalProducers = userJpaRepository.countProducers();
 
         // Calculate average price
-        Double avgPriceVal = productoJpaRepository.getAveragePrice();
+        Double avgPriceVal = productJpaRepository.getAveragePrice();
         long avgPrice = Math.round(avgPriceVal != null ? avgPriceVal : 0.0);
 
         // Calculate average rating
-        Double avgRatingVal = resenaJpaRepository.getAverageRating();
+        Double avgRatingVal = reviewJpaRepository.getAverageRating();
         double avgRating = avgRatingVal != null ? avgRatingVal : 4.8;
-        String calificacionStr = String.format(java.util.Locale.US, "%.1f★", avgRating);
+        String ratingStr = String.format(java.util.Locale.US, "%.1f★", avgRating);
 
         Map<String, Object> m = new HashMap<>();
-        m.put("totalProductos", totalProductos);
-        m.put("totalProductores", totalProductores > 0 ? totalProductores : 4);
-        m.put("precioPromedio", avgPrice > 0 ? "$" + String.format("%,d", avgPrice).replace(',', '.') : "$3.338");
-        m.put("calificacion", calificacionStr);
+        m.put("totalProducts", totalProducts);
+        m.put("totalProducers", totalProducers > 0 ? totalProducers : 4);
+        m.put("averagePrice", avgPrice > 0 ? "$" + String.format("%,d", avgPrice).replace(',', '.') : "$3.338");
+        m.put("rating", ratingStr);
         return ResponseEntity.ok(m);
     }
 
@@ -220,7 +231,7 @@ public class SiteInfoController {
         if (lower.contains("producto") || lower.contains("fruta"))
             return "Tenemos frutas tropicales frescas de Urabá: banano, maracuyá, aguacate, piña, papaya y más. ¡Visita nuestro catálogo!";
         if (lower.contains("registro") || lower.contains("cuenta"))
-            return "Puedes registrarte como Comprador, Empresa o Productor. El proceso toma menos de 2 minutos.";
+            return "Puedes registrarte como comprador, empresa o productor. El proceso toma menos de 2 minutos.";
         return "Hola, soy el asistente de AgroMarket. Puedo ayudarte con pedidos, productos, pagos o envíos. ¿Qué necesitas?";
     }
 }

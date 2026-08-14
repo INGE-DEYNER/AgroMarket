@@ -2,8 +2,9 @@ package com.agromarket.infrastructure.security;
 
 import java.util.List;
 
-import com.agromarket.infrastructure.persistence.sql.entities.UsuarioEntity;
-import com.agromarket.infrastructure.persistence.sql.repositories.UsuarioJpaRepository;
+import com.agromarket.domain.user.enums.Role;
+import com.agromarket.infrastructure.persistence.sql.entities.UserEntity;
+import com.agromarket.infrastructure.persistence.sql.repositories.UserJpaRepository;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -14,23 +15,29 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Implementación del servicio UserDetailsService de Spring Security.
+ * Carga los detalles del usuario desde la base de datos para la autenticación.
+ * 
+ * @author AgroMarket Team
+ */
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private final UsuarioJpaRepository usuarioJpaRepository;
+    private final UserJpaRepository userJpaRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(username)
+        UserEntity user = userJpaRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         return new User(
-                usuario.getCorreo(),
-                usuario.getContrasena(),
-                usuario.isActivo(),
-                usuario.isEmailVerificado(),
+                user.getEmail(),
+                user.getPassword(),
+                user.isActive(),
+                user.isEmailVerified(),
                 true,
-                usuario.isAprobado(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()))
+                user.isApproved(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
 }

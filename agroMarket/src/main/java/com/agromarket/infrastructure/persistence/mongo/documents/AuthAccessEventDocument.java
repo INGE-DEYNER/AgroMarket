@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.agromarket.domain.models.enums.RolUsuario;
+import com.agromarket.domain.user.enums.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +28,7 @@ public class AuthAccessEventDocument {
     @Indexed
     private String email;
 
-    private RolUsuario rol;
+    private Role role;
     private String action;
     private boolean success;
     private String sessionId;

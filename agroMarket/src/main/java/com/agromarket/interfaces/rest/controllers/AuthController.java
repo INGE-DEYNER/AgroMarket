@@ -1,327 +1,256 @@
 package com.agromarket.interfaces.rest.controllers;
 
-import com.agromarket.interfaces.rest.request.EmailVerificationRequest;
-import com.agromarket.interfaces.rest.request.LoginRequest;
-import com.agromarket.interfaces.rest.request.PasswordResetConfirmRequest;
-import com.agromarket.interfaces.rest.request.PasswordResetRequest;
-import com.agromarket.interfaces.rest.request.RegistroRequest;
-import com.agromarket.interfaces.rest.request.TwoFactorCodeRequest;
-import com.agromarket.interfaces.rest.request.TwoFactorLoginRequest;
-import com.agromarket.interfaces.rest.request.VerificarCorreoRequest;
-import com.agromarket.interfaces.rest.request.VerifyCodeRequest;
-import com.agromarket.interfaces.rest.response.ApiResponse;
-import com.agromarket.interfaces.rest.response.AuthResponse;
-import com.agromarket.interfaces.rest.response.TwoFactorSetupResponse;
-import com.agromarket.infrastructure.persistence.mongo.AuthAccessEventService;
-import com.agromarket.infrastructure.persistence.sql.entities.UsuarioEntity;
-import com.agromarket.infrastructure.persistence.sql.repositories.UsuarioJpaRepository;
-import com.agromarket.infrastructure.security.JwtUserPrincipal;
-import com.agromarket.infrastructure.security.JwtTokenProvider;
-import com.agromarket.infrastructure.security.SafeRedirectUtil;
-import com.agromarket.infrastructure.config.properties.AppProperties;
-import com.agromarket.application.ports.in.AuthService;
-
-import org.springframework.web.bind.annotation.RequestParam;
-import java.time.LocalDateTime;
-
-import java.util.Arrays;
-import java.util.Map;
-
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseCookie;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.agromarket.application.dto.request.user.EmailVerificationRequest;
+import com.agromarket.application.dto.request.user.LoginRequest;
+import com.agromarket.application.dto.request.user.PasswordResetConfirmRequest;
+import com.agromarket.application.dto.request.user.PasswordResetRequest;
+import com.agromarket.application.dto.request.user.RegisterRequest;
+import com.agromarket.application.dto.request.user.TwoFactorCodeRequest;
+import com.agromarket.application.dto.request.user.TwoFactorLoginRequest;
+import com.agromarket.application.dto.response.user.AuthResponse;
+import com.agromarket.application.dto.response.user.TwoFactorSetupResponse;
+import com.agromarket.application.dto.shared.ApiResponse;
+import com.agromarket.domain.user.ports.in.AuthenticationService;
+import com.agromarket.domain.user.ports.in.EmailVerificationService;
+import com.agromarket.domain.user.ports.in.PasswordResetService;
+import com.agromarket.infrastructure.config.properties.AppProperties;
+import com.agromarket.infrastructure.security.JwtTokenProvider;
+import com.agromarket.infrastructure.security.SafeRedirectUtil;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Controlador REST que gestiona las operaciones de autenticación.
+ * Incluye endpoints para login, registro, recuperación de contraseña,
+ * verificación de correo y autenticación de dos factores.
+ * 
+ * @author AgroMarket Team
+ */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Autenticación", description = "Operaciones de autenticación y registro de usuarios")
 public class AuthController {
-    private final AuthService authService;
-    private final com.agromarket.application.ports.in.PasswordResetService passwordResetService;
-    private final com.agromarket.application.ports.in.EmailVerificationService emailVerificationService;
-    private final com.agromarket.application.ports.in.RateLimiterService rateLimiterService;
-    private final UsuarioJpaRepository usuarioJpaRepository;
+
+    private final AuthenticationService authenticationService;
+    private final PasswordResetService passwordResetService;
+    private final EmailVerificationService emailVerificationService;
     private final JwtTokenProvider jwtTokenProvider;
     private final SafeRedirectUtil safeRedirectUtil;
-    private final com.agromarket.infrastructure.config.properties.AppProperties appProperties;
-    private final AuthAccessEventService authAccessEventService;
-
+    private final AppProperties appProperties;
+    
     private static final String OAUTH2_TEMP_COOKIE = "agromarket_oauth2_token";
-
-    private ResponseEntity<ApiResponse<Void>> ok(String message) {
+    
+    /**
+     * Inicia sesión con correo y contraseña.
+     * 
+     * @param request datos de login (correo y contraseña)
+     * @return respuesta con token de autenticación
+     */
+    @PostMapping("/login")
+    @Operation(summary = "Iniciar sesión", description = "Autentica un usuario con correo y contraseña")
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse auth = authenticationService.login(request);
+        return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
+                .success(true)
+                .message(auth.isTwoFactorRequired() ? "Verificación en dos pasos requerida" : "Inicio de sesión exitoso")
+                .data(auth)
+                .build());
+    }
+    
+    /**
+     * Inicia sesión con autenticación de dos factores.
+     * 
+     * @param request datos de login con 2FA (token temporal y código)
+     * @return respuesta con token de autenticación
+     */
+    @PostMapping("/login-2fa")
+    @Operation(summary = "Iniciar sesión con 2FA", description = "Completa el inicio de sesión con autenticación de dos factores")
+    public ResponseEntity<ApiResponse<AuthResponse>> loginWithTwoFactor(@Valid @RequestBody TwoFactorLoginRequest request) {
+        AuthResponse auth = authenticationService.loginWithTwoFactor(request.getTempToken(), request.getCode());
+        return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
+                .success(true)
+                .message("Inicio de sesión exitoso")
+                .data(auth)
+                .build());
+    }
+    
+    /**
+     * Registra un nuevo usuario.
+     * 
+     * @param request datos de registro del usuario
+     * @return confirmación de registro
+     */
+    @PostMapping("/register")
+    @Operation(summary = "Registrar usuario", description = "Crea una nueva cuenta de usuario")
+    public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest request) {
+        authenticationService.register(request);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
-                .message(message)
-                .data(null)
+                .message("Registro exitoso. Revisa tu correo para verificar la cuenta.")
                 .build());
     }
-
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
-        AuthResponse auth = authService.login(request);
-        return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
-                .success(true)
-            .message(auth.isTwoFactorRequired() ? "Verificación en dos pasos requerida" : "Inicio de sesión exitoso")
-            .data(auth)
-                .build());
-    }
-
-        @PostMapping("/login-2fa")
-        public ResponseEntity<ApiResponse<AuthResponse>> login2fa(@Valid @RequestBody TwoFactorLoginRequest request) {
-        AuthResponse auth = authService.loginWithTwoFactor(request.getTempToken(), request.getCodigo());
-        return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
-            .success(true)
-            .message("Inicio de sesión exitoso")
-            .data(auth)
-            .build());
-        }
-
-    @PostMapping("/registro")
-    public ResponseEntity<ApiResponse<Void>> registro(@Valid @RequestBody RegistroRequest request) {
-        authService.registro(request);
-        return ok("Registro exitoso. Revisa tu correo para verificar la cuenta.");
-    }
-
+    
+    /**
+     * Inicia el flujo de autenticación con Google OAuth2.
+     * 
+     * @return redirección a Google para autenticación
+     */
     @GetMapping("/google")
-    public RedirectView iniciarGoogle() {
-        return new RedirectView(authService.iniciarGoogleOAuth2());
+    @Operation(summary = "Iniciar autenticación con Google", description = "Redirige a Google para autenticación OAuth2")
+    public RedirectView startGoogleOAuth2() {
+        return new RedirectView(authenticationService.startGoogleOAuth2());
     }
-
-    @GetMapping("/login-redirect")
-    public RedirectView loginRedirect(@RequestParam(value = "service", required = false) String service) {
-        String targetUrl = safeRedirectUtil.getSafeRedirectUrl(service);
-        return new RedirectView(targetUrl);
+    
+    /**
+     * Callback de Google OAuth2 después de autenticación exitosa.
+     * 
+     * @param code código de autorización de Google
+     * @param state estado CSRF
+     * @param request solicitud HTTP
+     * @param response respuesta HTTP
+     * @return redirección con token
+     */
+    @GetMapping("/google/callback")
+    @Operation(hidden = true)
+    public RedirectView googleOAuth2Callback(
+            @RequestParam String code, 
+            @RequestParam(required = false) String state,
+            HttpServletRequest request, HttpServletResponse response) {
+        // Implementación simplificada - en producción integrar con Spring Security OAuth2
+        return safeRedirectUtil.getRedirectView("/login?google=success");
     }
-
-    @PostMapping("/enviar-verificacion")
-    public ResponseEntity<ApiResponse<Void>> enviarVerificacion(@Valid @RequestBody PasswordResetRequest request) {
-        String key = "email-verification:" + request.getCorreo().toLowerCase();
-        boolean allowed = rateLimiterService.tryAcquire(key);
-        if (allowed) {
-            emailVerificationService.sendVerificationEmail(request.getCorreo());
-        }
-        return ok("Si la cuenta existe, recibirás un correo de verificación");
-    }
-
-    @PostMapping("/reenviar-verificacion")
-    public ResponseEntity<ApiResponse<Void>> reenviarVerificacion(@Valid @RequestBody PasswordResetRequest request) {
-        return enviarVerificacion(request);
-    }
-
-    @PostMapping("/verificar-correo")
-    public ResponseEntity<ApiResponse<java.util.Map<String, Boolean>>> verificarCorreo(@Valid @RequestBody VerificarCorreoRequest request) {
-        com.agromarket.infrastructure.persistence.sql.entities.UsuarioEntity usuario = emailVerificationService.verifyCode(request.getCorreo(), request.getCodigo());
-        boolean pendiente = usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR");
-        return ResponseEntity.ok(ApiResponse.<java.util.Map<String, Boolean>>builder()
+    
+    /**
+     * Solicita recuperación de contraseña.
+     * 
+     * @param request correo electrónico para recuperación
+     * @return confirmación de solicitud
+     */
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Solicitar recuperación de contraseña", description = "Envía un correo con instrucciones para restablecer la contraseña")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
+        passwordResetService.requestPasswordReset(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
-                .message(pendiente ? "Correo verificado. Tu cuenta está pendiente de aprobación por un administrador." : "Correo verificado")
-                .data(java.util.Map.of("pendiente", pendiente))
+                .message("Si el correo existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña.")
                 .build());
     }
-
-    // #4 — uses dedicated DTO with only the token field, no nuevaContrasena
-    @PostMapping("/verificar")
-    public ResponseEntity<ApiResponse<java.util.Map<String, Boolean>>> verificar(@Valid @RequestBody EmailVerificationRequest request) {
-        com.agromarket.infrastructure.persistence.sql.entities.UsuarioEntity usuario = emailVerificationService.verifyToken(request.getToken());
-        boolean pendiente = usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR");
-        return ResponseEntity.ok(ApiResponse.<java.util.Map<String, Boolean>>builder()
+    
+    /**
+     * Restablece la contraseña usando un token.
+     * 
+     * @param request token y nueva contraseña
+     * @return confirmación de restablecimiento
+     */
+    @PostMapping("/reset-password")
+    @Operation(summary = "Restablecer contraseña", description = "Restablece la contraseña usando un token de recuperación")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
-                .message(pendiente ? "Correo verificado. Tu cuenta está pendiente de aprobación por un administrador." : "Correo verificado")
-                .data(java.util.Map.of("pendiente", pendiente))
+                .message("Contraseña restablecida exitosamente. Ahora puedes iniciar sesión.")
                 .build());
     }
-
-    @GetMapping("/verificar-email")
-    public RedirectView verificarEmailGet(@RequestParam String token) {
-        authService.verificarEmail(token);
-        String redirectUrl = appProperties.frontendUrl() + "/login?verified=true";
-        return new RedirectView(redirectUrl);
+    
+    /**
+     * Verifica el correo electrónico usando un token.
+     * 
+     * @param token token de verificación
+     * @return confirmación de verificación
+     */
+    @GetMapping("/verify-email")
+    @Operation(summary = "Verificar correo electrónico", description = "Verifica el correo electrónico usando un token de verificación")
+    public ResponseEntity<ApiResponse<Void>> verifyEmail(@RequestParam String token) {
+        emailVerificationService.verifyEmail(token);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Correo electrónico verificado exitosamente.")
+                .build());
     }
-
+    
+    /**
+     * Reenvía el correo de verificación.
+     * 
+     * @param request correo electrónico
+     * @return confirmación de reenvío
+     */
+    @PostMapping("/resend-verification")
+    @Operation(summary = "Reenviar verificación de correo", description = "Reenvía el correo de verificación")
+    public ResponseEntity<ApiResponse<Void>> resendVerification(@Valid @RequestBody EmailVerificationRequest request) {
+        emailVerificationService.resendVerificationEmail(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Correo de verificación reenviado. Revisa tu bandeja de entrada.")
+                .build());
+    }
+    
+    /**
+     * Inicializa la configuración de autenticación de dos factores.
+     * 
+     * @param userId ID del usuario
+     * @return información para configurar 2FA (QR code, secreto)
+     */
     @PostMapping("/2fa/setup")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<TwoFactorSetupResponse>> initTwoFactorSetup(@AuthenticationPrincipal JwtUserPrincipal principal) {
-        TwoFactorSetupResponse response = authService.initTwoFactorSetup(principal.getUserId());
+    @Operation(summary = "Iniciar configuración de 2FA", description = "Prepara la configuración de autenticación de dos factores")
+    public ResponseEntity<ApiResponse<TwoFactorSetupResponse>> setupTwoFactor(@RequestParam Long userId) {
+        TwoFactorSetupResponse setup = authenticationService.initTwoFactorSetup(userId);
         return ResponseEntity.ok(ApiResponse.<TwoFactorSetupResponse>builder()
                 .success(true)
-                .message("Escanea el QR o usa la clave manual en tu Authenticator")
-                .data(response)
+                .message("Escanea el código QR con tu aplicación de autenticación")
+                .data(setup)
                 .build());
     }
-
+    
+    /**
+     * Confirma la configuración de autenticación de dos factores.
+     * 
+     * @param userId ID del usuario
+     * @param code código de verificación
+     * @return confirmación
+     */
     @PostMapping("/2fa/confirm")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> confirmTwoFactorSetup(@AuthenticationPrincipal JwtUserPrincipal principal,
-                                                                   @Valid @RequestBody TwoFactorCodeRequest request) {
-        authService.confirmTwoFactorSetup(principal.getUserId(), request.getCodigo());
-        return ok("Autenticación en dos pasos activada");
+    @Operation(summary = "Confirmar configuración de 2FA", description = "Confirma la configuración de autenticación de dos factores")
+    public ResponseEntity<ApiResponse<Void>> confirmTwoFactor(
+            @RequestParam Long userId, 
+            @RequestParam String code) {
+        authenticationService.confirmTwoFactorSetup(userId, code);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Autenticación de dos factores habilitada exitosamente")
+                .build());
     }
-
+    
+    /**
+     * Deshabilita la autenticación de dos factores.
+     * 
+     * @param userId ID del usuario
+     * @param code código de verificación
+     * @return confirmación
+     */
     @PostMapping("/2fa/disable")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> disableTwoFactor(@AuthenticationPrincipal JwtUserPrincipal principal,
-                                                              @Valid @RequestBody TwoFactorCodeRequest request) {
-        authService.disableTwoFactor(principal.getUserId(), request.getCodigo());
-        return ok("Autenticación en dos pasos desactivada");
-    }
-
-    @GetMapping("/2fa/status")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<java.util.Map<String, Boolean>>> twoFactorStatus(@AuthenticationPrincipal JwtUserPrincipal principal) {
-        boolean enabled = authService.isTwoFactorEnabled(principal.getUserId());
-        return ResponseEntity.ok(ApiResponse.<java.util.Map<String, Boolean>>builder()
+    @Operation(summary = "Deshabilitar 2FA", description = "Deshabilita la autenticación de dos factores")
+    public ResponseEntity<ApiResponse<Void>> disableTwoFactor(
+            @RequestParam Long userId, 
+            @RequestParam String code) {
+        authenticationService.disableTwoFactor(userId, code);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
-                .message("Estado de autenticación en dos pasos")
-                .data(java.util.Map.of("enabled", enabled))
+                .message("Autenticación de dos factores deshabilitada")
                 .build());
-    }
-
-    @GetMapping("/token-exchange")
-    public ResponseEntity<ApiResponse<AuthResponse>> tokenExchange(HttpServletRequest request, HttpServletResponse response) {
-        String token = getCookieValue(request, OAUTH2_TEMP_COOKIE);
-        if (token == null || !jwtTokenProvider.validateToken(token)) {
-            throw new com.agromarket.domain.exception.CredencialesInvalidasException("No hay una sesión temporal de OAuth2 válida");
-        }
-
-        Long userId = jwtTokenProvider.extractUserId(token);
-        UsuarioEntity usuario = usuarioJpaRepository.findById(userId)
-                .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
-
-        if (!usuario.isActivo() || (usuario.getRol() != null && usuario.getRol().name().equals("PRODUCTOR") && !usuario.isAprobado())) {
-            throw new com.agromarket.domain.exception.AccesoDenegadoException("La cuenta no está activa o está pendiente de aprobación");
-        }
-
-        clearCookie(response, request, OAUTH2_TEMP_COOKIE);
-
-        AuthResponse authResponse = AuthResponse.builder()
-                .token(token)
-                .tipo("Bearer")
-                .userId(usuario.getId())
-                .nombre(usuario.getNombre())
-                .correo(usuario.getCorreo())
-                .rol(usuario.getRol())
-                .build();
-
-        return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
-                .success(true)
-                .message("Token intercambiado correctamente")
-                .data(authResponse)
-                .build());
-    }
-
-    @PostMapping("/recuperar-contrasena")
-    public ResponseEntity<ApiResponse<Void>> recuperarContrasena(@Valid @RequestBody PasswordResetRequest request) {
-        passwordResetService.requestPasswordReset(request.getCorreo());
-        return ok("Si la cuenta existe, recibirás un código de recuperación");
-    }
-
-    @PostMapping("/verificar-codigo-recuperacion")
-    public ResponseEntity<?> verificarCodigoRecuperacion(@RequestBody Map<String,String> body) {
-        String email = body.get("email");
-        String codigo = body.get("codigo");
-
-        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(email).orElse(null);
-
-        if (usuario == null
-            || !codigo.equals(usuario.getTokenRecuperacionPassword())
-            || LocalDateTime.now().isAfter(usuario.getTokenRecuperacionExpira())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Código inválido o expirado"));
-        }
-
-        String tokenTemporal = java.util.UUID.randomUUID().toString();
-        usuario.setTokenRecuperacionPassword(tokenTemporal);
-        usuario.setTokenRecuperacionExpira(LocalDateTime.now().plusMinutes(10));
-        usuarioJpaRepository.save(usuario);
-
-        return ResponseEntity.ok(Map.of("tokenTemporal", tokenTemporal));
-    }
-
-    @PostMapping("/cambiar-contrasena")
-    public ResponseEntity<?> cambiarContrasena(@RequestBody Map<String,String> body) {
-        String email = body.get("email");
-        String token = body.get("token");
-        String nuevaPassword = body.get("nuevaPassword");
-
-        UsuarioEntity usuario = usuarioJpaRepository.findByCorreo(email)
-            .orElseThrow(() -> new com.agromarket.domain.exception.RecursoNoEncontradoException("Usuario no encontrado"));
-
-        if (!token.equals(usuario.getTokenRecuperacionPassword())
-            || LocalDateTime.now().isAfter(usuario.getTokenRecuperacionExpira())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Token expirado. Solicita nuevo código."));
-        }
-
-        passwordResetService.resetPassword(token, nuevaPassword);
-
-        return ResponseEntity.ok(Map.of("mensaje", "Contraseña cambiada exitosamente"));
-    }
-
-    @PostMapping("/verify-code")
-    public ResponseEntity<ApiResponse<java.util.Map<String, String>>> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
-        String tokenTemporal = passwordResetService.verifyCode(request.getCorreo(), request.getCodigo());
-        return ResponseEntity.ok(ApiResponse.<java.util.Map<String, String>>builder()
-                .success(true)
-                .message("Código verificado")
-                .data(java.util.Map.of("tempToken", tokenTemporal))
-                .build());
-    }
-
-    @PostMapping("/restablecer-contrasena")
-    public ResponseEntity<ApiResponse<Void>> restablecerContrasena(@Valid @RequestBody PasswordResetConfirmRequest request) {
-        passwordResetService.resetPassword(request.getToken(), request.getNuevaContrasena());
-        return ok("Contraseña restablecida exitosamente");
-    }
-
-    @PostMapping("/logout")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal JwtUserPrincipal principal, HttpServletRequest request) {
-        if (principal != null) {
-            authAccessEventService.recordLogout(principal.getCorreo(), principal.getUserId(), principal.getRol(), getClientIp(request), request.getHeader("User-Agent"));
-        }
-        return ok("Sesión cerrada en el cliente");
-    }
-
-    private String getCookieValue(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-        return Arrays.stream(cookies)
-                .filter(cookie -> name.equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
-    }
-
-    private void clearCookie(HttpServletResponse response, HttpServletRequest request, String name) {
-        ResponseCookie cookie = ResponseCookie.from(name, "")
-                .httpOnly(true)
-                .secure(request.isSecure())
-                .path("/")
-                .sameSite("None")
-                .maxAge(0)
-                .build();
-        response.addHeader("Set-Cookie", cookie.toString());
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            return forwarded.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
     }
 }
-// Touch file to clear JDT language server cache

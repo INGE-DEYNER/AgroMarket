@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.agromarket.domain.models.enums.RolUsuario;
+import com.agromarket.domain.user.enums.Role;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +36,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             boolean valid = jwtTokenProvider.validateToken(token);
             if (valid && SecurityContextHolder.getContext().getAuthentication() == null) {
-                String correo = jwtTokenProvider.extractCorreo(token);
+                String email = jwtTokenProvider.extractEmail(token);
                 Long userId = jwtTokenProvider.extractUserId(token);
-                RolUsuario rol = jwtTokenProvider.extractRol(token);
+                Role role = jwtTokenProvider.extractRole(token);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    JwtUserPrincipal.builder().correo(correo).userId(userId).rol(rol).build(),
+                    JwtUserPrincipal.builder().email(email).userId(userId).role(role).build(),
                         null,
-                        rol == null ? List.of() : List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()))
+                        role == null ? List.of() : List.of(new SimpleGrantedAuthority("ROLE_" + role.name()))
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);

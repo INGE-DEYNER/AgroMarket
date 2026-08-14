@@ -1,13 +1,19 @@
 package com.agromarket.interfaces.rest.exception;
 
-import com.agromarket.domain.exception.*;
-
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.agromarket.domain.exceptions.InvalidOrderStateException;
+import com.agromarket.domain.exceptions.ResourceNotFoundException;
+import com.agromarket.domain.product.exceptions.InsufficientStockException;
+import com.agromarket.domain.product.exceptions.DuplicateReviewException;
+import com.agromarket.domain.user.exceptions.AccessDeniedException;
+import com.agromarket.domain.user.exceptions.InvalidCredentialsException;
+import com.agromarket.domain.user.exceptions.UserAlreadyExistsException;
+import com.agromarket.domain.user.exceptions.TooManyRequestsException;
 import com.agromarket.interfaces.rest.response.ErrorResponse;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -34,23 +40,23 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(RecursoNoEncontradoException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(RecursoNoEncontradoException ex, HttpServletRequest request) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), "Not Found", List.of(), Map.of());
     }
 
-    @ExceptionHandler(StockInsuficienteException.class)
-    public ResponseEntity<ErrorResponse> handleStock(StockInsuficienteException ex, HttpServletRequest request) {
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ErrorResponse> handleStock(InsufficientStockException ex, HttpServletRequest request) {
         return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), "Conflict", List.of(), Map.of());
     }
 
-    @ExceptionHandler(EstadoPedidoInvalidoException.class)
-    public ResponseEntity<ErrorResponse> handleEstado(EstadoPedidoInvalidoException ex, HttpServletRequest request) {
+    @ExceptionHandler(InvalidOrderStateException.class)
+    public ResponseEntity<ErrorResponse> handleEstado(InvalidOrderStateException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), "Bad Request", List.of(), Map.of());
     }
 
-    @ExceptionHandler(AccesoDenegadoException.class)
-    public ResponseEntity<ErrorResponse> handleForbidden(AccesoDenegadoException ex, HttpServletRequest request) {
+    @ExceptionHandler(com.agromarket.domain.user.exceptions.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleDomainForbidden(com.agromarket.domain.user.exceptions.AccessDeniedException ex, HttpServletRequest request) {
         return build(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI(), "Forbidden", List.of(), Map.of());
     }
 
@@ -59,18 +65,18 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), "Bad Request", List.of(), Map.of());
     }
 
-    @ExceptionHandler(UsuarioYaExisteException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicate(UsuarioYaExisteException ex, HttpServletRequest request) {
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicate(UserAlreadyExistsException ex, HttpServletRequest request) {
         return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), "Conflict", List.of(), Map.of());
     }
 
-    @ExceptionHandler(CredencialesInvalidasException.class)
-    public ResponseEntity<ErrorResponse> handleAuth(CredencialesInvalidasException ex, HttpServletRequest request) {
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleAuth(InvalidCredentialsException ex, HttpServletRequest request) {
         return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI(), "Unauthorized", List.of(), Map.of());
     }
 
-    @ExceptionHandler(ResenaDuplicadaException.class)
-    public ResponseEntity<ErrorResponse> handleReview(ResenaDuplicadaException ex, HttpServletRequest request) {
+    @ExceptionHandler(DuplicateReviewException.class)
+    public ResponseEntity<ErrorResponse> handleReview(DuplicateReviewException ex, HttpServletRequest request) {
         return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), "Conflict", List.of(), Map.of());
     }
 
@@ -89,8 +95,8 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, "Recurso no encontrado", request.getRequestURI(), "Not Found", List.of(), Map.of());
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleSpringForbidden(AccessDeniedException ex, HttpServletRequest request) {
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleSpringForbidden(org.springframework.security.access.AccessDeniedException ex, HttpServletRequest request) {
         return build(HttpStatus.FORBIDDEN, "No tienes permisos para realizar esta acción", request.getRequestURI(), "Forbidden", List.of(), Map.of());
     }
 
@@ -99,8 +105,8 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, "Tu sesión no es válida o ha expirado", request.getRequestURI(), "Unauthorized", List.of(), Map.of());
     }
 
-    @ExceptionHandler(com.agromarket.domain.exception.TooManyRequestsException.class)
-    public ResponseEntity<ErrorResponse> handleTooMany(com.agromarket.domain.exception.TooManyRequestsException ex, HttpServletRequest request) {
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ErrorResponse> handleTooMany(TooManyRequestsException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).header("Retry-After", "3600").body(ErrorResponse.builder()
                 .status(HttpStatus.TOO_MANY_REQUESTS.value())
                 .error("Too Many Requests")

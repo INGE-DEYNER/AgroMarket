@@ -30,12 +30,11 @@ public class PasswordHistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private UsuarioEntity usuario;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @Column(name = "contrasena_hash", nullable = false, length = 255)
-    private String contrasenaHash;
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash;
 
     @CreationTimestamp
     @Column(name = "changed_at", nullable = false, updatable = false)

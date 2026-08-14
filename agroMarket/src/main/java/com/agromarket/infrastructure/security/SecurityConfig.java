@@ -20,7 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 
 import com.agromarket.infrastructure.config.properties.AppProperties;
-import com.agromarket.domain.models.enums.RolUsuario;
+import com.agromarket.domain.user.enums.Role;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,22 +47,22 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/actuator/health/**",
                                 "/api/health",
-                                "/api/auth/verificar-email",
-                                "/api/divisas/conversion",
-                                "/api/divisas/tasas",
-                                "/api/auth/verificar",
-                                "/api/auth/recuperar-contrasena",
-                                "/api/auth/restablecer-contrasena",
-                                "/api/auth/verificar-codigo-recuperacion",
-                                "/api/auth/cambiar-contrasena",
+                                "/api/auth/verify-email",
+                                "/api/currencies/conversion",
+                                "/api/currencies/rates",
+                                "/api/auth/verify",
+                                "/api/auth/recover-password",
+                                "/api/auth/reset-password",
+                                "/api/auth/verify-recovery-code",
+                                "/api/auth/change-password",
                                 "/api/auth/token-exchange",
                                 "/api/auth/login",
                                 "/api/auth/login-2fa",
                                 "/api/auth/login-redirect",
-                                "/api/auth/registro",
-                                "/api/auth/enviar-verificacion",
-                                "/api/auth/reenviar-verificacion",
-                                "/api/auth/verificar-correo",
+                                "/api/auth/register",
+                                "/api/auth/send-verification",
+                                "/api/auth/resend-verification",
+                                "/api/auth/verify-email",
                                 "/api/auth/verify-code",
                                 "/api/public/**",
                                 "/oauth2/**",
@@ -72,10 +72,10 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/api-docs"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/resenas/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole(RolUsuario.ADMINISTRADOR.name())
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess

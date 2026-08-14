@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import com.agromarket.infrastructure.config.properties.JwtProperties;
 import com.agromarket.infrastructure.config.properties.AgroMarketJwtProperties;
-import com.agromarket.domain.models.enums.RolUsuario;
+import com.agromarket.domain.user.enums.Role;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -48,12 +48,12 @@ public class JwtTokenProvider {
         }
     }
 
-    public String generateToken(String correo, Long userId, RolUsuario rol) {
-        return generateTokenWithPurpose(correo, userId, rol, PURPOSE_LOGIN, expirationMs);
+    public String generateToken(String email, Long userId, Role role) {
+        return generateTokenWithPurpose(email, userId, role, PURPOSE_LOGIN, expirationMs);
     }
 
-    public String generateTwoFactorToken(String correo, Long userId, RolUsuario rol) {
-        return generateTokenWithPurpose(correo, userId, rol, PURPOSE_LOGIN_2FA, TWO_FACTOR_EXPIRATION_MS);
+    public String generateTwoFactorToken(String email, Long userId, Role role) {
+        return generateTokenWithPurpose(email, userId, role, PURPOSE_LOGIN_2FA, TWO_FACTOR_EXPIRATION_MS);
     }
 
     public boolean isTwoFactorToken(String token) {
@@ -70,13 +70,13 @@ public class JwtTokenProvider {
         return PURPOSE_RESET.equals(String.valueOf(purpose));
     }
 
-    private String generateTokenWithPurpose(String correo, Long userId, RolUsuario rol, String purpose, long expiresInMs) {
+    private String generateTokenWithPurpose(String email, Long userId, Role role, String purpose, long expiresInMs) {
         Instant now = Instant.now();
         Instant expiration = now.plusMillis(expiresInMs);
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
-                .setSubject(correo)
-                .claim("rol", rol != null ? rol.name() : null)
+                .setSubject(email)
+                .claim("role", role != null ? role.name() : null)
                 .claim("userId", userId)
                 .claim(PURPOSE_CLAIM, purpose)
                 .setIssuedAt(Date.from(now))
@@ -85,7 +85,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String extractCorreo(String token) {
+    public String extractEmail(String token) {
         return parseClaims(token).getSubject();
     }
 
@@ -97,9 +97,9 @@ public class JwtTokenProvider {
         return userId == null ? null : Long.valueOf(userId.toString());
     }
 
-    public RolUsuario extractRol(String token) {
-        Object rol = parseClaims(token).get("rol");
-        return rol == null ? null : RolUsuario.valueOf(rol.toString());
+    public Role extractRole(String token) {
+        Object role = parseClaims(token).get("role");
+        return role == null ? null : Role.valueOf(role.toString());
     }
 
     public boolean validateToken(String token) {

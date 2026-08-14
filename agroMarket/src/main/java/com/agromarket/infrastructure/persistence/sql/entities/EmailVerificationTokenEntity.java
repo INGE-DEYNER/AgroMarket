@@ -34,15 +34,15 @@ public class EmailVerificationTokenEntity {
     private String token;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private UsuarioEntity usuario;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @Column(nullable = false)
     private LocalDateTime expiry;
 
     @Column(nullable = false)
     @Builder.Default
-    private Boolean verificado = false;
+    private Boolean verified = false;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
