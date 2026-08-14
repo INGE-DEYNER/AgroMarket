@@ -6,7 +6,7 @@ import com.agromarket.application.dto.request.rfq.CreateQuoteOfferRequest;
 import com.agromarket.application.dto.request.rfq.CreateRequestForQuoteRequest;
 import com.agromarket.application.dto.response.rfq.QuoteOfferResponse;
 import com.agromarket.application.dto.response.rfq.RequestForQuoteResponse;
-import com.agromarket.application.ports.in.RequestForQuoteService;
+import com.agromarket.domain.ports.in.rfq.RequestForQuoteService;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import com.agromarket.shared.ApiResponse;
 

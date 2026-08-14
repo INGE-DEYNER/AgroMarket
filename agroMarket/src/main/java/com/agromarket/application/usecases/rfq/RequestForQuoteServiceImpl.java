@@ -7,7 +7,7 @@ import com.agromarket.application.dto.request.rfq.CreateRequestForQuoteRequest;
 import com.agromarket.application.dto.response.rfq.QuoteOfferResponse;
 import com.agromarket.application.dto.response.rfq.RequestForQuoteResponse;
 import com.agromarket.application.mappers.RequestForQuoteDtoMapper;
-import com.agromarket.application.ports.in.RequestForQuoteService;
+import com.agromarket.domain.ports.in.rfq.RequestForQuoteService;
 import com.agromarket.domain.rfq.model.QuoteOffer;
 import com.agromarket.domain.rfq.model.RequestForQuote;
 import com.agromarket.domain.rfq.ports.out.QuoteOfferRepository;
