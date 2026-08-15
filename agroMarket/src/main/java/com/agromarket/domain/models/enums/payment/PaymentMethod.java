@@ -1,5 +1,4 @@
-package com.agromarket.domain.payment.enums;
-
+package com.agromarket.domain.models.enums.payment;
 /**
  * Enumeración que representa los métodos de pago aceptados en el sistema.
  * Define las opciones disponibles para que los usuarios realicen pagos.

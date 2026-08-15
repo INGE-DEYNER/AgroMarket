@@ -3,7 +3,7 @@ package com.agromarket.domain.models.coupon;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.agromarket.domain.enums.coupon.CouponType;
+import com.agromarket.domain.models.enums.coupon.CouponType;
 import com.agromarket.domain.models.user.User;
 
 import lombok.AllArgsConstructor;

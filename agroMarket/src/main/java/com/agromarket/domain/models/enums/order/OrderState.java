@@ -1,4 +1,4 @@
-package com.agromarket.domain.order.enums;
+package com.agromarket.domain.models.enums.order;
 
 /**
  * Enumeración que representa los posibles estados de un pedido en el sistema.

@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class ShippingJpaAdapter implements ShippingRepository {
+public class ShippingJpaAdapter implements ShippingPort {
 
     private final ShippingJpaRepository shippingJpaRepository;
     private final ShippingMapper shippingMapper;

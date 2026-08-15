@@ -1,4 +1,4 @@
-package com.agromarket.domain.payment.enums;
+package com.agromarket.domain.models.enums.payment;
 
 /**
  * Enumeración que representa los tipos de tarjetas de pago aceptadas.

@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class AuthAccessEventMongoAdapter implements AuthEventRepository {
+public class AuthAccessEventMongoAdapter implements AuthEventPort {
 
     private final AuthAccessEventMongoRepository authAccessEventMongoRepository;
     

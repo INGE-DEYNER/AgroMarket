@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class QuoteOfferJpaAdapter implements QuoteOfferRepository {
+public class QuoteOfferJpaAdapter implements QuoteOfferPort {
 
     private final QuoteOfferJpaRepository quoteOfferJpaRepository;
     private final RequestForQuoteMapper requestForQuoteMapper;

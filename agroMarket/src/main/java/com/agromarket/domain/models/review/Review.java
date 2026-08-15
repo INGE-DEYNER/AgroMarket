@@ -2,10 +2,10 @@ package com.agromarket.domain.models.review;
 
 import java.time.LocalDateTime;
 
-import com.agromarket.domain.user.model.User;
+import com.agromarket.domain.models.user.User;
+import com.agromarket.domain.models.product.Product;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

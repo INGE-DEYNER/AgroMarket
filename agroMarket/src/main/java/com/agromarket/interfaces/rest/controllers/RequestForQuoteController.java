@@ -6,7 +6,7 @@ import com.agromarket.application.dto.request.rfq.CreateQuoteOfferRequest;
 import com.agromarket.application.dto.request.rfq.CreateRequestForQuoteRequest;
 import com.agromarket.application.dto.response.rfq.QuoteOfferResponse;
 import com.agromarket.application.dto.response.rfq.RequestForQuoteResponse;
-import com.agromarket.domain.ports.in.rfq.RequestForQuoteService;
+import com.agromarket.domain.ports.in.rfq.RequestForQuotePort;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import com.agromarket.shared.ApiResponse;
 
@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class RequestForQuoteController {
-    private final RequestForQuoteService requestForQuoteService;
+    private final RequestForQuotePort requestForQuoteService;
 
     /**
      * Crea una nueva solicitud de cotización.

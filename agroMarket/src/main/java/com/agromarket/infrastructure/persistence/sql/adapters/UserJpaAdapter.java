@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class UserJpaAdapter implements UserRepository {
+public class UserJpaAdapter implements UserPort {
     
     private final UserJpaRepository userJpaRepository;
     private final UserMapper userMapper;

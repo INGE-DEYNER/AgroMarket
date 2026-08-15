@@ -1,8 +1,8 @@
-package com.agromarket.domain.messaging.model;
+package com.agromarket.domain.models.messaging;
 
 import java.time.LocalDateTime;
 
-import com.agromarket.domain.user.model.User;
+import com.agromarket.domain.models.user.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

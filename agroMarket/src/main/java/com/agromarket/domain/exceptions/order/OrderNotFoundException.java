@@ -1,11 +1,11 @@
-package com.agromarket.domain.order.exceptions;
-
+package com.agromarket.domain.exceptions.order;
+import com.agromarket.domain.exceptions.DomainException;
 /**
  * Excepción lanzada cuando se intenta acceder a un pedido que no existe.
  * 
  * @author AgroMarket Team
  */
-public class OrderNotFoundException extends RuntimeException {
+public class OrderNotFoundException extends DomainException {
     
     /**
      * Constructor con mensaje descriptivo.

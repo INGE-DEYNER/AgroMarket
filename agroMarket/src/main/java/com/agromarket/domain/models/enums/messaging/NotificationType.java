@@ -1,4 +1,4 @@
-package com.agromarket.domain.messaging.enums;
+package com.agromarket.domain.models.enums.messaging;
 
 /**
  * Enumeración que representa los tipos de notificaciones en el sistema.

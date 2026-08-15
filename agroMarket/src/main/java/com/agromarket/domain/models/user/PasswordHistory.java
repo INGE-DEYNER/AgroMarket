@@ -1,4 +1,4 @@
-package com.agromarket.domain.user.model;
+package com.agromarket.domain.models.user;
 
 import java.time.LocalDateTime;
 

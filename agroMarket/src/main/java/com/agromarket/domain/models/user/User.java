@@ -2,8 +2,12 @@ package com.agromarket.domain.models.user;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.agromarket.domain.models.enums.user.Role;
+import com.agromarket.domain.models.order.Order;
+import com.agromarket.domain.models.product.Product;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class RequestForQuoteJpaAdapter implements RequestForQuoteRepository {
+public class RequestForQuoteJpaAdapter implements RequestForQuotePort {
 
     private final RequestForQuoteJpaRepository requestForQuoteJpaRepository;
     private final RequestForQuoteMapper requestForQuoteMapper;

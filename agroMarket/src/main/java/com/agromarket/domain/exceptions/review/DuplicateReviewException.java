@@ -1,12 +1,12 @@
 package com.agromarket.domain.exceptions.review;
-
+import com.agromarket.domain.exceptions.DomainException;
 /**
  * Excepción lanzada cuando un usuario intenta crear una reseña para un producto
  * sobre el cual ya ha dejado una reseña anteriormente.
  * 
  * @author AgroMarket Team
  */
-public class DuplicateReviewException extends RuntimeException {
+public class DuplicateReviewException extends DomainException {
     
     /**
      * Constructor con mensaje descriptivo.

@@ -1,11 +1,13 @@
-package com.agromarket.domain.product.exceptions;
+package com.agromarket.domain.exceptions.product;
+import com.agromarket.domain.exceptions.DomainException;
+
 
 /**
  * Excepción lanzada cuando se intenta acceder a un producto que no existe en el catálogo.
  * 
  * @author AgroMarket Team
  */
-public class ProductNotFoundException extends RuntimeException {
+public class ProductNotFoundException extends DomainException {
     
     /**
      * Constructor con mensaje descriptivo.

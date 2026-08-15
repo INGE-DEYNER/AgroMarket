@@ -1,4 +1,4 @@
-package com.agromarket.domain.shipping.enums;
+package com.agromarket.domain.models.enums.shipping;
 
 /**
  * Enumeración que representa los posibles estados de un envío en el sistema.

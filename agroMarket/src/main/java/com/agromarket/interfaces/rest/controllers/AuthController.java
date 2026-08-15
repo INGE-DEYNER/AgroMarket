@@ -46,9 +46,9 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Autenticación", description = "Operaciones de autenticación y registro de usuarios")
 public class AuthController {
 
-    private final AuthenticationService authenticationService;
-    private final PasswordResetService passwordResetService;
-    private final EmailVerificationService emailVerificationService;
+    private final AuthenticationPort authenticationService;
+    private final PasswordResetPort passwordResetService;
+    private final EmailVerificationPort emailVerificationService;
     private final JwtTokenProvider jwtTokenProvider;
     private final SafeRedirectUtil safeRedirectUtil;
     private final AppProperties appProperties;

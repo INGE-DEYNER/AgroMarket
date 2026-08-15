@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.agromarket.domain.product.enums.FruitType;
-import com.agromarket.domain.user.model.User;
-import com.agromarket.domain.product.exceptions.InsufficientStockException;
+import com.agromarket.domain.models.enums.product.FruitType;
+import com.agromarket.domain.models.user.User;
+import com.agromarket.domain.exceptions.product.InsufficientStockException;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

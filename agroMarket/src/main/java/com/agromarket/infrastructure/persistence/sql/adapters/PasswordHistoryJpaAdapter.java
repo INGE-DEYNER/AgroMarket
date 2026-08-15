@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class PasswordHistoryJpaAdapter implements com.agromarket.domain.user.ports.out.PasswordHistoryRepository {
+public class PasswordHistoryJpaAdapter implements com.agromarket.domain.PasswordHistoryPort.ports.out.PasswordHistoryRepository {
 
     private final com.agromarket.infrastructure.persistence.sql.repositories.PasswordHistoryRepository passwordHistoryRepository;
     

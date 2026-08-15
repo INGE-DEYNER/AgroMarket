@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class OrderJpaAdapter implements OrderRepository {
+public class OrderJpaAdapter implements OrderPort {
     
     private final OrderJpaRepository orderJpaRepository;
 

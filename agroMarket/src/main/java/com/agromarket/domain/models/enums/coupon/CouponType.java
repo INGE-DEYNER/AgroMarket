@@ -3,7 +3,7 @@ package com.agromarket.domain.models.enums.coupon;
 /**
  * Enumeración que representa los tipos de cupones de descuento disponibles.
  * Define la forma en que se aplica el descuento.
- * 
+ *
  * @author AgroMarket Team
  */
 public enum CouponType {

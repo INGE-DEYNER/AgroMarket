@@ -1,4 +1,6 @@
-package com.agromarket.domain.product.exceptions;
+package com.agromarket.domain.exceptions.product;
+
+import com.agromarket.domain.exceptions.DomainException;
 
 /**
  * Excepción lanzada cuando se intenta realizar una operación (como comprar o reservar)
@@ -6,7 +8,7 @@ package com.agromarket.domain.product.exceptions;
  * 
  * @author AgroMarket Team
  */
-public class InsufficientStockException extends RuntimeException {
+public class InsufficientStockException extends DomainException {
     
     /**
      * Constructor con mensaje descriptivo.
