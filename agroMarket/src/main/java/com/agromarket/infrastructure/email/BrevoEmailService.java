@@ -50,7 +50,8 @@ public class BrevoEmailService implements EmailService {
 
     @Override
     public void sendHtmlMessage(String to, String subject, String html) {
-        if (apiKey == null || apiKey.trim().isEmpty() || "mock-key".equalsIgnoreCase(apiKey) || apiKey.startsWith("mock")) {
+        if (apiKey == null || apiKey.trim().isEmpty() || "mock-key".equalsIgnoreCase(apiKey)
+                || apiKey.startsWith("mock")) {
             log.info("----- MOCK EMAIL LOG -----");
             log.info("To: {}", to);
             log.info("Subject: {}", subject);
@@ -96,15 +97,18 @@ public class BrevoEmailService implements EmailService {
 
     @Override
     public void sendPasswordResetEmail(String to, String userName, String resetCode, String locale) {
-        String resolvedLocale = (locale != null && List.of("es","en","pt","fr","de","zh","ar").contains(locale)) ? locale : "es";
+        String resolvedLocale = (locale != null && List.of("es", "en", "pt", "fr", "de", "zh", "ar").contains(locale))
+                ? locale
+                : "es";
         String resolvedTemplateName = "reset_" + resolvedLocale;
         try {
             String template = getTemplateFromCache(resolvedTemplateName);
             template = template.replace("${codigo}", resetCode)
-                               .replace("{{reset_code}}", resetCode)
-                               .replace("${user_name}", userName != null ? userName : "Usuario")
-                               .replace("{{user_name}}", userName != null ? userName : "Usuario");
-            String subject = resolvedLocale.equals("en") ? "AgroMarket - Password Recovery Code" : "Código de recuperación AgroMarket";
+                    .replace("{{reset_code}}", resetCode)
+                    .replace("${user_name}", userName != null ? userName : "Usuario")
+                    .replace("{{user_name}}", userName != null ? userName : "Usuario");
+            String subject = resolvedLocale.equals("en") ? "AgroMarket - Password Recovery Code"
+                    : "Código de recuperación AgroMarket";
             sendHtmlMessage(to, subject, template);
         } catch (Exception ex) {
             log.error("Error loading password reset template for locale {}: {}", resolvedLocale, ex.getMessage());

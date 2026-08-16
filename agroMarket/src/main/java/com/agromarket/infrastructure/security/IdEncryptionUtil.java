@@ -1,88 +1,135 @@
 package com.agromarket.infrastructure.security;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
+
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import jakarta.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class IdEncryptionUtil {
 
     private static final String ALGORITHM = "AES/GCM/NoPadding";
-    private static final int GCM_IV_LENGTH = 12;
-    private static final int GCM_TAG_LENGTH = 128; // in bits
 
-    @Value("${app.security.id-encryption-secret:}")
-    private String secretKeyString;
+    private static final int IV_LENGTH = 12;
 
-    private SecretKey secretKey;
+    private static final int TAG_LENGTH = 128;
+
+    private final SecretKeySpec secretKey;
+
     private final SecureRandom secureRandom = new SecureRandom();
 
-    @PostConstruct
-    public void init() {
-        if (secretKeyString == null || secretKeyString.isBlank()) {
-            throw new IllegalStateException("La variable de entorno app.security.id-encryption-secret no está definida");
+    public IdEncryptionUtil(
+            @Value("${app.security.id-encryption-key}") String key) {
+
+        byte[] decoded = Base64.getDecoder()
+                .decode(key);
+
+        if (decoded.length != 16
+                && decoded.length != 24
+                && decoded.length != 32) {
+
+            throw new IllegalStateException(
+                    "app.security.id-encryption-key debe "
+                            + "ser Base64 de 16, 24 o 32 bytes");
         }
-        // Asegurar longitud de 32 bytes para AES-256
-        byte[] keyBytes = new byte[32];
-        byte[] providedBytes = secretKeyString.getBytes(StandardCharsets.UTF_8);
-        System.arraycopy(providedBytes, 0, keyBytes, 0, Math.min(providedBytes.length, 32));
-        this.secretKey = new SecretKeySpec(keyBytes, "AES");
+
+        this.secretKey = new SecretKeySpec(
+                decoded,
+                "AES");
     }
 
-    public String encryptId(Long id) {
-        if (id == null) return null;
+    public String encrypt(
+            Long id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "El id no puede ser null");
+        }
+
         try {
-            byte[] iv = new byte[GCM_IV_LENGTH];
+            byte[] iv = new byte[IV_LENGTH];
+
             secureRandom.nextBytes(iv);
 
-            Cipher cipher = Cipher.getInstance(ALGORITHM);
-            GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
+            Cipher cipher = Cipher.getInstance(
+                    ALGORITHM);
 
-            byte[] idBytes = String.valueOf(id).getBytes(StandardCharsets.UTF_8);
-            byte[] cipherText = cipher.doFinal(idBytes);
+            cipher.init(
+                    Cipher.ENCRYPT_MODE,
+                    secretKey,
+                    new GCMParameterSpec(
+                            TAG_LENGTH,
+                            iv));
 
-            ByteBuffer byteBuffer = ByteBuffer.allocate(iv.length + cipherText.length);
-            byteBuffer.put(iv);
-            byteBuffer.put(cipherText);
+            byte[] encrypted = cipher.doFinal(
+                    String.valueOf(id)
+                            .getBytes(
+                                    StandardCharsets.UTF_8));
 
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(byteBuffer.array());
-        } catch (Exception e) {
-            throw new RuntimeException("Error encriptando ID", e);
+            return Base64.getUrlEncoder()
+                    .withoutPadding()
+                    .encodeToString(
+                            ByteBuffer.allocate(
+                                    iv.length
+                                            + encrypted.length)
+                                    .put(iv)
+                                    .put(encrypted)
+                                    .array());
+
+        } catch (Exception ex) {
+
+            throw new IllegalStateException(
+                    "No fue posible cifrar el id",
+                    ex);
         }
     }
 
-    public Long decryptId(String encryptedId) {
-        if (encryptedId == null || encryptedId.isBlank()) return null;
+    public Long decrypt(
+            String value) {
+
         try {
-            byte[] decoded = Base64.getUrlDecoder().decode(encryptedId);
+            byte[] data = Base64.getUrlDecoder()
+                    .decode(value);
 
-            if (decoded.length < GCM_IV_LENGTH) {
-                throw new IllegalArgumentException("Payload inválido");
-            }
+            ByteBuffer buffer = ByteBuffer.wrap(data);
 
-            byte[] iv = new byte[GCM_IV_LENGTH];
-            System.arraycopy(decoded, 0, iv, 0, GCM_IV_LENGTH);
+            byte[] iv = new byte[IV_LENGTH];
 
-            byte[] cipherText = new byte[decoded.length - GCM_IV_LENGTH];
-            System.arraycopy(decoded, GCM_IV_LENGTH, cipherText, 0, cipherText.length);
+            buffer.get(iv);
 
-            Cipher cipher = Cipher.getInstance(ALGORITHM);
-            GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
+            byte[] encrypted = new byte[buffer.remaining()];
 
-            byte[] plainText = cipher.doFinal(cipherText);
-            return Long.parseLong(new String(plainText, StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            throw new com.agromarket.domain.exception.RecursoNoEncontradoException("ID inválido o manipulado (IDOR protection)");
+            buffer.get(encrypted);
+
+            Cipher cipher = Cipher.getInstance(
+                    ALGORITHM);
+
+            cipher.init(
+                    Cipher.DECRYPT_MODE,
+                    secretKey,
+                    new GCMParameterSpec(
+                            TAG_LENGTH,
+                            iv));
+
+            String plain = new String(
+                    cipher.doFinal(
+                            encrypted),
+                    StandardCharsets.UTF_8);
+
+            return Long.valueOf(plain);
+
+        } catch (Exception ex) {
+
+            throw new IllegalArgumentException(
+                    "Identificador inválido",
+                    ex);
         }
     }
 }

@@ -35,6 +35,8 @@ public interface CouponPort {
      */
     void deactivate(Long id);
 
+    Coupon redeem(String code, Long buyerId);
+
     /**
      * Valida un cupón para un comprador.
      */

@@ -2,60 +2,43 @@ package com.agromarket.domain.ports.in.rfq;
 
 import java.util.List;
 
-import com.agromarket.application.dto.request.rfq.CreateQuoteOfferRequest;
-import com.agromarket.application.dto.request.rfq.CreateRequestForQuoteRequest;
-import com.agromarket.application.dto.response.rfq.QuoteOfferResponse;
-import com.agromarket.application.dto.response.rfq.RequestForQuoteResponse;
-
 /**
- * Puerto de entrada que define el contrato para los casos de uso de solicitudes de cotización (RFQ).
- * Este puerto define las operaciones que pueden realizarse sobre solicitudes de cotización
- * sin exponer detalles de implementación.
- * 
- * @author AgroMarket Team
+ * Puerto de entrada para las operaciones de solicitudes de cotización.
+ *
+ * El dominio no conoce DTOs de application.
  */
 public interface RequestForQuotePort {
-    
+
     /**
-     * Crea una nueva solicitud de cotización.
-     * 
-     * @param request datos de la solicitud de cotización
-     * @param buyerId ID del comprador que crea la solicitud
-     * @return la solicitud de cotización creada
+     * Crea una solicitud de cotización.
      */
-    RequestForQuoteResponse create(CreateRequestForQuoteRequest request, Long buyerId);
-    
+    RequestForQuoteResult create(
+            CreateRequestForQuoteCommand command);
+
     /**
-     * Obtiene todas las solicitudes de cotización activas.
-     * 
-     * @return lista de solicitudes de cotización activas
+     * Obtiene todas las solicitudes activas.
      */
-    List<RequestForQuoteResponse> getActive();
-    
+    List<RequestForQuoteResult> getActive();
+
     /**
-     * Envía una oferta para una solicitud de cotización.
-     * 
-     * @param requestForQuoteId ID de la solicitud de cotización
-     * @param request datos de la oferta
-     * @param producerId ID del productor que envía la oferta
-     * @return la oferta creada
+     * Crea una oferta para una solicitud de cotización.
      */
-    QuoteOfferResponse offer(Long requestForQuoteId, CreateQuoteOfferRequest request, Long producerId);
-    
+    QuoteOfferResult offer(
+            CreateQuoteOfferCommand command);
+
     /**
-     * Obtiene las solicitudes de cotización creadas por un comprador.
-     * 
-     * @param buyerId ID del comprador
-     * @return lista de solicitudes de cotización del comprador
+     * Obtiene las solicitudes creadas por un comprador.
      */
-    List<RequestForQuoteResponse> getMyRequests(Long buyerId);
-    
+    List<RequestForQuoteResult> getMyRequests(
+            Long buyerId);
+
     /**
-     * Acepta una oferta para una solicitud de cotización.
-     * Al aceptar, se crea el pedido correspondiente.
-     * 
-     * @param offerId ID de la oferta a aceptar
-     * @param buyerId ID del comprador que acepta la oferta
+     * Acepta una oferta.
+     *
+     * Al aceptar, el flujo de application podrá crear el pedido
+     * correspondiente mediante los ports necesarios.
      */
-    void acceptOffer(Long offerId, Long buyerId);
+    void acceptOffer(
+            Long offerId,
+            Long buyerId);
 }

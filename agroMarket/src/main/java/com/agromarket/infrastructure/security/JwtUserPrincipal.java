@@ -1,33 +1,82 @@
 package com.agromarket.infrastructure.security;
 
-import com.agromarket.domain.user.enums.Role;
+import java.util.Collection;
+import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-/**
- * Clase que representa el principal de usuario para JWT.
- * Contiene la información básica del usuario extraída del token JWT.
- * 
- * @author AgroMarket Team
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class JwtUserPrincipal {
-    private Long userId;
-    private String email;
-    private Role role;
+import com.agromarket.domain.models.user.User;
 
-    /**
-     * Obtiene el ID del usuario.
-     * 
-     * @return ID del usuario
-     */
+public class JwtUserPrincipal
+        implements UserDetails {
+
+    private final User user;
+
+    public JwtUserPrincipal(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException(
+                    "El usuario no puede ser null");
+        }
+
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
     public Long getUserId() {
-        return this.userId;
+        return user.getId();
+    }
+
+    public String getRole() {
+        return user.getRol() == null
+                ? null
+                : user.getRol().name();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        if (user.getRol() == null) {
+            return List.of();
+        }
+
+        return List.of(
+                new SimpleGrantedAuthority(
+                        "ROLE_"
+                                + user.getRol().name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getContrasena();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getCorreo();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return user.isActivo();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.isActivo();
     }
 }

@@ -1,154 +1,54 @@
+// infrastructure/security/JwtTokenProvider.java
 package com.agromarket.infrastructure.security;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Date;
-import java.util.UUID;
-
-import javax.crypto.SecretKey;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import jakarta.servlet.http.HttpServletRequest;
-
-import com.agromarket.infrastructure.config.properties.JwtProperties;
-import com.agromarket.infrastructure.config.properties.AgroMarketJwtProperties;
-import com.agromarket.domain.user.enums.Role;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.agromarket.domain.ports.out.user.AuthenticationTokenPort;
 
 @Component
-@SuppressWarnings("deprecation")
 public class JwtTokenProvider {
-    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
-    private static final String PURPOSE_CLAIM = "purpose";
-    private static final String PURPOSE_LOGIN = "login";
-    private static final String PURPOSE_LOGIN_2FA = "login_2fa";
-    private static final String PURPOSE_RESET = "password_reset";
-    private static final long TWO_FACTOR_EXPIRATION_MS = 5 * 60 * 1000;
-    private static final long RESET_EXPIRATION_MS = 10 * 60 * 1000;
-    private final SecretKey secretKey;
-    private final long expirationMs;
 
-    public JwtTokenProvider(JwtProperties jwtProperties, AgroMarketJwtProperties agroMarketJwtProperties) {
-        this.secretKey = Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
-        this.expirationMs = agroMarketJwtProperties.expirationMs();
+    private final AuthenticationTokenPort authenticationTokenPort;
+
+    public JwtTokenProvider(
+            AuthenticationTokenPort authenticationTokenPort) {
+
+        this.authenticationTokenPort = authenticationTokenPort;
     }
 
-    public void validateSecretStrength() {
-        if (secretKey == null || secretKey.getEncoded() == null || secretKey.getEncoded().length < 64) {
-            throw new IllegalStateException("JWT secret is missing or too short. It must be at least 64 bytes for HS512.");
+    public Optional<Long> extractUserId(
+            String token) {
+
+        if (token == null || token.isBlank()) {
+            return Optional.empty();
         }
-    }
 
-    public String generateToken(String email, Long userId, Role role) {
-        return generateTokenWithPurpose(email, userId, role, PURPOSE_LOGIN, expirationMs);
-    }
-
-    public String generateTwoFactorToken(String email, Long userId, Role role) {
-        return generateTokenWithPurpose(email, userId, role, PURPOSE_LOGIN_2FA, TWO_FACTOR_EXPIRATION_MS);
-    }
-
-    public boolean isTwoFactorToken(String token) {
-        Object purpose = parseClaims(token).get(PURPOSE_CLAIM);
-        return PURPOSE_LOGIN_2FA.equals(String.valueOf(purpose));
-    }
-
-    public String generatePasswordResetToken(String correo, Long userId) {
-        return generateTokenWithPurpose(correo, userId, null, PURPOSE_RESET, RESET_EXPIRATION_MS);
-    }
-
-    public boolean isPasswordResetToken(String token) {
-        Object purpose = parseClaims(token).get(PURPOSE_CLAIM);
-        return PURPOSE_RESET.equals(String.valueOf(purpose));
-    }
-
-    private String generateTokenWithPurpose(String email, Long userId, Role role, String purpose, long expiresInMs) {
-        Instant now = Instant.now();
-        Instant expiration = now.plusMillis(expiresInMs);
-        return Jwts.builder()
-                .setId(UUID.randomUUID().toString())
-                .setSubject(email)
-                .claim("role", role != null ? role.name() : null)
-                .claim("userId", userId)
-                .claim(PURPOSE_CLAIM, purpose)
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(expiration))
-                .signWith(secretKey)
-                .compact();
-    }
-
-    public String extractEmail(String token) {
-        return parseClaims(token).getSubject();
-    }
-
-    public Long extractUserId(String token) {
-        Object userId = parseClaims(token).get("userId");
-        if (userId instanceof Number number) {
-            return number.longValue();
-        }
-        return userId == null ? null : Long.valueOf(userId.toString());
-    }
-
-    public Role extractRole(String token) {
-        Object role = parseClaims(token).get("role");
-        return role == null ? null : Role.valueOf(role.toString());
-    }
-
-    public boolean validateToken(String token) {
         try {
-            parseClaims(token);
-            return true;
-        } catch (Exception ex) {
-            // Try to include remote IP if available, but never log the token itself
-            String ip = "unknown";
-            try {
-                ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                if (attrs != null) {
-                    HttpServletRequest req = attrs.getRequest();
-                    if (req != null) ip = req.getRemoteAddr();
-                }
-            } catch (Exception e) {
-                // ignore
-            }
-            log.warn("Token inválido o expirado - ip={} - reason={}", ip, ex.getMessage());
-            return false;
+            return authenticationTokenPort.validate(token);
+        } catch (RuntimeException exception) {
+            return Optional.empty();
         }
     }
 
-    private Claims parseClaims(String token) {
-        try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+    public Optional<String> extractRole(
+            String token) {
 
-            Date now = new Date();
-            Date iat = claims.getIssuedAt();
-            Date exp = claims.getExpiration();
-
-            if (iat == null || exp == null) {
-                throw new JwtException("Token missing iat/exp");
-            }
-
-            if (now.before(iat) || now.after(exp)) {
-                throw new JwtException("Token outside valid time range");
-            }
-
-            return claims;
-        } catch (JwtException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new JwtException("Invalid token", ex);
+        if (token == null || token.isBlank()) {
+            return Optional.empty();
         }
+
+        try {
+            return authenticationTokenPort.extractRole(token);
+        } catch (RuntimeException exception) {
+            return Optional.empty();
+        }
+    }
+
+    public boolean validateToken(
+            String token) {
+
+        return extractUserId(token).isPresent();
     }
 }
-

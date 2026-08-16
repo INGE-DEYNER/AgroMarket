@@ -52,11 +52,12 @@ public class AuthenticationUseCase implements AuthenticationPort {
             UserService userService,
             PasswordPolicyService passwordPolicyService,
             TwoFactorService twoFactorService) {
+
         this.userPort = userPort;
         this.authEventPort = authEventPort;
         this.passwordHashPort = passwordHashPort;
         this.authenticationTokenPort = authenticationTokenPort;
-        this.twoFactorAuthenticationPort = new TwoFactorAuthenticationPortAdapter(twoFactorAuthenticationPort);
+        this.twoFactorAuthenticationPort = twoFactorAuthenticationPort;
         this.emailPort = emailPort;
         this.googleOAuth2Port = googleOAuth2Port;
         this.userService = userService;
@@ -189,24 +190,23 @@ public class AuthenticationUseCase implements AuthenticationPort {
         if (role == Role.ADMIN) {
             throw new IllegalArgumentException("No se permite registrar administradores mediante Google");
         }
-        User user = userPort.findByEmail(email).orElseGet(() ->
-                User.builder()
-                        .firstName(info.getFirstName())
-                        .email(email)
-                        .role(role)
-                        .active(true)
-                        .approved(true)
-                        .emailVerified(true)
-                        .provider("google")
-                        .providerId(info.getGoogleId())
-                        .photoUrl(info.getPicture())
-                        .accountApproved(true)
-                        .accountComplete(false)
-                        .accountStatus("ACTIVE")
-                        .registrationDate(LocalDateTime.now())
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
-                        .build());
+        User user = userPort.findByEmail(email).orElseGet(() -> User.builder()
+                .firstName(info.getFirstName())
+                .email(email)
+                .role(role)
+                .active(true)
+                .approved(true)
+                .emailVerified(true)
+                .provider("google")
+                .providerId(info.getGoogleId())
+                .photoUrl(info.getPicture())
+                .accountApproved(true)
+                .accountComplete(false)
+                .accountStatus("ACTIVE")
+                .registrationDate(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build());
 
         user.setProvider("google");
         user.setProviderId(info.getGoogleId());

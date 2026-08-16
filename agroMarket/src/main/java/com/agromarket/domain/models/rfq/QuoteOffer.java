@@ -1,10 +1,10 @@
-
 package com.agromarket.domain.models.rfq;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.agromarket.domain.models.enums.rfq.QuoteOfferStatus;
+import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.user.User;
 
 import lombok.AllArgsConstructor;
@@ -15,8 +15,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Entidad de dominio que representa una oferta para una solicitud de cotización.
- * Los productores crean ofertas en respuesta a las solicitudes de cotización de los compradores.
+ * Entidad de dominio que representa una oferta para una solicitud de
+ * cotización.
+ * Los productores crean ofertas en respuesta a las solicitudes de cotización de
+ * los compradores.
  *
  * @author AgroMarket Team
  */
@@ -38,6 +40,11 @@ public class QuoteOffer {
      * Usuario que realizó la oferta (debe ser un productor).
      */
     private User producer;
+
+    /**
+     * Producto concreto ofrecido por el productor.
+     */
+    private Product product;
 
     /**
      * Precio propuesto por el productor.

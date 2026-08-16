@@ -1,21 +1,35 @@
-package 	com.agromarket.infrastructure.config;
 
-import io.micrometer.core.aop.TimedAspect;
-import io.micrometer.core.instrument.MeterRegistry;
+package com.agromarket.infrastructure.config;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-/**
- * Configuración de métricas para habilitar el uso de la anotación @Timed
- * en los controladores y servicios mediante AspectJ AOP.
- */
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+
 @Configuration
-@EnableAspectJAutoProxy
 public class MetricsConfig {
 
     @Bean
-    public TimedAspect timedAspect(MeterRegistry registry) {
-        return new TimedAspect(registry);
+    public JvmMemoryMetrics jvmMemoryMetrics(
+            MeterRegistry meterRegistry) {
+
+        JvmMemoryMetrics metrics = new JvmMemoryMetrics();
+
+        metrics.bindTo(meterRegistry);
+
+        return metrics;
+    }
+
+    @Bean
+    public JvmThreadMetrics jvmThreadMetrics(
+            MeterRegistry meterRegistry) {
+
+        JvmThreadMetrics metrics = new JvmThreadMetrics();
+
+        metrics.bindTo(meterRegistry);
+
+        return metrics;
     }
 }

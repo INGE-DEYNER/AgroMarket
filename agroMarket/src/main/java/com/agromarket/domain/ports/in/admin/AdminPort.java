@@ -24,4 +24,14 @@ public interface AdminPort {
      * Obtiene los administradores activos.
      */
     List<Admin> getActiveAdmins();
+
+    /**
+     * Promueve un usuario existente a administrador.
+     */
+    Admin promoteToAdmin(Long userId);
+
+    /**
+     * Desactiva un administrador.
+     */
+    Admin deactivateAdmin(Long adminId);
 }

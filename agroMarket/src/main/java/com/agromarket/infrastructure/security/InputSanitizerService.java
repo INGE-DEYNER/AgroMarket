@@ -1,16 +1,36 @@
 package com.agromarket.infrastructure.security;
 
-import org.owasp.html.HtmlPolicyBuilder;
-import org.owasp.html.PolicyFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class InputSanitizerService {
-    private final PolicyFactory policy = new HtmlPolicyBuilder().toFactory();
 
-    public String sanitize(String input) {
-        if (input == null) return null;
-        return policy.sanitize(input);
+    public String sanitize(
+            String input) {
+
+        if (input == null) {
+            return null;
+        }
+
+        return input
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#x27;");
+    }
+
+    public String sanitizePlainText(
+            String input) {
+
+        if (input == null) {
+            return null;
+        }
+
+        return input
+                .replaceAll(
+                        "[\\p{Cntrl}&&[^\r\n\t]]",
+                        "")
+                .trim();
     }
 }
-
