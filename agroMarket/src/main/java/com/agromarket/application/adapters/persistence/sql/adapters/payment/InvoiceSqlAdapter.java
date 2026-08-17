@@ -43,12 +43,12 @@ public class InvoiceSqlAdapter implements InvoicePort {
         @Override
         public Optional<Invoice> findByOrderId(Long orderId) {
                 return repository.findByOrder_Id(orderId)
-                                .map(InvoiceEntity::toDomain);
+                                .map(entity -> entity.toDomain());
         }
 
         @Override
         public Optional<Invoice> findById(Long id) {
                 return repository.findById(id)
-                                .map(InvoiceEntity::toDomain);
+                                .map(entity -> entity.toDomain());
         }
 }

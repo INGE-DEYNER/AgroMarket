@@ -28,24 +28,24 @@ public class UserSqlAdapter implements UserPort {
 
     @Override
     public Optional<User> findById(Long id) {
-        return repository.findById(id).map(UserEntity::toDomain);
+        return repository.findById(id).map(entity -> entity.toDomain());
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return repository.findByEmail(email).map(UserEntity::toDomain);
+        return repository.findByEmail(email).map(entity -> entity.toDomain());
     }
 
     @Override
     public List<User> findAll() {
-        return repository.findAll().stream().map(UserEntity::toDomain).toList();
+        return repository.findAll().stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override
     public List<User> findByRole(String role) {
         return repository.findByRole(
                 com.agromarket.domain.models.enums.user.Role.valueOf(role.toUpperCase()))
-                .stream().map(UserEntity::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override
@@ -60,12 +60,12 @@ public class UserSqlAdapter implements UserPort {
 
     @Override
     public Optional<User> findByEmailVerificationToken(String token) {
-        return repository.findByEmailVerificationToken(token).map(UserEntity::toDomain);
+        return repository.findByEmailVerificationToken(token).map(entity -> entity.toDomain());
     }
 
     @Override
     public Optional<User> findByPasswordResetToken(String token) {
-        return repository.findByPasswordResetToken(token).map(UserEntity::toDomain);
+        return repository.findByPasswordResetToken(token).map(entity -> entity.toDomain());
     }
 
     @Override

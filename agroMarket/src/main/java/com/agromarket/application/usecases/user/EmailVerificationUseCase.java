@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.agromarket.domain.models.user.User;
-import com.agromarket.domain.exceptions.user.UserNotFoundException;
 import com.agromarket.domain.ports.in.user.EmailVerificationPort;
 import com.agromarket.domain.ports.out.user.EmailPort;
 import com.agromarket.domain.ports.out.user.UserPort;

@@ -27,14 +27,14 @@ public class ReviewMongoAdapter implements ReviewPort {
     @Override
     public Optional<Review> findById(Long id) {
         return repository.findById(id.toString())
-                .map(ReviewDocument::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
     public List<Review> findByProductId(Long productId) {
         return repository.findByProductId(productId)
                 .stream()
-                .map(ReviewDocument::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 
@@ -42,7 +42,7 @@ public class ReviewMongoAdapter implements ReviewPort {
     public List<Review> findByReviewerId(Long reviewerId) {
         return repository.findByBuyerId(reviewerId)
                 .stream()
-                .map(ReviewDocument::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 

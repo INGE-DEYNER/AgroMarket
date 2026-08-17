@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.agromarket.domain.models.user.PasswordHistory;
 import com.agromarket.domain.models.user.User;
-import com.agromarket.domain.exceptions.user.UserNotFoundException;
 import com.agromarket.domain.ports.in.user.PasswordResetPort;
 import com.agromarket.domain.ports.out.user.EmailPort;
 import com.agromarket.domain.ports.out.user.PasswordHashPort;

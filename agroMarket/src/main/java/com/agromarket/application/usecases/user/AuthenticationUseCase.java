@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.agromarket.domain.models.enums.user.Role;
 import com.agromarket.domain.models.user.AuthAccessEvent;
 import com.agromarket.domain.models.user.User;
-import com.agromarket.domain.exceptions.user.UserNotFoundException;
 import com.agromarket.domain.ports.in.user.AuthResult;
 import com.agromarket.domain.ports.in.user.AuthenticationPort;
 import com.agromarket.domain.ports.in.user.LoginCommand;

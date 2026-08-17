@@ -2,10 +2,9 @@ package com.agromarket.application.adapters.persistence.sql.entities.rfq;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
-import com.agromarket.application.adapters.persistence.sql.entities.product.ProductEntity;
 import com.agromarket.application.adapters.persistence.sql.entities.user.UserEntity;
 import com.agromarket.domain.models.enums.rfq.QuoteOfferStatus;
+import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.rfq.QuoteOffer;
 
 import jakarta.persistence.Column;
@@ -22,11 +21,13 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "quote_offers")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,9 +45,8 @@ public class QuoteOfferEntity {
         @JoinColumn(name = "producer_id", nullable = false)
         private UserEntity producer;
 
-        @ManyToOne(fetch = FetchType.LAZY, optional = false)
         @JoinColumn(name = "product_id", nullable = false)
-        private ProductEntity product;
+        private Long productId;
 
         @Column(nullable = false, precision = 19, scale = 2)
         private BigDecimal proposedPrice;
@@ -61,7 +61,8 @@ public class QuoteOfferEntity {
         @Column(nullable = false)
         private LocalDateTime createdAt;
 
-        public QuoteOffer toDomain() {
+        public QuoteOffer toDomain(Product product) {
+
                 return QuoteOffer.builder()
                                 .id(id)
                                 .requestForQuote(
@@ -72,10 +73,7 @@ public class QuoteOfferEntity {
                                                 producer == null
                                                                 ? null
                                                                 : producer.toDomain())
-                                .product(
-                                                product == null
-                                                                ? null
-                                                                : product.toDomain())
+                                .product(product)
                                 .proposedPrice(proposedPrice)
                                 .comments(comments)
                                 .status(status)
@@ -85,19 +83,21 @@ public class QuoteOfferEntity {
 
         public static QuoteOfferEntity fromDomain(
                         QuoteOffer offer,
-                        RequestForQuoteEntity requestEntity,
-                        UserEntity producerEntity,
-                        ProductEntity productEntity) {
+                        RequestForQuoteEntity requestForQuote,
+                        UserEntity producer,
+                        Long productId) {
 
-                return QuoteOfferEntity.builder()
-                                .id(offer.getId())
-                                .requestForQuote(requestEntity)
-                                .producer(producerEntity)
-                                .product(productEntity)
-                                .proposedPrice(offer.getProposedPrice())
-                                .comments(offer.getComments())
-                                .status(offer.getStatus())
-                                .createdAt(offer.getCreatedAt())
-                                .build();
+                QuoteOfferEntity entity = new QuoteOfferEntity();
+
+                entity.setId(offer.getId());
+                entity.setRequestForQuote(requestForQuote);
+                entity.setProducer(producer);
+                entity.setProductId(productId);
+                entity.setProposedPrice(offer.getProposedPrice());
+                entity.setComments(offer.getComments());
+                entity.setStatus(offer.getStatus());
+                entity.setCreatedAt(offer.getCreatedAt());
+
+                return entity;
         }
 }

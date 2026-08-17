@@ -150,9 +150,9 @@ public class JwtAuthenticationTokenAdapter
                                                                 user.getId()))
                                 .claim(
                                                 ROLE_CLAIM,
-                                                user.getRol() == null
+                                                user.getRole() == null
                                                                 ? null
-                                                                : user.getRol().name())
+                                                                : user.getRole().name())
                                 .claim(
                                                 TYPE_CLAIM,
                                                 temporary

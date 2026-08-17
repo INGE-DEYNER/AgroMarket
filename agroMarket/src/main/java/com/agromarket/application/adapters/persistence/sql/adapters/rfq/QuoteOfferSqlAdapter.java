@@ -4,18 +4,16 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
-
-import com.agromarket.application.adapters.persistence.sql.entities.product.ProductEntity;
 import com.agromarket.application.adapters.persistence.sql.entities.rfq.QuoteOfferEntity;
 import com.agromarket.application.adapters.persistence.sql.entities.rfq.RequestForQuoteEntity;
 import com.agromarket.application.adapters.persistence.sql.entities.user.UserEntity;
-import com.agromarket.application.adapters.persistence.sql.repositories.product.ProductJpaRepository;
 import com.agromarket.application.adapters.persistence.sql.repositories.rfq.QuoteOfferJpaRepository;
 import com.agromarket.application.adapters.persistence.sql.repositories.rfq.RequestForQuoteJpaRepository;
 import com.agromarket.application.adapters.persistence.sql.repositories.user.UserJpaRepository;
 import com.agromarket.domain.models.rfq.QuoteOffer;
 import com.agromarket.domain.ports.out.rfq.QuoteOfferPort;
-
+import com.agromarket.domain.models.product.Product;
+import com.agromarket.domain.ports.out.product.ProductPort;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -25,7 +23,15 @@ public class QuoteOfferSqlAdapter implements QuoteOfferPort {
         private final QuoteOfferJpaRepository repository;
         private final RequestForQuoteJpaRepository requestRepository;
         private final UserJpaRepository userRepository;
-        private final ProductJpaRepository productRepository;
+        private final ProductPort productPort;
+
+        private QuoteOffer toDomain(QuoteOfferEntity entity) {
+                Product product = entity.getProductId() == null
+                                ? null
+                                : productPort.findById(entity.getProductId()).orElse(null);
+
+                return entity.toDomain(product);
+        }
 
         @Override
         public QuoteOffer save(QuoteOffer offer) {
@@ -42,25 +48,21 @@ public class QuoteOfferSqlAdapter implements QuoteOfferPort {
                                                 "No existe el productor con id "
                                                                 + offer.getProducer().getId()));
 
-                ProductEntity product = productRepository
-                                .findById(offer.getProduct().getId())
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                "No existe el producto con id "
-                                                                + offer.getProduct().getId()));
-
                 return repository.save(
                                 QuoteOfferEntity.fromDomain(
                                                 offer,
                                                 request,
                                                 producer,
-                                                product))
-                                .toDomain();
+                                                offer.getProduct() == null
+                                                                ? null
+                                                                : offer.getProduct().getId()))
+                                .toDomain(offer.getProduct());
         }
 
         @Override
         public Optional<QuoteOffer> findById(Long id) {
                 return repository.findById(id)
-                                .map(QuoteOfferEntity::toDomain);
+                                .map(entity -> toDomain(entity));
         }
 
         @Override
@@ -81,7 +83,7 @@ public class QuoteOfferSqlAdapter implements QuoteOfferPort {
                 return repository
                                 .findByRequestForQuote_Id(requestForQuoteId)
                                 .stream()
-                                .map(QuoteOfferEntity::toDomain)
+                                .map(entity -> toDomain(entity))
                                 .toList();
         }
 }

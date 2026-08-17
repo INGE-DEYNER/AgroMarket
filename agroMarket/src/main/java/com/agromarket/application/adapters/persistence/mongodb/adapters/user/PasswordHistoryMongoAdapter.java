@@ -31,7 +31,7 @@ public class PasswordHistoryMongoAdapter implements PasswordHistoryPort {
     @Override
     public List<PasswordHistory> findByUserId(Long userId) {
         return repository.findByUserIdOrderByUsedAtDesc(userId)
-                .stream().map(PasswordHistoryDocument::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override

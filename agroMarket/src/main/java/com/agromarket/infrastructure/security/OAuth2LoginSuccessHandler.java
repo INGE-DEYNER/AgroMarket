@@ -1,7 +1,6 @@
 package com.agromarket.infrastructure.security;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;

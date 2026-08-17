@@ -11,20 +11,19 @@ import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.review.Review;
 import com.agromarket.domain.models.user.User;
 import com.agromarket.domain.ports.out.product.ProductPort;
-import com.agromarket.domain.ports.out.review.ReviewPort;
 import com.agromarket.domain.ports.out.user.UserPort;
 import com.agromarket.domain.services.review.ReviewService;
-
+import com.agromarket.domain.ports.in.review.ReviewPort;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewUseCase implements ReviewPort {
 
-    private final ReviewPort reviewPersistencePort;
     private final UserPort userPort;
     private final ProductPort productPort;
     private final ReviewService reviewService;
+    private final com.agromarket.domain.ports.out.review.ReviewPort reviewPersistencePort;
 
     @Override
     @Transactional

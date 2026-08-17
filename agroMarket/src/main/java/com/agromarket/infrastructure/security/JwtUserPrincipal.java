@@ -32,32 +32,32 @@ public class JwtUserPrincipal
     }
 
     public String getRole() {
-        return user.getRol() == null
+        return user.getRole() == null
                 ? null
-                : user.getRol().name();
+                : user.getRole().name();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        if (user.getRol() == null) {
+        if (user.getRole() == null) {
             return List.of();
         }
 
         return List.of(
                 new SimpleGrantedAuthority(
                         "ROLE_"
-                                + user.getRol().name()));
+                                + user.getRole().name()));
     }
 
     @Override
     public String getPassword() {
-        return user.getContrasena();
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getCorreo();
+        return user.getEmail();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class JwtUserPrincipal
 
     @Override
     public boolean isAccountNonLocked() {
-        return user.isActivo();
+        return user.isActive();
     }
 
     @Override
@@ -77,6 +77,6 @@ public class JwtUserPrincipal
 
     @Override
     public boolean isEnabled() {
-        return user.isActivo();
+        return user.isActive();
     }
 }

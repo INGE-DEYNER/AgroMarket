@@ -1,6 +1,5 @@
 package com.agromarket.application.usecases.rfq;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,351 +35,351 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RfqUseCase implements RequestForQuotePort, QuoteOfferPort {
 
-    private final com.agromarket.domain.ports.out.rfq.RequestForQuotePort requestPersistencePort;
-    private final com.agromarket.domain.ports.out.rfq.QuoteOfferPort offerPersistencePort;
-    private final UserPort userPort;
-    private final ProductPort productPort;
-    private final OrderPort orderPort;
-    private final RequestForQuoteService requestForQuoteService;
-    private final QuoteOfferService quoteOfferService;
+        private final com.agromarket.domain.ports.out.rfq.RequestForQuotePort requestPersistencePort;
+        private final com.agromarket.domain.ports.out.rfq.QuoteOfferPort offerPersistencePort;
+        private final UserPort userPort;
+        private final ProductPort productPort;
+        private final OrderPort orderPort;
+        private final RequestForQuoteService requestForQuoteService;
+        private final QuoteOfferService quoteOfferService;
 
-    @Override
-    @Transactional
-    public RequestForQuoteResult create(
-            CreateRequestForQuoteCommand command) {
+        @Override
+        @Transactional
+        public RequestForQuoteResult create(
+                        CreateRequestForQuoteCommand command) {
 
-        User buyer = findUser(command.getBuyerId());
+                User buyer = findUser(command.getBuyerId());
 
-        if (!buyer.isBuyer()) {
-            throw new IllegalArgumentException(
-                    "El usuario indicado no tiene rol BUYER");
+                if (!buyer.isBuyer()) {
+                        throw new IllegalArgumentException(
+                                        "El usuario indicado no tiene rol BUYER");
+                }
+
+                RequestForQuote request = RequestForQuote.builder()
+                                .buyer(buyer)
+                                .fruitType(command.getFruitType())
+                                .requiredQuantity(command.getRequiredQuantity())
+                                .description(command.getDescription())
+                                .deadline(command.getDeadline())
+                                .status(RequestForQuoteStatus.OPEN)
+                                .createdAt(LocalDateTime.now())
+                                .build();
+
+                if (!requestForQuoteService.isValid(request)) {
+                        throw new IllegalArgumentException(
+                                        "La solicitud de cotización no es válida");
+                }
+
+                RequestForQuote saved = requestPersistencePort.save(request);
+                return toRequestResult(saved);
         }
 
-        RequestForQuote request = RequestForQuote.builder()
-                .buyer(buyer)
-                .fruitType(command.getFruitType())
-                .requiredQuantity(command.getRequiredQuantity())
-                .description(command.getDescription())
-                .deadline(command.getDeadline())
-                .status(RequestForQuoteStatus.OPEN)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        if (!requestForQuoteService.isValid(request)) {
-            throw new IllegalArgumentException(
-                    "La solicitud de cotización no es válida");
+        @Override
+        @Transactional(readOnly = true)
+        public List<RequestForQuoteResult> getActive() {
+                return requestPersistencePort.findAllActive()
+                                .stream()
+                                .map(this::toRequestResult)
+                                .toList();
         }
 
-        RequestForQuote saved = requestPersistencePort.save(request);
-        return toRequestResult(saved);
-    }
+        @Override
+        @Transactional(readOnly = true)
+        public List<RequestForQuoteResult> getMyRequests(
+                        Long buyerId) {
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<RequestForQuoteResult> getActive() {
-        return requestPersistencePort.findAllActive()
-                .stream()
-                .map(this::toRequestResult)
-                .toList();
-    }
+                findUser(buyerId);
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<RequestForQuoteResult> getMyRequests(
-            Long buyerId) {
-
-        findUser(buyerId);
-
-        return requestPersistencePort.findByBuyerId(buyerId)
-                .stream()
-                .map(this::toRequestResult)
-                .toList();
-    }
-
-    @Override
-    @Transactional
-    public QuoteOfferResult offer(
-            CreateQuoteOfferCommand command) {
-
-        RequestForQuote request = findRequest(command.getRequestForQuoteId());
-
-        if (!requestForQuoteService.canReceiveOffers(request)) {
-            throw new InvalidQuoteOfferException(
-                    "La solicitud no está disponible para recibir ofertas");
+                return requestPersistencePort.findByBuyerId(buyerId)
+                                .stream()
+                                .map(this::toRequestResult)
+                                .toList();
         }
 
-        User producer = findUser(command.getProducerId());
+        @Override
+        @Transactional
+        public QuoteOfferResult offer(
+                        CreateQuoteOfferCommand command) {
 
-        if (!producer.isProducer()) {
-            throw new InvalidQuoteOfferException(
-                    "El usuario indicado no tiene rol PRODUCER");
+                RequestForQuote request = findRequest(command.getRequestForQuoteId());
+
+                if (!requestForQuoteService.canReceiveOffers(request)) {
+                        throw new InvalidQuoteOfferException(
+                                        "La solicitud no está disponible para recibir ofertas");
+                }
+
+                User producer = findUser(command.getProducerId());
+
+                if (!producer.isProducer()) {
+                        throw new InvalidQuoteOfferException(
+                                        "El usuario indicado no tiene rol PRODUCER");
+                }
+
+                if (offerPersistencePort
+                                .existsByRequestForQuoteIdAndProducerId(
+                                                command.getRequestForQuoteId(),
+                                                command.getProducerId())) {
+                        throw new InvalidQuoteOfferException(
+                                        "El productor ya realizó una oferta para esta solicitud");
+                }
+
+                Product product = productPort.findById(command.getProductId())
+                                .orElseThrow(() -> new InvalidQuoteOfferException(
+                                                "No existe el producto indicado"));
+
+                validateProductForOffer(product, producer, request);
+
+                QuoteOffer offer = QuoteOffer.builder()
+                                .requestForQuote(request)
+                                .producer(producer)
+                                .product(product)
+                                .proposedPrice(command.getProposedPrice())
+                                .comments(command.getComments())
+                                .status(QuoteOfferStatus.PENDING)
+                                .createdAt(LocalDateTime.now())
+                                .build();
+
+                if (!quoteOfferService.canBeAccepted(offer)) {
+                        throw new InvalidQuoteOfferException(
+                                        "La oferta no contiene datos válidos");
+                }
+
+                QuoteOffer saved = offerPersistencePort.save(offer);
+                return toOfferResult(saved);
         }
 
-        if (offerPersistencePort
-                .existsByRequestForQuoteIdAndProducerId(
-                        command.getRequestForQuoteId(),
-                        command.getProducerId())) {
-            throw new InvalidQuoteOfferException(
-                    "El productor ya realizó una oferta para esta solicitud");
+        @Override
+        @Transactional(readOnly = true)
+        public QuoteOfferResult getById(Long offerId) {
+                return toOfferResult(findOffer(offerId));
         }
 
-        Product product = productPort.findById(command.getProductId())
-                .orElseThrow(() -> new InvalidQuoteOfferException(
-                        "No existe el producto indicado"));
+        @Override
+        @Transactional(readOnly = true)
+        public List<QuoteOfferResult> getOffersForRequest(
+                        Long requestForQuoteId) {
 
-        validateProductForOffer(product, producer, request);
+                findRequest(requestForQuoteId);
 
-        QuoteOffer offer = QuoteOffer.builder()
-                .requestForQuote(request)
-                .producer(producer)
-                .product(product)
-                .proposedPrice(command.getProposedPrice())
-                .comments(command.getComments())
-                .status(QuoteOfferStatus.PENDING)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        if (!quoteOfferService.canBeAccepted(offer)) {
-            throw new InvalidQuoteOfferException(
-                    "La oferta no contiene datos válidos");
+                return offerPersistencePort
+                                .findByRequestForQuoteId(requestForQuoteId)
+                                .stream()
+                                .map(this::toOfferResult)
+                                .toList();
         }
 
-        QuoteOffer saved = offerPersistencePort.save(offer);
-        return toOfferResult(saved);
-    }
+        @Override
+        @Transactional
+        public void rejectOffer(
+                        Long offerId,
+                        Long buyerId) {
 
-    @Override
-    @Transactional(readOnly = true)
-    public QuoteOfferResult getById(Long offerId) {
-        return toOfferResult(findOffer(offerId));
-    }
+                QuoteOffer offer = findOffer(offerId);
+                RequestForQuote request = requireRequest(offer);
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<QuoteOfferResult> getOffersForRequest(
-            Long requestForQuoteId) {
+                validateBuyerOwnsRequest(request, buyerId);
 
-        findRequest(requestForQuoteId);
-
-        return offerPersistencePort
-                .findByRequestForQuoteId(requestForQuoteId)
-                .stream()
-                .map(this::toOfferResult)
-                .toList();
-    }
-
-    @Override
-    @Transactional
-    public void rejectOffer(
-            Long offerId,
-            Long buyerId) {
-
-        QuoteOffer offer = findOffer(offerId);
-        RequestForQuote request = requireRequest(offer);
-
-        validateBuyerOwnsRequest(request, buyerId);
-
-        quoteOfferService.reject(offer);
-        offerPersistencePort.save(offer);
-    }
-
-    @Override
-    @Transactional
-    public void acceptOffer(
-            Long offerId,
-            Long buyerId) {
-
-        QuoteOffer acceptedOffer = findOffer(offerId);
-        RequestForQuote request = requireRequest(acceptedOffer);
-
-        validateBuyerOwnsRequest(request, buyerId);
-
-        if (!quoteOfferService.canBeAccepted(acceptedOffer)) {
-            throw new InvalidQuoteOfferException(
-                    "La oferta no puede ser aceptada");
+                quoteOfferService.reject(offer);
+                offerPersistencePort.save(offer);
         }
 
-        /*
-         * canBeAccepted() del dominio también valida que el producto:
-         * 1. pertenezca al productor de la oferta;
-         * 2. tenga el mismo FruitType que la RFQ.
-         */
-        validateProductForOffer(
-                acceptedOffer.getProduct(),
-                acceptedOffer.getProducer(),
-                request);
+        @Override
+        @Transactional
+        public void acceptOffer(
+                        Long offerId,
+                        Long buyerId) {
 
-        acceptedOffer.setStatus(QuoteOfferStatus.ACCEPTED);
-        offerPersistencePort.save(acceptedOffer);
+                QuoteOffer acceptedOffer = findOffer(offerId);
+                RequestForQuote request = requireRequest(acceptedOffer);
 
-        requestForQuoteService.close(request);
-        requestPersistencePort.save(request);
+                validateBuyerOwnsRequest(request, buyerId);
 
-        List<QuoteOffer> otherOffers = offerPersistencePort
-                .findByRequestForQuoteId(request.getId());
+                if (!quoteOfferService.canBeAccepted(acceptedOffer)) {
+                        throw new InvalidQuoteOfferException(
+                                        "La oferta no puede ser aceptada");
+                }
 
-        for (QuoteOffer otherOffer : otherOffers) {
-            if (!otherOffer.getId().equals(acceptedOffer.getId())
-                    && otherOffer.getStatus() == QuoteOfferStatus.PENDING) {
+                /*
+                 * canBeAccepted() del dominio también valida que el producto:
+                 * 1. pertenezca al productor de la oferta;
+                 * 2. tenga el mismo FruitType que la RFQ.
+                 */
+                validateProductForOffer(
+                                acceptedOffer.getProduct(),
+                                acceptedOffer.getProducer(),
+                                request);
 
-                quoteOfferService.reject(otherOffer);
-                offerPersistencePort.save(otherOffer);
-            }
+                acceptedOffer.setStatus(QuoteOfferStatus.ACCEPTED);
+                offerPersistencePort.save(acceptedOffer);
+
+                requestForQuoteService.close(request);
+                requestPersistencePort.save(request);
+
+                List<QuoteOffer> otherOffers = offerPersistencePort
+                                .findByRequestForQuoteId(request.getId());
+
+                for (QuoteOffer otherOffer : otherOffers) {
+                        if (!otherOffer.getId().equals(acceptedOffer.getId())
+                                        && otherOffer.getStatus() == QuoteOfferStatus.PENDING) {
+
+                                quoteOfferService.reject(otherOffer);
+                                offerPersistencePort.save(otherOffer);
+                        }
+                }
+
+                Product product = acceptedOffer.getProduct();
+                int quantity = toOrderQuantity(request.getRequiredQuantity());
+
+                if (!product.isAvailable()
+                                || product.getAvailableQuantity() < quantity) {
+                        throw new InvalidQuoteOfferException(
+                                        "El producto de la oferta aceptada no tiene stock suficiente");
+                }
+
+                Order order = Order.builder()
+                                .buyer(request.getBuyer())
+                                .product(product)
+                                .quantity(quantity)
+                                .unitPrice(acceptedOffer.getProposedPrice())
+                                .state(com.agromarket.domain.models.enums.order.OrderState.PENDING)
+                                .createdAt(LocalDateTime.now())
+                                .build();
+
+                order.setTotal(order.calculateTotal());
+                orderPort.save(order);
         }
 
-        Product product = acceptedOffer.getProduct();
-        int quantity = toOrderQuantity(request.getRequiredQuantity());
-
-        if (!product.isAvailable()
-                || product.getAvailableQuantity() < quantity) {
-            throw new InvalidQuoteOfferException(
-                    "El producto de la oferta aceptada no tiene stock suficiente");
+        private RequestForQuote findRequest(Long id) {
+                return requestPersistencePort.findById(id)
+                                .orElseThrow(() -> new RequestForQuoteNotFoundException(
+                                                "No existe la solicitud de cotización con id " + id));
         }
 
-        Order order = Order.builder()
-                .buyer(request.getBuyer())
-                .product(product)
-                .quantity(quantity)
-                .unitPrice(acceptedOffer.getProposedPrice())
-                .state(com.agromarket.domain.models.enums.order.OrderState.PENDING)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        order.setTotal(order.calculateTotal());
-        orderPort.save(order);
-    }
-
-    private RequestForQuote findRequest(Long id) {
-        return requestPersistencePort.findById(id)
-                .orElseThrow(() -> new RequestForQuoteNotFoundException(
-                        "No existe la solicitud de cotización con id " + id));
-    }
-
-    private QuoteOffer findOffer(Long id) {
-        return offerPersistencePort.findById(id)
-                .orElseThrow(() -> new QuoteOfferNotFoundException(
-                        "No existe la oferta con id " + id));
-    }
-
-    private RequestForQuote requireRequest(QuoteOffer offer) {
-        if (offer.getRequestForQuote() == null
-                || offer.getRequestForQuote().getId() == null) {
-            throw new InvalidQuoteOfferException(
-                    "La oferta no tiene una solicitud de cotización válida");
+        private QuoteOffer findOffer(Long id) {
+                return offerPersistencePort.findById(id)
+                                .orElseThrow(() -> new QuoteOfferNotFoundException(
+                                                "No existe la oferta con id " + id));
         }
 
-        return findRequest(offer.getRequestForQuote().getId());
-    }
+        private RequestForQuote requireRequest(QuoteOffer offer) {
+                if (offer.getRequestForQuote() == null
+                                || offer.getRequestForQuote().getId() == null) {
+                        throw new InvalidQuoteOfferException(
+                                        "La oferta no tiene una solicitud de cotización válida");
+                }
 
-    private User findUser(Long id) {
-        return userPort.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No existe el usuario con id " + id));
-    }
-
-    private void validateBuyerOwnsRequest(
-            RequestForQuote request,
-            Long buyerId) {
-
-        if (request.getBuyer() == null
-                || request.getBuyer().getId() == null
-                || !request.getBuyer().getId().equals(buyerId)) {
-
-            throw new IllegalArgumentException(
-                    "El comprador no es propietario de la solicitud");
-        }
-    }
-
-    private void validateProductForOffer(
-            Product product,
-            User producer,
-            RequestForQuote request) {
-
-        if (product == null
-                || product.getProducer() == null
-                || producer == null
-                || product.getProducer().getId() == null
-                || producer.getId() == null
-                || !product.getProducer().getId().equals(producer.getId())) {
-
-            throw new InvalidQuoteOfferException(
-                    "El producto no pertenece al productor de la oferta");
+                return findRequest(offer.getRequestForQuote().getId());
         }
 
-        FruitType requestedType = request.getFruitType();
-
-        if (product.getFruitType() != requestedType) {
-            throw new InvalidQuoteOfferException(
-                    "El tipo de fruta del producto no coincide con la solicitud");
-        }
-    }
-
-    private int toOrderQuantity(Double requiredQuantity) {
-        if (requiredQuantity == null
-                || requiredQuantity <= 0
-                || requiredQuantity % 1 != 0) {
-
-            throw new InvalidQuoteOfferException(
-                    "La cantidad de la RFQ debe ser un número entero válido para crear el pedido");
+        private User findUser(Long id) {
+                return userPort.findById(id)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "No existe el usuario con id " + id));
         }
 
-        return requiredQuantity.intValue();
-    }
+        private void validateBuyerOwnsRequest(
+                        RequestForQuote request,
+                        Long buyerId) {
 
-    private RequestForQuoteResult toRequestResult(
-            RequestForQuote request) {
+                if (request.getBuyer() == null
+                                || request.getBuyer().getId() == null
+                                || !request.getBuyer().getId().equals(buyerId)) {
 
-        User buyer = request.getBuyer();
+                        throw new IllegalArgumentException(
+                                        "El comprador no es propietario de la solicitud");
+                }
+        }
 
-        String buyerName = buyer == null
-                ? null
-                : buildName(
-                        buyer.getFirstName(),
-                        buyer.getLastName());
+        private void validateProductForOffer(
+                        Product product,
+                        User producer,
+                        RequestForQuote request) {
 
-        return new RequestForQuoteResult(
-                request.getId(),
-                buyer == null ? null : buyer.getId(),
-                buyerName,
-                request.getFruitType(),
-                request.getRequiredQuantity(),
-                request.getDescription(),
-                request.getDeadline(),
-                request.getStatus(),
-                request.getCreatedAt());
-    }
+                if (product == null
+                                || product.getProducer() == null
+                                || producer == null
+                                || product.getProducer().getId() == null
+                                || producer.getId() == null
+                                || !product.getProducer().getId().equals(producer.getId())) {
 
-    private QuoteOfferResult toOfferResult(
-            QuoteOffer offer) {
+                        throw new InvalidQuoteOfferException(
+                                        "El producto no pertenece al productor de la oferta");
+                }
 
-        User producer = offer.getProducer();
+                FruitType requestedType = request.getFruitType();
 
-        String producerName = producer == null
-                ? null
-                : buildName(
-                        producer.getFirstName(),
-                        producer.getLastName());
+                if (product.getFruitType() != requestedType) {
+                        throw new InvalidQuoteOfferException(
+                                        "El tipo de fruta del producto no coincide con la solicitud");
+                }
+        }
 
-        RequestForQuote request = offer.getRequestForQuote();
+        private int toOrderQuantity(Double requiredQuantity) {
+                if (requiredQuantity == null
+                                || requiredQuantity <= 0
+                                || requiredQuantity % 1 != 0) {
 
-        return new QuoteOfferResult(
-                offer.getId(),
-                request == null ? null : request.getId(),
-                producer == null ? null : producer.getId(),
-                producerName,
-                offer.getProposedPrice(),
-                offer.getComments(),
-                offer.getStatus(),
-                offer.getCreatedAt());
-    }
+                        throw new InvalidQuoteOfferException(
+                                        "La cantidad de la RFQ debe ser un número entero válido para crear el pedido");
+                }
 
-    private String buildName(
-            String firstName,
-            String lastName) {
+                return requiredQuantity.intValue();
+        }
 
-        String first = firstName == null ? "" : firstName.trim();
-        String last = lastName == null ? "" : lastName.trim();
+        private RequestForQuoteResult toRequestResult(
+                        RequestForQuote request) {
 
-        return (first + " " + last).trim();
-    }
+                User buyer = request.getBuyer();
+
+                String buyerName = buyer == null
+                                ? null
+                                : buildName(
+                                                buyer.getFirstName(),
+                                                buyer.getLastName());
+
+                return new RequestForQuoteResult(
+                                request.getId(),
+                                buyer == null ? null : buyer.getId(),
+                                buyerName,
+                                request.getFruitType(),
+                                request.getRequiredQuantity(),
+                                request.getDescription(),
+                                request.getDeadline(),
+                                request.getStatus(),
+                                request.getCreatedAt());
+        }
+
+        private QuoteOfferResult toOfferResult(
+                        QuoteOffer offer) {
+
+                User producer = offer.getProducer();
+
+                String producerName = producer == null
+                                ? null
+                                : buildName(
+                                                producer.getFirstName(),
+                                                producer.getLastName());
+
+                RequestForQuote request = offer.getRequestForQuote();
+
+                return new QuoteOfferResult(
+                                offer.getId(),
+                                request == null ? null : request.getId(),
+                                producer == null ? null : producer.getId(),
+                                producerName,
+                                offer.getProposedPrice(),
+                                offer.getComments(),
+                                offer.getStatus(),
+                                offer.getCreatedAt());
+        }
+
+        private String buildName(
+                        String firstName,
+                        String lastName) {
+
+                String first = firstName == null ? "" : firstName.trim();
+                String last = lastName == null ? "" : lastName.trim();
+
+                return (first + " " + last).trim();
+        }
 }

@@ -29,20 +29,20 @@ public class AuthEventMongoAdapter implements AuthEventPort {
     @Override
     public List<AuthAccessEvent> getEventsByUserId(Long userId) {
         return repository.findByUserIdOrderByCreatedAtDesc(userId)
-                .stream().map(AuthAccessEventDocument::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override
     public List<AuthAccessEvent> getEventsByEmail(String email) {
         return repository.findByEmailOrderByCreatedAtDesc(email)
-                .stream().map(AuthAccessEventDocument::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override
     public List<AuthAccessEvent> getFailedLoginAttempts(String email, Instant since) {
         return repository
                 .findByEmailAndSuccessFalseAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(email, since)
-                .stream().map(AuthAccessEventDocument::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override

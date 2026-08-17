@@ -51,7 +51,8 @@ public class QuoteOfferController {
         }
 
         @GetMapping
-        public ResponseEntity<List<QuoteOfferResponse>> getOffers() {
+        public ResponseEntity<List<QuoteOfferResponse>> getOffers(
+                        @PathVariable Long requestForQuoteId) {
 
                 return ResponseEntity.ok(
                                 quoteOfferPort

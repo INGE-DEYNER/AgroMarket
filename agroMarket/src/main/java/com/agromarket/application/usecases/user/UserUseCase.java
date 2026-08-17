@@ -1,5 +1,6 @@
 package com.agromarket.application.usecases.user;
 
+import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -7,14 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.agromarket.domain.models.user.User;
-import com.agromarket.domain.exceptions.user.UserNotFoundException;
 import com.agromarket.domain.ports.in.user.UpdateProfileCommand;
 import com.agromarket.domain.ports.in.user.UserPort;
 import com.agromarket.domain.ports.in.user.UserResult;
 import com.agromarket.domain.ports.out.user.PasswordHashPort;
 import com.agromarket.domain.services.user.PasswordPolicyService;
-import com.agromarket.domain.services.user.UserService;
 
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class UserUseCase implements UserPort {
@@ -22,18 +22,6 @@ public class UserUseCase implements UserPort {
     private final com.agromarket.domain.ports.out.user.UserPort userPersistencePort;
     private final PasswordHashPort passwordHashPort;
     private final PasswordPolicyService passwordPolicyService;
-    private final UserService userService;
-
-    public UserUseCase(
-            com.agromarket.domain.ports.out.user.UserPort userPersistencePort,
-            PasswordHashPort passwordHashPort,
-            PasswordPolicyService passwordPolicyService,
-            UserService userService) {
-        this.userPersistencePort = userPersistencePort;
-        this.passwordHashPort = passwordHashPort;
-        this.passwordPolicyService = passwordPolicyService;
-        this.userService = userService;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -95,24 +83,42 @@ public class UserUseCase implements UserPort {
     }
 
     private void apply(UpdateProfileCommand c, User u) {
-        if (c.getFirstName() != null) u.setFirstName(c.getFirstName());
-        if (c.getLastName() != null) u.setLastName(c.getLastName());
-        if (c.getPhone() != null) u.setPhone(c.getPhone());
-        if (c.getCountryCode() != null) u.setCountryCode(c.getCountryCode());
-        if (c.getLocation() != null) u.setLocation(c.getLocation());
-        if (c.getIdNumber() != null) u.setIdNumber(c.getIdNumber());
-        if (c.getBirthDate() != null) u.setBirthDate(c.getBirthDate());
-        if (c.getIdType() != null) u.setIdType(c.getIdType());
-        if (c.getCompanyName() != null) u.setCompanyName(c.getCompanyName());
-        if (c.getNit() != null) u.setNit(c.getNit());
-        if (c.getIsCompany() != null) u.setIsCompany(c.getIsCompany());
-        if (c.getDepartment() != null) u.setDepartment(c.getDepartment());
-        if (c.getCity() != null) u.setCity(c.getCity());
-        if (c.getFullAddress() != null) u.setFullAddress(c.getFullAddress());
-        if (c.getAddressReference() != null) u.setAddressReference(c.getAddressReference());
-        if (c.getPostalCode() != null) u.setPostalCode(c.getPostalCode());
-        if (c.getPhotoUrl() != null) u.setPhotoUrl(c.getPhotoUrl());
-        if (c.getPreferredCurrency() != null) u.setPreferredCurrency(c.getPreferredCurrency());
+        if (c.getFirstName() != null)
+            u.setFirstName(c.getFirstName());
+        if (c.getLastName() != null)
+            u.setLastName(c.getLastName());
+        if (c.getPhone() != null)
+            u.setPhone(c.getPhone());
+        if (c.getCountryCode() != null)
+            u.setCountryCode(c.getCountryCode());
+        if (c.getLocation() != null)
+            u.setLocation(c.getLocation());
+        if (c.getIdNumber() != null)
+            u.setIdNumber(c.getIdNumber());
+        if (c.getBirthDate() != null)
+            u.setBirthDate(c.getBirthDate());
+        if (c.getIdType() != null)
+            u.setIdType(c.getIdType());
+        if (c.getCompanyName() != null)
+            u.setCompanyName(c.getCompanyName());
+        if (c.getNit() != null)
+            u.setNit(c.getNit());
+        if (c.getIsCompany() != null)
+            u.setIsCompany(c.getIsCompany());
+        if (c.getDepartment() != null)
+            u.setDepartment(c.getDepartment());
+        if (c.getCity() != null)
+            u.setCity(c.getCity());
+        if (c.getFullAddress() != null)
+            u.setFullAddress(c.getFullAddress());
+        if (c.getAddressReference() != null)
+            u.setAddressReference(c.getAddressReference());
+        if (c.getPostalCode() != null)
+            u.setPostalCode(c.getPostalCode());
+        if (c.getPhotoUrl() != null)
+            u.setPhotoUrl(c.getPhotoUrl());
+        if (c.getPreferredCurrency() != null)
+            u.setPreferredCurrency(c.getPreferredCurrency());
     }
 
     private UserResult toResult(User u) {

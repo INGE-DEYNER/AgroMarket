@@ -44,14 +44,14 @@ public class PaymentSqlAdapter implements PaymentPort {
     @Override
     public Optional<Payment> findById(Long id) {
         return repository.findById(id)
-                .map(PaymentEntity::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
     public List<Payment> findByOrderId(Long orderId) {
         return repository.findByOrder_Id(orderId)
                 .stream()
-                .map(PaymentEntity::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 

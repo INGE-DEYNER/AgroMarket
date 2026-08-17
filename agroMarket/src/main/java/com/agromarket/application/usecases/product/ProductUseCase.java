@@ -12,7 +12,6 @@ import com.agromarket.domain.ports.in.product.*;
 import com.agromarket.domain.ports.out.review.ReviewPort;
 import com.agromarket.domain.ports.out.user.UserPort;
 import com.agromarket.domain.ports.out.product.ProductPort;
-import com.agromarket.domain.services.product.ProductService;
 import com.agromarket.domain.services.product.ProductStockService;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class ProductUseCase implements com.agromarket.domain.ports.in.product.ProductPort {
   private final ProductPort productRepository;
-  private final ProductService productService;
   private final ProductStockService stockService;
   private final UserPort userPort;
   private final ReviewPort reviewPort;

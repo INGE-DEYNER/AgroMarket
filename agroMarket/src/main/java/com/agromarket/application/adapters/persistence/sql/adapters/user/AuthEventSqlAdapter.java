@@ -39,20 +39,20 @@ public class AuthEventSqlAdapter implements AuthEventPort {
     @Override
     public List<AuthAccessEvent> getEventsByUserId(Long userId) {
         return repository.findByUser_IdOrderByCreatedAtDesc(userId)
-                .stream().map(AuthAccessEventEntity::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override
     public List<AuthAccessEvent> getEventsByEmail(String email) {
         return repository.findByEmailOrderByCreatedAtDesc(email)
-                .stream().map(AuthAccessEventEntity::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override
     public List<AuthAccessEvent> getFailedLoginAttempts(String email, Instant since) {
         return repository
                 .findByEmailAndSuccessFalseAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(email, since)
-                .stream().map(AuthAccessEventEntity::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override

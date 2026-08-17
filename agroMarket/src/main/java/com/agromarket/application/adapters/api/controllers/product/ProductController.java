@@ -19,8 +19,26 @@ public class ProductController {
     private final ProductPort productPort;
 
     @PostMapping
-    public ResponseEntity<ProductResponse> create(@Valid @RequestBody CreateProductRequest r) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(full(productPort.createProduct(create(r))));
+    public ResponseEntity<ProductResponse> create(
+            @Valid @RequestBody CreateProductRequest r) {
+
+        CreateProductCommand command = CreateProductCommand.builder()
+                .name(r.getName())
+                .description(r.getDescription())
+                .price(r.getPrice())
+                .availableQuantity(r.getAvailableQuantity())
+                .imageUrl(r.getImageUrl())
+                .minimumWholesaleQuantity(r.getMinimumWholesaleQuantity())
+                .wholesalePrice(r.getWholesalePrice())
+                .fruitType(r.getFruitType())
+                .producerId(r.getProducerId())
+                .onPromotion(r.isOnPromotion())
+                .promotionPrice(r.getPromotionPrice())
+                .promotionEndDate(r.getPromotionEndDate())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(full(productPort.createProduct(command)));
     }
 
     @PutMapping("/{id}")
@@ -68,14 +86,6 @@ public class ProductController {
     @GetMapping("/promotions")
     public List<ProductSummaryResponse> promotions() {
         return productPort.getProductsOnPromotion().stream().map(x -> summary(x)).collect(Collectors.toList());
-    }
-
-    private CreateProductCommand create(CreateProductRequest r) {
-        return CreateProductCommand.builder().name(r.getName()).description(r.getDescription()).price(r.getPrice())
-                .availableQuantity(r.getAvailableQuantity()).imageUrl(r.getImageUrl())
-                .minimumWholesaleQuantity(r.getMinimumWholesaleQuantity()).wholesalePrice(r.getWholesalePrice())
-                .fruitType(r.getFruitType()).producerId(r.getProducerId()).onPromotion(r.isOnPromotion())
-                .promotionPrice(r.getPromotionPrice()).promotionEndDate(r.getPromotionEndDate()).build();
     }
 
     private UpdateProductCommand update(UpdateProductRequest r) {

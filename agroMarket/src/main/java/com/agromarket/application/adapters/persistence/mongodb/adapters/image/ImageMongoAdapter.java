@@ -28,14 +28,14 @@ public class ImageMongoAdapter implements ImagePort {
     @Override
     public Optional<Image> findById(Long id) {
         return repository.findById(id.toString())
-                .map(ImageDocument::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
     public List<Image> findByOwnerId(Long ownerId) {
         return repository.findByOwnerId(ownerId)
                 .stream()
-                .map(ImageDocument::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 
@@ -45,7 +45,7 @@ public class ImageMongoAdapter implements ImagePort {
             ImageType type) {
         return repository.findByOwnerIdAndType(ownerId, type)
                 .stream()
-                .map(ImageDocument::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 

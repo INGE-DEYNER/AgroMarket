@@ -1,6 +1,5 @@
 package com.agromarket.domain.services.admin;
 
-
 import com.agromarket.domain.models.admin.Admin;
 import com.agromarket.domain.models.enums.admin.AdminAction;
 import com.agromarket.domain.models.user.User;
@@ -18,13 +17,13 @@ public class AdminService {
         return user != null
                 && user.isAdmin()
                 && user.isActive()
-                && user.isAccountApproved();
+                && user.isApproved();
     }
 
     /**
      * Verifica si el administrador puede ejecutar una acción.
      *
-     * @param admin administrador
+     * @param admin  administrador
      * @param action acción
      * @return true si puede ejecutarla
      */

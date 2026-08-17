@@ -12,7 +12,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import com.agromarket.domain.ports.out.user.GoogleOAuth2Port;
-import com.agromarket.domain.ports.out.user.GoogleOAuth2Port.GoogleUserInfo;
 
 @Component
 public class GoogleOAuth2ClientAdapter

@@ -23,32 +23,33 @@ public class ProductMongoAdapter implements ProductPort {
     }
 
     public Optional<Product> findById(Long id) {
-        return repository.findById(String.valueOf(id)).map(ProductDocument::toDomain);
+        return repository.findById(String.valueOf(id)).map(entity -> entity.toDomain());
     }
 
     public List<Product> findAll() {
-        return repository.findAll().stream().map(ProductDocument::toDomain).collect(Collectors.toList());
+        return repository.findAll().stream().map(entity -> entity.toDomain()).collect(Collectors.toList());
     }
 
     public List<Product> findAllByActiveTrue() {
-        return repository.findByActiveTrue().stream().map(ProductDocument::toDomain).collect(Collectors.toList());
+        return repository.findByActiveTrue().stream().map(entity -> entity.toDomain()).collect(Collectors.toList());
     }
 
     public List<Product> findByFruitType(FruitType f) {
-        return repository.findByFruitType(f).stream().map(ProductDocument::toDomain).collect(Collectors.toList());
+        return repository.findByFruitType(f).stream().map(entity -> entity.toDomain()).collect(Collectors.toList());
     }
 
     public List<Product> findByProducerId(Long id) {
-        return repository.findByProducerId(id).stream().map(ProductDocument::toDomain).collect(Collectors.toList());
+        return repository.findByProducerId(id).stream().map(entity -> entity.toDomain()).collect(Collectors.toList());
     }
 
     public List<Product> searchByNameOrDescription(String q) {
-        return repository.searchByNameOrDescription(q).stream().map(ProductDocument::toDomain)
+        return repository.searchByNameOrDescription(q).stream().map(entity -> entity.toDomain())
                 .collect(Collectors.toList());
     }
 
     public List<Product> findByOnPromotionTrue() {
-        return repository.findByOnPromotionTrue().stream().map(ProductDocument::toDomain).collect(Collectors.toList());
+        return repository.findByOnPromotionTrue().stream().map(entity -> entity.toDomain())
+                .collect(Collectors.toList());
     }
 
     public void delete(Product p) {

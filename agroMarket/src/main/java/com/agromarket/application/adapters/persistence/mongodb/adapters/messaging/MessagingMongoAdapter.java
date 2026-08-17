@@ -28,7 +28,7 @@ public class MessagingMongoAdapter implements MessagingPort {
     @Override
     public List<Message> findConversation(Long userA, Long userB) {
         return messageRepository.findConversation(userA, userB)
-                .stream().map(MessageDocument::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override
@@ -40,12 +40,12 @@ public class MessagingMongoAdapter implements MessagingPort {
     @Override
     public Optional<Notification> findNotificationById(Long notificationId) {
         return notificationRepository.findById(notificationId.toString())
-                .map(NotificationDocument::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
     public List<Notification> findNotificationsByUserId(Long userId) {
         return notificationRepository.findByRecipientId(userId)
-                .stream().map(NotificationDocument::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 }

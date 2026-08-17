@@ -1,7 +1,5 @@
 package com.agromarket.domain.services.user;
 
-
-
 import com.agromarket.domain.models.enums.user.Role;
 import com.agromarket.domain.models.user.User;
 
@@ -45,7 +43,7 @@ public class UserService {
     public boolean canPublishProducts(User user) {
         return user != null
                 && user.isActive()
-                && user.isAccountApproved()
+                && user.isApproved()
                 && user.isProducer();
     }
 
@@ -58,7 +56,7 @@ public class UserService {
     public boolean canCreateOrders(User user) {
         return user != null
                 && user.isActive()
-                && user.isAccountApproved()
+                && user.isApproved()
                 && user.isBuyer();
     }
 }

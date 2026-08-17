@@ -23,14 +23,14 @@ public class ShippingSqlAdapter implements ShippingPort {
     public List<Shipping> findByOrderId(Long orderId) {
         return repository.findByOrder_Id(orderId)
                 .stream()
-                .map(ShippingEntity::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 
     @Override
     public Optional<Shipping> findById(Long id) {
         return repository.findById(id)
-                .map(ShippingEntity::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ShippingSqlAdapter implements ShippingPort {
     public List<Shipping> findAll() {
         return repository.findAll()
                 .stream()
-                .map(ShippingEntity::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 
@@ -61,7 +61,7 @@ public class ShippingSqlAdapter implements ShippingPort {
     public List<Shipping> findByBuyerId(Long buyerId) {
         return repository.findByBuyerId(buyerId)
                 .stream()
-                .map(ShippingEntity::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 
@@ -69,7 +69,7 @@ public class ShippingSqlAdapter implements ShippingPort {
     public List<Shipping> findByProducerId(Long producerId) {
         return repository.findByProducerId(producerId)
                 .stream()
-                .map(ShippingEntity::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 }

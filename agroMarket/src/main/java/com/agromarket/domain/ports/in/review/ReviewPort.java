@@ -17,8 +17,7 @@ public interface ReviewPort {
             Long productId,
             Long reviewerId,
             Integer rating,
-            String comment
-    );
+            String comment);
 
     /**
      * Obtiene una reseña por ID.
@@ -39,4 +38,5 @@ public interface ReviewPort {
      * Elimina una reseña.
      */
     void delete(Long id);
+
 }

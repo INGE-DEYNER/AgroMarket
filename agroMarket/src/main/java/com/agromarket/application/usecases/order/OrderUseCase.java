@@ -3,7 +3,6 @@ package com.agromarket.application.usecases.order;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,22 +80,26 @@ public class OrderUseCase implements OrderPort {
         return toResult(orderPort.save(order));
     }
 
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public OrderResult getOrderById(Long id) {
         return toResult(findOrder(id));
     }
 
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public List<OrderResult> getAllOrders() {
         return orderPort.findAll().stream().map(this::toResult).collect(Collectors.toList());
     }
 
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public List<OrderResult> getOrdersByBuyer(Long buyerId) {
         return orderPort.findByBuyerId(buyerId).stream().map(this::toResult).collect(Collectors.toList());
     }
 
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public List<OrderResult> getOrdersByProducer(Long producerId) {
         return orderPort.findByProducerId(producerId).stream().map(this::toResult).collect(Collectors.toList());
     }
@@ -130,7 +133,7 @@ public class OrderUseCase implements OrderPort {
     @Override
     public void deleteOrder(Long id) {
         Order order = findOrder(id);
-        orderPort.delete(order);
+        orderPort.deleteById(order);
     }
 
     private Order findOrder(Long id) {

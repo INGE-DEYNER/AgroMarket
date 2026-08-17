@@ -25,23 +25,23 @@ public class OrderMongoAdapter implements OrderPort {
     }
 
     public Optional<Order> findById(Long id) {
-        return repository.findById(String.valueOf(id)).map(OrderDocument::toDomain);
+        return repository.findById(String.valueOf(id)).map(entity -> entity.toDomain());
     }
 
     public List<Order> findAll() {
-        return repository.findAll().stream().map(OrderDocument::toDomain).collect(Collectors.toList());
+        return repository.findAll().stream().map(entity -> entity.toDomain()).collect(Collectors.toList());
     }
 
     public List<Order> findByBuyerId(Long id) {
-        return repository.findByBuyerId(id).stream().map(OrderDocument::toDomain).collect(Collectors.toList());
+        return repository.findByBuyerId(id).stream().map(entity -> entity.toDomain()).collect(Collectors.toList());
     }
 
     public List<Order> findByProducerId(Long id) {
-        return repository.findByProducerId(id).stream().map(OrderDocument::toDomain).collect(Collectors.toList());
+        return repository.findByProducerId(id).stream().map(entity -> entity.toDomain()).collect(Collectors.toList());
     }
 
     public List<Order> findByState(OrderState state) {
-        return repository.findByState(state).stream().map(OrderDocument::toDomain).collect(Collectors.toList());
+        return repository.findByState(state).stream().map(entity -> entity.toDomain()).collect(Collectors.toList());
     }
 
     public void delete(Order order) {
@@ -50,5 +50,12 @@ public class OrderMongoAdapter implements OrderPort {
 
     public boolean existsById(Long id) {
         return repository.existsById(String.valueOf(id));
+    }
+
+    @Override
+    public void deleteById(Order order) {
+        if (order != null && order.getId() != null) {
+            repository.delete(OrderDocument.fromDomain(order));
+        }
     }
 }

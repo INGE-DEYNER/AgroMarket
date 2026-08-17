@@ -21,134 +21,134 @@ import com.agromarket.domain.services.shipping.ShippingService;
 @Service
 public class ShippingUseCase implements ShippingPort {
 
-    private final com.agromarket.domain.ports.out.shipping.ShippingPort shippingRepository;
-    private final OrderPort orderRepository;
-    private final ShippingService shippingService;
+        private final com.agromarket.domain.ports.out.shipping.ShippingPort shippingRepository;
+        private final OrderPort orderRepository;
+        private final ShippingService shippingService;
 
-    public ShippingUseCase(
-            com.agromarket.domain.ports.out.shipping.ShippingPort shippingRepository,
-            OrderPort orderRepository,
-            ShippingService shippingService) {
+        public ShippingUseCase(
+                        com.agromarket.domain.ports.out.shipping.ShippingPort shippingRepository,
+                        OrderPort orderRepository,
+                        ShippingService shippingService) {
 
-        this.shippingRepository = shippingRepository;
-        this.orderRepository = orderRepository;
-        this.shippingService = shippingService;
-    }
-
-    @Override
-    @Transactional
-    public ShippingResult createShipping(
-            Long orderId) {
-
-        Order order = orderRepository
-                .findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(
-                        "Pedido no encontrado: " + orderId));
-
-        if (order.getBuyer() == null
-                || order.getProduct() == null) {
-
-            throw new IllegalArgumentException(
-                    "El pedido debe tener comprador y producto");
+                this.shippingRepository = shippingRepository;
+                this.orderRepository = orderRepository;
+                this.shippingService = shippingService;
         }
 
-        Shipping shipping = Shipping.builder()
-                .order(order)
-                .destinationAddress(
-                        order.getBuyer().getUbicacion())
-                .state(ShippingState.ORDER_CONFIRMED)
-                .createdAt(LocalDateTime.now())
-                .build();
+        @Override
+        @Transactional
+        public ShippingResult createShipping(
+                        Long orderId) {
 
-        return toResult(
-                shippingRepository.save(shipping));
-    }
+                Order order = orderRepository
+                                .findById(orderId)
+                                .orElseThrow(() -> new OrderNotFoundException(
+                                                "Pedido no encontrado: " + orderId));
 
-    @Override
-    @Transactional(readOnly = true)
-    public ShippingResult getById(
-            Long id) {
+                if (order.getBuyer() == null
+                                || order.getProduct() == null) {
 
-        return toResult(findShipping(id));
-    }
+                        throw new IllegalArgumentException(
+                                        "El pedido debe tener comprador y producto");
+                }
 
-    @Override
-    @Transactional(readOnly = true)
-    public ShippingResult getByOrderId(
-            Long orderId) {
+                Shipping shipping = Shipping.builder()
+                                .order(order)
+                                .destinationAddress(
+                                                order.getBuyer().getLocation())
+                                .state(ShippingState.ORDER_CONFIRMED)
+                                .createdAt(LocalDateTime.now())
+                                .build();
 
-        Shipping shipping = shippingRepository
-                .findByOrderId(orderId)
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new ShippingNotFoundException(
-                        "No existe envío para el pedido: "
-                                + orderId));
-
-        return toResult(shipping);
-    }
-
-    @Override
-    @Transactional
-    public ShippingResult advanceState(
-            Long shippingId) {
-
-        Shipping shipping = findShipping(shippingId);
-
-        if (!shippingService.canAdvance(shipping)) {
-
-            throw new InvalidShippingStateException(
-                    "El envío no puede avanzar desde el estado actual");
+                return toResult(
+                                shippingRepository.save(shipping));
         }
 
-        shipping.advanceState();
+        @Override
+        @Transactional(readOnly = true)
+        public ShippingResult getById(
+                        Long id) {
 
-        return toResult(
-                shippingRepository.save(shipping));
-    }
-
-    @Override
-    @Transactional
-    public ShippingResult cancel(
-            Long shippingId) {
-
-        Shipping shipping = findShipping(shippingId);
-
-        if (!shippingService.canCancel(shipping)) {
-
-            throw new InvalidShippingStateException(
-                    "El envío no puede cancelarse desde el estado actual");
+                return toResult(findShipping(id));
         }
 
-        shipping.cancel();
+        @Override
+        @Transactional(readOnly = true)
+        public ShippingResult getByOrderId(
+                        Long orderId) {
 
-        return toResult(
-                shippingRepository.save(shipping));
-    }
+                Shipping shipping = shippingRepository
+                                .findByOrderId(orderId)
+                                .stream()
+                                .findFirst()
+                                .orElseThrow(() -> new ShippingNotFoundException(
+                                                "No existe envío para el pedido: "
+                                                                + orderId));
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ShippingResult> getAll() {
+                return toResult(shipping);
+        }
 
-        return shippingRepository
-                .findAll()
-                .stream()
-                .map(this::toResult)
-                .toList();
-    }
+        @Override
+        @Transactional
+        public ShippingResult advanceState(
+                        Long shippingId) {
 
-    private Shipping findShipping(
-            Long id) {
+                Shipping shipping = findShipping(shippingId);
 
-        return shippingRepository
-                .findById(id)
-                .orElseThrow(() -> new ShippingNotFoundException(
-                        "Envío no encontrado: " + id));
-    }
+                if (!shippingService.canAdvance(shipping)) {
 
-    private ShippingResult toResult(
-            Shipping shipping) {
+                        throw new InvalidShippingStateException(
+                                        "El envío no puede avanzar desde el estado actual");
+                }
 
-        return ShippingResult.fromDomain(shipping);
-    }
+                shipping.advanceState();
+
+                return toResult(
+                                shippingRepository.save(shipping));
+        }
+
+        @Override
+        @Transactional
+        public ShippingResult cancel(
+                        Long shippingId) {
+
+                Shipping shipping = findShipping(shippingId);
+
+                if (!shippingService.canCancel(shipping)) {
+
+                        throw new InvalidShippingStateException(
+                                        "El envío no puede cancelarse desde el estado actual");
+                }
+
+                shipping.cancel();
+
+                return toResult(
+                                shippingRepository.save(shipping));
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<ShippingResult> getAll() {
+
+                return shippingRepository
+                                .findAll()
+                                .stream()
+                                .map(this::toResult)
+                                .toList();
+        }
+
+        private Shipping findShipping(
+                        Long id) {
+
+                return shippingRepository
+                                .findById(id)
+                                .orElseThrow(() -> new ShippingNotFoundException(
+                                                "Envío no encontrado: " + id));
+        }
+
+        private ShippingResult toResult(
+                        Shipping shipping) {
+
+                return ShippingResult.fromDomain(shipping);
+        }
 }

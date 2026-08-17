@@ -13,7 +13,6 @@ import com.agromarket.application.adapters.api.response.user.AuthResponse;
 import com.agromarket.application.adapters.api.response.user.OperationResponse;
 import com.agromarket.application.adapters.api.response.user.TwoFactorSetupResponse;
 import com.agromarket.application.adapters.api.response.user.TwoFactorStatusResponse;
-import com.agromarket.domain.models.enums.user.Role;
 import com.agromarket.domain.ports.in.user.AuthResult;
 import com.agromarket.domain.ports.in.user.AuthenticationPort;
 import com.agromarket.domain.ports.in.user.LoginCommand;

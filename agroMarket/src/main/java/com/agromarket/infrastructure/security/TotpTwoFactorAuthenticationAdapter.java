@@ -12,6 +12,7 @@ import dev.samstevens.totp.qr.QrData;
 import dev.samstevens.totp.qr.QrDataFactory;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
+import dev.samstevens.totp.time.SystemTimeProvider;
 
 @Component
 public class TotpTwoFactorAuthenticationAdapter
@@ -32,9 +33,12 @@ public class TotpTwoFactorAuthenticationAdapter
                 6);
 
         this.codeVerifier = new DefaultCodeVerifier(
-                codeGenerator);
+                codeGenerator,
+                new SystemTimeProvider());
 
-        this.qrDataFactory = new QrDataFactory();
+        this.qrDataFactory = new QrDataFactory(HashingAlgorithm.SHA1,
+                6,
+                30);
     }
 
     @Override

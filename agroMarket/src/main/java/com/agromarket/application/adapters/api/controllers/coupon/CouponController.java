@@ -1,7 +1,5 @@
 package com.agromarket.application.adapters.api.controllers.coupon;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,6 @@ import com.agromarket.application.adapters.api.request.coupon.RedeemCouponReques
 import com.agromarket.application.adapters.api.response.coupon.CouponResponse;
 import com.agromarket.domain.models.coupon.Coupon;
 import com.agromarket.domain.ports.in.coupon.CouponPort;
-import com.agromarket.domain.models.enums.coupon.CouponType;
 import com.agromarket.domain.models.user.User;
 
 import jakarta.validation.Valid;

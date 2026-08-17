@@ -39,7 +39,7 @@ public class PasswordHistorySqlAdapter implements PasswordHistoryPort {
     @Override
     public List<PasswordHistory> findByUserId(Long userId) {
         return repository.findByUser_IdOrderByUsedAtDesc(userId)
-                .stream().map(PasswordHistoryEntity::toDomain).toList();
+                .stream().map(entity -> entity.toDomain()).toList();
     }
 
     @Override

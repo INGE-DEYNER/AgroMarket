@@ -43,7 +43,7 @@ public class RequestForQuoteSqlAdapter
         @Override
         public Optional<RequestForQuote> findById(Long id) {
                 return repository.findById(id)
-                                .map(RequestForQuoteEntity::toDomain);
+                                .map(entity -> entity.toDomain());
         }
 
         @Override
@@ -51,7 +51,7 @@ public class RequestForQuoteSqlAdapter
                 return repository.findByStatus(
                                 RequestForQuoteStatus.OPEN)
                                 .stream()
-                                .map(RequestForQuoteEntity::toDomain)
+                                .map(entity -> entity.toDomain())
                                 .toList();
         }
 
@@ -59,7 +59,7 @@ public class RequestForQuoteSqlAdapter
         public List<RequestForQuote> findByBuyerId(Long buyerId) {
                 return repository.findByBuyer_Id(buyerId)
                                 .stream()
-                                .map(RequestForQuoteEntity::toDomain)
+                                .map(entity -> entity.toDomain())
                                 .toList();
         }
 }

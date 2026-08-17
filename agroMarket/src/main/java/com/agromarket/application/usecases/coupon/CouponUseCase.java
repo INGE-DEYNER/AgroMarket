@@ -19,14 +19,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CouponUseCase implements CouponPort {
 
-    private final CouponPort couponPersistencePort;
+    private final com.agromarket.domain.ports.out.coupon.CouponPort couponRepository;
     private final CouponService couponService;
 
     @Override
     @Transactional
     public Coupon create(Coupon coupon) {
         validateForCreation(coupon);
-        return couponPersistencePort.save(coupon);
+        return couponRepository.save(coupon);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class CouponUseCase implements CouponPort {
     @Override
     @Transactional(readOnly = true)
     public Coupon getByCode(String code) {
-        return couponPersistencePort.findByCode(code)
+        return couponRepository.findByCode(code)
                 .orElseThrow(() -> new CouponNotFoundException(
                         "No existe un cupón con código: " + code));
     }
@@ -46,7 +46,7 @@ public class CouponUseCase implements CouponPort {
     @Override
     @Transactional(readOnly = true)
     public List<Coupon> getActive() {
-        return couponPersistencePort.findActive();
+        return couponRepository.findActive();
     }
 
     @Override
@@ -57,7 +57,7 @@ public class CouponUseCase implements CouponPort {
         // El modelo no tiene un estado "deactivated"; isActive() depende de used
         // y expirationDate. Por ello desactivar significa marcarlo como usado.
         coupon.setUsed(true);
-        couponPersistencePort.save(coupon);
+        couponRepository.save(coupon);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class CouponUseCase implements CouponPort {
         coupon.use();
 
         try {
-            return couponPersistencePort.save(coupon);
+            return couponRepository.save(coupon);
         } catch (OptimisticLockException
                 | OptimisticLockingFailureException ex) {
             throw new InvalidCouponException(
@@ -89,14 +89,14 @@ public class CouponUseCase implements CouponPort {
     @Override
     @Transactional(readOnly = true)
     public boolean isValid(String code, Long buyerId) {
-        return couponPersistencePort.findByCode(code)
+        return couponRepository.findByCode(code)
                 .map(coupon -> couponService.isValid(coupon)
                         && belongsToBuyerOrIsGlobal(coupon, buyerId))
                 .orElse(false);
     }
 
     private Coupon findById(Long id) {
-        return couponPersistencePort.findById(id)
+        return couponRepository.findById(id)
                 .orElseThrow(() -> new CouponNotFoundException(
                         "No existe el cupón con id " + id));
     }

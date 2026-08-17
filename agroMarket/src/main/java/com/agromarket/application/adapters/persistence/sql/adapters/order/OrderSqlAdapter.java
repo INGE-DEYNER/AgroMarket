@@ -1,64 +1,111 @@
+
 package com.agromarket.application.adapters.persistence.sql.adapters.order;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.context.annotation.Profile;
+
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+
 import com.agromarket.application.adapters.persistence.sql.entities.order.OrderEntity;
-import com.agromarket.application.adapters.persistence.sql.repositories.order.OrderJpaRepository;
-import com.agromarket.application.adapters.persistence.sql.entities.product.ProductEntity;
-import com.agromarket.application.adapters.persistence.sql.repositories.product.ProductJpaRepository;
 import com.agromarket.application.adapters.persistence.sql.entities.user.UserEntity;
+import com.agromarket.application.adapters.persistence.sql.repositories.order.OrderJpaRepository;
 import com.agromarket.application.adapters.persistence.sql.repositories.user.UserJpaRepository;
-import com.agromarket.domain.models.enums.order.OrderState;
 import com.agromarket.domain.models.order.Order;
+import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.ports.out.order.OrderPort;
+import com.agromarket.domain.ports.out.product.ProductPort;
 
 @Component
-@Profile("sql")
+@RequiredArgsConstructor
 public class OrderSqlAdapter implements OrderPort {
+
     private final OrderJpaRepository repository;
     private final UserJpaRepository users;
-    private final ProductJpaRepository products;
+    private final ProductPort productPort;
 
-    public OrderSqlAdapter(OrderJpaRepository repository, UserJpaRepository users, ProductJpaRepository products) {
-        this.repository = repository;
-        this.users = users;
-        this.products = products;
-    }
-
+    @Override
     public Order save(Order order) {
-        UserEntity buyer = users.findById(order.getBuyer().getId()).orElseThrow();
-        ProductEntity product = products.findById(order.getProduct().getId()).orElseThrow();
-        return repository.save(OrderEntity.fromDomain(order, buyer, product)).toDomain();
+
+        UserEntity buyer = order.getBuyer() == null
+                ? null
+                : users.findById(order.getBuyer().getId())
+                        .orElse(null);
+
+        Long productId = order.getProduct() == null
+                ? null
+                : order.getProduct().getId();
+
+        OrderEntity entity = OrderEntity.fromDomain(order, buyer, productId);
+
+        OrderEntity saved = repository.save(entity);
+
+        return toDomain(saved);
     }
 
-    public Optional<Order> findById(Long id) {
-        return repository.findById(id).map(OrderEntity::toDomain);
+    @Override
+    public java.util.Optional<Order> findById(Long id) {
+        return repository.findById(id)
+                .map(entity -> toDomain(entity));
     }
 
+    @Override
     public List<Order> findAll() {
-        return repository.findAll().stream().map(OrderEntity::toDomain).collect(Collectors.toList());
+        return repository.findAll()
+                .stream()
+                .map(entity -> toDomain(entity))
+                .collect(Collectors.toList());
     }
 
-    public List<Order> findByBuyerId(Long id) {
-        return repository.findByBuyer_Id(id).stream().map(OrderEntity::toDomain).collect(Collectors.toList());
+    @Override
+    public List<Order> findByBuyerId(Long buyerId) {
+        return repository.findByBuyerId(buyerId)
+                .stream()
+                .map(entity -> toDomain(entity))
+                .collect(Collectors.toList());
     }
 
-    public List<Order> findByProducerId(Long id) {
-        return repository.findByProducerId(id).stream().map(OrderEntity::toDomain).collect(Collectors.toList());
+    @Override
+    public List<Order> findByProducerId(Long producerId) {
+
+        return repository.findAll()
+                .stream()
+                .map(entity -> toDomain(entity))
+                .filter(order -> order.getProduct() != null
+                        && order.getProduct().getProducer() != null
+                        && order.getProduct().getProducer().getId() != null
+                        && order.getProduct().getProducer().getId().equals(producerId))
+                .collect(Collectors.toList());
     }
 
-    public List<Order> findByState(OrderState s) {
-        return repository.findByState(s).stream().map(OrderEntity::toDomain).collect(Collectors.toList());
+    @Override
+    public List<Order> findByState(
+            com.agromarket.domain.models.enums.order.OrderState state) {
+
+        return repository.findByState(state)
+                .stream()
+                .map(entity -> toDomain(entity))
+                .collect(Collectors.toList());
     }
 
-    public void delete(Order order) {
-        repository.deleteById(order.getId());
+    @Override
+    public void deleteById(Order order) {
+        if (order != null && order.getId() != null) {
+            repository.deleteById(order.getId());
+        }
     }
 
-    public boolean existsById(Long id) {
-        return repository.existsById(id);
+    private Order toDomain(OrderEntity entity) {
+
+        Product product = null;
+
+        if (entity.getProductId() != null) {
+            product = productPort
+                    .findById(entity.getProductId())
+                    .orElse(null);
+        }
+
+        return entity.toDomain(product);
     }
 }

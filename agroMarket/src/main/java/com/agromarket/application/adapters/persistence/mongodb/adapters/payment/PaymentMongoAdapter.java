@@ -29,14 +29,14 @@ public class PaymentMongoAdapter implements PaymentPort {
     @Override
     public Optional<Payment> findById(Long id) {
         return repository.findById(id.toString())
-                .map(PaymentDocument::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
     public List<Payment> findByOrderId(Long orderId) {
         return repository.findByOrderId(orderId)
                 .stream()
-                .map(PaymentDocument::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 

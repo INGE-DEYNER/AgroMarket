@@ -46,13 +46,13 @@ public class CouponSqlAdapter implements CouponPort {
     @Override
     public Optional<Coupon> findById(Long id) {
         return repository.findById(id)
-                .map(CouponEntity::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
     public Optional<Coupon> findByCode(String code) {
         return repository.findByCode(code)
-                .map(CouponEntity::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
@@ -63,7 +63,7 @@ public class CouponSqlAdapter implements CouponPort {
                 .stream()
                 .filter(entity -> entity.getExpirationDate() == null
                         || entity.getExpirationDate().isAfter(now))
-                .map(CouponEntity::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 

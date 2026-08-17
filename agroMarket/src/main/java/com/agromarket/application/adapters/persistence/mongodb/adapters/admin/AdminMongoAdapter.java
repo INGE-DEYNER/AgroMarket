@@ -27,20 +27,20 @@ public class AdminMongoAdapter implements AdminPort {
     @Override
     public Optional<Admin> findById(Long id) {
         return repository.findById(id.toString())
-                .map(AdminDocument::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
     public Optional<Admin> findByUserId(Long userId) {
         return repository.findByUserId(userId)
-                .map(AdminDocument::toDomain);
+                .map(entity -> entity.toDomain());
     }
 
     @Override
     public List<Admin> findActive() {
         return repository.findByActiveTrue()
                 .stream()
-                .map(AdminDocument::toDomain)
+                .map(entity -> entity.toDomain())
                 .toList();
     }
 }
