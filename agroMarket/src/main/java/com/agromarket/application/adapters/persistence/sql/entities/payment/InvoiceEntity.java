@@ -39,6 +39,13 @@ public class InvoiceEntity {
         @JoinColumn(name = "order_id", nullable = false)
         private OrderEntity order;
 
+        /**
+         * Denormalized buyer id, kept in sync with order.getBuyer().getId() so
+         * invoices can be queried by user without joining through Order/User.
+         */
+        @jakarta.persistence.Column(name = "user_id")
+        private Long userId;
+
         private BigDecimal subtotal;
 
         private BigDecimal tax;
@@ -67,9 +74,14 @@ public class InvoiceEntity {
                         Invoice invoice,
                         OrderEntity order) {
 
+                Long userId = invoice.getOrder() != null && invoice.getOrder().getBuyer() != null
+                                ? invoice.getOrder().getBuyer().getId()
+                                : null;
+
                 return InvoiceEntity.builder()
                                 .id(invoice.getId())
                                 .order(order)
+                                .userId(userId)
                                 .subtotal(invoice.getSubtotal())
                                 .tax(invoice.getTax())
                                 .total(invoice.getTotal())

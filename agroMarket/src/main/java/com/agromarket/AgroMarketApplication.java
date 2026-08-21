@@ -2,23 +2,25 @@ package com.agromarket;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-/** Entry point for the AgroMarket bounded context. */
+/**
+ * Entry point for the AgroMarket bounded context.
+ *
+ * Entity scanning and repository activation (JPA + Mongo) are declared in
+ * {@link com.agromarket.infrastructure.config.JpaConfig} and
+ * {@link com.agromarket.infrastructure.config.MongoConfig}, which already
+ * point at the real package
+ * ("com.agromarket.application.adapters.persistence.sql/mongodb").
+ * They were previously duplicated here with wrong, non-existent packages
+ * ("com.agromarket.infrastructure.persistence.sql/mongo"), which prevented
+ * Spring from finding any repository or entity and broke application startup.
+ */
 @SpringBootApplication
 @ConfigurationPropertiesScan(basePackages = "com.agromarket.infrastructure.config.properties")
-@EntityScan(basePackages = {
-        "com.agromarket.infrastructure.persistence.sql.entities",
-        "com.agromarket.infrastructure.persistence.mongo.documents"
-})
-@EnableJpaRepositories(basePackages = "com.agromarket.infrastructure.persistence.sql.repositories")
-@EnableMongoRepositories(basePackages = "com.agromarket.infrastructure.persistence.mongo.repositories")
 @EnableScheduling
 @EnableCaching
 @EnableAsync

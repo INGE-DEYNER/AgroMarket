@@ -1,25 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import i18n from './i18n';
-import LoadingScreen from './components/LoadingScreen';
-import './styles/styles.css';
+import { useState, useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import App from "@/app/App";
+import i18n from "@/i18n/index";
+import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
+import { runFrontendDiagnostic } from "@/infrastructure/config/FrontendDiagnostic";
+import { ThemeProvider } from "@/app/contexts/ThemeContext";
+import "@/index.css";
 
-function MainApp() {
+window.MERCADOPAGO_PUBLIC_KEY =
+  import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || "";
+
+export default function MainApp() {
   const [appReady, setAppReady] = useState(false);
+
   useEffect(() => {
-    i18n.init().then(() => setAppReady(true));
+    runFrontendDiagnostic();
+
+    let mounted = true;
+
+    i18n.init().then(() => {
+      if (mounted) {
+        setAppReady(true);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (!appReady) {
     return <LoadingScreen />;
   }
 
-  return <App />;
+  return (
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <MainApp />
-  </React.StrictMode>
-);
+ReactDOM.createRoot(document.getElementById("root")).render(<MainApp />);

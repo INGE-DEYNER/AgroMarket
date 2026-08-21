@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import java.util.Arrays;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.agromarket.application.adapters.api.request.product.*;
@@ -86,6 +87,11 @@ public class ProductController {
     @GetMapping("/promotions")
     public List<ProductSummaryResponse> promotions() {
         return productPort.getProductsOnPromotion().stream().map(x -> summary(x)).collect(Collectors.toList());
+    }
+
+    @GetMapping("/categorias")
+    public List<String> getCategorias() {
+        return Arrays.asList("BANANO", "MANGO", "PINA", "MARACUYA", "GUANABANA", "NARANJA", "COCO", "LIMON", "OTRO");
     }
 
     private UpdateProductCommand update(UpdateProductRequest r) {

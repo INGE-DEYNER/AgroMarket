@@ -3,7 +3,7 @@ package com.agromarket.application.adapters.persistence.mongodb.adapters.product
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.context.annotation.Profile;
+
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import com.agromarket.application.adapters.persistence.mongodb.repositories.product.ProductMongoRepository;
@@ -13,7 +13,6 @@ import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.ports.out.product.ProductPort;
 
 @Component
-@Profile("mongo")
 @RequiredArgsConstructor
 public class ProductMongoAdapter implements ProductPort {
     private final ProductMongoRepository repository;

@@ -1,5 +1,6 @@
 package com.agromarket.application.adapters.persistence.sql.adapters.payment;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.annotation.Profile;
@@ -28,7 +29,7 @@ public class InvoiceSqlAdapter implements InvoicePort {
 
                 if (orderId == null) {
                         throw new IllegalArgumentException(
-                                        "La factura debe tener un orderId");
+                                        "The invoice must have an orderId");
                 }
 
                 OrderEntity orderReference = OrderEntity.builder()
@@ -38,6 +39,14 @@ public class InvoiceSqlAdapter implements InvoicePort {
                 return repository.save(
                                 InvoiceEntity.fromDomain(invoice, orderReference))
                                 .toDomain();
+        }
+
+        @Override
+        public List<Invoice> findByUserId(Long userId) {
+                return repository.findByUserId(userId)
+                                .stream()
+                                .map(entity -> entity.toDomain())
+                                .toList();
         }
 
         @Override

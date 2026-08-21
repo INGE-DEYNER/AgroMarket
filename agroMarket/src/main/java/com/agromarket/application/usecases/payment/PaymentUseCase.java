@@ -183,9 +183,9 @@ public class PaymentUseCase implements PaymentPort {
                 Invoice savedInvoice = invoicePort.save(invoice);
 
                 /*
-                 * Invoice.generateInvoiceNumber() utiliza el ID del documento.
-                 * Si la persistencia lo asignó después del primer save, regeneramos
-                 * el número con el ID definitivo y actualizamos la factura.
+                 * Invoice.generateInvoiceNumber() uses the document ID.
+                 * If persistence only assigned it after the first save, we regenerate
+                 * the number with the final ID and update the invoice.
                  */
                 if (savedInvoice.getId() != null) {
                         savedInvoice.generateInvoiceNumber();

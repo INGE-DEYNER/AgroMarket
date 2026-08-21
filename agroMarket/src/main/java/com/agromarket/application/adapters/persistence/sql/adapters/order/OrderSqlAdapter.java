@@ -1,9 +1,9 @@
-
 package com.agromarket.application.adapters.persistence.sql.adapters.order;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,7 @@ import com.agromarket.domain.ports.out.order.OrderPort;
 import com.agromarket.domain.ports.out.product.ProductPort;
 
 @Component
+@Profile("sql")
 @RequiredArgsConstructor
 public class OrderSqlAdapter implements OrderPort {
 
@@ -94,6 +95,11 @@ public class OrderSqlAdapter implements OrderPort {
         if (order != null && order.getId() != null) {
             repository.deleteById(order.getId());
         }
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return repository.existsById(id);
     }
 
     private Order toDomain(OrderEntity entity) {

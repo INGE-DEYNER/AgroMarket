@@ -30,6 +30,13 @@ public class InvoiceDocument {
     @Indexed
     private Long orderId;
 
+    /**
+     * Denormalized buyer id, kept in sync with order.getBuyer().getId() so
+     * invoices can be queried by user without an extra lookup.
+     */
+    @Indexed
+    private Long userId;
+
     private BigDecimal subtotal;
 
     private BigDecimal tax;
@@ -57,11 +64,16 @@ public class InvoiceDocument {
                 ? invoice.getOrder().getId()
                 : null;
 
+        Long userId = invoice.getOrder() != null && invoice.getOrder().getBuyer() != null
+                ? invoice.getOrder().getBuyer().getId()
+                : null;
+
         return InvoiceDocument.builder()
                 .id(invoice.getId() != null
                         ? invoice.getId().toString()
                         : null)
                 .orderId(orderId)
+                .userId(userId)
                 .subtotal(invoice.getSubtotal())
                 .tax(invoice.getTax())
                 .total(invoice.getTotal())

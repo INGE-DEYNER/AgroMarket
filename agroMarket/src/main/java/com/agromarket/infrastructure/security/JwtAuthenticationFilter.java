@@ -42,6 +42,18 @@ public class JwtAuthenticationFilter
                         FilterChain filterChain)
                         throws ServletException, IOException {
 
+                String path = request.getRequestURI();
+                
+                // Skip JWT validation for public endpoints
+                if (path.startsWith("/api/public/") || 
+                    path.startsWith("/api/divisas/") ||
+                    path.startsWith("/api/productos/") ||
+                    path.startsWith("/api/resenas/") ||
+                    path.startsWith("/actuator/")) {
+                        filterChain.doFilter(request, response);
+                        return;
+                }
+
                 String header = request.getHeader(
                                 HttpHeaders.AUTHORIZATION);
 

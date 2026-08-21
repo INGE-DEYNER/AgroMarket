@@ -78,7 +78,7 @@ public class Order {
     private Payment payment;
     
     /**
-     * Factura generada para el pedido.
+     * Invoice generated for the order.
      */
     private Invoice invoice;
     

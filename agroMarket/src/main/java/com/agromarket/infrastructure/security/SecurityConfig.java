@@ -79,22 +79,31 @@ public class SecurityConfig {
                                                                 "/login/**")
                                                 .permitAll()
 
-                                                // Health.
+                                                // Health / diagnóstico.
                                                 .requestMatchers(
                                                                 "/actuator/health",
-                                                                "/actuator/health/**")
+                                                                "/actuator/health/**",
+                                                                "/api/public/**")
                                                 .permitAll()
 
-                                                // Catálogo público.
+                                                // Catálogo público (rutas del frontend sin /v1/).
                                                 .requestMatchers(
                                                                 HttpMethod.GET,
+                                                                "/api/productos/**",
                                                                 "/api/v1/products/**")
                                                 .permitAll()
 
-                                                // Reseñas públicas.
+                                                // Reseñas públicas (rutas del frontend sin /v1/).
                                                 .requestMatchers(
                                                                 HttpMethod.GET,
+                                                                "/api/resenas/**",
                                                                 "/api/v1/reviews/**")
+                                                .permitAll()
+
+                                                // Divisas públicas.
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/divisas/**")
                                                 .permitAll()
 
                                                 // Administración.

@@ -1,5 +1,6 @@
 package com.agromarket.application.adapters.persistence.mongodb.adapters.payment;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.annotation.Profile;
@@ -23,6 +24,14 @@ public class InvoiceMongoAdapter implements InvoicePort {
     public Invoice save(Invoice invoice) {
         return repository.save(InvoiceDocument.fromDomain(invoice))
                 .toDomain();
+    }
+
+    @Override
+    public List<Invoice> findByUserId(Long userId) {
+        return repository.findByUserId(userId)
+                .stream()
+                .map(entity -> entity.toDomain())
+                .toList();
     }
 
     @Override

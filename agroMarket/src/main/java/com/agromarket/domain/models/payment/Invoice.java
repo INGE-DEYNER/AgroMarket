@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Entidad de dominio que representa una factura en el sistema AgroMarket.
+ * Domain entity that represents an invoice in the AgroMarket system.
  * Contiene información detallada sobre los cargos y impuestos de un pedido.
  * 
  * @author AgroMarket Team
@@ -28,12 +28,12 @@ public class Invoice {
     private Long id;
     
     /**
-     * Pedido asociado a esta factura.
+     * Order associated with this invoice.
      */
     private Order order;
     
     /**
-     * Subtotal de la factura (antes de impuestos).
+     * Invoice subtotal (before tax).
      */
     private BigDecimal subtotal;
     
@@ -43,17 +43,17 @@ public class Invoice {
     private BigDecimal tax;
     
     /**
-     * Total de la factura (subtotal + impuesto).
+     * Invoice total (subtotal + tax).
      */
     private BigDecimal total;
     
     /**
-     * Fecha y hora en que se emitió la factura.
+     * Date and time the invoice was issued.
      */
     private LocalDateTime issueDate;
     
     /**
-     * Número de factura (identificador único).
+     * Invoice number (unique identifier).
      */
     private String invoiceNumber;
     
@@ -61,9 +61,9 @@ public class Invoice {
     // ==================== MÉTODOS DE NEGOCIO ====================
     
     /**
-     * Genera un número de factura único basado en el ID y el año actual.
+     * Generates a unique invoice number based on the ID and current year.
      * 
-     * @return número de factura generado
+     * @return the generated invoice number
      */
     public String generateInvoiceNumber() {
         Long invoiceId = id == null ? 0L : id;
@@ -73,10 +73,10 @@ public class Invoice {
     }
     
     /**
-     * Calcula los valores de la factura (impuesto y total) basado en el subtotal.
+     * Calculates the invoice values (tax and total) based on the subtotal.
      * El impuesto se calcula como 19% del subtotal (IVA colombiano).
      * 
-     * @param subtotal subtotal de la factura
+     * @param subtotal invoice subtotal
      */
     public void calculateValues(BigDecimal subtotal) {
         this.subtotal = subtotal;
