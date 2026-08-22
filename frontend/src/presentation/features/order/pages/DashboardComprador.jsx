@@ -16,20 +16,20 @@ const CATEGORIES = [
   { label: "Todos", emoji: "", value: "" },
   { label: "Frutas", emoji: "", value: "Frutas" },
   { label: "Verduras", emoji: "", value: "Verduras" },
-  { label: "TubÃ©rculos", emoji: "", value: "TubÃ©rculos" },
+  { label: "Tubérculos", emoji: "", value: "Tubérculos" },
   { label: "Granos", emoji: "", value: "Granos" },
   { label: "Otros", emoji: "", value: "Otros" },
 ];
 
 const REVIEW_PRODUCTOS = [
-  "Banano UrabÃ¡",
-  "PiÃ±a Manzana",
+  "Banano Urabá",
+  "Piña Manzana",
   "Mango Tommy",
-  "MaracuyÃ¡",
-  "GuanÃ¡bana",
+  "Maracuyá",
+  "Guanábana",
   "Naranja Valencia",
   "Coco Fresco",
-  "LimÃ³n TahitÃ­",
+  "Limón Tahití",
 ];
 
 export default function DashboardComprador() {
@@ -346,7 +346,7 @@ export default function DashboardComprador() {
       });
       setRfqMsg({
         type: "success",
-        text: "LicitaciÃ³n publicada exitosamente.",
+        text: "Licitación publicada exitosamente.",
       });
       setRfqForm({
         tipoFruta: "BANANO",
@@ -358,7 +358,7 @@ export default function DashboardComprador() {
     } catch (err) {
       setRfqMsg({
         type: "error",
-        text: err.message || "Error al publicar la licitaciÃ³n.",
+        text: err.message || "Error al publicar la licitación.",
       });
     }
   };
@@ -366,7 +366,7 @@ export default function DashboardComprador() {
   const aceptarOfertaRfq = async (ofertaId) => {
     if (
       !window.confirm(
-        "Â¿EstÃ¡ seguro de que desea aceptar esta oferta? Se generarÃ¡ un pedido automÃ¡tico con los datos propuestos.",
+        "¿Está seguro de que desea aceptar esta oferta? Se generará un pedido automático con los datos propuestos.",
       )
     )
       return;
@@ -519,7 +519,7 @@ export default function DashboardComprador() {
   const publicarResena = async () => {
     const errs = {};
     if (!rProducto) errs.producto = "Selecciona un producto.";
-    if (!rating) errs.rating = "Selecciona una calificaciÃ³n.";
+    if (!rating) errs.rating = "Selecciona una calificación.";
     if (!comentario.trim()) errs.comentario = "Escribe un comentario.";
     setReviewErrors(errs);
     if (Object.keys(errs).length > 0) return;
@@ -547,8 +547,8 @@ export default function DashboardComprador() {
       setComentario("");
     } catch (err) {
       alert(
-        t("resenas.errorPublish", "Error al publicar reseÃ±a: ") +
-          (err.message || "IntÃ©ntalo de nuevo."),
+        t("resenas.errorPublish", "Error al publicar reseña: ") +
+          (err.message || "Inténtalo de nuevo."),
       );
     }
   };
@@ -640,14 +640,14 @@ export default function DashboardComprador() {
     e.preventDefault();
     setPwMsg({ type: "", text: "" });
     if (!pwForm.contrasenaActual || !pwForm.nuevaContrasena) {
-      setPwMsg({ type: "error", text: "Ambas contraseÃ±as son obligatorias." });
+      setPwMsg({ type: "error", text: "Ambas contraseñas son obligatorias." });
       return;
     }
     try {
       await api.put("/usuarios/me/contrasena", pwForm);
       setPwMsg({
         type: "success",
-        text: "ContraseÃ±a actualizada correctamente.",
+        text: "Contraseña actualizada correctamente.",
       });
       setPwForm({ contrasenaActual: "", nuevaContrasena: "" });
     } catch (err) {
@@ -655,7 +655,7 @@ export default function DashboardComprador() {
         type: "error",
         text:
           err.message ||
-          "Debe tener al menos 1 mayÃºscula, 1 nÃºmero y 1 carÃ¡cter especial (mÃ­nimo 8 caracteres).",
+          "Debe tener al menos 1 mayúscula, 1 número y 1 carácter especial (mínimo 8 caracteres).",
       });
     }
   };
@@ -690,7 +690,7 @@ export default function DashboardComprador() {
         ].includes(p.tipoFruta)) ||
       (filtroTipoCatalog === "Otros" && p.tipoFruta === "OTRO") ||
       (filtroTipoCatalog === "Verduras" && false) ||
-      (filtroTipoCatalog === "TubÃ©rculos" && false) ||
+      (filtroTipoCatalog === "Tubérculos" && false) ||
       (filtroTipoCatalog === "Granos" && false);
     const matchMin = !minPrice || Number(p.precio) >= Number(minPrice);
     const matchMax = !maxPrice || Number(p.precio) <= Number(maxPrice);
@@ -698,7 +698,7 @@ export default function DashboardComprador() {
     return matchSearch && matchTipo && matchMin && matchMax && matchPromo;
   });
 
-  const nombreUsuario = user?.nombre || "MarÃ­a";
+  const nombreUsuario = user?.nombre || "María";
   const iniciales =
     (user?.nombre || "MT").charAt(0).toUpperCase() +
     (user?.apellido || "T").charAt(0).toUpperCase();
@@ -738,7 +738,7 @@ export default function DashboardComprador() {
 
   return (
     <div className="app-layout">
-      {/* Overlay para sidebar mÃ³vil */}
+      {/* Overlay para sidebar móvil */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
         onClick={() => setSidebarOpen(false)}
@@ -758,7 +758,7 @@ export default function DashboardComprador() {
             {iniciales}
           </div>
           <div className="sidebar-user-info">
-            <span className="name">{user?.nombre || "MarÃ­a Torres"}</span>
+            <span className="name">{user?.nombre || "María Torres"}</span>
             <span className="role">
               {t("dashboardComprador.premiumClient", "Cliente Premium")}
             </span>
@@ -766,7 +766,7 @@ export default function DashboardComprador() {
         </div>
 
         <div className="sidebar-label">
-          {t("dashboardComprador.nav.title", "NavegaciÃ³n")}
+          {t("dashboardComprador.nav.title", "Navegación")}
         </div>
         <a
           href="#"
@@ -790,7 +790,7 @@ export default function DashboardComprador() {
           }}
         >
           <span className="icon"></span>{" "}
-          {t("dashboardComprador.nav.explore", "Explorar CatÃ¡logo")}
+          {t("dashboardComprador.nav.explore", "Explorar Catálogo")}
         </a>
         <a
           href="#"
@@ -856,7 +856,7 @@ export default function DashboardComprador() {
           }}
         >
           <span className="icon"></span>{" "}
-          {t("dashboardComprador.services.messaging", "MensajerÃ­a")}
+          {t("dashboardComprador.services.messaging", "Mensajería")}
         </a>
         <a
           href="#"
@@ -868,7 +868,7 @@ export default function DashboardComprador() {
           }}
         >
           <span className="icon"></span>{" "}
-          {t("dashboardComprador.services.reviews", "Mis ReseÃ±as")}
+          {t("dashboardComprador.services.reviews", "Mis Reseñas")}
         </a>
         <Link
           to="/perfil"
@@ -889,7 +889,7 @@ export default function DashboardComprador() {
           }}
         >
           <span className="icon"></span>{" "}
-          {t("dashboardComprador.services.logout", "Cerrar sesiÃ³n")}
+          {t("dashboardComprador.services.logout", "Cerrar sesión")}
         </a>
       </aside>
 
@@ -960,14 +960,14 @@ export default function DashboardComprador() {
             type="button"
             className="sidebar-toggle-btn"
             onClick={() => setSidebarOpen(true)}
-            aria-label="Abrir menÃº de navegaciÃ³n"
+            aria-label="Abrir menú de navegación"
           >
-            â˜° MenÃº
+            ☰ Menú
           </button>
           <LanguageSwitcher />
         </div>
 
-        {/* â”€â”€â”€ RESUMEN â”€â”€â”€ */}
+        {/* ─── RESUMEN ─── */}
         {activeSection === "resumen" && (
           <div className="section active" id="sec-resumen">
             <div className="dash-header">
@@ -975,19 +975,19 @@ export default function DashboardComprador() {
                 <h1>
                   {t(
                     "dashboardComprador.welcome",
-                    "Â¡Hola de nuevo, {{name}}!",
+                    "¡Hola de nuevo, {{name}}!",
                     { name: nombreUsuario },
                   )}
                 </h1>
                 <p>
-                  {currentDate} â€¢ 28Â°C {t("dashboardComprador.sub", "UrabÃ¡")}
+                  {currentDate} • 28°C {t("dashboardComprador.sub", "Urabá")}
                 </p>
               </div>
               <button
                 className="btn-cta"
                 onClick={() => setActiveSection("catalogo")}
               >
-                {t("dashboardComprador.exploreCatalog", "Explorar catÃ¡logo â†’")}
+                {t("dashboardComprador.exploreCatalog", "Explorar catálogo →")}
               </button>
             </div>
 
@@ -1012,10 +1012,10 @@ export default function DashboardComprador() {
                   <span style={{ fontSize: "1.5rem" }}></span>
                   <div>
                     <strong style={{ color: "#0369a1", display: "block" }}>
-                      Â¡Mejora la seguridad de tu cuenta!
+                      ¡Mejora la seguridad de tu cuenta!
                     </strong>
                     <span style={{ color: "#0369a1", fontSize: "0.85rem" }}>
-                      Agrega tu nÃºmero de telÃ©fono y verifica tu perfil para
+                      Agrega tu número de teléfono y verifica tu perfil para
                       facilitar el contacto con los productores.
                     </span>
                   </div>
@@ -1053,7 +1053,7 @@ export default function DashboardComprador() {
                 <div className="stat-label">
                   {t(
                     "dashboardComprador.stats.totalInvestment",
-                    "InversiÃ³n Total",
+                    "Inversión Total",
                   )}
                 </div>
                 <div className="stat-value">{formatPrice(totalInvestment)}</div>
@@ -1061,7 +1061,7 @@ export default function DashboardComprador() {
               <div className="stat-card color-3">
                 <span className="stat-icon-lg"></span>
                 <div className="stat-label">
-                  {t("dashboardComprador.stats.reviewsLeft", "ReseÃ±as Dejadas")}
+                  {t("dashboardComprador.stats.reviewsLeft", "Reseñas Dejadas")}
                 </div>
                 <div className="stat-value">{reviewsDejadasCount}</div>
               </div>
@@ -1117,7 +1117,7 @@ export default function DashboardComprador() {
                           <td data-label={t("pedidos.product", "Producto")}>
                             {p.items.map((item, idx) => (
                               <div key={item.id || idx}>
-                                â€¢ {item.productoNombre || item.producto} (
+                                • {item.productoNombre || item.producto} (
                                 {item.cantidad} kg)
                               </div>
                             ))}
@@ -1162,7 +1162,7 @@ export default function DashboardComprador() {
           </div>
         )}
 
-        {/* â”€â”€â”€ EXPLORAR CATALOGO â”€â”€â”€ */}
+        {/* ─── EXPLORAR CATALOGO ─── */}
         {activeSection === "catalogo" && (
           <div className="section active">
             <div
@@ -1345,24 +1345,24 @@ export default function DashboardComprador() {
                 </h4>
                 <div className="form-group" style={{ marginBottom: "12px" }}>
                   <label className="form-label" style={{ fontSize: "0.75rem" }}>
-                    Precio MÃ­nimo (COP)
+                    Precio Mínimo (COP)
                   </label>
                   <input
                     className="form-input"
                     type="number"
-                    placeholder="$ MÃ­n"
+                    placeholder="$ Mín"
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
                   />
                 </div>
                 <div className="form-group" style={{ marginBottom: "12px" }}>
                   <label className="form-label" style={{ fontSize: "0.75rem" }}>
-                    Precio MÃ¡ximo (COP)
+                    Precio Máximo (COP)
                   </label>
                   <input
                     className="form-input"
                     type="number"
-                    placeholder="$ MÃ¡x"
+                    placeholder="$ Máx"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
                   />
@@ -1391,7 +1391,7 @@ export default function DashboardComprador() {
                     }}
                   >
                     {" "}
-                    SÃ³lo Promociones
+                    Sólo Promociones
                   </label>
                 </div>
                 {(minPrice || maxPrice || soloPromo || filtroTipoCatalog) && (
@@ -1422,7 +1422,7 @@ export default function DashboardComprador() {
                     gridColumn: "1 / -1",
                   }}
                 >
-                  {t("catalog.loading", "Cargando catÃ¡logo...")}
+                  {t("catalog.loading", "Cargando catálogo...")}
                 </div>
               ) : catalogFiltered.length === 0 ? (
                 <div
@@ -1465,7 +1465,7 @@ export default function DashboardComprador() {
           </div>
         )}
 
-        {/* â”€â”€â”€ MIS PEDIDOS â”€â”€â”€ */}
+        {/* ─── MIS PEDIDOS ─── */}
         {activeSection === "misPedidos" && (
           <div className="section active" id="sec-misPedidos">
             <div className="dash-header">
@@ -1527,7 +1527,7 @@ export default function DashboardComprador() {
                         <td data-label={t("pedidos.product", "Producto")}>
                           {p.items.map((item, idx) => (
                             <div key={item.id || idx}>
-                              â€¢ {item.productoNombre || item.producto} (
+                              • {item.productoNombre || item.producto} (
                               {item.cantidad} kg)
                             </div>
                           ))}
@@ -1579,12 +1579,12 @@ export default function DashboardComprador() {
           </div>
         )}
 
-        {/* â”€â”€â”€ SEGUIMIENTO DE ENVIOS â”€â”€â”€ */}
+        {/* ─── SEGUIMIENTO DE ENVIOS ─── */}
         {activeSection === "seguimiento" && (
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1> {t("envios.title", "Seguimiento de EnvÃ­os")}</h1>
+                <h1> {t("envios.title", "Seguimiento de Envíos")}</h1>
                 <p>Monitorea tus pedidos en ruta en tiempo real</p>
               </div>
             </div>
@@ -1605,7 +1605,7 @@ export default function DashboardComprador() {
                   <div style={{ marginTop: "8px" }}>
                     {t(
                       "envios.noActive",
-                      "No hay envÃ­os activos en este momento.",
+                      "No hay envíos activos en este momento.",
                     )}
                   </div>
                 </div>
@@ -1637,20 +1637,20 @@ export default function DashboardComprador() {
                       desc: "Pago procesado y verificado.",
                     },
                     {
-                      label: "Preparando EnvÃ­o",
-                      desc: "El productor estÃ¡ alistando los productos frescamente.",
+                      label: "Preparando Envío",
+                      desc: "El productor está alistando los productos frescamente.",
                     },
                     {
                       label: "En Camino",
-                      desc: "El paquete estÃ¡ en trÃ¡nsito con la transportadora.",
+                      desc: "El paquete está en tránsito con la transportadora.",
                     },
                     {
                       label: "En Reparto",
-                      desc: "El transportista estÃ¡ en ruta a tu ubicaciÃ³n de entrega.",
+                      desc: "El transportista está en ruta a tu ubicación de entrega.",
                     },
                     {
                       label: "Entregado",
-                      desc: "El pedido ha sido entregado en la direcciÃ³n indicada.",
+                      desc: "El pedido ha sido entregado en la dirección indicada.",
                     },
                   ];
 
@@ -1697,7 +1697,7 @@ export default function DashboardComprador() {
                               marginTop: "4px",
                             }}
                           >
-                            {s.origen || "ChigorodÃ³, Antioquia"} &rarr;{" "}
+                            {s.origen || "Chigorodó, Antioquia"} &rarr;{" "}
                             {s.direccionDestino || "Destino"}
                           </div>
                         </div>
@@ -1759,7 +1759,7 @@ export default function DashboardComprador() {
                           marginTop: "8px",
                         }}
                       >
-                        <span>GuÃ­a: {s.guia || "No asignada"}</span>
+                        <span>Guía: {s.guia || "No asignada"}</span>
                         <span>
                           Transportista: {s.transportista || "Por asignar"}
                         </span>
@@ -1799,7 +1799,7 @@ export default function DashboardComprador() {
                                 border: "1px solid var(--color-border)",
                               }}
                             >
-                              ðŸ“… Fecha estimada de entrega:{" "}
+                              📅 Fecha estimada de entrega:{" "}
                               {new Date(
                                 s.fechaEstimadaEntrega + "T12:00:00",
                               ).toLocaleDateString("es-CO", {
@@ -1835,7 +1835,7 @@ export default function DashboardComprador() {
                                 color: "#475569",
                               }}
                             >
-                              ðŸ“ ChigorodÃ³
+                              📍 Chigorodó
                             </div>
                             <div
                               style={{
@@ -1863,7 +1863,7 @@ export default function DashboardComprador() {
                                 zIndex: 10,
                               }}
                             >
-                              ðŸšš
+                              🚚
                             </div>
                             {/* Visual Dashed Route Line */}
                             <div
@@ -1932,7 +1932,7 @@ export default function DashboardComprador() {
                                       boxSizing: "content-box",
                                     }}
                                   >
-                                    {isCompleted ? "âœ“" : idx + 1}
+                                    {isCompleted ? "✓" : idx + 1}
                                   </div>
                                   <div>
                                     <h5
@@ -2003,28 +2003,28 @@ export default function DashboardComprador() {
             <div style={{ marginTop: "32px" }}>
               <h3 style={{ fontSize: "1.1rem", marginBottom: "16px" }}>
                 {" "}
-                {t("envios.historyTitle", "Historial de todos los envÃ­os")}
+                {t("envios.historyTitle", "Historial de todos los envíos")}
               </h3>
               <div className="table-wrap">
                 <table>
                   <thead>
                     <tr>
-                      <th>{t("envios.id", "ID EnvÃ­o")}</th>
-                      <th>{t("envios.route", "Origen â†’ Destino")}</th>
+                      <th>{t("envios.id", "ID Envío")}</th>
+                      <th>{t("envios.route", "Origen → Destino")}</th>
                       <th>{t("envios.carrier", "Transportista")}</th>
                       <th>{t("envios.status", "Estado")}</th>
-                      <th>GuÃ­a</th>
+                      <th>Guía</th>
                     </tr>
                   </thead>
                   <tbody>
                     {historialEnvios.map((e) => (
                       <tr key={e.id}>
-                        <td data-label="ID EnvÃ­o">#{e.id}</td>
+                        <td data-label="ID Envío">#{e.id}</td>
                         <td data-label="Ruta">
-                          {e.origen || "ChigorodÃ³"} â†’ {e.direccionDestino}
+                          {e.origen || "Chigorodó"} → {e.direccionDestino}
                         </td>
                         <td data-label="Transportista">
-                          {e.transportista || "â€”"}
+                          {e.transportista || "—"}
                         </td>
                         <td data-label="Estado">
                           <span
@@ -2036,7 +2036,7 @@ export default function DashboardComprador() {
                             )}
                           </span>
                         </td>
-                        <td data-label="GuÃ­a">{e.guia || "â€”"}</td>
+                        <td data-label="Guía">{e.guia || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -2046,7 +2046,7 @@ export default function DashboardComprador() {
           </div>
         )}
 
-        {/* â”€â”€â”€ MENSAJERIA â”€â”€â”€ */}
+        {/* ─── MENSAJERIA ─── */}
         {activeSection === "mensajeria" && (
           <div className="section active">
             <div
@@ -2178,12 +2178,12 @@ export default function DashboardComprador() {
                     >
                       <div style={{ fontSize: "2.5rem" }}></div>
                       <div>
-                        Selecciona un contacto para iniciar la conversaciÃ³n.
+                        Selecciona un contacto para iniciar la conversación.
                       </div>
                     </div>
                   ) : messages.length === 0 ? (
                     <div style={{ margin: "auto", color: "var(--text-muted)" }}>
-                      No hay mensajes aÃºn. Â¡SÃ© el primero en escribir!
+                      No hay mensajes aún. ¡Sé el primero en escribir!
                     </div>
                   ) : (
                     messages.map((m) => {
@@ -2272,7 +2272,7 @@ export default function DashboardComprador() {
           </div>
         )}
 
-        {/* â”€â”€â”€ RESEÃ‘AS â”€â”€â”€ */}
+        {/* ─── RESEÑAS ─── */}
         {activeSection === "resenas" && (
           <div className="section active">
             <div
@@ -2289,13 +2289,13 @@ export default function DashboardComprador() {
                 style={{ fontSize: "1.25rem", fontWeight: "700" }}
               >
                 {" "}
-                Mis ReseÃ±as de Productos
+                Mis Reseñas de Productos
               </span>
               <button
                 className="btn btn-primary"
                 onClick={() => setReviewModalOpen(true)}
               >
-                + Nueva reseÃ±a
+                + Nueva reseña
               </button>
             </div>
 
@@ -2312,7 +2312,7 @@ export default function DashboardComprador() {
                   }}
                 >
                   <div style={{ fontSize: "2rem" }}></div>
-                  <div>No hay reseÃ±as registradas aÃºn.</div>
+                  <div>No hay reseñas registradas aún.</div>
                 </div>
               ) : (
                 reviews.map((r) => (
@@ -2338,7 +2338,7 @@ export default function DashboardComprador() {
                         {r.compradorNombre || "Usuario"}
                       </div>
                       <div style={{ color: "var(--gold)", fontSize: "1.1rem" }}>
-                        {"â˜…".repeat(r.calificacion || 5)}
+                        {"★".repeat(r.calificacion || 5)}
                       </div>
                     </div>
                     <div style={{ color: "var(--text-secondary)" }}>
@@ -2360,14 +2360,14 @@ export default function DashboardComprador() {
           </div>
         )}
 
-        {/* â”€â”€â”€ MI PERFIL & AJUSTES â”€â”€â”€ */}
+        {/* ─── MI PERFIL & AJUSTES ─── */}
         {activeSection === "perfil" && (
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1> Ajustes de Mi Perfil</h1>
                 <p>
-                  Administra tu informaciÃ³n personal y la seguridad de tu cuenta
+                  Administra tu información personal y la seguridad de tu cuenta
                 </p>
               </div>
             </div>
@@ -2437,7 +2437,7 @@ export default function DashboardComprador() {
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">TelÃ©fono MÃ³vil</label>
+                    <label className="form-label">Teléfono Móvil</label>
                     <input
                       className="form-input"
                       style={{
@@ -2457,7 +2457,7 @@ export default function DashboardComprador() {
                   </div>
                   <div className="form-group" style={{ marginBottom: "20px" }}>
                     <label className="form-label">
-                      Correo ElectrÃ³nico (No editable)
+                      Correo Electrónico (No editable)
                     </label>
                     <input
                       className="form-input"
@@ -2524,7 +2524,7 @@ export default function DashboardComprador() {
                 )}
                 <form onSubmit={handleUpdatePassword}>
                   <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">ContraseÃ±a Actual</label>
+                    <label className="form-label">Contraseña Actual</label>
                     <div style={{ position: "relative" }}>
                       <input
                         className="form-input"
@@ -2568,12 +2568,12 @@ export default function DashboardComprador() {
                             : "Show password"
                         }
                       >
-                        {showCurrentPassword ? "ðŸ‘ï¸" : "ðŸ™ˆ"}
+                        {showCurrentPassword ? "👁️" : "🙈"}
                       </button>
                     </div>
                   </div>
                   <div className="form-group" style={{ marginBottom: "20px" }}>
-                    <label className="form-label">Nueva ContraseÃ±a</label>
+                    <label className="form-label">Nueva Contraseña</label>
                     <div style={{ position: "relative" }}>
                       <input
                         className="form-input"
@@ -2613,7 +2613,7 @@ export default function DashboardComprador() {
                           showNewPassword ? "Hide password" : "Show password"
                         }
                       >
-                        {showNewPassword ? "ðŸ‘ï¸" : "ðŸ™ˆ"}
+                        {showNewPassword ? "👁️" : "🙈"}
                       </button>
                     </div>
                   </div>
@@ -2622,21 +2622,21 @@ export default function DashboardComprador() {
                     type="submit"
                     style={{ width: "100%" }}
                   >
-                    Cambiar ContraseÃ±a
+                    Cambiar Contraseña
                   </button>
                 </form>
               </div>
             </div>
           </div>
         )}
-        {/* â”€â”€â”€ MIS FACTURAS â”€â”€â”€ */}
+        {/* ─── MIS FACTURAS ─── */}
         {activeSection === "misFacturas" && (
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>ðŸ“„ Mis Facturas de Compra</h1>
+                <h1>📄 Mis Facturas de Compra</h1>
                 <p>
-                  Descarga tus comprobantes electrÃ³nicos detallados de ASAFRUT
+                  Descarga tus comprobantes electrónicos detallados de ASAFRUT
                 </p>
               </div>
             </div>
@@ -2645,12 +2645,12 @@ export default function DashboardComprador() {
                 <table className="table-responsive">
                   <thead>
                     <tr>
-                      <th>Factura NÂ°</th>
+                      <th>Factura N°</th>
                       <th>Pedido ID</th>
                       <th>Subtotal</th>
                       <th>IVA (19%)</th>
                       <th>Total</th>
-                      <th>Fecha EmisiÃ³n</th>
+                      <th>Fecha Emisión</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -2671,7 +2671,7 @@ export default function DashboardComprador() {
                     ) : (
                       getGroupedFacturas(facturas).map((f) => (
                         <tr key={f.checkoutId || f.id}>
-                          <td data-label="Factura NÂ°">{f.numeroFactura}</td>
+                          <td data-label="Factura N°">{f.numeroFactura}</td>
                           <td data-label="Pedido ID">
                             {f.checkoutId || `#${f.pedidoId}`}
                           </td>
@@ -2709,14 +2709,14 @@ export default function DashboardComprador() {
           </div>
         )}
 
-        {/* â”€â”€â”€ LICITACIONES B2B (RFQ) â”€â”€â”€ */}
+        {/* ─── LICITACIONES B2B (RFQ) ─── */}
         {activeSection === "rfq" && (
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1> Licitaciones B2B (RFQ)</h1>
                 <p>
-                  Publica solicitudes de cotizaciÃ³n al por mayor para recibir
+                  Publica solicitudes de cotización al por mayor para recibir
                   ofertas competitivas de productores verificados
                 </p>
               </div>
@@ -2786,13 +2786,13 @@ export default function DashboardComprador() {
                       }
                     >
                       <option value="BANANO"> Banano</option>
-                      <option value="PINA"> PiÃ±a</option>
+                      <option value="PINA"> Piña</option>
                       <option value="MANGO"> Mango</option>
-                      <option value="MARACUYA"> MaracuyÃ¡</option>
-                      <option value="GUANABANA"> GuanÃ¡bana</option>
+                      <option value="MARACUYA"> Maracuyá</option>
+                      <option value="GUANABANA"> Guanábana</option>
                       <option value="NARANJA"> Naranja</option>
                       <option value="COCO"> Coco</option>
-                      <option value="LIMON"> LimÃ³n</option>
+                      <option value="LIMON"> Limón</option>
                     </select>
                   </div>
                   <div className="form-group" style={{ marginBottom: "16px" }}>
@@ -2821,7 +2821,7 @@ export default function DashboardComprador() {
                   </div>
                   <div className="form-group" style={{ marginBottom: "16px" }}>
                     <label className="form-label">
-                      Fecha LÃ­mite para Ofertar *
+                      Fecha Límite para Ofertar *
                     </label>
                     <input
                       type="datetime-local"
@@ -2855,7 +2855,7 @@ export default function DashboardComprador() {
                       onChange={(e) =>
                         setRfqForm({ ...rfqForm, descripcion: e.target.value })
                       }
-                      placeholder="Ej: Busco piÃ±a manzana de calibre grande, despacho a bodega en MedellÃ­n."
+                      placeholder="Ej: Busco piña manzana de calibre grande, despacho a bodega en Medellín."
                     ></textarea>
                   </div>
                   <button
@@ -2863,7 +2863,7 @@ export default function DashboardComprador() {
                     type="submit"
                     style={{ width: "100%" }}
                   >
-                    Publicar LicitaciÃ³n
+                    Publicar Licitación
                   </button>
                 </form>
               </div>
@@ -2895,7 +2895,7 @@ export default function DashboardComprador() {
                       color: "var(--text-muted)",
                     }}
                   >
-                    No has publicado ninguna licitaciÃ³n.
+                    No has publicado ninguna licitación.
                   </div>
                 ) : (
                   rfqs.map((rfq) => (
@@ -2934,7 +2934,7 @@ export default function DashboardComprador() {
                         </span>
                       </div>
                       <p style={{ fontSize: "0.85rem", margin: "4px 0" }}>
-                        {rfq.descripcion || "Sin descripciÃ³n."}
+                        {rfq.descripcion || "Sin descripción."}
                       </p>
                       <p
                         style={{
@@ -3037,7 +3037,7 @@ export default function DashboardComprador() {
         <div className="modal-overlay open" id="modalPago">
           <div className="modal" style={{ maxWidth: "480px" }}>
             <div className="modal-header">
-              <span className="modal-title"> Completar Pago en LÃ­nea</span>
+              <span className="modal-title"> Completar Pago en Línea</span>
               <button
                 className="modal-close"
                 onClick={() => {
@@ -3046,7 +3046,7 @@ export default function DashboardComprador() {
                   setActiveSection("misPedidos");
                 }}
               >
-                âœ•
+                ✕
               </button>
             </div>
             <div style={{ padding: "24px" }}>
@@ -3089,7 +3089,7 @@ export default function DashboardComprador() {
                     display: "block",
                   }}
                 >
-                  MÃ©todo de Pago
+                  Método de Pago
                 </label>
                 <select
                   className="form-select"
@@ -3103,9 +3103,9 @@ export default function DashboardComprador() {
                   onChange={(e) => setMetodoPago(e.target.value)}
                 >
                   <option value="PSE">
-                    PSE (DÃ©bito Cuenta de Ahorros/Corriente)
+                    PSE (Débito Cuenta de Ahorros/Corriente)
                   </option>
-                  <option value="TARJETA_CREDITO">Tarjeta de CrÃ©dito</option>
+                  <option value="TARJETA_CREDITO">Tarjeta de Crédito</option>
                   <option value="EFECTIVO">
                     Efectivo (Corresponsal Bancario)
                   </option>
@@ -3133,7 +3133,7 @@ export default function DashboardComprador() {
                       });
                     }
                     alert(
-                      "Pago realizado con Ã©xito para todos los productos de esta compra.",
+                      "Pago realizado con éxito para todos los productos de esta compra.",
                     );
                     setPagoModalOpen(false);
                     loadPedidos();
@@ -3143,7 +3143,7 @@ export default function DashboardComprador() {
                   }
                 }}
               >
-                Proceder a Pagar â†’
+                Proceder a Pagar →
               </button>
             </div>
           </div>
@@ -3158,14 +3158,14 @@ export default function DashboardComprador() {
               <span className="modal-title">
                 {t(
                   "pedidos.invoiceDetailTitle",
-                  "Detalle de Factura ElectrÃ³nica",
+                  "Detalle de Factura Electrónica",
                 )}
               </span>
               <button
                 className="modal-close"
                 onClick={() => setModalFactura(false)}
               >
-                âœ•
+                ✕
               </button>
             </div>
             <div id="facturaContent">
@@ -3198,7 +3198,7 @@ export default function DashboardComprador() {
                           }}
                         >
                           <span>
-                            â€¢ {item.productoNombre || item.producto} (x
+                            • {item.productoNombre || item.producto} (x
                             {item.cantidad} kg)
                           </span>
                           <span>{formatPrice(item.total)}</span>
@@ -3213,7 +3213,7 @@ export default function DashboardComprador() {
                         }}
                       >
                         <span>
-                          â€¢ {facturaData.productoNombre || facturaData.producto}{" "}
+                          • {facturaData.productoNombre || facturaData.producto}{" "}
                           (x{facturaData.cantidad} kg)
                         </span>
                         <span>{formatPrice(facturaData.total)}</span>
@@ -3273,17 +3273,17 @@ export default function DashboardComprador() {
         </div>
       )}
 
-      {/* MODAL NUEVA RESEÃ‘A */}
+      {/* MODAL NUEVA RESEÑA */}
       {reviewModalOpen && (
         <div className="modal-overlay open">
           <div className="modal" style={{ maxWidth: "480px" }}>
             <div className="modal-header">
-              <span className="modal-title">Nueva ReseÃ±a de Producto</span>
+              <span className="modal-title">Nueva Reseña de Producto</span>
               <button
                 className="modal-close"
                 onClick={() => setReviewModalOpen(false)}
               >
-                âœ•
+                ✕
               </button>
             </div>
 
@@ -3310,7 +3310,7 @@ export default function DashboardComprador() {
             </div>
 
             <div className="form-group" style={{ marginBottom: "16px" }}>
-              <label className="form-label">CalificaciÃ³n *</label>
+              <label className="form-label">Calificación *</label>
               <div style={{ display: "flex", gap: "8px" }}>
                 {[1, 2, 3, 4, 5].map((v) => (
                   <span
@@ -3327,7 +3327,7 @@ export default function DashboardComprador() {
                           : "var(--border-light)",
                     }}
                   >
-                    â˜…
+                    ★
                   </span>
                 ))}
               </div>
@@ -3378,7 +3378,7 @@ export default function DashboardComprador() {
               </button>
               <button className="btn btn-primary" onClick={publicarResena}>
                 {" "}
-                Publicar reseÃ±a
+                Publicar reseña
               </button>
             </div>
           </div>
@@ -3431,7 +3431,7 @@ export default function DashboardComprador() {
                   fontSize: "1.1rem",
                 }}
               >
-                âœ•
+                ✕
               </button>
               {selectedProduct.enPromocion && (
                 <span
@@ -3483,10 +3483,10 @@ export default function DashboardComprador() {
                 }}
               >
                 <div style={{ color: "var(--gold)", fontSize: "1rem" }}>
-                  â˜…â˜…â˜…â˜…â˜…
+                  ★★★★★
                 </div>
                 <span style={{ fontSize: "0.85rem", color: "var(--text-dim)" }}>
-                  (4.8 de calificaciÃ³n)
+                  (4.8 de calificación)
                 </span>
                 <span
                   className={`catalog-card-badge${selectedProduct.stock <= 0 ? " out" : ""}`}
@@ -3519,7 +3519,7 @@ export default function DashboardComprador() {
                 }}
               >
                 {selectedProduct.descripcion ||
-                  "Fruta tropical fresca cosechada directamente en las fincas de UrabÃ¡, Antioquia. ASAFRUT garantiza el origen y la calidad del producto."}
+                  "Fruta tropical fresca cosechada directamente en las fincas de Urabá, Antioquia. ASAFRUT garantiza el origen y la calidad del producto."}
               </p>
 
               {/* PRICES */}
@@ -3596,7 +3596,7 @@ export default function DashboardComprador() {
                       }}
                     >
                       <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
-                        Precio por mayor (â‰¥
+                        Precio por mayor (≥
                         {selectedProduct.cantidadMinimaMayorista}kg):
                       </span>
                       <span
@@ -3688,7 +3688,7 @@ export default function DashboardComprador() {
                   }
                   style={{ display: "flex", alignItems: "center", gap: "6px" }}
                 >
-                  ðŸ’¬ Chat
+                  💬 Chat
                 </button>
               </div>
 
@@ -3728,4 +3728,3 @@ export default function DashboardComprador() {
     </div>
   );
 }
-

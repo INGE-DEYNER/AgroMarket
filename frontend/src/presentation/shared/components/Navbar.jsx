@@ -138,22 +138,23 @@ export default function Navbar() {
 
   return (
     <header className={`navbar-header${scrolled ? " scrolled" : ""}`}>
-      {/* Barra superior */}
+      {/* Barra superior (color de marca, estilo MercadoLibre) */}
       <div className="navbar-top">
-        <Link
-          to="/home"
-          className="nav-logo"
-          style={{ display: "flex", alignItems: "center", gap: "10px" }}
+        <button
+          className={`nav-hamburger ${menuMovil ? "active" : ""}`}
+          onClick={() => setMenuMovil(!menuMovil)}
+          aria-label="Abrir menú"
         >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <Link to="/home" className="nav-logo">
           <img
             src="/logo-asafrut.jpg"
             alt="ASAFRUT Logo"
-            style={{
-              height: "40px",
-              width: "40px",
-              objectFit: "contain",
-              borderRadius: "8px",
-            }}
+            className="nav-logo-img"
             loading="eager"
           />
           <span>AgroMarket</span>
@@ -178,11 +179,21 @@ export default function Navbar() {
           </button>
         </form>
 
+        {/* Pill promocional estilo MercadoLibre */}
+        <Link to="/como-funciona" className="nav-promo-pill">
+          <span className="nav-promo-icon" aria-hidden="true">
+            🌱
+          </span>
+          {t("nav.promo", "COMPRA DIRECTA AL PRODUCTOR")}
+        </Link>
+
         {/* Acciones derechas */}
         <div className="nav-actions">
-          <ThemeToggle variant="icon" />
-          <LanguageSwitcher />
-          <DivisaSwitcher />
+          <div className="nav-switches">
+            <ThemeToggle variant="icon" />
+            <LanguageSwitcher />
+            <DivisaSwitcher />
+          </div>
 
           {/* Botón Carrito que abre el Drawer */}
           {(!user ||
@@ -552,17 +563,6 @@ export default function Navbar() {
             </>
           )}
         </div>
-
-        {/* Hamburguesa móvil */}
-        <button
-          className={`nav-hamburger ${menuMovil ? "active" : ""}`}
-          onClick={() => setMenuMovil(!menuMovil)}
-          aria-label="Abrir menú"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
       </div>
 
       {/* Barra de categorías (desktop) */}
@@ -692,6 +692,12 @@ export default function Navbar() {
           >
             ✕
           </button>
+        </div>
+
+        <div className="mobile-drawer-switches">
+          <ThemeToggle variant="icon" />
+          <LanguageSwitcher />
+          <DivisaSwitcher />
         </div>
 
         <div className="mobile-drawer-links">
@@ -857,5 +863,3 @@ function CartIcon() {
     </svg>
   );
 }
-
-

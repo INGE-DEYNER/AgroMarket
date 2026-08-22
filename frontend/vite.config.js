@@ -37,6 +37,12 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
   },
   server: {
+    host: true, // escucha en 0.0.0.0 (necesario en Docker/VMs/entornos remotos)
+    port: 5173,
+    strictPort: true, // si el 5173 está ocupado, FALLA en vez de saltar a otro puerto
+    // en silencio (esto es lo que provoca los "net::ERR_CONNECTION_REFUSED" y
+    // los fallos de WebSocket HMR: el navegador sigue apuntando al 5173 pero
+    // Vite realmente levantó en el 5174).
     proxy: {
       "/api": { target: "http://localhost:8080", changeOrigin: true },
     },

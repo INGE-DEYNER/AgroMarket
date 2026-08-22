@@ -1,32 +1,88 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
-import es from '@/i18n/locales/es';
-import en from '@/i18n/locales/en';
-import pt from '@/i18n/locales/pt';
-import fr from '@/i18n/locales/fr';
-import de from '@/i18n/locales/de';
-import zh from '@/i18n/locales/zh';
-import ar from '@/i18n/locales/ar';
+import es from "@/i18n/locales/es";
+import en from "@/i18n/locales/en";
+import pt from "@/i18n/locales/pt";
+import fr from "@/i18n/locales/fr";
+import de from "@/i18n/locales/de";
+import zh from "@/i18n/locales/zh";
+import ar from "@/i18n/locales/ar";
+
+const resources = {
+  es: {
+    translation: es,
+  },
+  en: {
+    translation: en,
+  },
+  pt: {
+    translation: pt,
+  },
+  fr: {
+    translation: fr,
+  },
+  de: {
+    translation: de,
+  },
+  zh: {
+    translation: zh,
+  },
+  ar: {
+    translation: ar,
+  },
+};
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: {
-      es: { translation: es },
-      en: { translation: en },
-      pt: { translation: pt },
-      fr: { translation: fr },
-      de: { translation: de },
-      zh: { translation: zh },
-      ar: { translation: ar },
+    resources,
+
+    // Idioma inicial
+    fallbackLng: "es",
+
+    // Idiomas realmente soportados
+    supportedLngs: ["es", "en", "pt", "fr", "de", "zh", "ar"],
+
+    // Convierte es-CO, es-MX, en-US, etc. a es, en, etc.
+    load: "languageOnly",
+
+    // Evita problemas con códigos regionales
+    cleanCode: true,
+
+    // No mostrar suspense mientras cambia idioma
+    react: {
+      useSuspense: false,
     },
-    fallbackLng: 'es',
-    interpolation: { escapeValue: false },
+
+    interpolation: {
+      escapeValue: false,
+    },
+
+    detection: {
+      // Primero recuerda la elección del usuario
+      order: ["localStorage", "navigator", "htmlTag"],
+
+      // Guarda automáticamente la selección
+      caches: ["localStorage"],
+
+      // Nombre de la clave en localStorage
+      lookupLocalStorage: "i18nextLng",
+    },
+  })
+  .then(() => {
+    document.documentElement.lang =
+      i18n.resolvedLanguage || i18n.language || "es";
+  })
+  .catch((error) => {
+    console.error("Error inicializando i18n:", error);
   });
 
+// Actualiza el atributo lang del HTML cada vez que cambia el idioma
+i18n.on("languageChanged", (language) => {
+  document.documentElement.lang = language || "es";
+});
+
 export default i18n;
-
-

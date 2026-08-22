@@ -5,8 +5,6 @@
     "lib": ["DOM", "DOM.Iterable", "ScriptHost", "ES2022"],
     "module": "ESNext",
     "skipLibCheck": true,
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
@@ -14,12 +12,19 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
+    "allowJs": true,
+    "checkJs": false,
+
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"]
 }

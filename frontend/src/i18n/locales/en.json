@@ -10,7 +10,12 @@
     "myPanel": "My Panel",
     "orders": "Orders",
     "messages": "Messages",
-    "shipping": "Shipping"
+    "shipping": "Shipping",
+    "searchPlaceholder": "Search fruits, vegetables, producers...",
+    "trending": "Best sellers",
+    "deals": "Offers",
+    "producers": "Producers",
+    "admin": "Admin"
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -54,7 +59,23 @@
       "families": "Producer families",
       "fruits": "Types of fruits available",
       "rating": "Average rating",
-      "payments": "Secure payments"
+      "payments": "Secure payments",
+      "heroSubExtra": "Fresh fruits, fair prices, complete traceability.",
+      "goToDashboard": "My panel →",
+      "heroImgAlt": "Fresh fruits",
+      "floatCard1": {
+        "title": "Order on the way",
+        "desc": "Real-time tracking"
+      },
+      "metrics": {
+        "products": "Published products",
+        "producers": "Active producers",
+        "avgPrice": "Average price",
+        "avgRating": "Average rating"
+      },
+      "testimonials": {
+        "verified": "Verified user"
+      }
     },
     "how": {
       "eyebrow": "PROCESS",

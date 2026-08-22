@@ -121,107 +121,202 @@ img {
   max-width: 100%;
 }
 
-/* ─── NAVBAR ─── */
+/* ─── NAVBAR (estilo MercadoLibre, colores AgroMarket) ─── */
 .navbar-header {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition:
-    background var(--transition),
     box-shadow var(--transition),
     backdrop-filter var(--transition);
-  will-change: background, box-shadow;
+  will-change: box-shadow;
 }
 .navbar-header.scrolled {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
 }
+
+/* Fila 1: logo + búsqueda + promo — fondo de marca, estilo ML */
 .navbar-top {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  padding: 12px 24px;
-  max-width: 1440px;
-  margin: 0 auto;
+  gap: clamp(8px, 2vw, 20px);
+  padding: 12px clamp(12px, 3vw, 32px);
+  background: linear-gradient(
+    100deg,
+    var(--primary-dark) 0%,
+    var(--primary) 55%,
+    var(--primary) 100%
+  );
 }
+
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--primary);
+  gap: 10px;
+  font-family: var(--font-title);
+  font-size: clamp(17px, 2vw, 21px);
+  font-weight: 800;
+  color: #fff;
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
 }
+.nav-logo:hover {
+  color: #fff;
+  opacity: 0.92;
+}
+.nav-logo-img {
+  height: 38px;
+  width: 38px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  flex-shrink: 0;
+}
+
 .nav-search {
-  flex: 1;
+  flex: 1 1 320px;
   display: flex;
-  max-width: 600px;
-  border: 2px solid var(--primary);
+  min-width: 0;
+  max-width: 640px;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 .nav-search input {
   flex: 1;
-  padding: 10px 16px;
+  min-width: 0;
+  padding: 11px 16px;
   border: none;
   outline: none;
   font-size: 15px;
+  background: #fff;
+  color: var(--text);
+}
+.nav-search input::placeholder {
+  color: var(--text-dim);
 }
 .nav-search-btn {
-  background: var(--primary);
+  background: var(--primary-dark);
   border: none;
-  padding: 0 20px;
+  padding: 0 18px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
 }
+.nav-search-btn:hover {
+  background: var(--primary);
+}
+
+/* Pill promocional, estilo banner "ENVÍO GRATIS" de MercadoLibre */
+.nav-promo-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius-full, 999px);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background var(--transition),
+    transform var(--transition);
+}
+.nav-promo-pill:hover {
+  background: rgba(255, 255, 255, 0.24);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.nav-promo-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
 .nav-actions {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-left: auto;
+  flex-shrink: 0;
+}
+.nav-switches {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  margin-right: 4px;
 }
 .nav-btn-text {
-  color: var(--primary);
+  color: #fff;
   font-weight: 600;
   text-decoration: none;
+  white-space: nowrap;
+}
+.nav-btn-text:hover {
+  color: #fff;
+  opacity: 0.85;
 }
 .nav-btn-primary {
-  background: var(--primary);
-  color: #fff;
+  background: #fff;
+  color: var(--primary-dark);
   padding: 8px 18px;
   border-radius: 6px;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+.nav-btn-primary:hover {
+  color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 .nav-icon-btn {
   position: relative;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
-  color: var(--text-muted);
-}
-.nav-icon-btn:hover {
-  color: var(--primary);
-}
-.nav-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: #ef4444;
+  padding: 6px;
   color: #fff;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  transition: background var(--transition);
+}
+.nav-icon-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+}
+.nav-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ef4444;
+  color: #fff;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 3px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary);
 }
 .nav-user {
   position: relative;
@@ -229,18 +324,25 @@ img {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: background var(--transition);
+}
+.nav-user:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 .nav-avatar {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
+  background: #fff;
+  color: var(--primary-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 800;
   overflow: hidden;
+  flex-shrink: 0;
 }
 .nav-avatar img {
   width: 100%;
@@ -249,21 +351,25 @@ img {
 }
 .nav-username {
   font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
 }
 .nav-arrow {
-  font-size: 0.7rem;
+  color: #fff;
+  flex-shrink: 0;
 }
 .nav-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(45, 106, 79, 0.1);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 12px);
   padding: 8px;
-  min-width: 210px;
+  min-width: 220px;
+  max-width: calc(100vw - 24px);
   box-shadow: var(--shadow-lg);
   z-index: var(--z-dropdown);
   animation: slideInDown 0.18s ease;
@@ -277,7 +383,7 @@ img {
   padding: 10px 14px;
   color: #333;
   text-decoration: none;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   text-align: left;
   border: none;
   background: none;
@@ -295,71 +401,85 @@ img {
 .nav-logout {
   color: #ef4444 !important;
 }
+
+/* Fila 2: categorías y enlaces — fondo claro, estilo ML */
 .navbar-categories {
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 .nav-cats-inner {
   display: flex;
   align-items: center;
-  gap: 0;
-  padding: 0 24px;
+  gap: 4px;
+  padding: 0 clamp(12px, 3vw, 32px);
   max-width: 1440px;
   margin: 0 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .nav-cats-inner::-webkit-scrollbar {
   display: none;
 }
+.nav-cats-btn {
+  color: var(--text) !important;
+}
 .nav-cats-inner a {
-  padding: 10px 16px;
-  color: #555;
+  padding: 11px 14px;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 14px;
+  font-weight: 500;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
-  transition: all 0.2s;
+  transition: all var(--transition);
+  flex-shrink: 0;
 }
 .nav-cats-inner a:hover {
   color: var(--primary);
   border-bottom-color: var(--primary);
 }
+
 /* Hamburguesa móvil animada */
 .nav-hamburger {
   display: none;
   flex-direction: column;
   justify-content: space-between;
-  width: 24px;
-  height: 18px;
+  width: 22px;
+  height: 16px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
+  flex-shrink: 0;
   z-index: 1010;
+  order: -1;
 }
 .nav-hamburger span {
   width: 100%;
   height: 2px;
-  background-color: var(--primary);
+  background-color: #fff;
   border-radius: 2px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .nav-hamburger.active span:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
+  transform: translateY(7px) rotate(45deg);
 }
 .nav-hamburger.active span:nth-child(2) {
   opacity: 0;
 }
 .nav-hamburger.active span:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* Drawer móvil izquierda */
 .mobile-drawer-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
   z-index: 999;
@@ -376,9 +496,9 @@ img {
   position: fixed;
   top: 0;
   left: 0;
-  width: 80%;
-  max-width: 320px;
+  width: min(85%, 340px);
   height: 100vh;
+  height: 100dvh;
   background: var(--surface);
   box-shadow: var(--shadow-lg);
   z-index: 1000;
@@ -386,6 +506,7 @@ img {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 .mobile-drawer.open {
   transform: translateX(0);
@@ -397,6 +518,10 @@ img {
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.mobile-drawer-header .nav-logo {
+  color: var(--primary);
 }
 .mobile-drawer-close {
   background: none;
@@ -404,6 +529,21 @@ img {
   font-size: 20px;
   color: var(--text-muted);
   cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mobile-drawer-switches {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .mobile-drawer-links {
   flex: 1;
@@ -1197,6 +1337,25 @@ img {
     transform: none !important;
   }
 }
+/* ─── APP LAYOUT (dashboards: Admin / Comprador / Productor) ───
+   Estas reglas faltaban por completo. Sin ellas, .app-layout no
+   era flex y .sidebar (height: 100vh) empujaba .main-content
+   fuera de la pantalla, dejándolo técnicamente renderizado pero
+   invisible sin hacer scroll una pantalla completa hacia abajo. */
+.app-layout {
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1 1 auto;
+  min-width: 0; /* evita que las tablas anchas rompan el layout flex */
+  padding: 24px 32px;
+  overflow-x: hidden;
+}
+
 /* ─── SIDEBAR TOGGLE & OVERLAY ─── */
 .sidebar-overlay {
   position: fixed;
@@ -1238,6 +1397,7 @@ img {
 /* ─── SIDEBAR ─── */
 .sidebar {
   width: var(--sidebar-w);
+  flex-shrink: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
   padding: 24px 16px;
@@ -1246,6 +1406,7 @@ img {
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
 }
 .sidebar-user {
   padding: 16px;

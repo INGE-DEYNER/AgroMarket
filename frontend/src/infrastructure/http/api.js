@@ -1,19 +1,67 @@
 /**
- * api.js — Utilidad central de peticiones HTTP para AgroMarket
+ * api.js
+ * Cliente HTTP central de AgroMarket.
  */
 
-const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const rawApiUrl =
+  import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
 
-const API_BASE = rawApiUrl.endsWith("/api") ? rawApiUrl : `${rawApiUrl}/api`;
-/**
- * Decodifica el JWT y devuelve true si ya expiró.
- * No realiza ninguna petición al servidor.
- */
+const API_BASE = rawApiUrl.replace(/\/+$/, "");
+
+const PUBLIC_PATHS = [
+  "/auth",
+  "/public",
+  "/divisas",
+  "/productos",
+  "/resenas",
+  "/actuator",
+];
+
+function getPathname(path) {
+  if (!path) {
+    return "/";
+  }
+
+  return path.split("?")[0].replace(/\/+$/, "") || "/";
+}
+
+function isPublicEndpoint(path) {
+  const pathname = getPathname(path);
+
+  return PUBLIC_PATHS.some(
+    (publicPath) =>
+      pathname === publicPath || pathname.startsWith(`${publicPath}/`),
+  );
+}
+
+function decodeJwtPayload(token) {
+  const parts = token.split(".");
+
+  if (parts.length !== 3) {
+    throw new Error("JWT inválido");
+  }
+
+  const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+
+  const json = decodeURIComponent(
+    atob(base64)
+      .split("")
+      .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
+      .join(""),
+  );
+
+  return JSON.parse(json);
+}
+
 function isTokenExpired(token) {
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const payload = decodeJwtPayload(token);
 
-    return payload.exp * 1000 < Date.now();
+    if (!payload.exp) {
+      return false;
+    }
+
+    return Number(payload.exp) * 1000 <= Date.now();
   } catch {
     return true;
   }
@@ -25,27 +73,28 @@ function clearSession() {
 }
 
 async function request(method, path, body) {
+  const publicEndpoint = isPublicEndpoint(path);
+
   const token = localStorage.getItem("token");
 
-  /*
-   * Verificación client-side antes de realizar el fetch.
-   */
-  if (token && isTokenExpired(token)) {
+  if (token && !publicEndpoint && isTokenExpired(token)) {
     clearSession();
-
-    if (window.location.pathname !== "/login") {
-      window.location.href = "/login";
-    }
 
     throw Object.assign(
       new Error("Sesión expirada. Por favor inicia sesión nuevamente."),
-      { status: 401 },
+      {
+        status: 401,
+        isAuthenticationError: true,
+      },
     );
   }
 
   const headers = {};
 
-  if (token) {
+  /*
+   * Los endpoints públicos no reciben JWT.
+   */
+  if (token && !publicEndpoint) {
     headers.Authorization = `Bearer ${token}`;
   }
 
@@ -62,95 +111,78 @@ async function request(method, path, body) {
       requestBody = body;
     } else {
       headers["Content-Type"] = "application/json";
+
       requestBody = JSON.stringify(body);
     }
   }
 
-  let res;
-
-  // Define which endpoints should include credentials
-  const shouldIncludeCredentials = !(
-    path.startsWith("/public/") ||
-    path.startsWith("/divisas/") ||
-    path.startsWith("/productos/") ||
-    path.startsWith("/resenas/") ||
-    path.startsWith("/actuator/")
-  );
+  let response;
 
   try {
-    const fetchOptions = {
+    const options = {
       method,
       headers,
-      ...(requestBody !== undefined ? { body: requestBody } : {}),
     };
 
-    if (shouldIncludeCredentials) {
-      fetchOptions.credentials = "include";
+    if (requestBody !== undefined) {
+      options.body = requestBody;
     }
 
-    res = await fetch(`${API_BASE}${path}`, fetchOptions);
+    if (!publicEndpoint) {
+      options.credentials = "include";
+    }
 
-    /*
-     * La conexión volvió a funcionar.
-     */
+    response = await fetch(`${API_BASE}${path}`, options);
+
     window.dispatchEvent(new CustomEvent("agromarket:network-ok"));
-  } catch {
-    /*
-     * Fallo real de red:
-     * - servidor apagado
-     * - internet desconectado
-     * - CORS/preflight
-     * - conexión rechazada
-     */
+  } catch (error) {
     window.dispatchEvent(new CustomEvent("agromarket:network-error"));
 
     throw Object.assign(
-      new Error("Sin conexión. Verifica tu internet e intenta de nuevo."),
+      new Error(
+        "Sin conexión. Verifica que el backend y el frontend estén ejecutándose.",
+      ),
       {
         status: 0,
         isNetworkError: true,
+        cause: error,
       },
     );
   }
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({
-      message: res.statusText,
-    }));
+  const contentType = response.headers.get("content-type") || "";
 
-    /*
-     * 401 del backend:
-     * token inválido, expirado o rechazado.
-     * Las rutas públicas (/public/*, /divisas/*, etc.) no deben
-     * redirigir al login aunque fallen con 401.
-     */
-    if (res.status === 401) {
-      const isAuthEndpoint = path.startsWith("/auth/");
-      const isPublicEndpoint =
-        path.startsWith("/public/") ||
-        path.startsWith("/divisas/") ||
-        path.startsWith("/productos/") ||
-        path.startsWith("/resenas/");
-      const isOnLoginPage = window.location.pathname === "/login";
+  let data = null;
 
-      if (!isAuthEndpoint && !isPublicEndpoint && !isOnLoginPage) {
-        clearSession();
-        window.location.href = "/login";
-      }
+  if (response.status !== 204) {
+    if (contentType.includes("application/json")) {
+      data = await response.json().catch(() => null);
+    } else {
+      data = await response.text().catch(() => null);
     }
-
-    throw Object.assign(
-      new Error(err.message || err.mensaje || `HTTP ${res.status}`),
-      {
-        status: res.status,
-        campos: err.campos || null,
-        fieldErrors: err.fieldErrors || null,
-        ...err,
-      },
-    );
   }
 
-  return res.status === 204 ? null : res.json();
+  if (!response.ok) {
+    const message =
+      typeof data === "object" && data !== null
+        ? data.message ||
+          data.mensaje ||
+          data.error ||
+          `HTTP ${response.status}`
+        : data || `HTTP ${response.status}`;
+
+    throw Object.assign(new Error(message), {
+      status: response.status,
+      campos: data?.campos || null,
+      fieldErrors: data?.fieldErrors || null,
+      response: {
+        status: response.status,
+        data,
+      },
+    });
+  }
+
+  return data;
 }
 
 const api = {
@@ -160,9 +192,9 @@ const api = {
 
   put: (path, body) => request("PUT", path, body),
 
-  delete: (path) => request("DELETE", path),
-
   patch: (path, body) => request("PATCH", path, body),
+
+  delete: (path) => request("DELETE", path),
 };
 
 export default api;

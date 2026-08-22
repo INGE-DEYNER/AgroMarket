@@ -88,14 +88,14 @@ export default function Admin() {
     e.preventDefault();
     setPwMsg({ type: "", text: "" });
     if (!pwForm.contrasenaActual || !pwForm.nuevaContrasena) {
-      setPwMsg({ type: "error", text: "Ambas contraseÃ±as son obligatorias." });
+      setPwMsg({ type: "error", text: "Ambas contraseñas son obligatorias." });
       return;
     }
     try {
       await api.put("/usuarios/me/contrasena", pwForm);
       setPwMsg({
         type: "success",
-        text: "ContraseÃ±a actualizada correctamente.",
+        text: "Contraseña actualizada correctamente.",
       });
       setPwForm({ contrasenaActual: "", nuevaContrasena: "" });
     } catch (err) {
@@ -103,7 +103,7 @@ export default function Admin() {
         type: "error",
         text:
           err.message ||
-          "Debe tener al menos 1 mayÃºscula, 1 nÃºmero y 1 carÃ¡cter especial (mÃ­nimo 8 caracteres).",
+          "Debe tener al menos 1 mayúscula, 1 número y 1 carácter especial (mínimo 8 caracteres).",
       });
     }
   };
@@ -130,7 +130,7 @@ export default function Admin() {
     localStorage.getItem("mantenimiento_mode") === "true",
   );
 
-  // States for Finanzas and LogÃ­stica Reports
+  // States for Finanzas and Logística Reports
   const [finanzasData, setFinanzasData] = useState(null);
   const [logisticaData, setLogisticaData] = useState(null);
   const [loadingFinanzas, setLoadingFinanzas] = useState(false);
@@ -157,7 +157,7 @@ export default function Admin() {
   const handleAprobarUsuario = async (userId) => {
     try {
       await api.post(`/admin/aprobar-usuario/${userId}`);
-      alert("Usuario aprobado con Ã©xito.");
+      alert("Usuario aprobado con éxito.");
       loadAll();
       loadUsuarios();
     } catch (err) {
@@ -170,7 +170,7 @@ export default function Admin() {
     if (motivo === null) return;
     try {
       await api.post(`/admin/rechazar-usuario/${userId}`, { motivo });
-      alert("Usuario rechazado con Ã©xito.");
+      alert("Usuario rechazado con éxito.");
       loadAll();
       loadUsuarios();
     } catch (err) {
@@ -243,7 +243,6 @@ export default function Admin() {
     }
   }, [extractArray]);
 
-
   // Debounced search for users
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -300,7 +299,7 @@ export default function Admin() {
   const handleCrearCupon = async (e) => {
     e.preventDefault();
     if (!nuevoCupon.codigo.trim())
-      return alert("El cÃ³digo de cupÃ³n es obligatorio.");
+      return alert("El código de cupón es obligatorio.");
     try {
       const payload = {
         codigo: nuevoCupon.codigo.toUpperCase().trim(),
@@ -314,7 +313,7 @@ export default function Admin() {
           : null,
       };
       await api.post("/cupones", payload);
-      alert("CupÃ³n creado con Ã©xito.");
+      alert("Cupón creado con éxito.");
       setNuevoCupon({
         codigo: "",
         tipo: "ENVIO_GRATIS",
@@ -325,19 +324,19 @@ export default function Admin() {
       });
       loadTodosCupones();
     } catch (err) {
-      alert("Error al crear cupÃ³n: " + err.message);
+      alert("Error al crear cupón: " + err.message);
     }
   };
 
   const handleEliminarCupon = async (id) => {
-    if (!window.confirm("Â¿EstÃ¡ seguro de que desea eliminar este cupÃ³n?"))
+    if (!window.confirm("¿Está seguro de que desea eliminar este cupón?"))
       return;
     try {
       await api.delete(`/cupones/${id}`);
-      alert("CupÃ³n eliminado con Ã©xito.");
+      alert("Cupón eliminado con éxito.");
       loadTodosCupones();
     } catch (err) {
-      alert("Error al eliminar cupÃ³n: " + err.message);
+      alert("Error al eliminar cupón: " + err.message);
     }
   };
 
@@ -363,7 +362,7 @@ export default function Admin() {
       setLogisticaData(res.data || res);
     } catch (err) {
       console.error("Error loading logistica:", err);
-      setErrorLogistica(err.message || "Error al cargar reporte de logÃ­stica.");
+      setErrorLogistica(err.message || "Error al cargar reporte de logística.");
     } finally {
       setLoadingLogistica(false);
     }
@@ -382,7 +381,7 @@ export default function Admin() {
   const liberarPago = async (pagoId) => {
     if (
       !window.confirm(
-        "Â¿EstÃ¡ seguro de que desea liberar estos fondos al productor?",
+        "¿Está seguro de que desea liberar estos fondos al productor?",
       )
     )
       return;
@@ -398,7 +397,7 @@ export default function Admin() {
   const reembolsarPago = async (pagoId) => {
     if (
       !window.confirm(
-        "Â¿EstÃ¡ seguro de que desea reembolsar estos fondos al comprador?",
+        "¿Está seguro de que desea reembolsar estos fondos al comprador?",
       )
     )
       return;
@@ -414,10 +413,10 @@ export default function Admin() {
   const toggleVerificarProductor = async (u) => {
     try {
       await api.put(`/admin/productores/${u.idEncriptado}/verificar`);
-      alert("Estado de verificaciÃ³n del productor actualizado.");
+      alert("Estado de verificación del productor actualizado.");
       loadAll();
     } catch (err) {
-      alert(err.message || "Error al cambiar la verificaciÃ³n del productor.");
+      alert(err.message || "Error al cambiar la verificación del productor.");
     }
   };
 
@@ -468,7 +467,7 @@ export default function Admin() {
   const eliminarProducto = async (id) => {
     if (
       !window.confirm(
-        t("dashboardProductor.confirmDelete", "Â¿Eliminar este producto?"),
+        t("dashboardProductor.confirmDelete", "¿Eliminar este producto?"),
       )
     )
       return;
@@ -491,7 +490,7 @@ export default function Admin() {
 
   return (
     <div className="app-layout">
-      {/* Overlay para sidebar mÃ³vil */}
+      {/* Overlay para sidebar móvil */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
         onClick={() => setSidebarOpen(false)}
@@ -580,7 +579,7 @@ export default function Admin() {
           >
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
           </svg>
-          {t("admin.nav.moderation", "ModeraciÃ³n")}
+          {t("admin.nav.moderation", "Moderación")}
         </a>
         <a
           href="#"
@@ -643,7 +642,7 @@ export default function Admin() {
           >
             <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
           </svg>
-          ConfiguraciÃ³n
+          Configuración
         </a>
         <Link
           to="/perfil"
@@ -707,7 +706,7 @@ export default function Admin() {
           >
             <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
           </svg>
-          {t("admin.reports.logistics", "LogÃ­stica")}
+          {t("admin.reports.logistics", "Logística")}
         </a>
 
         <a
@@ -729,7 +728,7 @@ export default function Admin() {
           >
             <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
           </svg>
-          {t("admin.logout", "Cerrar sesiÃ³n")}
+          {t("admin.logout", "Cerrar sesión")}
         </a>
       </aside>
 
@@ -747,20 +746,20 @@ export default function Admin() {
             type="button"
             className="sidebar-toggle-btn"
             onClick={() => setSidebarOpen(true)}
-            aria-label="Abrir menÃº de navegaciÃ³n"
+            aria-label="Abrir menú de navegación"
           >
-            â˜° MenÃº
+            ☰ Menú
           </button>
           <LanguageSwitcher />
         </div>
 
         <div className="dash-header">
           <div className="dash-welcome">
-            <h1>{t("admin.title", "Panel de AdministraciÃ³n")}</h1>
+            <h1>{t("admin.title", "Panel de Administración")}</h1>
             <p>
               {t(
                 "admin.sub",
-                "Monitoreo global de la plataforma AgroMarket UrabÃ¡",
+                "Monitoreo global de la plataforma AgroMarket Urabá",
               )}
             </p>
           </div>
@@ -795,7 +794,7 @@ export default function Admin() {
               {String(productos.length).padStart(2, "0")}
             </div>
             <div className="stat-trend">
-              {t("admin.stats.trendProducts", "En catÃ¡logo")}
+              {t("admin.stats.trendProducts", "En catálogo")}
             </div>
           </div>
           <div className="stat-card color-3">
@@ -807,7 +806,7 @@ export default function Admin() {
               {dashboardData?.ingresos !== undefined &&
               dashboardData?.ingresos !== null
                 ? formatPrice(dashboardData.ingresos)
-                : "â€”"}
+                : "—"}
             </div>
             <div className="stat-trend up">
               {t("admin.stats.trendEarnings", "Ingresos confirmados")}
@@ -816,7 +815,7 @@ export default function Admin() {
           <div className="stat-card color-4">
             <span className="stat-icon-lg"></span>
             <div className="stat-label">
-              {t("admin.stats.alerts", "Alertas ModeraciÃ³n")}
+              {t("admin.stats.alerts", "Alertas Moderación")}
             </div>
             <div className="stat-value" id="statResenas">
               {String(resenas.filter((r) => !r.aprobada).length).padStart(
@@ -825,7 +824,7 @@ export default function Admin() {
               )}
             </div>
             <div className="stat-trend down" style={{ color: "orange" }}>
-              {t("admin.stats.trendAlerts", "AcciÃ³n requerida")}
+              {t("admin.stats.trendAlerts", "Acción requerida")}
             </div>
           </div>
         </div>
@@ -845,7 +844,7 @@ export default function Admin() {
                 <div className="section active" id="sec-usuarios">
                   <div className="table-header">
                     <h3 className="card-title">
-                      {t("admin.usersManagement", "GestiÃ³n de Usuarios")}
+                      {t("admin.usersManagement", "Gestión de Usuarios")}
                     </h3>
                   </div>
 
@@ -864,7 +863,7 @@ export default function Admin() {
                         fontWeight: "bold",
                       }}
                     >
-                      Cuentas de Productores Pendientes de AprobaciÃ³n
+                      Cuentas de Productores Pendientes de Aprobación
                     </h4>
                     {usuariosPendientes.length === 0 ? (
                       <p
@@ -874,7 +873,7 @@ export default function Admin() {
                           fontSize: "0.85rem",
                         }}
                       >
-                        No hay solicitudes de aprobaciÃ³n pendientes.
+                        No hay solicitudes de aprobación pendientes.
                       </p>
                     ) : (
                       <div
@@ -893,7 +892,7 @@ export default function Admin() {
                             <tr style={{ background: "var(--gold-bg)" }}>
                               <th>Nombre</th>
                               <th>Correo</th>
-                              <th>UbicaciÃ³n</th>
+                              <th>Ubicación</th>
                               <th>Acciones</th>
                             </tr>
                           </thead>
@@ -904,8 +903,8 @@ export default function Admin() {
                                   {u.nombre} {u.apellido}
                                 </td>
                                 <td data-label="Correo">{u.email}</td>
-                                <td data-label="UbicaciÃ³n">
-                                  {u.ubicacion || "â€”"}
+                                <td data-label="Ubicación">
+                                  {u.ubicacion || "—"}
                                 </td>
                                 <td data-label="Acciones">
                                   <button
@@ -1042,7 +1041,7 @@ export default function Admin() {
                           color: "var(--text-dim)",
                         }}
                       >
-                        PÃ¡gina <strong>{pageUsuarios + 1}</strong> de{" "}
+                        Página <strong>{pageUsuarios + 1}</strong> de{" "}
                         <strong>{totalPagesUsuarios}</strong> (
                         {totalElementsUsuarios} usuarios)
                       </span>
@@ -1113,7 +1112,7 @@ export default function Admin() {
                               {p.nombre}
                             </td>
                             <td data-label={t("pedidos.producer", "Productor")}>
-                              {p.productor || p.nombreProductor || "â€”"}
+                              {p.productor || p.nombreProductor || "—"}
                             </td>
                             <td
                               data-label={t(
@@ -1173,7 +1172,7 @@ export default function Admin() {
                           color: "var(--text-dim)",
                         }}
                       >
-                        PÃ¡gina <strong>{pageProductos + 1}</strong> de{" "}
+                        Página <strong>{pageProductos + 1}</strong> de{" "}
                         <strong>{totalPagesProductos}</strong> (
                         {totalElementsProductos} productos)
                       </span>
@@ -1189,12 +1188,12 @@ export default function Admin() {
                 </div>
               )}
 
-              {/* RESEÃ‘AS */}
+              {/* RESEÑAS */}
               {activeSection === "resenas" && (
                 <div className="section active" id="sec-resenas">
                   <div className="table-header">
                     <h3 className="card-title">
-                      {t("admin.reviewsModeration", "ModeraciÃ³n de ReseÃ±as")}
+                      {t("admin.reviewsModeration", "Moderación de Reseñas")}
                     </h3>
                   </div>
                   <div className="table-wrap">
@@ -1205,7 +1204,7 @@ export default function Admin() {
                           <th>
                             {t(
                               "dashboardProductor.stats.rating",
-                              "CalificaciÃ³n",
+                              "Calificación",
                             )}
                           </th>
                           <th>
@@ -1222,15 +1221,15 @@ export default function Admin() {
                               {r.compradorNombre ||
                                 r.usuario ||
                                 r.nombreUsuario ||
-                                "â€”"}
+                                "—"}
                             </td>
                             <td
                               data-label={t(
                                 "dashboardProductor.stats.rating",
-                                "CalificaciÃ³n",
+                                "Calificación",
                               )}
                             >
-                              {"â˜…".repeat(r.calificacion || 5)}
+                              {"★".repeat(r.calificacion || 5)}
                             </td>
                             <td
                               data-label={t(
@@ -1290,7 +1289,7 @@ export default function Admin() {
                           <th>Pago ID</th>
                           <th>Pedido ID</th>
                           <th>Monto</th>
-                          <th>MÃ©todo</th>
+                          <th>Método</th>
                           <th>Estado</th>
                           <th>Acciones</th>
                         </tr>
@@ -1315,7 +1314,7 @@ export default function Admin() {
                               <td data-label="Pago ID">#{p.id}</td>
                               <td data-label="Pedido ID">#{p.pedidoId}</td>
                               <td data-label="Monto">{formatPrice(p.monto)}</td>
-                              <td data-label="MÃ©todo">{p.metodoPago}</td>
+                              <td data-label="Método">{p.metodoPago}</td>
                               <td data-label="Estado">
                                 <span className="badge-status status-pending">
                                   {p.estado}
@@ -1470,7 +1469,7 @@ export default function Admin() {
                               color: "var(--text)",
                             }}
                           >
-                            Por MÃ©todo de Pago
+                            Por Método de Pago
                           </h4>
                           <div className="table-wrap">
                             <table
@@ -1479,7 +1478,7 @@ export default function Admin() {
                             >
                               <thead>
                                 <tr>
-                                  <th>MÃ©todo</th>
+                                  <th>Método</th>
                                   <th>Transacciones</th>
                                   <th>Monto Total</th>
                                 </tr>
@@ -1502,7 +1501,7 @@ export default function Admin() {
                                   ).map((metodo) => (
                                     <tr key={metodo}>
                                       <td
-                                        data-label="MÃ©todo"
+                                        data-label="Método"
                                         style={{ fontWeight: "bold" }}
                                       >
                                         {metodo.replace("_", " ")}
@@ -1538,7 +1537,7 @@ export default function Admin() {
                               color: "var(--text)",
                             }}
                           >
-                            Por Estado de TransacciÃ³n
+                            Por Estado de Transacción
                           </h4>
                           <div className="table-wrap">
                             <table
@@ -1635,7 +1634,7 @@ export default function Admin() {
                         color: "var(--primary-dark)",
                       }}
                     >
-                      Reporte de LogÃ­stica y EnvÃ­os
+                      Reporte de Logística y Envíos
                     </h3>
                   </div>
 
@@ -1647,7 +1646,7 @@ export default function Admin() {
                         color: "var(--text-dim)",
                       }}
                     >
-                      Cargando datos logÃ­sticos...
+                      Cargando datos logísticos...
                     </div>
                   ) : errorLogistica ? (
                     <div style={{ color: "var(--red)", padding: "20px" }}>
@@ -1681,7 +1680,7 @@ export default function Admin() {
                               textTransform: "uppercase",
                             }}
                           >
-                            Total EnvÃ­os
+                            Total Envíos
                           </span>
                           <h2
                             style={{
@@ -1770,7 +1769,7 @@ export default function Admin() {
                               color: "var(--text)",
                             }}
                           >
-                            Por Estado del EnvÃ­o
+                            Por Estado del Envío
                           </h4>
                           <div className="table-wrap">
                             <table
@@ -1780,7 +1779,7 @@ export default function Admin() {
                               <thead>
                                 <tr>
                                   <th>Estado</th>
-                                  <th>EnvÃ­os</th>
+                                  <th>Envíos</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1792,7 +1791,7 @@ export default function Admin() {
                                       colSpan="2"
                                       style={{ textAlign: "center" }}
                                     >
-                                      No hay envÃ­os registrados
+                                      No hay envíos registrados
                                     </td>
                                   </tr>
                                 ) : (
@@ -1806,7 +1805,7 @@ export default function Admin() {
                                       >
                                         {estado.replace("_", " ")}
                                       </td>
-                                      <td data-label="EnvÃ­os">
+                                      <td data-label="Envíos">
                                         {logisticaData.enviosPorEstado[estado]}
                                       </td>
                                     </tr>
@@ -1827,7 +1826,7 @@ export default function Admin() {
                               color: "var(--text)",
                             }}
                           >
-                            DistribuciÃ³n por Transportista
+                            Distribución por Transportista
                           </h4>
                           <div className="table-wrap">
                             <table
@@ -1837,7 +1836,7 @@ export default function Admin() {
                               <thead>
                                 <tr>
                                   <th>Transportista</th>
-                                  <th>EnvÃ­os</th>
+                                  <th>Envíos</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1849,7 +1848,7 @@ export default function Admin() {
                                       colSpan="2"
                                       style={{ textAlign: "center" }}
                                     >
-                                      No hay envÃ­os registrados
+                                      No hay envíos registrados
                                     </td>
                                   </tr>
                                 ) : (
@@ -1863,7 +1862,7 @@ export default function Admin() {
                                       >
                                         {transportista}
                                       </td>
-                                      <td data-label="EnvÃ­os">
+                                      <td data-label="Envíos">
                                         {
                                           logisticaData.enviosPorTransportista[
                                             transportista
@@ -1892,7 +1891,7 @@ export default function Admin() {
                 <div className="section active">
                   <div className="table-header">
                     <h3 className="card-title">
-                      GestiÃ³n de Cupones de Descuento
+                      Gestión de Cupones de Descuento
                     </h3>
                   </div>
 
@@ -1917,7 +1916,7 @@ export default function Admin() {
                         fontWeight: "bold",
                       }}
                     >
-                      Crear Nuevo CupÃ³n
+                      Crear Nuevo Cupón
                     </h4>
                     <div
                       style={{
@@ -1932,7 +1931,7 @@ export default function Admin() {
                           className="form-label"
                           style={{ fontSize: "0.85rem" }}
                         >
-                          CÃ³digo *
+                          Código *
                         </label>
                         <input
                           className="form-input"
@@ -1974,7 +1973,7 @@ export default function Admin() {
                             })
                           }
                         >
-                          <option value="ENVIO_GRATIS">EnvÃ­o Gratis</option>
+                          <option value="ENVIO_GRATIS">Envío Gratis</option>
                           <option value="PORCENTAJE">
                             Porcentaje de Descuento
                           </option>
@@ -2020,7 +2019,7 @@ export default function Admin() {
                           className="form-label"
                           style={{ fontSize: "0.85rem" }}
                         >
-                          Monto MÃ­nimo Compra
+                          Monto Mínimo Compra
                         </label>
                         <input
                           type="number"
@@ -2054,7 +2053,7 @@ export default function Admin() {
                           className="form-label"
                           style={{ fontSize: "0.85rem" }}
                         >
-                          ID Usuario (Opcional, vacÃ­o para global)
+                          ID Usuario (Opcional, vacío para global)
                         </label>
                         <input
                           type="text"
@@ -2079,7 +2078,7 @@ export default function Admin() {
                           className="form-label"
                           style={{ fontSize: "0.85rem" }}
                         >
-                          Fecha ExpiraciÃ³n (Opcional)
+                          Fecha Expiración (Opcional)
                         </label>
                         <input
                           type="date"
@@ -2105,7 +2104,7 @@ export default function Admin() {
                       type="submit"
                       style={{ alignSelf: "flex-start", marginTop: "6px" }}
                     >
-                      Crear CupÃ³n
+                      Crear Cupón
                     </button>
                   </form>
 
@@ -2113,7 +2112,7 @@ export default function Admin() {
                     <table className="table-responsive">
                       <thead>
                         <tr>
-                          <th>CÃ³digo</th>
+                          <th>Código</th>
                           <th>Tipo</th>
                           <th>Valor</th>
                           <th>Monto Min.</th>
@@ -2139,7 +2138,7 @@ export default function Admin() {
                           todosCupones.map((c) => (
                             <tr key={c.id}>
                               <td
-                                data-label="CÃ³digo"
+                                data-label="Código"
                                 style={{ fontWeight: "bold" }}
                               >
                                 {c.codigo}
@@ -2177,7 +2176,7 @@ export default function Admin() {
               {activeSection === "configuracion" && (
                 <div className="section active">
                   <div className="table-header">
-                    <h3 className="card-title">ConfiguraciÃ³n del Sistema</h3>
+                    <h3 className="card-title">Configuración del Sistema</h3>
                   </div>
 
                   <div
@@ -2187,7 +2186,7 @@ export default function Admin() {
                       gap: "20px",
                     }}
                   >
-                    {/* Costo envÃ­o */}
+                    {/* Costo envío */}
                     <div
                       style={{
                         background: "#f8fafc",
@@ -2205,14 +2204,14 @@ export default function Admin() {
                           fontWeight: "bold",
                         }}
                       >
-                        Costos de EnvÃ­o
+                        Costos de Envío
                       </h4>
                       <div className="form-group" style={{ maxWidth: "300px" }}>
                         <label
                           className="form-label"
                           style={{ fontSize: "0.85rem" }}
                         >
-                          Costo de EnvÃ­o EstÃ¡ndar Nacional (COP)
+                          Costo de Envío Estándar Nacional (COP)
                         </label>
                         <div
                           style={{
@@ -2236,7 +2235,7 @@ export default function Admin() {
                                 "costo_envio",
                                 costoEnvioNacional,
                               );
-                              alert("Costo de envÃ­o guardado.");
+                              alert("Costo de envío guardado.");
                             }}
                           >
                             Guardar
@@ -2273,7 +2272,7 @@ export default function Admin() {
                         }}
                       >
                         Activar el modo de mantenimiento bloquea el acceso de
-                        clientes a la tienda, permitiendo Ãºnicamente el acceso
+                        clientes a la tienda, permitiendo únicamente el acceso
                         de administradores.
                       </p>
                       <div
@@ -2418,7 +2417,7 @@ export default function Admin() {
                   />
                 </div>
                 <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">TelÃ©fono de Soporte</label>
+                  <label className="form-label">Teléfono de Soporte</label>
                   <input
                     className="form-input"
                     style={{
@@ -2502,7 +2501,7 @@ export default function Admin() {
               )}
               <form onSubmit={handleUpdatePassword}>
                 <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">ContraseÃ±a Actual</label>
+                  <label className="form-label">Contraseña Actual</label>
                   <div style={{ position: "relative" }}>
                     <input
                       className="form-input"
@@ -2544,12 +2543,12 @@ export default function Admin() {
                         showCurrentPassword ? "Hide password" : "Show password"
                       }
                     >
-                      {showCurrentPassword ? "ðŸ‘ï¸" : "ðŸ™ˆ"}
+                      {showCurrentPassword ? "👁️" : "🙈"}
                     </button>
                   </div>
                 </div>
                 <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <label className="form-label">Nueva ContraseÃ±a</label>
+                  <label className="form-label">Nueva Contraseña</label>
                   <div style={{ position: "relative" }}>
                     <input
                       className="form-input"
@@ -2589,7 +2588,7 @@ export default function Admin() {
                         showNewPassword ? "Hide password" : "Show password"
                       }
                     >
-                      {showNewPassword ? "ðŸ‘ï¸" : "ðŸ™ˆ"}
+                      {showNewPassword ? "👁️" : "🙈"}
                     </button>
                   </div>
                 </div>
@@ -2598,7 +2597,7 @@ export default function Admin() {
                   type="submit"
                   style={{ width: "100%" }}
                 >
-                  Cambiar ContraseÃ±a
+                  Cambiar Contraseña
                 </button>
               </form>
             </div>
@@ -2608,4 +2607,3 @@ export default function Admin() {
     </div>
   );
 }
-

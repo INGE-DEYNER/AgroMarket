@@ -10,7 +10,12 @@
     "myPanel": "Mi Panel",
     "orders": "Pedidos",
     "messages": "Mensajes",
-    "shipping": "Envíos"
+    "shipping": "Envíos",
+    "searchPlaceholder": "Buscar frutas, verduras, productores...",
+    "trending": "Más vendidos",
+    "deals": "Ofertas",
+    "producers": "Productores",
+    "admin": "Admin"
   },
   "auth": {
     "loginTitle": "Bienvenido de nuevo",
@@ -54,7 +59,23 @@
       "families": "Familias productoras",
       "fruits": "Tipos de frutas disponibles",
       "rating": "Calificación promedio",
-      "payments": "Pagos seguros"
+      "payments": "Pagos seguros",
+      "heroSubExtra": "Frutas frescas, precios justos, trazabilidad total.",
+      "goToDashboard": "Mi panel →",
+      "heroImgAlt": "Frutas frescas",
+      "floatCard1": {
+        "title": "Pedido en camino",
+        "desc": "Seguimiento en tiempo real"
+      },
+      "metrics": {
+        "products": "Productos publicados",
+        "producers": "Productores activos",
+        "avgPrice": "Precio promedio",
+        "avgRating": "Calificación promedio"
+      },
+      "testimonials": {
+        "verified": "Usuario verificado"
+      }
     },
     "how": {
       "eyebrow": "PROCESO",
