@@ -2,17 +2,17 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api, { API_BASE } from "@/infrastructure/http/api";
-import "@/presentation/styles/login.css";
+import "@/presentation/styles/registro.css";
 
 const COUNTRY_CODES = [
-  { code: "+57", name: "Colombia (ðŸ‡¨ðŸ‡´)" },
-  { code: "+1", name: "USA (ðŸ‡ºðŸ‡¸)" },
-  { code: "+34", name: "EspaÃ±a (ðŸ‡ªðŸ‡¸)" },
-  { code: "+52", name: "MÃ©xico (ðŸ‡²ðŸ‡½)" },
-  { code: "+54", name: "Argentina (ðŸ‡¦ðŸ‡·)" },
-  { code: "+56", name: "Chile (ðŸ‡¨ðŸ‡±)" },
-  { code: "+51", name: "PerÃº (ðŸ‡µðŸ‡ª)" },
-  { code: "+58", name: "Venezuela (ðŸ‡»ðŸ‡ª)" },
+  { code: "+57", name: "Colombia (🇨🇴)" },
+  { code: "+1", name: "USA (🇺🇸)" },
+  { code: "+34", name: "España (🇪🇸)" },
+  { code: "+52", name: "México (🇲🇽)" },
+  { code: "+54", name: "Argentina (🇦🇷)" },
+  { code: "+56", name: "Chile (🇨🇱)" },
+  { code: "+51", name: "Perú (🇵🇪)" },
+  { code: "+58", name: "Venezuela (🇻🇪)" },
 ];
 
 export default function Registro() {
@@ -55,73 +55,80 @@ export default function Registro() {
     }
   }, [success, location.search, navigate]);
 
-  const validateField = useCallback((field, val) => {
-    setErrors((prevErrors) => {
-      const errs = { ...prevErrors };
-      const strongPasswordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/;
+  const validateField = useCallback(
+    (field, val) => {
+      setErrors((prevErrors) => {
+        const errs = { ...prevErrors };
+        const strongPasswordRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/;
 
-      switch (field) {
-        case "nombre":
-          if (!val.trim()) errs.nombre = t("errors.required", "Campo requerido.");
-          else delete errs.nombre;
-          break;
-        case "apellido":
-          if (!val.trim())
-            errs.apellido = t("errors.required", "Campo requerido.");
-          else delete errs.apellido;
-          break;
-        case "email":
-          if (!val || !/\S+@\S+\.\S+/.test(val))
-            errs.email = t("errors.invalidEmail", "Ingresa un correo vÃ¡lido.");
-          else delete errs.email;
-          break;
-        case "telefono":
-          if (!val.trim())
-            errs.telefono = t("errors.required", "Campo requerido.");
-          else if (!/^\d{7,15}$/.test(val.trim()))
-            errs.telefono = "TelÃ©fono debe contener entre 7 y 15 dÃ­gitos.";
-          else delete errs.telefono;
-          break;
-        case "password":
-          if (!val) errs.password = t("errors.required", "Campo requerido.");
-          else if (val.length < 8)
-            errs.password = "La contraseÃ±a debe tener al menos 8 caracteres.";
-          else if (!strongPasswordRegex.test(val))
-            errs.password =
-              "Debe contener al menos 1 mayÃºscula, 1 nÃºmero y 1 carÃ¡cter especial (ej: @$!%*?&.).";
-          else delete errs.password;
-          break;
-        case "confirmPass":
-          if (val !== password)
-            errs.confirmPass = t(
-              "errors.passwordMismatch",
-              "Las contraseÃ±as no coinciden.",
-            );
-          else delete errs.confirmPass;
-          break;
-        case "ubicacion":
-          if (rol === "productor" && !val.trim())
-            errs.ubicacion = "Campo requerido para productores.";
-          else delete errs.ubicacion;
-          break;
-        case "nombreEmpresa":
-          if (rol === "comprador_empresa" && !val.trim())
-            errs.nombreEmpresa = "Nombre de empresa requerido.";
-          else delete errs.nombreEmpresa;
-          break;
-        case "nit":
-          if (rol === "comprador_empresa" && !val.trim())
-            errs.nit = "NIT requerido.";
-          else delete errs.nit;
-          break;
-        default:
-          break;
-      }
+        switch (field) {
+          case "nombre":
+            if (!val.trim())
+              errs.nombre = t("errors.required", "Campo requerido.");
+            else delete errs.nombre;
+            break;
+          case "apellido":
+            if (!val.trim())
+              errs.apellido = t("errors.required", "Campo requerido.");
+            else delete errs.apellido;
+            break;
+          case "email":
+            if (!val || !/\S+@\S+\.\S+/.test(val))
+              errs.email = t(
+                "errors.invalidEmail",
+                "Ingresa un correo válido.",
+              );
+            else delete errs.email;
+            break;
+          case "telefono":
+            if (!val.trim())
+              errs.telefono = t("errors.required", "Campo requerido.");
+            else if (!/^\d{7,15}$/.test(val.trim()))
+              errs.telefono = "Teléfono debe contener entre 7 y 15 dígitos.";
+            else delete errs.telefono;
+            break;
+          case "password":
+            if (!val) errs.password = t("errors.required", "Campo requerido.");
+            else if (val.length < 8)
+              errs.password = "La contraseña debe tener al menos 8 caracteres.";
+            else if (!strongPasswordRegex.test(val))
+              errs.password =
+                "Debe contener al menos 1 mayúscula, 1 número y 1 carácter especial (ej: @$!%*?&.).";
+            else delete errs.password;
+            break;
+          case "confirmPass":
+            if (val !== password)
+              errs.confirmPass = t(
+                "errors.passwordMismatch",
+                "Las contraseñas no coinciden.",
+              );
+            else delete errs.confirmPass;
+            break;
+          case "ubicacion":
+            if (rol === "productor" && !val.trim())
+              errs.ubicacion = "Campo requerido para productores.";
+            else delete errs.ubicacion;
+            break;
+          case "nombreEmpresa":
+            if (rol === "comprador_empresa" && !val.trim())
+              errs.nombreEmpresa = "Nombre de empresa requerido.";
+            else delete errs.nombreEmpresa;
+            break;
+          case "nit":
+            if (rol === "comprador_empresa" && !val.trim())
+              errs.nit = "NIT requerido.";
+            else delete errs.nit;
+            break;
+          default:
+            break;
+        }
 
-      return errs;
-    });
-  }, [t, password, rol]);
+        return errs;
+      });
+    },
+    [t, password, rol],
+  );
 
   // Real-time validations on changes
   useEffect(() => {
@@ -161,12 +168,10 @@ export default function Registro() {
   }, [nit, rol, validateField]);
 
   const handleGoogleRegistro = () => {
-    const rolSeleccionado =
-      rol === "comprador_empresa" ? "EMPRESA" : rol.toUpperCase();
+    const rolSeleccionado = rol === "productor" ? "PRODUCER" : "BUYER";
+
     window.location.href = `${API_BASE.replace("/api", "")}/oauth2/authorization/google?role=${rolSeleccionado}`;
   };
-
-
 
   const getPasswordStrength = (pass) => {
     if (!pass) return { score: 0, label: "", color: "#e0e0e0", width: "0%" };
@@ -177,10 +182,10 @@ export default function Registro() {
     if (/[@$!%*?&.]/.test(pass)) score += 1;
 
     if (score <= 1)
-      return { score: 1, label: "DÃ©bil âŒ", color: "#e53935", width: "33%" };
+      return { score: 1, label: "Débil ❌", color: "#e53935", width: "33%" };
     if (score <= 3)
-      return { score: 2, label: "Media âš¡", color: "#ff9800", width: "66%" };
-    return { score: 3, label: "Fuerte ðŸ’ª", color: "#4caf50", width: "100%" };
+      return { score: 2, label: "Media ⚡", color: "#ff9800", width: "66%" };
+    return { score: 3, label: "Fuerte 💪", color: "#4caf50", width: "100%" };
   };
 
   const passwordStrength = getPasswordStrength(password);
@@ -191,7 +196,7 @@ export default function Registro() {
     if (!apellido.trim())
       errs.apellido = t("errors.required", "Campo requerido.");
     if (!email || !/\S+@\S+\.\S+/.test(email))
-      errs.email = t("errors.invalidEmail", "Ingresa un correo vÃ¡lido.");
+      errs.email = t("errors.invalidEmail", "Ingresa un correo válido.");
     if (!telefono.trim())
       errs.telefono = t("errors.required", "Campo requerido.");
 
@@ -200,16 +205,16 @@ export default function Registro() {
     if (!password) {
       errs.password = t("errors.required", "Campo requerido.");
     } else if (password.length < 8) {
-      errs.password = "La contraseÃ±a debe tener al menos 8 caracteres.";
+      errs.password = "La contraseña debe tener al menos 8 caracteres.";
     } else if (!strongPasswordRegex.test(password)) {
       errs.password =
-        "Debe contener al menos 1 mayÃºscula, 1 nÃºmero y 1 carÃ¡cter especial (ej: @$!%*?&.).";
+        "Debe contener al menos 1 mayúscula, 1 número y 1 carácter especial (ej: @$!%*?&.).";
     }
 
     if (password !== confirmPass)
       errs.confirmPass = t(
         "errors.passwordMismatch",
-        "Las contraseÃ±as no coinciden.",
+        "Las contraseñas no coinciden.",
       );
     if (rol === "productor" && !ubicacion.trim())
       errs.ubicacion = "Campo requerido para productores.";
@@ -228,18 +233,17 @@ export default function Registro() {
     setLoading(true);
     try {
       const payload = {
-        nombre,
-        apellido,
-        email,
-        telefono: codigoPais + telefono.trim(),
-        codigoPais,
+        firstName: nombre.trim(),
+        lastName: apellido.trim(),
+        email: email.trim().toLowerCase(),
         password,
-        confirmPassword: confirmPass,
-        rol:
-          rol === "comprador_empresa" ? "COMPRADOR_EMPRESA" : rol.toUpperCase(),
-        ubicacion: rol === "productor" ? ubicacion : undefined,
-        nombreEmpresa: rol === "comprador_empresa" ? nombreEmpresa : undefined,
-        nit: rol === "comprador_empresa" ? nit : undefined,
+        phone: `${codigoPais}${telefono.trim()}`,
+        role: rol === "productor" ? "PRODUCER" : "BUYER",
+        countryCode: codigoPais,
+        location: rol === "productor" ? ubicacion.trim() : null,
+        companyName: rol === "comprador_empresa" ? nombreEmpresa.trim() : null,
+        nit: rol === "comprador_empresa" ? nit.trim() : null,
+        isCompany: rol === "comprador_empresa",
       };
 
       await api.post("/auth/registro", payload);
@@ -247,12 +251,19 @@ export default function Registro() {
     } catch (err) {
       if (err.campos) {
         const mappedErrors = {};
+        const fieldMap = {
+          firstName: "nombre",
+          lastName: "apellido",
+          phone: "telefono",
+          countryCode: "codigoPais",
+          location: "ubicacion",
+          companyName: "nombreEmpresa",
+          confirmPassword: "confirmPass",
+        };
+
         Object.entries(err.campos).forEach(([field, msg]) => {
-          if (field === "confirmPassword") {
-            mappedErrors.confirmPass = msg;
-          } else {
-            mappedErrors[field] = msg;
-          }
+          const frontendField = fieldMap[field] || field;
+          mappedErrors[frontendField] = msg;
         });
         setErrors(mappedErrors);
       } else {
@@ -282,20 +293,20 @@ export default function Registro() {
           </div>
           <div>
             <div className="brand-name">AgroMarket</div>
-            <div className="brand-sub">ASAFRUT Â· ChigorodÃ³, Antioquia</div>
+            <div className="brand-sub">ASAFRUT · Chigorodó, Antioquia</div>
           </div>
         </Link>
 
         {success ? (
           <div className="success-screen">
-            <div className="success-checkmark">ðŸŽ‰</div>
-            <h1 className="page-title">Â¡Registro Exitoso!</h1>
+            <div className="success-checkmark">🎉</div>
+            <h1 className="page-title">¡Registro Exitoso!</h1>
             <p
               className="page-sub"
               style={{ maxWidth: "400px", margin: "8px auto 24px auto" }}
             >
               Tu cuenta ha sido creada exitosamente. Hemos enviado un correo de
-              verificaciÃ³n para activar tu cuenta.
+              verificación para activar tu cuenta.
             </p>
 
             <div className="success-card">
@@ -349,7 +360,7 @@ export default function Registro() {
             <p className="page-sub">
               {t(
                 "auth.registerSub",
-                "Selecciona tu perfil y Ãºnete a la revoluciÃ³n agrÃ­cola.",
+                "Selecciona tu perfil y únete a la revolución agrícola.",
               )}
             </p>
 
@@ -377,6 +388,9 @@ export default function Registro() {
                 className={`role-card${rol === "comprador" ? " selected" : ""}`}
                 id="roleComprador"
                 onClick={() => setRol("comprador")}
+                onKeyDown={(e) => e.key === "Enter" && setRol("comprador")}
+                role="button"
+                tabIndex={0}
               >
                 <div className="role-check">
                   <svg viewBox="0 0 10 8">
@@ -407,6 +421,11 @@ export default function Registro() {
                 className={`role-card${rol === "comprador_empresa" ? " selected" : ""}`}
                 id="roleEmpresa"
                 onClick={() => setRol("comprador_empresa")}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && setRol("comprador_empresa")
+                }
+                role="button"
+                tabIndex={0}
               >
                 <div className="role-check">
                   <svg viewBox="0 0 10 8">
@@ -439,6 +458,9 @@ export default function Registro() {
                 className={`role-card${rol === "productor" ? " selected" : ""}`}
                 id="roleProductor"
                 onClick={() => setRol("productor")}
+                onKeyDown={(e) => e.key === "Enter" && setRol("productor")}
+                role="button"
+                tabIndex={0}
               >
                 <div className="role-check">
                   <svg viewBox="0 0 10 8">
@@ -499,7 +521,7 @@ export default function Registro() {
                     className="form-input"
                     type="text"
                     id="apellido"
-                    placeholder="PÃ©rez"
+                    placeholder="Pérez"
                     value={apellido}
                     onChange={(e) => setApellido(e.target.value)}
                   />
@@ -513,7 +535,7 @@ export default function Registro() {
 
               <div className="form-group">
                 <label className="form-label" htmlFor="email">
-                  {t("auth.email", "Correo electrÃ³nico")}
+                  {t("auth.email", "Correo electrónico")}
                 </label>
                 <input
                   className="form-input"
@@ -533,7 +555,7 @@ export default function Registro() {
               {/* TELEFONO CON SELECTOR DE CODIGO PAIS Y SMS VERIFY */}
               <div className="form-group">
                 <label className="form-label" htmlFor="telefono">
-                  {t("auth.phone", "TelÃ©fono")}
+                  {t("auth.phone", "Teléfono")}
                 </label>
                 <div className="phone-input-container">
                   <select
@@ -563,18 +585,18 @@ export default function Registro() {
                 )}
               </div>
 
-              {/* CONTRASEÃ‘A */}
+              {/* CONTRASEÑA */}
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label" htmlFor="password">
-                    {t("auth.password", "ContraseÃ±a")}
+                    {t("auth.password", "Contraseña")}
                   </label>
                   <div style={{ position: "relative" }}>
                     <input
                       className="form-input"
                       type={showPassword ? "text" : "password"}
                       id="password"
-                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                      placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       style={{ paddingRight: "40px" }}
@@ -651,14 +673,14 @@ export default function Registro() {
 
                 <div className="form-group">
                   <label className="form-label" htmlFor="confirmPass">
-                    {t("auth.confirmPassword", "Confirmar contraseÃ±a")}
+                    {t("auth.confirmPassword", "Confirmar contraseña")}
                   </label>
                   <div style={{ position: "relative" }}>
                     <input
                       className="form-input"
                       type={showConfirmPassword ? "text" : "password"}
                       id="confirmPass"
-                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                      placeholder="••••••••"
                       value={confirmPass}
                       onChange={(e) => setConfirmPass(e.target.value)}
                       style={{ paddingRight: "40px" }}
@@ -722,13 +744,13 @@ export default function Registro() {
                   id="ubicacionGroup"
                 >
                   <label className="form-label" htmlFor="ubicacion">
-                    {t("auth.location", "UbicaciÃ³n / Vereda")}
+                    {t("auth.location", "Ubicación / Vereda")}
                   </label>
                   <input
                     className="form-input"
                     type="text"
                     id="ubicacion"
-                    placeholder="Ej. Vereda Las Margaritas, ChigorodÃ³"
+                    placeholder="Ej. Vereda Las Margaritas, Chigorodó"
                     value={ubicacion}
                     onChange={(e) => setUbicacion(e.target.value)}
                   />
@@ -853,8 +875,8 @@ export default function Registro() {
             </form>
 
             <div className="form-footer">
-              {t("auth.haveAccount", "Â¿Ya tienes cuenta?")}{" "}
-              <Link to="/login">{t("auth.signIn", "Inicia sesiÃ³n")}</Link>
+              {t("auth.haveAccount", "¿Ya tienes cuenta?")}{" "}
+              <Link to="/login">{t("auth.signIn", "Inicia sesión")}</Link>
             </div>
           </>
         )}
@@ -869,9 +891,9 @@ export default function Registro() {
           loading="lazy"
         />
         <div className="right-overlay">
-          <div className="right-badge">ðŸŒ¿ ASAFRUT Â· ChigorodÃ³, Antioquia</div>
+          <div className="right-badge">🌿 ASAFRUT · Chigorodó, Antioquia</div>
           <h2 className="right-title">
-            Del campo de UrabÃ¡
+            Del campo de Urabá
             <br />a tu hogar.
           </h2>
           <p className="right-sub">
@@ -880,7 +902,7 @@ export default function Registro() {
           </p>
           <div className="right-features">
             <div className="right-feat">
-              <span className="feat-icon">ðŸ”</span>
+              <span className="feat-icon">🔐</span>
               <span className="feat-text">
                 <strong style={{ color: "#fff" }}>Trazabilidad total</strong>
                 <br />
@@ -888,7 +910,7 @@ export default function Registro() {
               </span>
             </div>
             <div className="right-feat">
-              <span className="feat-icon">ðŸ’°</span>
+              <span className="feat-icon">💰</span>
               <span className="feat-text">
                 <strong style={{ color: "#fff" }}>Precios justos</strong>
                 <br />
@@ -896,11 +918,11 @@ export default function Registro() {
               </span>
             </div>
             <div className="right-feat">
-              <span className="feat-icon">ðŸšš</span>
+              <span className="feat-icon">🚚</span>
               <span className="feat-text">
-                <strong style={{ color: "#fff" }}>EnvÃ­os seguros</strong>
+                <strong style={{ color: "#fff" }}>Envíos seguros</strong>
                 <br />
-                Seguimiento en tiempo real desde UrabÃ¡ hasta tu puerta.
+                Seguimiento en tiempo real desde Urabá hasta tu puerta.
               </span>
             </div>
           </div>
@@ -909,4 +931,3 @@ export default function Registro() {
     </div>
   );
 }
-

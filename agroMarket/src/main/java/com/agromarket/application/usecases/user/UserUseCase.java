@@ -62,6 +62,25 @@ public class UserUseCase implements UserPort {
     }
 
     @Override
+    public void changeOwnPassword(Long id, String currentPassword, String newPassword) {
+        User user = findUser(id);
+
+        // NOTA: se asume que PasswordHashPort expone "matches(raw, hashed)"
+        // y que User expone "getPassword()" con el hash almacenado.
+        // Ajusta los nombres si en tu proyecto son distintos (verify, check,
+        // getPasswordHash, etc.)
+        if (!passwordHashPort.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("La contraseña actual no es correcta");
+        }
+
+        passwordPolicyService.validate(newPassword);
+
+        String hashed = passwordHashPort.hash(newPassword);
+
+        userPersistencePort.changePassword(id, hashed);
+    }
+
+    @Override
     public void enable(Long id) {
         User user = findUser(id);
         user.setActive(true);

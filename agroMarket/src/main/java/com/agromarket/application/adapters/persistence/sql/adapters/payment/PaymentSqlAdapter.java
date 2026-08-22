@@ -59,4 +59,10 @@ public class PaymentSqlAdapter implements PaymentPort {
     public boolean existsById(Long id) {
         return repository.existsById(id);
     }
+
+    @Override
+    public Optional<Payment> findByGatewayReference(String gatewayReference) {
+        return repository.findByGatewayReference(gatewayReference)
+                .map(entity -> entity.toDomain());
+    }
 }

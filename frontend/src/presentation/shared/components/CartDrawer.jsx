@@ -1,9 +1,9 @@
-// src/components/CartDrawer.jsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
+import "@/presentation/styles/CartDrawer.css";
 
 export default function CartDrawer({ isOpen, onClose }) {
   const { user, formatPrice } = useAuth();
@@ -11,55 +11,80 @@ export default function CartDrawer({ isOpen, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Cerrar con tecla Escape
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      return undefined;
     }
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
 
-  const handleCheckout = async () => {
-    if (cart.length === 0) return;
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      return;
+    }
+
     if (!user) {
       localStorage.setItem("redirect_after_login", "/checkout");
       onClose();
       navigate("/login?message=inicia_sesion");
       return;
     }
+
     onClose();
     navigate("/checkout");
   };
 
+  /*
+   * IMPORTANTE:
+   * Cuando el carrito está cerrado NO EXISTE ningún overlay
+   * ni ningún drawer en el DOM.
+   *
+   * Esto elimina definitivamente el problema de la pantalla
+   * oscura/desenfocada del Home.
+   */
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <>
-      {/* Overlay oscuro */}
       <div
-        className={`cart-drawer-overlay ${isOpen ? "open" : ""}`}
+        className="cart-drawer-overlay open"
         onClick={onClose}
+        aria-hidden="true"
       />
 
-      {/* Panel lateral */}
-      <div
-        className={`cart-drawer ${isOpen ? "open" : ""}`}
+      <aside
+        className="cart-drawer open"
         role="dialog"
+        aria-modal="true"
         aria-label="Carrito de compras"
       >
         <div className="cart-header">
           <div className="cart-header-title">
             {t("catalog.cartTitle", "Mi carrito")}
+
             <span className="cart-items-count">
               ({count} {t("catalog.cartItems", "items")})
             </span>
           </div>
+
           <button
+            type="button"
             className="cart-close"
             onClick={onClose}
             aria-label="Cerrar carrito"
@@ -71,7 +96,6 @@ export default function CartDrawer({ isOpen, onClose }) {
         <div className="cart-items">
           {cart.length === 0 ? (
             <div className="cart-empty">
-              {/* Ilustración SVG limpia y moderna */}
               <svg
                 viewBox="0 0 24 24"
                 width="80"
@@ -80,16 +104,25 @@ export default function CartDrawer({ isOpen, onClose }) {
                 stroke="currentColor"
                 strokeWidth="1.5"
                 className="cart-empty-svg"
+                aria-hidden="true"
               >
                 <circle cx="9" cy="21" r="1" />
                 <circle cx="20" cy="21" r="1" />
+
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+
                 <path strokeLinecap="round" d="M12 9h4M14 7v4" />
               </svg>
+
               <div className="cart-empty-text">
                 {t("catalog.emptyCart", "Tu carrito está vacío")}
               </div>
-              <button className="btn-keep-shopping-empty" onClick={onClose}>
+
+              <button
+                type="button"
+                className="btn-keep-shopping-empty"
+                onClick={onClose}
+              >
                 {t("catalog.startShopping", "Comenzar a comprar")}
               </button>
             </div>
@@ -99,14 +132,17 @@ export default function CartDrawer({ isOpen, onClose }) {
                 item.cantidadMinimaMayorista &&
                 item.precioMayorista &&
                 item.qty >= item.cantidadMinimaMayorista;
+
               let unitPrice = Number(item.precio);
               let isPromotion = false;
+
               if (isWholesale) {
                 unitPrice = Number(item.precioMayorista);
               } else if (item.enPromocion && item.precioPromocion) {
                 unitPrice = Number(item.precioPromocion);
                 isPromotion = true;
               }
+
               return (
                 <div key={item.id} className="cart-item-row">
                   <img
@@ -117,14 +153,17 @@ export default function CartDrawer({ isOpen, onClose }) {
                     alt={item.nombre}
                     className="cart-item-thumb"
                   />
+
                   <div className="cart-item-info">
                     <div className="cart-item-name">{item.nombre}</div>
+
                     <div className="cart-item-price">
                       {isWholesale ? (
                         <>
                           <span className="price-old">
                             {formatPrice(item.precio)}/kg
                           </span>
+
                           <span className="price-wholesale">
                             {formatPrice(unitPrice)}/kg
                           </span>
@@ -134,14 +173,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                           <span className="price-old">
                             {formatPrice(item.precio)}/kg
                           </span>
-                          <span
-                            className="price-promo"
-                            style={{
-                              color: "#e53e3e",
-                              marginLeft: "6px",
-                              fontWeight: "bold",
-                            }}
-                          >
+
+                          <span className="price-promo">
                             {formatPrice(unitPrice)}/kg
                           </span>
                         </>
@@ -149,26 +182,35 @@ export default function CartDrawer({ isOpen, onClose }) {
                         `${formatPrice(unitPrice)}/kg`
                       )}
                     </div>
+
                     <div className="cart-qty-controls">
                       <button
+                        type="button"
                         className="qty-btn"
                         onClick={() => updateQuantity(item.id, item.qty - 1)}
+                        aria-label="Disminuir cantidad"
                       >
                         −
                       </button>
+
                       <span className="qty-val">{item.qty}</span>
+
                       <button
+                        type="button"
                         className="qty-btn"
                         onClick={() => updateQuantity(item.id, item.qty + 1)}
+                        aria-label="Aumentar cantidad"
                       >
                         +
                       </button>
                     </div>
                   </div>
+
                   <button
+                    type="button"
                     className="cart-item-del"
                     onClick={() => removeFromCart(item.id)}
-                    aria-label="Eliminar item"
+                    aria-label={`Eliminar ${item.nombre}`}
                   >
                     ✕
                   </button>
@@ -182,29 +224,42 @@ export default function CartDrawer({ isOpen, onClose }) {
           <div className="cart-footer">
             <div className="cart-subtotal-row">
               <span>{t("catalog.subtotal", "Subtotal")}</span>
+
               <span className="cart-footer-price">{formatPrice(total)}</span>
             </div>
+
             <div className="cart-subtotal-row">
               <span>{t("catalog.shippingEst", "Envío estimado")}</span>
+
               <span className="cart-footer-price">{formatPrice(15000)}</span>
             </div>
+
             <div className="cart-total-row">
               <span>{t("catalog.total", "TOTAL")}</span>
+
               <span className="cart-footer-price-total">
                 {formatPrice(total + 15000)}
               </span>
             </div>
-            <button className="btn-checkout" onClick={handleCheckout}>
+
+            <button
+              type="button"
+              className="btn-checkout"
+              onClick={handleCheckout}
+            >
               {t("catalog.checkoutBtn", "Proceder al pago →")}
             </button>
-            <button className="btn-keep-shopping" onClick={onClose}>
+
+            <button
+              type="button"
+              className="btn-keep-shopping"
+              onClick={onClose}
+            >
               {t("catalog.keepShopping", "Seguir comprando")}
             </button>
           </div>
         )}
-      </div>
+      </aside>
     </>
   );
 }
-
-

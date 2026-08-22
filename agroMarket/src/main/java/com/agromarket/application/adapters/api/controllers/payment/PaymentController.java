@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.agromarket.application.adapters.api.request.payment.ConfirmPaymentRequest;
 import com.agromarket.application.adapters.api.request.payment.InitiatePaymentRequest;
 import com.agromarket.application.adapters.api.response.payment.PaymentInitiationResponse;
 import com.agromarket.application.adapters.api.response.payment.PaymentResponse;
+import com.agromarket.domain.exceptions.payment.PaymentNotFoundException;
 import com.agromarket.domain.ports.in.payment.PaymentPort;
 
 import jakarta.validation.Valid;
@@ -28,7 +31,16 @@ public class PaymentController {
 
     private final PaymentPort paymentPort;
 
-    @PostMapping
+    /**
+     * Alias de negocio: /api/v1/pagos/iniciar (vía ApiPathAliasFilter) llega
+     * aquí como POST /api/v1/payments, que ya existe. No se requiere método
+     * nuevo: el filtro de alias de prefijo ya resuelve /pagos -> /payments,
+     * así que un simple POST sin sufijo adicional en el frontend alcanza.
+     * Se documenta el mapeo explícito con @PostMapping({"", "/iniciar"})
+     * por si el frontend termina golpeando la ruta con el sufijo /iniciar
+     * dentro de /api/v1/payments (en vez de depender solo del filtro).
+     */
+    @PostMapping({ "", "/iniciar" })
     public ResponseEntity<PaymentInitiationResponse> initiatePayment(
             @Valid @RequestBody InitiatePaymentRequest request) {
 
@@ -64,6 +76,27 @@ public class PaymentController {
                         .toList());
     }
 
+    /**
+     * GET /api/v1/payments?gatewayReference={ref}
+     * Cuando se manda el parámetro, filtra por esa referencia y devuelve una
+     * lista de 0 o 1 elemento (mismo shape de respuesta que antes, para no
+     * romper a quien ya consume esta ruta sin el parámetro).
+     */
+    @GetMapping
+    public ResponseEntity<List<PaymentResponse>> getAll(
+            @RequestParam(required = false) String gatewayReference) {
+
+        if (gatewayReference == null || gatewayReference.isBlank()) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        return ResponseEntity.ok(
+                paymentPort.getByGatewayReference(gatewayReference)
+                        .map(PaymentResponse::fromResult)
+                        .map(List::of)
+                        .orElse(List.of()));
+    }
+
     @PatchMapping("/{id}/confirm")
     public ResponseEntity<PaymentResponse> confirm(
             @PathVariable Long id) {
@@ -71,6 +104,28 @@ public class PaymentController {
         return ResponseEntity.ok(
                 PaymentResponse.fromResult(
                         paymentPort.confirmPayment(id)));
+    }
+
+    /**
+     * Alias de negocio: /api/v1/pagos/confirmar, donde el frontend manda el
+     * ID del pago en el body en vez de en la URL. Decisión tomada (opción
+     * "menos invasiva" pedida en el prompt original): en vez de forzar al
+     * frontend a cambiar a PATCH /payments/{id}/confirm, se agrega este
+     * método que lee el ID del body y delega en la misma lógica de dominio
+     * (paymentPort.confirmPayment). Si el ID no existe, se propaga la misma
+     * PaymentNotFoundException que ya maneja el resto de la API.
+     */
+    @PostMapping("/confirmar")
+    public ResponseEntity<PaymentResponse> confirmFromBody(
+            @Valid @RequestBody ConfirmPaymentRequest request) {
+
+        if (request.paymentId() == null) {
+            throw new PaymentNotFoundException("Debe indicarse el ID del pago a confirmar");
+        }
+
+        return ResponseEntity.ok(
+                PaymentResponse.fromResult(
+                        paymentPort.confirmPayment(request.paymentId())));
     }
 
     @PatchMapping("/{id}/cancel")

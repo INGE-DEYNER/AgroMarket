@@ -1,6 +1,7 @@
 package com.agromarket.application.adapters.persistence.mongodb.repositories.payment;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -10,4 +11,6 @@ public interface PaymentMongoRepository
         extends MongoRepository<PaymentDocument, String> {
 
     List<PaymentDocument> findByOrderId(Long orderId);
+
+    Optional<PaymentDocument> findByGatewayReference(String gatewayReference);
 }

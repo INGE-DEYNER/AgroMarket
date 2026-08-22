@@ -6,7 +6,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import api from "@/infrastructure/http/api";
 import "@/presentation/styles/home.css";
 
-// â”€â”€ Skeleton loader reutilizable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Skeleton loader reutilizable ──────────────────────────────
 function Skeleton({ width = "100%", height = "20px", borderRadius = "6px" }) {
   return (
     <div
@@ -23,7 +23,7 @@ function Skeleton({ width = "100%", height = "20px", borderRadius = "6px" }) {
   );
 }
 
-// â”€â”€ Card de producto skeleton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Card de producto skeleton ─────────────────────────────────
 function ProductCardSkeleton() {
   return (
     <div className="product-card">
@@ -46,12 +46,12 @@ export default function Home() {
   const { user, formatPrice } = useAuth();
 
   const [productos, setProductos] = useState([]); // datos reales de la API
-  const [resenas, setResenas] = useState([]); // reseÃ±as reales de la API
+  const [resenas, setResenas] = useState([]); // reseñas reales de la API
   const [metrics, setMetrics] = useState(null); // null = cargando
   const [loadingProductos, setLoadingProductos] = useState(true);
   const [loadingResenas, setLoadingResenas] = useState(true);
 
-  // â”€â”€ Utilidad para extraer array de cualquier respuesta â”€â”€â”€â”€â”€â”€â”€
+  // ── Utilidad para extraer array de cualquier respuesta ───────
   const toArray = (res) => {
     if (!res) return [];
     if (Array.isArray(res)) return res;
@@ -63,7 +63,7 @@ export default function Home() {
     return [];
   };
 
-  // â”€â”€ Cargar productos destacados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Cargar productos destacados ──────────────────────────────
   useEffect(() => {
     (async () => {
       setLoadingProductos(true);
@@ -80,7 +80,7 @@ export default function Home() {
     })();
   }, []);
 
-  // â”€â”€ Cargar mÃ©tricas globales de la plataforma â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Cargar métricas globales de la plataforma ────────────────
   useEffect(() => {
     (async () => {
       try {
@@ -91,13 +91,13 @@ export default function Home() {
           totalProductos: 4,
           totalProductores: 4,
           precioPromedio: "$3.338",
-          calificacion: "4.8â˜…",
+          calificacion: "4.8★",
         });
       }
     })();
   }, []);
 
-  // â”€â”€ Cargar reseÃ±as reales â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Cargar reseñas reales ────────────────────────────────────
   useEffect(() => {
     (async () => {
       setLoadingResenas(true);
@@ -114,7 +114,7 @@ export default function Home() {
     })();
   }, []);
 
-  // â”€â”€ AnimaciÃ³n scroll â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Animación scroll ─────────────────────────────────────────
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries, obs) => {
@@ -147,7 +147,7 @@ export default function Home() {
     <div className="home-root">
       <Navbar />
 
-      {/* â”€â”€ HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="hero">
         <div className="hero-content">
           <div className="hero-left">
@@ -161,7 +161,7 @@ export default function Home() {
               >
                 <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
               </svg>{" "}
-              ASAFRUT Â· ChigorodÃ³, UrabÃ¡
+              ASAFRUT · Chigorodó, Urabá
             </div>
             <h1
               className="hero-title animate-fade-up"
@@ -170,15 +170,15 @@ export default function Home() {
               {
                 t(
                   "home.heroTitle",
-                  "Del campo de UrabÃ¡ directamente a tu mesa.",
-                ).split("UrabÃ¡")[0]
+                  "Del campo de Urabá directamente a tu mesa.",
+                ).split("Urabá")[0]
               }
-              <span>UrabÃ¡</span>
+              <span>Urabá</span>
               {
                 t(
                   "home.heroTitle",
-                  "Del campo de UrabÃ¡ directamente a tu mesa.",
-                ).split("UrabÃ¡")[1]
+                  "Del campo de Urabá directamente a tu mesa.",
+                ).split("Urabá")[1]
               }
             </h1>
             <p
@@ -187,7 +187,7 @@ export default function Home() {
             >
               {t(
                 "home.heroSub",
-                "Conectamos productores agrÃ­colas con compradores, eliminando intermediarios.",
+                "Conectamos productores agrícolas con compradores, eliminando intermediarios.",
               )}{" "}
               {t(
                 "home.heroSubExtra",
@@ -200,7 +200,7 @@ export default function Home() {
               style={{ transitionDelay: "0.3s" }}
             >
               {[
-                t("home.bullet1", "Productores activos de la regiÃ³n de UrabÃ¡"),
+                t("home.bullet1", "Productores activos de la región de Urabá"),
                 t("home.bullet2", "Pagos seguros con PSE y tarjeta"),
                 t("home.bullet3", "Seguimiento en tiempo real de tu pedido"),
               ].map((b, i) => (
@@ -218,7 +218,7 @@ export default function Home() {
               style={{ transitionDelay: "0.4s" }}
             >
               <Link to="/catalogo" className="btn btn-primary btn-lg">
-                {t("home.viewCatalog", "Ver catÃ¡logo â†’")}
+                {t("home.viewCatalog", "Ver catálogo →")}
               </Link>
               {!user && (
                 <Link to="/registro" className="btn btn-secondary btn-lg">
@@ -236,7 +236,7 @@ export default function Home() {
                   }
                   className="btn btn-secondary btn-lg"
                 >
-                  {t("home.goToDashboard", "Mi panel â†’")}
+                  {t("home.goToDashboard", "Mi panel →")}
                 </Link>
               )}
             </div>
@@ -291,43 +291,43 @@ export default function Home() {
                   <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                 </svg>
                 {metrics?.calificacion
-                  ? String(metrics.calificacion).replace("â˜…", "")
+                  ? String(metrics.calificacion).replace("★", "")
                   : "4.8"}
               </div>
               <div className="float-card-2-sub">
-                {t("home.floatCard2.desc", "CalificaciÃ³n promedio")}
+                {t("home.floatCard2.desc", "Calificación promedio")}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* â”€â”€ METRICS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── METRICS ─────────────────────────────────────────── */}
       <section className="metrics">
         <div className="metrics-grid">
           {[
             {
               val:
                 metrics === null
-                  ? "â€”"
+                  ? "—"
                   : metrics.totalProductos > 0
                     ? `${metrics.totalProductos}`
-                    : "â€”",
+                    : "—",
               label: t("home.metrics.products", "Productos publicados"),
             },
             {
               val: metrics?.totalProductores
                 ? `${metrics.totalProductores}`
-                : "â€”",
+                : "—",
               label: t("home.metrics.producers", "Productores activos"),
             },
             {
-              val: metrics?.precioPromedio ?? "â€”",
+              val: metrics?.precioPromedio ?? "—",
               label: t("home.metrics.avgPrice", "Precio promedio"),
             },
             {
-              val: metrics?.calificacion ?? "â€”",
-              label: t("home.metrics.avgRating", "CalificaciÃ³n promedio"),
+              val: metrics?.calificacion ?? "—",
+              label: t("home.metrics.avgRating", "Calificación promedio"),
             },
           ].map((m, i) => (
             <div
@@ -342,7 +342,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* â”€â”€ HOW IT WORKS (estÃ¡tico, no cambia) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── HOW IT WORKS (estático, no cambia) ───────────────── */}
       <section className="how-it-works" id="como-funciona">
         <div className="section-eyebrow animate-fade-up">
           {t("home.how.eyebrow", "PROCESO")}
@@ -351,7 +351,7 @@ export default function Home() {
           className="section-title animate-fade-up"
           style={{ transitionDelay: "0.1s" }}
         >
-          {t("home.how.title", "Tan fÃ¡cil como 3 pasos")}
+          {t("home.how.title", "Tan fácil como 3 pasos")}
         </h2>
         <p
           className="section-sub animate-fade-up"
@@ -369,7 +369,7 @@ export default function Home() {
               title: t("home.how.step1.title", "Crea tu cuenta"),
               desc: t(
                 "home.how.step1.desc",
-                "RegÃ­strate en menos de un minuto como comprador o productor y accede a la plataforma.",
+                "Regístrate en menos de un minuto como comprador o productor y accede a la plataforma.",
               ),
               icon: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
             },
@@ -378,7 +378,7 @@ export default function Home() {
               title: t("home.how.step2.title", "Encuentra tus frutas"),
               desc: t(
                 "home.how.step2.desc",
-                "Navega el catÃ¡logo, filtra por tipo, precio y disponibilidad para encontrar lo que necesitas.",
+                "Navega el catálogo, filtra por tipo, precio y disponibilidad para encontrar lo que necesitas.",
               ),
               icon: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
             },
@@ -410,7 +410,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* â”€â”€ FEATURED PRODUCTS (datos reales o skeleton) â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── FEATURED PRODUCTS (datos reales o skeleton) ───────── */}
       <section className="featured">
         <div className="featured-header animate-fade-up">
           <div>
@@ -422,7 +422,7 @@ export default function Home() {
             </h2>
           </div>
           <Link to="/catalogo" className="btn btn-secondary">
-            {t("home.featured.viewAll", "Ver catÃ¡logo completo â†’")}
+            {t("home.featured.viewAll", "Ver catálogo completo →")}
           </Link>
         </div>
 
@@ -431,7 +431,7 @@ export default function Home() {
             // Skeleton mientras carga
             [1, 2, 3, 4].map((i) => <ProductCardSkeleton key={i} />)
           ) : productos.length === 0 ? (
-            // Sin productos aÃºn â€” placeholder neutro
+            // Sin productos aún — placeholder neutro
             <div
               style={{
                 gridColumn: "1/-1",
@@ -454,7 +454,7 @@ export default function Home() {
               <p>
                 {t(
                   "home.featured.empty",
-                  "Los productos aparecerÃ¡n aquÃ­ cuando los productores publiquen su catÃ¡logo.",
+                  "Los productos aparecerán aquí cuando los productores publiquen su catálogo.",
                 )}
               </p>
               <Link
@@ -462,7 +462,7 @@ export default function Home() {
                 className="btn btn-primary"
                 style={{ marginTop: "16px", display: "inline-block" }}
               >
-                {t("home.featured.beFirst", "SÃ© el primero en publicar")}
+                {t("home.featured.beFirst", "Sé el primero en publicar")}
               </Link>
             </div>
           ) : (
@@ -473,7 +473,7 @@ export default function Home() {
                 p.productor?.nombre ||
                 p.productorNombre ||
                 p.nombreProductor ||
-                "â€”";
+                "—";
               const rating = p.calificacionPromedio ?? p.calificacion;
               return (
                 <div
@@ -514,8 +514,8 @@ export default function Home() {
                     <div className="product-meta">
                       <div className="product-rating">
                         {rating
-                          ? `â˜… ${Number(rating).toFixed(1)}`
-                          : t("home.featured.noRating", "Sin calificaciÃ³n")}
+                          ? `★ ${Number(rating).toFixed(1)}`
+                          : t("home.featured.noRating", "Sin calificación")}
                       </div>
                       <div
                         className={`product-badge${stock === 0 ? " out-of-stock" : ""}`}
@@ -539,7 +539,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* â”€â”€ FOR PRODUCERS (estÃ¡tico) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── FOR PRODUCERS (estático) ─────────────────────────── */}
       <section className="for-producers" id="asafrut">
         <div className="fp-content">
           <div className="fp-left">
@@ -561,7 +561,7 @@ export default function Home() {
             >
               {t(
                 "home.forProducers.sub",
-                "Ãšnete a la red de ASAFRUT y maximiza tus ganancias conectando directo con los compradores finales.",
+                "Únete a la red de ASAFRUT y maximiza tus ganancias conectando directo con los compradores finales.",
               )}
             </p>
             <div
@@ -577,7 +577,7 @@ export default function Home() {
                 ),
                 t(
                   "home.forProducers.f4",
-                  "ComunÃ­cate con compradores en tiempo real",
+                  "Comunícate con compradores en tiempo real",
                 ),
               ].map((item, i) => (
                 <div key={i} className="fp-item">
@@ -603,7 +603,7 @@ export default function Home() {
             <div className="fp-img-wrap">
               <img
                 src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800"
-                alt={t("home.forProducers.imgAlt", "Productor agrÃ­cola")}
+                alt={t("home.forProducers.imgAlt", "Productor agrícola")}
                 className="fp-img"
                 loading="lazy"
               />
@@ -636,7 +636,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* â”€â”€ TESTIMONIALS (solo si hay reseÃ±as reales) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── TESTIMONIALS (solo si hay reseñas reales) ─────────── */}
       {!loadingResenas && resenas.length > 0 && (
         <section className="testimonials" id="testimonios">
           <div className="test-header animate-fade-up">
@@ -662,7 +662,7 @@ export default function Home() {
                 >
                   <div className="test-quote-mark">"</div>
                   <div className="test-stars">
-                    {"â˜…".repeat(Math.min(r.calificacion || 5, 5))}
+                    {"★".repeat(Math.min(r.calificacion || 5, 5))}
                   </div>
                   <div className="test-content">{r.comentario}</div>
                   <div className="test-author">
@@ -671,10 +671,10 @@ export default function Home() {
                       <div className="test-name">{nombre}</div>
                       <div className="test-role">
                         {r.productoNombre
-                          ? `${t("home.testimonials.buyer", "Comprador")} Â· ${r.productoNombre}`
+                          ? `${t("home.testimonials.buyer", "Comprador")} · ${r.productoNombre}`
                           : t(
                               "home.testimonials.buyer",
-                              "Comprador Â· AgroMarket",
+                              "Comprador · AgroMarket",
                             )}
                       </div>
                     </div>
@@ -686,12 +686,12 @@ export default function Home() {
         </section>
       )}
 
-      {/* â”€â”€ CTA FINAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── CTA FINAL ────────────────────────────────────────── */}
       <section className="cta-final">
         <div className="cta-overlay" />
         <div className="cta-content">
           <h2 className="cta-title animate-fade-up">
-            {t("home.cta.title", "Â¿Listo para empezar?")}
+            {t("home.cta.title", "¿Listo para empezar?")}
           </h2>
           <p
             className="cta-sub animate-fade-up"
@@ -699,7 +699,7 @@ export default function Home() {
           >
             {t(
               "home.cta.sub",
-              "Ãšnete a AgroMarket y sÃ© parte del comercio justo agrÃ­cola.",
+              "Únete a AgroMarket y sé parte del comercio justo agrícola.",
             )}
           </p>
           <div
@@ -707,7 +707,7 @@ export default function Home() {
             style={{ transitionDelay: "0.2s" }}
           >
             <Link to="/catalogo" className="btn btn-white btn-lg">
-              {t("home.cta.explore", "Explorar catÃ¡logo")}
+              {t("home.cta.explore", "Explorar catálogo")}
             </Link>
             <Link to="/registro" className="btn btn-outline-white btn-lg">
               {t("home.cta.register", "Registrarme gratis")}
@@ -730,6 +730,3 @@ export default function Home() {
     </div>
   );
 }
-
-
-

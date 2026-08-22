@@ -3,6 +3,7 @@ package com.agromarket.application.usecases.payment;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,6 +114,22 @@ public class PaymentUseCase implements PaymentPort {
                 Payment payment = findPayment(id);
 
                 return toResult(payment);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public Optional<PaymentResult> getByGatewayReference(String gatewayReference) {
+
+                if (gatewayReference == null
+                                || gatewayReference.isBlank()) {
+
+                        throw new IllegalArgumentException(
+                                        "La referencia de pasarela no puede estar vacía");
+                }
+
+                return paymentPort
+                                .findByGatewayReference(gatewayReference)
+                                .map(this::toResult);
         }
 
         @Override

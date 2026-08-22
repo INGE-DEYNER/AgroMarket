@@ -3,10 +3,10 @@ package com.agromarket.application.adapters.api.controllers.payment;
 import com.agromarket.domain.models.payment.Invoice;
 import com.agromarket.domain.ports.in.payment.InvoiceResult;
 import com.agromarket.domain.ports.out.payment.InvoicePort;
+import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,9 +18,16 @@ public class InvoiceController {
 
     private final InvoicePort invoicePort;
 
-    @GetMapping("/mine")
-    public ResponseEntity<List<InvoiceResult>> getMyInvoices(@AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = 1L; // TODO: Extraer userId del token JWT (userDetails.getUserId())
+    /**
+     * FIX: antes usaba un userId hardcodeado (1L) con un TODO. Ahora se usa
+     * el userId real del token vía @AuthenticationPrincipal JwtUserPrincipal.
+     * Se agrega también el alias en español "/mis-facturas" que espera el
+     * frontend, sin eliminar "/mine".
+     */
+    @GetMapping({ "/mine", "/mis-facturas" })
+    public ResponseEntity<List<InvoiceResult>> getMyInvoices(
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+        Long userId = principal.getUserId();
         List<InvoiceResult> invoices = invoicePort.findByUserId(userId)
                 .stream()
                 .map(this::toResult)

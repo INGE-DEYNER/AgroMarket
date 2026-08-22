@@ -1,4 +1,3 @@
-// infrastructure/security/JwtAuthenticationFilter.java
 package com.agromarket.infrastructure.security;
 
 import java.io.IOException;
@@ -17,12 +16,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * Filtro JWT para autenticación HTTP.
- */
 @Component
-public class JwtAuthenticationFilter
-                extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         private final JwtTokenProvider jwtTokenProvider;
         private final UserDetailsServiceImpl userDetailsService;
@@ -43,55 +38,70 @@ public class JwtAuthenticationFilter
                         throws ServletException, IOException {
 
                 String path = request.getRequestURI();
-                
-                // Skip JWT validation for public endpoints
-                if (path.startsWith("/api/public/") || 
-                    path.startsWith("/api/divisas/") ||
-                    path.startsWith("/api/productos/") ||
-                    path.startsWith("/api/resenas/") ||
-                    path.startsWith("/actuator/")) {
+
+                /*
+                 * ============================================================
+                 * ENDPOINTS PÚBLICOS
+                 * ============================================================
+                 *
+                 * IMPORTANTE:
+                 * Se comprueba tanto la ruta exacta como sus subrutas.
+                 *
+                 * Ejemplo:
+                 *
+                 * /api/productos
+                 * /api/productos/123
+                 *
+                 * /api/resenas
+                 * /api/resenas/123
+                 */
+
+                if (isPublicEndpoint(path)) {
                         filterChain.doFilter(request, response);
                         return;
                 }
 
-                String header = request.getHeader(
-                                HttpHeaders.AUTHORIZATION);
+                /*
+                 * ============================================================
+                 * JWT
+                 * ============================================================
+                 */
 
-                if (header == null
-                                || !header.startsWith("Bearer ")) {
+                String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-                        filterChain.doFilter(
-                                        request,
-                                        response);
-
+                /*
+                 * Si no existe token, no intentamos autenticar.
+                 *
+                 * Spring Security decidirá posteriormente si la ruta
+                 * necesita autenticación.
+                 */
+                if (header == null || !header.startsWith("Bearer ")) {
+                        filterChain.doFilter(request, response);
                         return;
                 }
 
-                String token = header
-                                .substring(7)
-                                .trim();
+                String token = header.substring(7).trim();
 
-                if (token.isBlank()
-                                || !jwtTokenProvider.validateToken(token)) {
-
+                /*
+                 * Token vacío o inválido.
+                 */
+                if (token.isBlank() || !jwtTokenProvider.validateToken(token)) {
                         unauthorized(response);
                         return;
                 }
 
                 try {
+
                         Optional<Long> userId = jwtTokenProvider.extractUserId(token);
 
                         Optional<String> tokenRole = jwtTokenProvider.extractRole(token);
 
-                        if (userId.isEmpty()
-                                        || tokenRole.isEmpty()) {
-
+                        if (userId.isEmpty() || tokenRole.isEmpty()) {
                                 unauthorized(response);
                                 return;
                         }
 
-                        UserDetails userDetails = userDetailsService.loadUserById(
-                                        userId.get());
+                        UserDetails userDetails = userDetailsService.loadUserById(userId.get());
 
                         if (!(userDetails instanceof JwtUserPrincipal principal)) {
                                 unauthorized(response);
@@ -100,9 +110,8 @@ public class JwtAuthenticationFilter
 
                         String actualRole = principal.getRole();
 
-                        if (actualRole == null
-                                        || !actualRole.equals(
-                                                        tokenRole.get())) {
+                        if (actualRole == null ||
+                                        !actualRole.equals(tokenRole.get())) {
 
                                 unauthorized(response);
                                 return;
@@ -119,9 +128,7 @@ public class JwtAuthenticationFilter
                                         .getContext()
                                         .setAuthentication(authentication);
 
-                        filterChain.doFilter(
-                                        request,
-                                        response);
+                        filterChain.doFilter(request, response);
 
                 } catch (Exception exception) {
 
@@ -130,6 +137,48 @@ public class JwtAuthenticationFilter
 
                         unauthorized(response);
                 }
+        }
+
+        /**
+         * Determina si una ruta es completamente pública.
+         */
+        private boolean isPublicEndpoint(String path) {
+
+                /*
+                 * Excepción: /mis-productos requiere autenticación (necesita
+                 * saber quién es el productor), aunque cuelgue de
+                 * /api/v1/products, que en general SÍ es público para GET.
+                 */
+                if (path.equals("/api/v1/products/mis-productos")) {
+                        return false;
+                }
+
+                return matches(path, "/api/public")
+                                || matches(path, "/api/divisas")
+                                || matches(path, "/api/productos")
+                                || matches(path, "/api/resenas")
+                                || matches(path, "/api/auth")
+                                || matches(path, "/api/v1/auth")
+                                || matches(path, "/api/v1/products")
+                                || matches(path, "/api/v1/reviews")
+                                || matches(path, "/actuator");
+        }
+
+        /**
+         * Permite:
+         *
+         * /api/productos
+         * /api/productos/
+         * /api/productos/123
+         *
+         * pero no confunde rutas como:
+         *
+         * /api/productosXYZ
+         */
+        private boolean matches(String path, String basePath) {
+
+                return path.equals(basePath)
+                                || path.startsWith(basePath + "/");
         }
 
         private void unauthorized(
@@ -148,9 +197,9 @@ public class JwtAuthenticationFilter
                 response.getWriter().write(
                                 """
                                                 {
-                                                  "status": 401,
-                                                  "error": "Unauthorized",
-                                                  "message": "Token inválido o expirado"
+                                                    "status": 401,
+                                                    "error": "Unauthorized",
+                                                    "message": "Token inválido o expirado"
                                                 }
                                                 """);
         }

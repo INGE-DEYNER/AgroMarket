@@ -70,9 +70,9 @@ public class SecurityConfig {
 
                                                 // Autenticación.
                                                 .requestMatchers(
+                                                                "/api/auth/**",
                                                                 "/api/v1/auth/**")
                                                 .permitAll()
-
                                                 // OAuth2.
                                                 .requestMatchers(
                                                                 "/oauth2/**",
@@ -85,6 +85,14 @@ public class SecurityConfig {
                                                                 "/actuator/health/**",
                                                                 "/api/public/**")
                                                 .permitAll()
+
+                                                // Productos del productor autenticado: debe ir ANTES que la
+                                                // regla pública de abajo, porque Spring Security aplica la
+                                                // primera regla que matchee.
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/v1/products/mis-productos")
+                                                .authenticated()
 
                                                 // Catálogo público (rutas del frontend sin /v1/).
                                                 .requestMatchers(

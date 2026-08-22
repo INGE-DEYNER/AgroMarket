@@ -81,6 +81,18 @@ public interface UserPort {
   void changePassword(Long id, String newPassword);
 
   /**
+   * Cambia la contraseña del propio usuario autenticado, verificando primero
+   * que la contraseña actual sea correcta.
+   *
+   * @param id              ID del usuario (extraído del token, nunca del body)
+   * @param currentPassword contraseña actual en texto plano, para verificar
+   * @param newPassword     nueva contraseña en texto plano
+   * @throws com.agromarket.domain.exceptions.user.InvalidCredentialsException
+   *                        si la contraseña actual no coincide
+   */
+  void changeOwnPassword(Long id, String currentPassword, String newPassword);
+
+  /**
    * Habilita un usuario.
    *
    * 

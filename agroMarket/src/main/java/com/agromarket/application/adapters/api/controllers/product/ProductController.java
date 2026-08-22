@@ -12,6 +12,8 @@ import com.agromarket.application.adapters.api.response.product.*;
 import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.user.User;
 import com.agromarket.domain.ports.in.product.*;
+import com.agromarket.infrastructure.security.JwtUserPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -77,6 +79,17 @@ public class ProductController {
     @GetMapping("/producer/{producerId}")
     public List<ProductSummaryResponse> producer(@PathVariable Long producerId) {
         return productPort.getProductsByProducer(producerId).stream().map(x -> summary(x)).collect(Collectors.toList());
+    }
+
+    /**
+     * Productos del productor actualmente autenticado (usado por el
+     * dashboard de productor: GET /api/v1/productos/mis-productos, alias
+     * hacia esta ruta vía ApiPathAliasFilter).
+     */
+    @GetMapping("/mis-productos")
+    public List<ProductSummaryResponse> misProductos(@AuthenticationPrincipal JwtUserPrincipal principal) {
+        return productPort.getProductsByProducer(principal.getUserId()).stream().map(x -> summary(x))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/search")

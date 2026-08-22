@@ -49,7 +49,45 @@
   --sidebar-w: 280px;
   --navbar-h: 60px;
 }
+/* ============================================================
+   AGROMARKET — TEMA OSCURO GLOBAL
+   ============================================================ */
 
+html.dark {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface2: #263449;
+  --surface3: #334155;
+
+  --border: rgba(148, 163, 184, 0.2);
+  --border-light: rgba(148, 163, 184, 0.12);
+
+  --text: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-dim: #94a3b8;
+
+  --primary-dark: #15803d;
+  --primary: #22a052;
+  --primary-light: #4ade80;
+
+  --green-bg: #123c25;
+
+  --gold: #f59e0b;
+  --gold-bg: #422006;
+  --gold-border: #92400e;
+
+  --red: #ef4444;
+  --red-bg: #450a0a;
+
+  --blue: #3b82f6;
+  --blue-bg: #172554;
+
+  --gray-bg: #374151;
+
+  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
 /* ─── RESET & BASE ─── */
 *,
 *::before,
@@ -251,8 +289,8 @@ img {
 }
 .nav-dropdown a:hover,
 .nav-dropdown button:hover {
-  background: var(--color-surface-2);
-  color: var(--color-primary);
+  background: var(--surface2);
+  color: var(--primary);
 }
 .nav-logout {
   color: #ef4444 !important;
@@ -1727,32 +1765,54 @@ tbody tr:hover {
 .cart-drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   z-index: 9998;
+
+  /* IMPORTANTE */
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
 }
+
 .cart-drawer-overlay.open {
   opacity: 1;
-  pointer-events: all;
+  visibility: visible;
+  pointer-events: auto;
 }
-.cart-drawer {
+/* ============================================================
+   CART DRAWER OVERLAY
+   ============================================================ */
+
+.cart-drawer-overlay {
   position: fixed;
-  top: 0;
-  right: 0;
-  width: 380px;
-  height: 100vh;
-  background: white;
-  z-index: 9999;
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-  display: flex;
-  flex-direction: column;
+  inset: 0;
+  z-index: 9998;
+
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+
+  /* CERRADO POR DEFECTO */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
 }
-.cart-drawer.open {
-  transform: translateX(0);
+
+.cart-drawer-overlay.open {
+  /* ABIERTO */
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 .cart-header {
   padding: 20px 24px;
@@ -2019,4 +2079,224 @@ body {
   .dashboard-grid {
     grid-template-columns: 1fr !important;
   }
+}
+/* ============================================================
+   AGROMARKET - COMPONENTES GLOBALES DARK MODE
+   ============================================================ */
+
+html.dark body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---------- NAVBAR ---------- */
+
+html.dark .navbar-header {
+  background: rgba(15, 23, 42, 0.96);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .navbar-header.scrolled {
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+html.dark .navbar-categories {
+  background: #172235;
+  border-top-color: #334155;
+}
+
+html.dark .nav-cats-inner a {
+  color: #cbd5e1;
+}
+
+html.dark .nav-cats-inner a:hover {
+  color: var(--primary-light);
+}
+
+/* ---------- BUSCADOR ---------- */
+
+html.dark .nav-search input {
+  background: var(--surface);
+  color: var(--text);
+}
+
+html.dark .nav-search input::placeholder {
+  color: var(--text-dim);
+}
+
+/* ---------- DROPDOWN ---------- */
+
+html.dark .nav-dropdown {
+  background: #1e293b;
+  border-color: #475569;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+html.dark .nav-dropdown a,
+html.dark .nav-dropdown button {
+  color: var(--text);
+}
+
+html.dark .nav-dropdown a:hover,
+html.dark .nav-dropdown button:hover {
+  background: #334155;
+  color: var(--primary-light);
+}
+
+/* ---------- SIDEBAR ---------- */
+
+html.dark .sidebar {
+  background: var(--surface);
+  border-right-color: var(--border);
+}
+
+html.dark .sidebar-user {
+  background: var(--surface2);
+}
+
+html.dark .sidebar-link {
+  color: var(--text-muted);
+}
+
+html.dark .sidebar-link:hover {
+  background: var(--green-bg);
+  color: var(--primary-light);
+}
+
+/* ---------- CARDS ---------- */
+
+html.dark .stat-card,
+html.dark .product-card,
+html.dark .card-table {
+  background: var(--surface);
+  border-color: var(--border-light);
+  color: var(--text);
+}
+
+/* ---------- PRODUCTOS ---------- */
+
+html.dark .product-img-container {
+  background: var(--surface2);
+}
+
+html.dark .product-name {
+  color: var(--text);
+}
+
+html.dark .product-price {
+  color: var(--primary-light);
+}
+
+/* ---------- TABLAS ---------- */
+
+html.dark .table-header {
+  border-bottom-color: var(--border);
+}
+
+html.dark .table-responsive tbody tr {
+  background: var(--surface);
+}
+
+html.dark th {
+  background: var(--surface2);
+  color: var(--text-muted);
+}
+
+html.dark td {
+  color: var(--text);
+  border-bottom-color: var(--border);
+}
+
+html.dark tbody tr:hover {
+  background: var(--surface2);
+}
+
+/* ---------- FORMULARIOS ---------- */
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background: var(--surface);
+  color: var(--text);
+  border-color: #475569;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--text-dim);
+}
+
+/* ---------- MODALES ---------- */
+
+html.dark .modal {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+html.dark .modal-title {
+  color: var(--text);
+}
+
+/* ---------- BOTONES ---------- */
+
+html.dark .btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html.dark .btn-secondary:hover {
+  background: var(--surface2);
+}
+
+/* ---------- CARRITO ---------- */
+
+html.dark .cart-drawer {
+  background: var(--surface);
+  color: var(--text);
+}
+
+html.dark .cart-header {
+  background: var(--surface);
+  border-bottom-color: var(--border);
+}
+
+html.dark .cart-items {
+  background: var(--surface);
+}
+
+html.dark .cart-footer {
+  background: var(--surface2);
+  border-top-color: var(--border);
+}
+
+html.dark .qty-btn {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html.dark .qty-btn:hover {
+  background: var(--surface3);
+}
+
+/* ---------- MOBILE NAV ---------- */
+
+html.dark .mobile-bottom-nav {
+  background: var(--surface) !important;
+  border-top-color: var(--border) !important;
+}
+
+/* ---------- SCROLLBAR ---------- */
+
+html.dark::-webkit-scrollbar-track,
+html.dark body::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+html.dark::-webkit-scrollbar-thumb,
+html.dark body::-webkit-scrollbar-thumb {
+  background: #475569;
 }

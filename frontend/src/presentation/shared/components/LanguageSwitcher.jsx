@@ -1,22 +1,67 @@
-import { useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const LANGUAGES = [
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'en', label: 'English', flag: '🇺🇸' },
-  { code: 'pt', label: 'Português', flag: '🇧🇷' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { code: 'zh', label: '中文', flag: '🇨🇳' },
-  { code: 'ar', label: 'العربية', flag: '🇸🇦' },
+  {
+    code: "es",
+    label: "Español",
+    flag: "🇪🇸",
+  },
+  {
+    code: "en",
+    label: "English",
+    flag: "🇺🇸",
+  },
+  {
+    code: "pt",
+    label: "Português",
+    flag: "🇧🇷",
+  },
+  {
+    code: "fr",
+    label: "Français",
+    flag: "🇫🇷",
+  },
+  {
+    code: "de",
+    label: "Deutsch",
+    flag: "🇩🇪",
+  },
+  {
+    code: "zh",
+    label: "中文",
+    flag: "🇨🇳",
+  },
+  {
+    code: "ar",
+    label: "العربية",
+    flag: "🇸🇦",
+  },
 ];
+
+function normalizeLanguage(language) {
+  if (!language) {
+    return "es";
+  }
+
+  return language.split("-")[0].toLowerCase();
+}
 
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
+
   const [isOpen, setIsOpen] = useState(false);
+  const [changing, setChanging] = useState(false);
+
   const dropdownRef = useRef(null);
 
-  const currentLang = LANGUAGES.find((l) => l.code === i18n.language) || LANGUAGES[0];
+  const activeLanguage = normalizeLanguage(
+    i18n.resolvedLanguage || i18n.language,
+  );
+
+  const currentLang =
+    LANGUAGES.find((language) => language.code === activeLanguage) ||
+    LANGUAGES[0];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -24,88 +69,205 @@ export default function LanguageSwitcher() {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
-  const selectLanguage = (code) => {
-    i18n.changeLanguage(code);
-    setIsOpen(false);
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  const selectLanguage = async (code) => {
+    const normalizedCode = normalizeLanguage(code);
+
+    if (
+      changing ||
+      normalizedCode === activeLanguage ||
+      !LANGUAGES.some((language) => language.code === normalizedCode)
+    ) {
+      setIsOpen(false);
+      return;
+    }
+
+    try {
+      setChanging(true);
+
+      await i18n.changeLanguage(normalizedCode);
+
+      // Persistencia explícita
+      localStorage.setItem("i18nextLng", normalizedCode);
+
+      // Mantener HTML sincronizado
+      document.documentElement.lang = normalizedCode;
+
+      setIsOpen(false);
+    } catch (error) {
+      console.error(
+        `No se pudo cambiar el idioma a "${normalizedCode}":`,
+        error,
+      );
+    } finally {
+      setChanging(false);
+    }
   };
 
   return (
-    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+    <div
+      ref={dropdownRef}
+      className="language-switcher"
+      style={{
+        position: "relative",
+        display: "inline-flex",
+      }}
+    >
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+        onClick={() => setIsOpen((previous) => !previous)}
+        disabled={changing}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label="Seleccionar idioma"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          background: 'transparent',
-          color: 'var(--text-main, #333)',
-          border: '1px solid var(--border-light, #e5e7eb)',
-          borderRadius: '8px',
-          padding: '6px 10px',
-          fontSize: '0.85rem',
-          cursor: 'pointer',
-          fontWeight: '500',
-          transition: 'all 0.2s',
-          backgroundColor: '#fff',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "6px",
+          minWidth: "82px",
+          height: "40px",
+          padding: "0 10px",
+          background: "var(--color-surface, #ffffff)",
+          color: "var(--color-text-primary, #1f2937)",
+          border: "1px solid var(--color-border, #e5e7eb)",
+          borderRadius: "8px",
+          cursor: changing ? "wait" : "pointer",
+          fontSize: "14px",
+          fontWeight: "600",
+          opacity: changing ? 0.7 : 1,
+          transition: "all 0.2s ease",
         }}
       >
-        <span style={{ fontSize: '1.1rem' }}>{currentLang.flag}</span>
+        <span
+          aria-hidden="true"
+          style={{
+            fontSize: "18px",
+            lineHeight: 1,
+          }}
+        >
+          {currentLang.flag}
+        </span>
+
         <span>{currentLang.code.toUpperCase()}</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>
-          <polyline points="6 9 12 15 18 9"></polyline>
+
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s ease",
+          }}
+          aria-hidden="true"
+        >
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
 
       {isOpen && (
         <div
+          role="listbox"
+          aria-label="Idiomas disponibles"
           style={{
-            position: 'absolute',
-            top: '100%',
+            position: "absolute",
+            top: "calc(100% + 6px)",
             right: 0,
-            marginTop: '4px',
-            backgroundColor: '#ffffff',
-            border: '1px solid var(--border-light, #e5e7eb)',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            zIndex: 1000,
-            minWidth: '130px',
-            overflow: 'hidden',
+            minWidth: "170px",
+            padding: "6px",
+            background: "var(--color-surface, #ffffff)",
+            border: "1px solid var(--color-border, #e5e7eb)",
+            borderRadius: "10px",
+            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.12)",
+            zIndex: 10000,
           }}
         >
-          {LANGUAGES.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => selectLanguage(lang.code)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                width: '100%',
-                padding: '8px 12px',
-                background: i18n.language === lang.code ? '#f3f4f6' : 'transparent',
-                border: 'none',
-                textAlign: 'left',
-                cursor: 'pointer',
-                fontSize: '0.85rem',
-                color: i18n.language === lang.code ? 'var(--primary, #2d6a4f)' : '#4b5563',
-                fontWeight: i18n.language === lang.code ? '600' : '400',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={(e) => (e.target.style.background = '#f9fafb')}
-              onMouseLeave={(e) => (e.target.style.background = i18n.language === lang.code ? '#f3f4f6' : 'transparent')}
-            >
-              <span style={{ fontSize: '1.1rem' }}>{lang.flag}</span>
-              {lang.label}
-            </button>
-          ))}
+          {LANGUAGES.map((language) => {
+            const selected = activeLanguage === language.code;
+
+            return (
+              <button
+                key={language.code}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                disabled={changing}
+                onClick={() => selectLanguage(language.code)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  width: "100%",
+                  minHeight: "40px",
+                  padding: "8px 10px",
+                  border: "none",
+                  borderRadius: "7px",
+                  background: selected
+                    ? "var(--color-primary-light, #d1fae5)"
+                    : "transparent",
+                  color: selected
+                    ? "var(--color-primary-dark, #065f46)"
+                    : "var(--color-text-primary, #1f2937)",
+                  cursor: changing ? "wait" : "pointer",
+                  fontSize: "14px",
+                  fontWeight: selected ? "700" : "500",
+                  textAlign: "left",
+                }}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    fontSize: "18px",
+                    lineHeight: 1,
+                  }}
+                >
+                  {language.flag}
+                </span>
+
+                <span>{language.label}</span>
+
+                {selected && (
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      marginLeft: "auto",
+                      fontWeight: "700",
+                    }}
+                  >
+                    ✓
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
-
-
