@@ -82,7 +82,9 @@ i18n
 
 // Actualiza el atributo lang del HTML cada vez que cambia el idioma
 i18n.on("languageChanged", (language) => {
-  document.documentElement.lang = language || "es";
+  const normalized = (language || "es").split("-")[0].toLowerCase();
+  document.documentElement.lang = normalized;
+  document.documentElement.dir = normalized === "ar" ? "rtl" : "ltr";
 });
 
 export default i18n;

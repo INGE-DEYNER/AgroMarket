@@ -1,21 +1,23 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import "@/presentation/styles/envios.css";
 import "@/presentation/styles/mensajeria.css";
+import "@/presentation/styles/productor.css";
 
 const TIPOS = [
   "Banano",
-  "PiÃ±a",
+  "Piña",
   "Mango",
-  "MaracuyÃ¡",
-  "GuanÃ¡bana",
+  "Maracuyá",
+  "Guanábana",
   "Naranja",
   "Coco",
-  "LimÃ³n",
+  "Limón",
 ];
 
 export default function DashboardProductor() {
@@ -92,6 +94,8 @@ export default function DashboardProductor() {
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
 
+  const [resenasProductor, setResenasProductor] = useState([]);
+
   // Profile Form state
   const [perfilForm, setPerfilForm] = useState({ nombre: "", telefono: "" });
   const [pwForm, setPwForm] = useState({
@@ -134,8 +138,8 @@ export default function DashboardProductor() {
 
   // Initialization
   useEffect(() => {
-    loadProductos();
-    loadPedidos();
+    void loadProductos();
+    void loadPedidos();
   }, [loadProductos, loadPedidos]);
 
   const loadActiveRfqs = useCallback(async () => {
@@ -163,16 +167,16 @@ export default function DashboardProductor() {
         precioPropuesto: parseFloat(bidForm.precioPropuesto),
         comentarios: bidForm.comentarios,
       });
-      setBidMsg({ type: "success", text: "CotizaciÃ³n enviada exitosamente." });
+      setBidMsg({ type: "success", text: "Cotización enviada exitosamente." });
       setBidForm({ precioPropuesto: "", comentarios: "" });
       setTimeout(() => {
         setBiddingRfq(null);
-        loadActiveRfqs();
+        void loadActiveRfqs();
       }, 1500);
     } catch (err) {
       setBidMsg({
         type: "error",
-        text: err.message || "Error al enviar la cotizaciÃ³n.",
+        text: err.message || "Error al enviar la cotización.",
       });
     }
   };
@@ -204,7 +208,7 @@ export default function DashboardProductor() {
     try {
       await api.put(`/envios/${selectedShipment.id}`, updateShipmentForm);
       setUpdateShipmentModalOpen(false);
-      loadEnvios();
+      void loadEnvios();
     } catch (err) {
       alert("Error al actualizar despacho: " + err.message);
     }
@@ -225,14 +229,31 @@ export default function DashboardProductor() {
     }
   }, [extractArray]);
 
+  const loadResenasProductor = useCallback(async () => {
+    try {
+      const data = await api.get("/resenas");
+      const items = extractArray(data);
+      const producerId = user?.id;
+      setResenasProductor(items.filter((r) => {
+        const reviewProducerId = r.productorId ?? r.productor?.id ?? r.product?.productorId ?? r.producto?.productorId;
+        return producerId != null && reviewProducerId != null && String(reviewProducerId) === String(producerId);
+      }));
+    } catch (err) {
+      console.error("Error loadResenasProductor:", err);
+      setResenasProductor([]);
+    }
+  }, [extractArray, user]);
+
   // Section Loading triggers
   useEffect(() => {
     if (activeSection === "seguimiento") {
-      loadEnvios();
+      void loadEnvios();
     } else if (activeSection === "mensajeria") {
-      loadContactos();
+      void loadContactos();
     } else if (activeSection === "rfq") {
-      loadActiveRfqs();
+      void loadActiveRfqs();
+    } else if (activeSection === "resenas") {
+      void loadResenasProductor();
     } else if (activeSection === "perfil" && user) {
       setPerfilForm({
         nombre: user.nombre || "",
@@ -241,7 +262,7 @@ export default function DashboardProductor() {
       setPerfilMsg({ type: "", text: "" });
       setPwMsg({ type: "", text: "" });
     }
-  }, [activeSection, user, loadEnvios, loadContactos, loadActiveRfqs]);
+  }, [activeSection, user, loadEnvios, loadContactos, loadActiveRfqs, loadResenasProductor]);
 
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
@@ -325,14 +346,14 @@ export default function DashboardProductor() {
     e.preventDefault();
     setPwMsg({ type: "", text: "" });
     if (!pwForm.contrasenaActual || !pwForm.nuevaContrasena) {
-      setPwMsg({ type: "error", text: "Ambas contraseÃ±as son obligatorias." });
+      setPwMsg({ type: "error", text: "Ambas contraseñas son obligatorias." });
       return;
     }
     try {
       await api.put("/usuarios/me/contrasena", pwForm);
       setPwMsg({
         type: "success",
-        text: "ContraseÃ±a actualizada correctamente.",
+        text: "Contraseña actualizada correctamente.",
       });
       setPwForm({ contrasenaActual: "", nuevaContrasena: "" });
     } catch (err) {
@@ -340,7 +361,7 @@ export default function DashboardProductor() {
         type: "error",
         text:
           err.message ||
-          "Debe tener al menos 1 mayÃºscula, 1 nÃºmero y 1 carÃ¡cter especial (mÃ­nimo 8 caracteres).",
+          "Debe tener al menos 1 mayúscula, 1 número y 1 carácter especial (mínimo 8 caracteres).",
       });
     }
   };
@@ -401,13 +422,13 @@ export default function DashboardProductor() {
     const mapTipoToEnum = (tipo) => {
       const mapping = {
         Banano: "BANANO",
-        "PiÃ±a": "PINA",
+        "Piña": "PINA",
         Mango: "MANGO",
-        "MaracuyÃ¡": "MARACUYA",
-        "GuanÃ¡bana": "GUANABANA",
+        "Maracuyá": "MARACUYA",
+        "Guanábana": "GUANABANA",
         Naranja: "NARANJA",
         Coco: "COCO",
-        "LimÃ³n": "LIMON",
+        "Limón": "LIMON",
       };
       return mapping[tipo] || "BANANO";
     };
@@ -450,7 +471,7 @@ export default function DashboardProductor() {
     } catch (err) {
       alert(
         t("dashboardProductor.errorSave", "Error al guardar: ") +
-          (err.message || "IntÃ©ntalo de nuevo."),
+          (err.message || "Inténtalo de nuevo."),
       );
     }
   };
@@ -458,7 +479,7 @@ export default function DashboardProductor() {
   const eliminarProducto = async (id) => {
     if (
       !window.confirm(
-        t("dashboardProductor.confirmDelete", "Â¿Eliminar este producto?"),
+        t("dashboardProductor.confirmDelete", "¿Eliminar este producto?"),
       )
     )
       return;
@@ -482,8 +503,8 @@ export default function DashboardProductor() {
   };
 
   return (
-    <div className="app-layout">
-      {/* Overlay para sidebar mÃ³vil */}
+    <div className="app-layout producer-dashboard">
+      {/* Overlay para sidebar móvil */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
         onClick={() => setSidebarOpen(false)}
@@ -526,134 +547,40 @@ export default function DashboardProductor() {
                 </span>
               )}
             </span>
-            <div className="rating"> {user?.calificacion || "4.9"}</div>
+            <div className="rating">★ {user?.calificacion || "4.9"}</div>
           </div>
         </div>
 
-        <div className="sidebar-label">
-          {t("dashboardProductor.nav.title", "GestiÃ³n Comercial")}
-        </div>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "resumen" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("resumen");
-            setSidebarOpen(false);
-          }}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardProductor.nav.summary", "Panel General")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "misProductos" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("misProductos");
-            setSidebarOpen(false);
-          }}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardProductor.nav.inventory", "Inventario")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "pedidosRec" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("pedidosRec");
-            setSidebarOpen(false);
-          }}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardProductor.nav.sales", "Ventas")}{" "}
-          <span className="badge-count">{pedidos.length}</span>
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "rfq" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("rfq");
-            setSidebarOpen(false);
-          }}
-        >
-          <span className="icon"></span> Oportunidades Comerciales
-        </a>
-
+        <div className="sidebar-label">Gestión del negocio</div>
+        <a href="#" className={`sidebar-link${activeSection === "resumen" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("resumen"); setSidebarOpen(false); }}><span className="icon">⌂</span> Panel general</a>
+        <a href="#" className={`sidebar-link${activeSection === "misProductos" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("misProductos"); setSidebarOpen(false); }}><span className="icon">▦</span> Productos</a>
+        <a href="#" className={`sidebar-link${activeSection === "pedidosRec" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("pedidosRec"); setSidebarOpen(false); }}><span className="icon">▤</span> Pedidos y ventas <span className="badge-count">{pedidos.length}</span></a>
+        <a href="#" className={`sidebar-link${activeSection === "mensajeria" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("mensajeria"); setSidebarOpen(false); }}><span className="icon">✉</span> Mensajes</a>
+        <a href="#" className={`sidebar-link${activeSection === "resenas" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("resenas"); setSidebarOpen(false); }}><span className="icon">★</span> Reseñas</a>
+        <a href="#" className={`sidebar-link${activeSection === "finca" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("finca"); setSidebarOpen(false); }}><span className="icon">⌂</span> Información de la finca</a>
+        <a href="#" className={`sidebar-link${activeSection === "finanzas" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("finanzas"); setSidebarOpen(false); }}><span className="icon">$</span> Finanzas / pagos</a>
+        <a href="#" className={`sidebar-link${activeSection === "configuracion" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("configuracion"); setSidebarOpen(false); }}><span className="icon">⚙</span> Configuración</a>
         <div className="sidebar-divider"></div>
-        <div className="sidebar-label">
-          {t("dashboardProductor.logistics.title", "LogÃ­stica")}
-        </div>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "seguimiento" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("seguimiento");
-            setSidebarOpen(false);
-          }}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardProductor.logistics.dispatch", "Despachos")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "mensajeria" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("mensajeria");
-            setSidebarOpen(false);
-          }}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardProductor.logistics.messaging", "MensajerÃ­a")}
-        </a>
-        <Link
-          to="/perfil"
-          className="sidebar-link"
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span> {t("profile.title", "Mi Perfil")}
-        </Link>
-
-        <a
-          href="#"
-          className="sidebar-link"
-          style={{ marginTop: "auto", color: "var(--red)" }}
-          onClick={async (e) => {
-            e.preventDefault();
-            setSidebarOpen(false);
-            await logout();
-            navigate("/login");
-          }}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardProductor.logistics.logout", "Cerrar sesiÃ³n")}
-        </a>
+        <div className="sidebar-label">Operación</div>
+        <a href="#" className={`sidebar-link${activeSection === "seguimiento" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("seguimiento"); setSidebarOpen(false); }}><span className="icon">▣</span> Despachos</a>
+        <a href="#" className={`sidebar-link${activeSection === "rfq" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("rfq"); setSidebarOpen(false); }}><span className="icon">◈</span> Oportunidades</a>
+        <a href="#" className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("perfil"); setSidebarOpen(false); }}><span className="icon">●</span> Mi perfil</a>
+        <button type="button" className="sidebar-link producer-logout" onClick={async () => { setSidebarOpen(false); await logout(); navigate("/login"); }}><span className="icon">↪</span> Cerrar sesión</button>
       </aside>
 
       {/* MAIN CONTENT */}
       <main className="main-content">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "16px",
-          }}
-        >
-          <button
-            type="button"
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Abrir menÃº de navegaciÃ³n"
-          >
-            â˜° MenÃº
-          </button>
-          <LanguageSwitcher />
-        </div>
+        <header className="producer-topbar">
+          <div className="producer-brand"><span className="producer-brand-mark">AM</span><div><strong>AgroMarket</strong><small>Del campo de Urabá y Colombia a tu mesa</small></div></div>
+          <div className="producer-topbar-center"><strong>PRODUCTOR / VENDEDOR</strong><span>Gestiona tu negocio, productos y ventas en AgroMarket</span></div>
+          <div className="producer-topbar-actions">
+            <button type="button" className="producer-icon-btn" onClick={() => setActiveSection("mensajeria")} aria-label="Mensajes">✉</button>
+            <button type="button" className="producer-icon-btn" onClick={() => setActiveSection("configuracion")} aria-label="Configuración">⚙</button>
+            <button type="button" className="producer-account" onClick={() => setActiveSection("perfil")}><span className="producer-avatar">{iniciales}</span><span><strong>{user?.nombre || "Productor"}</strong><small>Productor</small></span></button>
+            <LanguageSwitcher />
+          </div>
+        </header>
+        <div className="producer-mobile-toolbar"><button type="button" className="sidebar-toggle-btn" onClick={() => setSidebarOpen(true)} aria-label="Abrir menú de navegación">☰ Menú</button><LanguageSwitcher /></div>
 
         {/* â”€â”€â”€ RESUMEN â”€â”€â”€ */}
         {activeSection === "resumen" && (
@@ -663,14 +590,14 @@ export default function DashboardProductor() {
                 <h1>
                   {t(
                     "dashboardProductor.welcome",
-                    "Â¡Excelente dÃ­a, {{name}}!",
+                    "¡Excelente día, {{name}}!",
                     { name: user?.nombre || "Luis" },
                   )}
                 </h1>
                 <p>
                   {t(
                     "dashboardProductor.sub",
-                    "Tu cosecha estÃ¡ teniendo un gran rendimiento este mes en UrabÃ¡.",
+                    "Tu cosecha está teniendo un gran rendimiento este mes en Urabá.",
                   )}
                 </p>
               </div>
@@ -700,10 +627,10 @@ export default function DashboardProductor() {
                   <span style={{ fontSize: "1.5rem" }}></span>
                   <div>
                     <strong style={{ color: "#856404", display: "block" }}>
-                      Tu cuenta de productor aÃºn no estÃ¡ verificada
+                      Tu cuenta de productor aún no está verificada
                     </strong>
                     <span style={{ color: "#856404", fontSize: "0.85rem" }}>
-                      Completa tu informaciÃ³n personal y cuenta bancaria para
+                      Completa tu información personal y cuenta bancaria para
                       ser aprobado por el administrador.
                     </span>
                   </div>
@@ -762,7 +689,7 @@ export default function DashboardProductor() {
               <div className="stat-card color-4">
                 <span className="stat-icon-lg"></span>
                 <div className="stat-label">
-                  {t("dashboardProductor.stats.rating", "CalificaciÃ³n")}
+                  {t("dashboardProductor.stats.rating", "Calificación")}
                 </div>
                 <div className="stat-value">{user?.calificacion || "4.9"}</div>
               </div>
@@ -779,7 +706,7 @@ export default function DashboardProductor() {
                 <div className="table-header">
                   <h3 className="card-title">
                     {" "}
-                    {t("dashboardProductor.recentSales", "Ãšltimas ventas")}
+                    {t("dashboardProductor.recentSales", "Últimas ventas")}
                   </h3>
                 </div>
                 <div className="table-wrap">
@@ -797,7 +724,7 @@ export default function DashboardProductor() {
                         <tr key={p.id}>
                           <td data-label="Pedido">#{p.id}</td>
                           <td data-label="Comprador">
-                            {p.comprador || p.nombreComprador || "â€”"}
+                            {p.comprador || p.nombreComprador || "—"}
                           </td>
                           <td data-label="Total">{formatPrice(p.total)}</td>
                           <td data-label="Estado">
@@ -863,7 +790,10 @@ export default function DashboardProductor() {
                             className="btn btn-secondary btn-sm"
                             style={{ color: "var(--red)", marginLeft: "6px" }}
                             onClick={() => eliminarProducto(p.id)}
-                          ></button>
+                            aria-label={`Eliminar ${p.nombre || "producto"}`}
+                          >
+                            Eliminar
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -878,7 +808,7 @@ export default function DashboardProductor() {
         {activeSection === "pedidosRec" && (
           <div className="section active" id="sec-pedidosRec">
             <div className="dash-header">
-              <h1>{t("dashboardProductor.nav.sales", "GestiÃ³n de Ventas")}</h1>
+              <h1>{t("dashboardProductor.nav.sales", "Gestión de Ventas")}</h1>
             </div>
             <div className="card-table">
               <div className="table-wrap">
@@ -902,10 +832,10 @@ export default function DashboardProductor() {
                           {p.productoNombre ||
                             p.producto ||
                             p.nombreProducto ||
-                            "â€”"}
+                            "—"}
                         </td>
                         <td data-label="Comprador">
-                          {p.comprador || p.nombreComprador || "â€”"}
+                          {p.comprador || p.nombreComprador || "—"}
                         </td>
                         <td data-label="Cant.">{p.cantidad} kg</td>
                         <td data-label="Total">{formatPrice(p.total)}</td>
@@ -956,9 +886,9 @@ export default function DashboardProductor() {
         {activeSection === "seguimiento" && (
           <div className="section active">
             <div className="dash-header">
-              <h1>GestiÃ³n de Despachos</h1>
+              <h1>Gestión de Despachos</h1>
               <p>
-                Monitorea y actualiza la informaciÃ³n de entrega de tus productos
+                Monitorea y actualiza la información de entrega de tus productos
                 vendidos
               </p>
             </div>
@@ -972,7 +902,7 @@ export default function DashboardProductor() {
                       <th>Producto</th>
                       <th>Destino</th>
                       <th>Transportista</th>
-                      <th>GuÃ­a de EnvÃ­o</th>
+                      <th>Guía de Envío</th>
                       <th>Fecha Estimada</th>
                       <th>Estado</th>
                       <th>Acciones</th>
@@ -982,16 +912,16 @@ export default function DashboardProductor() {
                     {shipments.map((s) => (
                       <tr key={s.id}>
                         <td data-label="Pedido ID">#{s.pedidoId || s.id}</td>
-                        <td data-label="Producto">{s.producto || "â€”"}</td>
+                        <td data-label="Producto">{s.producto || "—"}</td>
                         <td data-label="Destino">
-                          {s.direccionDestino || "â€”"}
+                          {s.direccionDestino || "—"}
                         </td>
                         <td data-label="Transportista">
-                          {s.transportista || "â€”"}
+                          {s.transportista || "—"}
                         </td>
-                        <td data-label="GuÃ­a">{s.guia || "â€”"}</td>
+                        <td data-label="Guía">{s.guia || "—"}</td>
                         <td data-label="Fecha Estimada">
-                          {s.fechaEstimadaEntrega || "â€”"}
+                          {s.fechaEstimadaEntrega || "—"}
                         </td>
                         <td data-label="Estado">
                           <span className={badgeClass(s.estado)}>
@@ -1147,12 +1077,12 @@ export default function DashboardProductor() {
                     >
                       <div style={{ fontSize: "2.5rem" }}></div>
                       <div>
-                        Selecciona un contacto para iniciar la conversaciÃ³n.
+                        Selecciona un contacto para iniciar la conversación.
                       </div>
                     </div>
                   ) : messages.length === 0 ? (
                     <div style={{ margin: "auto", color: "var(--text-muted)" }}>
-                      No hay mensajes aÃºn. Â¡SÃ© el primero en escribir!
+                      No hay mensajes aún. ¡Sé el primero en escribir!
                     </div>
                   ) : (
                     messages.map((m) => {
@@ -1242,13 +1172,40 @@ export default function DashboardProductor() {
         )}
 
         {/* â”€â”€â”€ MI PERFIL & AJUSTES â”€â”€â”€ */}
+        {/* RESEÑAS Y CALIFICACIONES */}
+        {activeSection === "resenas" && (
+          <div className="section active producer-section">
+            <div className="producer-section-head"><div><span className="producer-eyebrow">Reputación</span><h1>Reseñas y calificaciones</h1><p>Conoce la percepción de tus compradores y la valoración de tu negocio.</p></div></div>
+            <div className="producer-rating-grid">
+              <article className="producer-panel producer-rating-main"><span className="producer-panel-kicker">Calificación promedio</span><strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong><div className="producer-stars">★★★★★</div><small>{resenasProductor.length} reseñas asociadas cargadas</small></article>
+              <article className="producer-panel producer-recommendation"><span className="producer-panel-kicker">Recomendación</span><strong>{resenasProductor.length ? "Compradores activos" : "Sin datos suficientes"}</strong><p>La API actual no expone en el frontend un porcentaje específico de recomendación del productor.</p></article>
+            </div>
+            <div className="producer-panel producer-table-panel"><div className="producer-panel-title"><h2>Últimas reseñas</h2><span>{resenasProductor.length} registros</span></div>{resenasProductor.length === 0 ? <div className="producer-empty">No hay reseñas del productor disponibles con el identificador de productor expuesto por la respuesta actual.</div> : <div className="producer-review-list">{resenasProductor.map((r,index)=><article className="producer-review" key={r.id || index}><div className="producer-review-avatar">{(r.usuarioNombre || r.clienteNombre || r.nombreUsuario || "C").charAt(0).toUpperCase()}</div><div className="producer-review-body"><div className="producer-review-top"><strong>{r.usuarioNombre || r.clienteNombre || r.nombreUsuario || "Comprador"}</strong><span>{r.fecha || r.createdAt || ""}</span></div><div className="producer-stars">{"★".repeat(Math.max(0, Math.min(5, Number(r.calificacion || r.rating || 5))))}{"☆".repeat(Math.max(0, 5 - Math.min(5, Number(r.calificacion || r.rating || 5))))}</div><p>{r.comentario || r.descripcion || r.texto || "Sin comentario."}</p></div></article>)}</div>}</div>
+          </div>
+        )}
+
+        {/* INFORMACIÓN DE LA FINCA / PRODUCTOR */}
+        {activeSection === "finca" && (
+          <div className="section active producer-section"><div className="producer-section-head"><div><span className="producer-eyebrow">Perfil comercial</span><h1>Información de la finca / productor</h1><p>Información que identifica tu negocio dentro de AgroMarket.</p></div><button className="btn btn-primary" type="button" onClick={() => setActiveSection("perfil")}>Editar información</button></div><div className="producer-farm-grid"><article className="producer-farm-card producer-farm-hero"><div className="producer-farm-image">{iniciales}</div><span className="producer-verified">✓ Productor verificado</span><h2>{user?.finca || user?.nombre || "Productor AgroMarket"}</h2><p>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</p><div className="producer-farm-stats"><span><strong>{productos.length}</strong> productos</span><span><strong>{pedidos.length}</strong> pedidos</span><span><strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong> rating</span></div></article><article className="producer-panel producer-info-list"><div className="producer-panel-title"><h2>Información general</h2></div><div className="producer-info-row"><span>Nombre del productor</span><strong>{user?.nombre || "—"} {user?.apellido || ""}</strong></div><div className="producer-info-row"><span>Correo electrónico</span><strong>{user?.email || "—"}</strong></div><div className="producer-info-row"><span>Teléfono</span><strong>{user?.telefono || "—"}</strong></div><div className="producer-info-row"><span>Ubicación</span><strong>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</strong></div><div className="producer-info-row"><span>Tipo de productor</span><strong>{user?.tipoProductor || "Productor agrícola"}</strong></div><div className="producer-info-row"><span>Productos principales</span><strong>{productos.slice(0,4).map((p)=>p.nombre).join(", ") || "Sin productos publicados"}</strong></div></article></div></div>
+        )}
+
+        {/* FINANZAS / PAGOS */}
+        {activeSection === "finanzas" && (
+          <div className="section active producer-section"><div className="producer-section-head"><div><span className="producer-eyebrow">Rendimiento comercial</span><h1>Finanzas / pagos</h1><p>Resumen calculado con los pedidos que devuelve la API del productor.</p></div></div><div className="producer-finance-grid"><article className="producer-finance-card"><span>Ventas registradas</span><strong>{formatPrice(pedidos.reduce((sum,p)=>sum+Number(p.total||0),0))}</strong><small>Acumulado disponible en esta sesión</small></article><article className="producer-finance-card"><span>Pedidos gestionados</span><strong>{pedidos.length}</strong><small>Pedidos devueltos por /pedidos/mis-pedidos</small></article><article className="producer-finance-card"><span>Ticket promedio</span><strong>{formatPrice(pedidos.length ? pedidos.reduce((sum,p)=>sum+Number(p.total||0),0)/pedidos.length : 0)}</strong><small>Promedio sobre pedidos cargados</small></article><article className="producer-finance-card"><span>Productos activos</span><strong>{productos.length}</strong><small>Inventario devuelto por /productos/mis-productos</small></article></div><div className="producer-panel producer-table-panel"><div className="producer-panel-title"><h2>Movimientos comerciales</h2><span>{pedidos.length} pedidos</span></div><div className="table-wrap"><table className="producer-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th></tr></thead><tbody>{pedidos.map((p)=><tr key={p.id}><td>#{p.id}</td><td>{p.fecha || p.fechaCreacion || "—"}</td><td>{p.comprador || p.nombreComprador || "—"}</td><td>{formatPrice(p.total)}</td><td><span className={badgeClass(p.estado)}>{p.estado || "Pendiente"}</span></td></tr>)}</tbody></table></div></div></div>
+        )}
+
+        {/* CONFIGURACIÓN */}
+        {activeSection === "configuracion" && (
+          <div className="section active producer-section"><div className="producer-section-head"><div><span className="producer-eyebrow">Preferencias</span><h1>Configuración</h1><p>Administra los datos básicos y la seguridad de tu cuenta de productor.</p></div></div><div className="producer-config-grid"><article className="producer-panel producer-config-card"><div className="producer-panel-title"><h2>Perfil de la finca</h2><span>Datos de cuenta</span></div><div className="producer-config-row"><span>Nombre</span><strong>{user?.nombre || "—"}</strong></div><div className="producer-config-row"><span>Correo</span><strong>{user?.email || "—"}</strong></div><div className="producer-config-row"><span>Teléfono</span><strong>{user?.telefono || "—"}</strong></div><div className="producer-config-row"><span>Ubicación</span><strong>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</strong></div><button className="btn btn-primary" type="button" onClick={() => setActiveSection("perfil")}>Editar datos personales</button></article><article className="producer-panel producer-config-card"><div className="producer-panel-title"><h2>Seguridad</h2><span>Protección de cuenta</span></div><div className="producer-security-item"><span className="producer-security-icon">✓</span><div><strong>Correo registrado</strong><small>{user?.email || "Sin correo"}</small></div></div><div className="producer-security-item"><span className="producer-security-icon">✓</span><div><strong>Estado de cuenta</strong><small>{user?.verificado ? "Verificado" : "Pendiente de verificación"}</small></div></div><div className="producer-security-item"><span className="producer-security-icon">🔒</span><div><strong>Contraseña</strong><small>Gestionada mediante el formulario seguro de cuenta.</small></div></div><button className="btn btn-secondary" type="button" onClick={() => setActiveSection("perfil")}>Gestionar contraseña</button></article></div></div>
+        )}
+
         {activeSection === "perfil" && (
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1>Ajustes de Mi Perfil</h1>
                 <p>
-                  Administra tu informaciÃ³n de agricultor y credenciales de
+                  Administra tu información de agricultor y credenciales de
                   acceso
                 </p>
               </div>
@@ -1319,7 +1276,7 @@ export default function DashboardProductor() {
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">TelÃ©fono de Contacto</label>
+                    <label className="form-label">Teléfono de Contacto</label>
                     <input
                       className="form-input"
                       style={{
@@ -1406,7 +1363,7 @@ export default function DashboardProductor() {
                 )}
                 <form onSubmit={handleUpdatePassword}>
                   <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">ContraseÃ±a Actual</label>
+                    <label className="form-label">Contraseña Actual</label>
                     <div style={{ position: "relative" }}>
                       <input
                         className="form-input"
@@ -1475,7 +1432,7 @@ export default function DashboardProductor() {
                     </div>
                   </div>
                   <div className="form-group" style={{ marginBottom: "20px" }}>
-                    <label className="form-label">Nueva ContraseÃ±a</label>
+                    <label className="form-label">Nueva Contraseña</label>
                     <div style={{ position: "relative" }}>
                       <input
                         className="form-input"
@@ -1544,7 +1501,7 @@ export default function DashboardProductor() {
                     type="submit"
                     style={{ width: "100%" }}
                   >
-                    Cambiar ContraseÃ±a
+                    Cambiar Contraseña
                   </button>
                 </form>
               </div>
@@ -1559,7 +1516,7 @@ export default function DashboardProductor() {
               <div className="dash-welcome">
                 <h1>Licitaciones / Oportunidades Comerciales</h1>
                 <p>
-                  Encuentra solicitudes de compra al por mayor y envÃ­a tus
+                  Encuentra solicitudes de compra al por mayor y envía tus
                   cotizaciones de forma segura
                 </p>
               </div>
@@ -1714,7 +1671,7 @@ export default function DashboardProductor() {
                     }}
                   >
                     <h3 style={{ fontSize: "1.1rem" }}>
-                      Enviar CotizaciÃ³n para RFQ #{biddingRfq.id}
+                      Enviar Cotización para RFQ #{biddingRfq.id}
                     </h3>
                     <button
                       style={{
@@ -1725,7 +1682,7 @@ export default function DashboardProductor() {
                       }}
                       onClick={() => setBiddingRfq(null)}
                     >
-                      âœ•
+                      ✕
                     </button>
                   </div>
                   {bidMsg.text && (
@@ -1832,7 +1789,7 @@ export default function DashboardProductor() {
                       type="submit"
                       style={{ width: "100%" }}
                     >
-                      Enviar CotizaciÃ³n
+                      Enviar Cotización
                     </button>
                   </form>
                 </div>
@@ -1856,7 +1813,7 @@ export default function DashboardProductor() {
                     )}
               </span>
               <button className="modal-close" onClick={closeProductoModal}>
-                âœ•
+                ✕
               </button>
             </div>
             <div className="form-group">
@@ -1868,7 +1825,7 @@ export default function DashboardProductor() {
                 id="pNombre"
                 placeholder={t(
                   "dashboardProductor.placeholderName",
-                  "Ej. Banano UrabÃ¡",
+                  "Ej. Banano Urabá",
                 )}
                 value={form.nombre}
                 onChange={(e) => setForm({ ...form, nombre: e.target.value })}
@@ -1932,7 +1889,7 @@ export default function DashboardProductor() {
             >
               <div className="form-group">
                 <label className="form-label">
-                  Cant. MÃ­nima Mayorista (kg)
+                  Cant. Mínima Mayorista (kg)
                 </label>
                 <input
                   className="form-input"
@@ -1962,7 +1919,7 @@ export default function DashboardProductor() {
             </div>
             <div className="form-group">
               <label className="form-label">
-                {t("dashboardProductor.description", "DescripciÃ³n")}
+                {t("dashboardProductor.description", "Descripción")}
               </label>
               <textarea
                 className="form-textarea"
@@ -2036,7 +1993,7 @@ export default function DashboardProductor() {
                         fontWeight: "bold",
                       }}
                     >
-                      âœ•
+                      ✕
                     </button>
                   </div>
                 ) : (
@@ -2091,7 +2048,7 @@ export default function DashboardProductor() {
                   <span
                     style={{ fontSize: "0.75rem", color: "var(--text-light)" }}
                   >
-                    JPG, PNG. MÃ¡x 5MB.
+                    JPG, PNG. Máx 5MB.
                   </span>
                 </div>
               </div>
@@ -2125,12 +2082,12 @@ export default function DashboardProductor() {
         <div className="modal-overlay open">
           <div className="modal" style={{ maxWidth: "480px" }}>
             <div className="modal-header">
-              <span className="modal-title">Actualizar EnvÃ­o / Despacho</span>
+              <span className="modal-title">Actualizar Envío / Despacho</span>
               <button
                 className="modal-close"
                 onClick={() => setUpdateShipmentModalOpen(false)}
               >
-                âœ•
+                ✕
               </button>
             </div>
             <form onSubmit={handleUpdateShipment}>
@@ -2155,7 +2112,7 @@ export default function DashboardProductor() {
                 />
               </div>
               <div className="form-group" style={{ marginBottom: "16px" }}>
-                <label className="form-label">NÃºmero de GuÃ­a</label>
+                <label className="form-label">Número de Guía</label>
                 <input
                   className="form-input"
                   style={{
@@ -2195,7 +2152,7 @@ export default function DashboardProductor() {
                 />
               </div>
               <div className="form-group" style={{ marginBottom: "20px" }}>
-                <label className="form-label">Estado del EnvÃ­o</label>
+                <label className="form-label">Estado del Envío</label>
                 <select
                   className="form-select"
                   style={{
@@ -2214,7 +2171,7 @@ export default function DashboardProductor() {
                 >
                   <option value="Pendiente">Pendiente</option>
                   <option value="Preparando">Preparando</option>
-                  <option value="En trÃ¡nsito">En trÃ¡nsito</option>
+                  <option value="En tránsito">En tránsito</option>
                   <option value="Entregado">Entregado</option>
                 </select>
               </div>

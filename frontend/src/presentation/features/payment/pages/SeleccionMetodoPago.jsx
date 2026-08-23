@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useTheme } from '@/app/contexts/ThemeContext';
 import api from '@/infrastructure/http/api';
 import TarjetaPagoBrick from '../components/TarjetaPagoBrick';
 import PSEBrick from '../components/PSEBrick';
@@ -14,7 +13,6 @@ import { useCart } from '@/presentation/features/order/hooks/useCart';
  */
 export default function SeleccionMetodoPago() {
   const navigate = useNavigate();
-  const { darkMode } = useTheme();
   const { clearCart } = useCart();
   const [searchParams] = useSearchParams();
 

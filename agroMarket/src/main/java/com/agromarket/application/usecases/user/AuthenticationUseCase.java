@@ -78,10 +78,16 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Credenciales inválidas"));
 
-                if (!userService.canLogin(user)
-                                || !passwordHashPort.matches(
-                                                command.getPassword(),
-                                                user.getPassword())) {
+                /*
+                 * 1) Verificamos primero la contraseña.
+                 *
+                 * Esto evita filtrar información sobre el estado de la
+                 * cuenta (verificada/activa) a alguien que ni siquiera
+                 * conoce la contraseña correcta.
+                 */
+                if (!passwordHashPort.matches(
+                                command.getPassword(),
+                                user.getPassword())) {
 
                         log(
                                         user,
@@ -91,6 +97,43 @@ public class AuthenticationUseCase implements AuthenticationPort {
 
                         throw new IllegalArgumentException(
                                         "Credenciales inválidas");
+                }
+
+                /*
+                 * 2) Contraseña correcta pero correo no verificado.
+                 *
+                 * Se separa de "canLogin" para poder dar un mensaje
+                 * específico y evitar que el usuario piense que su
+                 * contraseña está mal cuando en realidad falta
+                 * verificar el correo.
+                 */
+                if (!user.isEmailVerified()) {
+
+                        log(
+                                        user,
+                                        "LOGIN",
+                                        false,
+                                        "Correo electrónico no verificado");
+
+                        throw new IllegalArgumentException(
+                                        "Debes verificar tu correo electrónico antes de iniciar sesión");
+                }
+
+                /*
+                 * 3) Contraseña correcta, correo verificado, pero la
+                 * cuenta no cumple otras condiciones de negocio
+                 * (inactiva, rol nulo, etc.).
+                 */
+                if (!userService.canLogin(user)) {
+
+                        log(
+                                        user,
+                                        "LOGIN",
+                                        false,
+                                        "Cuenta inactiva o no habilitada para iniciar sesión");
+
+                        throw new IllegalArgumentException(
+                                        "Tu cuenta no está habilitada para iniciar sesión");
                 }
 
                 if (twoFactorService.isEnabled(user)) {
@@ -431,10 +474,6 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                 true,
                                 "Contraseña restablecida correctamente");
         }
-
-        // =========================================================
-        // GOOGLE OAUTH2
-        // =========================================================
 
         // =========================================================
         // GOOGLE OAUTH2

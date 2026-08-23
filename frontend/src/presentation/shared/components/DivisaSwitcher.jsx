@@ -64,7 +64,7 @@ export default function DivisaSwitcher() {
           cursor: "pointer",
           fontWeight: "500",
           transition: "all 0.2s",
-          backgroundColor: "#fff",
+          backgroundColor: "var(--color-surface)",
         }}
       >
         <span style={{ fontSize: "1.1rem" }}>{currentDivisa.bandera}</span>
@@ -94,7 +94,7 @@ export default function DivisaSwitcher() {
             top: "100%",
             right: 0,
             marginTop: "4px",
-            backgroundColor: "#ffffff",
+            backgroundColor: "var(--color-surface)",
             border: "1px solid var(--border-light, #e5e7eb)",
             borderRadius: "8px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
@@ -115,7 +115,7 @@ export default function DivisaSwitcher() {
                 width: "100%",
                 padding: "8px 12px",
                 background:
-                  divisaActual === divisa.codigo ? "#f3f4f6" : "transparent",
+                  divisaActual === divisa.codigo ? "var(--color-surface-hover)" : "transparent",
                 border: "none",
                 textAlign: "left",
                 cursor: "pointer",
@@ -128,18 +128,18 @@ export default function DivisaSwitcher() {
                 transition: "background 0.2s",
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#f9fafb")
+                (e.currentTarget.style.background = "var(--color-surface-hover)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.background =
-                  divisaActual === divisa.codigo ? "#f3f4f6" : "transparent")
+                  divisaActual === divisa.codigo ? "var(--color-surface-hover)" : "transparent")
               }
             >
               <span style={{ fontSize: "1.1rem" }}>{divisa.bandera}</span>
               <span style={{ fontWeight: "bold", width: "35px" }}>
                 {divisa.codigo}
               </span>
-              <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
+              <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
                 ({divisa.simbolo}) {divisa.nombre}
               </span>
             </button>

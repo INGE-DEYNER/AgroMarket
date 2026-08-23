@@ -1,230 +1,412 @@
-/* ─── AGROMARKET DESIGN TOKENS ─────────────────────────────────────── */
-/* Single source of truth for all visual design decisions               */
+/* ============================================================
+   AgroMarket — Design System Global Tokens
+   variables.css
+   ============================================================ */
 
 :root {
-  /* ── Brand Colors */
-  --color-primary:       #2d6a4f;
-  --color-primary-light: #52b788;
-  --color-primary-dark:  #1b4332;
-  --color-accent:        #f4a261;
-  --color-accent-dark:   #e07841;
+  /* ==========================================================
+     BRAND
+     ========================================================== */
 
-  /* ── Backgrounds */
-  --color-bg:            #f8fdf9;
-  --color-surface:       #ffffff;
-  --color-surface-2:     #f0f7f2;
-  --color-surface-3:     #e8f5ec;
+  /* Paleta alineada al design system de Figma (AgroMarket):
+     verde oscuro #14532D · verde principal #1A5C2A · acento #2ECC71 */
+  --am-green-900: #14532d;
+  --am-green-700: #1a5c2a;
+  --am-green-500: #22c55e;
+  --am-green-300: #a8e6a1;
+  --am-green-100: #e8f5e9;
 
-  /* ── Text */
-  --color-text:          #1a1a2e;
-  --color-text-muted:    #4a5568;
-  --color-text-dim:      #94a3b8;
+  /* ==========================================================
+     SEMANTIC
+     ========================================================== */
 
-  /* ── Status */
-  --color-success:       #10b981;
-  --color-error:         #ef4444;
-  --color-warning:       #f59e0b;
-  --color-info:          #3b82f6;
+  --am-success: #11823b;
+  --am-warning: #ffc107;
+  --am-danger: #dc2626;
+  --am-info: #2563eb;
 
-  /* ── Borders */
-  --color-border:        rgba(45, 106, 79, 0.12);
-  --color-border-light:  rgba(45, 106, 79, 0.06);
+  /* ==========================================================
+     NEUTRALS
+     ========================================================== */
 
-  /* ── Border Radius */
-  --radius-xs:   4px;
-  --radius-sm:   8px;
-  --radius-md:   12px;
-  --radius-lg:   16px;
-  --radius-xl:   20px;
-  --radius-full: 9999px;
+  --am-gray-950: #18201a;
+  --am-gray-700: #374151;
+  --am-gray-500: #626c66;
+  --am-gray-300: #d1d5db;
+  --am-gray-100: #f3f4f6;
+  --am-white: #ffffff;
 
-  /* ── Shadows */
-  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
-  --shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
-  --shadow-xl:  0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
-  --shadow-green-sm: 0 4px 14px rgba(45, 106, 79, 0.20);
-  --shadow-green-md: 0 8px 24px rgba(45, 106, 79, 0.25);
+  /* ==========================================================
+     SURFACES
+     ========================================================== */
 
-  /* ── Typography */
-  --font-display: 'Playfair Display', 'Outfit', serif;
-  --font-title:   'Outfit', 'Inter', sans-serif;
-  --font-body:    'Inter', sans-serif;
+  --am-bg: #f8faf8;
+  --am-surface: #ffffff;
+  --am-surface-soft: #e8f5e9;
+  --am-surface-muted: #f3f4f6;
 
-  /* ── Transitions */
-  --transition:       200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow:  400ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* ==========================================================
+     TYPOGRAPHY
+     ========================================================== */
 
-  /* ── Spacing Scale */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
+  --am-font-heading: "Poppins", "Outfit", sans-serif;
+  --am-font-body: "Inter", sans-serif;
 
-  /* ── Layout */
+  /* ==========================================================
+     SPACING
+     ========================================================== */
+
+  --am-space-1: 4px;
+  --am-space-2: 8px;
+  --am-space-3: 12px;
+  --am-space-4: 16px;
+  --am-space-5: 20px;
+  --am-space-6: 24px;
+  --am-space-7: 28px;
+  --am-space-8: 32px;
+  --am-space-10: 40px;
+  --am-space-12: 48px;
+  --am-space-16: 64px;
+
+  /* ==========================================================
+     RADIUS
+     ========================================================== */
+
+  --am-radius-sm: 4px;
+  --am-radius-md: 8px;
+  --am-radius-lg: 12px;
+  --am-radius-xl: 16px;
+  --am-radius-2xl: 20px;
+  --am-radius-3xl: 24px;
+  --am-radius-pill: 999px;
+
+  /* ==========================================================
+     SHADOWS
+     ========================================================== */
+
+  --am-shadow-sm: 0 1px 3px rgba(17, 24, 39, 0.08);
+
+  --am-shadow-md: 0 6px 18px rgba(17, 24, 39, 0.1);
+
+  --am-shadow-lg: 0 14px 38px rgba(17, 24, 39, 0.14);
+
+  /* ==========================================================
+     MOTION
+     ========================================================== */
+
+  --am-duration-fast: 120ms;
+  --am-duration-base: 200ms;
+  --am-duration-slow: 300ms;
+
+  --am-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --am-focus-ring: 0 0 0 3px rgba(26, 92, 42, 0.24);
+
+  /* ==========================================================
+     Z-INDEX
+     ========================================================== */
+
+  --am-z-base: 1;
+  --am-z-dropdown: 1000;
+  --am-z-sticky: 1100;
+  --am-z-overlay: 1200;
+  --am-z-modal: 1300;
+  --am-z-toast: 1400;
+  --am-z-tooltip: 1500;
+
+  /* ==========================================================
+     BREAKPOINTS
+     ========================================================== */
+
+  --am-bp-mobile: 576px;
+  --am-bp-tablet: 768px;
+  --am-bp-laptop: 1024px;
+
+  /* ==========================================================
+     LEGACY ALIASES
+     ========================================================== */
+
+  --bg: var(--am-bg);
+  --surface: var(--am-surface);
+  --surface2: #fafcfa;
+  --surface3: var(--am-surface-muted);
+
+  --border: #d1ddd7;
+  --border-light: #e4eae6;
+
+  --text: var(--am-gray-950);
+  --text-muted: var(--am-gray-700);
+  --text-dim: var(--am-gray-500);
+
+  --primary-dark: var(--am-green-900);
+  --primary: var(--am-green-700);
+  /* Verde intermedio para botones con texto blanco (contraste AA) */
+  --primary-light: #1e7a3a;
+
+  --green-bg: var(--am-green-100);
+
+  --gold: #a86f00;
+  --gold-bg: #fff8db;
+  --gold-border: #f0c84b;
+
+  --red: var(--am-danger);
+  --red-bg: #fef2f2;
+
+  --blue: var(--am-info);
+  --blue-bg: #eff6ff;
+
+  --gray-bg: var(--am-gray-100);
+
+  --radius: var(--am-radius-lg);
+  --radius-sm: var(--am-radius-sm);
+  --radius-md: var(--am-radius-md);
+  --radius-lg: var(--am-radius-xl);
+
+  --shadow-sm: var(--am-shadow-sm);
+  --shadow: var(--am-shadow-md);
+  --shadow-lg: var(--am-shadow-lg);
+
+  --transition: var(--am-duration-base) var(--am-ease);
+
+  --font-title: var(--am-font-heading);
+  --font-body: var(--am-font-body);
+
   --sidebar-w: 280px;
-  --navbar-h:  60px;
-  --max-width: 1440px;
+  --navbar-h: 60px;
 
-  /* ── Breakpoints */
-  --bp-xs: 390px;
-  --bp-sm: 640px;
-  --bp-md: 768px;
-  --bp-lg: 1024px;
-  --bp-xl: 1280px;
-  --bp-2xl: 1281px;
+  --z-dropdown: var(--am-z-dropdown);
+  --z-sticky: var(--am-z-sticky);
 
-  /* ── Z-index scale */
-  --z-dropdown: 100;
-  --z-sticky:   200;
-  --z-modal:    300;
-  --z-toast:    400;
-  --z-loading:  500;
+  /* ==========================================================
+     COMPATIBILITY TOKENS
+     ========================================================== */
+
+  --color-background: var(--am-bg);
+  --color-surface: var(--am-surface);
+  --color-surface-2: var(--am-surface-muted);
+
+  --color-surface-hover: #f3f7f4;
+  --color-surface-active: #e8f5e9;
+
+  --color-text-primary: var(--am-gray-950);
+  --color-text-secondary: var(--am-gray-700);
+  --color-text-muted: var(--am-gray-500);
+  --color-text-inverse: #ffffff;
+
+  --color-border: var(--border);
+  --color-border-strong: rgba(17, 130, 59, 0.28);
+
+  --color-primary: var(--primary);
 }
 
-/* ─── ANIMATION KEYFRAMES ───────────────────────────────────────────── */
+/* ============================================================
+   DARK MODE
+   ============================================================
 
-/* Skeleton shimmer */
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
-}
+   IMPORTANTE:
 
-/* Fade up (Intersection Observer trigger) */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+   El tema oscuro se activa cuando cualquiera de estos elementos
+   posee la clase "dark":
 
-/* Fade in */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+     <html class="dark">
+     <body class="dark">
+     <div id="root" class="dark">
 
-/* Scale in */
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
+   También soporta:
 
-/* Slide in from right (toasts) */
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(100%); }
-  to   { opacity: 1; transform: translateX(0); }
-}
+     data-theme="dark"
 
-/* Slide out to right (toasts) */
-@keyframes slideOutRight {
-  from { opacity: 1; transform: translateX(0); }
-  to   { opacity: 0; transform: translateX(100%); }
-}
+   Esto hace que los tokens sean mucho más resistentes a la forma
+   en que tu ThemeContext / ThemeProvider esté aplicando el tema.
+   ============================================================ */
 
-/* Slide in from top */
-@keyframes slideInDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+html.dark,
+body.dark,
+#root.dark,
+html[data-theme="dark"],
+body[data-theme="dark"],
+#root[data-theme="dark"] {
+  color-scheme: dark;
 
-/* Float (empty state illustrations) */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-12px); }
-}
+  /* ==========================================================
+     DARK BRAND
+     ========================================================== */
 
-/* Pulse (logo on loading screen) */
-@keyframes pulseSoft {
-  0%, 100% { transform: scale(1);    opacity: 1;   }
-  50%       { transform: scale(1.08); opacity: 0.9; }
-}
+  --am-green-900: #7bcb8a;
+  --am-green-700: #52b86a;
+  --am-green-500: #72c77f;
+  --am-green-300: #9be3a3;
+  --am-green-100: #1d3022;
 
-/* Progress bar fill */
-@keyframes progressFill {
-  from { width: 0%; }
-  to   { width: 100%; }
-}
+  /* ==========================================================
+     DARK SEMANTIC
+     ========================================================== */
 
-/* Dots bounce (loading) */
-@keyframes dotBounce {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-10px); }
-}
+  --am-success: #72c77f;
+  --am-warning: #ffd666;
+  --am-danger: #f87171;
+  --am-info: #60a5fa;
 
-/* Ripple effect */
-@keyframes ripple {
-  0%   { transform: scale(0); opacity: 0.4; }
-  100% { transform: scale(4); opacity: 0; }
-}
+  /* ==========================================================
+     DARK NEUTRALS
+     ========================================================== */
 
-/* Count up (handled via JS, this is just the reveal) */
-@keyframes countReveal {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+  --am-gray-950: #f3f4f6;
+  --am-gray-700: #d1d5db;
+  --am-gray-500: #9ca3af;
+  --am-gray-300: #4b5563;
+  --am-gray-100: #263229;
+  --am-white: #ffffff;
 
-/* Blur-up image reveal */
-@keyframes blurUp {
-  from { filter: blur(12px); opacity: 0.5; }
-  to   { filter: blur(0);    opacity: 1; }
-}
+  /* ==========================================================
+     DARK SURFACES
+     ========================================================== */
 
-/* ─── UTILITY ANIMATION CLASSES ─────────────────────────────────────── */
+  --am-bg: #0f1712;
+  --am-surface: #17221a;
+  --am-surface-soft: #1d3022;
+  --am-surface-muted: #202a24;
 
-.animate-fade-up {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-.animate-fade-up.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+  /* ==========================================================
+     DARK LEGACY ALIASES
+     ========================================================== */
 
-.animate-scale-in {
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.animate-scale-in.visible {
-  opacity: 1;
-  transform: scale(1);
-}
+  --bg: var(--am-bg);
+  --surface: var(--am-surface);
+  --surface2: #1d2a21;
+  --surface3: var(--am-surface-muted);
 
-/* ─── SKELETON BASE ──────────────────────────────────────────────────── */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    #f0f4f0 25%,
-    #e2eae2 50%,
-    #f0f4f0 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: var(--radius-sm);
-}
+  --border: #37463c;
+  --border-light: #2c3a31;
 
-/* ─── RIPPLE BUTTON ──────────────────────────────────────────────────── */
-.btn-ripple {
-  position: relative;
-  overflow: hidden;
-}
-.btn-ripple .ripple-circle {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
-  animation: ripple 0.6s linear;
-  pointer-events: none;
+  --text: #f3f4f6;
+  --text-muted: #d1d5db;
+  --text-dim: #9ca3af;
+
+  --primary-dark: #7bcb8a;
+  --primary: #52b86a;
+  --primary-light: #72c77f;
+
+  --green-bg: var(--am-surface-soft);
+
+  --gold: #ffd666;
+  --gold-bg: rgba(255, 193, 7, 0.14);
+  --gold-border: rgba(255, 193, 7, 0.35);
+
+  --red: #f87171;
+  --red-bg: rgba(220, 38, 38, 0.14);
+
+  --blue: #60a5fa;
+  --blue-bg: rgba(37, 99, 235, 0.14);
+
+  --gray-bg: var(--am-surface-muted);
+
+  /* ==========================================================
+     DARK COMPATIBILITY TOKENS
+     ========================================================== */
+
+  --color-background: var(--am-bg);
+  --color-surface: var(--am-surface);
+  --color-surface-2: var(--am-surface-muted);
+
+  --color-surface-hover: #1d2a21;
+  --color-surface-active: #26352b;
+
+  --color-text-primary: #f3f4f6;
+  --color-text-secondary: #d1d5db;
+  --color-text-muted: #9ca3af;
+  --color-text-inverse: #111827;
+
+  --color-border: #37463c;
+  --color-border-strong: #4b5b50;
+
+  --color-primary: var(--primary);
 }
 
-/* ─── PAGE TRANSITION ────────────────────────────────────────────────── */
-.page-enter {
-  animation: fadeIn 0.2s ease-in-out;
+/* ============================================================
+   GLOBAL DARK MODE FALLBACK
+   ============================================================
+
+   Esto es intencionalmente pequeño.
+
+   Las variables anteriores hacen el trabajo principal.
+   Estas reglas garantizan que html/body/root realmente ocupen
+   toda la pantalla con la superficie oscura.
+   ============================================================ */
+
+html.dark,
+html[data-theme="dark"] {
+  background: var(--am-bg);
+  color: var(--text);
+}
+
+body.dark,
+body[data-theme="dark"] {
+  background: var(--bg);
+  color: var(--text);
+}
+
+#root.dark,
+#root[data-theme="dark"] {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ============================================================
+   SELECCIÓN DE TEXTO
+   ============================================================ */
+
+html.dark ::selection,
+html[data-theme="dark"] ::selection,
+body.dark ::selection,
+body[data-theme="dark"] ::selection {
+  background: rgba(82, 184, 106, 0.3);
+  color: #ffffff;
+}
+
+/* ============================================================
+   SCROLLBAR DARK
+   ============================================================ */
+
+html.dark,
+html[data-theme="dark"] {
+  scrollbar-color: #3f5146 #0f1712;
+}
+
+html.dark::-webkit-scrollbar,
+html[data-theme="dark"]::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html.dark::-webkit-scrollbar-track,
+html[data-theme="dark"]::-webkit-scrollbar-track {
+  background: var(--am-bg);
+}
+
+html.dark::-webkit-scrollbar-thumb,
+html[data-theme="dark"]::-webkit-scrollbar-thumb {
+  background: #3f5146;
+  border-radius: var(--am-radius-pill);
+  border: 2px solid var(--am-bg);
+}
+
+html.dark::-webkit-scrollbar-thumb:hover,
+html[data-theme="dark"]::-webkit-scrollbar-thumb:hover {
+  background: #52685a;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html.dark *,
+  html.dark *::before,
+  html.dark *::after,
+  html[data-theme="dark"] *,
+  html[data-theme="dark"] *::before,
+  html[data-theme="dark"] *::after {
+    scroll-behavior: auto !important;
+  }
 }

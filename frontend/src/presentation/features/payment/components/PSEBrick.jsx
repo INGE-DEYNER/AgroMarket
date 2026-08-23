@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useMercadoPago } from '@/infrastructure/payment/useMercadoPago';
-import { useTheme } from '@/app/contexts/ThemeContext';
 import api from '@/infrastructure/http/api';
 
 /**
@@ -18,11 +17,8 @@ import api from '@/infrastructure/http/api';
 export default function PSEBrick({
   amount,
   orderId,
-  onPaymentSuccess,
   onPaymentError,
-  onPaymentCancel,
 }) {
-  const { darkMode } = useTheme();
   const { mp, loading: mpLoading, error: mpError } = useMercadoPago();
   const brickContainerRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -38,8 +34,8 @@ export default function PSEBrick({
         if (!publicKey) return;
 
         // Usar el SDK para obtener métodos de pago
-        if (typeof MercadoPago !== 'undefined') {
-          const mpInstance = new MercadoPago(publicKey, { locale: 'es-CO' });
+        if (typeof globalThis.MercadoPago !== 'undefined') {
+          const mpInstance = new globalThis.MercadoPago(publicKey, { locale: 'es-CO' });
           
           // Obtener métodos de pago
           const paymentMethods = await mpInstance.getPaymentMethods({
@@ -169,7 +165,7 @@ export default function PSEBrick({
 
   // Mostrar selector de bancos PSE
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4" data-payment-theme="adaptive">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
         PSE - Pagos Seguros en Línea
       </h3>

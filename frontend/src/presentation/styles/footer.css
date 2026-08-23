@@ -1,0 +1,1300 @@
+/* ============================================================
+   AGROMARKET FOOTER
+   Carruseles infinitos + pausa al hover + logo destacado
+   ============================================================ */
+
+.footer-ml-style {
+  width: 100%;
+  margin-top: 0;
+  overflow: hidden;
+  color: #183225;
+  background: #f7faf8;
+}
+
+.footer-ml-style *,
+.footer-ml-style *::before,
+.footer-ml-style *::after {
+  box-sizing: border-box;
+}
+
+.footer-container {
+  width: min(1440px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+/* ============================================================
+   BENEFICIOS
+   ============================================================ */
+
+.footer-trust {
+  padding: 48px 0 42px;
+  background: #fff;
+  border-top: 1px solid #e5ece8;
+  border-bottom: 1px solid #e5ece8;
+}
+
+.footer-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.footer-trust-card {
+  min-width: 0;
+  min-height: 168px;
+  padding: 24px 18px;
+  border: 1px solid #dbe7df;
+  border-radius: 12px;
+  background: #fff;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer-trust-icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 12px;
+
+  border-radius: 50%;
+  background: #e7f5eb;
+  color: #08752f;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 24px;
+}
+
+.footer-trust-card h3 {
+  margin: 0 0 8px;
+
+  color: #183225;
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.footer-trust-card p {
+  max-width: 190px;
+  margin: 0;
+
+  color: #64736b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* ============================================================
+   MÁS INFORMACIÓN
+   ============================================================ */
+
+.footer-more-bar {
+  position: relative;
+  z-index: 10;
+
+  min-height: 62px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  background: #fff;
+  border-bottom: 1px solid #dfe7e2;
+}
+
+.footer-more-button {
+  min-width: 190px;
+  min-height: 48px;
+
+  padding: 12px 22px;
+  margin-bottom: -1px;
+
+  border: 1px solid #dfe7e2;
+  border-bottom-color: #fff;
+  border-radius: 9px 9px 0 0;
+
+  background: #fff;
+  color: #26362d;
+
+  font: inherit;
+  font-size: 14px;
+
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.footer-more-button:hover {
+  background: #f5f8f6;
+}
+
+.footer-more-button:focus-visible {
+  outline: 3px solid rgba(8, 117, 47, 0.22);
+  outline-offset: 2px;
+}
+
+.footer-more-chevron {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ============================================================
+   PANEL EXPANDIBLE
+   ============================================================ */
+
+.footer-more-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+
+  overflow: hidden;
+
+  background: #f4f6f5;
+  border-bottom: 1px solid #dfe7e2;
+
+  transition: grid-template-rows 280ms ease;
+}
+
+.footer-more-panel.is-open {
+  grid-template-rows: 1fr;
+}
+
+.footer-more-panel > .footer-container {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.footer-links-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 34px;
+
+  padding-top: 0;
+  padding-bottom: 0;
+
+  transition: padding 280ms ease;
+}
+
+.footer-more-panel.is-open .footer-links-grid {
+  padding-top: 38px;
+  padding-bottom: 38px;
+}
+
+.footer-link-column {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.footer-link-column h4 {
+  margin: 0 0 6px;
+
+  color: #17241d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.footer-link-column a,
+.footer-link-column span,
+.footer-text-button {
+  color: #68736e;
+
+  font-size: 13px;
+  line-height: 1.35;
+
+  text-decoration: none;
+}
+
+.footer-link-column a:hover,
+.footer-text-button:hover {
+  color: #08752f;
+}
+
+.footer-text-button {
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  font: inherit;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+/* ============================================================
+   FOOTER VERDE PRINCIPAL
+   ============================================================ */
+
+.footer-main-green {
+  color: #fff;
+  background: #075f2c;
+}
+
+.footer-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.75fr);
+
+  gap: 80px;
+
+  padding-top: 54px;
+  padding-bottom: 48px;
+}
+
+.footer-brand-block,
+.footer-newsletter-block {
+  min-width: 0;
+}
+
+.footer-brand {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer-brand-image {
+  width: 64px;
+  height: 64px;
+
+  border-radius: 12px;
+
+  object-fit: cover;
+
+  background: #fff;
+}
+
+.footer-brand > span {
+  font-size: 27px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.footer-tagline {
+  margin: 22px 0 12px;
+
+  color: #fff;
+
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.footer-description {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.82);
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.footer-contact-summary {
+  margin-top: 18px;
+
+  color: rgba(255, 255, 255, 0.88);
+
+  font-size: 13px;
+}
+
+.footer-social-row {
+  display: flex;
+  gap: 10px;
+
+  margin-top: 24px;
+}
+
+.footer-social-row a {
+  width: 44px;
+  height: 44px;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+
+  color: #fff;
+
+  text-decoration: none;
+
+  display: grid;
+  place-items: center;
+
+  font-weight: 700;
+
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.footer-social-row a:hover {
+  transform: translateY(-2px);
+
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.footer-newsletter-block {
+  align-self: center;
+}
+
+.footer-section-kicker {
+  display: inline-block;
+
+  color: #a5dd43;
+
+  font-size: 12px;
+  line-height: 1.2;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  font-weight: 800;
+}
+
+.footer-newsletter-block h2 {
+  margin: 10px 0;
+
+  color: #fff;
+
+  font-size: clamp(24px, 2.5vw, 34px);
+  line-height: 1.15;
+}
+
+.footer-newsletter-block p {
+  max-width: 470px;
+
+  margin: 0 0 22px;
+
+  color: rgba(255, 255, 255, 0.8);
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.footer-contact-button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 50px;
+
+  padding: 0 22px;
+
+  border-radius: 10px;
+
+  background: #fff;
+  color: #075f2c;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  text-decoration: none;
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.footer-contact-button:hover {
+  transform: translateY(-1px);
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================================
+   MÉTODOS DE PAGO
+   ============================================================ */
+
+.footer-payments {
+  color: #fff;
+
+  background: #075f2c;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.footer-payments-inner {
+  min-height: 92px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, 0.8fr)
+    minmax(180px, 0.7fr)
+    minmax(0, 1.8fr);
+
+  align-items: center;
+
+  gap: 28px;
+}
+
+.footer-secure-label {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.footer-secure-check {
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 auto;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 17px;
+}
+
+.footer-secure-label strong,
+.footer-secure-label span {
+  display: block;
+}
+
+.footer-secure-label strong {
+  font-size: 13px;
+}
+
+.footer-secure-label span {
+  margin-top: 4px;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  font-size: 12px;
+}
+
+.footer-payment-title {
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 13px;
+
+  white-space: nowrap;
+}
+
+/* ============================================================
+   SISTEMA GENERAL DE CARRUSEL
+   ============================================================ */
+
+.footer-marquee {
+  position: relative;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  isolation: isolate;
+}
+
+/*
+   Los degradados laterales indican que existe contenido
+   entrando y saliendo del carrusel.
+*/
+
+.footer-marquee::before,
+.footer-marquee::after {
+  content: "";
+
+  position: absolute;
+
+  z-index: 5;
+
+  top: 0;
+  bottom: 0;
+
+  width: 42px;
+
+  pointer-events: none;
+}
+
+.footer-marquee::before {
+  left: 0;
+
+  background: linear-gradient(90deg, #075f2c 0%, rgba(7, 95, 44, 0) 100%);
+}
+
+.footer-marquee::after {
+  right: 0;
+
+  background: linear-gradient(270deg, #075f2c 0%, rgba(7, 95, 44, 0) 100%);
+}
+
+/*
+   IMPORTANTE:
+
+   Cada track contiene DOS grupos idénticos.
+
+   Grupo A:
+   [1][2][3][4][5][6]
+
+   Grupo B:
+   [1][2][3][4][5][6]
+
+   Al mover exactamente el 50% del track,
+   el segundo grupo ocupa exactamente la posición
+   que tenía el primero.
+*/
+
+.footer-marquee-track {
+  display: flex;
+
+  width: max-content;
+
+  flex-wrap: nowrap;
+
+  align-items: center;
+
+  transform: translate3d(0, 0, 0);
+
+  animation-name: footer-marquee-infinite;
+  animation-duration: 24s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+  animation-play-state: running;
+
+  will-change: transform;
+}
+
+.footer-marquee-group {
+  display: flex;
+
+  flex: 0 0 auto;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding-right: 10px;
+}
+
+/*
+   PAUSA REAL CUANDO EL MOUSE ENTRA EN UN LOGO.
+
+   :has() permite que el padre detenga su animación
+   cuando específicamente uno de sus hijos recibe hover.
+*/
+
+.footer-marquee:has(.footer-payment-item:hover) .footer-marquee-track,
+.footer-marquee:has(.footer-stakeholder-card:hover) .footer-marquee-track {
+  animation-play-state: paused;
+}
+
+/* ============================================================
+   ANIMACIÓN INFINITA
+   ============================================================ */
+
+@keyframes footer-marquee-infinite {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ============================================================
+   LOGOS DE MEDIOS DE PAGO
+   ============================================================ */
+
+.footer-payment-marquee {
+  min-width: 0;
+
+  padding: 8px 0;
+}
+
+.footer-payment-marquee .footer-marquee-track {
+  animation-duration: 18s;
+}
+
+.footer-payment-item {
+  width: 96px;
+  height: 48px;
+
+  flex: 0 0 96px;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+
+  border: 2px solid transparent;
+  border-radius: 9px;
+
+  background: #fff;
+
+  cursor: pointer;
+
+  /*
+     IMPORTANTE:
+     transform no se coloca en el estado normal.
+     Solo aparece cuando el usuario pasa el mouse.
+  */
+
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.footer-payment-item img {
+  display: block;
+
+  width: auto;
+
+  max-width: 84px;
+  max-height: 36px;
+
+  object-fit: contain;
+
+  transition: transform 220ms ease;
+}
+
+/*
+   LOGO DESTACADO
+*/
+
+.footer-payment-item:hover {
+  position: relative;
+  z-index: 20;
+
+  transform: scale(1.14);
+
+  border-color: rgba(255, 255, 255, 0.85);
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.28);
+}
+
+.footer-payment-item:hover img {
+  transform: scale(1.04);
+}
+
+/* ============================================================
+   STAKEHOLDERS
+   ============================================================ */
+
+.footer-partners {
+  padding: 38px 0 42px;
+
+  background: #f7faf8;
+
+  border-bottom: 1px solid #dfe7e2;
+}
+
+.footer-partners-header {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  margin-bottom: 22px;
+}
+
+.footer-section-kicker-dark {
+  color: #08752f;
+}
+
+.footer-partners-header h2 {
+  max-width: 500px;
+
+  margin: 7px 0 0;
+
+  color: #24362b;
+
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.footer-partners-header p {
+  max-width: 590px;
+
+  margin: 0;
+
+  color: #66746d;
+
+  font-size: 13px;
+  line-height: 1.55;
+
+  text-align: right;
+}
+
+/* ============================================================
+   CARRUSEL STAKEHOLDERS
+   ============================================================ */
+
+.footer-stakeholder-marquee {
+  width: 100%;
+
+  padding: 12px 0 18px;
+}
+
+.footer-stakeholder-marquee::before,
+.footer-stakeholder-marquee::after {
+  background: linear-gradient(90deg, #f7faf8 0%, rgba(247, 250, 248, 0) 100%);
+}
+
+.footer-stakeholder-marquee::after {
+  background: linear-gradient(270deg, #f7faf8 0%, rgba(247, 250, 248, 0) 100%);
+}
+
+.footer-stakeholder-marquee .footer-marquee-track {
+  animation-duration: 16s;
+}
+
+/*
+   TARJETA DEL STAKEHOLDER
+*/
+
+.footer-stakeholder-card {
+  width: 300px;
+  min-height: 106px;
+
+  flex: 0 0 300px;
+
+  padding: 14px 18px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 16px;
+
+  border: 2px solid #d6e2da;
+
+  border-radius: 11px;
+
+  background: #fff;
+
+  cursor: pointer;
+
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease,
+    border-color 240ms ease;
+}
+
+/*
+   Cuando el mouse está encima:
+   - se eleva
+   - aumenta
+   - aparece sombra
+   - queda por encima de las otras tarjetas
+*/
+
+.footer-stakeholder-card:hover {
+  position: relative;
+
+  z-index: 30;
+
+  transform: scale(1.08) translateY(-4px);
+
+  border-color: #08752f;
+
+  box-shadow: 0 12px 30px rgba(8, 117, 47, 0.2);
+}
+
+.footer-stakeholder-card img {
+  display: block;
+
+  width: 110px;
+
+  max-width: 46%;
+  max-height: 72px;
+
+  object-fit: contain;
+
+  transition: transform 240ms ease;
+}
+
+.footer-stakeholder-card:hover img {
+  transform: scale(1.06);
+}
+
+.footer-stakeholder-info {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.footer-stakeholder-info strong {
+  color: #23372a;
+
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.footer-stakeholder-info span {
+  color: #68766f;
+
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+/* ============================================================
+   CREADOR
+   ============================================================ */
+
+.footer-creator-row {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 18px;
+}
+
+.footer-creator-slot {
+  min-width: 250px;
+
+  padding: 12px 16px;
+
+  border: 1px solid #d6e2da;
+
+  border-radius: 10px;
+
+  background: #fff;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.footer-creator-slot:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.footer-creator-logo {
+  width: 56px;
+  height: 56px;
+
+  flex: 0 0 56px;
+
+  overflow: hidden;
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  display: grid;
+  place-items: center;
+}
+
+.footer-creator-logo img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+.footer-creator-slot span,
+.footer-creator-slot strong {
+  display: block;
+}
+
+.footer-creator-slot span {
+  margin-bottom: 4px;
+
+  color: #718078;
+
+  font-size: 11px;
+}
+
+.footer-creator-slot strong {
+  color: #183225;
+
+  font-size: 13px;
+}
+
+/* ============================================================
+   BARRA LEGAL
+   ============================================================ */
+
+.footer-bottom {
+  color: #dce9e1;
+
+  background: #064f25;
+}
+
+.footer-bottom-inner {
+  min-height: 92px;
+
+  padding-top: 18px;
+  padding-bottom: 18px;
+
+  display: grid;
+
+  grid-template-columns: 1fr auto;
+
+  grid-template-areas:
+    "links links"
+    "copy made";
+
+  gap: 12px 30px;
+
+  align-items: center;
+}
+
+.footer-legal-links {
+  grid-area: links;
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px 22px;
+}
+
+.footer-legal-links a,
+.footer-legal-links button {
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font: inherit;
+
+  font-size: 12px;
+
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.footer-legal-links a:hover,
+.footer-legal-links button:hover {
+  color: #fff;
+}
+
+.footer-bottom p {
+  margin: 0;
+
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.footer-bottom-inner > p:first-of-type {
+  grid-area: copy;
+}
+
+.footer-made-colombia {
+  grid-area: made;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  text-align: right;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .footer-trust-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .footer-links-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .footer-main-grid {
+    grid-template-columns: 1fr 1fr;
+
+    gap: 45px;
+  }
+
+  .footer-payments-inner {
+    grid-template-columns:
+      220px
+      180px
+      minmax(0, 1fr);
+
+    gap: 18px;
+  }
+}
+
+@media (max-width: 800px) {
+  .footer-container {
+    width: min(100% - 28px, 680px);
+  }
+
+  .footer-trust {
+    padding: 30px 0;
+  }
+
+  .footer-trust-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer-main-grid {
+    grid-template-columns: 1fr;
+
+    gap: 34px;
+  }
+
+  .footer-payments-inner {
+    min-height: auto;
+
+    padding-top: 18px;
+    padding-bottom: 18px;
+
+    grid-template-columns: 1fr;
+
+    gap: 14px;
+  }
+
+  .footer-payment-title {
+    white-space: normal;
+  }
+
+  .footer-partners-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 10px;
+  }
+
+  .footer-partners-header p {
+    text-align: left;
+  }
+
+  .footer-creator-row {
+    justify-content: flex-start;
+  }
+
+  .footer-bottom-inner {
+    grid-template-columns: 1fr;
+
+    grid-template-areas:
+      "links"
+      "copy"
+      "made";
+  }
+
+  .footer-made-colombia {
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer-container {
+    width: min(100% - 20px, 520px);
+  }
+
+  .footer-trust-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-trust-card {
+    min-height: 140px;
+  }
+
+  .footer-links-grid {
+    grid-template-columns: 1fr 1fr;
+
+    gap: 25px 18px;
+  }
+
+  .footer-brand-image {
+    width: 56px;
+    height: 56px;
+  }
+
+  .footer-brand > span {
+    font-size: 23px;
+  }
+
+  .footer-main-grid {
+    padding-top: 38px;
+    padding-bottom: 34px;
+  }
+
+  .footer-stakeholder-card {
+    width: 255px;
+
+    flex-basis: 255px;
+
+    min-height: 92px;
+  }
+
+  .footer-stakeholder-card img {
+    width: 88px;
+  }
+
+  .footer-payment-item {
+    width: 88px;
+    height: 44px;
+
+    flex-basis: 88px;
+  }
+
+  .footer-payment-item img {
+    max-width: 76px;
+    max-height: 32px;
+  }
+
+  .footer-stakeholder-marquee .footer-marquee-track {
+    animation-duration: 13s;
+  }
+
+  .footer-payment-marquee .footer-marquee-track {
+    animation-duration: 15s;
+  }
+
+  .footer-creator-slot {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   REDUCIR MOVIMIENTO SI EL SISTEMA LO SOLICITA
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-payment-item,
+  .footer-stakeholder-card {
+    transition: none;
+  }
+  .footer-marquee-track {
+    animation-duration: 36s !important;
+  }
+}
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  text-decoration: none;
+}
+
+.footer-brand-image {
+  display: block;
+  width: 200px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+
+/* ============================================================
+   FOOTER — TEMA OSCURO Y CARRUSEL UNIFICADO
+   ============================================================ */
+
+html.dark .footer-ml-style {
+  background: var(--am-bg);
+  color: var(--color-text-primary);
+}
+
+html.dark .footer-trust,
+html.dark .footer-more-bar,
+html.dark .footer-more-button,
+html.dark .footer-partners {
+  background: var(--am-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+html.dark .footer-more-panel {
+  background: var(--am-surface-muted);
+  border-color: var(--color-border);
+}
+
+html.dark .footer-trust-card,
+html.dark .footer-stakeholder-card {
+  background: var(--am-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+html.dark .footer-trust-card h3,
+html.dark .footer-stakeholder-info strong,
+html.dark .footer-partners-header h2,
+html.dark .footer-link-column h4 {
+  color: var(--color-text-primary);
+}
+
+html.dark .footer-trust-card p,
+html.dark .footer-partners-header p,
+html.dark .footer-stakeholder-info span,
+html.dark .footer-link-column a,
+html.dark .footer-link-column span,
+html.dark .footer-text-button {
+  color: var(--color-text-secondary);
+}
+
+html.dark .footer-stakeholder-marquee::before {
+  background: linear-gradient(90deg, var(--am-surface) 0%, rgba(23,34,26,0) 100%);
+}
+
+html.dark .footer-stakeholder-marquee::after {
+  background: linear-gradient(270deg, var(--am-surface) 0%, rgba(23,34,26,0) 100%);
+}
+
+html.dark .footer-stakeholder-card:hover,
+html.dark .footer-stakeholder-card:focus-visible {
+  border-color: var(--am-green-300);
+  box-shadow: 0 14px 32px rgba(82,184,106,.18);
+}
+
+.footer-marquee-track {
+  animation-play-state: running;
+}
+
+.footer-marquee:hover .footer-marquee-track {
+  animation-play-state: paused;
+}
+
+.footer-stakeholder-card.is-creator img {
+  width: 86px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.footer-stakeholder-card {
+  outline: none;
+}
+
+.footer-stakeholder-card:focus-visible {
+  border-color: #08752f;
+  box-shadow: 0 12px 30px rgba(8,117,47,.2);
+}

@@ -1,7 +1,7 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Navbar from "@/presentation/shared/components/Navbar";
+import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 import { useAuth } from "@/app/hooks/useAuth";
 import api from "@/infrastructure/http/api";
 import "@/presentation/styles/envios.css";
@@ -38,7 +38,7 @@ export default function Envios() {
   if (user) {
     const role = user.role?.toLowerCase();
     if (role === "comprador") {
-      return <Navigate to="/dashboard-comprador?section=seguimiento" replace />;
+      // Buyers stay on the dedicated shipments page.
     } else if (role === "productor") {
       return <Navigate to="/dashboard-productor?section=seguimiento" replace />;
     } else if (role === "admin") {
@@ -46,10 +46,8 @@ export default function Envios() {
     }
   }
   return (
-    <>
-      <Navbar />
-
-      <main
+    <BuyerShell activeKey="seguimiento">
+      <main className="buyer-page-content"
         style={{ padding: "28px 32px", maxWidth: "1100px", margin: "0 auto" }}
       >
         <div className="section-header" style={{ marginBottom: "24px" }}>
@@ -195,9 +193,6 @@ export default function Envios() {
           </div>
         </div>
       </main>
-    </>
+    </BuyerShell>
   );
 }
-
-
-

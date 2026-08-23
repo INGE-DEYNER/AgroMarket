@@ -552,3 +552,192 @@
     transform: translateY(0);
   }
 }
+
+/* ─── RESPONSIVE: TABLET (769px - 1024px) ───────────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .catalog-layout-grid {
+    grid-template-columns: 220px 1fr;
+    gap: 18px;
+  }
+  .catalog-container {
+    padding: 24px 18px;
+  }
+  .catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .catalog-hero {
+    padding: 32px 30px;
+  }
+}
+
+/* ─── RESPONSIVE: MÓVIL PEQUEÑO (<480px) ────────────────────────────── */
+@media (max-width: 480px) {
+  .catalog-container {
+    padding: 14px 12px;
+  }
+  .catalog-hero {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  .catalog-hero-title {
+    font-size: 1.3rem;
+  }
+  .catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 10px;
+  }
+  .catalog-card {
+    border-radius: 14px;
+  }
+}
+
+/* ─── RESPONSIVE: PANTALLAS MUY ANCHAS (>1600px) ────────────────────── */
+@media (min-width: 1600px) {
+  .catalog-container {
+    max-width: 1600px;
+  }
+  .catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* ─── SIDEBAR DE FILTROS (desktop) ──────────────────────────────────── */
+.catalog-filters-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 20px;
+  position: sticky;
+  top: 90px;
+  align-self: start;
+}
+.catalog-filters-sidebar h3 {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-dark, #1a5c2a);
+  margin: 18px 0 10px;
+}
+.catalog-filters-sidebar h3:first-child {
+  margin-top: 0;
+}
+.catalog-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.catalog-filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.catalog-filter-group input[type="checkbox"] {
+  accent-color: var(--primary, #2d7a3a);
+  width: 15px;
+  height: 15px;
+}
+.catalog-filter-group input[type="range"] {
+  accent-color: var(--primary, #2d7a3a);
+}
+.close-filters-mobile-btn {
+  display: none;
+}
+
+/* ─── BARRA META: buscador + contador + orden ───────────────────────── */
+.catalog-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.catalog-search-inline {
+  flex: 1;
+  min-width: 200px;
+}
+.catalog-meta-row .search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+.catalog-meta-row select {
+  padding: 10px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  background: var(--surface);
+  color: var(--text-dark, #1a1a1a);
+  cursor: pointer;
+}
+
+/* ─── ESTADO VACÍO ───────────────────────────────────────────────────── */
+.catalog-empty-state {
+  text-align: center;
+  padding: 64px 24px;
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px dashed var(--border-light);
+  color: var(--text-dim);
+}
+.catalog-empty-state h3 {
+  margin: 12px 0 4px;
+  color: var(--text-dark, #1a1a1a);
+}
+
+/* ─── SKELETON DE CARGA ──────────────────────────────────────────────── */
+.catalog-skeleton {
+  height: 320px;
+  background: linear-gradient(
+    90deg,
+    var(--border-light, #e0e0d8) 25%,
+    #f0f0ec 37%,
+    var(--border-light, #e0e0d8) 63%
+  );
+  background-size: 400% 100%;
+  animation: catalogShimmer 1.4s ease infinite;
+}
+@keyframes catalogShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ─── RESPONSIVE extra para nuevo layout ────────────────────────────── */
+@media (max-width: 768px) {
+  .catalog-meta-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .catalog-filters-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 85vw;
+    z-index: 200;
+    border-radius: 0;
+    overflow-y: auto;
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.15);
+  }
+  .close-filters-mobile-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: var(--border-light);
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+}

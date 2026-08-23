@@ -1,0 +1,799 @@
+/* ============================================================
+   Auth Flow — patrón compartido de las pantallas centradas
+   de "01 Autenticacion" en Figma:
+   Screen-3-VerifyEmail · Screen-4-ForgotPassword
+   Screen-5-ResetPassword · Screen-6-CompleteProfile
+   Tarjeta blanca centrada (580px, radio 24) sobre fondo claro.
+   Todo scopeado bajo .af-* para no afectar otras vistas.
+   ============================================================ */
+
+.af-page {
+  /* Tokens locales extraídos del frame */
+  --af-primary: #1a5c2a;
+  --af-primary-dark: #14532d;
+  --af-accent: #2ecc71;
+  --af-text: #18201a;
+  --af-muted: #626c66;
+  --af-border: #d1ddd7;
+  --af-bg: #f8faf8;
+  --af-surface: #ffffff;
+  --af-input-bg: #fdfdfd;
+  --af-pill-bg: #f1f5f2;
+  --af-error: #dc2626;
+
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(24px, 5vh, 80px) clamp(16px, 4vw, 80px);
+  background: var(--af-bg);
+  font-family: var(--font-body, "Inter", sans-serif);
+  color: var(--af-text);
+}
+
+/* Toggle de tema (misma posición que en Login) */
+.login-theme-toggle {
+  position: absolute;
+  top: 18px;
+  right: clamp(16px, 2vw, 24px);
+  z-index: 20;
+}
+
+/* ── Tarjeta central ─────────────────────────────────────── */
+
+.af-card {
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(28px, 3vw, 40px);
+  padding: clamp(32px, 4.5vw, 56px);
+  background: var(--af-surface);
+  border: 1px solid var(--af-border);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Marca */
+.af-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.af-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.af-logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--af-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.af-logo-name {
+  font-family: var(--font-title, "Outfit", sans-serif);
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--af-text);
+}
+
+.af-logo-name em {
+  font-style: normal;
+  color: var(--af-primary);
+}
+
+.af-success-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(46, 204, 113, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Variante verde de marca (escudo en ForgotPassword) */
+.af-success-badge--green {
+  background: rgba(26, 92, 42, 0.1);
+}
+
+/* Tarjeta compacta (ForgotPassword / ResetPassword) */
+.af-card--sm {
+  max-width: 540px;
+}
+
+.af-sent-strong {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--af-text);
+}
+
+/* Badge de seguridad (ForgotPassword) */
+.af-safety-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--af-pill-bg);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--af-primary);
+}
+
+.af-back-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--af-primary);
+  text-decoration: none;
+}
+
+.af-back-link:hover {
+  text-decoration: underline;
+}
+
+/* Textos */
+.af-text {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.af-text h1 {
+  margin: 0;
+  font-family: var(--font-title, "Outfit", sans-serif);
+  font-weight: 800;
+  font-size: clamp(24px, 2.1vw, 28px);
+  line-height: 1.25;
+  color: var(--af-text);
+}
+
+.af-text p {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--af-muted);
+}
+
+.af-email-pill {
+  display: inline-flex;
+  padding: 10px 20px;
+  background: var(--af-pill-bg);
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--af-primary);
+  word-break: break-all;
+}
+
+/* Formulario */
+.af-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.af-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.af-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--af-text);
+}
+
+.af-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--af-input-bg);
+  border: 1px solid var(--af-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--af-text);
+  outline: none;
+  transition:
+    border-color var(--transition, 200ms),
+    box-shadow var(--transition, 200ms);
+}
+
+.af-input::placeholder {
+  color: var(--af-muted);
+}
+
+.af-input:focus {
+  border-color: var(--af-primary);
+  box-shadow: 0 0 0 3px rgba(26, 92, 42, 0.15);
+}
+
+.af-input--otp {
+  letter-spacing: 10px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Campo con toggle de visibilidad (ResetPassword) */
+.af-input-wrap {
+  position: relative;
+}
+
+.af-input-wrap .af-input {
+  padding-right: 46px;
+}
+
+.af-toggle-visibility {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--af-muted);
+}
+
+/* Requisitos de contraseña (ResetPassword) */
+.af-requirements {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--af-pill-bg);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.af-requirements-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--af-text);
+}
+
+.af-requirement {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--af-muted);
+}
+
+/* Botones */
+.af-btn-primary {
+  width: 100%;
+  padding: 14px 0;
+  background: var(--af-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(26, 92, 42, 0.2);
+  transition:
+    background var(--transition, 200ms),
+    transform var(--transition, 200ms),
+    box-shadow var(--transition, 200ms);
+}
+
+.af-btn-primary:hover:not(:disabled) {
+  background: var(--af-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(26, 92, 42, 0.28);
+}
+
+.af-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.af-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.af-btn-inline {
+  width: auto;
+  padding: 14px 32px;
+}
+
+/* Mensajes */
+.af-error,
+.af-info-box {
+  width: 100%;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.af-error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: var(--af-error);
+}
+
+.af-info-box {
+  background: var(--af-pill-bg);
+  border: 1px solid var(--af-border);
+  color: var(--af-text);
+}
+
+/* Pasos numerados */
+.af-steps {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: var(--af-bg);
+  border-radius: 12px;
+}
+
+.af-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--af-text);
+  text-align: left;
+}
+
+.af-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--af-primary);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Ayuda / reenvío */
+.af-troubleshoot {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.af-resend-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--af-muted);
+}
+
+.af-resend-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--af-accent);
+  text-decoration: none;
+}
+
+.af-resend-link:hover {
+  text-decoration: underline;
+}
+
+.af-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--af-border);
+  margin: 0;
+}
+
+.af-help-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--af-muted);
+  text-align: center;
+}
+
+.af-help-strong {
+  font-weight: 600;
+  color: var(--af-primary);
+  text-decoration: none;
+}
+
+.af-help-strong:hover {
+  text-decoration: underline;
+}
+
+/* ── Modal "Completa tu cuenta" (Screen-6-CompleteProfile) ── */
+
+.af-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(10, 15, 11, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 24px);
+  font-family: var(--font-body, "Inter", sans-serif);
+}
+
+.af-modal {
+  /* Mismos tokens que .af-page para heredar modo oscuro */
+  --af-primary: #1a5c2a;
+  --af-primary-dark: #14532d;
+  --af-accent: #2ecc71;
+  --af-text: #18201a;
+  --af-muted: #626c66;
+  --af-border: #d1ddd7;
+  --af-bg: #f8faf8;
+  --af-surface: #ffffff;
+  --af-input-bg: #fdfdfd;
+  --af-pill-bg: #f1f5f2;
+  --af-error: #dc2626;
+
+  width: 100%;
+  max-width: 880px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  background: var(--af-surface);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+.af-modal-left {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: clamp(28px, 3.5vw, 48px);
+  text-align: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.af-modal-left::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 61, 24, 0.8);
+}
+
+.af-modal-left > * {
+  position: relative;
+  z-index: 1;
+}
+
+.af-logo--light {
+  align-self: flex-start;
+}
+
+.af-logo-name--light,
+html.dark .af-logo-name--light,
+body.dark .af-logo-name--light,
+html[data-theme="dark"] .af-logo-name--light {
+  color: #ffffff;
+}
+
+.af-avatar-ring {
+  width: clamp(84px, 9vw, 120px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 4px solid var(--af-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.af-modal-title {
+  margin: 0;
+  font-family: var(--font-title, "Outfit", sans-serif);
+  font-weight: 800;
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.25;
+  color: #ffffff;
+}
+
+.af-modal-sub {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.af-modal-privacy {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.af-modal-right {
+  padding: clamp(28px, 3.5vw, 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.af-text--left {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.af-text--left p {
+  max-width: none;
+}
+
+.af-select {
+  appearance: auto;
+  cursor: pointer;
+}
+
+.af-safety-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--af-pill-bg);
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--af-primary);
+}
+
+.af-safety-note img {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@media (max-width: 720px) {
+  .af-modal {
+    grid-template-columns: 1fr;
+  }
+
+  .af-modal-left {
+    min-height: 200px;
+  }
+
+  .af-logo--light {
+    align-self: center;
+  }
+}
+
+/* ── Modo oscuro ─────────────────────────────────────────── */
+/* Reutiliza html.dark / [data-theme] de variables.css.
+   Los verdes de marca se mantienen fijos por contraste. */
+
+html.dark .af-page,
+body.dark .af-page,
+#root.dark .af-page,
+html[data-theme="dark"] .af-page,
+body[data-theme="dark"] .af-page,
+#root[data-theme="dark"] .af-page {
+  --af-text: #edf3ee;
+  --af-muted: #9fb0a4;
+  --af-border: #37463c;
+  --af-bg: #0f1712;
+  --af-surface: #17221a;
+  --af-input-bg: #17221a;
+  --af-pill-bg: #1d3022;
+}
+
+html.dark .af-logo-name,
+body.dark .af-logo-name,
+html[data-theme="dark"] .af-logo-name {
+  color: #ffffff;
+}
+
+html.dark .af-resend-link,
+body.dark .af-resend-link,
+html[data-theme="dark"] .af-resend-link {
+  color: #52b86a;
+}
+
+html.dark .af-help-strong,
+body.dark .af-help-strong,
+html[data-theme="dark"] .af-help-strong {
+  color: #52b86a;
+}
+
+html.dark .af-error,
+body.dark .af-error,
+html[data-theme="dark"] .af-error {
+  background: rgba(220, 38, 38, 0.14);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #f87171;
+}
+
+/* Modo oscuro del modal */
+html.dark .af-modal,
+body.dark .af-modal,
+#root.dark .af-modal,
+html[data-theme="dark"] .af-modal,
+body[data-theme="dark"] .af-modal,
+#root[data-theme="dark"] .af-modal {
+  --af-text: #edf3ee;
+  --af-muted: #9fb0a4;
+  --af-border: #37463c;
+  --af-bg: #0f1712;
+  --af-surface: #17221a;
+  --af-input-bg: #17221a;
+  --af-pill-bg: #1d3022;
+}
+/* ============================================================
+   EXTRAS REGISTRO (Screen-2-Register) — reutilizados sobre el
+   split de login.css mediante clases af-*.
+   ============================================================ */
+
+.af-error-text {
+  font-size: 12.5px;
+  color: var(--af-error, var(--lg-error, #dc2626));
+}
+
+.af-role-tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--af-pill-bg, #f1f5f2);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.af-role-tab {
+  flex: 1;
+  padding: 9px 6px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--af-muted, #626c66);
+  cursor: pointer;
+  transition:
+    background var(--transition, 200ms),
+    color var(--transition, 200ms);
+}
+
+.af-role-tab.active {
+  background: var(--af-surface, #ffffff);
+  color: var(--af-primary, #1a5c2a);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.af-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 20px;
+}
+
+.af-phone-row {
+  display: flex;
+  gap: 12px;
+}
+
+.af-phone-row .af-select--code {
+  flex: 0 0 auto;
+  width: 96px;
+}
+
+.af-strength {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.af-strength-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--af-pill-bg, #f1f5f2);
+  overflow: hidden;
+}
+
+.af-strength-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 200ms ease;
+}
+
+.af-strength span {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.af-terms-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.af-terms-row input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.af-terms-text {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--af-muted, #626c66);
+}
+
+.af-terms-text a {
+  font-weight: 600;
+  color: var(--af-primary, #1a5c2a);
+  text-decoration: none;
+}
+
+.af-terms-text a:hover {
+  text-decoration: underline;
+}
+
+.af-success-summary p {
+  margin: 0 0 6px 0;
+  text-align: left;
+  font-size: 14px;
+  color: var(--af-text, #18201a);
+}
+
+/* Modo oscuro de los extras */
+html.dark .af-role-tab.active,
+body.dark .af-role-tab.active,
+html[data-theme="dark"] .af-role-tab.active {
+  background: var(--af-surface, #17221a);
+  color: #52b86a;
+}
+
+html.dark .af-terms-text a,
+body.dark .af-terms-text a,
+html[data-theme="dark"] .af-terms-text a {
+  color: #52b86a;
+}

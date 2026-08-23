@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useMercadoPago } from '@/infrastructure/payment/useMercadoPago';
-import { useTheme } from '@/app/contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext.js';
+import api from '@/infrastructure/http/api';
 
 /**
  * Componente TarjetaPagoBrick - Integración con Card Payment Brick de MercadoPago
@@ -19,7 +20,6 @@ export default function TarjetaPagoBrick({
   orderId,
   onPaymentSuccess,
   onPaymentError,
-  onPaymentCancel,
 }) {
   const { darkMode } = useTheme();
   const { mp, loading: mpLoading, error: mpError } = useMercadoPago();

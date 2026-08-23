@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useSecureParams } from "@/presentation/shared/hooks/useSecureParams";
@@ -7,18 +7,18 @@ import Navbar from "@/presentation/shared/components/Navbar";
 import "@/presentation/styles/styles.css";
 
 const DIVISAS = [
-  { codigo: "COP", nombre: "Peso colombiano", bandera: "ðŸ‡¨ðŸ‡´" },
-  { codigo: "USD", nombre: "DÃ³lar estadounidense", bandera: "ðŸ‡ºðŸ‡¸" },
-  { codigo: "EUR", nombre: "Euro", bandera: "ðŸ‡ªðŸ‡º" },
-  { codigo: "GBP", nombre: "Libra esterlina", bandera: "ðŸ‡¬ðŸ‡§" },
-  { codigo: "BRL", nombre: "Real brasileÃ±o", bandera: "ðŸ‡§ðŸ‡·" },
-  { codigo: "MXN", nombre: "Peso mexicano", bandera: "ðŸ‡²ðŸ‡½" },
-  { codigo: "CLP", nombre: "Peso chileno", bandera: "ðŸ‡¨ðŸ‡±" },
-  { codigo: "PEN", nombre: "Sol peruano", bandera: "ðŸ‡µðŸ‡ª" },
-  { codigo: "ARS", nombre: "Peso argentino", bandera: "ðŸ‡¦ðŸ‡·" },
-  { codigo: "CAD", nombre: "DÃ³lar canadiense", bandera: "ðŸ‡¨ðŸ‡¦" },
-  { codigo: "JPY", nombre: "Yen japonÃ©s", bandera: "ðŸ‡¯ðŸ‡µ" },
-  { codigo: "CNY", nombre: "Yuan chino", bandera: "ðŸ‡¨ðŸ‡³" },
+  { codigo: "COP", nombre: "Peso colombiano", bandera: "🇨🇴" },
+  { codigo: "USD", nombre: "Dólar estadounidense", bandera: "🇺🇸" },
+  { codigo: "EUR", nombre: "Euro", bandera: "🇪🇺" },
+  { codigo: "GBP", nombre: "Libra esterlina", bandera: "🇬🇧" },
+  { codigo: "BRL", nombre: "Real brasileño", bandera: "🇧🇷" },
+  { codigo: "MXN", nombre: "Peso mexicano", bandera: "🇲🇽" },
+  { codigo: "CLP", nombre: "Peso chileno", bandera: "🇨🇱" },
+  { codigo: "PEN", nombre: "Sol peruano", bandera: "🇵🇪" },
+  { codigo: "ARS", nombre: "Peso argentino", bandera: "🇦🇷" },
+  { codigo: "CAD", nombre: "Dólar canadiense", bandera: "🇨🇦" },
+  { codigo: "JPY", nombre: "Yen japonés", bandera: "🇯🇵" },
+  { codigo: "CNY", nombre: "Yuan chino", bandera: "🇨🇳" },
 ];
 
 export default function Perfil() {
@@ -35,7 +35,7 @@ export default function Perfil() {
   const [nombre, setNombre] = useState(user?.nombre || "");
   const [apellido, setApellido] = useState(user?.apellido || "");
   const [telefono, setTelefono] = useState(user?.telefono || "");
-  const [codigoPais, setCodigoPais] = useState(user?.codigoPais || "+57");
+  const [codigoPais] = useState(user?.codigoPais || "+57");
   const [ubicacion, setUbicacion] = useState(user?.ubicacion || "");
   const [nombreEmpresa, setNombreEmpresa] = useState(user?.nombreEmpresa || "");
   const [nit, setNit] = useState(user?.nit || "");
@@ -84,43 +84,7 @@ export default function Perfil() {
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      setNombre(user.nombre || "");
-      setApellido(user.apellido || "");
-
-      // Parse phone prefix out for display
-      let rawPhone = user.telefono || "";
-      const prefix = user.codigoPais || "+57";
-      if (rawPhone.startsWith(prefix)) {
-        rawPhone = rawPhone.substring(prefix.length);
-      }
-      setTelefono(rawPhone);
-
-      setCodigoPais(prefix);
-      setUbicacion(user.ubicacion || "");
-      setNombreEmpresa(user.nombreEmpresa || "");
-      setNit(user.nit || "");
-      setCuentaBancaria(user.cuentaBancaria || "");
-      setDivisaPreferida(user.divisaPreferida || "COP");
-      setDepartamento(user.departamento || "");
-      setCiudad(user.ciudad || "");
-      setDireccionCompleta(user.direccionCompleta || "");
-      setReferencia(user.referencia || "");
-      setCodigoPostal(user.codigoPostal || "");
-    }
-  }, [user]);
-
-  // Load cards and coupons when settings tab changes
-  useEffect(() => {
-    if (activeTab === "tarjetas") {
-      loadTarjetas();
-    } else if (activeTab === "cupones") {
-      loadCupones();
-    }
-  }, [activeTab]);
-
-  async function loadTarjetas() {
+  const loadTarjetas = async () => {
     try {
       const res = await api.get("/tarjetas");
       setTarjetas(res.data || res || []);
@@ -129,7 +93,7 @@ export default function Perfil() {
     }
   };
 
-  async function loadCupones() {
+  const loadCupones = async () => {
     try {
       const res = await api.get("/cupones");
       setCupones(res.data || res || []);
@@ -138,13 +102,26 @@ export default function Perfil() {
     }
   };
 
+  // Load cards and coupons when settings tab changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (activeTab === "tarjetas") {
+        void loadTarjetas();
+      } else if (activeTab === "cupones") {
+        void loadCupones();
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [activeTab]);
+
   const handleUpdatePersonal = async (e) => {
     e.preventDefault();
     setPersonalMsg({ type: "", text: "" });
     if (!nombre.trim() || !apellido.trim() || !telefono.trim()) {
       setPersonalMsg({
         type: "error",
-        text: "Nombre, Apellido y TelÃ©fono son obligatorios.",
+        text: "Nombre, Apellido y Teléfono son obligatorios.",
       });
       return;
     }
@@ -219,7 +196,7 @@ export default function Perfil() {
     if (nuevaContrasena !== confirmarNueva) {
       setSecurityMsg({
         type: "error",
-        text: "Las nuevas contraseÃ±as no coinciden.",
+        text: "Las nuevas contraseñas no coinciden.",
       });
       return;
     }
@@ -232,7 +209,7 @@ export default function Perfil() {
       });
       setSecurityMsg({
         type: "success",
-        text: "ContraseÃ±a actualizada correctamente.",
+        text: "Contraseña actualizada correctamente.",
       });
       setContrasenaActual("");
       setNuevaContrasena("");
@@ -242,7 +219,7 @@ export default function Perfil() {
         type: "error",
         text:
           err.message ||
-          "Error al actualizar contraseÃ±a. Recuerde usar una mayÃºscula, un nÃºmero y un sÃ­mbolo.",
+          "Error al actualizar contraseña. Recuerde usar una mayúscula, un número y un símbolo.",
       });
     } finally {
       setLoading(false);
@@ -251,12 +228,12 @@ export default function Perfil() {
 
   const detectarTipo = (numero) => {
     const n = numero.replace(/\s/g, "");
-    if (/^4/.test(n)) return { tipo: "VISA", logo: "ðŸ’³", color: "#1A1F71" };
+    if (/^4/.test(n)) return { tipo: "VISA", logo: "💳", color: "#1A1F71" };
     if (/^5[1-5]|^2[2-7]/.test(n))
-      return { tipo: "MASTERCARD", logo: "ðŸ’³", color: "#EB001B" };
-    if (/^3[47]/.test(n)) return { tipo: "AMEX", logo: "ðŸ’³", color: "#007BC1" };
+      return { tipo: "MASTERCARD", logo: "💳", color: "#EB001B" };
+    if (/^3[47]/.test(n)) return { tipo: "AMEX", logo: "💳", color: "#007BC1" };
     if (/^3[068]/.test(n))
-      return { tipo: "DINERS", logo: "ðŸ’³", color: "#004B87" };
+      return { tipo: "DINERS", logo: "💳", color: "#004B87" };
     return null;
   };
 
@@ -290,7 +267,7 @@ export default function Perfil() {
     e.preventDefault();
     setCardMsg({ type: "", text: "" });
     if (!tarjetaValida) {
-      setCardMsg({ type: "error", text: "NÃºmero de tarjeta invÃ¡lido." });
+      setCardMsg({ type: "error", text: "Número de tarjeta inválido." });
       return;
     }
 
@@ -318,7 +295,7 @@ export default function Perfil() {
   };
 
   const handleDeleteTarjeta = async (cardId) => {
-    if (!window.confirm("Â¿Desea eliminar esta tarjeta de sus mÃ©todos de pago?"))
+    if (!window.confirm("¿Desea eliminar esta tarjeta de sus métodos de pago?"))
       return;
     setCardMsg({ type: "", text: "" });
     try {
@@ -370,7 +347,7 @@ export default function Perfil() {
     if (/[0-9]/.test(pass)) score += 1;
     if (/[@$!%*?&.]/.test(pass)) score += 1;
 
-    if (score <= 1) return { label: "DÃ©bil", color: "#e53935", width: "33%" };
+    if (score <= 1) return { label: "Débil", color: "#e53935", width: "33%" };
     if (score <= 3) return { label: "Media", color: "#ff9800", width: "66%" };
     return { label: "Fuerte", color: "#4caf50", width: "100%" };
   };
@@ -408,11 +385,11 @@ export default function Perfil() {
               Mi Perfil
             </h1>
             <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-              Administra tu configuraciÃ³n personal, mÃ©todos de pago y seguridad
+              Administra tu configuración personal, métodos de pago y seguridad
             </p>
           </div>
           <Link to={getPanelLink()} className="btn btn-secondary">
-            â† Regresar al Panel
+            ← Regresar al Panel
           </Link>
         </div>
 
@@ -439,7 +416,7 @@ export default function Perfil() {
                 onClick={() => setActiveTab("tarjetas")}
                 style={{ justifyContent: "flex-start", width: "100%" }}
               >
-                MÃ©todos de Pago
+                Métodos de Pago
               </button>
             )}
             <button
@@ -479,7 +456,7 @@ export default function Perfil() {
                 onClick={logout}
                 style={{ width: "100%" }}
               >
-                Cerrar SesiÃ³n
+                Cerrar Sesión
               </button>
             </div>
           </div>
@@ -489,7 +466,7 @@ export default function Perfil() {
             className="card-table"
             style={{
               padding: "32px",
-              background: "#fff",
+              background: "var(--surface)",
               borderRadius: "var(--radius-lg)",
             }}
           >
@@ -503,7 +480,7 @@ export default function Perfil() {
                     marginBottom: "24px",
                   }}
                 >
-                  InformaciÃ³n Personal
+                  Información Personal
                 </h3>
 
                 {personalMsg.text && (
@@ -559,7 +536,7 @@ export default function Perfil() {
                   <div className="form-row">
                     <div className="form-group">
                       <label className="form-label">
-                        Correo ElectrÃ³nico (No editable)
+                        Correo Electrónico (No editable)
                       </label>
                       <input
                         className="form-input"
@@ -569,7 +546,7 @@ export default function Perfil() {
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">TelÃ©fono</label>
+                      <label className="form-label">Teléfono</label>
                       <div style={{ display: "flex", gap: "8px" }}>
                         <input
                           className="form-input"
@@ -596,12 +573,12 @@ export default function Perfil() {
                   {user?.role === "productor" && (
                     <div className="form-row">
                       <div className="form-group">
-                        <label className="form-label">UbicaciÃ³n / Vereda</label>
+                        <label className="form-label">Ubicación / Vereda</label>
                         <input
                           className="form-input"
                           value={ubicacion}
                           onChange={(e) => setUbicacion(e.target.value)}
-                          placeholder="Ej. Vereda Las Margaritas, ChigorodÃ³"
+                          placeholder="Ej. Vereda Las Margaritas, Chigorodó"
                         />
                       </div>
                       <div className="form-group">
@@ -612,7 +589,7 @@ export default function Perfil() {
                           className="form-input"
                           value={cuentaBancaria}
                           onChange={(e) => setCuentaBancaria(e.target.value)}
-                          placeholder="Ej. Ahorros Bancolombia NÂ° 12345..."
+                          placeholder="Ej. Ahorros Bancolombia N° 12345..."
                         />
                       </div>
                     </div>
@@ -642,7 +619,7 @@ export default function Perfil() {
                     </div>
                   )}
 
-                  {/* DirecciÃ³n de EnvÃ­o para Compradores y Empresas */}
+                  {/* Dirección de Envío para Compradores y Empresas */}
                   {user?.role !== "productor" && (
                     <div
                       style={{
@@ -660,7 +637,7 @@ export default function Perfil() {
                           fontWeight: "bold",
                         }}
                       >
-                        DirecciÃ³n de EnvÃ­o
+                        Dirección de Envío
                       </h4>
                       <div className="form-row">
                         <div className="form-group">
@@ -676,36 +653,36 @@ export default function Perfil() {
                               "Amazonas",
                               "Antioquia",
                               "Arauca",
-                              "AtlÃ¡ntico",
-                              "BolÃ­var",
-                              "BoyacÃ¡",
+                              "Atlántico",
+                              "Bolívar",
+                              "Boyacá",
                               "Caldas",
-                              "CaquetÃ¡",
+                              "Caquetá",
                               "Casanare",
                               "Cauca",
                               "Cesar",
-                              "ChocÃ³",
-                              "CÃ³rdoba",
+                              "Chocó",
+                              "Córdoba",
                               "Cundinamarca",
-                              "GuainÃ­a",
+                              "Guainía",
                               "Guaviare",
                               "Huila",
                               "La Guajira",
                               "Magdalena",
                               "Meta",
-                              "NariÃ±o",
+                              "Nariño",
                               "Norte de Santander",
                               "Putumayo",
-                              "QuindÃ­o",
+                              "Quindío",
                               "Risaralda",
-                              "San AndrÃ©s y Providencia",
+                              "San Andrés y Providencia",
                               "Santander",
                               "Sucre",
                               "Tolima",
                               "Valle del Cauca",
-                              "VaupÃ©s",
+                              "Vaupés",
                               "Vichada",
-                              "BogotÃ¡ D.C.",
+                              "Bogotá D.C.",
                             ]
                               .sort()
                               .map((dept) => (
@@ -721,12 +698,12 @@ export default function Perfil() {
                             className="form-input"
                             value={ciudad}
                             onChange={(e) => setCiudad(e.target.value)}
-                            placeholder="Ej. MedellÃ­n"
+                            placeholder="Ej. Medellín"
                           />
                         </div>
                       </div>
                       <div className="form-group" style={{ marginTop: "16px" }}>
-                        <label className="form-label">DirecciÃ³n Completa</label>
+                        <label className="form-label">Dirección Completa</label>
                         <input
                           className="form-input"
                           value={direccionCompleta}
@@ -743,11 +720,11 @@ export default function Perfil() {
                             className="form-input"
                             value={referencia}
                             onChange={(e) => setReferencia(e.target.value)}
-                            placeholder="Ej. Junto a la panaderÃ­a"
+                            placeholder="Ej. Junto a la panadería"
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">CÃ³digo Postal</label>
+                          <label className="form-label">Código Postal</label>
                           <input
                             className="form-input"
                             value={codigoPostal}
@@ -785,7 +762,7 @@ export default function Perfil() {
                       marginBottom: "24px",
                     }}
                   >
-                    <h3>MÃ©todos de Pago</h3>
+                    <h3>Métodos de Pago</h3>
                     <button
                       className="btn btn-primary btn-sm"
                       onClick={() => setTarjetaModalOpen(true)}
@@ -859,7 +836,7 @@ export default function Perfil() {
                             <span style={{ fontSize: "1.8rem" }}></span>
                             <div>
                               <strong style={{ display: "block" }}>
-                                {card.tipoTarjeta} â€¢â€¢â€¢â€¢{" "}
+                                {card.tipoTarjeta} ••••{" "}
                                 {card.ultimosCuatroDigitos}
                               </strong>
                               {card.predeterminada && (
@@ -943,7 +920,7 @@ export default function Perfil() {
                   }}
                 >
                   <div className="form-group">
-                    <label className="form-label">ContraseÃ±a Actual</label>
+                    <label className="form-label">Contraseña Actual</label>
                     <div style={{ position: "relative" }}>
                       <input
                         className="form-input"
@@ -968,13 +945,13 @@ export default function Perfil() {
                           fontSize: "1.1rem",
                         }}
                       >
-                        {showCurrentPassword ? "ðŸ‘ï¸" : "ðŸ™ˆ"}
+                        {showCurrentPassword ? "👁️" : "🙈"}
                       </button>
                     </div>
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Nueva ContraseÃ±a</label>
+                    <label className="form-label">Nueva Contraseña</label>
                     <div style={{ position: "relative" }}>
                       <input
                         className="form-input"
@@ -997,7 +974,7 @@ export default function Perfil() {
                           fontSize: "1.1rem",
                         }}
                       >
-                        {showNewPassword ? "ðŸ‘ï¸" : "ðŸ™ˆ"}
+                        {showNewPassword ? "👁️" : "🙈"}
                       </button>
                     </div>
 
@@ -1025,7 +1002,7 @@ export default function Perfil() {
 
                   <div className="form-group">
                     <label className="form-label">
-                      Confirmar Nueva ContraseÃ±a
+                      Confirmar Nueva Contraseña
                     </label>
                     <div style={{ position: "relative" }}>
                       <input
@@ -1049,7 +1026,7 @@ export default function Perfil() {
                           fontSize: "1.1rem",
                         }}
                       >
-                        {showConfirmNew ? "ðŸ‘ï¸" : "ðŸ™ˆ"}
+                        {showConfirmNew ? "👁️" : "🙈"}
                       </button>
                     </div>
                   </div>
@@ -1060,7 +1037,7 @@ export default function Perfil() {
                     disabled={loading}
                     style={{ alignSelf: "flex-start", marginTop: "16px" }}
                   >
-                    Cambiar ContraseÃ±a
+                    Cambiar Contraseña
                   </button>
                 </form>
               </div>
@@ -1125,7 +1102,7 @@ export default function Perfil() {
                               fontWeight: "bold",
                             }}
                           >
-                            CUPÃ“N DISPONIBLE
+                            CUPÓN DISPONIBLE
                           </div>
                           <div
                             style={{
@@ -1233,7 +1210,7 @@ export default function Perfil() {
                       }}
                     >
                       Selecciona la divisa en la que deseas visualizar los
-                      precios del catÃ¡logo y tus transacciones en la plataforma.
+                      precios del catálogo y tus transacciones en la plataforma.
                     </p>
                     <select
                       className="form-select"
@@ -1242,7 +1219,7 @@ export default function Perfil() {
                     >
                       {DIVISAS.map((d) => (
                         <option key={d.codigo} value={d.codigo}>
-                          {d.bandera} {d.codigo} â€” {d.nombre}
+                          {d.bandera} {d.codigo} — {d.nombre}
                         </option>
                       ))}
                     </select>
@@ -1273,12 +1250,12 @@ export default function Perfil() {
                 className="modal-close"
                 onClick={() => setTarjetaModalOpen(false)}
               >
-                âœ•
+                ✕
               </button>
             </div>
             <form onSubmit={handleSaveTarjeta}>
               <div className="form-group" style={{ marginBottom: "16px" }}>
-                <label className="form-label">NÃºmero de Tarjeta</label>
+                <label className="form-label">Número de Tarjeta</label>
                 <div style={{ position: "relative" }}>
                   <input
                     className="form-input"
@@ -1313,7 +1290,7 @@ export default function Perfil() {
                       marginTop: "4px",
                     }}
                   >
-                    {tarjetaValida ? "âœ“ Tarjeta vÃ¡lida" : "âœ— NÃºmero invÃ¡lido"}
+                    {tarjetaValida ? "✓ Tarjeta válida" : "✗ Número inválido"}
                   </span>
                 )}
               </div>
@@ -1370,6 +1347,3 @@ export default function Perfil() {
     </>
   );
 }
-
-
-

@@ -1,93 +1,55 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap");
-@import "./variables.css";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 
 /* ─── DESIGN TOKENS ─── */
 :root {
-  /* AgroMarket Colombian Palette */
-  --bg: #f4f6f3;
+  /* Canonical AgroMarket design-system tokens */
+  --bg: #f8faf8;
   --surface: #ffffff;
-  --surface2: #f8faf8;
-  --surface3: #eff3ef;
+  --surface2: #fafcfa;
+  --surface3: #f3f4f6;
+  --border: rgba(17, 130, 59, 0.14);
+  --border-light: rgba(17, 130, 59, 0.08);
 
-  --border: rgba(26, 92, 42, 0.08);
-  --border-light: rgba(26, 92, 42, 0.04);
+  --text: #111827;
+  --text-muted: #374151;
+  --text-dim: #667280;
 
-  --text: #1a2e1e;
-  --text-muted: #4a5d4e;
-  --text-dim: #94a798;
+  --primary-dark: #0a5a27;
+  --primary: #11823b;
+  --primary-light: #2e9b4f;
+  --green-bg: #e8f5e9;
 
-  /* Greens */
-  --primary-dark: #1a5c2a;
-  --primary: #2d7a3a;
-  --primary-light: #4caf50;
-  --green-bg: #eef7ee;
-
-  /* Status Colors */
-  --gold: #d97706;
-  --gold-bg: #fffbeb;
-  --gold-border: #fde68a;
+  --gold: #a86f00;
+  --gold-bg: #fff8db;
+  --gold-border: #f0c84b;
 
   --red: #dc2626;
   --red-bg: #fef2f2;
 
   --blue: #2563eb;
   --blue-bg: #eff6ff;
-
   --gray-bg: #f3f4f6;
 
-  /* Modern shapes and depth */
   --radius: 12px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
   --radius-lg: 16px;
-  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.07);
-  --shadow: 0 8px 24px rgba(26, 92, 42, 0.08);
-  --shadow-lg: 0 16px 48px rgba(26, 92, 42, 0.12);
 
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --font-title: "Outfit", sans-serif;
+  --shadow-sm: 0 1px 3px rgba(17, 24, 39, 0.08);
+  --shadow: 0 6px 18px rgba(17, 24, 39, 0.1);
+  --shadow-lg: 0 14px 38px rgba(17, 24, 39, 0.14);
+
+  --transition: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --font-title: "Poppins", "Outfit", sans-serif;
   --font-body: "Inter", sans-serif;
 
   --sidebar-w: 280px;
   --navbar-h: 60px;
+
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
 }
-/* ============================================================
-   AGROMARKET — TEMA OSCURO GLOBAL
-   ============================================================ */
 
-html.dark {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface2: #263449;
-  --surface3: #334155;
-
-  --border: rgba(148, 163, 184, 0.2);
-  --border-light: rgba(148, 163, 184, 0.12);
-
-  --text: #f8fafc;
-  --text-muted: #cbd5e1;
-  --text-dim: #94a3b8;
-
-  --primary-dark: #15803d;
-  --primary: #22a052;
-  --primary-light: #4ade80;
-
-  --green-bg: #123c25;
-
-  --gold: #f59e0b;
-  --gold-bg: #422006;
-  --gold-border: #92400e;
-
-  --red: #ef4444;
-  --red-bg: #450a0a;
-
-  --blue: #3b82f6;
-  --blue-bg: #172554;
-
-  --gray-bg: #374151;
-
-  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.3);
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
-}
 /* ─── RESET & BASE ─── */
 *,
 *::before,
@@ -121,202 +83,107 @@ img {
   max-width: 100%;
 }
 
-/* ─── NAVBAR (estilo MercadoLibre, colores AgroMarket) ─── */
+/* ─── NAVBAR ─── */
 .navbar-header {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
+  background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition:
+    background var(--transition),
     box-shadow var(--transition),
     backdrop-filter var(--transition);
-  will-change: box-shadow;
+  will-change: background, box-shadow;
 }
 .navbar-header.scrolled {
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
 }
-
-/* Fila 1: logo + búsqueda + promo — fondo de marca, estilo ML */
 .navbar-top {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: clamp(8px, 2vw, 20px);
-  padding: 12px clamp(12px, 3vw, 32px);
-  background: linear-gradient(
-    100deg,
-    var(--primary-dark) 0%,
-    var(--primary) 55%,
-    var(--primary) 100%
-  );
+  gap: 16px;
+  padding: 12px 24px;
+  max-width: 1440px;
+  margin: 0 auto;
 }
-
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--font-title);
-  font-size: clamp(17px, 2vw, 21px);
-  font-weight: 800;
-  color: #fff;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
   text-decoration: none;
   white-space: nowrap;
-  flex-shrink: 0;
 }
-.nav-logo:hover {
-  color: #fff;
-  opacity: 0.92;
-}
-.nav-logo-img {
-  height: 38px;
-  width: 38px;
-  object-fit: contain;
-  border-radius: 8px;
-  background: #fff;
-  flex-shrink: 0;
-}
-
 .nav-search {
-  flex: 1 1 320px;
+  flex: 1;
   display: flex;
-  min-width: 0;
-  max-width: 640px;
+  max-width: 600px;
+  border: 2px solid var(--primary);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 .nav-search input {
   flex: 1;
-  min-width: 0;
-  padding: 11px 16px;
+  padding: 10px 16px;
   border: none;
   outline: none;
   font-size: 15px;
-  background: #fff;
-  color: var(--text);
-}
-.nav-search input::placeholder {
-  color: var(--text-dim);
 }
 .nav-search-btn {
-  background: var(--primary-dark);
-  border: none;
-  padding: 0 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition);
-}
-.nav-search-btn:hover {
   background: var(--primary);
+  border: none;
+  padding: 0 20px;
+  cursor: pointer;
 }
-
-/* Pill promocional, estilo banner "ENVÍO GRATIS" de MercadoLibre */
-.nav-promo-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: var(--radius-full, 999px);
-  color: #fff;
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  text-decoration: none;
-  transition:
-    background var(--transition),
-    transform var(--transition);
-}
-.nav-promo-pill:hover {
-  background: rgba(255, 255, 255, 0.24);
-  color: #fff;
-  transform: translateY(-1px);
-}
-.nav-promo-icon {
-  font-size: 15px;
-  line-height: 1;
-}
-
 .nav-actions {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-left: auto;
-  flex-shrink: 0;
-}
-.nav-switches {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-right: 8px;
-  border-right: 1px solid rgba(255, 255, 255, 0.25);
-  margin-right: 4px;
 }
 .nav-btn-text {
-  color: #fff;
+  color: var(--primary);
   font-weight: 600;
   text-decoration: none;
-  white-space: nowrap;
-}
-.nav-btn-text:hover {
-  color: #fff;
-  opacity: 0.85;
 }
 .nav-btn-primary {
-  background: #fff;
-  color: var(--primary-dark);
+  background: var(--primary);
+  color: #fff;
   padding: 8px 18px;
   border-radius: 6px;
   text-decoration: none;
-  font-weight: 700;
-  white-space: nowrap;
-  transition:
-    transform var(--transition),
-    box-shadow var(--transition);
-}
-.nav-btn-primary:hover {
-  color: var(--primary-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  font-weight: 600;
 }
 .nav-icon-btn {
   position: relative;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 6px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background var(--transition);
+  padding: 4px;
+  color: var(--text-muted);
 }
 .nav-icon-btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.16);
+  color: var(--primary);
 }
 .nav-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: -4px;
+  right: -4px;
   background: #ef4444;
   color: #fff;
   border-radius: 50%;
-  min-width: 18px;
+  width: 18px;
   height: 18px;
-  padding: 0 3px;
   font-size: 11px;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--primary);
 }
 .nav-user {
   position: relative;
@@ -324,25 +191,18 @@ img {
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 8px;
-  transition: background var(--transition);
-}
-.nav-user:hover {
-  background: rgba(255, 255, 255, 0.12);
 }
 .nav-avatar {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #fff;
-  color: var(--primary-dark);
+  background: var(--primary);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
+  font-weight: 700;
   overflow: hidden;
-  flex-shrink: 0;
 }
 .nav-avatar img {
   width: 100%;
@@ -351,25 +211,21 @@ img {
 }
 .nav-username {
   font-weight: 600;
-  color: #fff;
-  white-space: nowrap;
 }
 .nav-arrow {
-  color: #fff;
-  flex-shrink: 0;
+  font-size: 0.7rem;
 }
 .nav-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(45, 106, 79, 0.1);
-  border-radius: var(--radius-md, 12px);
+  border-radius: var(--radius-md);
   padding: 8px;
-  min-width: 220px;
-  max-width: calc(100vw - 24px);
+  min-width: 210px;
   box-shadow: var(--shadow-lg);
   z-index: var(--z-dropdown);
   animation: slideInDown 0.18s ease;
@@ -383,7 +239,7 @@ img {
   padding: 10px 14px;
   color: #333;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   text-align: left;
   border: none;
   background: none;
@@ -395,91 +251,77 @@ img {
 }
 .nav-dropdown a:hover,
 .nav-dropdown button:hover {
-  background: var(--surface2);
-  color: var(--primary);
+  background: var(--color-surface-2);
+  color: var(--color-primary);
 }
 .nav-logout {
   color: #ef4444 !important;
 }
-
-/* Fila 2: categorías y enlaces — fondo claro, estilo ML */
 .navbar-categories {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
 }
 .nav-cats-inner {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 clamp(12px, 3vw, 32px);
+  gap: 0;
+  padding: 0 24px;
   max-width: 1440px;
   margin: 0 auto;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 .nav-cats-inner::-webkit-scrollbar {
   display: none;
 }
-.nav-cats-btn {
-  color: var(--text) !important;
-}
 .nav-cats-inner a {
-  padding: 11px 14px;
-  color: var(--text-muted);
+  padding: 10px 16px;
+  color: #555;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 500;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
-  transition: all var(--transition);
-  flex-shrink: 0;
+  transition: all 0.2s;
 }
 .nav-cats-inner a:hover {
   color: var(--primary);
   border-bottom-color: var(--primary);
 }
-
 /* Hamburguesa móvil animada */
 .nav-hamburger {
   display: none;
   flex-direction: column;
   justify-content: space-between;
-  width: 22px;
-  height: 16px;
+  width: 24px;
+  height: 18px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
-  flex-shrink: 0;
   z-index: 1010;
-  order: -1;
 }
 .nav-hamburger span {
   width: 100%;
   height: 2px;
-  background-color: #fff;
+  background-color: var(--primary);
   border-radius: 2px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .nav-hamburger.active span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
+  transform: translateY(8px) rotate(45deg);
 }
 .nav-hamburger.active span:nth-child(2) {
   opacity: 0;
 }
 .nav-hamburger.active span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 /* Drawer móvil izquierda */
 .mobile-drawer-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
-  height: 100dvh;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
   z-index: 999;
@@ -496,9 +338,9 @@ img {
   position: fixed;
   top: 0;
   left: 0;
-  width: min(85%, 340px);
+  width: 80%;
+  max-width: 320px;
   height: 100vh;
-  height: 100dvh;
   background: var(--surface);
   box-shadow: var(--shadow-lg);
   z-index: 1000;
@@ -506,7 +348,6 @@ img {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
 }
 .mobile-drawer.open {
   transform: translateX(0);
@@ -518,10 +359,6 @@ img {
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.mobile-drawer-header .nav-logo {
-  color: var(--primary);
 }
 .mobile-drawer-close {
   background: none;
@@ -529,21 +366,6 @@ img {
   font-size: 20px;
   color: var(--text-muted);
   cursor: pointer;
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.mobile-drawer-switches {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 14px 20px;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
 }
 .mobile-drawer-links {
   flex: 1;
@@ -933,428 +755,7 @@ img {
   }
 }
 
-/* ─── FOOTER ─── */
-.footer-pro {
-  background: #1a1a1a;
-  color: #ccc;
-  position: relative;
-  border-top: 1px solid #2a2a2a;
-}
-.footer-pro::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #66bb6a, transparent);
-  opacity: 0.6;
-}
-/* Halo verde muy sutil, coherente con el tema agro, sin distraer */
-.footer-pro::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 480px 240px at 8% 0%,
-    rgba(102, 187, 106, 0.06),
-    transparent 70%
-  );
-}
-
-.footer-main {
-  display: grid;
-  grid-template-columns: 2.2fr 1fr 1fr 1fr 1.1fr;
-  gap: 32px;
-  padding: 56px 24px 40px;
-  max-width: 1440px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.footer-col-brand {
-  max-width: 340px;
-}
-
-.footer-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 12px;
-  transition: opacity 0.2s ease;
-}
-.footer-logo:hover {
-  opacity: 0.85;
-}
-.footer-logo img {
-  transition: transform 0.25s ease;
-}
-.footer-logo:hover img {
-  transform: scale(1.05);
-}
-
-.footer-tagline {
-  color: #66bb6a;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-.footer-desc {
-  font-size: 13px;
-  line-height: 1.7;
-  color: #999;
-  max-width: 320px;
-  margin-bottom: 24px;
-}
-
-/* Newsletter */
-.footer-newsletter {
-  max-width: 320px;
-}
-.footer-newsletter-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 10px;
-}
-.footer-newsletter-row {
-  display: flex;
-  border: 1px solid #333;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #202020;
-  transition: border-color 0.2s ease;
-}
-.footer-newsletter-row:focus-within {
-  border-color: #66bb6a;
-}
-.footer-newsletter-row input {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #fff;
-  font-size: 13px;
-  font-family: var(--font-body);
-  padding: 11px 12px;
-}
-.footer-newsletter-row input::placeholder {
-  color: #777;
-}
-.footer-newsletter-row button {
-  border: none;
-  background: #66bb6a;
-  color: #10240f;
-  font-weight: 700;
-  font-size: 13px;
-  padding: 0 16px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s ease;
-}
-.footer-newsletter-row button:hover {
-  background: #7fce82;
-}
-.footer-newsletter-row button:focus-visible,
-.footer-newsletter-row input:focus-visible {
-  outline: 2px solid #66bb6a;
-  outline-offset: 2px;
-}
-.footer-newsletter-msg {
-  min-height: 18px;
-  font-size: 12px;
-  color: #66bb6a;
-  margin-top: 8px;
-}
-
-.footer-col h4 {
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 18px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  position: relative;
-  padding-bottom: 10px;
-}
-.footer-col h4::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 28px;
-  height: 2px;
-  background: #66bb6a;
-  border-radius: 2px;
-}
-
-.footer-col a,
-.footer-col span,
-.footer-link-btn {
-  display: block;
-  color: #999;
-  text-decoration: none;
-  font-size: 14px;
-  margin-bottom: 10px;
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-  width: fit-content;
-}
-.footer-link-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: inherit;
-  text-align: left;
-}
-.footer-col a:hover,
-.footer-link-btn:hover {
-  color: #66bb6a;
-  transform: translateX(3px);
-}
-.footer-col a:focus-visible,
-.footer-link-btn:focus-visible {
-  outline: 2px solid #66bb6a;
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-/* Contacto con iconos */
-.footer-contact-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.footer-contact-icon {
-  flex-shrink: 0;
-  color: #66bb6a;
-}
-
-.footer-social {
-  display: flex;
-  gap: 10px;
-  margin-top: 18px;
-}
-.footer-social a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #242424;
-  color: #999;
-  transition:
-    color 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-.footer-social a:hover {
-  color: #1a1a1a;
-  background: #66bb6a;
-  transform: translateY(-2px);
-}
-.footer-social a:focus-visible {
-  outline: 2px solid #66bb6a;
-  outline-offset: 2px;
-}
-
-.footer-payments {
-  border-top: 1px solid #2a2a2a;
-  border-bottom: 1px solid #2a2a2a;
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  max-width: 1440px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-}
-.footer-payments > span {
-  color: #999;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.payment-logos {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.payment-badge {
-  height: 26px;
-  width: auto;
-  max-width: 60px;
-  object-fit: contain;
-  background: #fff;
-  border-radius: 6px;
-  padding: 4px 8px;
-  box-sizing: content-box;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-.payment-badge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
-}
-.footer-secure {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #b7e0b9;
-  font-size: 12px;
-  font-weight: 600;
-  margin-right: auto;
-  background: rgba(102, 187, 106, 0.1);
-  border: 1px solid rgba(102, 187, 106, 0.25);
-  padding: 6px 12px;
-  border-radius: 99px;
-}
-.footer-secure svg {
-  color: #66bb6a;
-  flex-shrink: 0;
-}
-
-.footer-bottom {
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1440px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 12px;
-  color: #666;
-}
-.footer-bottom-links {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-.footer-bottom-links a {
-  color: #666;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-.footer-bottom-links a:hover {
-  color: #66bb6a;
-}
-.footer-bottom-links a:focus-visible {
-  outline: 2px solid #66bb6a;
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-.back-to-top {
-  background: none;
-  border: none;
-  color: #999;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-.back-to-top:hover {
-  color: #66bb6a;
-  transform: translateY(-2px);
-}
-.back-to-top:focus-visible {
-  outline: 2px solid #66bb6a;
-  outline-offset: 2px;
-}
-
-@media (max-width: 1024px) {
-  .footer-main {
-    grid-template-columns: 1fr 1fr;
-    gap: 40px 24px;
-  }
-  .footer-col-brand {
-    grid-column: 1 / -1;
-    max-width: 480px;
-  }
-}
-@media (max-width: 640px) {
-  .footer-main {
-    grid-template-columns: 1fr;
-    padding: 40px 20px 32px;
-    gap: 32px;
-  }
-  .footer-col-brand {
-    max-width: 100%;
-  }
-  .footer-desc,
-  .footer-newsletter {
-    max-width: 100%;
-  }
-  .footer-payments {
-    justify-content: center;
-    text-align: center;
-  }
-  .footer-secure {
-    margin-right: 0;
-    width: 100%;
-    justify-content: center;
-  }
-  .footer-bottom {
-    flex-direction: column;
-    text-align: center;
-  }
-  .footer-bottom-links {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .footer-logo,
-  .footer-logo img,
-  .footer-col a,
-  .footer-link-btn,
-  .footer-social a,
-  .payment-badge,
-  .back-to-top {
-    transition: none !important;
-  }
-  .footer-col a:hover,
-  .footer-link-btn:hover,
-  .footer-social a:hover,
-  .back-to-top:hover {
-    transform: none !important;
-  }
-}
-/* ─── APP LAYOUT (dashboards: Admin / Comprador / Productor) ───
-   Estas reglas faltaban por completo. Sin ellas, .app-layout no
-   era flex y .sidebar (height: 100vh) empujaba .main-content
-   fuera de la pantalla, dejándolo técnicamente renderizado pero
-   invisible sin hacer scroll una pantalla completa hacia abajo. */
-.app-layout {
-  display: flex;
-  align-items: stretch;
-  min-height: 100vh;
-  width: 100%;
-}
-
-.main-content {
-  flex: 1 1 auto;
-  min-width: 0; /* evita que las tablas anchas rompan el layout flex */
-  padding: 24px 32px;
-  overflow-x: hidden;
-}
+/* Footer moved to footer.css */
 
 /* ─── SIDEBAR TOGGLE & OVERLAY ─── */
 .sidebar-overlay {
@@ -1397,7 +798,6 @@ img {
 /* ─── SIDEBAR ─── */
 .sidebar {
   width: var(--sidebar-w);
-  flex-shrink: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
   padding: 24px 16px;
@@ -1406,7 +806,6 @@ img {
   position: sticky;
   top: 0;
   height: 100vh;
-  overflow-y: auto;
 }
 .sidebar-user {
   padding: 16px;
@@ -2241,41 +1640,256 @@ body {
     grid-template-columns: 1fr !important;
   }
 }
+
 /* ============================================================
-   AGROMARKET - COMPONENTES GLOBALES DARK MODE
+   AGROMARKET — CATEGORY 8 GLOBAL DESIGN SYSTEM OVERRIDES
+   These rules intentionally use canonical tokens so existing
+   category-specific styles inherit the same visual language.
    ============================================================ */
 
+:where(button, a, input, select, textarea, [role="button"]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+:where(.btn, .btn-primary, .btn-secondary, .btn-danger, .btn-cta) {
+  font-family: var(--font-body);
+  min-height: 40px;
+  border-radius: var(--radius-md);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+.btn-secondary {
+  background: #fff;
+  color: var(--primary-dark);
+  border: 1px solid var(--primary);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--green-bg);
+}
+.btn-tertiary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid transparent;
+}
+.btn-tertiary:hover:not(:disabled) {
+  background: var(--green-bg);
+}
+.btn-danger {
+  background: var(--red);
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+:where(
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .form-group input,
+  .form-group select,
+  .form-group textarea
+) {
+  border-color: var(--am-gray-300, #d1d5db);
+  border-radius: var(--radius-md);
+}
+:where(
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .form-group input,
+  .form-group select,
+  .form-group textarea
+):focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(17, 130, 59, 0.18);
+}
+
+.badge-status,
+.badge-promo {
+  font-family: var(--font-body);
+}
+
+.status-pending {
+  background: var(--gold-bg);
+  color: #7a5200;
+  border-color: var(--gold-border);
+}
+.status-shipped {
+  background: var(--green-bg);
+  color: var(--primary-dark);
+  border-color: var(--green-light, #a8e6a1);
+}
+.status-delivered {
+  background: var(--gray-bg);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.alert,
+.alert-success,
+.alert-warning,
+.alert-danger,
+.alert-error,
+.alert-info {
+  border-radius: var(--radius-lg);
+}
+
+.table-wrap {
+  border-radius: var(--radius-lg);
+}
+
+.modal {
+  border-radius: var(--radius-xl, 16px);
+}
+
+.navbar-header {
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.footer-pro {
+  background: var(--primary-dark);
+}
+
+[aria-busy="true"] {
+  cursor: progress;
+}
+
+.am-visually-hidden,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media (max-width: 576px) {
+  .navbar-top {
+    padding-inline: 16px;
+  }
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-cta {
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+  .navbar-top {
+    padding-inline: 20px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .navbar-top {
+    padding-inline: 24px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .navbar-top {
+    padding-inline: 32px;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --border: #374151;
+    --border-light: #667280;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card:hover,
+  .btn-cta:hover,
+  .btn:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   AGROMARKET — DARK THEME FINAL OVERRIDES
+   Este bloque debe permanecer al FINAL de styles.css para que
+   el tema oscuro gane a cualquier regla clara anterior.
+   La lógica del tema NO vive aquí; aquí solo se consumen tokens.
+   ============================================================ */
+html.dark,
 html.dark body {
+  color-scheme: dark;
+  background: var(--am-bg);
+  color: var(--am-gray-950);
+}
+
+html.dark body,
+html.dark #root {
   background: var(--bg);
   color: var(--text);
 }
 
-/* ---------- NAVBAR ---------- */
-
-html.dark .navbar-header {
-  background: rgba(15, 23, 42, 0.96);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+html.dark a {
+  color: var(--primary);
 }
 
-html.dark .navbar-header.scrolled {
-  background: rgba(15, 23, 42, 0.9);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
-}
-
-html.dark .navbar-categories {
-  background: #172235;
-  border-top-color: #334155;
-}
-
-html.dark .nav-cats-inner a {
-  color: #cbd5e1;
-}
-
-html.dark .nav-cats-inner a:hover {
+html.dark a:hover {
   color: var(--primary-light);
 }
 
-/* ---------- BUSCADOR ---------- */
+/* Navbar */
+html.dark .navbar-header,
+html.dark .navbar-header.scrolled {
+  background: rgba(15, 23, 18, 0.96);
+  border-bottom-color: var(--border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .navbar-categories {
+  background: var(--surface2);
+  border-top-color: var(--border);
+  border-bottom-color: var(--border);
+}
+
+html.dark .nav-cats-inner a {
+  color: var(--text-muted);
+}
+
+html.dark .nav-cats-inner a:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+html.dark .nav-logo,
+html.dark .nav-btn-text,
+html.dark .nav-icon-btn {
+  color: var(--text);
+}
+
+html.dark .nav-search {
+  background: var(--surface);
+  border-color: var(--primary);
+}
 
 html.dark .nav-search input {
   background: var(--surface);
@@ -2286,12 +1900,13 @@ html.dark .nav-search input::placeholder {
   color: var(--text-dim);
 }
 
-/* ---------- DROPDOWN ---------- */
+html.dark .nav-search-btn {
+  color: #fff;
+}
 
 html.dark .nav-dropdown {
-  background: #1e293b;
-  border-color: #475569;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  background: var(--surface);
+  border-color: var(--border);
 }
 
 html.dark .nav-dropdown a,
@@ -2301,107 +1916,56 @@ html.dark .nav-dropdown button {
 
 html.dark .nav-dropdown a:hover,
 html.dark .nav-dropdown button:hover {
-  background: #334155;
-  color: var(--primary-light);
+  background: var(--surface2);
+  color: var(--primary);
 }
 
-/* ---------- SIDEBAR ---------- */
-
+/* Drawer móvil */
+html.dark .mobile-drawer,
+html.dark .cart-drawer,
 html.dark .sidebar {
   background: var(--surface);
-  border-right-color: var(--border);
+  color: var(--text);
 }
 
+html.dark .mobile-drawer-header,
+html.dark .cart-header,
+html.dark .cart-footer,
 html.dark .sidebar-user {
+  border-color: var(--border);
   background: var(--surface2);
 }
 
-html.dark .sidebar-link {
-  color: var(--text-muted);
-}
-
-html.dark .sidebar-link:hover {
-  background: var(--green-bg);
-  color: var(--primary-light);
-}
-
-/* ---------- CARDS ---------- */
-
-html.dark .stat-card,
-html.dark .product-card,
-html.dark .card-table {
-  background: var(--surface);
-  border-color: var(--border-light);
+html.dark .mobile-drawer-links a,
+html.dark .mobile-drawer-close,
+html.dark .cart-header-title,
+html.dark .cart-items-count,
+html.dark .cart-close {
   color: var(--text);
 }
 
-/* ---------- PRODUCTOS ---------- */
-
-html.dark .product-img-container {
-  background: var(--surface2);
+html.dark .mobile-drawer-links a {
+  border-bottom-color: var(--border-light);
 }
 
-html.dark .product-name {
-  color: var(--text);
+html.dark .mobile-drawer-btn-text {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: transparent;
 }
 
-html.dark .product-price {
-  color: var(--primary-light);
+html.dark .mobile-drawer-btn-primary {
+  color: #fff;
+  background: var(--primary);
 }
 
-/* ---------- TABLAS ---------- */
-
-html.dark .table-header {
-  border-bottom-color: var(--border);
+html.dark .nav-logout-mobile {
+  background: var(--red-bg);
+  color: var(--red);
+  border-color: var(--border);
 }
 
-html.dark .table-responsive tbody tr {
-  background: var(--surface);
-}
-
-html.dark th {
-  background: var(--surface2);
-  color: var(--text-muted);
-}
-
-html.dark td {
-  color: var(--text);
-  border-bottom-color: var(--border);
-}
-
-html.dark tbody tr:hover {
-  background: var(--surface2);
-}
-
-/* ---------- FORMULARIOS ---------- */
-
-html.dark input,
-html.dark select,
-html.dark textarea {
-  background: var(--surface);
-  color: var(--text);
-  border-color: #475569;
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: var(--text-dim);
-}
-
-/* ---------- MODALES ---------- */
-
-html.dark .modal {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-html.dark .modal-title {
-  color: var(--text);
-}
-
-/* ---------- BOTONES ---------- */
-
+/* Botones */
 html.dark .btn-secondary {
   background: var(--surface);
   color: var(--text);
@@ -2409,55 +1973,394 @@ html.dark .btn-secondary {
 }
 
 html.dark .btn-secondary:hover {
+  background: var(--green-bg);
+  color: var(--primary);
+}
+
+html.dark .btn-tertiary:hover {
+  background: var(--green-bg);
+}
+
+/* Cards / contenido general */
+html.dark .stat-card,
+html.dark .product-card,
+html.dark .card-table,
+html.dark .user-profile-summary {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+html.dark .stat-card.color-1,
+html.dark .stat-card.color-2,
+html.dark .stat-card.color-3,
+html.dark .stat-card.color-4 {
+  background: var(--surface);
+}
+
+html.dark .product-img-container,
+html.dark .cart-item-thumb {
   background: var(--surface2);
 }
 
-/* ---------- CARRITO ---------- */
+html.dark .product-name,
+html.dark .product-price,
+html.dark .stat-value,
+html.dark .cart-item-name,
+html.dark .cart-footer-price,
+html.dark .cart-total-row,
+html.dark .cart-summary-total {
+  color: var(--text);
+}
 
-html.dark .cart-drawer {
+html.dark .product-price,
+html.dark .price-wholesale,
+html.dark .cart-footer-price-total,
+html.dark .cart-item-total {
+  color: var(--primary-light);
+}
+
+html.dark .product-rating .rating-value,
+html.dark .product-price span,
+html.dark .cart-item-price,
+html.dark .cart-item-meta,
+html.dark .cart-summary-row {
+  color: var(--text-dim);
+}
+
+/* Tablas */
+html.dark .table-header,
+html.dark .table-filters,
+html.dark th {
+  background: var(--surface2);
+  border-color: var(--border);
+}
+
+html.dark td {
+  border-color: var(--border-light);
+  color: var(--text);
+}
+
+html.dark tbody tr:hover {
+  background: var(--surface2);
+}
+
+/* Inputs y formularios */
+html.dark input,
+html.dark select,
+html.dark textarea,
+html.dark .form-input,
+html.dark .form-select,
+html.dark .form-textarea,
+html.dark .search-box input {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--text-dim);
+}
+
+html.dark .form-label {
+  color: var(--text-muted);
+}
+
+html.dark .form-input:focus,
+html.dark .form-select:focus,
+html.dark .form-textarea:focus,
+html.dark .search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(82, 184, 106, 0.18);
+}
+
+/* Modal */
+html.dark .modal {
   background: var(--surface);
   color: var(--text);
 }
 
-html.dark .cart-header {
-  background: var(--surface);
-  border-bottom-color: var(--border);
+html.dark .modal-close {
+  color: var(--text-dim);
 }
 
-html.dark .cart-items {
-  background: var(--surface);
-}
-
-html.dark .cart-footer {
-  background: var(--surface2);
-  border-top-color: var(--border);
-}
-
-html.dark .qty-btn {
+/* Carrito */
+html.dark .qty-btn,
+html.dark .control-btn {
   background: var(--surface2);
   color: var(--text);
   border-color: var(--border);
 }
 
-html.dark .qty-btn:hover {
+html.dark .qty-btn:hover,
+html.dark .control-btn:hover,
+html.dark .cart-close:hover {
   background: var(--surface3);
 }
 
-/* ---------- MOBILE NAV ---------- */
-
-html.dark .mobile-bottom-nav {
-  background: var(--surface) !important;
-  border-top-color: var(--border) !important;
+html.dark .cart-item-row {
+  border-bottom-color: var(--border-light);
 }
 
-/* ---------- SCROLLBAR ---------- */
+html.dark .cart-drawer-overlay,
+html.dark .mobile-drawer-overlay,
+html.dark .sidebar-overlay,
+html.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.65);
+}
 
-html.dark::-webkit-scrollbar-track,
-html.dark body::-webkit-scrollbar-track {
+/* Navegación inferior móvil */
+html.dark .mobile-nav {
   background: var(--surface);
+  border-top-color: var(--border);
 }
 
-html.dark::-webkit-scrollbar-thumb,
-html.dark body::-webkit-scrollbar-thumb {
-  background: #475569;
+html.dark .mobile-nav-item {
+  color: var(--text-dim);
+}
+
+html.dark .mobile-nav-item.active {
+  color: var(--primary);
+}
+
+/* Estados */
+html.dark .status-pending {
+  background: rgba(255, 193, 7, 0.14);
+  color: #ffd666;
+  border-color: rgba(255, 193, 7, 0.35);
+}
+
+html.dark .status-shipped {
+  background: rgba(82, 184, 106, 0.14);
+  color: #8bd79b;
+  border-color: rgba(82, 184, 106, 0.35);
+}
+
+html.dark .status-delivered {
+  background: var(--surface2);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+/* Elementos comunes que suelen quedar blancos por reglas antiguas */
+html.dark .bg-white,
+html.dark .background-white,
+html.dark .bg-light,
+html.dark .surface-white {
+  background: var(--surface) !important;
+  color: var(--text);
+}
+
+html.dark [class*="card"] {
+  --card-bg: var(--surface);
+}
+
+/* Scrollbars */
+html.dark {
+  scrollbar-color: #3f5146 #0f1712;
+}
+
+html.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: var(--am-bg);
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #3f5146;
+  border-radius: 999px;
+  border: 2px solid var(--am-bg);
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #52685a;
+}
+
+/* Accesibilidad: mantener foco visible en ambos temas */
+html.dark
+  :where(button, a, input, select, textarea, [role="button"]):focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html.dark *,
+  html.dark *::before,
+  html.dark *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   ALINEACIÓN FIGMA — AgroMarket design system
+   Aplica los patrones visuales de los frames de Figma a los
+   dashboards compartidos (comprador / productor / admin):
+   píldora activa del sidebar, tarjetas de stats, badges de
+   estado y botones CTA con radio 30.
+   ============================================================ */
+
+/* Sidebar: ítem activo como píldora verde (frame: menu-item-resumen) */
+.app-layout .sidebar-link.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-radius: 12px;
+}
+
+.app-layout .sidebar-link.active .icon {
+  color: #ffffff;
+}
+
+/* Tarjetas de estadísticas (frame: stats-row) */
+.app-layout .stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.app-layout .stat-label {
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.app-layout .stat-value {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: clamp(24px, 2.2vw, 32px);
+  color: var(--primary);
+}
+
+/* Encabezado de bienvenida (frame: "¡Hola, Juan Pérez!") */
+.dash-header h1 {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: clamp(24px, 2.4vw, 32px);
+  color: var(--text);
+}
+
+/* CTA principal con radio 30 y sombra del frame */
+.btn-cta {
+  border-radius: 30px;
+  background: var(--primary);
+  box-shadow: 0 4px 12px rgba(26, 92, 42, 0.2);
+  transition:
+    background var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.btn-cta:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(26, 92, 42, 0.28);
+}
+
+/* Badges de estado con la paleta exacta del frame */
+.badge-status.status-pending {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badge-status.status-shipped {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-status.status-delivered {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.badge-status.status-cancelled,
+.badge-status.status-canceled {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* ── Pedidos / Envíos (frames comprador-pedidos & comprador-envios) ── */
+/* Cabecera de tarjeta de pedido con franja suave (frame: EL-a75f10aa) */
+.card-table > .table-header {
+  background: var(--bg);
+}
+
+/* Filtros tipo píldora dentro de la barra de filtros */
+.table-filters select,
+.table-filters .btn {
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+}
+
+.table-filters select:focus,
+.table-filters .btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Totales en verde de marca dentro de tablas */
+td .price-total,
+td strong {
+  color: var(--primary);
+}
+
+/* Encabezados de columna más legibles (frame: Nº Pedido / Fecha / Estado) */
+th {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+/* ============================================================
+   FIX LAYOUT DASHBOARDS — .app-layout no tenía display:flex,
+   por lo que sidebar y main-content se apilaban en bloque
+   (síntoma: contenido del admin abajo y encimado).
+   ============================================================ */
+
+.app-layout {
+  display: flex;
+  align-items: stretch;
+}
+
+.app-layout > .sidebar {
+  flex-shrink: 0;
+}
+
+.app-layout > .main-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  /* En móvil la sidebar es drawer fijo; el flujo vuelve a bloque */
+  .app-layout {
+    display: block;
+  }
+}
+
+/* ============================================================
+   FIX TOKENS FALTANTES — resenas.css (y otros) referencian
+   --green / --green-dark que no existían en variables.css.
+   ============================================================ */
+
+:root {
+  --green: var(--primary);
+  --green-dark: var(--primary-dark);
+}
+
+html.dark,
+body.dark,
+#root.dark,
+html[data-theme="dark"],
+body[data-theme="dark"],
+#root[data-theme="dark"] {
+  --green: #52b86a;
+  --green-dark: #7bcb8a;
 }

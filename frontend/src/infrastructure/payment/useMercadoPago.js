@@ -20,12 +20,12 @@ export function useMercadoPago() {
           throw new Error('Public Key de MercadoPago no configurada');
         }
 
-        if (typeof MercadoPago === 'undefined') {
+        if (typeof globalThis.MercadoPago === 'undefined') {
           throw new Error('SDK de MercadoPago no cargado');
         }
 
         // Inicializar MercadoPago
-        const mpInstance = new MercadoPago(publicKey, {
+        const mpInstance = new globalThis.MercadoPago(publicKey, {
           locale: 'es-CO',
         });
 

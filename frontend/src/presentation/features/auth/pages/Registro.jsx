@@ -1,8 +1,15 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api, { API_BASE } from "@/infrastructure/http/api";
-import "@/presentation/styles/registro.css";
+import bgCampo from "@/assets/register-bg-campo.png";
+import leafIcon from "@/assets/icon-leaf.svg";
+import mapPinIcon from "@/assets/icon-map-pin.svg";
+import shieldCheckIcon from "@/assets/icon-shield-check.svg";
+import handHeartIcon from "@/assets/icon-hand-heart.svg";
+import { ThemeToggle } from "@/presentation/shared/components/ThemeToggle";
+import "@/presentation/styles/login.css";
+import "@/presentation/styles/auth-flow.css";
 
 const COUNTRY_CODES = [
   { code: "+57", name: "Colombia (🇨🇴)" },
@@ -31,6 +38,7 @@ export default function Registro() {
   const [ubicacion, setUbicacion] = useState("");
   const [nombreEmpresa, setNombreEmpresa] = useState("");
   const [nit, setNit] = useState("");
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -130,46 +138,13 @@ export default function Registro() {
     [t, password, rol],
   );
 
-  // Real-time validations on changes
-  useEffect(() => {
-    if (nombre) validateField("nombre", nombre);
-  }, [nombre, validateField]);
-
-  useEffect(() => {
-    if (apellido) validateField("apellido", apellido);
-  }, [apellido, validateField]);
-
-  useEffect(() => {
-    if (email) validateField("email", email);
-  }, [email, validateField]);
-
-  useEffect(() => {
-    if (telefono) validateField("telefono", telefono);
-  }, [telefono, validateField]);
-
-  useEffect(() => {
-    if (password) validateField("password", password);
-  }, [password, confirmPass, validateField]);
-
-  useEffect(() => {
-    if (confirmPass) validateField("confirmPass", confirmPass);
-  }, [confirmPass, password, validateField]);
-
-  useEffect(() => {
-    if (ubicacion) validateField("ubicacion", ubicacion);
-  }, [ubicacion, rol, validateField]);
-
-  useEffect(() => {
-    if (nombreEmpresa) validateField("nombreEmpresa", nombreEmpresa);
-  }, [nombreEmpresa, rol, validateField]);
-
-  useEffect(() => {
-    if (nit) validateField("nit", nit);
-  }, [nit, rol, validateField]);
+  const handleFieldChange = (field, value, setter) => {
+    setter(value);
+    validateField(field, value);
+  };
 
   const handleGoogleRegistro = () => {
     const rolSeleccionado = rol === "productor" ? "PRODUCER" : "BUYER";
-
     window.location.href = `${API_BASE.replace("/api", "")}/oauth2/authorization/google?role=${rolSeleccionado}`;
   };
 
@@ -182,10 +157,10 @@ export default function Registro() {
     if (/[@$!%*?&.]/.test(pass)) score += 1;
 
     if (score <= 1)
-      return { score: 1, label: "Débil ❌", color: "#e53935", width: "33%" };
+      return { score: 1, label: "Débil", color: "#e53935", width: "33%" };
     if (score <= 3)
-      return { score: 2, label: "Media ⚡", color: "#ff9800", width: "66%" };
-    return { score: 3, label: "Fuerte 💪", color: "#4caf50", width: "100%" };
+      return { score: 2, label: "Media", color: "#ff9800", width: "66%" };
+    return { score: 3, label: "Fuerte", color: "#4caf50", width: "100%" };
   };
 
   const passwordStrength = getPasswordStrength(password);
@@ -221,6 +196,8 @@ export default function Registro() {
     if (rol === "comprador_empresa" && !nombreEmpresa.trim())
       errs.nombreEmpresa = "Nombre de empresa requerido.";
     if (rol === "comprador_empresa" && !nit.trim()) errs.nit = "NIT requerido.";
+    if (!aceptaTerminos)
+      errs.aceptaTerminos = "Debes aceptar los términos y la política.";
     return errs;
   };
 
@@ -274,660 +251,546 @@ export default function Registro() {
     }
   };
 
+  const eyeIcon = (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+
+  const eyeOffIcon = (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  );
+
   return (
-    <div className="wrapper">
-      {/* LEFT: FORM or SUCCESS PAGE */}
-      <div className="left-panel">
-        <Link className="brand" to="/login">
-          <div className="brand-logo">
-            <img
-              src="/logo-asafrut.jpg"
-              alt="Asafrut Logo"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "4px",
-              }}
-            />
-          </div>
-          <div>
-            <div className="brand-name">AgroMarket</div>
-            <div className="brand-sub">ASAFRUT · Chigorodó, Antioquia</div>
-          </div>
-        </Link>
+    <div className="login-page">
+      {/* Selector de tema — reutiliza el mecanismo global del repo */}
+      <div className="login-theme-toggle">
+        <ThemeToggle />
+      </div>
 
-        {success ? (
-          <div className="success-screen">
-            <div className="success-checkmark">🎉</div>
-            <h1 className="page-title">¡Registro Exitoso!</h1>
-            <p
-              className="page-sub"
-              style={{ maxWidth: "400px", margin: "8px auto 24px auto" }}
-            >
-              Tu cuenta ha sido creada exitosamente. Hemos enviado un correo de
-              verificación para activar tu cuenta.
-            </p>
+      {/* ── Panel izquierdo (frame: left-panel-split) ── */}
+      <aside
+        className="login-left"
+        style={{ backgroundImage: `url(${bgCampo})` }}
+      >
+        <div className="login-left-overlay">
+          <Link to="/home" className="login-brand">
+            <span className="login-brand-icon">
+              <img src={leafIcon} alt="" width="20" height="20" />
+            </span>
+            <span className="login-brand-name">
+              <em>Agro</em>Market
+            </span>
+          </Link>
 
-            <div className="success-card">
-              <div className="success-card-item">
-                <strong>Nombre:</strong> {nombre} {apellido}
-              </div>
-              <div className="success-card-item">
-                <strong>Correo:</strong>{" "}
-                {email.replace(/(.{2})(.*)(@.*)/, "$1***$3")}
-              </div>
-              <div className="success-card-item">
-                <strong>Perfil:</strong>{" "}
-                {t(
-                  "auth." + rol.toLowerCase(),
-                  rol === "comprador_empresa"
-                    ? "Empresa"
-                    : rol.charAt(0).toUpperCase() + rol.slice(1),
-                )}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="btn-submit"
-              style={{ maxWidth: "400px" }}
-              onClick={() =>
-                navigate("/verificar-correo", { state: { email } })
-              }
-            >
-              Ir a Verificar Correo
-              <svg
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                fill="currentColor"
-                style={{
-                  display: "inline",
-                  verticalAlign: "middle",
-                  marginLeft: "6px",
-                }}
-              >
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-              </svg>
-            </button>
-          </div>
-        ) : (
-          <>
-            <h1 className="page-title">
-              {t("auth.registerTitle", "Comienza tu viaje")}
+          <div className="login-banner">
+            <span className="login-banner-badge">
+              🇨🇴 {t("auth.bannerBadge", "Directo del campo colombiano")}
+            </span>
+            <h1 className="login-banner-title">
+              {t("auth.registerHeroTitle", "Únete al movimiento del campo")}
             </h1>
-            <p className="page-sub">
+            <p className="login-banner-sub">
               {t(
-                "auth.registerSub",
-                "Selecciona tu perfil y únete a la revolución agrícola.",
+                "auth.registerHeroSub",
+                "Productos 100% frescos de origen local, apoyo directo a familias productoras y compras garantizadas sin intermediarios dañinos.",
               )}
             </p>
+          </div>
 
-            {errors.global && (
-              <div
-                className="global-error"
-                style={{
-                  display: "block",
-                  marginBottom: "16px",
-                  color: "#e53935",
-                  background: "#ffebee",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "0.85rem",
-                  fontWeight: "500",
-                }}
-              >
-                {errors.global}
-              </div>
+          <p className="login-left-note">
+            <img src={mapPinIcon} alt="" width="18" height="18" />
+            {t(
+              "auth.leftNote",
+              "Fincas de Urabá y de toda Colombia unidas en un solo lugar.",
             )}
+          </p>
+        </div>
+      </aside>
 
-            {/* ROLE SELECTOR (3 cards) */}
-            <div className="role-selector">
-              <div
-                className={`role-card${rol === "comprador" ? " selected" : ""}`}
-                id="roleComprador"
-                onClick={() => setRol("comprador")}
-                onKeyDown={(e) => e.key === "Enter" && setRol("comprador")}
-                role="button"
-                tabIndex={0}
-              >
-                <div className="role-check">
-                  <svg viewBox="0 0 10 8">
-                    <path
-                      d="M1 4l3 3 5-5"
-                      stroke="#fff"
-                      strokeWidth="1.5"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
-                <div className="role-icon">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                  >
-                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
-                  </svg>
-                </div>
-                <div className="role-name">{t("auth.buyer", "Comprador")}</div>
-                <div className="role-desc">Compra frescos al mejor precio</div>
-              </div>
-
-              <div
-                className={`role-card${rol === "comprador_empresa" ? " selected" : ""}`}
-                id="roleEmpresa"
-                onClick={() => setRol("comprador_empresa")}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && setRol("comprador_empresa")
-                }
-                role="button"
-                tabIndex={0}
-              >
-                <div className="role-check">
-                  <svg viewBox="0 0 10 8">
-                    <path
-                      d="M1 4l3 3 5-5"
-                      stroke="#fff"
-                      strokeWidth="1.5"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
-                <div className="role-icon">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
-                  </svg>
-                </div>
-                <div className="role-name">Empresa</div>
-                <div className="role-desc">
-                  Licitaciones y compras al por mayor B2B
-                </div>
-              </div>
-
-              <div
-                className={`role-card${rol === "productor" ? " selected" : ""}`}
-                id="roleProductor"
-                onClick={() => setRol("productor")}
-                onKeyDown={(e) => e.key === "Enter" && setRol("productor")}
-                role="button"
-                tabIndex={0}
-              >
-                <div className="role-check">
-                  <svg viewBox="0 0 10 8">
-                    <path
-                      d="M1 4l3 3 5-5"
-                      stroke="#fff"
-                      strokeWidth="1.5"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
-                <div className="role-icon">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                  >
-                    <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
-                  </svg>
-                </div>
-                <div className="role-name">
-                  {t("auth.producer", "Productor")}
-                </div>
-                <div className="role-desc">
-                  Vende cosechas sin intermediarios
-                </div>
-              </div>
-            </div>
-
-            {/* FORM */}
-            <form id="regForm" noValidate onSubmit={handleSubmit}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="nombre">
-                    {t("auth.firstName", "Nombre")}
-                  </label>
-                  <input
-                    className="form-input"
-                    type="text"
-                    id="nombre"
-                    placeholder="Juan"
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                  />
-                  {errors.nombre && (
-                    <span className="form-error visible" id="nombreError">
-                      {errors.nombre}
-                    </span>
+      {/* ── Panel derecho: formulario (frame: form-container) ── */}
+      <main className="login-right">
+        <section className="login-form-container">
+          {success ? (
+            <>
+              <header className="login-form-header">
+                <h2>{t("auth.successTitle", "¡Cuenta creada!")}</h2>
+                <p>
+                  {t(
+                    "auth.successSub",
+                    "Verifica tu correo para activar tu cuenta y comenzar a disfrutar de AgroMarket.",
                   )}
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="apellido">
-                    {t("auth.lastName", "Apellido")}
-                  </label>
-                  <input
-                    className="form-input"
-                    type="text"
-                    id="apellido"
-                    placeholder="Pérez"
-                    value={apellido}
-                    onChange={(e) => setApellido(e.target.value)}
-                  />
-                  {errors.apellido && (
-                    <span className="form-error visible" id="apellidoError">
-                      {errors.apellido}
-                    </span>
-                  )}
-                </div>
-              </div>
+                </p>
+              </header>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="email">
-                  {t("auth.email", "Correo electrónico")}
-                </label>
-                <input
-                  className="form-input"
-                  type="email"
-                  id="email"
-                  placeholder="tu@correo.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                {errors.email && (
-                  <span className="form-error visible" id="emailError">
-                    {errors.email}
-                  </span>
-                )}
-              </div>
-
-              {/* TELEFONO CON SELECTOR DE CODIGO PAIS Y SMS VERIFY */}
-              <div className="form-group">
-                <label className="form-label" htmlFor="telefono">
-                  {t("auth.phone", "Teléfono")}
-                </label>
-                <div className="phone-input-container">
-                  <select
-                    className="form-select country-select"
-                    value={codigoPais}
-                    onChange={(e) => setCodigoPais(e.target.value)}
-                  >
-                    {COUNTRY_CODES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.code}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    className="form-input"
-                    type="tel"
-                    id="telefono"
-                    placeholder="3001234567"
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                  />
-                </div>
-                {errors.telefono && (
-                  <span className="form-error visible" id="telefonoError">
-                    {errors.telefono}
-                  </span>
-                )}
-              </div>
-
-              {/* CONTRASEÑA */}
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="password">
-                    {t("auth.password", "Contraseña")}
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      className="form-input"
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      style={{ paddingRight: "40px" }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        position: "absolute",
-                        right: "10px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "1.2rem",
-                        padding: "4px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                      aria-label={showPassword ? "Ocultar" : "Mostrar"}
-                    >
-                      {showPassword ? (
-                        // Eye-off SVG
-                        <svg
-                          viewBox="0 0 24 24"
-                          width="20"
-                          height="20"
-                          fill="#6b7280"
-                        >
-                          <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
-                        </svg>
-                      ) : (
-                        // Eye SVG
-                        <svg
-                          viewBox="0 0 24 24"
-                          width="20"
-                          height="20"
-                          fill="#6b7280"
-                        >
-                          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* PASSWORD STRENGTH BAR */}
-                  {password && (
-                    <div className="password-strength-container">
-                      <div className="password-strength-bar">
-                        <div
-                          className="password-strength-fill"
-                          style={{
-                            width: passwordStrength.width,
-                            backgroundColor: passwordStrength.color,
-                          }}
-                        />
-                      </div>
-                      <span
-                        className="password-strength-text"
-                        style={{ color: passwordStrength.color }}
-                      >
-                        Fortaleza: {passwordStrength.label}
-                      </span>
-                    </div>
-                  )}
-                  {errors.password && (
-                    <span className="form-error visible" id="passwordError">
-                      {errors.password}
-                    </span>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label" htmlFor="confirmPass">
-                    {t("auth.confirmPassword", "Confirmar contraseña")}
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      className="form-input"
-                      type={showConfirmPassword ? "text" : "password"}
-                      id="confirmPass"
-                      placeholder="••••••••"
-                      value={confirmPass}
-                      onChange={(e) => setConfirmPass(e.target.value)}
-                      style={{ paddingRight: "40px" }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      style={{
-                        position: "absolute",
-                        right: "10px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "1.2rem",
-                        padding: "4px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                      aria-label={showConfirmPassword ? "Ocultar" : "Mostrar"}
-                    >
-                      {showConfirmPassword ? (
-                        // Eye-off SVG
-                        <svg
-                          viewBox="0 0 24 24"
-                          width="20"
-                          height="20"
-                          fill="#6b7280"
-                        >
-                          <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
-                        </svg>
-                      ) : (
-                        // Eye SVG
-                        <svg
-                          viewBox="0 0 24 24"
-                          width="20"
-                          height="20"
-                          fill="#6b7280"
-                        >
-                          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  {errors.confirmPass && (
-                    <span className="form-error visible" id="confirmError">
-                      {errors.confirmPass}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* EXTRA FIELD FOR PRODUCER */}
-              {rol === "productor" && (
-                <div
-                  className="form-group extra-field visible"
-                  id="ubicacionGroup"
-                >
-                  <label className="form-label" htmlFor="ubicacion">
-                    {t("auth.location", "Ubicación / Vereda")}
-                  </label>
-                  <input
-                    className="form-input"
-                    type="text"
-                    id="ubicacion"
-                    placeholder="Ej. Vereda Las Margaritas, Chigorodó"
-                    value={ubicacion}
-                    onChange={(e) => setUbicacion(e.target.value)}
-                  />
-                  {errors.ubicacion && (
-                    <span className="form-error visible" id="ubicacionError">
-                      {errors.ubicacion}
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {/* EXTRA FIELDS FOR COMPANY */}
-              {rol === "comprador_empresa" && (
-                <div className="form-row extra-field visible">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="nombreEmpresa">
-                      Nombre de la Empresa
-                    </label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      id="nombreEmpresa"
-                      placeholder="Empresa S.A.S."
-                      value={nombreEmpresa}
-                      onChange={(e) => setNombreEmpresa(e.target.value)}
-                    />
-                    {errors.nombreEmpresa && (
-                      <span className="form-error visible">
-                        {errors.nombreEmpresa}
-                      </span>
-                    )}
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="nit">
-                      NIT
-                    </label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      id="nit"
-                      placeholder="900.123.456-7"
-                      value={nit}
-                      onChange={(e) => setNit(e.target.value)}
-                    />
-                    {errors.nit && (
-                      <span className="form-error visible">{errors.nit}</span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <input type="hidden" id="rolSelected" value={rol} />
-
-              <button
-                type="submit"
-                className="btn-submit"
-                id="submitBtn"
-                disabled={loading}
-              >
-                {loading
-                  ? "Creando cuenta..."
-                  : t("auth.createAccount", "Crear cuenta")}
-              </button>
-
-              <div
-                className="divider"
-                style={{
-                  margin: "16px 0",
-                  display: "flex",
-                  alignItems: "center",
-                  textAlign: "center",
-                  color: "#9a9a9a",
-                }}
-              >
-                <span
-                  style={{ flex: 1, borderBottom: "1px solid #ddd" }}
-                ></span>
-                <span style={{ padding: "0 10px", fontSize: "0.85rem" }}>
-                  O
-                </span>
-                <span
-                  style={{ flex: 1, borderBottom: "1px solid #ddd" }}
-                ></span>
+              <div className="af-info-box af-success-summary">
+                <p>
+                  <strong>{t("auth.nameLabel", "Nombre")}:</strong> {nombre}{" "}
+                  {apellido}
+                </p>
+                <p>
+                  <strong>{t("auth.email", "Correo")}:</strong>{" "}
+                  {email.replace(/(.{2})(.*)(@.*)/, "$1***$3")}
+                </p>
+                <p>
+                  <strong>{t("auth.roleLabel", "Perfil")}:</strong>{" "}
+                  {rol === "comprador_empresa"
+                    ? t("auth.roleCompany", "Empresa")
+                    : rol === "productor"
+                      ? t("auth.producer", "Productor")
+                      : t("auth.buyer", "Comprador")}
+                </p>
               </div>
 
               <button
                 type="button"
-                onClick={handleGoogleRegistro}
-                className="btn-submit"
-                style={{
-                  backgroundColor: "#fff",
-                  color: "#444",
-                  border: "1px solid #ccc",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "12px",
-                  textDecoration: "none",
-                }}
+                className="af-btn-primary"
+                onClick={() =>
+                  navigate("/verificar-correo", { state: { email } })
+                }
               >
-                <svg width="20" height="20" viewBox="0 0 48 48">
-                  <path
-                    fill="#EA4335"
-                    d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.73 17.74 9.5 24 9.5z"
-                  />
-                  <path
-                    fill="#4285F4"
-                    d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.9c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-                  />
-                  <path fill="none" d="M0 0h48v48H0z" />
-                </svg>
-                {t("auth.registerWithGoogle", "Registrarse con Google")}
+                {t("auth.goVerify", "Ir a verificar correo")}
               </button>
-            </form>
+            </>
+          ) : (
+            <>
+              <header className="login-form-header">
+                <h2>{t("auth.createAccount", "Crear cuenta")}</h2>
+                <p>
+                  {t(
+                    "auth.registerFormSub",
+                    "Únete a AgroMarket y apoya con orgullo a nuestros campesinos.",
+                  )}
+                </p>
+              </header>
 
-            <div className="form-footer">
-              {t("auth.haveAccount", "¿Ya tienes cuenta?")}{" "}
-              <Link to="/login">{t("auth.signIn", "Inicia sesión")}</Link>
-            </div>
-          </>
-        )}
-      </div>
+              {errors.global && (
+                <div className="af-error" role="alert">
+                  {errors.global}
+                </div>
+              )}
 
-      {/* RIGHT: IMAGE */}
-      <div className="right-panel">
-        <img
-          className="bg-img"
-          src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=1200"
-          alt="Frutas tropicales"
-          loading="lazy"
-        />
-        <div className="right-overlay">
-          <div className="right-badge">🌿 ASAFRUT · Chigorodó, Antioquia</div>
-          <h2 className="right-title">
-            Del campo de Urabá
-            <br />a tu hogar.
-          </h2>
-          <p className="right-sub">
-            Garantizamos trazabilidad total y precios justos para quienes
-            cultivan la tierra y quienes disfrutan sus frutos.
-          </p>
-          <div className="right-features">
-            <div className="right-feat">
-              <span className="feat-icon">🔐</span>
-              <span className="feat-text">
-                <strong style={{ color: "#fff" }}>Trazabilidad total</strong>
-                <br />
-                Conoce el origen exacto de cada fruta que compras.
-              </span>
-            </div>
-            <div className="right-feat">
-              <span className="feat-icon">💰</span>
-              <span className="feat-text">
-                <strong style={{ color: "#fff" }}>Precios justos</strong>
-                <br />
-                Sin intermediarios. Directo del productor al consumidor.
-              </span>
-            </div>
-            <div className="right-feat">
-              <span className="feat-icon">🚚</span>
-              <span className="feat-text">
-                <strong style={{ color: "#fff" }}>Envíos seguros</strong>
-                <br />
-                Seguimiento en tiempo real desde Urabá hasta tu puerta.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+              <form className="af-form" noValidate onSubmit={handleSubmit}>
+                {/* Selector de rol (funcionalidad real del repo) */}
+                <div className="af-role-tabs" role="tablist">
+                  {[
+                    ["comprador", t("auth.buyer", "Comprador")],
+                    ["comprador_empresa", t("auth.company", "Empresa")],
+                    ["productor", t("auth.producer", "Productor")],
+                  ].map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="tab"
+                      aria-selected={rol === value}
+                      className={`af-role-tab${rol === value ? " active" : ""}`}
+                      onClick={() => setRol(value)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="af-form-grid">
+                  <div className="af-field">
+                    <label htmlFor="nombre">
+                      {t("auth.firstName", "Nombre")}
+                    </label>
+                    <input
+                      id="nombre"
+                      type="text"
+                      className={`af-input${errors.nombre ? " has-error" : ""}`}
+                      placeholder={t("auth.firstNamePlaceholder", "Ej. Juan")}
+                      value={nombre}
+                      onChange={(e) =>
+                        handleFieldChange("nombre", e.target.value, setNombre)
+                      }
+                    />
+                    {errors.nombre && (
+                      <span className="af-error-text">{errors.nombre}</span>
+                    )}
+                  </div>
+                  <div className="af-field">
+                    <label htmlFor="apellido">
+                      {t("auth.lastName", "Apellido")}
+                    </label>
+                    <input
+                      id="apellido"
+                      type="text"
+                      className={`af-input${errors.apellido ? " has-error" : ""}`}
+                      placeholder={t("auth.lastNamePlaceholder", "Pérez")}
+                      value={apellido}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "apellido",
+                          e.target.value,
+                          setApellido,
+                        )
+                      }
+                    />
+                    {errors.apellido && (
+                      <span className="af-error-text">{errors.apellido}</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="af-field">
+                  <label htmlFor="email">
+                    {t("auth.email", "Correo electrónico")}
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    className={`af-input${errors.email ? " has-error" : ""}`}
+                    placeholder={t(
+                      "forgotPass.emailPlaceholder",
+                      "ejemplo@email.com",
+                    )}
+                    value={email}
+                    onChange={(e) =>
+                      handleFieldChange("email", e.target.value, setEmail)
+                    }
+                  />
+                  {errors.email && (
+                    <span className="af-error-text">{errors.email}</span>
+                  )}
+                </div>
+
+                <div className="af-field">
+                  <label htmlFor="telefono">
+                    {t("auth.phone", "Teléfono")}
+                  </label>
+                  <div className="af-phone-row">
+                    <select
+                      aria-label={t("auth.countryCode", "Código de país")}
+                      className="af-input af-select af-select--code"
+                      value={codigoPais}
+                      onChange={(e) => setCodigoPais(e.target.value)}
+                    >
+                      {COUNTRY_CODES.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.code}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      id="telefono"
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      className={`af-input${errors.telefono ? " has-error" : ""}`}
+                      placeholder="3001234567"
+                      value={telefono}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "telefono",
+                          e.target.value,
+                          setTelefono,
+                        )
+                      }
+                    />
+                  </div>
+                  {errors.telefono && (
+                    <span className="af-error-text">{errors.telefono}</span>
+                  )}
+                </div>
+
+                {rol === "productor" && (
+                  <div className="af-field">
+                    <label htmlFor="ubicacion">
+                      {t("auth.location", "Ubicación / Vereda")}
+                    </label>
+                    <input
+                      id="ubicacion"
+                      type="text"
+                      className={`af-input${errors.ubicacion ? " has-error" : ""}`}
+                      placeholder={t(
+                        "auth.locationPlaceholder",
+                        "Ej. Vereda Las Margaritas, Chigorodó",
+                      )}
+                      value={ubicacion}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "ubicacion",
+                          e.target.value,
+                          setUbicacion,
+                        )
+                      }
+                    />
+                    {errors.ubicacion && (
+                      <span className="af-error-text">{errors.ubicacion}</span>
+                    )}
+                  </div>
+                )}
+
+                {rol === "comprador_empresa" && (
+                  <div className="af-form-grid">
+                    <div className="af-field">
+                      <label htmlFor="nombreEmpresa">
+                        {t("auth.companyName", "Nombre de la empresa")}
+                      </label>
+                      <input
+                        id="nombreEmpresa"
+                        type="text"
+                        className={`af-input${errors.nombreEmpresa ? " has-error" : ""}`}
+                        placeholder={t(
+                          "auth.companyPlaceholder",
+                          "Empresa S.A.S.",
+                        )}
+                        value={nombreEmpresa}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            "nombreEmpresa",
+                            e.target.value,
+                            setNombreEmpresa,
+                          )
+                        }
+                      />
+                      {errors.nombreEmpresa && (
+                        <span className="af-error-text">
+                          {errors.nombreEmpresa}
+                        </span>
+                      )}
+                    </div>
+                    <div className="af-field">
+                      <label htmlFor="nit">NIT</label>
+                      <input
+                        id="nit"
+                        type="text"
+                        className={`af-input${errors.nit ? " has-error" : ""}`}
+                        placeholder="900.123.456-7"
+                        value={nit}
+                        onChange={(e) =>
+                          handleFieldChange("nit", e.target.value, setNit)
+                        }
+                      />
+                      {errors.nit && (
+                        <span className="af-error-text">{errors.nit}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="af-form-grid">
+                  <div className="af-field">
+                    <label htmlFor="password">
+                      {t("auth.password", "Contraseña")}
+                    </label>
+                    <div className="af-input-wrap">
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        className={`af-input${errors.password ? " has-error" : ""}`}
+                        placeholder={t(
+                          "resetPass.newPasswordPlaceholder",
+                          "Mínimo 8 caracteres",
+                        )}
+                        value={password}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            "password",
+                            e.target.value,
+                            setPassword,
+                          )
+                        }
+                      />
+                      <button
+                        type="button"
+                        className="af-toggle-visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={
+                          showPassword
+                            ? "Ocultar contraseña"
+                            : "Mostrar contraseña"
+                        }
+                      >
+                        {showPassword ? eyeOffIcon : eyeIcon}
+                      </button>
+                    </div>
+                    {password && (
+                      <div className="af-strength">
+                        <div className="af-strength-track">
+                          <div
+                            className="af-strength-bar"
+                            style={{
+                              width: passwordStrength.width,
+                              background: passwordStrength.color,
+                            }}
+                          />
+                        </div>
+                        <span style={{ color: passwordStrength.color }}>
+                          {t("auth.strength", "Fortaleza")}:{" "}
+                          {passwordStrength.label}
+                        </span>
+                      </div>
+                    )}
+                    {errors.password && (
+                      <span className="af-error-text">{errors.password}</span>
+                    )}
+                  </div>
+
+                  <div className="af-field">
+                    <label htmlFor="confirmPass">
+                      {t("auth.confirmPassword", "Confirmar contraseña")}
+                    </label>
+                    <div className="af-input-wrap">
+                      <input
+                        id="confirmPass"
+                        type={showConfirmPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        className={`af-input${errors.confirmPass ? " has-error" : ""}`}
+                        placeholder={t(
+                          "resetPass.confirmPlaceholder",
+                          "Repite tu contraseña",
+                        )}
+                        value={confirmPass}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            "confirmPass",
+                            e.target.value,
+                            setConfirmPass,
+                          )
+                        }
+                      />
+                      <button
+                        type="button"
+                        className="af-toggle-visibility"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        aria-label={
+                          showConfirmPassword
+                            ? "Ocultar contraseña"
+                            : "Mostrar contraseña"
+                        }
+                      >
+                        {showConfirmPassword ? eyeOffIcon : eyeIcon}
+                      </button>
+                    </div>
+                    {errors.confirmPass && (
+                      <span className="af-error-text">
+                        {errors.confirmPass}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Términos (frame: terms-row) */}
+                <label className="af-terms-row">
+                  <input
+                    type="checkbox"
+                    checked={aceptaTerminos}
+                    onChange={(e) => setAceptaTerminos(e.target.checked)}
+                  />
+                  <span className="af-checkbox-box" aria-hidden="true" />
+                  <span className="af-terms-text">
+                    {t("auth.acceptPrefix", "Acepto los")}{" "}
+                    <Link to="/terminos-y-condiciones" target="_blank">
+                      {t("auth.terms", "Términos y condiciones")}
+                    </Link>{" "}
+                    {t("auth.andThe", "y la")}{" "}
+                    <Link to="/politica-privacidad" target="_blank">
+                      {t("auth.privacy", "Política de privacidad")}
+                    </Link>{" "}
+                    {t("auth.ofAgromarket", "de AgroMarket.")}
+                  </span>
+                </label>
+                {errors.aceptaTerminos && (
+                  <span className="af-error-text">{errors.aceptaTerminos}</span>
+                )}
+
+                <button
+                  type="submit"
+                  className="af-btn-primary"
+                  disabled={loading}
+                >
+                  {loading
+                    ? t("auth.creating", "Creando cuenta...")
+                    : t("auth.registerCta", "Registrarme en AgroMarket")}
+                </button>
+
+                <div className="login-social-block">
+                  <div className="login-divider">
+                    <span>{t("auth.orRegisterWith", "o regístrate con")}</span>
+                  </div>
+                  <div className="login-social-row">
+                    <button
+                      type="button"
+                      onClick={handleGoogleRegistro}
+                      className="login-btn-social"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 48 48">
+                        <path
+                          fill="#EA4335"
+                          d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.73 17.74 9.5 24 9.5z"
+                        />
+                        <path
+                          fill="#4285F4"
+                          d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.9c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                        />
+                        <path fill="none" d="M0 0h48v48H0z" />
+                      </svg>
+                      {t("auth.google", "Google")}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </>
+          )}
+
+          {/* Elementos inferiores (frame: bottom-elements) */}
+          {!success && (
+            <footer className="login-bottom">
+              <div className="login-trust-badges">
+                <span className="login-trust-badge">
+                  <img src={shieldCheckIcon} alt="" width="16" height="16" />
+                  {t("auth.trustSecure", "Compra 100% Segura")}
+                </span>
+                <span className="login-trust-badge">
+                  <img src={handHeartIcon} alt="" width="16" height="16" />
+                  {t("auth.trustLocal", "Apoyo campestre directo")}
+                </span>
+              </div>
+              <p className="login-register-link">
+                {t("auth.haveAccount", "¿Ya tienes una cuenta?")}{" "}
+                <Link to="/login">{t("auth.signIn", "Inicia sesión")}</Link>
+              </p>
+            </footer>
+          )}
+        </section>
+      </main>
     </div>
   );
 }

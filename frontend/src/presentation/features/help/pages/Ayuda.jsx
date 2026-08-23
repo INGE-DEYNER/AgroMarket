@@ -1,336 +1,189 @@
-// src/pages/Ayuda.jsx
 import { useState } from "react";
-import Navbar from "@/presentation/shared/components/Navbar";
+import PublicLayout from "@/presentation/shared/components/PublicLayout";
+import "@/presentation/styles/public-views.css";
+
+const FAQS = [
+  {
+    q: "¿Cómo realizo mi compra en la plataforma?",
+    a: "Es muy sencillo: explora la tienda, selecciona las frutas o tubérculos preferidos, indícanos cuántos kilos necesitas, ingresa tus datos de envío y realiza el pago seguro en línea.",
+  },
+  {
+    q: "¿Cuáles son los métodos de pago aceptados?",
+    a: "Aceptamos transferencias por PSE, tarjetas de crédito (Visa, Mastercard, American Express), y aplicaciones de billetera digital móvil colombianas.",
+  },
+  {
+    q: "¿Cuánto tiempo tarda en llegar mi pedido?",
+    a: "Los pedidos se coordinan directamente para cosecharse en la mañana. Tardamos entre 24 y 48 horas en despachar y entregar en tu puerta para mantener la frescura garantizada.",
+  },
+  {
+    q: "¿Cómo puedo unirme si soy productor de Urabá?",
+    a: "Puedes comunicarte con la asociación Asafrut a través de nuestro soporte técnico en WhatsApp o diligenciar el formulario en la pestaña de productores. Te ayudaremos con la verificación física de tu finca.",
+  },
+  {
+    q: "¿Cómo funcionan las políticas de devoluciones?",
+    a: "Si un lote de frutas o vegetales no llega en la frescura óptima acordada, puedes enviarnos una foto al chat de soporte en las primeras 12 horas del recibo y realizaremos la reposición sin costos adicionales.",
+  },
+];
 
 export default function Ayuda() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState("todos");
-  const [expandedFaq, setExpandedFaq] = useState(null);
+  const [open, setOpen] = useState(null);
+  const [query, setQuery] = useState("");
 
-  const categories = [
-    { id: "todos", label: "Todos" },
-    { id: "pedidos", label: "Pedidos" },
-    { id: "pagos", label: "Pagos" },
-    { id: "envios", label: "Envíos" },
-    { id: "cuenta", label: "Mi Cuenta" },
-    { id: "productores", label: "Productores" },
-  ];
-
-  const faqs = [
-    {
-      category: "pedidos",
-      q: "¿Cómo hago seguimiento a mis pedidos?",
-      a: 'Una vez confirmado tu pago, puedes dirigirte a "Mis Pedidos" en tu menú de usuario para ver el estado en tiempo real (Pendiente, Despachado, En camino, Entregado) y el número de guía de la transportadora.',
-    },
-    {
-      category: "pedidos",
-      q: "¿Puedo cancelar un pedido realizado?",
-      a: "Sí, puedes solicitar la cancelación del pedido desde tu panel de comprador siempre y cuando el productor no lo haya despachado/marcado en camino. En ese caso, los fondos en fideicomiso te serán devueltos en su totalidad.",
-    },
-    {
-      category: "pagos",
-      q: "¿Qué es el sistema de Fideicomiso Comercial (Escrow)?",
-      a: "Es un método seguro de pago donde retenemos los fondos del comprador en una cuenta intermedia protegida. Solo liberamos el dinero al productor cuando el comprador recibe y confirma la conformidad del producto fresco, evitando estafas y garantizando que recibas lo acordado.",
-    },
-    {
-      category: "pagos",
-      q: "¿Qué métodos de pago simula la plataforma?",
-      a: "Simulamos pagos electrónicos rápidos mediante PSE (selector de bancos de Colombia), tarjeta de crédito/débito (Visa, Mastercard, AMEX), Daviplata y Nequi.",
-    },
-    {
-      category: "envios",
-      q: "¿Cuánto tiempo tarda la entrega?",
-      a: "Los despachos se originan en Chigorodó, Urabá. Los envíos al mismo municipio toman 1 día; dentro del departamento de Antioquia 2 días; ciudades principales como Bogotá o Cali 3 días; y otras regiones hasta 4 días hábiles.",
-    },
-    {
-      category: "envios",
-      q: "¿Cuáles son los costos de envío?",
-      a: "El costo de envío es variable y se calcula en base a la distancia y peso. AgroMarket te regala el costo de envío en tu primera compra registrándote con el cupón de bienvenida.",
-    },
-    {
-      category: "cuenta",
-      q: "¿Cómo cambio mi divisa de preferencia?",
-      a: 'Ve a "Mi cuenta" -> "Mi Perfil", selecciona tu divisa preferida (COP, USD, EUR) en el desplegable de preferencias y dale guardar. Los precios de los productos y transacciones se convertirán dinámicamente.',
-    },
-    {
-      category: "productores",
-      q: "¿Cómo me registro para vender mis frutas?",
-      a: 'Al registrarte en la plataforma, elige el Rol "Productor". Deberás completar tu perfil incluyendo información bancaria para transferencias, ubicación de la finca y cargar un documento de identidad para verificación por parte del administrador.',
-    },
-  ];
-
-  const handleToggle = (index) => {
-    setExpandedFaq(expandedFaq === index ? null : index);
-  };
-
-  const filteredFaqs = faqs.filter((faq) => {
-    const matchesSearch =
-      faq.q.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      faq.a.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      activeCategory === "todos" || faq.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const openSupportChatbot = () => {
-    const trigger = document.querySelector(".chatbot-trigger");
-    if (trigger) trigger.click();
-  };
+  const filtered = FAQS.filter(
+    (f) =>
+      !query ||
+      f.q.toLowerCase().includes(query.toLowerCase()) ||
+      f.a.toLowerCase().includes(query.toLowerCase()),
+  );
 
   return (
-    <div
-      style={{
-        background: "#f6faf7",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      <Navbar />
+    <PublicLayout>
+      <div className="ay-page">
+        {/* Migas de pan */}
+        <nav className="ay-breadcrumb" aria-label="Migas de pan">
+          <span>Inicio</span>
+          <span aria-hidden="true">›</span>
+          <strong>Ayuda</strong>
+        </nav>
 
-      {/* Help Hero Search */}
-      <div
-        style={{
-          background: "linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%)",
-          color: "white",
-          textAlign: "center",
-          padding: "60px 20px",
-        }}
-      >
-        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-          <h1
-            style={{
-              fontSize: "2.5rem",
-              fontWeight: "800",
-              marginBottom: "16px",
-            }}
-          >
-            Centro de Ayuda
-          </h1>
-          <p
-            style={{ fontSize: "1.05rem", opacity: 0.9, marginBottom: "24px" }}
-          >
-            ¿Tienes alguna duda? Busca en nuestras preguntas frecuentes o
-            escríbenos.
-          </p>
-          <div style={{ position: "relative", width: "100%" }}>
+        {/* Banner de búsqueda (frame: search-box-help) */}
+        <section className="ay-hero">
+          <h1>¿En qué podemos ayudarte hoy?</h1>
+          <div className="ay-search-wrap">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#626C66"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
             <input
-              type="text"
-              placeholder="Busca por palabra clave (ej. fideicomiso, envío, pago)..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "16px 20px",
-                borderRadius: "30px",
-                border: "none",
-                outline: "none",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                fontSize: "1rem",
-                color: "#333",
-              }}
+              type="search"
+              placeholder="Busca respuestas a tus preguntas..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Buscar en ayuda"
             />
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* FAQs Main area */}
-      <div
-        style={{
-          flex: 1,
-          maxWidth: "800px",
-          width: "100%",
-          margin: "40px auto",
-          padding: "0 20px",
-        }}
-      >
-        {/* Category filters */}
-        <div
-          style={{
-            display: "flex",
-            gap: "10px",
-            flexWrap: "wrap",
-            marginBottom: "30px",
-            justifyContent: "center",
-          }}
-        >
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              style={{
-                background: activeCategory === cat.id ? "#2d6a4f" : "white",
-                color: activeCategory === cat.id ? "white" : "#4a5568",
-                padding: "8px 18px",
-                borderRadius: "20px",
-                border:
-                  activeCategory === cat.id
-                    ? "1px solid #2d6a4f"
-                    : "1px solid #e2e8f0",
-                cursor: "pointer",
-                fontWeight: "500",
-                transition: "all 0.2s",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-              }}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        {/* Contenido principal */}
+        <section className="ay-content">
+          <div className="ay-faqs">
+            <h2>Temas Frecuentes</h2>
+            {filtered.map((f) => {
+              const index = FAQS.indexOf(f);
+              const isOpen = open === index;
+              return (
+                <article className="ay-faq" key={f.q}>
+                  <button
+                    type="button"
+                    className="ay-faq-head"
+                    onClick={() => setOpen(isOpen ? null : index)}
+                    aria-expanded={isOpen}
+                  >
+                    <span>{f.q}</span>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                      stroke="#18201A"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{
+                        transform: isOpen ? "rotate(180deg)" : "none",
+                        transition: "transform 200ms ease",
+                        flexShrink: 0,
+                      }}
+                      aria-hidden="true"
+                    >
+                      <path d="M3 5l4 4 4-4" />
+                    </svg>
+                  </button>
+                  {isOpen && <p className="ay-faq-body">{f.a}</p>}
+                </article>
+              );
+            })}
+            {filtered.length === 0 && (
+              <p className="ay-empty">
+                No encontramos resultados para tu búsqueda.
+              </p>
+            )}
+          </div>
 
-        {/* Accordion Questions */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {filteredFaqs.length === 0 ? (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "40px 20px",
-                color: "#718096",
-                fontStyle: "italic",
-              }}
-            >
-              No encontramos preguntas relacionadas con tu búsqueda. Intenta con
-              otros términos.
-            </div>
-          ) : (
-            filteredFaqs.map((faq, index) => (
-              <div
-                key={index}
-                style={{
-                  background: "white",
-                  borderRadius: "12px",
-                  boxShadow: "0 4px 12px rgba(45,106,79,0.03)",
-                  border: "1px solid #eef2ee",
-                  overflow: "hidden",
-                  transition: "all 0.2s",
-                }}
-              >
-                <button
-                  onClick={() => handleToggle(index)}
-                  style={{
-                    width: "100%",
-                    padding: "20px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    textAlign: "left",
-                    color: "#1b4332",
-                    fontWeight: "600",
-                    fontSize: "1.05rem",
-                  }}
-                >
-                  <span>{faq.q}</span>
+          {/* Tarjeta de contacto (frame: sidebar) */}
+          <aside className="ay-contact" id="contacto">
+            <h2>¿No encontraste lo que buscabas?</h2>
+            <p>
+              Nuestro equipo de soporte al productor y cliente local está listo
+              para atenderte directamente por chat.
+            </p>
+            <hr className="ay-divider" />
+            <div className="ay-contact-list">
+              <div className="ay-contact-row">
+                <span className="ay-contact-icon ay-contact-icon--wa">
                   <svg
-                    viewBox="0 0 24 24"
                     width="20"
                     height="20"
-                    fill="currentColor"
-                    style={{
-                      transform:
-                        expandedFaq === index ? "rotate(180deg)" : "rotate(0)",
-                      transition: "transform 0.2s",
-                    }}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#1A5C2A"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
                   >
-                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                   </svg>
-                </button>
-
-                {expandedFaq === index && (
-                  <div
-                    style={{
-                      padding: "0 20px 20px 20px",
-                      color: "#4a5568",
-                      lineHeight: "1.6",
-                      fontSize: "0.96rem",
-                      borderTop: "1px solid #fcfdfc",
-                    }}
-                  >
-                    {faq.a}
-                  </div>
-                )}
+                </span>
+                <div>
+                  <small>WhatsApp 24/7</small>
+                  <strong>+57 300 123 4567</strong>
+                </div>
               </div>
-            ))
-          )}
-        </div>
-
-        {/* Support Call-to-action block */}
-        <div
-          style={{
-            marginTop: "60px",
-            background: "white",
-            borderRadius: "16px",
-            padding: "30px",
-            border: "1px solid #eef2ee",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.02)",
-            textAlign: "center",
-          }}
-        >
-          <h3
-            style={{
-              color: "#1b4332",
-              fontSize: "1.3rem",
-              fontWeight: "700",
-              marginBottom: "8px",
-            }}
-          >
-            ¿Aún tienes dudas?
-          </h3>
-          <p
-            style={{
-              color: "#718096",
-              fontSize: "0.95rem",
-              marginBottom: "20px",
-            }}
-          >
-            Nuestro equipo de soporte humano y asistente de IA están listos para
-            orientarte.
-          </p>
-          <div
-            style={{
-              display: "flex",
-              gap: "16px",
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              onClick={openSupportChatbot}
-              style={{
-                background: "#2d6a4f",
-                color: "white",
-                border: "none",
-                padding: "12px 24px",
-                borderRadius: "30px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(45,106,79,0.2)",
-              }}
-            >
-              Hablar con IA de Soporte
-            </button>
+              <div className="ay-contact-row">
+                <span className="ay-contact-icon ay-contact-icon--mail">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#1A5C2A"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="M22 6l-10 7L2 6" />
+                  </svg>
+                </span>
+                <div>
+                  <small>Correo electrónico</small>
+                  <strong>soporte@agromarket.co</strong>
+                </div>
+              </div>
+            </div>
             <a
-              href="mailto:soporte@agro-market.app"
-              style={{
-                background: "white",
-                color: "#2d6a4f",
-                border: "2px solid #2d6a4f",
-                padding: "10px 24px",
-                borderRadius: "30px",
-                fontWeight: "bold",
-                textDecoration: "none",
-              }}
+              className="ay-whatsapp-btn"
+              href="https://wa.me/573001234567"
+              target="_blank"
+              rel="noreferrer"
             >
-              Enviar Email a Soporte
+              Hablar con Soporte por WhatsApp
             </a>
-          </div>
-        </div>
+          </aside>
+        </section>
       </div>
-    </div>
+    </PublicLayout>
   );
 }
-
-

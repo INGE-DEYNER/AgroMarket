@@ -1,4 +1,7 @@
-import { useTheme } from "@/app/contexts/ThemeContext";
+// src/presentation/shared/components/ThemeToggle.jsx
+import { useTheme } from "@/app/contexts/ThemeContext.js";
+import { useToast } from "@/app/hooks/useToast";
+import "@/presentation/styles/microinteractions.css";
 
 export const ThemeToggle = ({
   className = "",
@@ -6,111 +9,59 @@ export const ThemeToggle = ({
   variant = "icon",
 }) => {
   const { darkMode, toggleTheme } = useTheme();
+  const toast = useToast();
 
   const handleToggle = () => {
     toggleTheme();
+    toast.success(`Tema ${darkMode ? "claro" : "oscuro"} activado`, 2000);
   };
 
-  const getIcon = () => {
-    if (darkMode) {
-      return (
-        <svg
-          className="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          aria-hidden="true"
-        >
-          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586 8 8 0 01-1.414-1.414z" />
-        </svg>
-      );
-    }
+  const label = darkMode ? "Activar tema claro" : "Activar tema oscuro";
 
-    return (
-      <svg
-        className="w-5 h-5"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-        aria-hidden="true"
-      >
-        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
-      </svg>
-    );
-  };
+  const icon = darkMode ? (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="4" fill="currentColor" />
+      <path
+        d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ) : (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M21 14.1A8.3 8.3 0 0 1 9.9 3 8.4 8.4 0 1 0 21 14.1Z" />
+    </svg>
+  );
 
-  if (variant === "button") {
-    return (
-      <button
-        type="button"
-        onClick={handleToggle}
-        className={`
-          px-4 py-2
-          rounded-lg
-          transition-all
-          duration-200
-          ${
-            darkMode
-              ? "bg-gray-700 text-white hover:bg-gray-600"
-              : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-50"
-          }
-          ${className}
-        `}
-        aria-label={`Cambiar a tema ${darkMode ? "claro" : "oscuro"}`}
-        title={`Cambiar a tema ${darkMode ? "claro" : "oscuro"}`}
-      >
-        <span className="flex items-center gap-2">
-          {getIcon()}
-          {showLabel && <span>{darkMode ? "Modo Claro" : "Modo Oscuro"}</span>}
-        </span>
-      </button>
-    );
-  }
-
-  if (variant === "switch") {
-    return (
-      <button
-        type="button"
-        onClick={handleToggle}
-        className={`
-          p-2
-          rounded-full
-          transition-all
-          duration-200
-          hover:scale-110
-          ${
-            darkMode
-              ? "bg-gray-700 text-yellow-400"
-              : "bg-gray-200 text-blue-600"
-          }
-          ${className}
-        `}
-        aria-label={`Cambiar a tema ${darkMode ? "claro" : "oscuro"}`}
-        title={`Cambiar a tema ${darkMode ? "claro" : "oscuro"}`}
-      >
-        {getIcon()}
-
-        {showLabel && (
-          <span className="ml-2">{darkMode ? "Claro" : "Oscuro"}</span>
-        )}
-      </button>
-    );
-  }
+  const classes =
+    variant === "button"
+      ? `am-btn am-btn--secondary ${className}`.trim()
+      : `theme-toggle ${className}`.trim();
 
   return (
     <button
       type="button"
       onClick={handleToggle}
-      className={`
-        theme-toggle
-        p-2
-        rounded-full
-        transition-all
-        duration-200
-        ${className}
-      `}
-      aria-label={`Cambiar a tema ${darkMode ? "claro" : "oscuro"}`}
-      title={`Cambiar a tema ${darkMode ? "claro" : "oscuro"}`}
+      className={classes}
+      aria-label={label}
+      title={label}
+      aria-pressed={darkMode}
     >
-      {getIcon()}
+      {icon}
+      {showLabel && <span>{darkMode ? "Modo claro" : "Modo oscuro"}</span>}
     </button>
   );
 };

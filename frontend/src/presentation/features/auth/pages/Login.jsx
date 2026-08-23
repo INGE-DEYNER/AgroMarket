@@ -3,6 +3,14 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import api, { API_BASE } from "@/infrastructure/http/api";
+// Assets del frame de Figma "Screen-1-Login" (página 01 Autenticacion)
+import bgCampo from "@/assets/login-bg-campo.png";
+import leafIcon from "@/assets/icon-leaf.svg";
+import mapPinIcon from "@/assets/icon-map-pin.svg";
+import eyeIcon from "@/assets/icon-eye.svg";
+import shieldCheckIcon from "@/assets/icon-shield-check.svg";
+import handHeartIcon from "@/assets/icon-hand-heart.svg";
+import { ThemeToggle } from "@/presentation/shared/components/ThemeToggle";
 import "@/presentation/styles/login.css";
 
 export default function Login() {
@@ -13,6 +21,7 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [globalError, setGlobalError] = useState(() => {
@@ -70,7 +79,6 @@ export default function Login() {
       (async () => {
         try {
           // SECURITY: el token ya NO viene en la URL — se obtiene via cookie httpOnly + /auth/token-exchange
-          // Pequeño delay para asegurar que la cookie esté disponible
           await new Promise((r) => setTimeout(r, 800));
           const res = await api.get("/auth/token-exchange");
           const authData = res?.data || res;
@@ -127,249 +135,225 @@ export default function Login() {
   };
 
   return (
-    <div className="wrapper">
-      {/* LEFT PANEL: FORM */}
-      <div className="left-panel">
-        <Link to="/home" className="brand">
-          <div className="brand-logo">
-            <img
-              src="/logo-asafrut.jpg"
-              alt="Asafrut Logo"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "4px",
-              }}
-            />
-          </div>
-          <div>
-            <div className="brand-name">AgroMarket</div>
-            <div className="brand-sub">ASAFRUT · Chigorodó, Antioquia</div>
-          </div>
-        </Link>
+    <div className="login-page">
+      {/* Selector de tema — reutiliza el mecanismo global del repo */}
+      <div className="login-theme-toggle">
+        <ThemeToggle />
+      </div>
 
-        <div style={{ margin: "auto 0", maxWidth: "400px", width: "100%" }}>
-          <h1 className="page-title">
-            {t("auth.loginTitle", "Bienvenido de nuevo")}
-          </h1>
-          <p className="page-sub">
-            {t("auth.loginSub", "Ingresa tus credenciales para continuar.")}
+      {/* ── Panel izquierdo: imagen de campo + mensaje de bienvenida ── */}
+      <aside
+        className="login-left"
+        style={{ backgroundImage: `url(${bgCampo})` }}
+      >
+        <div className="login-left-overlay">
+          <Link to="/home" className="login-brand">
+            <span className="login-brand-icon">
+              <img src={leafIcon} alt="" width="20" height="20" />
+            </span>
+            <span className="login-brand-name">
+              <em>Agro</em>Market
+            </span>
+          </Link>
+
+          <div className="login-banner">
+            <span className="login-banner-badge">
+              🇨🇴 {t("auth.bannerBadge", "Directo del campo colombiano")}
+            </span>
+            <h1 className="login-banner-title">
+              {t(
+                "auth.welcomeBackTitle",
+                "¡Bienvenido de vuelta a AgroMarket!",
+              )}
+            </h1>
+            <p className="login-banner-sub">
+              {t(
+                "auth.welcomeBackSub",
+                "Accede a tu cuenta para comprar los alimentos más frescos directamente cosechados por nuestros campesinos de Urabá y de toda Colombia.",
+              )}
+            </p>
+          </div>
+
+          <p className="login-left-note">
+            <img src={mapPinIcon} alt="" width="18" height="18" />
+            {t(
+              "auth.leftNote",
+              "Fincas de Urabá y de toda Colombia unidas en un solo lugar.",
+            )}
           </p>
+        </div>
+      </aside>
+
+      {/* ── Panel derecho: formulario ── */}
+      <main className="login-right">
+        <section className="login-form-container">
+          <header className="login-form-header">
+            <h2>{t("auth.submit", "Iniciar sesión")}</h2>
+            <p>
+              {t(
+                "auth.formSub",
+                "Ingresa tus credenciales para acceder a la frescura del campo.",
+              )}
+            </p>
+          </header>
 
           {globalError && (
-            <div
-              className="global-error"
-              id="globalError"
-              style={{ display: "block" }}
-            >
+            <div className="login-global-error" role="alert">
               {globalError}
             </div>
           )}
 
-          <form id="loginForm" noValidate onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="email">
-                {t("auth.email", "Correo electrónico")}
-              </label>
-              <input
-                className="form-input"
-                type="email"
-                id="email"
-                placeholder="tu@correo.com"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              {emailError && (
-                <span className="form-error" id="emailError">
-                  {emailError}
-                </span>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="password">
-                {t("auth.password", "Contraseña")}
-              </label>
-              <div style={{ position: "relative" }}>
+          <form noValidate onSubmit={handleSubmit}>
+            <div className="login-fields">
+              <div className="login-field">
+                <label htmlFor="email">
+                  {t("auth.email", "Correo electrónico")}
+                </label>
                 <input
-                  className="form-input"
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ paddingRight: "40px" }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "1.2rem",
-                    padding: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    // Eye-off SVG
-                    <svg
-                      viewBox="0 0 24 24"
-                      width="20"
-                      height="20"
-                      fill="#6b7280"
-                    >
-                      <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
-                    </svg>
-                  ) : (
-                    // Eye SVG
-                    <svg
-                      viewBox="0 0 24 24"
-                      width="20"
-                      height="20"
-                      fill="#6b7280"
-                    >
-                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                    </svg>
+                  id="email"
+                  type="email"
+                  className={`login-input${emailError ? " has-error" : ""}`}
+                  placeholder={t(
+                    "auth.emailPlaceholder",
+                    "juanperez@email.com",
                   )}
-                </button>
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                {emailError && (
+                  <span className="login-error-text">{emailError}</span>
+                )}
               </div>
-              {passwordError && (
-                <span className="form-error visible" id="passwordError">
-                  {passwordError}
-                </span>
-              )}
+
+              <div className="login-field">
+                <label htmlFor="password">
+                  {t("auth.password", "Contraseña")}
+                </label>
+                <div className="login-input-wrap">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    className={`login-input${passwordError ? " has-error" : ""}`}
+                    placeholder="••••••••••••"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="login-toggle-visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
+                  >
+                    {showPassword ? (
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
+                    ) : (
+                      <img src={eyeIcon} alt="" width="18" height="18" />
+                    )}
+                  </button>
+                </div>
+                {passwordError && (
+                  <span className="login-error-text">{passwordError}</span>
+                )}
+              </div>
+
+              <div className="login-options-row">
+                <label className="login-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                  />
+                  <span className="login-checkbox-box" aria-hidden="true" />
+                  {t("auth.remember", "Recordarme")}
+                </label>
+                <Link to="/recuperar-contrasena" className="login-forgot-link">
+                  {t("auth.forgotPassword", "¿Olvidaste tu contraseña?")}
+                </Link>
+              </div>
             </div>
 
-            <button
-              type="submit"
-              className="btn-submit"
-              id="submitBtn"
-              disabled={loading}
-            >
-              {loading ? "Ingresando..." : t("auth.submit", "Iniciar sesión")}
-            </button>
-
-            <div style={{ textAlign: "center", margin: "16px 0" }}>
-              <Link
-                to="/recuperar-contrasena"
-                style={{
-                  fontSize: "0.9rem",
-                  color: "#688e4e",
-                  textDecoration: "none",
-                  fontWeight: "500",
-                }}
+            <div className="login-actions">
+              <button
+                type="submit"
+                className="login-btn-primary"
+                disabled={loading}
               >
-                {t("auth.forgotPassword", "¿Olvidaste tu contraseña?")}
-              </Link>
-            </div>
+                {loading
+                  ? t("auth.submitting", "Ingresando...")
+                  : t("auth.submit", "Iniciar sesión")}
+              </button>
 
-            <div
-              className="divider"
-              style={{
-                margin: "16px 0",
-                display: "flex",
-                alignItems: "center",
-                textAlign: "center",
-                color: "#9a9a9a",
-              }}
-            >
-              <span style={{ flex: 1, borderBottom: "1px solid #ddd" }}></span>
-              <span style={{ padding: "0 10px", fontSize: "0.85rem" }}>O</span>
-              <span style={{ flex: 1, borderBottom: "1px solid #ddd" }}></span>
+              <div className="login-social-block">
+                <div className="login-divider">
+                  <span>{t("auth.orContinueWith", "o continúa con")}</span>
+                </div>
+                <div className="login-social-row">
+                  <a
+                    href={`${API_BASE.replace("/api", "")}/oauth2/authorization/google`}
+                    className="login-btn-social"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 48 48">
+                      <path
+                        fill="#EA4335"
+                        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.73 17.74 9.5 24 9.5z"
+                      />
+                      <path
+                        fill="#4285F4"
+                        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.9c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                      />
+                      <path fill="none" d="M0 0h48v48H0z" />
+                    </svg>
+                    {t("auth.google", "Google")}
+                  </a>
+                </div>
+              </div>
             </div>
-
-            <a
-              href={`${API_BASE.replace("/api", "")}/oauth2/authorization/google`}
-              className="btn-submit"
-              style={{
-                backgroundColor: "#fff",
-                color: "#444",
-                border: "1px solid #ccc",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "12px",
-                textDecoration: "none",
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 48 48">
-                <path
-                  fill="#EA4335"
-                  d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.73 17.74 9.5 24 9.5z"
-                />
-                <path
-                  fill="#4285F4"
-                  d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.9c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-                />
-                <path fill="none" d="M0 0h48v48H0z" />
-              </svg>
-              {t("auth.continueWithGoogle", "Continuar con Google")}
-            </a>
           </form>
+        </section>
 
-          <div className="divider"></div>
-
-          <div className="form-footer">
-            {t("auth.noAccount", "¿No tienes cuenta?")}{" "}
+        <footer className="login-bottom">
+          <div className="login-trust-badges">
+            <span className="login-trust-badge">
+              <img src={shieldCheckIcon} alt="" width="16" height="16" />
+              {t("auth.trustSecure", "Compra 100% Segura")}
+            </span>
+            <span className="login-trust-badge">
+              <img src={handHeartIcon} alt="" width="16" height="16" />
+              {t("auth.trustLocal", "Apoyo campestre directo")}
+            </span>
+          </div>
+          <p className="login-register-link">
+            {t("auth.noAccount", "¿No tienes cuenta aún?")}{" "}
             <Link to="/registro">
-              {t("auth.registerFree", "Regístrate gratis")}
+              {t("auth.registerHere", "Regístrate aquí")}
             </Link>
-          </div>
-        </div>
-
-        <div
-          style={{
-            marginTop: "auto",
-            paddingTop: "24px",
-            fontSize: "0.75rem",
-            color: "#9a9a9a",
-          }}
-        >
-          &copy; 2026 AgroMarket ASAFRUT. Todos los derechos reservados ·
-          Desarrollado por Deyner Chaverra
-        </div>
-      </div>
-
-      {/* RIGHT PANEL: IMAGE & OVERLAY */}
-      <div className="right-panel">
-        <img
-          src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200"
-          alt="Cultivos"
-          className="bg-img"
-          loading="lazy"
-        />
-        <div className="right-overlay">
-          <div className="right-badge">
-            {" "}
-            Plataforma oficial de la Asociación
-          </div>
-          <h2 className="right-title">Conectando el campo con tu mesa.</h2>
-          <p className="right-sub">
-            Accede a tu panel de control para gestionar tus productos, pedidos o
-            realizar compras frescas directo a los productores de Urabá.
           </p>
-        </div>
-      </div>
+        </footer>
+      </main>
     </div>
   );
 }

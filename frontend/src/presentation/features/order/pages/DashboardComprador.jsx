@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -64,39 +64,14 @@ export default function DashboardComprador() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sec = params.get("section");
-    if (sec) {
-      setActiveSection(sec);
-    }
 
-    const contactName = params.get("contactName");
-    const contactId = params.get("contactId");
-    if (sec === "mensajeria" && contactName) {
-      const realId = Number(contactId) || Math.floor(100 + Math.random() * 900);
-      setContactos((prev) => {
-        const normalizedPrev = prev.map((c) => ({
-          ...c,
-          id: c.id || c.usuarioId,
-        }));
-        const existing = normalizedPrev.find(
-          (c) =>
-            c.id === realId ||
-            c.nombre?.toLowerCase().includes(contactName.toLowerCase()),
-        );
-        if (existing) {
-          setSelectedContact(existing);
-          return normalizedPrev;
-        } else {
-          const newContact = {
-            id: realId,
-            usuarioId: realId,
-            nombre: contactName,
-            rol: "PRODUCTOR",
-          };
-          setSelectedContact(newContact);
-          return [newContact, ...normalizedPrev];
-        }
-      });
-    }
+    if (!sec) return;
+
+    const timer = setTimeout(() => {
+      setActiveSection(sec);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [location.search]);
 
   // Pedidos & Catalog state
@@ -117,22 +92,6 @@ export default function DashboardComprador() {
   const [soloPromo, setSoloPromo] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [listaProductores, setListaProductores] = useState([]);
-
-  useEffect(() => {
-    const fetchProductores = async () => {
-      try {
-        const res = await api.get("/public/productores");
-        const data = res.data || res;
-        if (Array.isArray(data)) {
-          setListaProductores(data);
-        }
-      } catch (err) {
-        console.error("Error loading producers lookup list:", err);
-      }
-    };
-    fetchProductores();
-  }, []);
 
   // Debounced search logic for catalog
   useEffect(() => {
@@ -314,7 +273,10 @@ export default function DashboardComprador() {
 
   // Initialization
   useEffect(() => {
-    loadPedidos();
+    const timer = setTimeout(() => {
+      void loadPedidos();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [loadPedidos]);
 
   const loadRfqs = useCallback(async () => {
@@ -472,46 +434,36 @@ export default function DashboardComprador() {
     }, 50);
   };
 
-  // Reviews actions
-  const loadReviews = useCallback(async () => {
-    try {
-      const data = await api.get("/resenas");
-      setReviews(extractArray(data));
-    } catch (err) {
-      console.error("Error loadReviews:", err);
-      setReviews([]);
-    }
-  }, [extractArray]);
-
   // Section Loading Triggers
   useEffect(() => {
-    if (activeSection === "catalogo") {
-      loadCatalogProducts();
-    } else if (activeSection === "seguimiento") {
-      loadEnvios();
-    } else if (activeSection === "mensajeria") {
-      loadContactos();
-    } else if (activeSection === "resenas" || activeSection === "resumen") {
-      loadReviews();
-    } else if (activeSection === "misFacturas") {
-      loadFacturas();
-    } else if (activeSection === "rfq") {
-      loadRfqs();
-    } else if (activeSection === "perfil" && user) {
-      setPerfilForm({
-        nombre: user.nombre || "",
-        telefono: user.telefono || "",
-      });
-      setPerfilMsg({ type: "", text: "" });
-      setPwMsg({ type: "", text: "" });
-    }
+    const timer = setTimeout(() => {
+      if (activeSection === "catalogo") {
+        void loadCatalogProducts();
+      } else if (activeSection === "seguimiento") {
+        void loadEnvios();
+      } else if (activeSection === "mensajeria") {
+        void loadContactos();
+      } else if (activeSection === "misFacturas") {
+        void loadFacturas();
+      } else if (activeSection === "rfq") {
+        void loadRfqs();
+      } else if (activeSection === "perfil" && user) {
+        setPerfilForm({
+          nombre: user.nombre || "",
+          telefono: user.telefono || "",
+        });
+        setPerfilMsg({ type: "", text: "" });
+        setPwMsg({ type: "", text: "" });
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [
     activeSection,
     user,
     loadCatalogProducts,
     loadEnvios,
     loadContactos,
-    loadReviews,
     loadFacturas,
     loadRfqs,
   ]);
@@ -533,8 +485,15 @@ export default function DashboardComprador() {
       const matchProduct = catalogProducts.find((p) =>
         p.nombre.toLowerCase().includes(cleanProdName.toLowerCase()),
       );
+      if (!matchProduct?.id) {
+        setReviewErrors({
+          producto: "No se encontró el producto seleccionado en el catálogo.",
+        });
+        return;
+      }
+
       const requestPayload = {
-        productoId: matchProduct ? matchProduct.id : 1, // fallback to ID 1 if not found
+        productoId: matchProduct.id,
         calificacion: rating,
         comentario: comentario,
       };
@@ -558,50 +517,24 @@ export default function DashboardComprador() {
     setActiveSection("mensajeria");
 
     // Attempt to locate real user ID of this producer in the lookup list
-    const matched = listaProductores.find((p) =>
-      p.nombre?.toLowerCase().includes(productorNombre.toLowerCase()),
-    );
-    const realId = matched
-      ? matched.id
-      : 100 +
-        (((Array.from(productorNombre).reduce(
-          (hash, char) => (hash * 31 + char.charCodeAt(0)) | 0,
-          0,
-        ) %
-          900) +
-          900) %
-          900);
-
     try {
       const data = await api.get("/mensajes/contactos");
       const list = extractArray(data);
-      const found = list.find(
-        (c) =>
-          c.nombre?.toLowerCase().includes(productorNombre.toLowerCase()) ||
-          c.id === realId,
+      const found = list.find((c) =>
+        c.nombre?.toLowerCase().includes(productorNombre.toLowerCase()),
       );
-      if (found) {
-        setContactos(list);
-        selectContact(found);
-      } else {
-        const newContact = {
-          id: realId,
-          nombre: productorNombre,
-          rol: "PRODUCTOR",
-        };
-        const updatedList = [newContact, ...list];
-        setContactos(updatedList);
-        selectContact(newContact);
+
+      if (!found?.id) {
+        console.error(
+          "No se encontró el productor en los contactos del backend.",
+        );
+        return;
       }
+
+      setContactos(list);
+      selectContact(found);
     } catch (err) {
-      console.error(err);
-      const newContact = {
-        id: realId,
-        nombre: productorNombre,
-        rol: "PRODUCTOR",
-      };
-      setContactos([newContact]);
-      selectContact(newContact);
+      console.error("Error al localizar productor en mensajería:", err);
     }
   };
 
@@ -719,7 +652,7 @@ export default function DashboardComprador() {
   const progressColor = (estado) => {
     const e = estado?.toUpperCase();
     if (e === "ENTREGADO" || e === "DELIVERED") return "var(--primary)";
-    if (e === "EN_CAMINO" || e === "EN_TRANSITO" || e === "EN TRÃNSITO")
+    if (e === "EN_CAMINO" || e === "EN_TRANSITO" || e === "EN TRÁNSITO")
       return "var(--blue)";
     return "var(--gold)";
   };
@@ -1329,7 +1262,7 @@ export default function DashboardComprador() {
                 style={{
                   padding: "20px",
                   borderRadius: "var(--radius)",
-                  background: "#fff",
+                  background: "var(--surface)",
                 }}
               >
                 <h4
@@ -1621,7 +1554,7 @@ export default function DashboardComprador() {
                     if (
                       est === "EN_CAMINO" ||
                       est === "EN_TRANSITO" ||
-                      est === "EN TRÃNSITO"
+                      est === "EN TRÁNSITO"
                     )
                       return 2;
                     if (est === "PREPARANDO") return 1;
@@ -1850,7 +1783,7 @@ export default function DashboardComprador() {
                                 whiteSpace: "nowrap",
                               }}
                             >
-                              ðŸ¡ {s.direccionDestino || "Destino"}
+                              🏡 {s.direccionDestino || "Destino"}
                             </div>
                             {/* Moving Truck Emoji */}
                             <div
@@ -2976,7 +2909,7 @@ export default function DashboardComprador() {
                             <div
                               key={of.id}
                               style={{
-                                background: "#fff",
+                                background: "var(--surface)",
                                 padding: "10px 12px",
                                 borderRadius: "6px",
                                 border: "1px solid var(--border-light)",

@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useCallback } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Navbar from "@/presentation/shared/components/Navbar";
+import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useSecureParams } from "@/presentation/shared/hooks/useSecureParams";
 import api from "@/infrastructure/http/api";
@@ -61,7 +62,7 @@ export default function Pedidos() {
   if (user) {
     const role = user.role?.toLowerCase();
     if (role === "comprador") {
-      return <Navigate to="/dashboard-comprador?section=misPedidos" replace />;
+      // Buyers stay on the dedicated orders page.
     } else if (role === "productor") {
       return <Navigate to="/dashboard-productor?section=pedidosRec" replace />;
     } else if (role === "admin") {
@@ -69,10 +70,8 @@ export default function Pedidos() {
     }
   }
   return (
-    <>
-      <Navbar />
-
-      <main
+    <BuyerShell activeKey="misPedidos">
+      <main className="buyer-page-content"
         style={{ padding: "28px 32px", maxWidth: "1280px", margin: "0 auto" }}
       >
         {/* SUCCESS BANNER */}
@@ -249,6 +248,6 @@ export default function Pedidos() {
           </div>
         </div>
       )}
-    </>
+    </BuyerShell>
   );
 }

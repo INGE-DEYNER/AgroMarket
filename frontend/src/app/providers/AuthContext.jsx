@@ -49,7 +49,16 @@ export function AuthProvider({ children }) {
         email: userData.email || userData.correo,
       };
 
-      setUser(normalizedUser);
+      setUser((prev) => ({
+        ...normalizedUser,
+        // No dejamos que un refetch "atrase" un cuentaCompleta que ya
+        // confirmamos de forma optimista en el cliente (ver
+        // handleCuentaCompletada más abajo).
+        cuentaCompleta:
+          normalizedUser.cuentaCompleta || prev?.cuentaCompleta || false,
+      }));
+
+      return normalizedUser;
     } catch (err) {
       // Solo limpiar la sesión si el servidor rechaza explícitamente
       // el token con HTTP 401.
@@ -66,6 +75,34 @@ export function AuthProvider({ children }) {
       }
     }
   }, []);
+
+  // Fix del bug "Completar cuenta se queda pegado": en cuanto el modal
+  // confirma que el PUT al backend respondió OK, desbloqueamos la UI de
+  // inmediato marcando cuentaCompleta=true en el estado local, sin
+  // esperar a que el backend devuelva ese mismo nombre de campo.
+  // Igual sincronizamos con el servidor en segundo plano por si acaso.
+  const handleCuentaCompletada = useCallback(
+    async (datos) => {
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              cuentaCompleta: true,
+              tipoDocumento: datos?.tipoDocumento ?? prev.tipoDocumento,
+              cedula: datos?.cedula ?? prev.cedula,
+              fechaNacimiento: datos?.fechaNacimiento ?? prev.fechaNacimiento,
+            }
+          : prev,
+      );
+
+      try {
+        await refetchUser();
+      } catch {
+        // Silencioso: ya desbloqueamos la UI de forma optimista arriba.
+      }
+    },
+    [refetchUser],
+  );
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -178,7 +215,7 @@ export function AuthProvider({ children }) {
   const esAdmin = user?.role === "admin" || user?.role === "administrador";
 
   if (user && !user.cuentaCompleta && !esAdmin) {
-    return <CompletarCuentaModal onComplete={() => refetchUser()} />;
+    return <CompletarCuentaModal onComplete={handleCuentaCompletada} />;
   }
 
   return (

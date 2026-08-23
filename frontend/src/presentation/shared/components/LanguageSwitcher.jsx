@@ -91,6 +91,10 @@ export default function LanguageSwitcher() {
     };
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = activeLanguage;
+  }, [activeLanguage]);
+
   const selectLanguage = async (code) => {
     const normalizedCode = normalizeLanguage(code);
 
@@ -110,9 +114,6 @@ export default function LanguageSwitcher() {
 
       // Persistencia explícita
       localStorage.setItem("i18nextLng", normalizedCode);
-
-      // Mantener HTML sincronizado
-      document.documentElement.lang = normalizedCode;
 
       setIsOpen(false);
     } catch (error) {

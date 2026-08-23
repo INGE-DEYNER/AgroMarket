@@ -83,7 +83,7 @@ html {
 }
 
 body {
-  font-family: var(--font-body, "Inter", system-ui, -apple-system, sans-serif);
+  font-family: var(--am-font-body, "Inter", sans-serif);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   background-color: var(--color-background);
   background-image: var(--gradient-surface);
@@ -105,31 +105,40 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading, "Plus Jakarta Sans", "Inter", sans-serif);
+  font-family: var(--am-font-heading, "Poppins", sans-serif);
   font-weight: 700;
   line-height: 1.3;
   color: var(--color-text-primary);
 }
-
 h1 {
-  font-size: 2.5rem;
-}
-h2 {
-  font-size: 2rem;
-}
-h3 {
-  font-size: 1.75rem;
-}
-h4 {
-  font-size: 1.5rem;
-}
-h5 {
-  font-size: 1.25rem;
-}
-h6 {
-  font-size: 1.125rem;
+  font-size: 32px;
+  line-height: 40px;
 }
 
+h2 {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+h4 {
+  font-size: 18px;
+  line-height: 26px;
+}
+
+h5 {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+h6 {
+  font-size: 14px;
+  line-height: 20px;
+}
 /* Texto con estilo "display" para títulos hero */
 .display-text {
   font-family: var(--font-display, "Playfair Display", serif);
@@ -216,11 +225,11 @@ textarea:focus {
 }
 
 /* En modo oscuro, los inputs pueden tener un borde más visible */
-:root.dark .input-field {
+html.dark .input-field {
   border-color: var(--color-border);
 }
 
-:root.dark .input-field:focus {
+html.dark .input-field:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
 }
@@ -419,27 +428,27 @@ textarea:focus {
 }
 
 /* En modo oscuro */
-:root.dark .badge-success {
+html.dark .badge-success {
   background-color: #166534;
   color: #dcfce7;
 }
 
-:root.dark .badge-warning {
+html.dark .badge-warning {
   background-color: #d97706;
   color: #fef3c7;
 }
 
-:root.dark .badge-error {
+html.dark .badge-error {
   background-color: #dc2626;
   color: #fee2e2;
 }
 
-:root.dark .badge-info {
+html.dark .badge-info {
   background-color: #1e40af;
   color: #dbeafe;
 }
 
-:root.dark .badge-neutral {
+html.dark .badge-neutral {
   background-color: #374151;
   color: #f3f4f6;
 }

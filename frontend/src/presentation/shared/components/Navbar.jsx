@@ -150,15 +150,13 @@ export default function Navbar() {
           <span></span>
         </button>
 
-        <Link to="/home" className="nav-logo">
+        <a href="/" className="navbar-brand" aria-label="AgroMarket">
           <img
-            src="/logo-asafrut.jpg"
-            alt="ASAFRUT Logo"
-            className="nav-logo-img"
-            loading="eager"
+            src="/agromarket/logo.png"
+            alt="AgroMarket"
+            className="navbar-brand-logo"
           />
-          <span>AgroMarket</span>
-        </Link>
+        </a>
 
         {/* Barra de búsqueda central */}
         <form className="nav-search" onSubmit={handleBusqueda}>
@@ -178,6 +176,31 @@ export default function Navbar() {
             </svg>
           </button>
         </form>
+
+        <div className="nav-location" title="Dirección de entrega de tu cuenta">
+          <svg
+            viewBox="0 0 24 24"
+            width="17"
+            height="17"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            aria-hidden="true"
+          >
+            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+            <circle cx="12" cy="10" r="2.5" />
+          </svg>
+          <span>
+            <small>Enviar a</small>
+            <strong>
+              {user?.direccionCompleta ||
+                user?.direccion ||
+                user?.ubicacion ||
+                user?.ciudad ||
+                "Configura tu dirección"}
+            </strong>
+          </span>
+        </div>
 
         {/* Pill promocional estilo MercadoLibre */}
         <Link to="/como-funciona" className="nav-promo-pill">

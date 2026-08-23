@@ -21,7 +21,29 @@ import Catalogo from "@/presentation/features/product/pages/Catalogo";
 import ChatbotSoporte from "@/presentation/shared/components/ChatbotSoporte";
 import Footer from "@/presentation/shared/components/Footer";
 import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
-
+import {
+  Notificaciones,
+  DireccionesGuardadas,
+  CuponesPromociones,
+  ListaDeseos,
+  HistorialNavegacion,
+  CentroAyudaDetallado,
+  DevolucionesReembolsos,
+  MetodosPagoGuardados,
+  ModoOscuro,
+} from "@/presentation/features/special";
+import {
+  RolesPermisos,
+  ControlAcceso,
+  DosFactorTOTP,
+  SeguridadCuenta,
+  EstadosEspeciales,
+  MatrizPermisos,
+  AuditoriaActividad,
+  PrivacidadDatos,
+  SellosConfianza,
+} from "@/presentation/features/security";
+import SecurityStatePage from "@/presentation/shared/feedback/SecurityStatePage";
 // ============================================================
 // COMPONENTES CARGADOS DE FORMA DIFERIDA
 // ============================================================
@@ -285,6 +307,183 @@ function App() {
                         }
                       />
 
+                      {/* ==================================================
+    PÁGINAS ESPECIALES DEL SISTEMA
+   ================================================== */}
+
+                      <Route
+                        path="/especial/notificaciones"
+                        element={
+                          <ProtectedRoute>
+                            <Notificaciones />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/especial/direcciones"
+                        element={
+                          <ProtectedRoute>
+                            <DireccionesGuardadas />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/especial/cupones"
+                        element={
+                          <ProtectedRoute>
+                            <CuponesPromociones />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/especial/deseos"
+                        element={
+                          <ProtectedRoute>
+                            <ListaDeseos />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/especial/historial"
+                        element={
+                          <ProtectedRoute>
+                            <HistorialNavegacion />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/especial/ayuda-detallada"
+                        element={
+                          <ProtectedRoute>
+                            <CentroAyudaDetallado />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/especial/devoluciones"
+                        element={
+                          <ProtectedRoute>
+                            <DevolucionesReembolsos />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/especial/pagos-guardados"
+                        element={
+                          <ProtectedRoute>
+                            <MetodosPagoGuardados />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/especial/modo-oscuro"
+                        element={
+                          <ProtectedRoute>
+                            <ModoOscuro />
+                          </ProtectedRoute>
+                        }
+                      />
+                      {/* ==================================================
+    SEGURIDAD Y PERMISOS
+   ================================================== */}
+
+                      <Route
+                        path="/seguridad/roles"
+                        element={
+                          <ProtectedRoute>
+                            <RolesPermisos />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/seguridad/acceso"
+                        element={
+                          <ProtectedRoute>
+                            <ControlAcceso />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/seguridad/2fa"
+                        element={
+                          <ProtectedRoute>
+                            <DosFactorTOTP />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/seguridad/seguridad"
+                        element={
+                          <ProtectedRoute>
+                            <SeguridadCuenta />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/seguridad/estados"
+                        element={
+                          <ProtectedRoute>
+                            <EstadosEspeciales />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/seguridad/matriz"
+                        element={
+                          <ProtectedRoute>
+                            <MatrizPermisos />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/seguridad/auditoria"
+                        element={
+                          <ProtectedRoute>
+                            <AuditoriaActividad />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/seguridad/privacidad"
+                        element={
+                          <ProtectedRoute>
+                            <PrivacidadDatos />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/seguridad/confianza"
+                        element={
+                          <ProtectedRoute>
+                            <SellosConfianza />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      {/* ==================================================
+    ESTADOS DE SEGURIDAD
+   ================================================== */}
+
+                      <Route
+                        path="/estado/:code"
+                        element={<SecurityStatePage />}
+                      />
                       {/* ==================================================
                           404
                          ================================================== */}

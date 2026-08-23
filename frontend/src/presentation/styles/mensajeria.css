@@ -61,3 +61,19 @@
     min-height: 0;
   }
 }
+
+/* ─── RESPONSIVE: MÓVIL PEQUEÑO (<480px) ────────────────────────────── */
+@media (max-width: 480px) {
+  .page-wrap {
+    height: 100dvh;
+  }
+  .chat-layout {
+    height: calc(100dvh - 60px) !important;
+  }
+  .chat-contacts {
+    max-height: 140px;
+  }
+  .chat-header {
+    padding: 10px 12px;
+  }
+}

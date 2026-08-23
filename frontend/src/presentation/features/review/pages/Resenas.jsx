@@ -1,7 +1,7 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Navbar from "@/presentation/shared/components/Navbar";
+import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 import { useAuth } from "@/app/hooks/useAuth";
 import api from "@/infrastructure/http/api";
 import "@/presentation/styles/resenas.css";
@@ -91,7 +91,7 @@ export default function Resenas() {
   if (user) {
     const role = user.role?.toLowerCase();
     if (role === "comprador") {
-      return <Navigate to="/dashboard-comprador?section=resenas" replace />;
+      // Buyers stay on the dedicated reviews page.
     } else if (role === "productor") {
       return <Navigate to="/dashboard-productor" replace />;
     } else if (role === "admin") {
@@ -99,10 +99,8 @@ export default function Resenas() {
     }
   }
   return (
-    <>
-      <Navbar />
-
-      <main
+    <BuyerShell activeKey="resenas">
+      <main className="buyer-page-content"
         style={{ padding: "28px 32px", maxWidth: "860px", margin: "0 auto" }}
       >
         <div className="section-header">
@@ -288,9 +286,6 @@ export default function Resenas() {
           </div>
         </div>
       )}
-    </>
+    </BuyerShell>
   );
 }
-
-
-

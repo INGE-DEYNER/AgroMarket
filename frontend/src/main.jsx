@@ -6,11 +6,14 @@ import i18n from "@/i18n/index";
 
 import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
 import { runFrontendDiagnostic } from "@/infrastructure/config/FrontendDiagnostic";
-import { ThemeProvider } from "@/app/contexts/ThemeContext";
+import ThemeProvider from "@/app/contexts/ThemeProvider";
+import "@/presentation/styles/microinteractions.css";
 
 import "@/index.css";
 import "@/presentation/styles/styles.css";
 import "@/presentation/styles/theme.css";
+import "@/presentation/styles/navbar.css";
+import "@/presentation/styles/footer.css";
 window.MERCADOPAGO_PUBLIC_KEY =
   import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || "";
 

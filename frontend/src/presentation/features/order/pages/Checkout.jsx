@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // src/pages/Checkout.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import api from "@/infrastructure/http/api";
-import Navbar from "@/presentation/shared/components/Navbar";
+import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 
 export default function Checkout() {
   const { user, formatPrice, refetchUser } = useAuth();
@@ -236,7 +237,9 @@ export default function Checkout() {
 
   if (successData) {
     return (
+      <BuyerShell activeKey="checkout">
       <div
+        className="buyer-checkout-page"
         style={{
           background: "#f4fbf7",
           minHeight: "100vh",
@@ -245,7 +248,6 @@ export default function Checkout() {
           fontFamily: "Inter, sans-serif",
         }}
       >
-        <Navbar />
         <div
           style={{
             flex: 1,
@@ -394,11 +396,14 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+      </BuyerShell>
     );
   }
 
   return (
+    <BuyerShell activeKey="checkout">
     <div
+      className="buyer-checkout-page"
       style={{
         background: "#f4fbf7",
         minHeight: "100vh",
@@ -407,8 +412,6 @@ export default function Checkout() {
         fontFamily: "Inter, sans-serif",
       }}
     >
-      <Navbar />
-
       <div
         style={{
           flex: 1,
@@ -1334,6 +1337,7 @@ export default function Checkout() {
         }
       `}</style>
     </div>
+    </BuyerShell>
   );
 }
 

@@ -1,4 +1,5 @@
-﻿import { useState, useEffect, useCallback } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -12,7 +13,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const getInitialSection = () => {
     const params = new URLSearchParams(window.location.search);
-    return params.get("section") || "usuarios";
+    return params.get("section") || "dashboard";
   };
 
   const [activeSection, setActiveSection] = useState(getInitialSection);
@@ -158,8 +159,8 @@ export default function Admin() {
     try {
       await api.post(`/admin/aprobar-usuario/${userId}`);
       alert("Usuario aprobado con éxito.");
-      loadAll();
-      loadUsuarios();
+      void loadAll();
+      void loadUsuarios();
     } catch (err) {
       alert("Error al aprobar usuario: " + err.message);
     }
@@ -171,8 +172,8 @@ export default function Admin() {
     try {
       await api.post(`/admin/rechazar-usuario/${userId}`, { motivo });
       alert("Usuario rechazado con éxito.");
-      loadAll();
-      loadUsuarios();
+      void loadAll();
+      void loadUsuarios();
     } catch (err) {
       alert("Error al rechazar usuario: " + err.message);
     }
@@ -264,26 +265,26 @@ export default function Admin() {
   // Load users when page/search changes
   useEffect(() => {
     if (activeSection === "usuarios") {
-      loadUsuarios();
+      void loadUsuarios();
     }
   }, [pageUsuarios, searchUsuarios, activeSection, loadUsuarios]);
 
   // Load products when page/search changes
   useEffect(() => {
     if (activeSection === "productos") {
-      loadProductos();
+      void loadProductos();
     }
   }, [pageProductos, searchProductos, activeSection, loadProductos]);
 
   useEffect(() => {
-    loadAll();
-    loadUsuarios();
-    loadProductos();
+    void loadAll();
+    void loadUsuarios();
+    void loadProductos();
   }, [loadAll, loadUsuarios, loadProductos]);
 
   useEffect(() => {
-    if (activeSection === "escrow") {
-      loadPagosFideicomiso();
+    if (activeSection === "pagos") {
+      void loadPagosFideicomiso();
     }
   }, [activeSection, loadPagosFideicomiso]);
 
@@ -369,10 +370,10 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (activeSection === "finanzas") {
-      loadFinanzas();
-    } else if (activeSection === "logistica") {
-      loadLogistica();
+    if (activeSection === "reportes") {
+      void loadFinanzas();
+    } else if (activeSection === "reportes-logistica") {
+      void loadLogistica();
     } else if (activeSection === "cupones") {
       loadTodosCupones();
     }
@@ -388,7 +389,7 @@ export default function Admin() {
     try {
       await api.put(`/admin/pagos/${pagoId}/liberar`);
       alert("Fondos liberados exitosamente.");
-      loadPagosFideicomiso();
+      void loadPagosFideicomiso();
     } catch (err) {
       alert("Error al liberar fondos: " + err.message);
     }
@@ -404,7 +405,7 @@ export default function Admin() {
     try {
       await api.put(`/admin/pagos/${pagoId}/reembolsar`);
       alert("Fondos reembolsados exitosamente.");
-      loadPagosFideicomiso();
+      void loadPagosFideicomiso();
     } catch (err) {
       alert("Error al reembolsar fondos: " + err.message);
     }
@@ -414,7 +415,7 @@ export default function Admin() {
     try {
       await api.put(`/admin/productores/${u.idEncriptado}/verificar`);
       alert("Estado de verificación del productor actualizado.");
-      loadAll();
+      void loadAll();
     } catch (err) {
       alert(err.message || "Error al cambiar la verificación del productor.");
     }
@@ -458,7 +459,7 @@ export default function Admin() {
       } else {
         await api.put(`/usuarios/${u.id}/habilitar`);
       }
-      loadAll();
+      void loadAll();
     } catch (err) {
       alert(err.message || "Error al cambiar estado del usuario.");
     }
@@ -473,7 +474,7 @@ export default function Admin() {
       return;
     try {
       await api.delete(`/productos/${id}`);
-      loadAll();
+      void loadAll();
     } catch (err) {
       alert(err.message);
     }
@@ -482,11 +483,44 @@ export default function Admin() {
   const moderarResena = async (id, aprobada) => {
     try {
       await api.put(`/resenas/${id}/moderar`, { aprobada });
-      loadAll();
+      void loadAll();
     } catch (err) {
       alert(err.message);
     }
   };
+
+  const getDashboardCollection = (...keys) => {
+    for (const key of keys) {
+      const value = dashboardData?.[key];
+      if (Array.isArray(value)) return value;
+      if (value?.content && Array.isArray(value.content)) return value.content;
+    }
+    return [];
+  };
+
+  const adminPedidos = getDashboardCollection(
+    "pedidos",
+    "ultimosPedidos",
+    "recentOrders",
+    "ordenes",
+  );
+  const adminTickets = getDashboardCollection(
+    "tickets",
+    "ticketsSoporte",
+    "soporte",
+  );
+  const productores = usuarios.filter((u) =>
+    String(u.role || u.rol || "").toUpperCase().includes("PRODUCTOR"),
+  );
+  const dashboardPedidos = dashboardData?.pedidosTotales ?? dashboardData?.totalPedidos ?? adminPedidos.length;
+  const dashboardProductores = dashboardData?.productores ?? dashboardData?.totalProductores ?? productores.length;
+  const dashboardProductos = dashboardData?.productosPublicados ?? dashboardData?.totalProductos ?? totalElementsProductos ?? productos.length;
+  const dashboardUsuarios = dashboardData?.usuariosTotales ?? dashboardData?.totalUsuarios ?? totalElementsUsuarios ?? usuarios.length;
+  const dashboardVentasHoy = dashboardData?.ventasHoy ?? dashboardData?.ventasDelDia ?? null;
+  const dashboardNuevosUsuarios = dashboardData?.nuevosUsuarios ?? null;
+  const dashboardNuevosProductores = dashboardData?.nuevosProductores ?? null;
+  const dashboardTickets = dashboardData?.ticketsSoporte ?? dashboardData?.totalTickets ?? adminTickets.length;
+
 
   return (
     <div className="app-layout">
@@ -518,196 +552,42 @@ export default function Admin() {
         <div className="sidebar-label">
           {t("admin.nav.title", "Panel de Control")}
         </div>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "usuarios" ? " active" : ""}`}
-          id="link-usuarios"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("usuarios");
-            setSidebarOpen(false);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
+        {[
+          ["dashboard", "Dashboard", "▦"],
+          ["usuarios", t("admin.nav.users", "Usuarios"), "◉"],
+          ["productos", t("admin.nav.products", "Productos"), "□"],
+          ["pedidos", "Pedidos", "▤"],
+          ["productores", "Productores", "♧"],
+          ["pagos", "Pagos", "◈"],
+          ["reportes", "Reportes", "◫"],
+          ["configuracion", "Configuración", "⚙"],
+          ["soporte", "Soporte", "?"],
+          ["auditoria", "Auditoría", "◌"],
+        ].map(([section, label, icon]) => (
+          <a
+            key={section}
+            href={`#${section}`}
+            className={`sidebar-link${activeSection === section ? " active" : ""}`}
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveSection(section);
+              setSidebarOpen(false);
+            }}
           >
-            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-          </svg>
-          {t("admin.nav.users", "Usuarios")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "productos" ? " active" : ""}`}
-          id="link-productos"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("productos");
-            setSidebarOpen(false);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm1-15l5 5h-4v6h-2v-6H7l5-5z" />
-          </svg>
-          {t("admin.nav.products", "Productos")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "resenas" ? " active" : ""}`}
-          id="link-resenas"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("resenas");
-            setSidebarOpen(false);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-          </svg>
-          {t("admin.nav.moderation", "Moderación")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "escrow" ? " active" : ""}`}
-          id="link-escrow"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("escrow");
-            setSidebarOpen(false);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
-          </svg>
-          Fideicomiso (Escrow)
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "cupones" ? " active" : ""}`}
-          id="link-cupones"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("cupones");
-            setSidebarOpen(false);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-1.99.9-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2-1.1 0-2-.9-2-2z" />
-          </svg>
-          Cupones Descuento
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "configuracion" ? " active" : ""}`}
-          id="link-configuracion"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("configuracion");
-            setSidebarOpen(false);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
-          </svg>
-          Configuración
-        </a>
+            <span className="sidebar-icon" aria-hidden="true">{icon}</span>
+            {label}
+          </a>
+        ))}
+
+        <div className="sidebar-divider"></div>
         <Link
           to="/perfil"
           className="sidebar-link"
-          id="link-perfil"
           onClick={() => setSidebarOpen(false)}
         >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-          </svg>
+          <span className="sidebar-icon" aria-hidden="true">◎</span>
           {t("profile.title", "Mi Perfil")}
         </Link>
-
-        <div className="sidebar-divider"></div>
-        <div className="sidebar-label">
-          {t("admin.reports.title", "Reportes")}
-        </div>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "finanzas" ? " active" : ""}`}
-          id="link-finanzas"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("finanzas");
-            setSidebarOpen(false);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-          </svg>
-          {t("admin.reports.finance", "Finanzas")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "logistica" ? " active" : ""}`}
-          id="link-logistica"
-          onClick={(e) => {
-            e.preventDefault();
-            setActiveSection("logistica");
-            setSidebarOpen(false);
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-          </svg>
-          {t("admin.reports.logistics", "Logística")}
-        </a>
 
         <a
           href="#"
@@ -734,33 +614,17 @@ export default function Admin() {
 
       <main className="main-content">
         {/* Top bar with sidebar toggle */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "16px",
-          }}
-        >
-          <button
-            type="button"
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Abrir menú de navegación"
-          >
-            ☰ Menú
-          </button>
-          <LanguageSwitcher />
+        <div className="admin-topbar">
+          <button type="button" className="sidebar-toggle-btn" onClick={() => setSidebarOpen(true)} aria-label="Abrir menú de navegación">☰ Menú</button>
+          <div className="admin-search">Buscar en AgroMarket... <span>⌕</span></div>
+          <div className="admin-top-actions"><span className="admin-bell">♧<b>8</b></span><span className="admin-user-avatar">{(user?.nombre || "A").slice(0,1).toUpperCase()}</span><span className="admin-user-name">{user?.nombre || "Admin"}<small>Administrador</small></span><LanguageSwitcher /></div>
         </div>
 
         <div className="dash-header">
           <div className="dash-welcome">
-            <h1>{t("admin.title", "Panel de Administración")}</h1>
+            <h1>ADMINISTRACIÓN</h1>
             <p>
-              {t(
-                "admin.sub",
-                "Monitoreo global de la plataforma AgroMarket Urabá",
-              )}
+              Panel de control y gestión de la plataforma
             </p>
           </div>
           <button
@@ -779,7 +643,7 @@ export default function Admin() {
               {t("admin.stats.totalUsers", "Total Usuarios")}
             </div>
             <div className="stat-value" id="statUsuarios">
-              {String(usuarios.length).padStart(2, "0")}
+              {Number(dashboardUsuarios).toLocaleString("es-CO")}
             </div>
             <div className="stat-trend up">
               {t("admin.stats.trendUsers", "Usuarios registrados")}
@@ -791,7 +655,7 @@ export default function Admin() {
               {t("admin.stats.globalProducts", "Productos Globales")}
             </div>
             <div className="stat-value" id="statProductos">
-              {String(productos.length).padStart(2, "0")}
+              {Number(dashboardProductos).toLocaleString("es-CO")}
             </div>
             <div className="stat-trend">
               {t("admin.stats.trendProducts", "En catálogo")}
@@ -818,10 +682,7 @@ export default function Admin() {
               {t("admin.stats.alerts", "Alertas Moderación")}
             </div>
             <div className="stat-value" id="statResenas">
-              {String(resenas.filter((r) => !r.aprobada).length).padStart(
-                2,
-                "0",
-              )}
+              {resenas.filter((r) => !r.aprobada).length}
             </div>
             <div className="stat-trend down" style={{ color: "orange" }}>
               {t("admin.stats.trendAlerts", "Acción requerida")}
@@ -839,6 +700,49 @@ export default function Admin() {
             }}
           >
             <div className="card-table">
+              {/* DASHBOARD */}
+              {activeSection === "dashboard" && (
+                <div className="section active admin-dashboard-section" id="sec-dashboard">
+                  <div className="table-header">
+                    <div>
+                      <h3 className="card-title">¡Bienvenido, Administrador! 👋</h3>
+                      <p className="section-subtitle">Resumen general de la plataforma</p>
+                    </div>
+                    <span className="date-chip">{new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                  </div>
+                  <div className="admin-kpi-grid">
+                    <div className="admin-kpi"><span>Usuarios totales</span><strong>{Number(dashboardUsuarios).toLocaleString("es-CO")}</strong><small>Usuarios registrados</small></div>
+                    <div className="admin-kpi"><span>Productores</span><strong>{Number(dashboardProductores).toLocaleString("es-CO")}</strong><small>Productores registrados</small></div>
+                    <div className="admin-kpi"><span>Productos publicados</span><strong>{Number(dashboardProductos).toLocaleString("es-CO")}</strong><small>Inventario global</small></div>
+                    <div className="admin-kpi"><span>Pedidos totales</span><strong>{Number(dashboardPedidos).toLocaleString("es-CO")}</strong><small>Pedidos registrados</small></div>
+                  </div>
+                  <div className="admin-dashboard-grid">
+                    <div className="admin-panel">
+                      <div className="admin-panel-heading"><h4>Ventas totales</h4><span>Resumen</span></div>
+                      <div className="admin-big-number">{dashboardData?.ingresos != null ? formatPrice(dashboardData.ingresos) : "—"}</div>
+                      <div className="admin-chart-placeholder">
+                        {[38, 52, 46, 61, 56, 72, 68, 84, 78, 91].map((height, index) => <span key={index} style={{ height: `${height}%` }} />)}
+                      </div>
+                    </div>
+                    <div className="admin-panel">
+                      <div className="admin-panel-heading"><h4>Pedidos por estado</h4><span>{dashboardPedidos} total</span></div>
+                      <div className="status-list">
+                        <div><span className="dot dot-green" />Entregados <strong>{dashboardData?.pedidosEntregados ?? "—"}</strong></div>
+                        <div><span className="dot dot-blue" />En camino <strong>{dashboardData?.pedidosEnCamino ?? "—"}</strong></div>
+                        <div><span className="dot dot-yellow" />Pendientes <strong>{dashboardData?.pedidosPendientes ?? "—"}</strong></div>
+                        <div><span className="dot dot-red" />Cancelados <strong>{dashboardData?.pedidosCancelados ?? "—"}</strong></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="admin-mini-grid">
+                    <div className="admin-mini"><span>Ventas hoy</span><strong>{dashboardVentasHoy != null ? formatPrice(dashboardVentasHoy) : "—"}</strong></div>
+                    <div className="admin-mini"><span>Nuevos usuarios</span><strong>{dashboardNuevosUsuarios ?? "—"}</strong></div>
+                    <div className="admin-mini"><span>Nuevos productores</span><strong>{dashboardNuevosProductores ?? "—"}</strong></div>
+                    <div className="admin-mini"><span>Tickets de soporte</span><strong>{dashboardTickets}</strong></div>
+                  </div>
+                </div>
+              )}
+
               {/* USUARIOS */}
               {activeSection === "usuarios" && (
                 <div className="section active" id="sec-usuarios">
@@ -1054,6 +958,26 @@ export default function Admin() {
                       </button>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* PEDIDOS */}
+              {activeSection === "pedidos" && (
+                <div className="section active" id="sec-pedidos">
+                  <div className="table-header"><div><h3 className="card-title">Gestión de pedidos</h3><p className="section-subtitle">Seguimiento global de pedidos registrados en el dashboard administrativo.</p></div><button className="table-action">Exportar</button></div>
+                  <div className="table-wrap"><table className="table-responsive"><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead><tbody>
+                  {adminPedidos.length === 0 ? <tr><td colSpan="5" className="empty-cell">El endpoint administrativo actual no expone un listado global de pedidos. Se muestran pedidos aquí cuando /admin/dashboard devuelve una colección de pedidos.</td></tr> : adminPedidos.map((p, i) => <tr key={p.id || p.codigo || i}><td data-label="Pedido">{p.codigo || p.numeroPedido || p.id || `#${i + 1}`}</td><td data-label="Cliente">{p.cliente || p.compradorNombre || p.nombreCliente || "—"}</td><td data-label="Total">{p.total != null ? formatPrice(p.total) : "—"}</td><td data-label="Estado"><span className="badge-status status-shipped">{p.estado || "—"}</span></td><td data-label="Fecha">{p.fecha || p.fechaCreacion || "—"}</td></tr>)}
+                  </tbody></table></div>
+                </div>
+              )}
+
+              {/* PRODUCTORES */}
+              {activeSection === "productores" && (
+                <div className="section active" id="sec-productores">
+                  <div className="table-header"><div><h3 className="card-title">Gestión de productores</h3><p className="section-subtitle">Productores obtenidos desde el listado administrativo de usuarios.</p></div></div>
+                  <div className="table-wrap"><table className="table-responsive"><thead><tr><th>Productor</th><th>Correo</th><th>Ubicación</th><th>Estado</th><th>Verificación</th></tr></thead><tbody>
+                  {productores.length === 0 ? <tr><td colSpan="5" className="empty-cell">No hay productores disponibles en el listado administrativo.</td></tr> : productores.map((u) => <tr key={u.id}><td data-label="Productor">{u.nombre} {u.apellido || ""}</td><td data-label="Correo">{u.email || u.correo || "—"}</td><td data-label="Ubicación">{u.ubicacion || "—"}</td><td data-label="Estado"><span className={`badge-status ${u.activo !== false ? "status-shipped" : "status-pending"}`}>{u.activo !== false ? "Activo" : "Inactivo"}</span></td><td data-label="Verificación"><button className={`btn btn-sm ${u.verificado ? "btn-secondary" : "btn-primary"}`} onClick={() => toggleVerificarProductor(u)}>{u.verificado ? "Verificado" : "Verificar"}</button></td></tr>)}
+                  </tbody></table></div>
                 </div>
               )}
 
@@ -1277,8 +1201,8 @@ export default function Admin() {
               )}
 
               {/* FIDEICOMISO (ESCROW) */}
-              {activeSection === "escrow" && (
-                <div className="section active" id="sec-escrow">
+              {activeSection === "pagos" && (
+                <div className="section active" id="sec-pagos">
                   <div className="table-header">
                     <h3 className="card-title">Transacciones en Fideicomiso</h3>
                   </div>
@@ -1348,7 +1272,7 @@ export default function Admin() {
               )}
 
               {/* FINANZAS */}
-              {activeSection === "finanzas" && (
+              {activeSection === "reportes" && (
                 <div
                   className="section active"
                   id="sec-finanzas"
@@ -1365,7 +1289,7 @@ export default function Admin() {
                         color: "var(--primary-dark)",
                       }}
                     >
-                      Reporte Financiero Global
+                      Reportes y estadísticas Global
                     </h3>
                   </div>
 
@@ -1617,7 +1541,7 @@ export default function Admin() {
               )}
 
               {/* LOGISTICA */}
-              {activeSection === "logistica" && (
+              {activeSection === "reportes-logistica" && (
                 <div
                   className="section active"
                   id="sec-logistica"
@@ -2172,6 +2096,25 @@ export default function Admin() {
                 </div>
               )}
 
+              {/* SOPORTE */}
+              {activeSection === "soporte" && (
+                <div className="section active" id="sec-soporte">
+                  <div className="table-header"><div><h3 className="card-title">Tickets de soporte</h3><p className="section-subtitle">Centro de atención y seguimiento de incidencias.</p></div><button className="table-action" type="button">+ Nuevo ticket</button></div>
+                  <div className="table-wrap"><table className="table-responsive"><thead><tr><th>Ticket</th><th>Asunto</th><th>Usuario</th><th>Estado</th><th>Prioridad</th><th>Fecha</th></tr></thead><tbody>
+                  {adminTickets.length === 0 ? <tr><td colSpan="6" className="empty-cell">El frontend actual no tiene un endpoint de tickets de soporte. Cuando /admin/dashboard devuelva tickets, se renderizarán automáticamente en esta tabla.</td></tr> : adminTickets.map((ticket, i) => <tr key={ticket.id || i}><td data-label="Ticket">{ticket.codigo || ticket.numero || ticket.id || `#T-${i + 1}`}</td><td data-label="Asunto">{ticket.asunto || ticket.titulo || "—"}</td><td data-label="Usuario">{ticket.usuario || ticket.nombreUsuario || "—"}</td><td data-label="Estado"><span className="badge-status status-pending">{ticket.estado || "—"}</span></td><td data-label="Prioridad"><span className="priority-badge">{ticket.prioridad || "Media"}</span></td><td data-label="Fecha">{ticket.fecha || ticket.fechaCreacion || "—"}</td></tr>)}
+                  </tbody></table></div>
+                </div>
+              )}
+
+              {/* AUDITORIA */}
+              {activeSection === "auditoria" && (
+                <div className="section active" id="sec-auditoria">
+                  <div className="table-header"><div><h3 className="card-title">Auditoría y actividad</h3><p className="section-subtitle">Vista preparada para eventos administrativos expuestos por el backend.</p></div></div>
+                  <div className="audit-grid"><div className="audit-card"><span>Usuarios</span><strong>{dashboardUsuarios}</strong><small>registros administrativos</small></div><div className="audit-card"><span>Productos</span><strong>{dashboardProductos}</strong><small>registros del catálogo</small></div><div className="audit-card"><span>Pedidos</span><strong>{dashboardPedidos}</strong><small>registros conocidos</small></div><div className="audit-card"><span>Tickets</span><strong>{dashboardTickets}</strong><small>incidencias conocidas</small></div></div>
+                  <div className="empty-audit">No se inventa un endpoint de auditoría. Esta vista queda preparada para conectar el contrato real cuando el backend lo exponga.</div>
+                </div>
+              )}
+
               {/* CONFIGURACION */}
               {activeSection === "configuracion" && (
                 <div className="section active">
@@ -2603,6 +2546,7 @@ export default function Admin() {
             </div>
           </div>
         )}
+        <footer className="admin-footer"><div><strong>AgroMarket</strong><small>Del campo de Urabá y Colombia a tu mesa</small></div><div><b>Plataforma</b><span>Inicio</span><span>Catálogo</span><span>Productores</span></div><div><b>Institucional</b><span>Sobre AgroMarket</span><span>Términos y condiciones</span><span>Política de privacidad</span></div><div><b>Soporte</b><span>Ayuda</span><span>Contacto</span><span>Preguntas frecuentes</span></div><div><b>Admin</b><span>Panel administrativo</span><span>Configuración</span><span>Cerrar sesión</span></div><div className="admin-footer-security"><strong>Seguridad y confianza</strong><span>Tu información y pagos están protegidos</span></div></footer>
       </main>
     </div>
   );

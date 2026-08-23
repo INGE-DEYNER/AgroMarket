@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useTheme } from "@/app/contexts/ThemeContext";
+import { useTheme } from "@/app/contexts/ThemeContext.js";
 import api from "@/infrastructure/http/api";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 
@@ -33,7 +34,6 @@ export default function PagoPasarela() {
   const preferenceId = searchParams.get("preference_id");
   const collectionStatus = searchParams.get("collection_status");
   const collectionId = searchParams.get("collection_id");
-  const externalReference = searchParams.get("external_reference");
 
   // Estados
   const [loading, setLoading] = useState(true);
@@ -41,38 +41,40 @@ export default function PagoPasarela() {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState(null);
 
-  // Manejar callback de MercadoPago
-  useEffect(() => {
-    if (collectionStatus || collectionId) {
-      handleMercadoPagoCallback();
-    } else if (preferenceId) {
-      initializeCheckout();
-    } else {
-      setError("No hay información de pago válida");
+  const confirmPayment = useCallback(async (reference) => {
+    try {
+      const res = await api.get(`/payments?gatewayReference=${encodeURIComponent(reference)}`);
+      if (res.data?.[0]) {
+        const payment = res.data[0];
+        await api.patch(`/payments/${payment.id}/confirm`, { gatewayReference: reference });
+        setPaymentDetails(payment);
+        clearCart();
+      }
+    } catch (err) {
+      console.error("Error confirmando pago:", err);
+    }
+  }, [clearCart]);
+
+  const handleMercadoPagoCallback = useCallback(async () => {
+    setLoading(true);
+    try {
+      const statusMap = { approved: "APROBADO", pending: "PENDIENTE", rejected: "RECHAZADO", cancelled: "CANCELADO" };
+      const status = statusMap[collectionStatus?.toLowerCase()] || "PENDIENTE";
+      setPaymentStatus(status);
+      if (collectionStatus?.toLowerCase() === "approved" && collectionId) await confirmPayment(collectionId);
+    } catch (err) {
+      setError(err.message);
+    } finally {
       setLoading(false);
     }
-  }, [preferenceId, collectionStatus, collectionId]);
+  }, [collectionStatus, collectionId, confirmPayment]);
 
-  /**
-   * Inicializa el Checkout de MercadoPago
-   */
-  const initializeCheckout = () => {
+  const initializeCheckout = useCallback(() => {
     try {
       const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
-      
-      if (!publicKey) {
-        throw new Error("Public Key de MercadoPago no configurada");
-      }
-
-      if (typeof MercadoPago === 'undefined') {
-        throw new Error("SDK de MercadoPago no cargado");
-      }
-
-      const mp = new MercadoPago(publicKey, {
-        locale: "es-CO",
-        theme: darkMode ? "dark" : "light",
-      });
-
+      if (!publicKey) throw new Error("Public Key de MercadoPago no configurada");
+      if (typeof globalThis.MercadoPago === "undefined") throw new Error("SDK de MercadoPago no cargado");
+      const mp = new globalThis.MercadoPago(publicKey, { locale: "es-CO", theme: darkMode ? "dark" : "light" });
       mp.checkout({
         preference: { id: preferenceId },
         render: { container: "#mp-checkout" },
@@ -84,50 +86,17 @@ export default function PagoPasarela() {
       setError(err.message);
       setLoading(false);
     }
-  };
+  }, [darkMode, navigate, preferenceId]);
 
-  /**
-   * Maneja respuesta de MercadoPago
-   */
-  const handleMercadoPagoCallback = async () => {
-    setLoading(true);
-    try {
-      const statusMap = {
-        approved: "APROBADO",
-        pending: "PENDIENTE", 
-        rejected: "RECHAZADO",
-        cancelled: "CANCELADO",
-      };
-
-      const status = statusMap[collectionStatus?.toLowerCase()] || "PENDIENTE";
-      setPaymentStatus(status);
-
-      if (collectionStatus === "approved" && collectionId) {
-        await confirmPayment(collectionId);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (collectionStatus || collectionId) {
+      void handleMercadoPagoCallback();
     }
-  };
-
-  /**
-   * Confirma pago en backend
-   */
-  const confirmPayment = async (reference) => {
-    try {
-      const res = await api.get(`/payments?gatewayReference=${reference}`);
-      if (res.data?.[0]) {
-        const payment = res.data[0];
-        await api.patch(`/payments/${payment.id}/confirm`, { gatewayReference: reference });
-        setPaymentDetails(payment);
-        clearCart();
-      }
-    } catch (err) {
-      console.error("Error confirmando pago:", err);
+    else if (preferenceId) {
+      void initializeCheckout();
     }
-  };
+    else { setError("No hay información de pago válida"); setLoading(false); }
+  }, [preferenceId, collectionStatus, collectionId, handleMercadoPagoCallback, initializeCheckout]);
 
   // Formateadores
   const formatAmount = (amt) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(amt || 0);

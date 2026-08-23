@@ -1,8 +1,8 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
-import Navbar from "@/presentation/shared/components/Navbar";
+import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 import api from "@/infrastructure/http/api";
 import "@/presentation/styles/mensajeria.css";
 
@@ -82,7 +82,7 @@ export default function Mensajeria() {
   if (user) {
     const role = user.role?.toLowerCase();
     if (role === "comprador") {
-      return <Navigate to="/dashboard-comprador?section=mensajeria" replace />;
+      // Buyers stay on the dedicated messaging page.
     } else if (role === "productor") {
       return <Navigate to="/dashboard-productor?section=mensajeria" replace />;
     } else if (role === "admin") {
@@ -90,10 +90,8 @@ export default function Mensajeria() {
     }
   }
   return (
-    <div className="page-wrap">
-      {/* NAVBAR */}
-      <Navbar />
-
+    <BuyerShell activeKey="mensajeria">
+      <div className="buyer-page-content">
       {/* CHAT LAYOUT */}
       <div className="chat-layout">
         {/* CONTACTS */}
@@ -273,9 +271,7 @@ export default function Mensajeria() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </BuyerShell>
   );
 }
-
-
-

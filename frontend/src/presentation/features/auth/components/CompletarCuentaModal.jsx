@@ -1,6 +1,10 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import api from "@/infrastructure/http/api";
 import { useTranslation } from "react-i18next";
+import leafIcon from "@/assets/icon-leaf.svg";
+import shieldCheckIcon from "@/assets/icon-shield-check.svg";
+import completeProfileBg from "@/assets/complete-profile-bg.png";
+import "@/presentation/styles/auth-flow.css";
 
 export default function CompletarCuentaModal({ onComplete }) {
   const { t } = useTranslation();
@@ -10,13 +14,35 @@ export default function CompletarCuentaModal({ onComplete }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const handleCedulaChange = (e) => {
+    // Solo dígitos para CC/CE/NIT; el pasaporte sí permite letras
+    const raw = e.target.value;
+    if (tipoDocumento === "PASSPORT") {
+      setCedula(raw.toUpperCase().slice(0, 20));
+    } else {
+      setCedula(raw.replace(/[^\d]/g, "").slice(0, 15));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!cedula.trim()) {
+    const cedulaLimpia = cedula.trim();
+
+    if (!cedulaLimpia) {
       setError(
         t("completar.error.documento", "El número de documento es obligatorio"),
+      );
+      return;
+    }
+
+    if (cedulaLimpia.length < 5) {
+      setError(
+        t(
+          "completar.error.documentoCorto",
+          "El número de documento no es válido",
+        ),
       );
       return;
     }
@@ -28,8 +54,15 @@ export default function CompletarCuentaModal({ onComplete }) {
       return;
     }
 
-    // Age validation (older than 18)
+    // Validación de edad (mayor de 18 años)
     const birthDate = new Date(fechaNacimiento);
+    if (Number.isNaN(birthDate.getTime())) {
+      setError(
+        t("completar.error.fechaInvalida", "La fecha ingresada no es válida"),
+      );
+      return;
+    }
+
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -50,21 +83,40 @@ export default function CompletarCuentaModal({ onComplete }) {
       return;
     }
 
+    if (age > 120) {
+      setError(
+        t("completar.error.fechaInvalida", "La fecha ingresada no es válida"),
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       await api.put("/usuarios/mi-perfil", {
         tipoDocumento,
-        cedula,
+        cedula: cedulaLimpia,
+        numeroDocumento: cedulaLimpia,
+        documento: cedulaLimpia,
         fechaNacimiento,
+        cuentaCompleta: true,
       });
+
+      // Fix: no dependemos únicamente de que el backend devuelva el nombre
+      // exacto de campo esperado (cuentaCompleta). Si el PUT respondió OK,
+      // desbloqueamos la UI de inmediato y sincronizamos en segundo plano.
       if (onComplete) {
-        onComplete();
+        await onComplete({
+          tipoDocumento,
+          cedula: cedulaLimpia,
+          fechaNacimiento,
+        });
       }
     } catch (err) {
-      // 401 → sesión expirada, redirige a login (el auto-logout de api.js ya lo maneja,
-      // pero por si acaso capturamos aquí también)
-      const msg = err.message || "";
+      const status = err?.status || err?.response?.status;
+      const msg = err?.message || "";
+
       if (
+        status === 401 ||
         msg.includes("401") ||
         msg.toLowerCase().includes("unauthorized") ||
         msg.toLowerCase().includes("expirado")
@@ -74,8 +126,11 @@ export default function CompletarCuentaModal({ onComplete }) {
         window.location.href = "/login";
         return;
       }
+
       setError(
-        err.message ||
+        err?.fieldErrors?.cedula ||
+          err?.fieldErrors?.documento ||
+          err?.message ||
           t("completar.error.general", "Error al guardar los datos"),
       );
     } finally {
@@ -84,166 +139,145 @@ export default function CompletarCuentaModal({ onComplete }) {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 99999,
-        background: "rgba(26, 46, 30, 0.75)",
-        backdropFilter: "blur(8px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          background: "#ffffff",
-          borderRadius: "16px",
-          width: "100%",
-          maxWidth: "450px",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-          padding: "32px",
-          boxSizing: "border-box",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 8px 0",
-            fontSize: "24px",
-            fontWeight: "700",
-            color: "#2E7D32",
-            textAlign: "center",
-          }}
+    <div className="af-modal-overlay" role="dialog" aria-modal="true">
+      <div className="af-modal">
+        {/* Panel izquierdo: imagen + avatar (frame: left-panel-complete) */}
+        <div
+          className="af-modal-left"
+          style={{ backgroundImage: `url(${completeProfileBg})` }}
         >
-          {t("completar.titulo", "Completa tu cuenta")}
-        </h2>
-        <p
-          style={{
-            margin: "0 0 24px 0",
-            fontSize: "14px",
-            color: "#666666",
-            textAlign: "center",
-            lineHeight: "1.5",
-          }}
-        >
-          {t(
-            "completar.subtitulo",
-            "Por regulaciones legales, debes completar los siguientes datos antes de continuar.",
-          )}
-        </p>
-
-        {error && (
-          <div
-            style={{
-              background: "#ffebee",
-              color: "#c62828",
-              padding: "12px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              marginBottom: "20px",
-              textAlign: "center",
-              fontWeight: "500",
-            }}
-          >
-            {error}
-          </div>
-        )}
-
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: "20px" }}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <label
-              style={{ fontSize: "13px", fontWeight: "600", color: "#4a5d4e" }}
-            >
-              {t("completar.tipoDoc", "Tipo de Documento")}
-            </label>
-            <select
-              value={tipoDocumento}
-              onChange={(e) => setTipoDocumento(e.target.value)}
-              style={{
-                padding: "12px",
-                borderRadius: "8px",
-                border: "1px solid #cccccc",
-                outline: "none",
-                fontSize: "15px",
-              }}
-            >
-              <option value="CC">Cédula de Ciudadanía (CC)</option>
-              <option value="CE">Cédula de Extranjería (CE)</option>
-              <option value="NIT">NIT</option>
-              <option value="PASSPORT">Pasaporte</option>
-            </select>
+          <div className="af-logo af-logo--light">
+            <span className="af-logo-icon">
+              <img src={leafIcon} alt="" width="20" height="20" />
+            </span>
+            <span className="af-logo-name af-logo-name--light">
+              <em>Agro</em>Market
+            </span>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <label
-              style={{ fontSize: "13px", fontWeight: "600", color: "#4a5d4e" }}
+          <div className="af-avatar-ring" aria-hidden="true">
+            <svg
+              width="44"
+              height="44"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FFFFFF"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {t("completar.numDoc", "Número de Documento")}
-            </label>
-            <input
-              type="text"
-              placeholder={t(
-                "completar.placeholder.numDoc",
-                "Ingresa tu número de documento",
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
+            </svg>
+          </div>
+          <h2 className="af-modal-title">
+            {t("completar.titulo", "Completa tu perfil")}
+          </h2>
+          <p className="af-modal-sub">
+            {t(
+              "completar.subtitulo",
+              "Queremos brindarte la mejor experiencia de entrega rápida y directa según tu ubicación en Colombia.",
+            )}
+          </p>
+          <p className="af-modal-privacy">
+            {t(
+              "completar.privacidad",
+              "Tus datos están protegidos bajo nuestra estricta ley de protección de datos personales.",
+            )}
+          </p>
+        </div>
+
+        {/* Panel derecho: formulario (frame: form-container) */}
+        <div className="af-modal-right">
+          <div className="af-text af-text--left">
+            <h1>{t("completar.formTitle", "Información personal")}</h1>
+            <p>
+              {t(
+                "completar.formSub",
+                "Por favor, bríndanos los detalles necesarios para verificar tu identidad y cumplir con la ley.",
               )}
-              value={cedula}
-              onChange={(e) => setCedula(e.target.value)}
-              style={{
-                padding: "12px",
-                borderRadius: "8px",
-                border: "1px solid #cccccc",
-                outline: "none",
-                fontSize: "15px",
-              }}
-            />
+            </p>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <label
-              style={{ fontSize: "13px", fontWeight: "600", color: "#4a5d4e" }}
-            >
-              {t("completar.fechaNac", "Fecha de Nacimiento")}
-            </label>
-            <input
-              type="date"
-              value={fechaNacimiento}
-              onChange={(e) => setFechaNacimiento(e.target.value)}
-              style={{
-                padding: "12px",
-                borderRadius: "8px",
-                border: "1px solid #cccccc",
-                outline: "none",
-                fontSize: "15px",
-              }}
-            />
-          </div>
+          {error && (
+            <div className="af-error" role="alert" aria-live="assertive">
+              {error}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              background: "#2E7D32",
-              color: "#ffffff",
-              border: "none",
-              padding: "14px",
-              borderRadius: "8px",
-              fontWeight: "700",
-              fontSize: "16px",
-              cursor: "pointer",
-              marginTop: "10px",
-              transition: "background 0.3s",
-            }}
-          >
-            {loading
-              ? t("completar.guardando", "Guardando...")
-              : t("completar.guardar", "Guardar y Continuar")}
-          </button>
-        </form>
+          <form className="af-form" onSubmit={handleSubmit} noValidate>
+            <div className="af-field">
+              <label htmlFor="tipoDocumento">
+                {t("completar.tipoDoc", "Tipo de documento")}
+              </label>
+              <select
+                id="tipoDocumento"
+                className="af-input af-select"
+                value={tipoDocumento}
+                onChange={(e) => {
+                  setTipoDocumento(e.target.value);
+                  setCedula("");
+                }}
+                disabled={loading}
+              >
+                <option value="CC">Cédula de Ciudadanía (CC)</option>
+                <option value="CE">Cédula de Extranjería (CE)</option>
+                <option value="NIT">NIT</option>
+                <option value="PASSPORT">Pasaporte</option>
+              </select>
+            </div>
+
+            <div className="af-field">
+              <label htmlFor="numeroDocumento">
+                {t("completar.numDoc", "Número de documento")}
+              </label>
+              <input
+                id="numeroDocumento"
+                type="text"
+                inputMode={tipoDocumento === "PASSPORT" ? "text" : "numeric"}
+                placeholder={t(
+                  "completar.placeholder.numDoc",
+                  "Ingresa tu número de documento",
+                )}
+                value={cedula}
+                onChange={handleCedulaChange}
+                disabled={loading}
+                className="af-input"
+              />
+            </div>
+
+            <div className="af-field">
+              <label htmlFor="fechaNacimiento">
+                {t("completar.fechaNac", "Fecha de nacimiento")}
+              </label>
+              <input
+                id="fechaNacimiento"
+                type="date"
+                className="af-input"
+                value={fechaNacimiento}
+                max={new Date().toISOString().split("T")[0]}
+                onChange={(e) => setFechaNacimiento(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            <div className="af-safety-note">
+              <img src={shieldCheckIcon} alt="" width="16" height="16" />
+              <span>
+                {t(
+                  "completar.seguridad",
+                  "Tu información está segura. Solo la usamos para verificar tu identidad y cumplir con la ley.",
+                )}
+              </span>
+            </div>
+
+            <button type="submit" className="af-btn-primary" disabled={loading}>
+              {loading
+                ? t("completar.guardando", "Guardando...")
+                : t("completar.guardar", "Guardar y continuar")}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

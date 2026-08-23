@@ -1,54 +1,54 @@
 <!doctype html>
-<html lang="zh" dir="ltr">
-  <body style="margin: 0; padding: 0; background: #f4f6f3; font-family: Arial, Helvetica, sans-serif; color: #1a2e1e;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f4f6f3; padding: 24px 12px">
-      <tr>
-        <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 620px; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 16px 40px rgba(26, 92, 42, 0.12); border: 1px solid rgba(26, 92, 42, 0.08);">
-            <tr>
-              <td style="background: linear-gradient(135deg, #1a5c2a, #2d7a3a); padding: 28px 32px; color: #fff; text-align: left;">
-                <div style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.8; font-weight: 700;">
+<!DOCTYPE html>
+
+<html dir="ltr" lang="zh">
+<body style="margin:0; padding:0; background:#F3F4F6; font-family:Arial, Helvetica, sans-serif; color:#111827;">
+<table cellpadding="0" cellspacing="0" role="presentation" style="background: #F3F4F6; padding: 24px 12px; width:100%;" width="100%">
+<tr>
+<td align="center">
+<table cellpadding="0" cellspacing="0" role="presentation" style="max-width:620px; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 16px 40px rgba(26, 92, 42, 0.12); border: 1px solid rgba(26, 92, 42, 0.08);; width:100%;" width="100%">
+<tr>
+<td style="background: #14532D; padding: 28px 32px; color: #fff; text-align: left;">
+<div style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.8; font-weight: 700;">
                   AgroMarket
                 </div>
-                <h2 style="margin: 10px 0 0; font-size: 28px; line-height: 1.2; font-weight: 800;">
+<h2 style="margin: 10px 0 0; font-size: 28px; line-height: 1.2; font-weight: 800;; font-family:Arial, Helvetica, sans-serif; color:#111827;">
                   电子邮件验证
                 </h2>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 32px; text-align: left;">
-                <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.7">
+</td>
+</tr>
+<tr>
+<td style="padding: 32px; text-align: left;">
+<p style="margin: 0 0 16px; font-size: 16px; line-height: 1.7">
                   您好 <strong>${correoMascarado}</strong>，请确认您的账户以开始使用 AgroMarket。
                 </p>
-                <div style="background: #f7fbf8; border: 1px solid rgba(45, 122, 58, 0.12); border-radius: 16px; padding: 18px 20px; margin: 24px 0;">
-                  <div style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #4a5d4e; font-weight: 700; margin-bottom: 8px;">
+<div style="background: #F3F8F4; border: 1px solid rgba(45, 122, 58, 0.12); border-radius: 12px; padding: 18px 20px; margin: 24px 0;">
+<div style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #374151; font-weight: 700; margin-bottom: 8px;">
                     6位验证码
                   </div>
-                  
-      <div style="font-size: 32px; letter-spacing: 0.35em; font-weight: 800; color: #1a5c2a; text-align: center; margin: 10px 0;">
+<div style="font-size: 32px; letter-spacing: 0.35em; font-weight: 800; color: #14532D; text-align: center; margin: 10px 0;">
         ${codigo}
       </div>
-    
-                  <div style="margin: 12px 0 0; font-size: 14px; line-height: 1.7; color: #4a5d4e;">
+<div style="margin: 12px 0 0; font-size: 14px; line-height: 1.7; color: #374151;">
                     该验证码将在15分钟内失效。您也可以使用下面的按钮直接进入验证页面。
                   </div>
-                </div>
-                <p style="text-align: center; margin: 30px 0">
-                  <a href="${verifyUrl}" style="display: inline-block; padding: 14px 26px; background: #2d7a3a; color: #fff; border-radius: 999px; text-decoration: none; font-weight: 700; box-shadow: 0 10px 24px rgba(45, 122, 58, 0.22);">
+</div>
+<p style="text-align: center; margin: 30px 0">
+<a href="${verifyUrl}" style="display: inline-block; padding: 14px 26px; background: #1E7A3A; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 700; box-shadow: 0 10px 24px rgba(45, 122, 58, 0.22);; display:inline-block; padding:12px 22px; background:#1E7A3A; color:#ffffff; border-radius:8px; text-decoration:none; font-weight:700;">
                     验证电子邮件
                   </a>
-                </p>
-                <p style="margin: 18px 0 0; font-size: 13px; color: #4a5d4e; line-height: 1.6;">
+</p>
+<p style="margin: 18px 0 0; font-size: 13px; color: #374151; line-height: 1.6;">
                   如果按钮无法打开，请复制并粘贴此链接到您的浏览器：
                 </p>
-                <p style="margin: 8px 0 0; font-size: 13px; word-break: break-all; color: #1a5c2a;">
+<p style="margin: 8px 0 0; font-size: 13px; word-break: break-all; color: #14532D;">
                   ${verifyUrl}
                 </p>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
+</td>
+</tr>
+<tr><td style="background:#F3F4F6; padding:18px 24px; text-align:center; border-top:1px solid #E5E7EB;"><p style="margin:0; font-size:12px; line-height:1.5; color:#667280;">AgroMarket · Del campo de Urabá y Colombia a tu mesa</p><p style="margin:6px 0 0; font-size:11px; line-height:1.5; color:#667280;">© 2024 AgroMarket. Todos los derechos reservados.</p></td></tr></table>
+</td>
+</tr>
+</table>
+</body>
 </html>

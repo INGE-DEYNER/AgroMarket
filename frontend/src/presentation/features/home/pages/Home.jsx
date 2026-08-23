@@ -1,732 +1,426 @@
-﻿import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { Link, useLocation } from "react-router-dom";
-import Navbar from "@/presentation/shared/components/Navbar";
-import { useAuth } from "@/app/hooks/useAuth";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import PublicLayout from "@/presentation/shared/components/PublicLayout";
+import { useCart } from "@/presentation/features/order/hooks/useCart";
 import api from "@/infrastructure/http/api";
-import "@/presentation/styles/home.css";
+import heroImg from "@/assets/home/home-hero.png";
+import catFrutasImg from "@/assets/home/cat-frutas-verduras.png";
+import catPlatanosImg from "@/assets/home/cat-platanos-banano.png";
+import catTuberculosImg from "@/assets/home/cat-tuberculos-raices.png";
+import catCacaoImg from "@/assets/home/cat-cacao-cafe.png";
+import catProcesadosImg from "@/assets/home/cat-procesados.png";
+import catFloresImg from "@/assets/home/cat-flores-plantas.png";
+import prodAguacateImg from "@/assets/home/prod-aguacate-hass.png";
+import prodPlatanoImg from "@/assets/home/prod-platano-harton.png";
+import prodCafeImg from "@/assets/home/prod-cafe-especial.png";
+import prodYucaImg from "@/assets/home/prod-yuca-uraba.png";
+import mapPinIcon from "@/assets/icon-map-pin.svg";
+import handHeartIcon from "@/assets/icon-hand-heart.svg";
+import "@/presentation/styles/public-views.css";
 
-// ── Skeleton loader reutilizable ──────────────────────────────
-function Skeleton({ width = "100%", height = "20px", borderRadius = "6px" }) {
-  return (
-    <div
-      style={{
-        width,
-        height,
-        borderRadius,
-        background:
-          "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-        backgroundSize: "200% 100%",
-        animation: "shimmer 1.5s infinite",
-      }}
-    />
-  );
-}
-
-// ── Card de producto skeleton ─────────────────────────────────
-function ProductCardSkeleton() {
-  return (
-    <div className="product-card">
-      <Skeleton height="200px" borderRadius="12px 12px 0 0" />
-      <div
-        className="product-info"
-        style={{ gap: "8px", display: "flex", flexDirection: "column" }}
+const TRUST_BADGES = [
+  {
+    title: "Compra 100% Segura",
+    text: "Transacciones protegidas",
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       >
-        <Skeleton height="18px" width="70%" />
-        <Skeleton height="14px" width="50%" />
-        <Skeleton height="22px" width="40%" />
-        <Skeleton height="36px" />
-      </div>
-    </div>
-  );
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
+    title: "Envíos Express",
+    text: "Directo a tu domicilio",
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="1" y="3" width="15" height="13" rx="1" />
+        <path d="M16 8h4l3 3v5h-7V8z" />
+        <circle cx="5.5" cy="18.5" r="2.5" />
+        <circle cx="18.5" cy="18.5" r="2.5" />
+      </svg>
+    ),
+  },
+  {
+    title: "Frescura Garantizada",
+    text: "Cosechados en el día",
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" />
+        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+      </svg>
+    ),
+  },
+  {
+    title: "Apoyo Directo Local",
+    text: "Sin intermediarios dañinos",
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+  },
+  {
+    title: "Soporte Amigable",
+    text: "Atención WhatsApp 24/7",
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="15" y1="9" x2="9" y2="15" />
+        <line x1="9" y1="9" x2="15" y2="15" />
+      </svg>
+    ),
+  },
+];
+
+const CATEGORIES = [
+  { name: "Frutas y Verduras", img: catFrutasImg, slug: "Frutas y Verduras" },
+  { name: "Plátanos y Banano", img: catPlatanosImg, slug: "Plátanos y Banano" },
+  {
+    name: "Tubérculos y Raíces",
+    img: catTuberculosImg,
+    slug: "Tubérculos y Raíces",
+  },
+  { name: "Cacao y Café", img: catCacaoImg, slug: "Cacao y Café" },
+  {
+    name: "Productos Procesados",
+    img: catProcesadosImg,
+    slug: "Productos Procesados",
+  },
+  { name: "Flores y Plantas", img: catFloresImg, slug: "Flores y Plantas" },
+];
+
+const PRODUCTS = [
+  {
+    id: "home-aguacate-hass",
+    nombre: "Aguacate Hass Premium",
+    name: "Aguacate Hass Premium",
+    producer: "Finca El Paraíso",
+    place: "Apartadó",
+    presentation: "Presentación: Kg",
+    rating: 5.0,
+    precio: 5800,
+    price: "$5.800 COP",
+    img: prodAguacateImg,
+  },
+  {
+    id: "home-platano-harton",
+    nombre: "Plátano Hartón Verde",
+    name: "Plátano Hartón Verde",
+    producer: "Productores de Turbo",
+    place: "Turbo",
+    presentation: "Presentación: Mano (5 und)",
+    rating: 5.0,
+    precio: 3500,
+    price: "$3.500 COP",
+    img: prodPlatanoImg,
+  },
+  {
+    id: "home-cafe-especial",
+    nombre: "Café Especial Orgánico",
+    name: "Café Especial Orgánico",
+    producer: "Cafeteros de Chigorodó",
+    place: "Chigorodó",
+    presentation: "Presentación: Bolsa 500g",
+    rating: 5.0,
+    precio: 18900,
+    price: "$18.900 COP",
+    img: prodCafeImg,
+  },
+  {
+    id: "home-yuca-uraba",
+    nombre: "Yuca Limpia de Urabá",
+    name: "Yuca Limpia de Urabá",
+    producer: "Asociación Campesina",
+    place: "Carepa",
+    presentation: "Presentación: Kg",
+    rating: 5.0,
+    precio: 2800,
+    price: "$2.800 COP",
+    img: prodYucaImg,
+  },
+];
+
+function extractArray(response) {
+  const data = response?.data ?? response;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.content)) return data.content;
+  return [];
 }
 
 export default function Home() {
-  const { t } = useTranslation();
-  const { user, formatPrice } = useAuth();
+  const { addToCart } = useCart();
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
-  const [productos, setProductos] = useState([]); // datos reales de la API
-  const [resenas, setResenas] = useState([]); // reseñas reales de la API
-  const [metrics, setMetrics] = useState(null); // null = cargando
-  const [loadingProductos, setLoadingProductos] = useState(true);
-  const [loadingResenas, setLoadingResenas] = useState(true);
-
-  // ── Utilidad para extraer array de cualquier respuesta ───────
-  const toArray = (res) => {
-    if (!res) return [];
-    if (Array.isArray(res)) return res;
-    if (res.data) {
-      if (Array.isArray(res.data)) return res.data;
-      if (Array.isArray(res.data.content)) return res.data.content;
-    }
-    if (Array.isArray(res.content)) return res.content;
-    return [];
-  };
-
-  // ── Cargar productos destacados ──────────────────────────────
   useEffect(() => {
-    (async () => {
-      setLoadingProductos(true);
-      try {
-        const data = await api.get(
-          "/productos?page=0&size=4&sort=fechaCreacion,desc",
+    let active = true;
+
+    api
+      .get("/productos/categorias")
+      .then((res) => {
+        if (!active) return;
+        setCategories(extractArray(res));
+      })
+      .catch((error) => {
+        console.error(
+          "No se pudo cargar la información pública del inicio:",
+          error,
         );
-        setProductos(toArray(data));
-      } catch {
-        setProductos([]);
-      } finally {
-        setLoadingProductos(false);
-      }
-    })();
+      })
+      .finally(() => {
+        if (active) setLoadingCategories(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  // ── Cargar métricas globales de la plataforma ────────────────
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get("/public/metrics");
-        setMetrics(res.data || res);
-      } catch {
-        setMetrics({
-          totalProductos: 4,
-          totalProductores: 4,
-          precioPromedio: "$3.338",
-          calificacion: "4.8★",
-        });
-      }
-    })();
-  }, []);
+  const categoryCards = useMemo(() => {
+    if (!categories.length) return CATEGORIES;
 
-  // ── Cargar reseñas reales ────────────────────────────────────
-  useEffect(() => {
-    (async () => {
-      setLoadingResenas(true);
-      try {
-        const data = await api.get(
-          "/resenas?page=0&size=3&sort=fechaCreacion,desc",
-        );
-        setResenas(toArray(data));
-      } catch {
-        setResenas([]);
-      } finally {
-        setLoadingResenas(false);
-      }
-    })();
-  }, []);
+    const apiNames = categories.map((raw) => {
+      const name =
+        typeof raw === "string"
+          ? raw
+          : (raw.nombre ?? raw.name ?? raw.categoria ?? "");
+      return String(name).trim().toLowerCase();
+    });
 
-  // ── Animación scroll ─────────────────────────────────────────
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries, obs) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            obs.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15 },
+    // Si la API devuelve categorías, intentamos mapearlas a las del frame.
+    const mapped = CATEGORIES.filter((c) =>
+      apiNames.some(
+        (n) =>
+          c.name.toLowerCase().includes(n) || n.includes(c.name.toLowerCase()),
+      ),
     );
-    document
-      .querySelectorAll(".animate-fade-up")
-      .forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [productos, resenas]);
 
-  const location = useLocation();
-  useEffect(() => {
-    if (location.hash) {
-      const elem = document.querySelector(location.hash);
-      if (elem) {
-        elem.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  }, [location]);
+    return mapped.length ? mapped : CATEGORIES;
+  }, [categories]);
 
   return (
-    <div className="home-root">
-      <Navbar />
-
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="hero">
-        <div className="hero-content">
-          <div className="hero-left">
-            <div className="hero-badge animate-fade-up">
-              <svg
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                fill="currentColor"
-                style={{ display: "inline", verticalAlign: "middle" }}
-              >
-                <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
-              </svg>{" "}
-              ASAFRUT · Chigorodó, Urabá
-            </div>
-            <h1
-              className="hero-title animate-fade-up"
-              style={{ transitionDelay: "0.1s" }}
-            >
-              {
-                t(
-                  "home.heroTitle",
-                  "Del campo de Urabá directamente a tu mesa.",
-                ).split("Urabá")[0]
-              }
-              <span>Urabá</span>
-              {
-                t(
-                  "home.heroTitle",
-                  "Del campo de Urabá directamente a tu mesa.",
-                ).split("Urabá")[1]
-              }
-            </h1>
-            <p
-              className="hero-sub animate-fade-up"
-              style={{ transitionDelay: "0.2s" }}
-            >
-              {t(
-                "home.heroSub",
-                "Conectamos productores agrícolas con compradores, eliminando intermediarios.",
-              )}{" "}
-              {t(
-                "home.heroSubExtra",
-                "Frutas frescas, precios justos, trazabilidad total.",
-              )}
+    <PublicLayout>
+      <div className="hm-page">
+        {/* Hero (frame: hero-section) */}
+        <section
+          className="hm-hero"
+          style={{ backgroundImage: `url(${heroImg})` }}
+        >
+          <div className="hm-hero-overlay">
+            <span className="hm-hero-badge">
+              🌽 DIRECTO DEL PRODUCTOR A TU CASA
+            </span>
+            <h1>Del campo de Urabá y de toda Colombia a tu mesa</h1>
+            <p>
+              Apoya al campo colombiano comprando frutas, verduras, tubérculos y
+              café cultivados con pasión por productores locales. Entrega rápida
+              y garantizada.
             </p>
-
-            <div
-              className="hero-bullets animate-fade-up"
-              style={{ transitionDelay: "0.3s" }}
-            >
-              {[
-                t("home.bullet1", "Productores activos de la región de Urabá"),
-                t("home.bullet2", "Pagos seguros con PSE y tarjeta"),
-                t("home.bullet3", "Seguimiento en tiempo real de tu pedido"),
-              ].map((b, i) => (
-                <div key={i} className="hero-bullet">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                  </svg>
-                  {b}
-                </div>
-              ))}
-            </div>
-
-            <div
-              className="hero-btns animate-fade-up"
-              style={{ transitionDelay: "0.4s" }}
-            >
-              <Link to="/catalogo" className="btn btn-primary btn-lg">
-                {t("home.viewCatalog", "Ver catálogo →")}
+            <div className="hm-hero-btns">
+              <Link className="hm-btn-primary" to="/catalogo">
+                Comprar ahora
               </Link>
-              {!user && (
-                <Link to="/registro" className="btn btn-secondary btn-lg">
-                  {t("home.iAmProducer", "Soy productor")}
-                </Link>
-              )}
-              {user && (
-                <Link
-                  to={
-                    user.role === "productor"
-                      ? "/dashboard-productor"
-                      : user.role === "admin"
-                        ? "/admin"
-                        : "/dashboard-comprador"
-                  }
-                  className="btn btn-secondary btn-lg"
-                >
-                  {t("home.goToDashboard", "Mi panel →")}
-                </Link>
-              )}
-            </div>
-          </div>
-
-          <div
-            className="hero-right animate-fade-up"
-            style={{ transitionDelay: "0.3s" }}
-          >
-            <div className="hero-img-wrap">
-              <img
-                src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=900"
-                alt={t("home.heroImgAlt", "Frutas frescas")}
-                className="hero-img"
-              />
-            </div>
-            <div className="float-card float-card-1">
-              <div className="float-card-1-title">
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  style={{
-                    display: "inline",
-                    verticalAlign: "middle",
-                    marginRight: "4px",
-                  }}
-                >
-                  <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-                </svg>
-                {t("home.floatCard1.title", "Pedido en camino")}
-              </div>
-              <div className="float-card-1-sub">
-                {t("home.floatCard1.desc", "Seguimiento en tiempo real")}
-              </div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" />
-              </div>
-            </div>
-            <div className="float-card float-card-2">
-              <div
-                className="float-card-2-val"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  justifyContent: "center",
-                }}
-              >
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="#f59e0b">
-                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                </svg>
-                {metrics?.calificacion
-                  ? String(metrics.calificacion).replace("★", "")
-                  : "4.8"}
-              </div>
-              <div className="float-card-2-sub">
-                {t("home.floatCard2.desc", "Calificación promedio")}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── METRICS ─────────────────────────────────────────── */}
-      <section className="metrics">
-        <div className="metrics-grid">
-          {[
-            {
-              val:
-                metrics === null
-                  ? "—"
-                  : metrics.totalProductos > 0
-                    ? `${metrics.totalProductos}`
-                    : "—",
-              label: t("home.metrics.products", "Productos publicados"),
-            },
-            {
-              val: metrics?.totalProductores
-                ? `${metrics.totalProductores}`
-                : "—",
-              label: t("home.metrics.producers", "Productores activos"),
-            },
-            {
-              val: metrics?.precioPromedio ?? "—",
-              label: t("home.metrics.avgPrice", "Precio promedio"),
-            },
-            {
-              val: metrics?.calificacion ?? "—",
-              label: t("home.metrics.avgRating", "Calificación promedio"),
-            },
-          ].map((m, i) => (
-            <div
-              key={i}
-              className="metric-item animate-fade-up"
-              style={{ transitionDelay: `${i * 0.1}s` }}
-            >
-              <div className="metric-val">{m.val}</div>
-              <div className="metric-label">{m.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS (estático, no cambia) ───────────────── */}
-      <section className="how-it-works" id="como-funciona">
-        <div className="section-eyebrow animate-fade-up">
-          {t("home.how.eyebrow", "PROCESO")}
-        </div>
-        <h2
-          className="section-title animate-fade-up"
-          style={{ transitionDelay: "0.1s" }}
-        >
-          {t("home.how.title", "Tan fácil como 3 pasos")}
-        </h2>
-        <p
-          className="section-sub animate-fade-up"
-          style={{ transitionDelay: "0.2s" }}
-        >
-          {t(
-            "home.how.sub",
-            "Comprar directo al productor nunca fue tan sencillo y seguro.",
-          )}
-        </p>
-        <div className="steps-grid">
-          {[
-            {
-              num: "01",
-              title: t("home.how.step1.title", "Crea tu cuenta"),
-              desc: t(
-                "home.how.step1.desc",
-                "Regístrate en menos de un minuto como comprador o productor y accede a la plataforma.",
-              ),
-              icon: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
-            },
-            {
-              num: "02",
-              title: t("home.how.step2.title", "Encuentra tus frutas"),
-              desc: t(
-                "home.how.step2.desc",
-                "Navega el catálogo, filtra por tipo, precio y disponibilidad para encontrar lo que necesitas.",
-              ),
-              icon: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
-            },
-            {
-              num: "03",
-              title: t("home.how.step3.title", "Recibe en casa"),
-              desc: t(
-                "home.how.step3.desc",
-                "Paga de forma segura y rastrea tu pedido en tiempo real hasta que llegue a tu puerta.",
-              ),
-              icon: "M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z",
-            },
-          ].map((step, i) => (
-            <div
-              key={i}
-              className="step-card animate-fade-up"
-              style={{ transitionDelay: `${0.3 + i * 0.1}s` }}
-            >
-              <div className="step-icon-wrap">
-                <div className="step-num">{step.num}</div>
-                <svg viewBox="0 0 24 24">
-                  <path d={step.icon} />
-                </svg>
-              </div>
-              <h3 className="step-title">{step.title}</h3>
-              <p className="step-desc">{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── FEATURED PRODUCTS (datos reales o skeleton) ───────── */}
-      <section className="featured">
-        <div className="featured-header animate-fade-up">
-          <div>
-            <div className="section-eyebrow">
-              {t("home.featured.eyebrow", "DESTACADOS")}
-            </div>
-            <h2 className="section-title" style={{ marginBottom: 0 }}>
-              {t("home.featured.title", "Frutas de temporada")}
-            </h2>
-          </div>
-          <Link to="/catalogo" className="btn btn-secondary">
-            {t("home.featured.viewAll", "Ver catálogo completo →")}
-          </Link>
-        </div>
-
-        <div className="products-grid">
-          {loadingProductos ? (
-            // Skeleton mientras carga
-            [1, 2, 3, 4].map((i) => <ProductCardSkeleton key={i} />)
-          ) : productos.length === 0 ? (
-            // Sin productos aún — placeholder neutro
-            <div
-              style={{
-                gridColumn: "1/-1",
-                textAlign: "center",
-                padding: "40px",
-                color: "#999",
-              }}
-            >
-              <div style={{ marginBottom: "12px" }}>
-                <svg
-                  viewBox="0 0 24 24"
-                  width="48"
-                  height="48"
-                  fill="#52b788"
-                  opacity="0.6"
-                >
-                  <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z" />
-                </svg>
-              </div>
-              <p>
-                {t(
-                  "home.featured.empty",
-                  "Los productos aparecerán aquí cuando los productores publiquen su catálogo.",
-                )}
-              </p>
-              <Link
-                to="/registro"
-                className="btn btn-primary"
-                style={{ marginTop: "16px", display: "inline-block" }}
-              >
-                {t("home.featured.beFirst", "Sé el primero en publicar")}
+              <Link className="hm-btn-outline" to="/como-funciona">
+                Cómo funciona
               </Link>
             </div>
-          ) : (
-            // Productos reales de la API
-            productos.slice(0, 4).map((p, i) => {
-              const stock = p.cantidadDisponible ?? p.stock ?? 0;
-              const productor =
-                p.productor?.nombre ||
-                p.productorNombre ||
-                p.nombreProductor ||
-                "—";
-              const rating = p.calificacionPromedio ?? p.calificacion;
-              return (
-                <div
-                  key={p.id || i}
-                  className="product-card animate-fade-up"
-                  style={{ transitionDelay: `${0.1 * (i + 1)}s` }}
-                >
-                  <img
-                    src={
-                      p.imagenUrl ||
-                      "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500"
-                    }
-                    alt={p.nombre}
-                    className="product-img"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src =
-                        "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500";
-                    }}
-                  />
-                  <div className="product-info">
-                    <h3 className="product-name">{p.nombre}</h3>
-                    <div className="product-producer">
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                      </svg>
-                      {productor}
-                    </div>
-                    <div className="product-price">
-                      {formatPrice(p.precio)}/kg
-                    </div>
-                    <div className="product-meta">
-                      <div className="product-rating">
-                        {rating
-                          ? `★ ${Number(rating).toFixed(1)}`
-                          : t("home.featured.noRating", "Sin calificación")}
-                      </div>
-                      <div
-                        className={`product-badge${stock === 0 ? " out-of-stock" : ""}`}
-                      >
-                        {stock > 0
-                          ? t("home.featured.available", "Disponible")
-                          : t("home.featured.soldOut", "Sin stock")}
-                      </div>
-                    </div>
-                    <Link
-                      to={`/catalogo`}
-                      className="btn btn-primary product-btn"
-                    >
-                      {t("home.featured.orderNow", "Pedir ahora")}
-                    </Link>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </section>
-
-      {/* ── FOR PRODUCERS (estático) ─────────────────────────── */}
-      <section className="for-producers" id="asafrut">
-        <div className="fp-content">
-          <div className="fp-left">
-            <div className="fp-badge animate-fade-up">
-              {t("home.forProducers.badge", "PARA PRODUCTORES")}
-            </div>
-            <h2
-              className="fp-title animate-fade-up"
-              style={{ transitionDelay: "0.1s" }}
-            >
-              {t(
-                "home.forProducers.title",
-                "Vende tus frutas directamente. Sin intermediarios.",
-              )}
-            </h2>
-            <p
-              className="fp-sub animate-fade-up"
-              style={{ transitionDelay: "0.2s" }}
-            >
-              {t(
-                "home.forProducers.sub",
-                "Únete a la red de ASAFRUT y maximiza tus ganancias conectando directo con los compradores finales.",
-              )}
-            </p>
-            <div
-              className="fp-list animate-fade-up"
-              style={{ transitionDelay: "0.3s" }}
-            >
-              {[
-                t("home.forProducers.f1", "Publica tus productos en minutos"),
-                t("home.forProducers.f2", "Recibe pagos seguros directamente"),
-                t(
-                  "home.forProducers.f3",
-                  "Gestiona tus pedidos desde el panel",
-                ),
-                t(
-                  "home.forProducers.f4",
-                  "Comunícate con compradores en tiempo real",
-                ),
-              ].map((item, i) => (
-                <div key={i} className="fp-item">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                  </svg>
-                  {item}
-                </div>
-              ))}
-            </div>
-            <Link
-              to="/registro"
-              className="btn btn-white btn-lg animate-fade-up"
-              style={{ transitionDelay: "0.4s" }}
-            >
-              {t("home.forProducers.cta", "Quiero ser productor")}
-            </Link>
-          </div>
-          <div
-            className="fp-right animate-fade-up"
-            style={{ transitionDelay: "0.3s" }}
-          >
-            <div className="fp-img-wrap">
-              <img
-                src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800"
-                alt={t("home.forProducers.imgAlt", "Productor agrícola")}
-                className="fp-img"
-                loading="lazy"
-              />
-            </div>
-            <div className="fp-float">
-              <div className="fp-float-title">
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  style={{
-                    display: "inline",
-                    verticalAlign: "middle",
-                    marginRight: "4px",
-                  }}
-                >
-                  <path d="M20 6h-2.18c.07-.44.18-.88.18-1.36C18 2.54 16.46 1 14.55 1c-1.09 0-1.95.4-2.75 1.21L11 4l-.8-1.79C9.45 1.4 8.59 1 7.45 1 5.54 1 4 2.54 4 4.64c0 .48.11.92.18 1.36H2c-1.1 0-1.99.9-1.99 2L0 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5.45-3.09c.48 0 .92.38.92.86l.01.03L14 7H11.99l1.64-3.72c.2-.21.5-.37.92-.37zM7.45 2.91c.42 0 .72.16.93.38L10.01 7H8L6.54 3.8l.01-.03c0-.48.43-.86.9-.86zM20 19H2V9h16v10z" />
-                </svg>
-                {t("home.fpFloat.title", "Nuevo pedido recibido")}
-              </div>
-              <div className="fp-float-desc">
-                {t("home.fpFloat.desc", "Notificaciones en tiempo real")}
-              </div>
-              <div className="fp-float-badge">
-                {t("home.fpFloat.badge", "En proceso")}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS (solo si hay reseñas reales) ─────────── */}
-      {!loadingResenas && resenas.length > 0 && (
-        <section className="testimonials" id="testimonios">
-          <div className="test-header animate-fade-up">
-            <div className="section-eyebrow">
-              {t("home.testimonials.eyebrow", "TESTIMONIOS")}
-            </div>
-            <h2 className="section-title">
-              {t("home.testimonials.title", "Lo que dicen nuestros usuarios")}
-            </h2>
-          </div>
-          <div className="test-grid">
-            {resenas.slice(0, 3).map((r, i) => {
-              const nombre =
-                r.compradorNombre ||
-                r.nombre ||
-                t("home.testimonials.verified", "Usuario verificado");
-              const avatar = nombre.substring(0, 2).toUpperCase();
-              return (
-                <div
-                  key={r.id || i}
-                  className="test-card animate-fade-up"
-                  style={{ transitionDelay: `${0.1 * (i + 1)}s` }}
-                >
-                  <div className="test-quote-mark">"</div>
-                  <div className="test-stars">
-                    {"★".repeat(Math.min(r.calificacion || 5, 5))}
-                  </div>
-                  <div className="test-content">{r.comentario}</div>
-                  <div className="test-author">
-                    <div className="test-avatar">{avatar}</div>
-                    <div>
-                      <div className="test-name">{nombre}</div>
-                      <div className="test-role">
-                        {r.productoNombre
-                          ? `${t("home.testimonials.buyer", "Comprador")} · ${r.productoNombre}`
-                          : t(
-                              "home.testimonials.buyer",
-                              "Comprador · AgroMarket",
-                            )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </section>
-      )}
 
-      {/* ── CTA FINAL ────────────────────────────────────────── */}
-      <section className="cta-final">
-        <div className="cta-overlay" />
-        <div className="cta-content">
-          <h2 className="cta-title animate-fade-up">
-            {t("home.cta.title", "¿Listo para empezar?")}
-          </h2>
-          <p
-            className="cta-sub animate-fade-up"
-            style={{ transitionDelay: "0.1s" }}
-          >
-            {t(
-              "home.cta.sub",
-              "Únete a AgroMarket y sé parte del comercio justo agrícola.",
-            )}
-          </p>
-          <div
-            className="cta-btns animate-fade-up"
-            style={{ transitionDelay: "0.2s" }}
-          >
-            <Link to="/catalogo" className="btn btn-white btn-lg">
-              {t("home.cta.explore", "Explorar catálogo")}
-            </Link>
-            <Link to="/registro" className="btn btn-outline-white btn-lg">
-              {t("home.cta.register", "Registrarme gratis")}
-            </Link>
+        {/* Trust badges (frame: trust-badges) */}
+        <section className="hm-trust">
+          {TRUST_BADGES.map((b) => (
+            <div className="hm-trust-item" key={b.title}>
+              <span className="hm-trust-icon">{b.icon}</span>
+              <div>
+                <strong>{b.title}</strong>
+                <span>{b.text}</span>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {/* Featured categories (frame: featured-categories) */}
+        <section className="hm-categories">
+          <div className="hm-section-head">
+            <div>
+              <h2>Categorías Destacadas</h2>
+              <p>
+                Explora los tesoros más frescos de nuestra tierra colombiana
+              </p>
+            </div>
+            <Link to="/catalogo">Ver todas las categorías →</Link>
           </div>
-        </div>
-      </section>
 
-      {/* Estilos para skeleton animation */}
-      <style>{`
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        .product-badge.out-of-stock {
-          background: #fee2e2;
-          color: #dc2626;
-        }
-      `}</style>
-    </div>
+          {loadingCategories ? (
+            <div className="hm-loading">Cargando categorías...</div>
+          ) : (
+            <div className="hm-cat-grid">
+              {categoryCards.map((cat) => (
+                <Link
+                  className="hm-cat-item"
+                  key={cat.name}
+                  to={`/catalogo?categoria=${encodeURIComponent(cat.slug || cat.name)}`}
+                >
+                  <span className="hm-cat-circle">
+                    <img src={cat.img} alt={cat.name} loading="lazy" />
+                  </span>
+                  <span className="hm-cat-name">{cat.name}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Local farmers banner (frame: local-farmers-banner) */}
+        <section className="hm-farmers">
+          <div className="hm-farmers-left">
+            <span className="hm-farmers-icon">
+              <img src={handHeartIcon} alt="" width="32" height="32" />
+            </span>
+            <div>
+              <h2>Apoyo real a nuestros campesinos colombianos</h2>
+              <p>
+                El 100% de tu compra va directamente a la asociación de
+                campesinos. Pagos justos y transparentes.
+              </p>
+            </div>
+          </div>
+          <Link className="hm-farmers-btn" to="/productores">
+            Conoce a los Productores
+          </Link>
+        </section>
+
+        {/* Recommended products (frame: recommended-products) */}
+        <section className="hm-products">
+          <div className="hm-section-head">
+            <div>
+              <h2>Cosecha Fresca de la Semana</h2>
+              <p>Nuestros productos más populares de la subregión de Urabá</p>
+            </div>
+            <Link to="/catalogo">Ver catálogo completo →</Link>
+          </div>
+
+          <div className="hm-product-grid">
+            {PRODUCTS.map((p) => (
+              <article className="hm-product-card" key={p.name}>
+                <img
+                  className="hm-product-img"
+                  src={p.img}
+                  alt={p.name}
+                  loading="lazy"
+                />
+                <div className="hm-product-body">
+                  <div className="hm-product-head">
+                    <span className="hm-product-producer">{p.producer}</span>
+                    <span className="hm-product-place">
+                      <img src={mapPinIcon} alt="" width="12" height="12" />
+                      {p.place}
+                    </span>
+                  </div>
+                  <h3>{p.name}</h3>
+                  <span className="hm-product-presentation">
+                    {p.presentation}
+                  </span>
+                  <div className="hm-product-rating">
+                    <span className="hm-stars" aria-hidden="true">
+                      ★★★★★
+                    </span>
+                    <span className="hm-score">({p.rating.toFixed(1)})</span>
+                  </div>
+                  <div className="hm-product-foot">
+                    <div>
+                      <strong className="hm-price">{p.price}</strong>
+                      <span className="hm-price-label">
+                        Precio sugerido COP
+                      </span>
+                    </div>
+                    <button
+                      className="hm-add-btn"
+                      type="button"
+                      onClick={() => addToCart(p)}
+                    >
+                      Agregar
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* Newsletter (frame: newsletter) */}
+        <section className="hm-newsletter">
+          <div className="hm-newsletter-text">
+            <h2>Suscríbete a nuestra cosecha semanal</h2>
+            <p>
+              Recibe ofertas exclusivas, novedades y recetas directo de los
+              campesinos colombianos.
+            </p>
+          </div>
+          <form
+            className="hm-newsletter-form"
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <input
+              type="email"
+              placeholder="Tu correo electrónico"
+              aria-label="Correo electrónico"
+              required
+            />
+            <button type="submit">Suscribirse</button>
+          </form>
+        </section>
+      </div>
+    </PublicLayout>
   );
 }

@@ -78,3 +78,14 @@
   color: var(--gold);
   transform: scale(1.15);
 }
+
+/* ─── RESPONSIVE: MÓVIL ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .review-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .review-header {
+    gap: 10px;
+  }
+}

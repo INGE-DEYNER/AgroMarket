@@ -1,8 +1,11 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "@/infrastructure/http/api";
-import "@/presentation/styles/login.css";
+import leafIcon from "@/assets/icon-leaf.svg";
+import shieldCheckIcon from "@/assets/icon-shield-check.svg";
+import { ThemeToggle } from "@/presentation/shared/components/ThemeToggle";
+import "@/presentation/styles/auth-flow.css";
 
 export default function RecuperarContrasena() {
   const navigate = useNavigate();
@@ -16,9 +19,7 @@ export default function RecuperarContrasena() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (loading) {
-      return;
-    }
+    if (loading) return;
 
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -46,31 +47,19 @@ export default function RecuperarContrasena() {
         email: normalizedEmail,
       });
 
-      /*
-       * Guardamos el correo para que no se pierda
-       * durante la navegación hacia RestablecerContrasena.
-       */
+      // Guardamos el correo para que no se pierda durante la
+      // navegación hacia RestablecerContrasena.
       sessionStorage.setItem("agromarket_recovery_email", normalizedEmail);
-
-      /*
-       * Eliminamos cualquier código anterior.
-       */
       sessionStorage.removeItem("agromarket_recovery_token");
-
-      console.log("Solicitud de recuperación enviada correctamente.");
 
       setSent(true);
 
       setTimeout(() => {
         navigate("/restablecer-contrasena", {
-          state: {
-            email: normalizedEmail,
-          },
+          state: { email: normalizedEmail },
         });
       }, 1500);
     } catch (err) {
-      console.error("Error al solicitar recuperación de contraseña:", err);
-
       const status = err?.response?.status;
 
       const backendMessage =
@@ -85,25 +74,21 @@ export default function RecuperarContrasena() {
           message =
             backendMessage || "El correo electrónico enviado no es válido.";
           break;
-
         case 401:
           message =
             backendMessage ||
             "No tienes autorización para realizar esta solicitud.";
           break;
-
         case 404:
           message =
             backendMessage ||
             "No se encontró la cuenta asociada a este correo.";
           break;
-
         case 429:
           message =
             backendMessage ||
             "Has realizado demasiadas solicitudes. Espera unos minutos e inténtalo nuevamente.";
           break;
-
         case 500:
         case 502:
         case 503:
@@ -111,7 +96,6 @@ export default function RecuperarContrasena() {
             backendMessage ||
             "El servidor no pudo procesar la solicitud. Inténtalo nuevamente.";
           break;
-
         default:
           if (err?.request && !err?.response) {
             message =
@@ -133,135 +117,78 @@ export default function RecuperarContrasena() {
   };
 
   return (
-    <div className="wrapper">
-      <div className="left-panel">
-        <Link
-          to="/home"
-          className="brand"
-          aria-label="Ir al inicio de AgroMarket"
-        >
-          <div className="brand-logo">
-            <img
-              src="/logo-asafrut.jpg"
-              alt="Logo de ASAFRUT"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "4px",
-              }}
-            />
+    <div className="af-page">
+      {/* Selector de tema — reutiliza el mecanismo global del repo */}
+      <div className="login-theme-toggle">
+        <ThemeToggle />
+      </div>
+
+      <div className="af-card af-card--sm">
+        {/* Marca + ícono de seguridad */}
+        <div className="af-brand">
+          <Link to="/home" className="af-logo">
+            <span className="af-logo-icon">
+              <img src={leafIcon} alt="" width="20" height="20" />
+            </span>
+            <span className="af-logo-name">
+              <em>Agro</em>Market
+            </span>
+          </Link>
+          <div className="af-success-badge af-success-badge--green">
+            <img src={shieldCheckIcon} alt="" width="28" height="28" />
           </div>
+        </div>
 
-          <div>
-            <div className="brand-name">AgroMarket</div>
-
-            <div className="brand-sub">ASAFRUT · Chigorodó, Antioquia</div>
-          </div>
-        </Link>
-
-        <div
-          style={{
-            margin: "auto 0",
-            maxWidth: "400px",
-            width: "100%",
-          }}
-        >
-          <h1 className="page-title">
-            {t("forgotPass.title", "¿Olvidaste tu contraseña?")}
-          </h1>
-
-          <p className="page-sub">
+        {/* Textos */}
+        <div className="af-text">
+          <h1>{t("forgotPass.title", "¿Olvidaste tu contraseña?")}</h1>
+          <p>
             {t(
               "forgotPass.sub",
-              "Ingresa tu correo y te enviaremos un código de recuperación de 6 dígitos.",
+              "No te preocupes. Introduce el correo asociado a tu cuenta y te enviaremos un enlace de recuperación seguro en segundos.",
             )}
           </p>
+        </div>
 
-          {sent ? (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "24px 0",
-              }}
-              role="status"
-              aria-live="polite"
-            >
-              <div
-                style={{
-                  width: "64px",
-                  height: "64px",
-                  margin: "0 auto 16px",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#e8f5e9",
-                  color: "#218739",
-                  fontSize: "32px",
-                  fontWeight: "700",
-                }}
-                aria-hidden="true"
-              >
-                ✓
-              </div>
-
-              <p
-                style={{
-                  margin: "0 0 8px",
-                  fontWeight: "600",
-                }}
-              >
-                {t("forgotPass.sentSuccess", "Código enviado correctamente.")}
-              </p>
-
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "14px",
-                  opacity: 0.75,
-                }}
-              >
-                {t(
-                  "forgotPass.redirecting",
-                  "Redirigiendo para que ingreses el código...",
-                )}
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} noValidate>
-              {error && (
-                <div
-                  className="global-error"
-                  style={{
-                    display: "block",
-                    marginBottom: "16px",
-                  }}
-                  role="alert"
-                  aria-live="assertive"
-                >
-                  {error}
-                </div>
+        {/* Contenido principal */}
+        {sent ? (
+          <div className="af-text" role="status" aria-live="polite">
+            <p className="af-sent-strong">
+              {t("forgotPass.sentSuccess", "Código enviado correctamente.")}
+            </p>
+            <p>
+              {t(
+                "forgotPass.redirecting",
+                "Redirigiendo para que ingreses el código...",
               )}
+            </p>
+          </div>
+        ) : (
+          <>
+            {error && (
+              <div className="af-error" role="alert" aria-live="assertive">
+                {error}
+              </div>
+            )}
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="email">
-                  {t("auth.email", "Correo electrónico")}
+            <form className="af-form" onSubmit={handleSubmit} noValidate>
+              <div className="af-field">
+                <label htmlFor="email">
+                  {t("forgotPass.emailLabel", "Correo electrónico registrado")}
                 </label>
-
                 <input
-                  className="form-input"
-                  type="email"
                   id="email"
                   name="email"
-                  placeholder="tu@correo.com"
+                  type="email"
+                  className="af-input"
+                  placeholder={t(
+                    "forgotPass.emailPlaceholder",
+                    "ejemplo@email.com",
+                  )}
                   value={email}
                   onChange={(event) => {
                     setEmail(event.target.value);
-
-                    if (error) {
-                      setError("");
-                    }
+                    if (error) setError("");
                   }}
                   disabled={loading}
                   autoComplete="email"
@@ -274,50 +201,32 @@ export default function RecuperarContrasena() {
                 />
               </div>
 
-              <button type="submit" className="btn-submit" disabled={loading}>
+              <button
+                type="submit"
+                className="af-btn-primary"
+                disabled={loading}
+              >
                 {loading
                   ? t("forgotPass.sendingBtn", "Enviando...")
-                  : t("forgotPass.sendBtn", "Enviar código de recuperación")}
+                  : t("forgotPass.sendBtn", "Enviar enlace de recuperación")}
               </button>
             </form>
-          )}
+          </>
+        )}
 
-          <div
-            className="form-footer"
-            style={{
-              marginTop: "16px",
-            }}
-          >
-            <Link to="/login">
-              {t("forgotPass.backToLogin", "← Volver al inicio de sesión")}
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="right-panel">
-        <img
-          src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200"
-          alt="Cultivos agrícolas"
-          className="bg-img"
-          loading="lazy"
-        />
-
-        <div className="right-overlay">
-          <div className="right-badge">
-            {t("forgotPass.badge", "AgroMarket ASAFRUT")}
-          </div>
-
-          <h2 className="right-title">
-            {t("forgotPass.rightTitle", "Recupera tu acceso fácilmente.")}
-          </h2>
-
-          <p className="right-sub">
+        {/* Ayuda */}
+        <div className="af-troubleshoot">
+          <span className="af-safety-badge">
+            <img src={shieldCheckIcon} alt="" width="14" height="14" />
             {t(
-              "forgotPass.rightSub",
-              "Tu cuenta está a salvo. Solo sigue las instrucciones y verifica con el código.",
+              "forgotPass.safetyBadge",
+              "Tu seguridad es nuestra mayor prioridad",
             )}
-          </p>
+          </span>
+          <hr className="af-divider" />
+          <Link to="/login" className="af-back-link">
+            ← {t("forgotPass.backToLogin", "Volver al inicio de sesión")}
+          </Link>
         </div>
       </div>
     </div>
