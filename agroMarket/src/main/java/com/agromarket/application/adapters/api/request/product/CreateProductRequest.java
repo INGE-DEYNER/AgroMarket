@@ -29,7 +29,6 @@ public class CreateProductRequest {
     private BigDecimal wholesalePrice;
     @NotNull
     private FruitType fruitType;
-    @NotNull
     private Long producerId;
     private boolean onPromotion;
     @Positive

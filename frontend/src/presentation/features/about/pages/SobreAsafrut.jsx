@@ -1,4 +1,5 @@
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
+import StakeholderCarousel from "@/presentation/shared/components/StakeholderCarousel";
 import aboutImg from "@/assets/asafrut-about.png";
 import "@/presentation/styles/public-views.css";
 
@@ -95,6 +96,12 @@ export default function SobreAsafrut() {
             ))}
           </div>
         </section>
+
+        {/* Ecosistema AgroMarket — Aliados y responsables del proyecto.
+            Sección movida desde el Footer compartido (info institucional). */}
+        <div id="ecosistema">
+          <StakeholderCarousel />
+        </div>
       </div>
     </PublicLayout>
   );

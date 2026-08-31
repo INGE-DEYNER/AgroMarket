@@ -8,6 +8,7 @@ import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher"
 import DivisaSwitcher from "@/presentation/shared/components/DivisaSwitcher";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import CartDrawer from "@/presentation/shared/components/CartDrawer";
+import DireccionEnvioModal from "@/presentation/shared/components/DireccionEnvioModal";
 import api from "@/infrastructure/http/api";
 
 export default function Navbar() {
@@ -20,6 +21,7 @@ export default function Navbar() {
   const [menuMovil, setMenuMovil] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [animateBadge, setAnimateBadge] = useState(false);
+  const [modalDireccionAbierto, setModalDireccionAbierto] = useState(false);
   const navigate = useNavigate();
   const searchTimeoutRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -133,7 +135,10 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    // Después de limpiar la sesión completamente, redirigimos a Home.
+    // Navegar a "/login" dejaba la app en blanco porque varios
+    // componentes seguían montados leyendo user=null.
+    navigate("/");
   };
 
   return (
@@ -177,7 +182,18 @@ export default function Navbar() {
           </button>
         </form>
 
-        <div className="nav-location" title="Dirección de entrega de tu cuenta">
+        {/*
+          FIX "Configura tu dirección" no hacía nada: ahora es un botón que
+          abre el flujo real de dirección de envío (DireccionEnvioModal),
+          que guarda vía PUT /usuarios/mi-perfil y actualiza el usuario del
+          AuthContext para reflejar la dirección aquí mismo.
+        */}
+        <button
+          type="button"
+          className="nav-location"
+          onClick={() => setModalDireccionAbierto(true)}
+          title="Configura tu dirección de envío"
+        >
           <svg
             viewBox="0 0 24 24"
             width="17"
@@ -191,16 +207,23 @@ export default function Navbar() {
             <circle cx="12" cy="10" r="2.5" />
           </svg>
           <span>
-            <small>Enviar a</small>
+            <small>
+              {user?.direccionCompleta ||
+              user?.direccion ||
+              user?.ubicacion ||
+              user?.ciudad
+                ? "Enviar a"
+                : t("nav.configurarDireccion", "Configura tu dirección")}
+            </small>
             <strong>
               {user?.direccionCompleta ||
                 user?.direccion ||
                 user?.ubicacion ||
                 user?.ciudad ||
-                "Configura tu dirección"}
+                t("nav.enviarA", "Enviar a tu dirección")}
             </strong>
           </span>
-        </div>
+        </button>
 
         {/* Pill promocional estilo MercadoLibre */}
         <Link to="/como-funciona" className="nav-promo-pill">
@@ -404,20 +427,6 @@ export default function Navbar() {
                     {user.role?.toLowerCase() === "productor" && (
                       <>
                         <Link
-                          to="/dashboard-comprador"
-                          onClick={() => setMenuUsuario(false)}
-                        >
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                          >
-                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
-                          </svg>
-                          Mi dashboard
-                        </Link>
-                        <Link
                           to="/dashboard-productor"
                           onClick={() => setMenuUsuario(false)}
                         >
@@ -429,7 +438,7 @@ export default function Navbar() {
                           >
                             <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z" />
                           </svg>
-                          Panel productor
+                          Mi dashboard
                         </Link>
                         <Link
                           to="/pedidos"
@@ -806,16 +815,10 @@ export default function Navbar() {
               {user.role?.toLowerCase() === "productor" && (
                 <>
                   <Link
-                    to="/dashboard-comprador"
-                    onClick={() => setMenuMovil(false)}
-                  >
-                    Mi dashboard
-                  </Link>
-                  <Link
                     to="/dashboard-productor"
                     onClick={() => setMenuMovil(false)}
                   >
-                    Panel productor
+                    Mi dashboard
                   </Link>
                   <Link to="/pedidos" onClick={() => setMenuMovil(false)}>
                     Mis pedidos
@@ -875,6 +878,12 @@ export default function Navbar() {
 
       {/* Cart Drawer deslizable desde la derecha */}
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+
+      {/* Modal de dirección de envío (navbar: "Enviar a / Configura tu dirección") */}
+      <DireccionEnvioModal
+        isOpen={modalDireccionAbierto}
+        onClose={() => setModalDireccionAbierto(false)}
+      />
     </header>
   );
 }

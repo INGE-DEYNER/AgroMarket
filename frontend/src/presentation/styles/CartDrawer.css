@@ -1,36 +1,47 @@
 /* ============================================================
    AGROMARKET - CART DRAWER
+   ============================================================
+
+   IMPORTANTE (fix de regresión "el carrito no se muestra"):
+   El drawer se monta vía createPortal como hijo directo de
+   <body> dentro del wrapper .cart-drawer-root. Los selectores
+   de abajo usan "body > .cart-drawer-root" para ganarle a los
+   bloques duplicados/antiguos de .cart-drawer que existen en
+   styles.css (translateX(100%), z-index bajos, overlays con
+   !important) sin importar el orden final del bundle de CSS.
    ============================================================ */
 
-.cart-drawer-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9998;
+body > .cart-drawer-root .cart-drawer-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99998 !important;
 
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 
   transition:
     opacity 0.25s ease,
     visibility 0.25s ease;
 }
 
-.cart-drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
+body > .cart-drawer-root .cart-drawer {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: auto !important;
 
-  width: min(400px, 100vw);
-  height: 100vh;
+  width: min(400px, 100vw) !important;
+  height: 100vh !important;
+  max-width: none !important;
 
-  z-index: 9999;
+  z-index: 99999 !important;
 
-  display: flex;
+  display: flex !important;
   flex-direction: column;
 
   background: var(--color-surface, #ffffff);
@@ -38,7 +49,9 @@
 
   box-shadow: -12px 0 40px rgba(0, 0, 0, 0.18);
 
-  transform: translateX(0);
+  transform: translateX(0) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -389,4 +402,14 @@
 
 .btn-keep-shopping:hover {
   background: var(--color-surface, #ffffff);
+}
+
+/* ============================================================
+   MÓVIL
+   ============================================================ */
+
+@media (max-width: 480px) {
+  body > .cart-drawer-root .cart-drawer {
+    width: 100vw !important;
+  }
 }

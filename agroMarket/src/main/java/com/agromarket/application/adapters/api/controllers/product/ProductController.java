@@ -23,7 +23,13 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductResponse> create(
-            @Valid @RequestBody CreateProductRequest r) {
+            @Valid @RequestBody CreateProductRequest r,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        // EL productor se obtiene del token JWT (nunca se confía en el body).
+        // Si el body trae un producerId, lo ignoramos a favor del principal
+        // autenticado para evitar suplantación.
+        Long producerId = principal != null ? principal.getUserId() : r.getProducerId();
 
         CreateProductCommand command = CreateProductCommand.builder()
                 .name(r.getName())
@@ -34,7 +40,7 @@ public class ProductController {
                 .minimumWholesaleQuantity(r.getMinimumWholesaleQuantity())
                 .wholesalePrice(r.getWholesalePrice())
                 .fruitType(r.getFruitType())
-                .producerId(r.getProducerId())
+                .producerId(producerId)
                 .onPromotion(r.isOnPromotion())
                 .promotionPrice(r.getPromotionPrice())
                 .promotionEndDate(r.getPromotionEndDate())

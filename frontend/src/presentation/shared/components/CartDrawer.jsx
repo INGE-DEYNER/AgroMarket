@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -55,13 +56,24 @@ export default function CartDrawer({ isOpen, onClose }) {
    *
    * Esto elimina definitivamente el problema de la pantalla
    * oscura/desenfocada del Home.
+   *
+   * FIX REGRESIÓN "el carrito no se muestra":
+   * El drawer se renderiza ahora vía PORTAL directamente en
+   * document.body. Antes vivía dentro del <header> sticky del
+   * navbar, cuyas reglas (backdrop-filter en .navbar-header.scrolled,
+   * z-index, múltiples bloques duplicados de .cart-drawer en
+   * styles.css) podían convertirlo en el "containing block" del
+   * position:fixed y dejar el drawer fuera de pantalla o por debajo
+   * del propio navbar. Con el portal + el CSS de alta especificidad
+   * de CartDrawer.css el drawer siempre es visible sin importar la
+   * página ni el estado del scroll.
    */
   if (!isOpen) {
     return null;
   }
 
-  return (
-    <>
+  return createPortal(
+    <div className="cart-drawer-root">
       <div
         className="cart-drawer-overlay open"
         onClick={onClose}
@@ -260,6 +272,7 @@ export default function CartDrawer({ isOpen, onClose }) {
           </div>
         )}
       </aside>
-    </>
+    </div>,
+    document.body,
   );
 }

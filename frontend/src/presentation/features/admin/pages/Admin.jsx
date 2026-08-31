@@ -424,7 +424,7 @@ export default function Admin() {
   const handleGenerateReport = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/admin/reporte/pdf`, {
+      const res = await fetch(`${API_BASE}/admin/reportes/pdf`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -510,17 +510,36 @@ export default function Admin() {
     "soporte",
   );
   const productores = usuarios.filter((u) =>
-    String(u.role || u.rol || "").toUpperCase().includes("PRODUCTOR"),
+    String(u.role || u.rol || "")
+      .toUpperCase()
+      .includes("PRODUCTOR"),
   );
-  const dashboardPedidos = dashboardData?.pedidosTotales ?? dashboardData?.totalPedidos ?? adminPedidos.length;
-  const dashboardProductores = dashboardData?.productores ?? dashboardData?.totalProductores ?? productores.length;
-  const dashboardProductos = dashboardData?.productosPublicados ?? dashboardData?.totalProductos ?? totalElementsProductos ?? productos.length;
-  const dashboardUsuarios = dashboardData?.usuariosTotales ?? dashboardData?.totalUsuarios ?? totalElementsUsuarios ?? usuarios.length;
-  const dashboardVentasHoy = dashboardData?.ventasHoy ?? dashboardData?.ventasDelDia ?? null;
+  const dashboardPedidos =
+    dashboardData?.pedidosTotales ??
+    dashboardData?.totalPedidos ??
+    adminPedidos.length;
+  const dashboardProductores =
+    dashboardData?.productores ??
+    dashboardData?.totalProductores ??
+    productores.length;
+  const dashboardProductos =
+    dashboardData?.productosPublicados ??
+    dashboardData?.totalProductos ??
+    totalElementsProductos ??
+    productos.length;
+  const dashboardUsuarios =
+    dashboardData?.usuariosTotales ??
+    dashboardData?.totalUsuarios ??
+    totalElementsUsuarios ??
+    usuarios.length;
+  const dashboardVentasHoy =
+    dashboardData?.ventasHoy ?? dashboardData?.ventasDelDia ?? null;
   const dashboardNuevosUsuarios = dashboardData?.nuevosUsuarios ?? null;
   const dashboardNuevosProductores = dashboardData?.nuevosProductores ?? null;
-  const dashboardTickets = dashboardData?.ticketsSoporte ?? dashboardData?.totalTickets ?? adminTickets.length;
-
+  const dashboardTickets =
+    dashboardData?.ticketsSoporte ??
+    dashboardData?.totalTickets ??
+    adminTickets.length;
 
   return (
     <div className="app-layout">
@@ -574,7 +593,9 @@ export default function Admin() {
               setSidebarOpen(false);
             }}
           >
-            <span className="sidebar-icon" aria-hidden="true">{icon}</span>
+            <span className="sidebar-icon" aria-hidden="true">
+              {icon}
+            </span>
             {label}
           </a>
         ))}
@@ -585,7 +606,9 @@ export default function Admin() {
           className="sidebar-link"
           onClick={() => setSidebarOpen(false)}
         >
-          <span className="sidebar-icon" aria-hidden="true">◎</span>
+          <span className="sidebar-icon" aria-hidden="true">
+            ◎
+          </span>
           {t("profile.title", "Mi Perfil")}
         </Link>
 
@@ -596,7 +619,7 @@ export default function Admin() {
           onClick={async (e) => {
             e.preventDefault();
             await logout();
-            navigate("/login");
+            navigate("/");
           }}
         >
           <svg
@@ -615,17 +638,36 @@ export default function Admin() {
       <main className="main-content">
         {/* Top bar with sidebar toggle */}
         <div className="admin-topbar">
-          <button type="button" className="sidebar-toggle-btn" onClick={() => setSidebarOpen(true)} aria-label="Abrir menú de navegación">☰ Menú</button>
-          <div className="admin-search">Buscar en AgroMarket... <span>⌕</span></div>
-          <div className="admin-top-actions"><span className="admin-bell">♧<b>8</b></span><span className="admin-user-avatar">{(user?.nombre || "A").slice(0,1).toUpperCase()}</span><span className="admin-user-name">{user?.nombre || "Admin"}<small>Administrador</small></span><LanguageSwitcher /></div>
+          <button
+            type="button"
+            className="sidebar-toggle-btn"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menú de navegación"
+          >
+            ☰ Menú
+          </button>
+          <div className="admin-search">
+            Buscar en AgroMarket... <span>⌕</span>
+          </div>
+          <div className="admin-top-actions">
+            <span className="admin-bell">
+              ♧<b>8</b>
+            </span>
+            <span className="admin-user-avatar">
+              {(user?.nombre || "A").slice(0, 1).toUpperCase()}
+            </span>
+            <span className="admin-user-name">
+              {user?.nombre || "Admin"}
+              <small>Administrador</small>
+            </span>
+            <LanguageSwitcher />
+          </div>
         </div>
 
         <div className="dash-header">
           <div className="dash-welcome">
             <h1>ADMINISTRACIÓN</h1>
-            <p>
-              Panel de control y gestión de la plataforma
-            </p>
+            <p>Panel de control y gestión de la plataforma</p>
           </div>
           <button
             className="btn-cta"
@@ -702,43 +744,137 @@ export default function Admin() {
             <div className="card-table">
               {/* DASHBOARD */}
               {activeSection === "dashboard" && (
-                <div className="section active admin-dashboard-section" id="sec-dashboard">
+                <div
+                  className="section active admin-dashboard-section"
+                  id="sec-dashboard"
+                >
                   <div className="table-header">
                     <div>
-                      <h3 className="card-title">¡Bienvenido, Administrador! 👋</h3>
-                      <p className="section-subtitle">Resumen general de la plataforma</p>
+                      <h3 className="card-title">
+                        ¡Bienvenido, Administrador! 👋
+                      </h3>
+                      <p className="section-subtitle">
+                        Resumen general de la plataforma
+                      </p>
                     </div>
-                    <span className="date-chip">{new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                    <span className="date-chip">
+                      {new Date().toLocaleDateString("es-CO", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
                   </div>
                   <div className="admin-kpi-grid">
-                    <div className="admin-kpi"><span>Usuarios totales</span><strong>{Number(dashboardUsuarios).toLocaleString("es-CO")}</strong><small>Usuarios registrados</small></div>
-                    <div className="admin-kpi"><span>Productores</span><strong>{Number(dashboardProductores).toLocaleString("es-CO")}</strong><small>Productores registrados</small></div>
-                    <div className="admin-kpi"><span>Productos publicados</span><strong>{Number(dashboardProductos).toLocaleString("es-CO")}</strong><small>Inventario global</small></div>
-                    <div className="admin-kpi"><span>Pedidos totales</span><strong>{Number(dashboardPedidos).toLocaleString("es-CO")}</strong><small>Pedidos registrados</small></div>
+                    <div className="admin-kpi">
+                      <span>Usuarios totales</span>
+                      <strong>
+                        {Number(dashboardUsuarios).toLocaleString("es-CO")}
+                      </strong>
+                      <small>Usuarios registrados</small>
+                    </div>
+                    <div className="admin-kpi">
+                      <span>Productores</span>
+                      <strong>
+                        {Number(dashboardProductores).toLocaleString("es-CO")}
+                      </strong>
+                      <small>Productores registrados</small>
+                    </div>
+                    <div className="admin-kpi">
+                      <span>Productos publicados</span>
+                      <strong>
+                        {Number(dashboardProductos).toLocaleString("es-CO")}
+                      </strong>
+                      <small>Inventario global</small>
+                    </div>
+                    <div className="admin-kpi">
+                      <span>Pedidos totales</span>
+                      <strong>
+                        {Number(dashboardPedidos).toLocaleString("es-CO")}
+                      </strong>
+                      <small>Pedidos registrados</small>
+                    </div>
                   </div>
                   <div className="admin-dashboard-grid">
                     <div className="admin-panel">
-                      <div className="admin-panel-heading"><h4>Ventas totales</h4><span>Resumen</span></div>
-                      <div className="admin-big-number">{dashboardData?.ingresos != null ? formatPrice(dashboardData.ingresos) : "—"}</div>
+                      <div className="admin-panel-heading">
+                        <h4>Ventas totales</h4>
+                        <span>Resumen</span>
+                      </div>
+                      <div className="admin-big-number">
+                        {dashboardData?.ingresos != null
+                          ? formatPrice(dashboardData.ingresos)
+                          : "—"}
+                      </div>
                       <div className="admin-chart-placeholder">
-                        {[38, 52, 46, 61, 56, 72, 68, 84, 78, 91].map((height, index) => <span key={index} style={{ height: `${height}%` }} />)}
+                        {[38, 52, 46, 61, 56, 72, 68, 84, 78, 91].map(
+                          (height, index) => (
+                            <span
+                              key={index}
+                              style={{ height: `${height}%` }}
+                            />
+                          ),
+                        )}
                       </div>
                     </div>
                     <div className="admin-panel">
-                      <div className="admin-panel-heading"><h4>Pedidos por estado</h4><span>{dashboardPedidos} total</span></div>
+                      <div className="admin-panel-heading">
+                        <h4>Pedidos por estado</h4>
+                        <span>{dashboardPedidos} total</span>
+                      </div>
                       <div className="status-list">
-                        <div><span className="dot dot-green" />Entregados <strong>{dashboardData?.pedidosEntregados ?? "—"}</strong></div>
-                        <div><span className="dot dot-blue" />En camino <strong>{dashboardData?.pedidosEnCamino ?? "—"}</strong></div>
-                        <div><span className="dot dot-yellow" />Pendientes <strong>{dashboardData?.pedidosPendientes ?? "—"}</strong></div>
-                        <div><span className="dot dot-red" />Cancelados <strong>{dashboardData?.pedidosCancelados ?? "—"}</strong></div>
+                        <div>
+                          <span className="dot dot-green" />
+                          Entregados{" "}
+                          <strong>
+                            {dashboardData?.pedidosEntregados ?? "—"}
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="dot dot-blue" />
+                          En camino{" "}
+                          <strong>
+                            {dashboardData?.pedidosEnCamino ?? "—"}
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="dot dot-yellow" />
+                          Pendientes{" "}
+                          <strong>
+                            {dashboardData?.pedidosPendientes ?? "—"}
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="dot dot-red" />
+                          Cancelados{" "}
+                          <strong>
+                            {dashboardData?.pedidosCancelados ?? "—"}
+                          </strong>
+                        </div>
                       </div>
                     </div>
                   </div>
                   <div className="admin-mini-grid">
-                    <div className="admin-mini"><span>Ventas hoy</span><strong>{dashboardVentasHoy != null ? formatPrice(dashboardVentasHoy) : "—"}</strong></div>
-                    <div className="admin-mini"><span>Nuevos usuarios</span><strong>{dashboardNuevosUsuarios ?? "—"}</strong></div>
-                    <div className="admin-mini"><span>Nuevos productores</span><strong>{dashboardNuevosProductores ?? "—"}</strong></div>
-                    <div className="admin-mini"><span>Tickets de soporte</span><strong>{dashboardTickets}</strong></div>
+                    <div className="admin-mini">
+                      <span>Ventas hoy</span>
+                      <strong>
+                        {dashboardVentasHoy != null
+                          ? formatPrice(dashboardVentasHoy)
+                          : "—"}
+                      </strong>
+                    </div>
+                    <div className="admin-mini">
+                      <span>Nuevos usuarios</span>
+                      <strong>{dashboardNuevosUsuarios ?? "—"}</strong>
+                    </div>
+                    <div className="admin-mini">
+                      <span>Nuevos productores</span>
+                      <strong>{dashboardNuevosProductores ?? "—"}</strong>
+                    </div>
+                    <div className="admin-mini">
+                      <span>Tickets de soporte</span>
+                      <strong>{dashboardTickets}</strong>
+                    </div>
                   </div>
                 </div>
               )}
@@ -964,20 +1100,136 @@ export default function Admin() {
               {/* PEDIDOS */}
               {activeSection === "pedidos" && (
                 <div className="section active" id="sec-pedidos">
-                  <div className="table-header"><div><h3 className="card-title">Gestión de pedidos</h3><p className="section-subtitle">Seguimiento global de pedidos registrados en el dashboard administrativo.</p></div><button className="table-action">Exportar</button></div>
-                  <div className="table-wrap"><table className="table-responsive"><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead><tbody>
-                  {adminPedidos.length === 0 ? <tr><td colSpan="5" className="empty-cell">El endpoint administrativo actual no expone un listado global de pedidos. Se muestran pedidos aquí cuando /admin/dashboard devuelve una colección de pedidos.</td></tr> : adminPedidos.map((p, i) => <tr key={p.id || p.codigo || i}><td data-label="Pedido">{p.codigo || p.numeroPedido || p.id || `#${i + 1}`}</td><td data-label="Cliente">{p.cliente || p.compradorNombre || p.nombreCliente || "—"}</td><td data-label="Total">{p.total != null ? formatPrice(p.total) : "—"}</td><td data-label="Estado"><span className="badge-status status-shipped">{p.estado || "—"}</span></td><td data-label="Fecha">{p.fecha || p.fechaCreacion || "—"}</td></tr>)}
-                  </tbody></table></div>
+                  <div className="table-header">
+                    <div>
+                      <h3 className="card-title">Gestión de pedidos</h3>
+                      <p className="section-subtitle">
+                        Seguimiento global de pedidos registrados en el
+                        dashboard administrativo.
+                      </p>
+                    </div>
+                    <button className="table-action">Exportar</button>
+                  </div>
+                  <div className="table-wrap">
+                    <table className="table-responsive">
+                      <thead>
+                        <tr>
+                          <th>Pedido</th>
+                          <th>Cliente</th>
+                          <th>Total</th>
+                          <th>Estado</th>
+                          <th>Fecha</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {adminPedidos.length === 0 ? (
+                          <tr>
+                            <td colSpan="5" className="empty-cell">
+                              El endpoint administrativo actual no expone un
+                              listado global de pedidos. Se muestran pedidos
+                              aquí cuando /admin/dashboard devuelve una
+                              colección de pedidos.
+                            </td>
+                          </tr>
+                        ) : (
+                          adminPedidos.map((p, i) => (
+                            <tr key={p.id || p.codigo || i}>
+                              <td data-label="Pedido">
+                                {p.codigo ||
+                                  p.numeroPedido ||
+                                  p.id ||
+                                  `#${i + 1}`}
+                              </td>
+                              <td data-label="Cliente">
+                                {p.cliente ||
+                                  p.compradorNombre ||
+                                  p.nombreCliente ||
+                                  "—"}
+                              </td>
+                              <td data-label="Total">
+                                {p.total != null ? formatPrice(p.total) : "—"}
+                              </td>
+                              <td data-label="Estado">
+                                <span className="badge-status status-shipped">
+                                  {p.estado || "—"}
+                                </span>
+                              </td>
+                              <td data-label="Fecha">
+                                {p.fecha || p.fechaCreacion || "—"}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
               {/* PRODUCTORES */}
               {activeSection === "productores" && (
                 <div className="section active" id="sec-productores">
-                  <div className="table-header"><div><h3 className="card-title">Gestión de productores</h3><p className="section-subtitle">Productores obtenidos desde el listado administrativo de usuarios.</p></div></div>
-                  <div className="table-wrap"><table className="table-responsive"><thead><tr><th>Productor</th><th>Correo</th><th>Ubicación</th><th>Estado</th><th>Verificación</th></tr></thead><tbody>
-                  {productores.length === 0 ? <tr><td colSpan="5" className="empty-cell">No hay productores disponibles en el listado administrativo.</td></tr> : productores.map((u) => <tr key={u.id}><td data-label="Productor">{u.nombre} {u.apellido || ""}</td><td data-label="Correo">{u.email || u.correo || "—"}</td><td data-label="Ubicación">{u.ubicacion || "—"}</td><td data-label="Estado"><span className={`badge-status ${u.activo !== false ? "status-shipped" : "status-pending"}`}>{u.activo !== false ? "Activo" : "Inactivo"}</span></td><td data-label="Verificación"><button className={`btn btn-sm ${u.verificado ? "btn-secondary" : "btn-primary"}`} onClick={() => toggleVerificarProductor(u)}>{u.verificado ? "Verificado" : "Verificar"}</button></td></tr>)}
-                  </tbody></table></div>
+                  <div className="table-header">
+                    <div>
+                      <h3 className="card-title">Gestión de productores</h3>
+                      <p className="section-subtitle">
+                        Productores obtenidos desde el listado administrativo de
+                        usuarios.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="table-wrap">
+                    <table className="table-responsive">
+                      <thead>
+                        <tr>
+                          <th>Productor</th>
+                          <th>Correo</th>
+                          <th>Ubicación</th>
+                          <th>Estado</th>
+                          <th>Verificación</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {productores.length === 0 ? (
+                          <tr>
+                            <td colSpan="5" className="empty-cell">
+                              No hay productores disponibles en el listado
+                              administrativo.
+                            </td>
+                          </tr>
+                        ) : (
+                          productores.map((u) => (
+                            <tr key={u.id}>
+                              <td data-label="Productor">
+                                {u.nombre} {u.apellido || ""}
+                              </td>
+                              <td data-label="Correo">
+                                {u.email || u.correo || "—"}
+                              </td>
+                              <td data-label="Ubicación">
+                                {u.ubicacion || "—"}
+                              </td>
+                              <td data-label="Estado">
+                                <span
+                                  className={`badge-status ${u.activo !== false ? "status-shipped" : "status-pending"}`}
+                                >
+                                  {u.activo !== false ? "Activo" : "Inactivo"}
+                                </span>
+                              </td>
+                              <td data-label="Verificación">
+                                <button
+                                  className={`btn btn-sm ${u.verificado ? "btn-secondary" : "btn-primary"}`}
+                                  onClick={() => toggleVerificarProductor(u)}
+                                >
+                                  {u.verificado ? "Verificado" : "Verificar"}
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
@@ -2099,19 +2351,115 @@ export default function Admin() {
               {/* SOPORTE */}
               {activeSection === "soporte" && (
                 <div className="section active" id="sec-soporte">
-                  <div className="table-header"><div><h3 className="card-title">Tickets de soporte</h3><p className="section-subtitle">Centro de atención y seguimiento de incidencias.</p></div><button className="table-action" type="button">+ Nuevo ticket</button></div>
-                  <div className="table-wrap"><table className="table-responsive"><thead><tr><th>Ticket</th><th>Asunto</th><th>Usuario</th><th>Estado</th><th>Prioridad</th><th>Fecha</th></tr></thead><tbody>
-                  {adminTickets.length === 0 ? <tr><td colSpan="6" className="empty-cell">El frontend actual no tiene un endpoint de tickets de soporte. Cuando /admin/dashboard devuelva tickets, se renderizarán automáticamente en esta tabla.</td></tr> : adminTickets.map((ticket, i) => <tr key={ticket.id || i}><td data-label="Ticket">{ticket.codigo || ticket.numero || ticket.id || `#T-${i + 1}`}</td><td data-label="Asunto">{ticket.asunto || ticket.titulo || "—"}</td><td data-label="Usuario">{ticket.usuario || ticket.nombreUsuario || "—"}</td><td data-label="Estado"><span className="badge-status status-pending">{ticket.estado || "—"}</span></td><td data-label="Prioridad"><span className="priority-badge">{ticket.prioridad || "Media"}</span></td><td data-label="Fecha">{ticket.fecha || ticket.fechaCreacion || "—"}</td></tr>)}
-                  </tbody></table></div>
+                  <div className="table-header">
+                    <div>
+                      <h3 className="card-title">Tickets de soporte</h3>
+                      <p className="section-subtitle">
+                        Centro de atención y seguimiento de incidencias.
+                      </p>
+                    </div>
+                    <button className="table-action" type="button">
+                      + Nuevo ticket
+                    </button>
+                  </div>
+                  <div className="table-wrap">
+                    <table className="table-responsive">
+                      <thead>
+                        <tr>
+                          <th>Ticket</th>
+                          <th>Asunto</th>
+                          <th>Usuario</th>
+                          <th>Estado</th>
+                          <th>Prioridad</th>
+                          <th>Fecha</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {adminTickets.length === 0 ? (
+                          <tr>
+                            <td colSpan="6" className="empty-cell">
+                              El frontend actual no tiene un endpoint de tickets
+                              de soporte. Cuando /admin/dashboard devuelva
+                              tickets, se renderizarán automáticamente en esta
+                              tabla.
+                            </td>
+                          </tr>
+                        ) : (
+                          adminTickets.map((ticket, i) => (
+                            <tr key={ticket.id || i}>
+                              <td data-label="Ticket">
+                                {ticket.codigo ||
+                                  ticket.numero ||
+                                  ticket.id ||
+                                  `#T-${i + 1}`}
+                              </td>
+                              <td data-label="Asunto">
+                                {ticket.asunto || ticket.titulo || "—"}
+                              </td>
+                              <td data-label="Usuario">
+                                {ticket.usuario || ticket.nombreUsuario || "—"}
+                              </td>
+                              <td data-label="Estado">
+                                <span className="badge-status status-pending">
+                                  {ticket.estado || "—"}
+                                </span>
+                              </td>
+                              <td data-label="Prioridad">
+                                <span className="priority-badge">
+                                  {ticket.prioridad || "Media"}
+                                </span>
+                              </td>
+                              <td data-label="Fecha">
+                                {ticket.fecha || ticket.fechaCreacion || "—"}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
               {/* AUDITORIA */}
               {activeSection === "auditoria" && (
                 <div className="section active" id="sec-auditoria">
-                  <div className="table-header"><div><h3 className="card-title">Auditoría y actividad</h3><p className="section-subtitle">Vista preparada para eventos administrativos expuestos por el backend.</p></div></div>
-                  <div className="audit-grid"><div className="audit-card"><span>Usuarios</span><strong>{dashboardUsuarios}</strong><small>registros administrativos</small></div><div className="audit-card"><span>Productos</span><strong>{dashboardProductos}</strong><small>registros del catálogo</small></div><div className="audit-card"><span>Pedidos</span><strong>{dashboardPedidos}</strong><small>registros conocidos</small></div><div className="audit-card"><span>Tickets</span><strong>{dashboardTickets}</strong><small>incidencias conocidas</small></div></div>
-                  <div className="empty-audit">No se inventa un endpoint de auditoría. Esta vista queda preparada para conectar el contrato real cuando el backend lo exponga.</div>
+                  <div className="table-header">
+                    <div>
+                      <h3 className="card-title">Auditoría y actividad</h3>
+                      <p className="section-subtitle">
+                        Vista preparada para eventos administrativos expuestos
+                        por el backend.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="audit-grid">
+                    <div className="audit-card">
+                      <span>Usuarios</span>
+                      <strong>{dashboardUsuarios}</strong>
+                      <small>registros administrativos</small>
+                    </div>
+                    <div className="audit-card">
+                      <span>Productos</span>
+                      <strong>{dashboardProductos}</strong>
+                      <small>registros del catálogo</small>
+                    </div>
+                    <div className="audit-card">
+                      <span>Pedidos</span>
+                      <strong>{dashboardPedidos}</strong>
+                      <small>registros conocidos</small>
+                    </div>
+                    <div className="audit-card">
+                      <span>Tickets</span>
+                      <strong>{dashboardTickets}</strong>
+                      <small>incidencias conocidas</small>
+                    </div>
+                  </div>
+                  <div className="empty-audit">
+                    No se inventa un endpoint de auditoría. Esta vista queda
+                    preparada para conectar el contrato real cuando el backend
+                    lo exponga.
+                  </div>
                 </div>
               )}
 
@@ -2267,30 +2615,118 @@ export default function Admin() {
                 <h3 className="card-title" style={{ marginBottom: "16px" }}>
                   {t("admin.topProducers", "Top Productores")}
                 </h3>
-                <ul style={{ listStyle: "none" }}>
-                  <li style={{ padding: "8px 0", color: "var(--text-muted)" }}>
-                    {t("admin.noData", "No hay datos suficientes")}
-                  </li>
-                </ul>
+                {Array.isArray(dashboardData?.topProductores) &&
+                dashboardData.topProductores.length > 0 ? (
+                  <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                    {dashboardData.topProductores.map((p, index) => (
+                      <li
+                        key={p.productorId ?? index}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: "12px",
+                          padding: "8px 0",
+                          borderBottom: "1px dashed var(--border-light)",
+                        }}
+                      >
+                        <span>
+                          <strong>
+                            {index + 1}. {p.nombre || "Productor"}
+                          </strong>
+                          <small
+                            style={{
+                              display: "block",
+                              color: "var(--text-muted)",
+                            }}
+                          >
+                            {p.pedidos} pedidos
+                          </small>
+                        </span>
+                        <strong>{formatPrice(p.totalVentas || 0)}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ul style={{ listStyle: "none" }}>
+                    <li
+                      style={{ padding: "8px 0", color: "var(--text-muted)" }}
+                    >
+                      {t("admin.noData", "No hay datos suficientes")}
+                    </li>
+                  </ul>
+                )}
               </div>
 
               <div className="card-table" style={{ padding: "24px" }}>
                 <h3 className="card-title" style={{ marginBottom: "16px" }}>
                   {t("admin.earningsSixMonths", "Ingresos 6 Meses")}
                 </h3>
-                <div className="chart-container" style={{ height: "120px" }}>
-                  <div
-                    style={{
-                      color: "var(--text-muted)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      height: "100%",
-                    }}
-                  >
-                    {t("admin.noEarningsData", "Sin datos")}
+                {Array.isArray(dashboardData?.ingresosPorMes) &&
+                dashboardData.ingresosPorMes.length > 0 ? (
+                  <div style={{ width: "100%" }}>
+                    {dashboardData.ingresosPorMes.map((m, index) => {
+                      const max = Math.max(
+                        ...dashboardData.ingresosPorMes.map(
+                          (x) => Number(x.total) || 0,
+                        ),
+                      );
+                      const pct =
+                        max > 0 ? Math.round((Number(m.total) / max) * 100) : 0;
+
+                      return (
+                        <div
+                          key={m.mes ?? index}
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "70px 1fr auto",
+                            alignItems: "center",
+                            gap: "10px",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <small style={{ color: "var(--text-muted)" }}>
+                            {m.etiqueta}
+                          </small>
+                          <div
+                            style={{
+                              height: "8px",
+                              borderRadius: "6px",
+                              background: "var(--border-light, #e2e8f0)",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${pct}%`,
+                                height: "100%",
+                                borderRadius: "6px",
+                                background: "var(--primary, #10b981)",
+                              }}
+                            />
+                          </div>
+                          <small style={{ fontWeight: 600 }}>
+                            {formatPrice(m.total || 0)}
+                          </small>
+                        </div>
+                      );
+                    })}
                   </div>
-                </div>
+                ) : (
+                  <div className="chart-container" style={{ height: "120px" }}>
+                    <div
+                      style={{
+                        color: "var(--text-muted)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: "100%",
+                      }}
+                    >
+                      {t("admin.noEarningsData", "Sin datos")}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -2546,7 +2982,9 @@ export default function Admin() {
             </div>
           </div>
         )}
-        <footer className="admin-footer"><div><strong>AgroMarket</strong><small>Del campo de Urabá y Colombia a tu mesa</small></div><div><b>Plataforma</b><span>Inicio</span><span>Catálogo</span><span>Productores</span></div><div><b>Institucional</b><span>Sobre AgroMarket</span><span>Términos y condiciones</span><span>Política de privacidad</span></div><div><b>Soporte</b><span>Ayuda</span><span>Contacto</span><span>Preguntas frecuentes</span></div><div><b>Admin</b><span>Panel administrativo</span><span>Configuración</span><span>Cerrar sesión</span></div><div className="admin-footer-security"><strong>Seguridad y confianza</strong><span>Tu información y pagos están protegidos</span></div></footer>
+        {/* FIX: El footer NO debe mostrarse dentro del dashboard de Admin.
+            El pie global de la app ya se oculta en /admin (AppFooter) y el
+            layout del panel no debe renderizar su propio footer. */}
       </main>
     </div>
   );

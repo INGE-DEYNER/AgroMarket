@@ -56,7 +56,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                  * /api/resenas/123
                  */
 
-                if (isPublicEndpoint(path)) {
+                /*
+                 * CAUSA RAÍZ del bug "HTTP 401 al guardar un producto":
+                 * antes se clasificaba SOLO por la ruta, sin mirar el método
+                 * HTTP, así que POST/PUT/PATCH/DELETE sobre /api/v1/products
+                 * (o /api/productos) se consideraban públicos, se saltaba el
+                 * JWT, y luego Spring Security caía en anyRequest().authenticated()
+                 * devolviendo 401 aunque el cliente enviara el token.
+                 *
+                 * Sólo GET es público sobre el catálogo de productos/resenas.
+                 * Cualquier escritura REQUIERE el token.
+                 */
+                if (isPublicEndpoint(path, request.getMethod())) {
                         filterChain.doFilter(request, response);
                         return;
                 }
@@ -140,27 +151,54 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         /**
-         * Determina si una ruta es completamente pública.
+         * Determina si una ruta es completamente pública, considerando
+         * tanto el path como el método HTTP.
+         *
+         * Sólo GET es público sobre el catálogo (productos/resenas) y
+         * sobre divisas. Escrituras (POST/PUT/PATCH/DELETE) siempre
+         * requieren token. /auth, /public y /actuator son públicas
+         * para cualquier método.
          */
-        private boolean isPublicEndpoint(String path) {
+        private boolean isPublicEndpoint(String path, String method) {
+
+                boolean isRead = "GET".equalsIgnoreCase(method);
 
                 /*
                  * Excepción: /mis-productos requiere autenticación (necesita
-                 * saber quién es el productor), aunque cuelgue de
+                 * saber quién es el productor), aunque cuelga de
                  * /api/v1/products, que en general SÍ es público para GET.
                  */
                 if (path.equals("/api/v1/products/mis-productos")) {
                         return false;
                 }
+                if (path.equals("/api/v1/orders/mis-pedidos")) {
+                        return false;
+                }
+                if (path.equals("/api/v1/reviews/mis-resenas")) {
+                        return false;
+                }
+
+                /*
+                 * Catálogo y reseñas: sólo GET es público.
+                 */
+                if (isRead
+                                && (matches(path, "/api/productos")
+                                                || matches(path, "/api/v1/products")
+                                                || matches(path, "/api/resenas")
+                                                || matches(path, "/api/v1/reviews"))) {
+                        return true;
+                }
+
+                /*
+                 * Divisas: GET (consultar tasas) es público.
+                 */
+                if (isRead && matches(path, "/api/divisas")) {
+                        return true;
+                }
 
                 return matches(path, "/api/public")
-                                || matches(path, "/api/divisas")
-                                || matches(path, "/api/productos")
-                                || matches(path, "/api/resenas")
                                 || matches(path, "/api/auth")
                                 || matches(path, "/api/v1/auth")
-                                || matches(path, "/api/v1/products")
-                                || matches(path, "/api/v1/reviews")
                                 || matches(path, "/actuator");
         }
 

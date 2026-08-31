@@ -6,29 +6,96 @@ import { useDivisa } from "@/app/hooks/useDivisa";
 
 import AuthContext from "@/app/contexts/AuthContext";
 
+// Helpers de normalización a nivel de módulo: son funciones puras que no
+// dependen del estado del provider. Definirlas fuera del componente evita
+// que react-hooks/exhaustive-deps las exija como dependencias de los
+// useCallback internos.
+function normalizeRole(rawRole) {
+  if (!rawRole) return "";
+
+  const role = rawRole.toUpperCase();
+
+  if (role === "ADMINISTRADOR" || role === "ADMIN") {
+    return "admin";
+  }
+
+  if (role === "PRODUCTOR" || role === "PRODUCER") {
+    return "productor";
+  }
+
+  if (
+    role === "COMPRADOR_EMPRESA" ||
+    role === "BUYER_COMPANY" ||
+    role === "COMPANY"
+  ) {
+    return "comprador_empresa";
+  }
+
+  return rawRole.toLowerCase();
+}
+
+/**
+ * Normaliza la respuesta del backend (field names en inglés) a los
+ * nombres en español que usan los componentes del frontend.
+ * Mantiene compatibilidad con datos que ya vienen en español
+ * (ej. del localStorage o de logins anteriores).
+ */
+function normalizeUser(userData) {
+  if (!userData) return userData;
+
+  const roleRaw =
+    userData.role || userData.rol?.name || userData.rol;
+
+  return {
+    ...userData,
+    // Nombre completo
+    nombre: userData.firstName || userData.nombre,
+    apellido: userData.lastName || userData.apellido,
+    email: userData.email || userData.correo,
+    telefono: userData.phone || userData.telefono,
+    role: normalizeRole(roleRaw),
+    rol: roleRaw,
+    // Identificación
+    tipoDocumento: userData.idType || userData.tipoDocumento,
+    cedula: userData.idNumber || userData.cedula,
+    numeroDocumento: userData.idNumber || userData.numeroDocumento,
+    // Fecha de nacimiento
+    fechaNacimiento: userData.birthDate || userData.fechaNacimiento,
+    // Estado de cuenta
+    cuentaCompleta:
+      userData.accountComplete ?? userData.cuentaCompleta ?? false,
+    // Divisa preferida
+    divisaPreferida:
+      userData.preferredCurrency || userData.divisaPreferida || "COP",
+    // Empresa
+    nombreEmpresa: userData.companyName || userData.nombreEmpresa,
+    nit: userData.nit || userData.nit,
+    esEmpresa: userData.isCompany ?? userData.esEmpresa ?? false,
+    // Ubicación
+    ubicacion: userData.location || userData.ubicacion,
+    departamento: userData.department || userData.departamento,
+    ciudad: userData.city || userData.ciudad,
+    direccionCompleta:
+      userData.fullAddress || userData.direccionCompleta,
+    referencia: userData.addressReference || userData.referencia,
+    codigoPostal: userData.postalCode || userData.codigoPostal,
+    codigoPais: userData.countryCode || userData.codigoPais,
+    fotoUrl: userData.photoUrl || userData.fotoUrl,
+    // Verificaciones y ratings
+    calificacion: userData.averageRating || userData.calificacion,
+    verificado:
+      userData.accountApproved ??
+      userData.verifiedProducer ??
+      userData.verificado ??
+      false,
+    cuentaBancaria: userData.bankAccount || userData.cuentaBancaria,
+    fechaRegistro: userData.registrationDate || userData.fechaRegistro,
+  };
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  function normalizeRole(rawRole) {
-    if (!rawRole) return "";
-
-    const role = rawRole.toUpperCase();
-
-    if (role === "ADMINISTRADOR" || role === "ADMIN") {
-      return "admin";
-    }
-
-    if (role === "PRODUCTOR") {
-      return "productor";
-    }
-
-    if (role === "COMPRADOR") {
-      return "comprador";
-    }
-
-    return rawRole.toLowerCase();
-  }
 
   const refetchUser = useCallback(async () => {
     try {
@@ -41,13 +108,7 @@ export function AuthProvider({ children }) {
       const res = await api.get("/usuarios/me");
       const userData = res.data || res;
 
-      const normalizedUser = {
-        ...userData,
-        role: normalizeRole(
-          userData.role || userData.rol?.name || userData.rol,
-        ),
-        email: userData.email || userData.correo,
-      };
+      const normalizedUser = normalizeUser(userData);
 
       setUser((prev) => ({
         ...normalizedUser,
@@ -151,16 +212,12 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, [refetchUser]);
 
-  const login = async (userData, token) => {
+    const login = async (userData, token) => {
     if (token) {
       localStorage.setItem("token", token);
     }
 
-    const normalizedUser = {
-      ...userData,
-      role: normalizeRole(userData.role || userData.rol?.name || userData.rol),
-      email: userData.email || userData.correo,
-    };
+    const normalizedUser = normalizeUser(userData);
 
     setUser(normalizedUser);
 
@@ -169,28 +226,28 @@ export function AuthProvider({ children }) {
       const res = await api.get("/usuarios/me");
       const fullUser = res.data || res;
 
-      setUser({
-        ...fullUser,
-        role: normalizeRole(
-          fullUser.role || fullUser.rol?.name || fullUser.rol,
-        ),
-        email: fullUser.email || fullUser.correo,
-      });
+      setUser(normalizeUser(fullUser));
     } catch (err) {
       console.error("Error fetching full user profile after login:", err);
     }
   };
 
   const logout = async () => {
+    // Limpiamos el estado local de forma INMEDIATA y síncrona para que
+    // ningún componente quede leyendo un usuario que ya no existe (esto
+    // evita la pantalla en blanco que ocurría al navegar con user=null).
+    localStorage.removeItem("token");
+    localStorage.removeItem("agromarket_cart");
+    setUser(null);
+
+    // El cierre de sesión en el backend es best-effort: si falla (red,
+    // token expirado, endpoint inexistente) no debe bloquear el logout
+    // local ni dejar la UI en un estado inconsistente.
     try {
       await api.post("/auth/logout");
     } catch (err) {
       console.error("Error cerrando sesión:", err);
     }
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("agromarket_cart");
-    setUser(null);
   };
 
   const { divisaActual, cambiarDivisa, formatearPrecio } = useDivisa();

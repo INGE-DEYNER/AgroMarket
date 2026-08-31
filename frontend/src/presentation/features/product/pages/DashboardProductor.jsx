@@ -234,10 +234,20 @@ export default function DashboardProductor() {
       const data = await api.get("/resenas");
       const items = extractArray(data);
       const producerId = user?.id;
-      setResenasProductor(items.filter((r) => {
-        const reviewProducerId = r.productorId ?? r.productor?.id ?? r.product?.productorId ?? r.producto?.productorId;
-        return producerId != null && reviewProducerId != null && String(reviewProducerId) === String(producerId);
-      }));
+      setResenasProductor(
+        items.filter((r) => {
+          const reviewProducerId =
+            r.productorId ??
+            r.productor?.id ??
+            r.product?.productorId ??
+            r.producto?.productorId;
+          return (
+            producerId != null &&
+            reviewProducerId != null &&
+            String(reviewProducerId) === String(producerId)
+          );
+        }),
+      );
     } catch (err) {
       console.error("Error loadResenasProductor:", err);
       setResenasProductor([]);
@@ -262,7 +272,14 @@ export default function DashboardProductor() {
       setPerfilMsg({ type: "", text: "" });
       setPwMsg({ type: "", text: "" });
     }
-  }, [activeSection, user, loadEnvios, loadContactos, loadActiveRfqs, loadResenasProductor]);
+  }, [
+    activeSection,
+    user,
+    loadEnvios,
+    loadContactos,
+    loadActiveRfqs,
+    loadResenasProductor,
+  ]);
 
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
@@ -422,30 +439,33 @@ export default function DashboardProductor() {
     const mapTipoToEnum = (tipo) => {
       const mapping = {
         Banano: "BANANO",
-        "Piña": "PINA",
+        Piña: "PINA",
         Mango: "MANGO",
-        "Maracuyá": "MARACUYA",
-        "Guanábana": "GUANABANA",
+        Maracuyá: "MARACUYA",
+        Guanábana: "GUANABANA",
         Naranja: "NARANJA",
         Coco: "COCO",
-        "Limón": "LIMON",
+        Limón: "LIMON",
       };
       return mapping[tipo] || "BANANO";
     };
 
     const payload = {
-      nombre: form.nombre,
-      tipoFruta: mapTipoToEnum(form.tipo),
-      precio: Number(form.precio),
-      cantidadDisponible: Number(form.stock),
-      descripcion: form.descripcion,
-      imagenUrl: form.imagenUrl || "",
-      cantidadMinimaMayorista: form.cantidadMinimaMayorista
-        ? Number(form.cantidadMinimaMayorista)
-        : null,
-      precioMayorista: form.precioMayorista
-        ? Number(form.precioMayorista)
-        : null,
+      name: form.nombre,
+      fruitType: mapTipoToEnum(form.tipo),
+      price: Number(form.precio),
+      availableQuantity: Number(form.stock),
+      description: form.descripcion,
+      imageUrl: form.imagenUrl || "",
+      minimumWholesaleQuantity:
+        form.cantidadMinimaMayorista &&
+        !Number.isNaN(Number(form.cantidadMinimaMayorista))
+          ? Number(form.cantidadMinimaMayorista)
+          : null,
+      wholesalePrice:
+        form.precioMayorista && !Number.isNaN(Number(form.precioMayorista))
+          ? Number(form.precioMayorista)
+          : null,
     };
 
     try {
@@ -552,35 +572,199 @@ export default function DashboardProductor() {
         </div>
 
         <div className="sidebar-label">Gestión del negocio</div>
-        <a href="#" className={`sidebar-link${activeSection === "resumen" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("resumen"); setSidebarOpen(false); }}><span className="icon">⌂</span> Panel general</a>
-        <a href="#" className={`sidebar-link${activeSection === "misProductos" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("misProductos"); setSidebarOpen(false); }}><span className="icon">▦</span> Productos</a>
-        <a href="#" className={`sidebar-link${activeSection === "pedidosRec" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("pedidosRec"); setSidebarOpen(false); }}><span className="icon">▤</span> Pedidos y ventas <span className="badge-count">{pedidos.length}</span></a>
-        <a href="#" className={`sidebar-link${activeSection === "mensajeria" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("mensajeria"); setSidebarOpen(false); }}><span className="icon">✉</span> Mensajes</a>
-        <a href="#" className={`sidebar-link${activeSection === "resenas" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("resenas"); setSidebarOpen(false); }}><span className="icon">★</span> Reseñas</a>
-        <a href="#" className={`sidebar-link${activeSection === "finca" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("finca"); setSidebarOpen(false); }}><span className="icon">⌂</span> Información de la finca</a>
-        <a href="#" className={`sidebar-link${activeSection === "finanzas" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("finanzas"); setSidebarOpen(false); }}><span className="icon">$</span> Finanzas / pagos</a>
-        <a href="#" className={`sidebar-link${activeSection === "configuracion" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("configuracion"); setSidebarOpen(false); }}><span className="icon">⚙</span> Configuración</a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "resumen" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("resumen");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">⌂</span> Panel general
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "misProductos" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("misProductos");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">▦</span> Productos
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "pedidosRec" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("pedidosRec");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">▤</span> Pedidos y ventas{" "}
+          <span className="badge-count">{pedidos.length}</span>
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "mensajeria" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("mensajeria");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">✉</span> Mensajes
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "resenas" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("resenas");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">★</span> Reseñas
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "finca" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("finca");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">⌂</span> Información de la finca
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "finanzas" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("finanzas");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">$</span> Finanzas / pagos
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "configuracion" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("configuracion");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">⚙</span> Configuración
+        </a>
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">Operación</div>
-        <a href="#" className={`sidebar-link${activeSection === "seguimiento" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("seguimiento"); setSidebarOpen(false); }}><span className="icon">▣</span> Despachos</a>
-        <a href="#" className={`sidebar-link${activeSection === "rfq" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("rfq"); setSidebarOpen(false); }}><span className="icon">◈</span> Oportunidades</a>
-        <a href="#" className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveSection("perfil"); setSidebarOpen(false); }}><span className="icon">●</span> Mi perfil</a>
-        <button type="button" className="sidebar-link producer-logout" onClick={async () => { setSidebarOpen(false); await logout(); navigate("/login"); }}><span className="icon">↪</span> Cerrar sesión</button>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "seguimiento" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("seguimiento");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">▣</span> Despachos
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "rfq" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("rfq");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">◈</span> Oportunidades
+        </a>
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection("perfil");
+            setSidebarOpen(false);
+          }}
+        >
+          <span className="icon">●</span> Mi perfil
+        </a>
+        <button
+          type="button"
+          className="sidebar-link producer-logout"
+          onClick={async () => {
+            setSidebarOpen(false);
+            await logout();
+            navigate("/");
+          }}
+        >
+          <span className="icon">↪</span> Cerrar sesión
+        </button>
       </aside>
 
       {/* MAIN CONTENT */}
       <main className="main-content">
         <header className="producer-topbar">
-          <div className="producer-brand"><span className="producer-brand-mark">AM</span><div><strong>AgroMarket</strong><small>Del campo de Urabá y Colombia a tu mesa</small></div></div>
-          <div className="producer-topbar-center"><strong>PRODUCTOR / VENDEDOR</strong><span>Gestiona tu negocio, productos y ventas en AgroMarket</span></div>
+          <div className="producer-brand">
+            <span className="producer-brand-mark">AM</span>
+            <div>
+              <strong>AgroMarket</strong>
+              <small>Del campo de Urabá y Colombia a tu mesa</small>
+            </div>
+          </div>
+          <div className="producer-topbar-center">
+            <strong>PRODUCTOR / VENDEDOR</strong>
+            <span>Gestiona tu negocio, productos y ventas en AgroMarket</span>
+          </div>
           <div className="producer-topbar-actions">
-            <button type="button" className="producer-icon-btn" onClick={() => setActiveSection("mensajeria")} aria-label="Mensajes">✉</button>
-            <button type="button" className="producer-icon-btn" onClick={() => setActiveSection("configuracion")} aria-label="Configuración">⚙</button>
-            <button type="button" className="producer-account" onClick={() => setActiveSection("perfil")}><span className="producer-avatar">{iniciales}</span><span><strong>{user?.nombre || "Productor"}</strong><small>Productor</small></span></button>
+            <button
+              type="button"
+              className="producer-icon-btn"
+              onClick={() => setActiveSection("mensajeria")}
+              aria-label="Mensajes"
+            >
+              ✉
+            </button>
+            <button
+              type="button"
+              className="producer-icon-btn"
+              onClick={() => setActiveSection("configuracion")}
+              aria-label="Configuración"
+            >
+              ⚙
+            </button>
+            <button
+              type="button"
+              className="producer-account"
+              onClick={() => setActiveSection("perfil")}
+            >
+              <span className="producer-avatar">{iniciales}</span>
+              <span>
+                <strong>{user?.nombre || "Productor"}</strong>
+                <small>Productor</small>
+              </span>
+            </button>
             <LanguageSwitcher />
           </div>
         </header>
-        <div className="producer-mobile-toolbar"><button type="button" className="sidebar-toggle-btn" onClick={() => setSidebarOpen(true)} aria-label="Abrir menú de navegación">☰ Menú</button><LanguageSwitcher /></div>
+        <div className="producer-mobile-toolbar">
+          <button
+            type="button"
+            className="sidebar-toggle-btn"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menú de navegación"
+          >
+            ☰ Menú
+          </button>
+          <LanguageSwitcher />
+        </div>
 
         {/* â”€â”€â”€ RESUMEN â”€â”€â”€ */}
         {activeSection === "resumen" && (
@@ -1175,28 +1359,366 @@ export default function DashboardProductor() {
         {/* RESEÑAS Y CALIFICACIONES */}
         {activeSection === "resenas" && (
           <div className="section active producer-section">
-            <div className="producer-section-head"><div><span className="producer-eyebrow">Reputación</span><h1>Reseñas y calificaciones</h1><p>Conoce la percepción de tus compradores y la valoración de tu negocio.</p></div></div>
-            <div className="producer-rating-grid">
-              <article className="producer-panel producer-rating-main"><span className="producer-panel-kicker">Calificación promedio</span><strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong><div className="producer-stars">★★★★★</div><small>{resenasProductor.length} reseñas asociadas cargadas</small></article>
-              <article className="producer-panel producer-recommendation"><span className="producer-panel-kicker">Recomendación</span><strong>{resenasProductor.length ? "Compradores activos" : "Sin datos suficientes"}</strong><p>La API actual no expone en el frontend un porcentaje específico de recomendación del productor.</p></article>
+            <div className="producer-section-head">
+              <div>
+                <span className="producer-eyebrow">Reputación</span>
+                <h1>Reseñas y calificaciones</h1>
+                <p>
+                  Conoce la percepción de tus compradores y la valoración de tu
+                  negocio.
+                </p>
+              </div>
             </div>
-            <div className="producer-panel producer-table-panel"><div className="producer-panel-title"><h2>Últimas reseñas</h2><span>{resenasProductor.length} registros</span></div>{resenasProductor.length === 0 ? <div className="producer-empty">No hay reseñas del productor disponibles con el identificador de productor expuesto por la respuesta actual.</div> : <div className="producer-review-list">{resenasProductor.map((r,index)=><article className="producer-review" key={r.id || index}><div className="producer-review-avatar">{(r.usuarioNombre || r.clienteNombre || r.nombreUsuario || "C").charAt(0).toUpperCase()}</div><div className="producer-review-body"><div className="producer-review-top"><strong>{r.usuarioNombre || r.clienteNombre || r.nombreUsuario || "Comprador"}</strong><span>{r.fecha || r.createdAt || ""}</span></div><div className="producer-stars">{"★".repeat(Math.max(0, Math.min(5, Number(r.calificacion || r.rating || 5))))}{"☆".repeat(Math.max(0, 5 - Math.min(5, Number(r.calificacion || r.rating || 5))))}</div><p>{r.comentario || r.descripcion || r.texto || "Sin comentario."}</p></div></article>)}</div>}</div>
+            <div className="producer-rating-grid">
+              <article className="producer-panel producer-rating-main">
+                <span className="producer-panel-kicker">
+                  Calificación promedio
+                </span>
+                <strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong>
+                <div className="producer-stars">★★★★★</div>
+                <small>
+                  {resenasProductor.length} reseñas asociadas cargadas
+                </small>
+              </article>
+              <article className="producer-panel producer-recommendation">
+                <span className="producer-panel-kicker">Recomendación</span>
+                <strong>
+                  {resenasProductor.length
+                    ? "Compradores activos"
+                    : "Sin datos suficientes"}
+                </strong>
+                <p>
+                  La API actual no expone en el frontend un porcentaje
+                  específico de recomendación del productor.
+                </p>
+              </article>
+            </div>
+            <div className="producer-panel producer-table-panel">
+              <div className="producer-panel-title">
+                <h2>Últimas reseñas</h2>
+                <span>{resenasProductor.length} registros</span>
+              </div>
+              {resenasProductor.length === 0 ? (
+                <div className="producer-empty">
+                  No hay reseñas del productor disponibles con el identificador
+                  de productor expuesto por la respuesta actual.
+                </div>
+              ) : (
+                <div className="producer-review-list">
+                  {resenasProductor.map((r, index) => (
+                    <article className="producer-review" key={r.id || index}>
+                      <div className="producer-review-avatar">
+                        {(
+                          r.usuarioNombre ||
+                          r.clienteNombre ||
+                          r.nombreUsuario ||
+                          "C"
+                        )
+                          .charAt(0)
+                          .toUpperCase()}
+                      </div>
+                      <div className="producer-review-body">
+                        <div className="producer-review-top">
+                          <strong>
+                            {r.usuarioNombre ||
+                              r.clienteNombre ||
+                              r.nombreUsuario ||
+                              "Comprador"}
+                          </strong>
+                          <span>{r.fecha || r.createdAt || ""}</span>
+                        </div>
+                        <div className="producer-stars">
+                          {"★".repeat(
+                            Math.max(
+                              0,
+                              Math.min(
+                                5,
+                                Number(r.calificacion || r.rating || 5),
+                              ),
+                            ),
+                          )}
+                          {"☆".repeat(
+                            Math.max(
+                              0,
+                              5 -
+                                Math.min(
+                                  5,
+                                  Number(r.calificacion || r.rating || 5),
+                                ),
+                            ),
+                          )}
+                        </div>
+                        <p>
+                          {r.comentario ||
+                            r.descripcion ||
+                            r.texto ||
+                            "Sin comentario."}
+                        </p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {/* INFORMACIÓN DE LA FINCA / PRODUCTOR */}
         {activeSection === "finca" && (
-          <div className="section active producer-section"><div className="producer-section-head"><div><span className="producer-eyebrow">Perfil comercial</span><h1>Información de la finca / productor</h1><p>Información que identifica tu negocio dentro de AgroMarket.</p></div><button className="btn btn-primary" type="button" onClick={() => setActiveSection("perfil")}>Editar información</button></div><div className="producer-farm-grid"><article className="producer-farm-card producer-farm-hero"><div className="producer-farm-image">{iniciales}</div><span className="producer-verified">✓ Productor verificado</span><h2>{user?.finca || user?.nombre || "Productor AgroMarket"}</h2><p>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</p><div className="producer-farm-stats"><span><strong>{productos.length}</strong> productos</span><span><strong>{pedidos.length}</strong> pedidos</span><span><strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong> rating</span></div></article><article className="producer-panel producer-info-list"><div className="producer-panel-title"><h2>Información general</h2></div><div className="producer-info-row"><span>Nombre del productor</span><strong>{user?.nombre || "—"} {user?.apellido || ""}</strong></div><div className="producer-info-row"><span>Correo electrónico</span><strong>{user?.email || "—"}</strong></div><div className="producer-info-row"><span>Teléfono</span><strong>{user?.telefono || "—"}</strong></div><div className="producer-info-row"><span>Ubicación</span><strong>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</strong></div><div className="producer-info-row"><span>Tipo de productor</span><strong>{user?.tipoProductor || "Productor agrícola"}</strong></div><div className="producer-info-row"><span>Productos principales</span><strong>{productos.slice(0,4).map((p)=>p.nombre).join(", ") || "Sin productos publicados"}</strong></div></article></div></div>
+          <div className="section active producer-section">
+            <div className="producer-section-head">
+              <div>
+                <span className="producer-eyebrow">Perfil comercial</span>
+                <h1>Información de la finca / productor</h1>
+                <p>
+                  Información que identifica tu negocio dentro de AgroMarket.
+                </p>
+              </div>
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={() => setActiveSection("perfil")}
+              >
+                Editar información
+              </button>
+            </div>
+            <div className="producer-farm-grid">
+              <article className="producer-farm-card producer-farm-hero">
+                <div className="producer-farm-image">{iniciales}</div>
+                <span className="producer-verified">
+                  ✓ Productor verificado
+                </span>
+                <h2>{user?.finca || user?.nombre || "Productor AgroMarket"}</h2>
+                <p>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</p>
+                <div className="producer-farm-stats">
+                  <span>
+                    <strong>{productos.length}</strong> productos
+                  </span>
+                  <span>
+                    <strong>{pedidos.length}</strong> pedidos
+                  </span>
+                  <span>
+                    <strong>
+                      {Number(user?.calificacion || 4.9).toFixed(1)}
+                    </strong>{" "}
+                    rating
+                  </span>
+                </div>
+              </article>
+              <article className="producer-panel producer-info-list">
+                <div className="producer-panel-title">
+                  <h2>Información general</h2>
+                </div>
+                <div className="producer-info-row">
+                  <span>Nombre del productor</span>
+                  <strong>
+                    {user?.nombre || "—"} {user?.apellido || ""}
+                  </strong>
+                </div>
+                <div className="producer-info-row">
+                  <span>Correo electrónico</span>
+                  <strong>{user?.email || "—"}</strong>
+                </div>
+                <div className="producer-info-row">
+                  <span>Teléfono</span>
+                  <strong>{user?.telefono || "—"}</strong>
+                </div>
+                <div className="producer-info-row">
+                  <span>Ubicación</span>
+                  <strong>
+                    {user?.ubicacion || "Urabá, Antioquia, Colombia"}
+                  </strong>
+                </div>
+                <div className="producer-info-row">
+                  <span>Tipo de productor</span>
+                  <strong>{user?.tipoProductor || "Productor agrícola"}</strong>
+                </div>
+                <div className="producer-info-row">
+                  <span>Productos principales</span>
+                  <strong>
+                    {productos
+                      .slice(0, 4)
+                      .map((p) => p.nombre)
+                      .join(", ") || "Sin productos publicados"}
+                  </strong>
+                </div>
+              </article>
+            </div>
+          </div>
         )}
 
         {/* FINANZAS / PAGOS */}
         {activeSection === "finanzas" && (
-          <div className="section active producer-section"><div className="producer-section-head"><div><span className="producer-eyebrow">Rendimiento comercial</span><h1>Finanzas / pagos</h1><p>Resumen calculado con los pedidos que devuelve la API del productor.</p></div></div><div className="producer-finance-grid"><article className="producer-finance-card"><span>Ventas registradas</span><strong>{formatPrice(pedidos.reduce((sum,p)=>sum+Number(p.total||0),0))}</strong><small>Acumulado disponible en esta sesión</small></article><article className="producer-finance-card"><span>Pedidos gestionados</span><strong>{pedidos.length}</strong><small>Pedidos devueltos por /pedidos/mis-pedidos</small></article><article className="producer-finance-card"><span>Ticket promedio</span><strong>{formatPrice(pedidos.length ? pedidos.reduce((sum,p)=>sum+Number(p.total||0),0)/pedidos.length : 0)}</strong><small>Promedio sobre pedidos cargados</small></article><article className="producer-finance-card"><span>Productos activos</span><strong>{productos.length}</strong><small>Inventario devuelto por /productos/mis-productos</small></article></div><div className="producer-panel producer-table-panel"><div className="producer-panel-title"><h2>Movimientos comerciales</h2><span>{pedidos.length} pedidos</span></div><div className="table-wrap"><table className="producer-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th></tr></thead><tbody>{pedidos.map((p)=><tr key={p.id}><td>#{p.id}</td><td>{p.fecha || p.fechaCreacion || "—"}</td><td>{p.comprador || p.nombreComprador || "—"}</td><td>{formatPrice(p.total)}</td><td><span className={badgeClass(p.estado)}>{p.estado || "Pendiente"}</span></td></tr>)}</tbody></table></div></div></div>
+          <div className="section active producer-section">
+            <div className="producer-section-head">
+              <div>
+                <span className="producer-eyebrow">Rendimiento comercial</span>
+                <h1>Finanzas / pagos</h1>
+                <p>
+                  Resumen calculado con los pedidos que devuelve la API del
+                  productor.
+                </p>
+              </div>
+            </div>
+            <div className="producer-finance-grid">
+              <article className="producer-finance-card">
+                <span>Ventas registradas</span>
+                <strong>
+                  {formatPrice(
+                    pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0),
+                  )}
+                </strong>
+                <small>Acumulado disponible en esta sesión</small>
+              </article>
+              <article className="producer-finance-card">
+                <span>Pedidos gestionados</span>
+                <strong>{pedidos.length}</strong>
+                <small>Pedidos devueltos por /pedidos/mis-pedidos</small>
+              </article>
+              <article className="producer-finance-card">
+                <span>Ticket promedio</span>
+                <strong>
+                  {formatPrice(
+                    pedidos.length
+                      ? pedidos.reduce(
+                          (sum, p) => sum + Number(p.total || 0),
+                          0,
+                        ) / pedidos.length
+                      : 0,
+                  )}
+                </strong>
+                <small>Promedio sobre pedidos cargados</small>
+              </article>
+              <article className="producer-finance-card">
+                <span>Productos activos</span>
+                <strong>{productos.length}</strong>
+                <small>Inventario devuelto por /productos/mis-productos</small>
+              </article>
+            </div>
+            <div className="producer-panel producer-table-panel">
+              <div className="producer-panel-title">
+                <h2>Movimientos comerciales</h2>
+                <span>{pedidos.length} pedidos</span>
+              </div>
+              <div className="table-wrap">
+                <table className="producer-table">
+                  <thead>
+                    <tr>
+                      <th>Pedido</th>
+                      <th>Fecha</th>
+                      <th>Cliente</th>
+                      <th>Total</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pedidos.map((p) => (
+                      <tr key={p.id}>
+                        <td>#{p.id}</td>
+                        <td>{p.fecha || p.fechaCreacion || "—"}</td>
+                        <td>{p.comprador || p.nombreComprador || "—"}</td>
+                        <td>{formatPrice(p.total)}</td>
+                        <td>
+                          <span className={badgeClass(p.estado)}>
+                            {p.estado || "Pendiente"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* CONFIGURACIÓN */}
         {activeSection === "configuracion" && (
-          <div className="section active producer-section"><div className="producer-section-head"><div><span className="producer-eyebrow">Preferencias</span><h1>Configuración</h1><p>Administra los datos básicos y la seguridad de tu cuenta de productor.</p></div></div><div className="producer-config-grid"><article className="producer-panel producer-config-card"><div className="producer-panel-title"><h2>Perfil de la finca</h2><span>Datos de cuenta</span></div><div className="producer-config-row"><span>Nombre</span><strong>{user?.nombre || "—"}</strong></div><div className="producer-config-row"><span>Correo</span><strong>{user?.email || "—"}</strong></div><div className="producer-config-row"><span>Teléfono</span><strong>{user?.telefono || "—"}</strong></div><div className="producer-config-row"><span>Ubicación</span><strong>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</strong></div><button className="btn btn-primary" type="button" onClick={() => setActiveSection("perfil")}>Editar datos personales</button></article><article className="producer-panel producer-config-card"><div className="producer-panel-title"><h2>Seguridad</h2><span>Protección de cuenta</span></div><div className="producer-security-item"><span className="producer-security-icon">✓</span><div><strong>Correo registrado</strong><small>{user?.email || "Sin correo"}</small></div></div><div className="producer-security-item"><span className="producer-security-icon">✓</span><div><strong>Estado de cuenta</strong><small>{user?.verificado ? "Verificado" : "Pendiente de verificación"}</small></div></div><div className="producer-security-item"><span className="producer-security-icon">🔒</span><div><strong>Contraseña</strong><small>Gestionada mediante el formulario seguro de cuenta.</small></div></div><button className="btn btn-secondary" type="button" onClick={() => setActiveSection("perfil")}>Gestionar contraseña</button></article></div></div>
+          <div className="section active producer-section">
+            <div className="producer-section-head">
+              <div>
+                <span className="producer-eyebrow">Preferencias</span>
+                <h1>Configuración</h1>
+                <p>
+                  Administra los datos básicos y la seguridad de tu cuenta de
+                  productor.
+                </p>
+              </div>
+            </div>
+            <div className="producer-config-grid">
+              <article className="producer-panel producer-config-card">
+                <div className="producer-panel-title">
+                  <h2>Perfil de la finca</h2>
+                  <span>Datos de cuenta</span>
+                </div>
+                <div className="producer-config-row">
+                  <span>Nombre</span>
+                  <strong>{user?.nombre || "—"}</strong>
+                </div>
+                <div className="producer-config-row">
+                  <span>Correo</span>
+                  <strong>{user?.email || "—"}</strong>
+                </div>
+                <div className="producer-config-row">
+                  <span>Teléfono</span>
+                  <strong>{user?.telefono || "—"}</strong>
+                </div>
+                <div className="producer-config-row">
+                  <span>Ubicación</span>
+                  <strong>
+                    {user?.ubicacion || "Urabá, Antioquia, Colombia"}
+                  </strong>
+                </div>
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={() => setActiveSection("perfil")}
+                >
+                  Editar datos personales
+                </button>
+              </article>
+              <article className="producer-panel producer-config-card">
+                <div className="producer-panel-title">
+                  <h2>Seguridad</h2>
+                  <span>Protección de cuenta</span>
+                </div>
+                <div className="producer-security-item">
+                  <span className="producer-security-icon">✓</span>
+                  <div>
+                    <strong>Correo registrado</strong>
+                    <small>{user?.email || "Sin correo"}</small>
+                  </div>
+                </div>
+                <div className="producer-security-item">
+                  <span className="producer-security-icon">✓</span>
+                  <div>
+                    <strong>Estado de cuenta</strong>
+                    <small>
+                      {user?.verificado
+                        ? "Verificado"
+                        : "Pendiente de verificación"}
+                    </small>
+                  </div>
+                </div>
+                <div className="producer-security-item">
+                  <span className="producer-security-icon">🔒</span>
+                  <div>
+                    <strong>Contraseña</strong>
+                    <small>
+                      Gestionada mediante el formulario seguro de cuenta.
+                    </small>
+                  </div>
+                </div>
+                <button
+                  className="btn btn-secondary"
+                  type="button"
+                  onClick={() => setActiveSection("perfil")}
+                >
+                  Gestionar contraseña
+                </button>
+              </article>
+            </div>
+          </div>
         )}
 
         {activeSection === "perfil" && (
@@ -2197,6 +2719,3 @@ export default function DashboardProductor() {
     </div>
   );
 }
-
-
-

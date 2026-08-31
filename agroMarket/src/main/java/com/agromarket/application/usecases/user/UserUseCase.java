@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.agromarket.domain.models.enums.user.Role;
 import com.agromarket.domain.models.user.User;
 import com.agromarket.domain.ports.in.user.UpdateProfileCommand;
 import com.agromarket.domain.ports.in.user.UserPort;
@@ -45,8 +46,41 @@ public class UserUseCase implements UserPort {
     public UserResult update(Long id, UpdateProfileCommand command) {
         User user = findUser(id);
         apply(command, user);
+        markAccountCompleteIfKycDone(user);
         user.setUpdatedAt(LocalDateTime.now());
         return toResult(userPersistencePort.save(user));
+    }
+
+    /**
+     * CAUSA RAÍZ del bug "Completar cuenta vuelve a aparecer al
+     * refrescar la página (F5)":
+     *
+     * El frontend completa el KYC (tipo de documento, número de documento
+     * y fecha de nacimiento) mediante PUT /usuarios/mi-perfil, pero el
+     * campo accountComplete NUNCA se marcaba en la base de datos: solo
+     * existía en el estado de React (marcado optimista en el cliente).
+     * Al recargar, GET /usuarios/me devolvía accountComplete=false y el
+     * modal volvía a aparecer.
+     *
+     * Regla: si el usuario ya registró los datos obligatorios de
+     * identidad, la cuenta se considera completa y se PERSISTE así.
+     */
+    private void markAccountCompleteIfKycDone(User user) {
+        boolean tieneTipoDocumento = user.getIdType() != null
+                && !user.getIdType().isBlank();
+        boolean tieneNumeroDocumento = user.getIdNumber() != null
+                && !user.getIdNumber().isBlank();
+        boolean tieneFechaNacimiento = user.getBirthDate() != null;
+
+        if (tieneTipoDocumento && tieneNumeroDocumento && tieneFechaNacimiento) {
+            user.setAccountComplete(true);
+
+            String estado = user.getAccountStatus();
+            if (estado == null || estado.isBlank()
+                    || "PENDING_EMAIL".equals(estado)) {
+                user.setAccountStatus("ACTIVE");
+            }
+        }
     }
 
     @Override
@@ -96,6 +130,43 @@ public class UserUseCase implements UserPort {
         userPersistencePort.save(user);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserResult> getPendientesAprobacion() {
+        return userPersistencePort.findAll().stream()
+                .filter(u -> u.getRole() == Role.PRODUCER)
+                .filter(u -> !Boolean.TRUE.equals(u.getAccountApproved()))
+                .map(this::toResult)
+                .toList();
+    }
+
+    @Override
+    public UserResult aprobarUsuario(Long id) {
+        User user = findUser(id);
+        user.setAccountApproved(true);
+        user.setAccountStatus("ACTIVE");
+        user.setActive(true);
+        user.setUpdatedAt(LocalDateTime.now());
+        return toResult(userPersistencePort.save(user));
+    }
+
+    @Override
+    public UserResult rechazarUsuario(Long id) {
+        User user = findUser(id);
+        user.setAccountApproved(false);
+        user.setAccountStatus("REJECTED");
+        user.setUpdatedAt(LocalDateTime.now());
+        return toResult(userPersistencePort.save(user));
+    }
+
+    @Override
+    public UserResult toggleVerificadoProductor(Long id) {
+        User user = findUser(id);
+        user.setVerifiedProducer(!Boolean.TRUE.equals(user.getVerifiedProducer()));
+        user.setUpdatedAt(LocalDateTime.now());
+        return toResult(userPersistencePort.save(user));
+    }
+
     private User findUser(Long id) {
         return userPersistencePort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -140,6 +211,22 @@ public class UserUseCase implements UserPort {
             u.setPreferredCurrency(c.getPreferredCurrency());
     }
 
+    /**
+     * Una cuenta se considera completada cuando el usuario ya registró los
+     * tres datos obligatorios de identidad. Esta derivación hace que GET
+     * /usuarios/me devuelva accountComplete=true aunque el campo persistido
+     * quedara en false por datos creados ANTES del fix de KYC (al refrescar,
+     * el modal "Completar cuenta" no debe volver a aparecer).
+     */
+    private boolean tieneDatosKyc(User u) {
+        boolean tieneTipoDocumento = u.getIdType() != null
+                && !u.getIdType().isBlank();
+        boolean tieneNumeroDocumento = u.getIdNumber() != null
+                && !u.getIdNumber().isBlank();
+        return tieneTipoDocumento && tieneNumeroDocumento
+                && u.getBirthDate() != null;
+    }
+
     private UserResult toResult(User u) {
         return UserResult.builder()
                 .id(u.getId())
@@ -164,7 +251,7 @@ public class UserUseCase implements UserPort {
                 .isCompany(u.getIsCompany())
                 .phoneVerified(u.getPhoneVerified())
                 .accountApproved(u.getAccountApproved())
-                .accountComplete(u.getAccountComplete())
+                .accountComplete(u.getAccountComplete() || tieneDatosKyc(u))
                 .accountStatus(u.getAccountStatus())
                 .department(u.getDepartment())
                 .city(u.getCity())

@@ -20,7 +20,6 @@ const ITEMS = [
   ["modo-oscuro", "Modo oscuro", "theme"],
 ];
 
-
 function SpecialIcon({ name }) {
   const common = {
     width: 18,
@@ -35,15 +34,58 @@ function SpecialIcon({ name }) {
   };
 
   const icons = {
-    bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></>,
-    pin: <><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></>,
-    tag: <><path d="M20 13 13 20 4 11V4h7l9 9Z"/><path d="M8 8h.01"/></>,
-    heart: <path d="M20.8 8.9c0 5-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.9A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.7Z"/>,
-    history: <><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></>,
-    help: <><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.2 1.6c-.9.9-1.9 1.2-1.9 2.6"/><path d="M12 17h.01"/></>,
-    return: <><path d="M9 7H4v5"/><path d="M4 12a8 8 0 1 0 2-5"/></>,
-    card: <><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></>,
-    theme: <><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></>,
+    bell: (
+      <>
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+        <path d="M10 21h4" />
+      </>
+    ),
+    pin: (
+      <>
+        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+        <circle cx="12" cy="10" r="2.5" />
+      </>
+    ),
+    tag: (
+      <>
+        <path d="M20 13 13 20 4 11V4h7l9 9Z" />
+        <path d="M8 8h.01" />
+      </>
+    ),
+    heart: (
+      <path d="M20.8 8.9c0 5-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.9A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.7Z" />
+    ),
+    history: (
+      <>
+        <path d="M3 12a9 9 0 1 0 3-6.7" />
+        <path d="M3 4v5h5" />
+        <path d="M12 7v5l3 2" />
+      </>
+    ),
+    help: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.7 9a2.4 2.4 0 1 1 4.2 1.6c-.9.9-1.9 1.2-1.9 2.6" />
+        <path d="M12 17h.01" />
+      </>
+    ),
+    return: (
+      <>
+        <path d="M9 7H4v5" />
+        <path d="M4 12a8 8 0 1 0 2-5" />
+      </>
+    ),
+    card: (
+      <>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M3 10h18" />
+      </>
+    ),
+    theme: (
+      <>
+        <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z" />
+      </>
+    ),
   };
   return <svg {...common}>{icons[name] || icons.help}</svg>;
 }
@@ -74,7 +116,7 @@ export default function SpecialSystemShell({ activeKey, children }) {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -159,7 +201,9 @@ export default function SpecialSystemShell({ activeKey, children }) {
                 className={`special-nav-item${activeKey === key ? " active" : ""}`}
                 onClick={() => go(key)}
               >
-                <span className="special-nav-icon"><SpecialIcon name={icon} /></span>
+                <span className="special-nav-icon">
+                  <SpecialIcon name={icon} />
+                </span>
                 <span>{label}</span>
               </button>
             ))}

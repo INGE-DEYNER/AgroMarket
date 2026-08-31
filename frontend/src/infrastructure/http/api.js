@@ -17,6 +17,23 @@ const PUBLIC_PATHS = [
   "/actuator",
 ];
 
+/*
+ * Prefijos que son públicos SOLO para GET (catálogo de lectura).
+ * Cualquier petición de escritura (POST/PUT/PATCH/DELETE) sobre ellos
+ * es una operación autenticada y DEBE llevar el JWT.
+ *
+ * CAUSA RAÍZ del bug "HTTP 401 al guardar producto" y del 401 en
+ * /productos/mis-productos: antes se clasificaba solo por la ruta, sin
+ * mirar el método, así que el token nunca se enviaba en esas peticiones.
+ */
+const GET_ONLY_PUBLIC_PATHS = ["/productos", "/resenas"];
+
+/*
+ * Rutas que cuelgan de un prefijo público pero SIEMPRE requieren
+ * autenticación (el backend las protege explícitamente).
+ */
+const AUTHENTICATED_PATHS = ["/productos/mis-productos", "/resenas/mis-resenas"];
+
 function getPathname(path) {
   if (!path) {
     return "/";
@@ -25,13 +42,29 @@ function getPathname(path) {
   return path.split("?")[0].replace(/\/+$/, "") || "/";
 }
 
-function isPublicEndpoint(path) {
-  const pathname = getPathname(path);
+function matchesPrefix(pathname, prefix) {
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
 
-  return PUBLIC_PATHS.some(
-    (publicPath) =>
-      pathname === publicPath || pathname.startsWith(`${publicPath}/`),
-  );
+function isPublicEndpoint(path, method = "GET") {
+  const pathname = getPathname(path);
+  const isRead = String(method).toUpperCase() === "GET";
+
+  // 1) Rutas explícitamente autenticadas, aunque cuelguen de un
+  //    prefijo público.
+  if (AUTHENTICATED_PATHS.some((prefix) => matchesPrefix(pathname, prefix))) {
+    return false;
+  }
+
+  // 2) Escritura sobre catálogo/resenas => autenticada.
+  if (
+    !isRead &&
+    GET_ONLY_PUBLIC_PATHS.some((prefix) => matchesPrefix(pathname, prefix))
+  ) {
+    return false;
+  }
+
+  return PUBLIC_PATHS.some((publicPath) => matchesPrefix(pathname, publicPath));
 }
 
 function decodeJwtPayload(token) {
@@ -73,7 +106,7 @@ function clearSession() {
 }
 
 async function request(method, path, body) {
-  const publicEndpoint = isPublicEndpoint(path);
+  const publicEndpoint = isPublicEndpoint(path, method);
 
   const token = localStorage.getItem("token");
 

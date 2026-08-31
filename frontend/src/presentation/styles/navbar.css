@@ -225,6 +225,20 @@
   flex: 0 1 175px;
 
   box-sizing: border-box;
+
+  /* Reseteo de <button> (el selector antes era un <div>) */
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+}
+
+.nav-location:hover {
+  opacity: 0.85;
 }
 
 .nav-location > span {

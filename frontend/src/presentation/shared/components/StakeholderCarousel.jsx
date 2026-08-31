@@ -1,5 +1,4 @@
-import React from "react";
-import "./stakeholder-carousel.css";
+import "@/presentation/styles/stakeholder-carousel.css";
 
 const STAKEHOLDERS = [
   {
@@ -20,7 +19,7 @@ const STAKEHOLDERS = [
     id: "developer",
     name: "Deyner Chaverra",
     description: "Desarrollador de AgroMarket",
-    image: "/by/Deyner.png",
+    image: "/by/DeyDev.png",
     type: "developer",
     prefix: "Desarrollado por",
   },

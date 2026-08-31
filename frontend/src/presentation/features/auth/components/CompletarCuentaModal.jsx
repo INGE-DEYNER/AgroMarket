@@ -90,16 +90,15 @@ export default function CompletarCuentaModal({ onComplete }) {
       return;
     }
 
-    setLoading(true);
+                setLoading(true);
     try {
-      await api.put("/usuarios/mi-perfil", {
-        tipoDocumento,
-        cedula: cedulaLimpia,
-        numeroDocumento: cedulaLimpia,
-        documento: cedulaLimpia,
-        fechaNacimiento,
-        cuentaCompleta: true,
-      });
+      const payload = {
+        idType: tipoDocumento,
+        idNumber: cedulaLimpia,
+        birthDate: fechaNacimiento,
+      };
+
+      await api.put("/usuarios/mi-perfil", payload);
 
       // Fix: no dependemos únicamente de que el backend devuelva el nombre
       // exacto de campo esperado (cuentaCompleta). Si el PUT respondió OK,

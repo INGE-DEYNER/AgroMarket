@@ -818,7 +818,7 @@ export default function DashboardComprador() {
           onClick={async (e) => {
             e.preventDefault();
             await logout();
-            navigate("/login");
+            navigate("/");
           }}
         >
           <span className="icon"></span>{" "}

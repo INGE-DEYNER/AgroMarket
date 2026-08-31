@@ -74,6 +74,14 @@ public class ApiPathAliasFilter implements Filter {
         ALIASES.put("/api/v1/cupones", "/api/v1/coupons");
         ALIASES.put("/api/v1/facturas", "/api/v1/invoices");
         ALIASES.put("/api/v1/pagos", "/api/v1/payments");
+
+        /*
+         * El frontend llama a /admin/... (singular) pero los controladores
+         * administrativos viven en /api/v1/admins (plural). Sin este alias,
+         * todas las peticiones del panel de administración terminaban en
+         * 404 y el panel aparecía vacío ("No hay datos", stats en 0).
+         */
+        ALIASES.put("/api/v1/admin", "/api/v1/admins");
     }
 
     @Override

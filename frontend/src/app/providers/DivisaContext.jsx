@@ -172,7 +172,10 @@ export const DivisaProvider = ({ children }) => {
 
       const tasa = tasas[divisaActual] || 1;
 
-      return precioCOP * tasa;
+      // Las tasas vienen expresadas como "1 unidad extranjera = N COP"
+      // (ej. 1 USD = 4000 COP). Para convertir de COP a la divisa
+      // objetivo debemos DIVIDIR, no multiplicar.
+      return precioCOP / tasa;
     },
     [tasas, divisaActual],
   );

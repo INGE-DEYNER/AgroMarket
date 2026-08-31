@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import { AuthProvider } from "@/app/providers/AuthContext";
 import { ToastProvider } from "@/app/providers/ToastContext";
@@ -274,7 +274,13 @@ function App() {
                         path="/dashboard-comprador"
                         element={
                           <ProtectedRoute
-                            roles={["COMPRADOR", "ADMIN", "PRODUCTOR"]}
+                            roles={[
+                              "COMPRADOR",
+                              "COMPRADOR_EMPRESA",
+                              "BUYER",
+                              "BUYER_COMPANY",
+                              "ADMIN",
+                            ]}
                           >
                             <DashboardComprador />
                           </ProtectedRoute>
@@ -288,7 +294,9 @@ function App() {
                       <Route
                         path="/dashboard-productor"
                         element={
-                          <ProtectedRoute roles={["PRODUCTOR", "ADMIN"]}>
+                          <ProtectedRoute
+                            roles={["PRODUCTOR", "PRODUCER", "ADMIN"]}
+                          >
                             <DashboardProductor />
                           </ProtectedRoute>
                         }
@@ -499,7 +507,7 @@ function App() {
 
                 <ChatbotSoporte />
 
-                <Footer />
+                <AppFooter />
 
                 <NetworkError />
               </div>
@@ -509,6 +517,40 @@ function App() {
       </DivisaProvider>
     </ToastProvider>
   );
+}
+
+// ============================================================
+// FOOTER SEGÚN LA RUTA
+// El footer compartido (compacto) solo se muestra en páginas
+// públicas. Los dashboards/aplicación (comprador, productor,
+// admin, especial, seguridad, perfil, pedidos, checkout, etc.)
+// usan su propio pie de página y no deben heredar el global.
+// ============================================================
+
+const APP_FOOTER_HIDDEN_PREFIXES = [
+  "/dashboard-comprador",
+  "/dashboard-productor",
+  "/admin",
+  "/especial",
+  "/seguridad",
+  "/perfil",
+  "/pedidos",
+  "/envios",
+  "/mensajeria",
+  "/resenas",
+  "/checkout",
+  "/pago-pasarela",
+  "/pago/",
+];
+
+function AppFooter() {
+  const { pathname } = useLocation();
+
+  const isAppRoute = APP_FOOTER_HIDDEN_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix),
+  );
+
+  return isAppRoute ? null : <Footer />;
 }
 
 export default App;

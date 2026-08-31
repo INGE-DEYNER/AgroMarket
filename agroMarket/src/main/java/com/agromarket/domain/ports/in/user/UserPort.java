@@ -108,4 +108,40 @@ public interface UserPort {
    */
 
   void disable(Long id);
+
+  /**
+   * Productores (rol PRODUCER) cuya cuenta aún no ha sido aprobada
+   * (accountApproved != true). Alimenta la sección "Productores por
+   * validar" del panel de administración.
+   *
+   * @return lista de productores pendientes de aprobación
+   */
+  List<UserResult> getPendientesAprobacion();
+
+  /**
+   * Aprueba la cuenta de un usuario (accountApproved = true).
+   * Usado por el panel de administración al aceptar un productor.
+   *
+   * @param id ID del usuario a aprobar
+   * @return resultado con los datos actualizados del usuario
+   */
+  UserResult aprobarUsuario(Long id);
+
+  /**
+   * Rechaza la solicitud de aprobación de un usuario
+   * (accountApproved = false, accountStatus = REJECTED).
+   *
+   * @param id ID del usuario a rechazar
+   * @return resultado con los datos actualizados del usuario
+   */
+  UserResult rechazarUsuario(Long id);
+
+  /**
+   * Alterna el flag verifiedProducer de un productor
+   * (verificado / no verificado).
+   *
+   * @param id ID del productor
+   * @return resultado con los datos actualizados del usuario
+   */
+  UserResult toggleVerificadoProductor(Long id);
 }

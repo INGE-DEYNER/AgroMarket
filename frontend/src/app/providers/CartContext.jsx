@@ -4,6 +4,35 @@ import { useState, useEffect } from 'react';
 import CartContext from "@/app/contexts/CartContext";
 const CART_KEY = 'agromarket_cart';
 
+// Normaliza un producto para el carrito aceptando tanto campos en español
+// (nombre, precio, cantidadMinimaMayorista, precioMayorista, enPromocion,
+// precioPromocion) como los que devuelve la API en inglés (name, price,
+// minimumWholesaleQuantity, wholesalePrice, onPromotion, promotionPrice,
+// availableQuantity). Sin esto, agregar desde el catálogo del dashboard
+// dejaba precios undefined en el carrito (totales absurdos / NaN).
+function normalizeProduct(product) {
+  return {
+    ...product,
+    nombre: product.nombre ?? product.name ?? "Producto",
+    precio:
+      product.precio !== undefined && product.precio !== null
+        ? product.precio
+        : product.price,
+    imagen: product.imagen ?? product.imageUrl ?? product.img ?? "",
+    imagenUrl: product.imagenUrl ?? product.imageUrl ?? product.imagen ?? product.img ?? "",
+    tipo: product.tipo ?? product.tipoFruta ?? product.fruitType ?? "",
+    enPromocion: product.enPromocion ?? product.onPromotion ?? false,
+    precioPromocion:
+      product.precioPromocion ?? product.promotionPrice ?? null,
+    cantidadMinimaMayorista:
+      product.cantidadMinimaMayorista ??
+      product.minimumWholesaleQuantity ??
+      null,
+    precioMayorista: product.precioMayorista ?? product.wholesalePrice ?? null,
+    stock: product.stock ?? product.availableQuantity ?? 0,
+  };
+}
+
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(() => {
     try {
@@ -39,14 +68,17 @@ export function CartProvider({ children }) {
 
   const addToCart = (product, qty = 1) => {
     if (!product || !product.id) return;
+    const normalized = normalizeProduct(product);
     setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      const existing = prev.find((item) => item.id === normalized.id);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + qty } : item
+          item.id === normalized.id
+            ? { ...item, qty: item.qty + qty }
+            : item
         );
       }
-      return [...prev, { ...product, qty }];
+      return [...prev, { ...normalized, qty }];
     });
     // Abrir automáticamente el carrito al agregar un producto
     setCartOpen(true);
