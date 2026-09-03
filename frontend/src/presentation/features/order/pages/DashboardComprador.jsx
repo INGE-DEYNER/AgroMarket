@@ -225,7 +225,17 @@ export default function DashboardComprador() {
   const loadFacturas = useCallback(async () => {
     try {
       const data = await api.get("/facturas/mis-facturas");
-      setFacturas(extractArray(data));
+      const list = extractArray(data).map((f) => ({
+        ...f,
+        numeroFactura: f.invoiceNumber || `FAC-${f.id}`,
+        pedidoId: f.orderId ?? f.id,
+        subtotal: Number(f.subtotal || 0),
+        impuesto: Number(f.tax || 0),
+        total: Number(f.total || 0),
+        fechaEmision: f.issueDate || null,
+        estado: f.estado || "Pagada",
+      }));
+      setFacturas(list);
     } catch (err) {
       console.error("Error loadFacturas:", err);
       setFacturas([]);
@@ -234,14 +244,20 @@ export default function DashboardComprador() {
 
   const descargarPdf = (facturaId) => {
     const token = localStorage.getItem("token");
-    const url = `${API_BASE.replace("/api", "")}/api/facturas/${facturaId}/pdf`;
+    // URL real del backend: /api/v1/facturas/{id}/pdf (alias -> /invoices/{id}/pdf)
+    const url = `${API_BASE}/facturas/${facturaId}/pdf`;
 
     fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => res.blob())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        return res.blob();
+      })
       .then((blob) => {
         const fileUrl = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -349,7 +365,49 @@ export default function DashboardComprador() {
     setCatalogLoading(true);
     try {
       const data = await api.get("/productos?size=100");
-      setCatalogProducts(extractArray(data));
+      const list = extractArray(data).map((p) => {
+        const promoPrice =
+          p.promotionPrice != null ? Number(p.promotionPrice) : null;
+        const hasPromo =
+          Boolean(p.onPromotion) && promoPrice != null && promoPrice > 0;
+        const price = Number(p.price ?? p.precio ?? 0);
+        const wholesalePrice =
+          p.wholesalePrice != null ? Number(p.wholesalePrice) : null;
+        const minWholesale =
+          p.minimumWholesaleQuantity != null
+            ? Number(p.minimumWholesaleQuantity)
+            : null;
+
+        return {
+          ...p,
+          id: p.id,
+          nombre: p.name || p.nombre || "Producto sin nombre",
+          descripcion: p.description || p.descripcion || "",
+          precio: hasPromo && promoPrice < price ? promoPrice : price,
+          precioPromocion: hasPromo ? promoPrice : null,
+          enPromocion: hasPromo,
+          stock: Number(
+            p.availableQuantity ?? p.stock ?? p.cantidadDisponible ?? 0,
+          ),
+          imagenUrl: p.imageUrl || p.imagenUrl || null,
+          tipoFruta: p.fruitType ?? p.tipoFruta ?? null,
+          calificacion:
+            p.averageRating > 0
+              ? Number(p.averageRating).toFixed(1)
+              : null,
+          productorNombre:
+            p.producer?.name ||
+            p.producer?.firstName ||
+            p.productorNombre ||
+            p.productor ||
+            p.nombreProductor ||
+            null,
+          productorVerificado: p.producer?.verifiedProducer ?? false,
+          precioMayorista: wholesalePrice,
+          cantidadMinimaMayorista: minWholesale,
+        };
+      });
+      setCatalogProducts(list);
     } catch (err) {
       console.error("Error loadCatalogProducts:", err);
       setCatalogProducts([]);
@@ -612,16 +670,16 @@ export default function DashboardComprador() {
       !filtroTipoCatalog ||
       (filtroTipoCatalog === "Frutas" &&
         [
-          "BANANO",
+          "BANANA",
           "MANGO",
-          "PINA",
-          "MARACUYA",
-          "GUANABANA",
-          "NARANJA",
-          "COCO",
-          "LIMON",
+          "PINEAPPLE",
+          "PASSION_FRUIT",
+          "SOURSOP",
+          "ORANGE",
+          "COCONUT",
+          "LEMON",
         ].includes(p.tipoFruta)) ||
-      (filtroTipoCatalog === "Otros" && p.tipoFruta === "OTRO") ||
+      (filtroTipoCatalog === "Otros" && p.tipoFruta === "OTHER") ||
       (filtroTipoCatalog === "Verduras" && false) ||
       (filtroTipoCatalog === "Tubérculos" && false) ||
       (filtroTipoCatalog === "Granos" && false);
@@ -2718,14 +2776,14 @@ export default function DashboardComprador() {
                         setRfqForm({ ...rfqForm, tipoFruta: e.target.value })
                       }
                     >
-                      <option value="BANANO"> Banano</option>
-                      <option value="PINA"> Piña</option>
+                      <option value="BANANA"> Banano</option>
+                      <option value="PINEAPPLE"> Piña</option>
                       <option value="MANGO"> Mango</option>
-                      <option value="MARACUYA"> Maracuyá</option>
-                      <option value="GUANABANA"> Guanábana</option>
-                      <option value="NARANJA"> Naranja</option>
-                      <option value="COCO"> Coco</option>
-                      <option value="LIMON"> Limón</option>
+                      <option value="PASSION_FRUIT"> Maracuyá</option>
+                      <option value="SOURSOP"> Guanábana</option>
+                      <option value="ORANGE"> Naranja</option>
+                      <option value="COCONUT"> Coco</option>
+                      <option value="LEMON"> Limón</option>
                     </select>
                   </div>
                   <div className="form-group" style={{ marginBottom: "16px" }}>
@@ -3053,26 +3111,44 @@ export default function DashboardComprador() {
                     const ordersToPay = checkoutPedido.isGrouped
                       ? checkoutPedido.originalPedidos
                       : [checkoutPedido];
+
+                    // Mapeo de método de pago del frontend al enum del backend
+                    const metodoBackend =
+                      metodoPago === "TARJETA_CREDITO"
+                        ? "CREDIT_CARD"
+                        : metodoPago === "PSE"
+                          ? "PSE"
+                          : metodoPago === "EFECTIVO"
+                            ? "CASH"
+                            : "MERCADO_PAGO";
+
+                    let lastCheckoutUrl = null;
+
                     for (const ped of ordersToPay) {
-                      const res = await api.post("/pagos/iniciar", {
-                        pedidoId: ped.id,
-                        metodoPago: metodoPago,
+                      const initRes = await api.post("/pagos/iniciar", {
+                        orderId: ped.id,
+                        buyerId: user?.id,
+                        paymentMethod: metodoBackend,
                       });
-                      const data = res.data || res;
-                      await api.post("/pagos/confirmar", {
-                        pagoId: data.pagoId,
-                        referencia: data.referencia,
-                        estado: "APROBADO",
-                      });
+                      const data = initRes.data || initRes;
+                      if (data?.checkoutUrl) {
+                        lastCheckoutUrl = data.checkoutUrl;
+                      }
                     }
-                    alert(
-                      "Pago realizado con éxito para todos los productos de esta compra.",
-                    );
+
                     setPagoModalOpen(false);
-                    loadPedidos();
-                    loadFacturas();
+
+                    // Flujo REAL: redirigir a la pasarela de MercadoPago
+                    if (lastCheckoutUrl) {
+                      window.location.href = lastCheckoutUrl;
+                      return;
+                    }
+
+                    alert(
+                      "No se pudo iniciar el pago en la pasarela. Inténtalo de nuevo.",
+                    );
                   } catch (err) {
-                    alert("Error al iniciar el pago: " + err.message);
+                    alert("Error al iniciar el pago: " + (err.message || err));
                   }
                 }}
               >
@@ -3190,14 +3266,54 @@ export default function DashboardComprador() {
               </button>
               <button
                 className="btn btn-primary"
-                onClick={() =>
-                  alert(
-                    t(
-                      "pedidos.invoiceSent",
-                      "Factura enviada al correo registrado.",
-                    ),
-                  )
-                }
+                onClick={async () => {
+                  try {
+                    const pedidos = facturaData?.isGrouped
+                      ? facturaData.items
+                      : facturaData?.originalPedidos &&
+                          facturaData.originalPedidos.length > 0
+                        ? facturaData.originalPedidos
+                        : [{ id: facturaData?.pedidoId ?? facturaData?.id }];
+
+                    let enviados = 0;
+                    for (const ped of pedidos) {
+                      const pedidoId = ped.id ?? ped.pedidoId;
+                      if (!pedidoId) continue;
+                      const invRes = await api.get(
+                        `/facturas/pedido/${pedidoId}`,
+                      );
+                      // La API devuelve un objeto factura (o 404); normalizar.
+                      const data = invRes?.data || invRes;
+                      const factura = Array.isArray(data)
+                        ? data[0]
+                        : data?.id
+                          ? data
+                          : null;
+                      const facturaId = factura?.id;
+                      if (!facturaId) continue;
+                      const res = await api.post(
+                        `/facturas/${facturaId}/enviar`,
+                      );
+                      enviados += res?.email ? 1 : 0;
+                    }
+
+                    if (enviados > 0) {
+                      alert(
+                        `Factura(s) enviada(s) al correo ${user?.email || "registrado"} (${enviados} enviada(s)).`,
+                      );
+                      setModalFactura(false);
+                    } else {
+                      alert(
+                        "No se encontro una factura emitida para este pedido. La factura se genera automaticamente cuando el pago es confirmado por MercadoPago.",
+                      );
+                    }
+                  } catch (err) {
+                    alert(
+                      "No se pudo enviar la factura: " +
+                        (err.message || "Intentalo de nuevo."),
+                    );
+                  }
+                }}
               >
                 {t("pedidos.sendPdf", " Enviar PDF")}
               </button>

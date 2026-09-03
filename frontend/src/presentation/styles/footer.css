@@ -206,31 +206,74 @@
 }
 
 .footer-link-column a,
-.footer-link-column span,
 .footer-text-button {
-  color: #68736e;
+  position: relative;
+
+  color: #4a5750;
 
   font-size: 13px;
   line-height: 1.35;
 
   text-decoration: none;
+
+  cursor: pointer;
+
+  padding-bottom: 1px;
+
+  border-bottom: 1px solid transparent;
+
+  transition:
+    color 200ms ease,
+    border-color 200ms ease,
+    padding-left 200ms ease;
+}
+
+.footer-link-column span {
+  color: #68736e;
+
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .footer-link-column a:hover,
 .footer-text-button:hover {
   color: #08752f;
+
+  border-bottom-color: #08752f;
+
+  padding-left: 4px;
+}
+
+.footer-link-column a:focus-visible,
+.footer-text-button:focus-visible {
+  outline: 2px solid rgba(8, 117, 47, 0.35);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.footer-link-column a:active,
+.footer-text-button:active {
+  color: #065521;
 }
 
 .footer-text-button {
   padding: 0;
+  padding-bottom: 1px;
 
   border: 0;
+  border-bottom: 1px solid transparent;
   background: transparent;
 
   font: inherit;
+  font-size: 13px;
   text-align: left;
 
   cursor: pointer;
+
+  transition:
+    color 200ms ease,
+    border-color 200ms ease,
+    padding-left 200ms ease;
 }
 
 /* ============================================================
@@ -1256,10 +1299,20 @@ html.dark .footer-link-column h4 {
 html.dark .footer-trust-card p,
 html.dark .footer-partners-header p,
 html.dark .footer-stakeholder-info span,
+html.dark .footer-link-column span {
+  color: var(--color-text-secondary);
+}
+
 html.dark .footer-link-column a,
-html.dark .footer-link-column span,
 html.dark .footer-text-button {
   color: var(--color-text-secondary);
+  border-bottom-color: transparent;
+}
+
+html.dark .footer-link-column a:hover,
+html.dark .footer-text-button:hover {
+  color: var(--am-green-300, #52b86a);
+  border-bottom-color: var(--am-green-300, #52b86a);
 }
 
 html.dark .footer-stakeholder-marquee::before {

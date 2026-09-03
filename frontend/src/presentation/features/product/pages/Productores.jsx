@@ -1,63 +1,49 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
 import heroImg from "@/assets/producers-hero.png";
-import fincaImg from "@/assets/finca-el-paraiso.png";
-import antonioImg from "@/assets/agro-antonio.png";
-import cacaoImg from "@/assets/cacao-el-tesoro.png";
-import camposImg from "@/assets/campos-de-uraba.png";
-import mapPinIcon from "@/assets/icon-map-pin.svg";
 import handHeartIcon from "@/assets/icon-hand-heart.svg";
+import mapPinIcon from "@/assets/icon-map-pin.svg";
+import api from "@/infrastructure/http/api";
 import "@/presentation/styles/public-views.css";
 
-const PRODUCERS = [
-  {
-    name: "Finca El Paraíso",
-    place: "Apartadó",
-    family: "Familia Humberto & Hijos",
-    rating: 5.0,
-    reviews: 24,
-    img: fincaImg,
-  },
-  {
-    name: "AgroUrabá Antonio",
-    place: "Turbo",
-    family: "Don Antonio y Productores",
-    rating: 4.9,
-    reviews: 41,
-    img: antonioImg,
-  },
-  {
-    name: "Cacao El Tesoro",
-    place: "Carepa",
-    family: "Asociación Semillas de Paz",
-    rating: 4.8,
-    reviews: 18,
-    img: cacaoImg,
-  },
-  {
-    name: "Campos de Urabá",
-    place: "Chigorodó",
-    family: "Finca Tradicional La Fe",
-    rating: 5.0,
-    reviews: 32,
-    img: camposImg,
-  },
-];
-
-const MUNICIPIOS = ["Apartadó", "Turbo", "Carepa", "Chigorodó"];
+function extractArray(response) {
+  const data = response?.data ?? response;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.content)) return data.content;
+  return [];
+}
 
 export default function Productores() {
   const [query, setQuery] = useState("");
-  const [municipio, setMunicipio] = useState("");
+  const [producers, setProducers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = PRODUCERS.filter((p) => {
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    api
+      .get("/usuarios?rol=PRODUCTOR&size=50")
+      .then((res) => {
+        if (!active) return;
+        setProducers(extractArray(res));
+      })
+      .catch((err) => {
+        console.error("Error cargando productores:", err);
+        setProducers([]);
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  const filtered = producers.filter((p) => {
+    const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim();
+    const company = p.companyName ?? "";
     const matchQuery =
       !query ||
-      p.name.toLowerCase().includes(query.toLowerCase()) ||
-      p.family.toLowerCase().includes(query.toLowerCase());
-    const matchPlace = !municipio || p.place === municipio;
-    return matchQuery && matchPlace;
+      name.toLowerCase().includes(query.toLowerCase()) ||
+      company.toLowerCase().includes(query.toLowerCase());
+    return matchQuery;
   });
 
   return (
@@ -92,63 +78,79 @@ export default function Productores() {
               <input
                 type="search"
                 className="pr-search"
-                placeholder="Buscar por nombre o municipio..."
+                placeholder="Buscar por nombre o empresa..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Buscar productor"
               />
-              <select
-                className="pr-select"
-                value={municipio}
-                onChange={(e) => setMunicipio(e.target.value)}
-                aria-label="Filtrar por municipio"
-              >
-                <option value="">Todos los Municipios</option>
-                {MUNICIPIOS.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 
-          <div className="pr-grid">
-            {filtered.map((p) => (
-              <article className="pr-card" key={p.name}>
-                <img className="pr-card-img" src={p.img} alt={p.name} />
-                <div className="pr-card-body">
-                  <div className="pr-card-head">
-                    <h3>{p.name}</h3>
-                    <span className="pr-place">
-                      <img src={mapPinIcon} alt="" width="12" height="12" />
-                      {p.place}
-                    </span>
-                  </div>
-                  <p className="pr-family">{p.family}</p>
-                  <hr className="pr-divider" />
-                  <div className="pr-rating-row">
-                    <span className="pr-stars" aria-hidden="true">
-                      ★★★★★
-                    </span>
-                    <span className="pr-score">{p.rating.toFixed(1)}</span>
-                    <span className="pr-reviews">{p.reviews} Reseñas</span>
-                  </div>
-                  <Link
-                    className="pr-btn"
-                    to={`/catalogo?productor=${encodeURIComponent(p.name)}`}
-                  >
-                    Ver perfil del Productor
-                  </Link>
-                </div>
-              </article>
-            ))}
-            {filtered.length === 0 && (
-              <p className="pr-empty">
-                No se encontraron productores con esos criterios.
-              </p>
-            )}
-          </div>
+          {loading ? (
+            <div className="hm-loading">Cargando productores...</div>
+          ) : (
+            <div className="pr-grid">
+              {filtered.map((p) => {
+                const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() || "Productor";
+                const rating = p.averageRating ?? 0;
+                return (
+                  <article className="pr-card" key={p.id ?? p.domainId}>
+                    <div
+                      className="pr-card-img"
+                      style={{
+                        background: "var(--card-bg, #1e1e1e)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "3.5rem",
+                        minHeight: 120,
+                      }}
+                    >
+                      👨‍🌾
+                    </div>
+                    <div className="pr-card-body">
+                      <div className="pr-card-head">
+                        <h3>{p.companyName || name}</h3>
+                        {p.location && (
+                          <span className="pr-place">
+                            <img src={mapPinIcon} alt="" width="12" height="12" />
+                            {p.location}
+                          </span>
+                        )}
+                      </div>
+                      {p.companyName && <p className="pr-family">{name}</p>}
+                      <hr className="pr-divider" />
+                      <div className="pr-rating-row">
+                        {rating > 0 ? (
+                          <>
+                            <span className="pr-stars" aria-hidden="true">★★★★★</span>
+                            <span className="pr-score">{rating.toFixed(1)}</span>
+                          </>
+                        ) : (
+                          <span style={{ color: "var(--text-dim)", fontSize: "0.85rem" }}>
+                            Sin calificaciones aún
+                          </span>
+                        )}
+                      </div>
+                      <Link
+                        className="pr-btn"
+                        to={`/catalogo?productor=${encodeURIComponent(name)}`}
+                      >
+                        Ver productos
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+              {filtered.length === 0 && !loading && (
+                <p className="pr-empty">
+                  {query
+                    ? "No se encontraron productores con esos criterios."
+                    : "Aún no hay productores registrados en la plataforma."}
+                </p>
+              )}
+            </div>
+          )}
         </section>
 
         {/* CTA para productores (frame: farmer-cta) */}

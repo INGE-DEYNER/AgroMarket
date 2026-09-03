@@ -6,23 +6,11 @@ package com.agromarket.domain.models.enums.payment;
  * @author AgroMarket Team
  */
 public enum PaymentMethod {
-    /**
-     * Pago con tarjeta de crédito.
-     */
     CREDIT_CARD,
-    
-    /**
-     * Pago con tarjeta de débito.
-     */
     DEBIT_CARD,
-    
-    /**
-     * Pago a través de PSE (Pagos Seguros en Línea, sistema colombiano).
-     */
     PSE,
-    
-    /**
-     * Pago en efectivo (contra reembolso o en persona).
-     */
-    CASH
+    CASH,
+    MERCADO_PAGO,
+    NEQUI,
+    DAVIPLATA
 }

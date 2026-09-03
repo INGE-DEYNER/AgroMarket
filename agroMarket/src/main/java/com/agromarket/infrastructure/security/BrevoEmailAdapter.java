@@ -274,6 +274,27 @@ public class BrevoEmailAdapter implements EmailPort {
             String subject,
             String html) {
 
+        send(email, subject, html, null, null);
+    }
+
+    @Override
+    public void sendInvoiceEmail(
+            String email,
+            String subject,
+            String htmlContent,
+            String attachmentName,
+            byte[] attachment) {
+
+        send(email, subject, htmlContent, attachmentName, attachment);
+    }
+
+    private void send(
+            String email,
+            String subject,
+            String html,
+            String attachmentName,
+            byte[] attachment) {
+
         if (properties == null) {
             throw new IllegalStateException(
                     "La configuración de Brevo no está disponible");
@@ -306,28 +327,46 @@ public class BrevoEmailAdapter implements EmailPort {
             senderName = "AgroMarket";
         }
 
-        Map<String, Object> body = Map.of(
-                "sender",
+        var bodyBuilder = new java.util.HashMap<String, Object>();
+
+        bodyBuilder.put("sender",
                 Map.of(
                         "name",
                         senderName,
                         "email",
-                        senderEmail),
-                "to",
+                        senderEmail));
+
+        bodyBuilder.put("to",
                 List.of(
                         Map.of(
                                 "email",
-                                email)),
-                "subject",
-                subject,
-                "htmlContent",
-                html);
+                                email)));
+
+        bodyBuilder.put("subject", subject);
+
+        bodyBuilder.put("htmlContent", html);
+
+        /*
+         * Adjunto REAL (API Brevo v3): el contenido va en Base64. Esto es lo
+         * que hace que la factura llegue de verdad al correo del comprador.
+         */
+        if (attachment != null && attachment.length > 0
+                && attachmentName != null && !attachmentName.isBlank()) {
+
+            bodyBuilder.put("attachment",
+                    List.of(
+                            Map.of(
+                                    "name", attachmentName,
+                                    "content",
+                                    java.util.Base64.getEncoder()
+                                            .encodeToString(attachment))));
+        }
 
         restClient.post()
                 .uri(BREVO_ENDPOINT)
                 .header("api-key", apiKey)
                 .header("Content-Type", "application/json")
-                .body(body)
+                .body(bodyBuilder)
                 .retrieve()
                 .toBodilessEntity();
     }

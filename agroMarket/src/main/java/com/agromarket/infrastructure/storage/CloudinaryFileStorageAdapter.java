@@ -34,6 +34,17 @@ public class CloudinaryFileStorageAdapter implements FileStoragePort {
             String fileName,
             String contentType) {
 
+        if (this.cloudinary == null || 
+            this.cloudinary.config.cloudName == null || 
+            this.cloudinary.config.cloudName.isBlank() ||
+            this.cloudinary.config.apiKey == null ||
+            this.cloudinary.config.apiKey.isBlank()) {
+            String base64 = java.util.Base64.getEncoder().encodeToString(content);
+            String mime = (contentType != null && !contentType.isBlank()) ? contentType : "image/png";
+            String dataUrl = "data:" + mime + ";base64," + base64;
+            return new FileUploadResult(dataUrl, "local_" + System.currentTimeMillis());
+        }
+
         try {
             Map<?, ?> result = cloudinary.uploader().upload(
                     content,

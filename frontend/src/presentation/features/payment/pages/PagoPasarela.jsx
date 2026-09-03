@@ -43,50 +43,108 @@ export default function PagoPasarela() {
 
   const confirmPayment = useCallback(async (reference) => {
     try {
-      const res = await api.get(`/payments?gatewayReference=${encodeURIComponent(reference)}`);
-      if (res.data?.[0]) {
-        const payment = res.data[0];
-        await api.patch(`/payments/${payment.id}/confirm`, { gatewayReference: reference });
-        setPaymentDetails(payment);
+      // El cliente "api" devuelve el body parseado directamente (no axios).
+      const res = await api.get(
+        `/pagos?gatewayReference=${encodeURIComponent(reference)}`,
+      );
+      const list = Array.isArray(res) ? res : res?.content || [];
+      const payment = list?.[0];
+      if (payment?.id) {
+        // Confirmación REAL: el backend consulta el pago en MercadoPago
+        // (GET /v1/payments/{id}) y solo confirma si está aprobado.
+        const confirmed = await api.patch(`/pagos/${payment.id}/confirm`);
+        const result = confirmed?.data || confirmed;
+        setPaymentDetails({
+          id: result?.id ?? payment.id,
+          amount: result?.amount ?? payment.amount,
+          paymentDate: result?.paymentDate ?? payment.paymentDate,
+          state: result?.state ?? payment.state,
+        });
+        if (result?.state === "CONFIRMED" || result?.state === "APPROVED") {
+          setPaymentStatus("APROBADO");
+        } else if (result?.state === "REJECTED") {
+          setPaymentStatus("RECHAZADO");
+        }
         clearCart();
       }
     } catch (err) {
       console.error("Error confirmando pago:", err);
+      setError(err.message);
     }
   }, [clearCart]);
 
   const handleMercadoPagoCallback = useCallback(async () => {
     setLoading(true);
     try {
-      const statusMap = { approved: "APROBADO", pending: "PENDIENTE", rejected: "RECHAZADO", cancelled: "CANCELADO" };
-      const status = statusMap[collectionStatus?.toLowerCase()] || "PENDIENTE";
-      setPaymentStatus(status);
-      if (collectionStatus?.toLowerCase() === "approved" && collectionId) await confirmPayment(collectionId);
+      const statusLower = (collectionStatus || "").toLowerCase();
+
+      // Si MercadoPago reporta rechazo/cancelación, mostrarlo directo.
+      if (statusLower === "rejected" || statusLower === "cancelled") {
+        setPaymentStatus(
+          statusLower === "rejected" ? "RECHAZADO" : "CANCELADO",
+        );
+        return;
+      }
+
+      // Para "approved" (o cualquier otro), verificar contra el backend.
+      // La referencia que guardó el pago local es el preference_id.
+      const reference = preferenceId || collectionId;
+      if (reference) {
+        await confirmPayment(reference);
+      }
+
+      // Si tras confirmar no quedó en un estado conocido, marcar pendiente.
+      setPaymentStatus((prev) => prev || "PENDIENTE");
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [collectionStatus, collectionId, confirmPayment]);
+  }, [collectionStatus, collectionId, preferenceId, confirmPayment]);
 
-  const initializeCheckout = useCallback(() => {
+  const initializeCheckout = useCallback(async () => {
+    if (!preferenceId) {
+      navigate("/dashboard-comprador");
+      return;
+    }
+
     try {
-      const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
-      if (!publicKey) throw new Error("Public Key de MercadoPago no configurada");
-      if (typeof globalThis.MercadoPago === "undefined") throw new Error("SDK de MercadoPago no cargado");
-      const mp = new globalThis.MercadoPago(publicKey, { locale: "es-CO", theme: darkMode ? "dark" : "light" });
-      mp.checkout({
-        preference: { id: preferenceId },
-        render: { container: "#mp-checkout" },
-        autoOpen: true,
-        onOpen: () => setLoading(false),
-        onClose: () => navigate("/dashboard-comprador?cancelled=1"),
+      setLoading(true);
+
+      // Buscar el pago local por la referencia (preference_id).
+      const res = await api.get(
+        `/pagos?gatewayReference=${encodeURIComponent(preferenceId)}`,
+      );
+      const list = Array.isArray(res) ? res : res?.content || [];
+      const payment = list?.[0];
+
+      if (!payment?.id) {
+        throw new Error("No se encontro el pago asociado a esta orden.");
+      }
+
+      // Iniciar el pago real en MercadoPago: el backend devuelve la URL
+      // del checkout (init_point) a la que hay que redirigir al usuario.
+      const initRes = await api.post(`/pagos/iniciar`, {
+        orderId: payment.orderId,
+        paymentMethod: "MERCADO_PAGO",
       });
+      const init = initRes?.data || initRes;
+
+      if (init?.checkoutUrl) {
+        // Redirigir a la pasarela REAL de MercadoPago.
+        window.location.href = init.checkoutUrl;
+        return;
+      }
+
+      throw new Error(
+        "MercadoPago no genero un enlace de pago valido. Verifica las credenciales.",
+      );
     } catch (err) {
+      console.error("Error inicializando checkout:", err);
       setError(err.message);
       setLoading(false);
     }
-  }, [darkMode, navigate, preferenceId]);
+  }, [preferenceId, navigate]);
 
   useEffect(() => {
     if (collectionStatus || collectionId) {

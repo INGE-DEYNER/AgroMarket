@@ -6,3 +6,17 @@ frontend/node_modules
 
 # Do not exclude target jar
 !agroMarket/target/*.jar
+
+# .dockerignore
+target/
+.git/
+.github/
+.idea/
+.vscode/
+*.iml
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db

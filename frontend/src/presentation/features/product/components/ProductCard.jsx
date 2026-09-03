@@ -151,8 +151,11 @@ const ProductCard = React.memo(
             className="catalog-card-rating"
             onClick={() => onViewDetails?.(p)}
           >
-            ★★★★★
-            <span>({p.calificacion || "4.8"})</span>
+            {p.calificacion ? (
+              <>★★★★★<span>({p.calificacion})</span></>
+            ) : (
+              <span style={{ color: "var(--text-dim)", fontSize: "0.8rem" }}>Sin reseñas aún</span>
+            )}
           </div>
           <div className="catalog-card-footer">
             <div

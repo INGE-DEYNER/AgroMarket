@@ -42,9 +42,19 @@ public class ProductDocument {
     private LocalDateTime createdAt;
     private Long version;
 
+    private Long parseIdSafe(String idStr) {
+        if (idStr == null) return null;
+        try {
+            return Long.valueOf(idStr);
+        } catch (NumberFormatException e) {
+            // Fallback for corrupted MongoDB ObjectIds created before the fix
+            return (long) idStr.hashCode();
+        }
+    }
+
     public Product toDomain() {
         User u = User.builder().id(producerId).firstName(producerName).companyName(producerCompanyName).build();
-        return Product.builder().id(id == null ? null : Long.valueOf(id)).name(name).description(description)
+        return Product.builder().id(parseIdSafe(id)).name(name).description(description)
                 .price(price).availableQuantity(availableQuantity).imageUrl(imageUrl)
                 .minimumWholesaleQuantity(minimumWholesaleQuantity).wholesalePrice(wholesalePrice).fruitType(fruitType)
                 .producer(u).onPromotion(onPromotion).promotionPrice(promotionPrice).promotionEndDate(promotionEndDate)

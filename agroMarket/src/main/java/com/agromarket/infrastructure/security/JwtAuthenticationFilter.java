@@ -179,6 +179,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 /*
+                 * Webhook de MercadoPago: público para cualquier método
+                 * (server-to-server, no lleva JWT).
+                 */
+                if (matches(path, "/api/v1/payments/webhook")
+                                || matches(path, "/api/v1/mercadopago/webhook")) {
+                        return true;
+                }
+
+                /*
                  * Catálogo y reseñas: sólo GET es público.
                  */
                 if (isRead

@@ -2364,3 +2364,98 @@ body[data-theme="dark"],
   --green: #52b86a;
   --green-dark: #7bcb8a;
 }
+
+/* ============================================================
+   UNIVERSAL RESPONSIVE STYLES (MOBILE, TABLET, DESKTOP)
+   ============================================================ */
+
+/* Prevent horizontal overflow globally without breaking vertical scroll */
+html, body {
+  max-width: 100%;
+  overflow-x: clip;
+  overflow-y: auto !important;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive tables wrapper */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-responsive,
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive Modals */
+.modal-content,
+.modal-dialog,
+.dialog-content {
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+}
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .container,
+  .main-container,
+  .page-container {
+    padding-inline: 20px;
+  }
+}
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  .container,
+  .main-container,
+  .page-container {
+    padding-inline: 16px;
+  }
+
+  .grid-2, .grid-3, .grid-4,
+  .dash-grid, .stats-grid,
+  .catalog-grid, .products-grid,
+  .form-grid-2, .form-row-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .flex-responsive {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS safari */
+  }
+}
+
+/* Small Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .container,
+  .main-container,
+  .page-container {
+    padding-inline: 12px;
+  }
+
+  .modal-content,
+  .modal-dialog {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  button, .btn {
+    min-height: 44px;
+  }
+}

@@ -18,11 +18,40 @@ public class ProductMongoAdapter implements ProductPort {
     private final ProductMongoRepository repository;
 
     public Product save(Product p) {
-        return repository.save(ProductDocument.fromDomain(p)).toDomain();
+        if (p.getId() == null) {
+            p.setId(System.currentTimeMillis());
+        }
+        String searchId = String.valueOf(p.getId());
+        Optional<ProductDocument> existingOpt = repository.findById(searchId);
+        if (existingOpt.isEmpty()) {
+            existingOpt = repository.findAll().stream()
+                    .filter(doc -> doc.getId() != null && (long) doc.getId().hashCode() == p.getId())
+                    .findFirst();
+        }
+        ProductDocument doc = ProductDocument.fromDomain(p);
+        if (existingOpt.isPresent()) {
+            doc.setId(existingOpt.get().getId());
+        }
+        return repository.save(doc).toDomain();
     }
 
     public Optional<Product> findById(Long id) {
-        return repository.findById(String.valueOf(id)).map(entity -> entity.toDomain());
+        if (id == null) return Optional.empty();
+        Optional<ProductDocument> found = repository.findById(String.valueOf(id));
+        if (found.isPresent()) {
+            return found.map(ProductDocument::toDomain);
+        }
+        return repository.findAll().stream()
+                .filter(doc -> {
+                    if (doc.getId() == null) return false;
+                    try {
+                        return Long.parseLong(doc.getId()) == id;
+                    } catch (NumberFormatException e) {
+                        return (long) doc.getId().hashCode() == id;
+                    }
+                })
+                .findFirst()
+                .map(ProductDocument::toDomain);
     }
 
     public List<Product> findAll() {
@@ -52,6 +81,15 @@ public class ProductMongoAdapter implements ProductPort {
     }
 
     public void delete(Product p) {
-        repository.deleteById(String.valueOf(p.getId()));
+        if (p == null || p.getId() == null) return;
+        String searchId = String.valueOf(p.getId());
+        if (repository.existsById(searchId)) {
+            repository.deleteById(searchId);
+        } else {
+            repository.findAll().stream()
+                    .filter(doc -> doc.getId() != null && (long) doc.getId().hashCode() == p.getId())
+                    .findFirst()
+                    .ifPresent(doc -> repository.deleteById(doc.getId()));
+        }
     }
 }

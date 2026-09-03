@@ -233,14 +233,40 @@ export default function Pedidos() {
               </button>
               <button
                 className="btn btn-primary"
-                onClick={() =>
-                  alert(
-                    t(
-                      "pedidos.invoiceSent",
-                      "Factura enviada al correo registrado exitosamente.",
-                    ),
-                  )
-                }
+                onClick={async () => {
+                  try {
+                    const pedidoId = facturaData?.id;
+                    if (!pedidoId) {
+                      alert("No se encontro el pedido.");
+                      return;
+                    }
+                    const invRes = await api.get(`/facturas/pedido/${pedidoId}`);
+                    // La API devuelve un objeto factura (o 404); normalizar.
+                    const data = invRes?.data || invRes;
+                    const factura = Array.isArray(data)
+                      ? data[0]
+                      : data?.id
+                        ? data
+                        : null;
+                    const facturaId = factura?.id;
+                    if (!facturaId) {
+                      alert(
+                        "No se encontro una factura emitida para este pedido. La factura se genera cuando el pago es confirmado por MercadoPago.",
+                      );
+                      return;
+                    }
+                    const res = await api.post(`/facturas/${facturaId}/enviar`);
+                    alert(
+                      `Factura enviada al correo ${res?.email || "registrado"} exitosamente.`,
+                    );
+                    closeFactura();
+                  } catch (err) {
+                    alert(
+                      "No se pudo enviar la factura: " +
+                        (err.message || "Intenta de nuevo."),
+                    );
+                  }
+                }}
               >
                 {t("pedidos.sendEmail", "Enviar por correo")}
               </button>

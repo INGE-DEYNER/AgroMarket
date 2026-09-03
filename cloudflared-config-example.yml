@@ -1,0 +1,28 @@
+# Configuración de Cloudflare Tunnel para AgroMarket
+# Este archivo define cómo cloudflared expone el backend local a Internet
+#
+# USO:
+# 1. Instala cloudflared: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/
+# 2. Autentica: cloudflared tunnel login
+# 3. Crea el tunnel: cloudflared tunnel create agromarket-backend
+# 4. Copia el ID del tunnel generado y reemplaza "TU_TUNNEL_ID_AQUI" abajo
+# 5. Ejecuta: cloudflared tunnel --config ~/.cloudflared/config.yml run agromarket-backend
+
+# ID del tunnel (lo obtienes al crear el tunnel con: cloudflared tunnel create agromarket-backend)
+tunnel: TU_TUNNEL_ID_AQUI
+
+# Credenciales del tunnel (se generan automáticamente al crear el tunnel)
+# Ruta al archivo JSON de credenciales (normalmente ~/.cloudflared/<TUNNEL_ID>.json)
+credentials-file: C:\Users\Deyner Chaverra\.cloudflared\TU_TUNNEL_ID_AQUI.json
+
+# Configuración de DNS - apunta api.agro-market.app al tunnel
+ingress:
+  # Backend API - dominio principal de la API
+  - hostname: api.agro-market.app
+    service: http://localhost:8080
+    originRequest:
+      noTLSVerify: true
+
+  # Catch-all: rechaza cualquier otro subdominio no configurado
+  - service: http_status:404
+

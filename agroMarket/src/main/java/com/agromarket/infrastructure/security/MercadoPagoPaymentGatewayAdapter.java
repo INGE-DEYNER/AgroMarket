@@ -1,6 +1,10 @@
 package com.agromarket.infrastructure.security;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,32 +17,66 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import com.agromarket.domain.models.payment.CardPaymentDetails;
+import com.agromarket.domain.models.payment.GatewayPaymentInfo;
 import com.agromarket.domain.models.payment.Payment;
 import com.agromarket.domain.models.payment.PaymentInitiationResult;
 import com.agromarket.domain.ports.out.payment.PaymentGatewayPort;
 
+/**
+ * Adaptador REAL de la pasarela MercadoPago contra la API pública
+ * (https://api.mercadopago.com):
+ *
+ * <ul>
+ *   <li>POST /checkout/preferences — preferencia de Checkout Pro (tarjetas,
+ *       PSE y todos los métodos disponibles en Colombia).</li>
+ *   <li>GET /v1/payments/{id} — consulta un pago real por su ID
+ *       (callback/webhook) para verificarlo antes de confirmar.</li>
+ *   <li>GET /v1/payments/search?external_reference=... — busca el pago de
+ *       MercadoPago asociado a un pago local.</li>
+ *   <li>POST /v1/payments — crea el pago con tarjeta a partir del token del
+ *       Card Payment Brick (server-side).</li>
+ * </ul>
+ *
+ * <p>
+ * Si no hay access token configurado (o MERCADOPAGO_USE_MOCK=true), opera en
+ * modo MOCK para desarrollo sin credenciales.
+ * </p>
+ */
 @Component
 public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
 
         private static final Logger logger = LoggerFactory.getLogger(MercadoPagoPaymentGatewayAdapter.class);
 
+        /** Prefijo de la external_reference que vincula pagos locales con MercadoPago. */
+        public static final String EXTERNAL_REFERENCE_PREFIX = GatewayPaymentInfo.EXTERNAL_REFERENCE_PREFIX;
+
         private final String baseUrl;
         private final String accessToken;
         private final RestTemplate restTemplate;
         private final boolean useMock;
+        private final String frontendUrl;
+        private final String webhookUrl;
 
         public MercadoPagoPaymentGatewayAdapter(
                         @Value("${app.mercadopago.base-url:https://api.mercadopago.com}") String baseUrl,
                         @Value("${app.mercadopago.access-token:}") String accessToken,
-                        @Value("${app.mercadopago.use-mock:false}") boolean useMock) {
+                        @Value("${app.mercadopago.use-mock:false}") boolean useMock,
+                        @Value("${app.frontend-url:http://localhost:5173}") String frontendUrl,
+                        @Value("${app.mercadopago.webhook-url:}") String webhookUrl) {
 
                 this.baseUrl = baseUrl;
                 this.accessToken = accessToken;
-                this.restTemplate = new RestTemplate();
+                this.frontendUrl = frontendUrl != null ? frontendUrl.replaceAll("/$", "") : "http://localhost:5173";
+                this.webhookUrl = webhookUrl != null && !webhookUrl.isBlank() ? webhookUrl : null;
+                this.restTemplate = buildRestTemplate();
                 this.useMock = useMock || accessToken == null || accessToken.isBlank();
 
                 if (this.useMock) {
@@ -46,6 +84,13 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                 } else {
                         logger.info("MercadoPago adapter configured with real API endpoint: {}", baseUrl);
                 }
+        }
+
+        private RestTemplate buildRestTemplate() {
+                SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+                factory.setConnectTimeout((int) Duration.ofSeconds(10).toMillis());
+                factory.setReadTimeout((int) Duration.ofSeconds(15).toMillis());
+                return new RestTemplate(factory);
         }
 
         @Override
@@ -66,8 +111,13 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
 
         private PaymentInitiationResult createMockInitiation(Payment payment) {
                 String reference = "MOCK-MP-" + UUID.randomUUID();
-                String checkoutUrl = baseUrl + "/checkout/mock/" + reference;
-                return new PaymentInitiationResult(checkoutUrl, reference);
+                Long paymentId = payment.getId();
+                // En modo mock el "checkout" apunta a la página de resultado del
+                // frontend para poder completar el flujo sin credenciales reales.
+                String checkoutUrl = paymentId != null
+                                ? frontendUrl + "/pago/exitoso?pagoId=" + paymentId
+                                : frontendUrl + "/pago/exitoso";
+                return new PaymentInitiationResult(checkoutUrl, reference, paymentId);
         }
 
         private PaymentInitiationResult createRealInitiation(Payment payment) {
@@ -77,43 +127,79 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
 
                         HttpHeaders headers = new HttpHeaders();
                         headers.set("Authorization", "Bearer " + accessToken);
-                        headers.set("Content-Type", "application/json");
+                        headers.setContentType(MediaType.APPLICATION_JSON);
 
                         HttpEntity<Map<String, Object>> request = new HttpEntity<>(preference, headers);
 
                         String url = baseUrl + "/checkout/preferences";
                         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                                         url, HttpMethod.POST, request,
-                                        (Class<Map<String, Object>>) (Class<?>) Map.class);
+                                        new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {});
 
                         Map<String, Object> responseBody = response.getBody();
-                        if (responseBody == null || !responseBody.containsKey("id")) {
+                        if (responseBody == null || responseBody.get("id") == null) {
                                 throw new IllegalStateException(
                                                 "Respuesta inválida de MercadoPago: " + responseBody);
                         }
 
-                        String preferenceId = (String) responseBody.get("id");
-                        String sandboxUrl = (String) responseBody.get("sandbox_init_point");
-                        String productionUrl = (String) responseBody.get("init_point");
+                        String preferenceId = String.valueOf(responseBody.get("id"));
+                        String initPoint = (String) responseBody.get("init_point");
+                        String sandboxInitPoint = (String) responseBody.get("sandbox_init_point");
 
-                        // Usar sandbox si estamos en desarrollo, producción si es el URL de producción
-                        String checkoutUrl = (baseUrl.contains("sandbox") || baseUrl.contains("localhost"))
-                                        ? sandboxUrl
-                                        : productionUrl;
+                        /*
+                         * Tokens APP_USR -> credenciales productivas -> init_point.
+                         * Tokens TEST-  -> credenciales de prueba  -> sandbox_init_point.
+                         */
+                        String checkoutUrl = accessToken.startsWith("TEST-")
+                                        ? sandboxInitPoint
+                                        : initPoint;
 
                         if (checkoutUrl == null || checkoutUrl.isBlank()) {
-                                checkoutUrl = baseUrl + "/checkout/preferences/" + preferenceId + "/sandbox";
+                                checkoutUrl = initPoint != null ? initPoint : sandboxInitPoint;
+                        }
+
+                        if (checkoutUrl == null || checkoutUrl.isBlank()) {
+                                throw new IllegalStateException(
+                                                "MercadoPago no devolvió URL de checkout para la preferencia "
+                                                                + preferenceId);
                         }
 
                         logger.info("MercadoPago preference created: {}", preferenceId);
 
-                        return new PaymentInitiationResult(checkoutUrl, preferenceId);
+                        return new PaymentInitiationResult(checkoutUrl, preferenceId, payment.getId());
 
+                } catch (HttpStatusCodeException e) {
+                        logger.error("Error HTTP {} al crear preferencia de MercadoPago: {}",
+                                        e.getStatusCode(), e.getResponseBodyAsString());
+                        throw new IllegalStateException(
+                                        describeGatewayError("crear la preferencia de pago", e), e);
                 } catch (Exception e) {
                         logger.error("Error al crear preferencia de MercadoPago: " + e.getMessage(), e);
                         throw new IllegalStateException(
                                         "Error al conectar con MercadoPago: " + e.getMessage(), e);
                 }
+        }
+
+        /**
+         * Traduce los errores HTTP de la API de MercadoPago a mensajes
+         * claros: un 401/403 significa credenciales inválidas o expiradas
+         * (MERCADOPAGO_ACCESS_TOKEN), NO un problema del comprador.
+         */
+        private static String describeGatewayError(String action, HttpStatusCodeException e) {
+
+                int status = e.getStatusCode().value();
+                String body = e.getResponseBodyAsString();
+
+                if (status == 401 || status == 403) {
+                        return "MercadoPago rechazó las credenciales del servidor (HTTP "
+                                        + status + ") al " + action + ". "
+                                        + "El MERCADOPAGO_ACCESS_TOKEN está inválido o expirado: "
+                                        + "genera unas nuevas en https://developers.mercadopago.com y "
+                                        + "actualiza el archivo .env del backend. Detalle: " + body;
+                }
+
+                return "Error HTTP " + status + " de MercadoPago al " + action
+                                + ": " + body;
         }
 
         private Map<String, Object> buildPreference(Payment payment) {
@@ -174,58 +260,31 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                         preference.put("payer", payer);
                 }
 
-                // Especificar método de pago preferido (PSE, tarjetas, etc.)
-                // Esto es opcional pero ayuda a MercadoPago a pre-seleccionar el método
-                if (payment.getPaymentMethod() != null) {
-                        String paymentType = mapPaymentMethodToMP(payment.getPaymentMethod());
-                        if (paymentType != null) {
-                                preference.put("payment_methods", Map.of(
-                                                "excluded_types", List.of(
-                                                                Map.of("id", paymentType))));
-                        }
-                }
-
-                // Back URLs (URLs de retorno)
+                // Back URLs (URLs de retorno al frontend después de pagar).
+                // Son rutas reales registradas en el router del frontend.
                 Map<String, String> backUrls = new HashMap<>();
-                backUrls.put("success", "http://localhost:5173/pago/exitoso?preference_id={preference_id}");
-                backUrls.put("failure", "http://localhost:5173/pago/fallido");
-                backUrls.put("pending", "http://localhost:5173/pago/pendiente");
+                backUrls.put("success", frontendUrl + "/pago/exitoso");
+                backUrls.put("failure", frontendUrl + "/pago/fallido");
+                backUrls.put("pending", frontendUrl + "/pago/pendiente");
                 preference.put("back_urls", backUrls);
 
-                // Auto-return para redirección automática
+                // Redirección automática al frontend cuando el pago es aprobado
                 preference.put("auto_return", "approved");
 
-                // Expiración de la preferencia (24 horas)
+                // Webhook server-to-server (solo si se configuró una URL pública)
+                if (webhookUrl != null) {
+                        preference.put("notification_url", webhookUrl);
+                }
+
+                // Expiración de la preferencia (24 horas, ISO-8601 con offset,
+                // formato exigido por MercadoPago)
                 preference.put("expires", true);
                 preference.put("expiration_date_to",
-                                java.time.Instant.now().plusSeconds(86400).toString());
-
-                // Configuración específica para Colombia (PSE y tarjetas locales)
-                preference.put("country", "CO");
-                preference.put("locale", "es-CO");
+                                OffsetDateTime.now(ZoneOffset.of("-05:00")).plusHours(24)
+                                                .format(DateTimeFormatter.ofPattern(
+                                                                "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")));
 
                 return preference;
-        }
-
-        /**
-         * Mapea el método de pago de AgroMarket al formato de MercadoPago
-         */
-        private String mapPaymentMethodToMP(com.agromarket.domain.models.enums.payment.PaymentMethod method) {
-                if (method == null)
-                        return null;
-
-                switch (method) {
-                        case CREDIT_CARD:
-                                return "credit_card";
-                        case DEBIT_CARD:
-                                return "debit_card";
-                        case PSE:
-                                return "bank_transfer";
-                        case CASH:
-                                return "cash";
-                        default:
-                                return null;
-                }
         }
 
         private String truncate(String text, int maxLength) {
@@ -235,87 +294,251 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                 return text.length() > maxLength ? text.substring(0, maxLength) : text;
         }
 
+        // ==================================================================
+        // VERIFICACIÓN DE PAGOS
+        // ==================================================================
+
         @Override
-        public boolean verifyTransaction(
-                        String gatewayReference) {
+        public boolean verifyTransaction(String gatewayReference) {
 
                 if (useMock) {
-                        return gatewayReference != null && gatewayReference.startsWith("MOCK-MP-");
+                        return gatewayReference != null && gatewayReference.startsWith("MOCK-");
                 }
 
-                return verifyRealTransaction(gatewayReference);
+                if (gatewayReference == null || gatewayReference.isBlank()) {
+                        return false;
+                }
+
+                /*
+                 * Un ID de pago de MercadoPago es numérico (viene del callback o
+                 * del webhook). En ese caso se consulta el pago directamente.
+                 */
+                GatewayPaymentInfo info = isNumeric(gatewayReference)
+                                ? fetchGatewayPayment(gatewayReference)
+                                : null;
+
+                boolean approved = info != null && info.isApproved();
+
+                if (approved) {
+                        logger.info("Transacción verificada exitosamente en MercadoPago: {} (status={})",
+                                        gatewayReference, info.getStatus());
+                } else {
+                        logger.warn("Transacción no aprobada en MercadoPago. Referencia={} status={}",
+                                        gatewayReference, info != null ? info.getStatus() : "desconocido");
+                }
+
+                return approved;
         }
 
-        private boolean verifyRealTransaction(String preferenceId) {
+        @Override
+        public GatewayPaymentInfo fetchGatewayPayment(String gatewayPaymentId) {
+
+                if (useMock) {
+                        return new GatewayPaymentInfo(
+                                        gatewayPaymentId, "approved", "mock",
+                                        null, BigDecimal.ZERO);
+                }
+
                 try {
                         HttpHeaders headers = new HttpHeaders();
                         headers.set("Authorization", "Bearer " + accessToken);
-                        headers.set("Content-Type", "application/json");
-
                         HttpEntity<String> request = new HttpEntity<>(headers);
 
-                        // Consultar el estado de la preferencia/pago
-                        String url = baseUrl + "/checkout/preferences/" + preferenceId;
+                        String url = baseUrl + "/v1/payments/" + gatewayPaymentId;
                         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                                         url, HttpMethod.GET, request,
-                                        (Class<Map<String, Object>>) (Class<?>) Map.class);
+                                        new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {});
 
-                        Map<String, Object> responseBody = response.getBody();
-                        if (responseBody == null) {
-                                logger.error("Respuesta nula de MercadoPago al verificar transacción: {}",
-                                                preferenceId);
-                                return false;
-                        }
+                        return toGatewayPaymentInfo(response.getBody());
 
-                        // Verificar si el pago fue completado
-                        String status = (String) responseBody.get("status");
-                        if ("approved".equals(status) || "paid".equals(status)) {
-                                logger.info("Transacción verificada exitosamente: {}", preferenceId);
-                                return true;
-                        }
-
-                        logger.warn("Transacción no completada. Estado: {}", status);
-                        return false;
-
+                } catch (HttpStatusCodeException e) {
+                        logger.error("Error HTTP {} consultando pago {}: {}",
+                                        e.getStatusCode(), gatewayPaymentId, e.getResponseBodyAsString());
+                        return null;
                 } catch (Exception e) {
-                        logger.error("Error al verificar transacción en MercadoPago: " + e.getMessage(), e);
-                        return false;
+                        logger.error("Error consultando pago en MercadoPago {}: {}",
+                                        gatewayPaymentId, e.getMessage(), e);
+                        return null;
                 }
         }
+
+        @Override
+        public GatewayPaymentInfo findLatestByExternalReference(String externalReference) {
+
+                if (useMock || externalReference == null || externalReference.isBlank()) {
+                        return null;
+                }
+
+                try {
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.set("Authorization", "Bearer " + accessToken);
+                        HttpEntity<String> request = new HttpEntity<>(headers);
+
+                        String url = baseUrl + "/v1/payments/search"
+                                        + "?external_reference=" + externalReference
+                                        + "&sort=date_created&criteria=desc";
+                        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                                        url, HttpMethod.GET, request,
+                                        new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {});
+
+                        Map<String, Object> body = response.getBody();
+                        if (body == null
+                                        || !(body.get("results") instanceof List<?> results)
+                                        || results.isEmpty()) {
+                                return null;
+                        }
+
+                        Object first = results.get(0);
+                        if (first instanceof Map<?, ?> firstMap) {
+                                @SuppressWarnings("unchecked")
+                                Map<String, Object> paymentMap = (Map<String, Object>) firstMap;
+                                return toGatewayPaymentInfo(paymentMap);
+                        }
+                        return null;
+
+                } catch (Exception e) {
+                        logger.error("Error buscando pagos por external_reference {}: {}",
+                                        externalReference, e.getMessage(), e);
+                        return null;
+                }
+        }
+
+        /**
+         * Convierte el JSON de un pago de MercadoPago (/v1/payments) a
+         * GatewayPaymentInfo.
+         */
+        private GatewayPaymentInfo toGatewayPaymentInfo(Map<String, Object> paymentMap) {
+                if (paymentMap == null) {
+                        return null;
+                }
+
+                String id = paymentMap.get("id") != null ? String.valueOf(paymentMap.get("id")) : null;
+                String status = paymentMap.get("status") != null ? String.valueOf(paymentMap.get("status")) : null;
+                String statusDetail = paymentMap.get("status_detail") != null
+                                ? String.valueOf(paymentMap.get("status_detail"))
+                                : null;
+
+                String externalReference = paymentMap.get("external_reference") != null
+                                ? String.valueOf(paymentMap.get("external_reference"))
+                                : null;
+
+                BigDecimal amount = BigDecimal.ZERO;
+                if (paymentMap.get("transaction_amount") instanceof Number amountNumber) {
+                        amount = BigDecimal.valueOf(amountNumber.doubleValue());
+                }
+
+                return new GatewayPaymentInfo(id, status, statusDetail, externalReference, amount);
+        }
+
+        // ==================================================================
+        // PAGO CON TARJETA (Card Payment Brick, server-side)
+        // ==================================================================
+
+        @Override
+        public GatewayPaymentInfo createCardPayment(Payment payment, CardPaymentDetails details) {
+
+                if (details == null || details.getToken() == null || details.getToken().isBlank()) {
+                        throw new IllegalArgumentException("El token de la tarjeta es obligatorio");
+                }
+
+                if (useMock) {
+                        String mockId = "MOCK-PAY-" + UUID.randomUUID();
+                        return new GatewayPaymentInfo(
+                                        mockId, "approved", "mock",
+                                        EXTERNAL_REFERENCE_PREFIX + (payment != null ? payment.getId() : null),
+                                        payment != null && payment.getAmount() != null
+                                                        ? payment.getAmount()
+                                                        : BigDecimal.ZERO);
+                }
+
+                try {
+                        Map<String, Object> body = new HashMap<>();
+                        body.put("transaction_amount",
+                                        payment.getAmount() != null ? payment.getAmount().doubleValue() : 0);
+                        body.put("token", details.getToken());
+                        body.put("description",
+                                        "Pedido AgroMarket #"
+                                                        + (payment.getOrder() != null ? payment.getOrder().getId() : ""));
+                        body.put("installments", details.getInstallments());
+                        if (details.getPaymentMethodId() != null && !details.getPaymentMethodId().isBlank()) {
+                                body.put("payment_method_id", details.getPaymentMethodId());
+                        }
+                        if (details.getIssuerId() != null && !details.getIssuerId().isBlank()) {
+                                body.put("issuer_id", details.getIssuerId());
+                        }
+
+                        Map<String, Object> payer = new HashMap<>();
+                        if (details.getPayerEmail() != null && !details.getPayerEmail().isBlank()) {
+                                payer.put("email", details.getPayerEmail());
+                        } else if (payment.getOrder() != null
+                                        && payment.getOrder().getBuyer() != null
+                                        && payment.getOrder().getBuyer().getEmail() != null) {
+                                payer.put("email", payment.getOrder().getBuyer().getEmail());
+                        }
+                        body.put("payer", payer);
+
+                        if (payment.getId() != null) {
+                                body.put("external_reference",
+                                                EXTERNAL_REFERENCE_PREFIX + payment.getId());
+                        }
+
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.set("Authorization", "Bearer " + accessToken);
+                        headers.setContentType(MediaType.APPLICATION_JSON);
+
+                        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+                        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                                        baseUrl + "/v1/payments", HttpMethod.POST, request,
+                                        new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {});
+
+                        GatewayPaymentInfo info = toGatewayPaymentInfo(response.getBody());
+                        logger.info("MercadoPago card payment created: id={} status={}",
+                                        info != null ? info.getGatewayPaymentId() : null,
+                                        info != null ? info.getStatus() : null);
+                        return info;
+
+                } catch (HttpStatusCodeException e) {
+                        logger.error("Error HTTP {} creando pago con tarjeta: {}",
+                                        e.getStatusCode(), e.getResponseBodyAsString());
+                        throw new IllegalStateException(
+                                        describeGatewayError("procesar el pago con tarjeta", e), e);
+                } catch (Exception e) {
+                        logger.error("Error creando pago con tarjeta en MercadoPago: " + e.getMessage(), e);
+                        throw new IllegalStateException(
+                                        "Error al conectar con MercadoPago: " + e.getMessage(), e);
+                }
+        }
+
+        // ==================================================================
+        // HELPERS
+        // ==================================================================
 
         @Override
         public BigDecimal getTransactionAmount(String gatewayReference) {
+
                 if (useMock) {
                         return BigDecimal.ZERO;
                 }
 
-                try {
-                        HttpHeaders headers = new HttpHeaders();
-                        headers.set("Authorization", "Bearer " + accessToken);
-
-                        HttpEntity<String> request = new HttpEntity<>(headers);
-
-                        String url = baseUrl + "/checkout/preferences/" + gatewayReference;
-                        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                                        url, HttpMethod.GET, request,
-                                        (Class<Map<String, Object>>) (Class<?>) Map.class);
-
-                        Map<String, Object> responseBody = response.getBody();
-                        if (responseBody == null) {
-                                return BigDecimal.ZERO;
-                        }
-
-                        // Obtener el monto total de la preferencia
-                        Object totalAmountObj = responseBody.get("total_amount");
-                        if (totalAmountObj instanceof Number) {
-                                Number totalAmount = (Number) totalAmountObj;
-                                return BigDecimal.valueOf(totalAmount.doubleValue());
-                        }
-
-                        return BigDecimal.ZERO;
-                } catch (Exception e) {
-                        logger.error("Error al obtener monto de transacción: " + e.getMessage(), e);
+                if (gatewayReference == null || gatewayReference.isBlank() || !isNumeric(gatewayReference)) {
                         return BigDecimal.ZERO;
                 }
+
+                GatewayPaymentInfo info = fetchGatewayPayment(gatewayReference);
+
+                return info != null && info.getAmount() != null ? info.getAmount() : BigDecimal.ZERO;
+        }
+
+        private boolean isNumeric(String value) {
+                if (value == null || value.isBlank()) {
+                        return false;
+                }
+                for (char c : value.toCharArray()) {
+                        if (!Character.isDigit(c)) {
+                                return false;
+                        }
+                }
+                return true;
         }
 }

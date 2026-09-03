@@ -239,11 +239,11 @@ export default function Footer() {
 
             <Link to="/ayuda">{t("home.footerUi.helpCenter")}</Link>
 
-            <Link to="/ayuda">{t("home.footerUi.shippingDelivery")}</Link>
+            <Link to="/ayuda#envios">{t("home.footerUi.shippingDelivery")}</Link>
 
-            <Link to="/ayuda">{t("home.footerUi.returns")}</Link>
+            <Link to="/ayuda#devoluciones">{t("home.footerUi.returns")}</Link>
 
-            <Link to="/ayuda">{t("home.footerUi.payments")}</Link>
+            <Link to="/ayuda#pagos">{t("home.footerUi.payments")}</Link>
 
             <button
               type="button"

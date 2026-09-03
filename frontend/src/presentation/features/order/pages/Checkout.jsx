@@ -39,7 +39,7 @@ export default function Checkout() {
   }, [user]);
 
   // Step 3 Payment State
-  const [metodoPago, setMetodoPago] = useState("PSE");
+  const [metodoPago, setMetodoPago] = useState("MERCADO_PAGO");
   const [pseForm, setPseForm] = useState({
     banco: "Bancolombia",
     tipoPersona: "NATURAL",
@@ -188,51 +188,88 @@ export default function Checkout() {
 
   const handlePayNow = async () => {
     setLoading(true);
-    // Simulate transaction delay
-    setTimeout(async () => {
-      try {
-        const localCheckoutId = `CHK-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
-        // Create order and initiate payment for each item in the cart
-        const completedOrders = [];
-        for (const item of cart) {
-          const orderRes = await api.post("/pedidos", {
-            productoId: item.id,
-            cantidad: item.qty,
-            checkoutId: localCheckoutId,
-          });
-          const order = orderRes.data || orderRes;
+    try {
+      const localCheckoutId = `CHK-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const completedOrders = [];
+      let gatewayRedirectUrl = null;
 
-          const initRes = await api.post("/pagos/iniciar", {
-            pedidoId: order.id,
-            metodoPago: metodoPago,
-          });
-          const init = initRes.data || initRes;
-
-          await api.post("/pagos/confirmar", {
-            pagoId: init.pagoId,
-            referencia: init.referencia,
-            estado: "APROBADO",
-          });
-          completedOrders.push(order.id);
-        }
-
-        const txnId = `TXN-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
-        setSuccessData({
-          txnId,
+      for (const item of cart) {
+        const orderRes = await api.post("/pedidos", {
+          productId: item.id,
+          productoId: item.id,
+          quantity: item.qty,
+          cantidad: item.qty,
+          buyerId: user?.id,
+          compradorId: user?.id,
+          shippingAddress: addressForm.direccionCompleta || user?.direccionCompleta || "Dirección de entrega",
+          direccionCompleta: addressForm.direccionCompleta || user?.direccionCompleta || "Dirección de entrega",
           checkoutId: localCheckoutId,
-          orders: completedOrders,
-          deliveryDate: getEstimatedDate(),
         });
-        clearCart();
-      } catch (err) {
-        alert(
-          "Hubo un error al procesar el pago: " +
-            (err.message || "Inténtelo de nuevo."),
-        );
-      } finally {
-        setLoading(false);
+        const order = orderRes.data || orderRes;
+
+        const initRes = await api.post("/pagos/iniciar", {
+          orderId: order.id,
+          pedidoId: order.id,
+          buyerId: user?.id,
+          compradorId: user?.id,
+          paymentMethod: metodoPago === "TARJETA" ? "CREDIT_CARD" : metodoPago,
+          metodoPago: metodoPago,
+        });
+        const init = initRes.data || initRes;
+
+        if (init?.checkoutUrl) {
+          gatewayRedirectUrl = init.checkoutUrl;
+        } else if (init?.reference) {
+          gatewayRedirectUrl = `/pago-pasarela?preference_id=${encodeURIComponent(init.reference)}`;
+        }
+        completedOrders.push(order.id);
       }
-    }, 3000);
+
+      clearCart();
+
+      // Redirigir al proceso de pago oficial en la pasarela de Mercado Pago
+      if (gatewayRedirectUrl) {
+        if (gatewayRedirectUrl.startsWith("http://") || gatewayRedirectUrl.startsWith("https://")) {
+          window.location.href = gatewayRedirectUrl;
+        } else {
+          navigate(gatewayRedirectUrl);
+        }
+        return;
+      }
+
+      const txnId = `TXN-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      setSuccessData({
+        txnId,
+        checkoutId: localCheckoutId,
+        orders: completedOrders,
+        deliveryDate: getEstimatedDate(),
+      });
+    } catch (err) {
+      let msg = err.message || "Inténtalo de nuevo.";
+
+      // Mensajes claros según el tipo de error real
+      if (err.status === 401) {
+        msg =
+          "Tu sesión expiró. Por favor inicia sesión nuevamente para continuar con el pago.";
+      } else if (
+        /credenciales|MERCADOPAGO_ACCESS_TOKEN|inválido o expirado|unauthorized_scopes|PolicyAgent/i.test(
+          msg,
+        )
+      ) {
+        msg =
+          "MercadoPago rechazó las credenciales del servidor. " +
+          "El administrador debe generar un nuevo Access Token en https://developers.mercadopago.com " +
+          "y actualizar el archivo .env del backend.";
+      }
+
+      alert("Hubo un error al iniciar el pago: " + msg);
+
+      if (err.status === 401) {
+        navigate("/login");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (successData) {
@@ -790,7 +827,7 @@ export default function Checkout() {
                     paddingBottom: "8px",
                   }}
                 >
-                  {["PSE", "TARJETA", "NEQUI", "DAVIPLATA"].map((method) => (
+                  {["MERCADO_PAGO", "PSE", "TARJETA", "NEQUI", "DAVIPLATA"].map((method) => (
                     <button
                       key={method}
                       onClick={() => {
@@ -798,25 +835,89 @@ export default function Checkout() {
                         setFormErrors({});
                       }}
                       style={{
-                        background: metodoPago === method ? "#d8f3dc" : "white",
-                        color: metodoPago === method ? "#1b4332" : "#718096",
+                        background: metodoPago === method ? (method === "MERCADO_PAGO" ? "#009ee3" : "#d8f3dc") : "white",
+                        color: metodoPago === method ? "#ffffff" : "#718096",
                         border:
                           metodoPago === method
-                            ? "2px solid #2d6a4f"
+                            ? (method === "MERCADO_PAGO" ? "2px solid #0072bb" : "2px solid #2d6a4f")
                             : "1px solid #e2e8f0",
                         padding: "12px 20px",
                         borderRadius: "10px",
                         fontWeight: "bold",
                         cursor: "pointer",
                         whiteSpace: "nowrap",
+                        boxShadow: metodoPago === method && method === "MERCADO_PAGO" ? "0 4px 12px rgba(0,158,227,0.3)" : "none",
                       }}
                     >
-                      {method}
+                      {method === "MERCADO_PAGO" ? "💳 Mercado Pago" : method}
                     </button>
                   ))}
                 </div>
 
                 <div style={{ marginBottom: "30px" }}>
+                  {/* Mercado Pago Fields */}
+                  {metodoPago === "MERCADO_PAGO" && (
+                    <div
+                      style={{
+                        background: "linear-gradient(135deg, #009ee3 0%, #0072bb 100%)",
+                        color: "#ffffff",
+                        borderRadius: "14px",
+                        padding: "24px",
+                        boxShadow: "0 8px 24px rgba(0,158,227,0.25)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "16px",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <span style={{ fontSize: "1.8rem" }}>💳</span>
+                          <div>
+                            <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: "800", color: "#ffffff" }}>
+                              Mercado Pago
+                            </h3>
+                            <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.85)" }}>
+                              Pasarela Oficial de Pago Recomendada
+                            </span>
+                          </div>
+                        </div>
+                        <span
+                          style={{
+                            background: "#00a650",
+                            color: "#ffffff",
+                            fontSize: "0.75rem",
+                            fontWeight: "800",
+                            padding: "4px 10px",
+                            borderRadius: "99px",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          ✓ Seguro SSL 256-bit
+                        </span>
+                      </div>
+
+                      <p style={{ fontSize: "0.9rem", lineHeight: 1.5, margin: 0, color: "rgba(255,255,255,0.95)" }}>
+                        Con <strong>Mercado Pago</strong> tu transacción está protegida al 100%. Podrás abonar con tus tarjetas de crédito o débito, PSE, Nequi o tu saldo disponible en Mercado Pago con garantía total de protección al comprador.
+                      </p>
+
+                      <div
+                        style={{
+                          background: "rgba(255,255,255,0.15)",
+                          backdropFilter: "blur(6px)",
+                          borderRadius: "10px",
+                          padding: "12px 16px",
+                          fontSize: "0.85rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        <span>🔒</span>
+                        <span>Tus datos financieros están encriptados y protegidos de extremo a extremo por Mercado Pago.</span>
+                      </div>
+                    </div>
+                  )}
                   {/* PSE Fields */}
                   {metodoPago === "PSE" && (
                     <div

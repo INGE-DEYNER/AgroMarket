@@ -114,6 +114,22 @@ public class SecurityConfig {
                                                                 "/api/divisas/**")
                                                 .permitAll()
 
+                                                // Listado público de productores (para la página /productores).
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/v1/users")
+                                                .permitAll()
+
+                                                /*
+                                                 * Webhook server-to-server de MercadoPago:
+                                                 * llega SIN JWT, es la forma en que la
+                                                 * pasarela confirma los cobros reales.
+                                                 */
+                                                .requestMatchers(
+                                                                "/api/v1/payments/webhook",
+                                                                "/api/v1/mercadopago/webhook")
+                                                .permitAll()
+
                                                 // Administración.
                                                 .requestMatchers(
                                                                 "/api/v1/admins/**")

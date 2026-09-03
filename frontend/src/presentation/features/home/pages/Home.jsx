@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import api from "@/infrastructure/http/api";
@@ -10,10 +10,6 @@ import catTuberculosImg from "@/assets/home/cat-tuberculos-raices.png";
 import catCacaoImg from "@/assets/home/cat-cacao-cafe.png";
 import catProcesadosImg from "@/assets/home/cat-procesados.png";
 import catFloresImg from "@/assets/home/cat-flores-plantas.png";
-import prodAguacateImg from "@/assets/home/prod-aguacate-hass.png";
-import prodPlatanoImg from "@/assets/home/prod-platano-harton.png";
-import prodCafeImg from "@/assets/home/prod-cafe-especial.png";
-import prodYucaImg from "@/assets/home/prod-yuca-uraba.png";
 import mapPinIcon from "@/assets/icon-map-pin.svg";
 import handHeartIcon from "@/assets/icon-hand-heart.svg";
 import "@/presentation/styles/public-views.css";
@@ -138,57 +134,6 @@ const CATEGORIES = [
   { name: "Flores y Plantas", img: catFloresImg, slug: "Flores y Plantas" },
 ];
 
-const PRODUCTS = [
-  {
-    id: "home-aguacate-hass",
-    nombre: "Aguacate Hass Premium",
-    name: "Aguacate Hass Premium",
-    producer: "Finca El Paraíso",
-    place: "Apartadó",
-    presentation: "Presentación: Kg",
-    rating: 5.0,
-    precio: 5800,
-    price: "$5.800 COP",
-    img: prodAguacateImg,
-  },
-  {
-    id: "home-platano-harton",
-    nombre: "Plátano Hartón Verde",
-    name: "Plátano Hartón Verde",
-    producer: "Productores de Turbo",
-    place: "Turbo",
-    presentation: "Presentación: Mano (5 und)",
-    rating: 5.0,
-    precio: 3500,
-    price: "$3.500 COP",
-    img: prodPlatanoImg,
-  },
-  {
-    id: "home-cafe-especial",
-    nombre: "Café Especial Orgánico",
-    name: "Café Especial Orgánico",
-    producer: "Cafeteros de Chigorodó",
-    place: "Chigorodó",
-    presentation: "Presentación: Bolsa 500g",
-    rating: 5.0,
-    precio: 18900,
-    price: "$18.900 COP",
-    img: prodCafeImg,
-  },
-  {
-    id: "home-yuca-uraba",
-    nombre: "Yuca Limpia de Urabá",
-    name: "Yuca Limpia de Urabá",
-    producer: "Asociación Campesina",
-    place: "Carepa",
-    presentation: "Presentación: Kg",
-    rating: 5.0,
-    precio: 2800,
-    price: "$2.800 COP",
-    img: prodYucaImg,
-  },
-];
-
 function extractArray(response) {
   const data = response?.data ?? response;
   if (Array.isArray(data)) return data;
@@ -198,8 +143,11 @@ function extractArray(response) {
 
 export default function Home() {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -219,6 +167,15 @@ export default function Home() {
       .finally(() => {
         if (active) setLoadingCategories(false);
       });
+
+    api
+      .get("/productos?page=0&size=4")
+      .then((res) => {
+        if (!active) return;
+        setFeaturedProducts(extractArray(res).slice(0, 4));
+      })
+      .catch((err) => console.error("No se pudieron cargar productos destacados:", err))
+      .finally(() => { if (active) setLoadingProducts(false); });
 
     return () => {
       active = false;
@@ -345,57 +302,82 @@ export default function Home() {
           <div className="hm-section-head">
             <div>
               <h2>Cosecha Fresca de la Semana</h2>
-              <p>Nuestros productos más populares de la subregión de Urabá</p>
+              <p>Los productos más recientes de nuestros productores</p>
             </div>
             <Link to="/catalogo">Ver catálogo completo →</Link>
           </div>
 
-          <div className="hm-product-grid">
-            {PRODUCTS.map((p) => (
-              <article className="hm-product-card" key={p.name}>
-                <img
-                  className="hm-product-img"
-                  src={p.img}
-                  alt={p.name}
-                  loading="lazy"
-                />
-                <div className="hm-product-body">
-                  <div className="hm-product-head">
-                    <span className="hm-product-producer">{p.producer}</span>
-                    <span className="hm-product-place">
-                      <img src={mapPinIcon} alt="" width="12" height="12" />
-                      {p.place}
-                    </span>
-                  </div>
-                  <h3>{p.name}</h3>
-                  <span className="hm-product-presentation">
-                    {p.presentation}
-                  </span>
-                  <div className="hm-product-rating">
-                    <span className="hm-stars" aria-hidden="true">
-                      ★★★★★
-                    </span>
-                    <span className="hm-score">({p.rating.toFixed(1)})</span>
-                  </div>
-                  <div className="hm-product-foot">
-                    <div>
-                      <strong className="hm-price">{p.price}</strong>
-                      <span className="hm-price-label">
-                        Precio sugerido COP
-                      </span>
+          {loadingProducts ? (
+            <div className="hm-loading">Cargando productos...</div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="hm-loading" style={{ color: "var(--text-dim)" }}>
+              Aún no hay productos registrados. <Link to="/catalogo">Explorar catálogo →</Link>
+            </div>
+          ) : (
+            <div className="hm-product-grid">
+              {featuredProducts.map((p) => {
+                const price = Number(p.price ?? p.precio ?? 0);
+                const formattedPrice = new Intl.NumberFormat("es-CO", {
+                  style: "currency", currency: "COP", maximumFractionDigits: 0,
+                }).format(price);
+                const producerName = p.producer?.name ?? "Productor ASAFRUT";
+                return (
+                  <article
+                    className="hm-product-card"
+                    key={p.id}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/producto/${p.id}`)}
+                  >
+                    {p.imageUrl ? (
+                      <img
+                        className="hm-product-img"
+                        src={p.imageUrl}
+                        alt={p.name}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div
+                        className="hm-product-img"
+                        style={{
+                          display: "flex", alignItems: "center",
+                          justifyContent: "center", fontSize: "4rem",
+                          background: "var(--card-bg, #1e1e1e)",
+                        }}
+                      >
+                        🌿
+                      </div>
+                    )}
+                    <div className="hm-product-body">
+                      <div className="hm-product-head">
+                        <span className="hm-product-producer">{producerName}</span>
+                      </div>
+                      <h3>{p.name}</h3>
+                      <span className="hm-product-presentation">Presentación: Kg</span>
+                      {p.averageRating > 0 && (
+                        <div className="hm-product-rating">
+                          <span className="hm-stars" aria-hidden="true">★★★★★</span>
+                          <span className="hm-score">({p.averageRating.toFixed(1)})</span>
+                        </div>
+                      )}
+                      <div className="hm-product-foot">
+                        <div>
+                          <strong className="hm-price">{formattedPrice}</strong>
+                          <span className="hm-price-label">Precio COP / kg</span>
+                        </div>
+                        <button
+                          className="hm-add-btn"
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); addToCart({ ...p, nombre: p.name, precio: price, imagenUrl: p.imageUrl }); }}
+                        >
+                          Agregar
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      className="hm-add-btn"
-                      type="button"
-                      onClick={() => addToCart(p)}
-                    >
-                      Agregar
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* Newsletter (frame: newsletter) */}

@@ -2,6 +2,7 @@
 package com.agromarket.application.adapters.api.controllers.payment;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import com.agromarket.application.adapters.api.response.payment.PaymentInitiatio
 import com.agromarket.application.adapters.api.response.payment.PaymentResponse;
 import com.agromarket.domain.exceptions.payment.PaymentNotFoundException;
 import com.agromarket.domain.ports.in.payment.PaymentPort;
+import com.agromarket.domain.ports.in.payment.PaymentResult;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -135,5 +137,91 @@ public class PaymentController {
         return ResponseEntity.ok(
                 PaymentResponse.fromResult(
                         paymentPort.cancelPayment(id)));
+    }
+
+    // =====================================================================
+    // WEBHOOK DE MERCADO PAGO (server-to-server, PÚBLICO)
+    // =====================================================================
+
+    /**
+     * POST /api/v1/payments/webhook
+     *
+     * Recibe las notificaciones reales de MercadoPago con el formato:
+     *
+     * <pre>
+     * { "type": "payment", "action": "payment.updated",
+     *   "data": { "id": "123456789" } }
+     * </pre>
+     *
+     * También acepta el formato antiguo por query string:
+     * ?topic=payment&amp;id=123456789 o ?data.id=123456789&amp;type=payment
+     *
+     * Consulta el pago REAL en MercadoPago (GET /v1/payments/{id}) y
+     * concilia el pago local por external_reference, confirmando el cobro y
+     * generando la factura cuando corresponde.
+     */
+    @PostMapping("/webhook")
+    public ResponseEntity<Map<String, Object>> webhookPost(
+            @RequestBody(required = false) Map<String, Object> body,
+            @RequestParam(required = false) String topic,
+            @RequestParam(name = "data.id", required = false) String dataIdParam,
+            @RequestParam(required = false) String id) {
+
+        return handleWebhook(body, topic, dataIdParam, id);
+    }
+
+    /** MercadoPago también notifica con GET en algunos flujos antiguos. */
+    @GetMapping("/webhook")
+    public ResponseEntity<Map<String, Object>> webhookGet(
+            @RequestBody(required = false) Map<String, Object> body,
+            @RequestParam(required = false) String topic,
+            @RequestParam(name = "data.id", required = false) String dataIdParam,
+            @RequestParam(required = false) String id) {
+
+        return handleWebhook(body, topic, dataIdParam, id);
+    }
+
+    private ResponseEntity<Map<String, Object>> handleWebhook(
+            Map<String, Object> body,
+            String topic,
+            String dataIdParam,
+            String id) {
+
+        String gatewayPaymentId = dataIdParam;
+
+        if ((gatewayPaymentId == null || gatewayPaymentId.isBlank())
+                && id != null && !id.isBlank()) {
+            gatewayPaymentId = id;
+        }
+
+        if ((gatewayPaymentId == null || gatewayPaymentId.isBlank())
+                && body != null && body.get("data") instanceof Map<?, ?> data) {
+
+            Object dataId = data.get("id");
+
+            if (dataId != null) {
+                gatewayPaymentId = String.valueOf(dataId);
+            }
+        }
+
+        // El "type"/"topic" relevante es "payment"; se ignora cualquier otro.
+        if (gatewayPaymentId == null || gatewayPaymentId.isBlank()) {
+            // 200 para que MercadoPago no reintente indefinidamente.
+            return ResponseEntity.ok(Map.of("received", true));
+        }
+
+        PaymentResult result = paymentPort.handleGatewayNotification(gatewayPaymentId);
+
+        if (result == null) {
+            return ResponseEntity.ok(Map.of(
+                    "received", true,
+                    "conciliated", false));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "received", true,
+                "conciliated", true,
+                "paymentId", result.getId(),
+                "state", String.valueOf(result.getState())));
     }
 }

@@ -114,11 +114,31 @@ export default function DashboardProductor() {
   const loadProductos = useCallback(async () => {
     try {
       const data = await api.get("/productos/mis-productos");
-      const items = extractArray(data).map((p) => ({
-        ...p,
-        tipo: p.tipo || p.tipoFruta || "Banano",
-        stock: p.stock !== undefined ? p.stock : p.cantidadDisponible,
-      }));
+      const ENUM_TO_TIPO = {
+        BANANA: "Banano",
+        PINEAPPLE: "Piña",
+        MANGO: "Mango",
+        PASSION_FRUIT: "Maracuyá",
+        SOURSOP: "Guanábana",
+        ORANGE: "Naranja",
+        COCONUT: "Coco",
+        LEMON: "Limón",
+      };
+      const items = extractArray(data).map((p) => {
+        const rawType = p.fruitType || p.tipoFruta || p.tipo || "";
+        const mappedType = ENUM_TO_TIPO[rawType] || rawType || "Banano";
+        return {
+          ...p,
+          nombre: p.name || p.nombre || "Producto sin nombre",
+          precio: Number(p.price ?? p.precio ?? 0),
+          stock: Number(p.availableQuantity ?? p.stock ?? p.cantidadDisponible ?? 0),
+          tipo: mappedType,
+          descripcion: p.description || p.descripcion || "",
+          imagenUrl: p.imageUrl || p.imagenUrl || "",
+          cantidadMinimaMayorista: p.minimumWholesaleQuantity ?? p.cantidadMinimaMayorista ?? "",
+          precioMayorista: p.wholesalePrice ?? p.precioMayorista ?? "",
+        };
+      });
       setProductos(items);
     } catch (err) {
       console.error("Error loadProductos:", err);
@@ -388,29 +408,40 @@ export default function DashboardProductor() {
     setSelectedImageFile(null);
     setImagePreviewUrl("");
     if (prod) {
+      const ENUM_TO_TIPO = {
+        BANANA: "Banano",
+        PINEAPPLE: "Piña",
+        MANGO: "Mango",
+        PASSION_FRUIT: "Maracuyá",
+        SOURSOP: "Guanábana",
+        ORANGE: "Naranja",
+        COCONUT: "Coco",
+        LEMON: "Limón",
+      };
+      const rawType = prod.fruitType || prod.tipoFruta || prod.tipo || "";
+      const mappedType = ENUM_TO_TIPO[rawType] || rawType || "Banano";
+      const img = prod.imageUrl || prod.imagenUrl || "";
       setEditId(prod.id);
       setForm({
-        nombre: prod.nombre,
-        tipo: prod.tipo || prod.tipoFruta || "Banano",
-        precio: prod.precio,
-        stock: prod.stock !== undefined ? prod.stock : prod.cantidadDisponible,
-        descripcion: prod.descripcion || "",
-        imagenUrl: prod.imagenUrl || "",
+        nombre: prod.name || prod.nombre || "",
+        tipo: mappedType,
+        precio: prod.price ?? prod.precio ?? "",
+        stock: prod.availableQuantity ?? prod.stock ?? prod.cantidadDisponible ?? "",
+        descripcion: prod.description || prod.descripcion || "",
+        imagenUrl: img,
         cantidadMinimaMayorista:
-          prod.cantidadMinimaMayorista !== undefined &&
-          prod.cantidadMinimaMayorista !== null
-            ? prod.cantidadMinimaMayorista
+          (prod.minimumWholesaleQuantity ?? prod.cantidadMinimaMayorista) != null
+            ? (prod.minimumWholesaleQuantity ?? prod.cantidadMinimaMayorista)
             : "",
         precioMayorista:
-          prod.precioMayorista !== undefined && prod.precioMayorista !== null
-            ? prod.precioMayorista
+          (prod.wholesalePrice ?? prod.precioMayorista) != null
+            ? (prod.wholesalePrice ?? prod.precioMayorista)
             : "",
       });
-      if (prod.imagenUrl) {
-        // Resolve absolute url for display if relative
-        const resolvedUrl = prod.imagenUrl.startsWith("http")
-          ? prod.imagenUrl
-          : `${API_BASE.replace("/api", "")}${prod.imagenUrl}`;
+      if (img) {
+        const resolvedUrl = img.startsWith("http")
+          ? img
+          : `${API_BASE.replace("/api", "")}${img}`;
         setImagePreviewUrl(resolvedUrl);
       }
     } else {
@@ -438,16 +469,16 @@ export default function DashboardProductor() {
   const guardarProducto = async () => {
     const mapTipoToEnum = (tipo) => {
       const mapping = {
-        Banano: "BANANO",
-        Piña: "PINA",
+        Banano: "BANANA",
+        Piña: "PINEAPPLE",
         Mango: "MANGO",
-        Maracuyá: "MARACUYA",
-        Guanábana: "GUANABANA",
-        Naranja: "NARANJA",
-        Coco: "COCO",
-        Limón: "LIMON",
+        "Maracuyá": "PASSION_FRUIT",
+        Guanábana: "SOURSOP",
+        Naranja: "ORANGE",
+        Coco: "COCONUT",
+        Limón: "LEMON",
       };
-      return mapping[tipo] || "BANANO";
+      return mapping[tipo] || "OTHER";
     };
 
     const payload = {
@@ -457,9 +488,8 @@ export default function DashboardProductor() {
       availableQuantity: Number(form.stock),
       description: form.descripcion,
       imageUrl: form.imagenUrl || "",
-      minimumWholesaleQuantity:
-        form.cantidadMinimaMayorista &&
-        !Number.isNaN(Number(form.cantidadMinimaMayorista))
+      minimumWholesaleQuantity:    
+        form.cantidadMinimaMayorista && !Number.isNaN(Number(form.cantidadMinimaMayorista))
           ? Number(form.cantidadMinimaMayorista)
           : null,
       wholesalePrice:
@@ -482,8 +512,19 @@ export default function DashboardProductor() {
       // Upload selected image file if present
       if (productId && selectedImageFile) {
         const formData = new FormData();
-        formData.append("imagen", selectedImageFile);
-        await api.post(`/productos/${productId}/imagen`, formData);
+        formData.append("file", selectedImageFile);
+        formData.append("ownerId", productId);
+        formData.append("type", "PRODUCT");
+        try {
+          const imageRes = await api.post(`/images`, formData);
+          if (imageRes && imageRes.url) {
+             const updatedPayload = { ...payload, imageUrl: imageRes.url };
+             await api.put(`/productos/${productId}`, updatedPayload);
+          }
+        } catch (imgErr) {
+          console.error("Error subiendo imagen:", imgErr);
+          alert("El producto se guardó, pero hubo un error al subir la imagen.");
+        }
       }
 
       closeProductoModal();

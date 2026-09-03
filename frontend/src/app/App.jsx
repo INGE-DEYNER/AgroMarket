@@ -17,6 +17,7 @@ import RecuperarContrasena from "@/presentation/features/auth/pages/RecuperarCon
 import RestablecerContrasena from "@/presentation/features/auth/pages/RestablecerContrasena";
 
 import Catalogo from "@/presentation/features/product/pages/Catalogo";
+import ProductoDetalle from "@/presentation/features/product/pages/ProductoDetalle";
 
 import ChatbotSoporte from "@/presentation/shared/components/ChatbotSoporte";
 import Footer from "@/presentation/shared/components/Footer";
@@ -155,6 +156,16 @@ function App() {
                       />
 
                       <Route
+                        path="/verify-email"
+                        element={<VerificarCorreo />}
+                      />
+
+                      <Route
+                        path="/verify-email/:token"
+                        element={<VerificarCorreo />}
+                      />
+
+                      <Route
                         path="/verificar/:token"
                         element={<VerificarCorreo />}
                       />
@@ -170,6 +181,8 @@ function App() {
                       />
 
                       <Route path="/catalogo" element={<Catalogo />} />
+
+                      <Route path="/producto/:id" element={<ProductoDetalle />} />
 
                       <Route path="/productores" element={<Productores />} />
 

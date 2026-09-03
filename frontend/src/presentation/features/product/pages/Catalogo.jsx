@@ -290,10 +290,12 @@ export default function Catalogo() {
                         ...p,
                         nombre: productName(p),
                         precio: productPrice(p),
-                        tipoFruta: productCategory(p),
-                        productorNombre: producerName(p),
+                        tipoFruta: p.fruitType ?? productCategory(p),
+                        productorNombre: p.producer?.name ?? producerName(p),
                         ubicacion: producerLocation(p),
-                        calificacion: p.calificacion || "4.8",
+                        imagenUrl: p.imageUrl || p.imagenUrl || null,
+                        stock: p.availableQuantity ?? p.stock ?? 0,
+                        calificacion: p.averageRating > 0 ? p.averageRating.toFixed(1) : null,
                       }}
                       t={t}
                       addedStates={{}}

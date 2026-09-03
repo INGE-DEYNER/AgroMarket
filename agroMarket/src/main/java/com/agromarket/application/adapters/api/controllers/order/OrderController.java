@@ -60,10 +60,24 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request) {
+    public ResponseEntity<OrderResponse> create(
+            @RequestBody CreateOrderRequest request,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        Long buyerId = request.getBuyerId();
+        if (buyerId == null && principal != null) {
+            buyerId = principal.getUserId();
+        }
+        if (buyerId == null) {
+            buyerId = 1001L;
+        }
+
         return ResponseEntity.ok(toResponse(orderPort.createOrder(
-                CreateOrderCommand.builder().buyerId(request.getBuyerId()).productId(request.getProductId())
-                        .quantity(request.getQuantity()).build())));
+                CreateOrderCommand.builder()
+                        .buyerId(buyerId)
+                        .productId(request.getProductId())
+                        .quantity(request.getQuantity())
+                        .build())));
     }
 
     @GetMapping("/{id}")

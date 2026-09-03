@@ -17,6 +17,6 @@ public class ProductPublicController {
 
     @GetMapping("/categorias")
     public List<String> getCategorias() {
-        return Arrays.asList("BANANO", "MANGO", "PINA", "MARACUYA", "GUANABANA", "NARANJA", "COCO", "LIMON", "OTRO");
+        return Arrays.asList("BANANA", "MANGO", "PINEAPPLE", "PASSION_FRUIT", "SOURSOP", "ORANGE", "COCONUT", "LEMON", "OTHER");
     }
 }

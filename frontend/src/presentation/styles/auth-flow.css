@@ -751,14 +751,23 @@ body[data-theme="dark"] .af-modal,
   gap: 10px;
   cursor: pointer;
   user-select: none;
+  margin: 6px 0;
 }
 
-.af-terms-row input {
-  position: absolute;
-  opacity: 0;
-  width: 1px;
-  height: 1px;
-  pointer-events: none;
+.af-terms-row input[type="checkbox"] {
+  position: static;
+  opacity: 1;
+  width: 18px;
+  height: 18px;
+  pointer-events: auto;
+  accent-color: var(--af-primary, #1a5c2a);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.af-checkbox-box {
+  display: none;
 }
 
 .af-terms-text {

@@ -709,11 +709,11 @@ export default function Registro() {
                   <span className="af-checkbox-box" aria-hidden="true" />
                   <span className="af-terms-text">
                     {t("auth.acceptPrefix", "Acepto los")}{" "}
-                    <Link to="/terminos-y-condiciones" target="_blank">
+                    <Link to="/terminos" target="_blank">
                       {t("auth.terms", "Términos y condiciones")}
                     </Link>{" "}
                     {t("auth.andThe", "y la")}{" "}
-                    <Link to="/politica-privacidad" target="_blank">
+                    <Link to="/privacidad" target="_blank">
                       {t("auth.privacy", "Política de privacidad")}
                     </Link>{" "}
                     {t("auth.ofAgromarket", "de AgroMarket.")}

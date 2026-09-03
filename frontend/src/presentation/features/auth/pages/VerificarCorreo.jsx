@@ -9,7 +9,9 @@ import "@/presentation/styles/auth-flow.css";
 
 export default function VerificarCorreo() {
   const location = useLocation();
-  const { token } = useParams();
+  const { token: paramsToken } = useParams();
+  const searchToken = new URLSearchParams(location.search).get("token");
+  const token = paramsToken || searchToken;
   const { t } = useTranslation();
 
   const [email, setEmail] = useState(location.state?.email || "");

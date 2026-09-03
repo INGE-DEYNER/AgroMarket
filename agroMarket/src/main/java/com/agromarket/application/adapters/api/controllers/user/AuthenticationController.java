@@ -26,6 +26,8 @@ import com.agromarket.domain.ports.in.user.LoginCommand;
 import com.agromarket.domain.ports.in.user.RegisterCommand;
 import com.agromarket.domain.ports.in.user.TwoFactorSetupResult;
 
+import com.agromarket.domain.ports.in.user.EmailVerificationPort;
+
 @RestController
 @RequestMapping({
         "/api/v1/auth",
@@ -34,9 +36,13 @@ import com.agromarket.domain.ports.in.user.TwoFactorSetupResult;
 public class AuthenticationController {
 
     private final AuthenticationPort authenticationPort;
+    private final EmailVerificationPort emailVerificationPort;
 
-    public AuthenticationController(AuthenticationPort authenticationPort) {
+    public AuthenticationController(
+            AuthenticationPort authenticationPort,
+            EmailVerificationPort emailVerificationPort) {
         this.authenticationPort = authenticationPort;
+        this.emailVerificationPort = emailVerificationPort;
     }
 
     // =========================================================
@@ -61,12 +67,53 @@ public class AuthenticationController {
     // VERIFICACIÓN DE CORREO
     // =========================================================
 
-    @PostMapping("/reenviar-verificacion")
-    public ResponseEntity<OperationResponse> reenviarVerificacion(
-            @Valid @RequestBody ResendVerificationRequest request) {
+    @PostMapping({
+            "/verificar",
+            "/verificar-correo",
+            "/verify",
+            "/verify-email"
+    })
+    public ResponseEntity<OperationResponse> verificarCorreo(
+            @RequestBody java.util.Map<String, Object> body) {
 
-        authenticationPort.reenviarVerificacion(
-                request.email());
+        String token = null;
+        if (body != null) {
+            if (body.get("token") != null) token = String.valueOf(body.get("token"));
+            else if (body.get("codigo") != null) token = String.valueOf(body.get("codigo"));
+            else if (body.get("code") != null) token = String.valueOf(body.get("code"));
+        }
+
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.badRequest().body(
+                    OperationResponse.error("Token de verificación no proporcionado"));
+        }
+
+        emailVerificationPort.verifyEmail(token.trim());
+
+        return ResponseEntity.ok(
+                OperationResponse.success(
+                        "Correo verificado correctamente"));
+    }
+
+    @PostMapping({
+            "/reenviar-verificacion",
+            "/reenviar-correo"
+    })
+    public ResponseEntity<OperationResponse> reenviarVerificacion(
+            @RequestBody java.util.Map<String, Object> body) {
+
+        String email = null;
+        if (body != null) {
+            if (body.get("email") != null) email = String.valueOf(body.get("email"));
+            else if (body.get("correo") != null) email = String.valueOf(body.get("correo"));
+        }
+
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(
+                    OperationResponse.error("Correo electrónico no proporcionado"));
+        }
+
+        emailVerificationPort.resendVerificationEmail(email.trim());
 
         return ResponseEntity.ok(
                 OperationResponse.success(

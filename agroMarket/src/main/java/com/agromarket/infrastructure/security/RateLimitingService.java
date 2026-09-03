@@ -17,7 +17,7 @@ public class RateLimitingService {
 
     public RateLimitingService() {
 
-        this.maxRequests = 100;
+        this.maxRequests = 10000;
 
         this.requests = Caffeine.newBuilder()
                 .maximumSize(100_000)

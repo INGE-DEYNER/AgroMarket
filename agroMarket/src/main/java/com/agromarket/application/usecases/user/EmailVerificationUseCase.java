@@ -36,13 +36,17 @@ public class EmailVerificationUseCase implements EmailVerificationPort {
 
     @Override
     public void verifyEmail(String token) {
-        User user = userPort.findByEmailVerificationToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Token de verificación inválido"));
-
-        if (!tokenValidationService.isEmailVerificationTokenValid(user, token)) {
-            throw new IllegalArgumentException("Token de verificación expirado o inválido");
+        if (token == null || token.isBlank()) {
+            throw new IllegalArgumentException("Token de verificación no proporcionado");
         }
 
+        java.util.Optional<User> userOpt = userPort.findByEmailVerificationToken(token);
+        if (userOpt.isEmpty()) {
+            // El token ya fue utilizado o es inválido, pero no lanzamos error fatal
+            return;
+        }
+
+        User user = userOpt.get();
         user.setEmailVerified(true);
         user.setEmailVerificationToken(null);
         user.setEmailTokenExpiry(null);

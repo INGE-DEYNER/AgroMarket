@@ -47,15 +47,15 @@ export default function Navbar() {
         const data = res.data || res;
         if (Array.isArray(data) && active) {
           const map = {
-            BANANO: "Banano",
+            BANANA: "Banano",
             MANGO: "Mango",
-            PINA: "Piña",
-            MARACUYA: "Maracuyá",
-            GUANABANA: "Guanábana",
-            NARANJA: "Naranja",
-            COCO: "Coco",
-            LIMON: "Limón",
-            OTRO: "Otro",
+            PINEAPPLE: "Piña",
+            PASSION_FRUIT: "Maracuyá",
+            SOURSOP: "Guanábana",
+            ORANGE: "Naranja",
+            COCONUT: "Coco",
+            LEMON: "Limón",
+            OTHER: "Otro",
           };
           const formatted = data.map(
             (c) =>
