@@ -7,6 +7,15 @@ compatibility_date = "2024-01-01"
 # Directorio de salida del build de Vite
 pages_build_output_dir = "dist"
 
+# FORZAR: instalar TODAS las dependencias (incluyendo devDependencies)
+# Cloudflare Pages ignora devDependencies por default con npm ci
+[build]
+command = "npm install --legacy-peer-deps && npx vite build"
+
+[build.upload]
+format = "directory"
+dir = "dist"
+
 # Variables de entorno para producción (valores no secretos)
 # Los secretos se configuran en el dashboard de Cloudflare Pages o con: wrangler pages secret put
 [vars]
