@@ -11,15 +11,14 @@ export default defineConfig({
   define: {
     "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production"),
   },
-  build: {
-    outDir: "dist",
-    emptyOutDir: true,
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
   build: {
+    outDir: "dist",
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -46,10 +45,7 @@ export default defineConfig({
   server: {
     host: true, // escucha en 0.0.0.0 (necesario en Docker/VMs/entornos remotos)
     port: 5173,
-    strictPort: true, // si el 5173 está ocupado, FALLA en vez de saltar a otro puerto
-    // en silencio (esto es lo que provoca los "net::ERR_CONNECTION_REFUSED" y
-    // los fallos de WebSocket HMR: el navegador sigue apuntando al 5173 pero
-    // Vite realmente levantó en el 5174).
+    strictPort: true,
     proxy: {
       "/api": { target: "http://localhost:8080", changeOrigin: true },
     },
