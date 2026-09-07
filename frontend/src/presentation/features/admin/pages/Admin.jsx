@@ -807,13 +807,31 @@ export default function Admin() {
                           : "—"}
                       </div>
                       <div className="admin-chart-placeholder">
-                        {[38, 52, 46, 61, 56, 72, 68, 84, 78, 91].map(
-                          (height, index) => (
-                            <span
-                              key={index}
-                              style={{ height: `${height}%` }}
-                            />
-                          ),
+                        {dashboardData?.ingresosPorMes && dashboardData.ingresosPorMes.length > 0 ? (
+                          // Usar datos reales de ingresos por mes
+                          dashboardData.ingresosPorMes.map((mes, index) => {
+                            const amount = Number(mes.monto) || 0;
+                            // Calcular porcentaje relativo (max 100%)
+                            const maxAmount = Math.max(...dashboardData.ingresosPorMes.map(m => Number(m.monto) || 0)) || 1;
+                            const percentage = Math.min((amount / maxAmount) * 100, 100);
+                            return (
+                              <span
+                                key={index}
+                                style={{ height: `${percentage}%` }}
+                                title={`${mes.mes}: ${formatPrice(amount)}`}
+                              />
+                            );
+                          })
+                        ) : (
+                          // Fallback a datos de ejemplo si no hay datos reales
+                          [38, 52, 46, 61, 56, 72, 68, 84, 78, 91].map(
+                            (height, index) => (
+                              <span
+                                key={index}
+                                style={{ height: `${height}%` }}
+                              />
+                            ),
+                          )
                         )}
                       </div>
                     </div>

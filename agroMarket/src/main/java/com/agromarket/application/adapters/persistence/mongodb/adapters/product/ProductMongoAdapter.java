@@ -96,4 +96,10 @@ public class ProductMongoAdapter implements ProductPort {
                     .ifPresent(doc -> repository.deleteById(doc.getId()));
         }
     }
+
+    @Override
+    public Optional<Product> findByNameAndProducerId(String name, Long producerId) {
+        return repository.findByNameAndProducerId(name, producerId)
+                .map(ProductDocument::toDomain);
+    }
 }

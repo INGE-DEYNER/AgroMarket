@@ -471,6 +471,7 @@
     "placeholderDesc": "Beschreiben Sie Qualität, Herkunft...",
     "cancel": "Abbrechen",
     "save": "Produkt speichern",
+    "saving": "Speichern...",
     "errorSave": "Fehler beim Speichern: "
   },
   "admin": {

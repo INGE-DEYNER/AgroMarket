@@ -27,6 +27,14 @@ public class ProductUseCase implements com.agromarket.domain.ports.in.product.Pr
   @Override
   public ProductResult createProduct(CreateProductCommand c) {
     User producer = producer(c.getProducerId());
+    
+    // Validar que no exista producto duplicado (mismo nombre y productor)
+    productRepository.findByNameAndProducerId(c.getName(), c.getProducerId())
+        .ifPresent(existing -> {
+          throw new IllegalArgumentException(
+              "Ya existe un producto con el nombre '" + c.getName() + "' para este productor");
+        });
+    
     Product p = Product.builder().name(c.getName()).description(c.getDescription()).price(c.getPrice())
         .availableQuantity(c.getAvailableQuantity())
         .imageUrl(c.getImageUrl()).minimumWholesaleQuantity(c.getMinimumWholesaleQuantity())

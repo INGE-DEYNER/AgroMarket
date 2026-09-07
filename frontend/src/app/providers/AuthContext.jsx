@@ -1,4 +1,5 @@
-﻿import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "@/infrastructure/http/api";
 import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
 import CompletarCuentaModal from "@/presentation/features/auth/components/CompletarCuentaModal";
@@ -96,6 +97,12 @@ function normalizeUser(userData) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showWarning, setShowWarning] = useState(false);
+  const navigate = useNavigate();
+  const timerRef = useRef(null);
+  const warningTimerRef = useRef(null);
+  const INACTIVITY_TIMEOUT = 60000; // 1 minuto en milisegundos
+  const WARNING_TIME = INACTIVITY_TIMEOUT - 5000; // 5 segundos antes
 
   const refetchUser = useCallback(async () => {
     try {
@@ -247,11 +254,73 @@ export function AuthProvider({ children }) {
       await api.post("/auth/logout");
     } catch (err) {
       console.error("Error cerrando sesión:", err);
+    } finally {
+      // Redirigir a home después de logout
+      navigate("/");
     }
   };
 
   const { divisaActual, cambiarDivisa, formatearPrecio } = useDivisa();
 
+  // Efecto para manejar expiración de sesión por inactividad
+  useEffect(() => {
+    // Función para resetear el temporizador
+    const resetTimer = () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      if (warningTimerRef.current) {
+        clearTimeout(warningTimerRef.current);
+      }
+      setShowWarning(false);
+
+      // Configurar temporizador de advertencia
+      warningTimerRef.current = setTimeout(() => {
+        setShowWarning(true);
+      }, WARNING_TIME);
+
+      // Configurar temporizador de expiración
+      timerRef.current = setTimeout(() => {
+        setShowWarning(false);
+        logout();
+      }, INACTIVITY_TIMEOUT);
+    };
+
+    // Función para manejar eventos de actividad
+    const handleActivity = () => {
+      if (user && !showWarning) {
+        resetTimer();
+      }
+    };
+
+    // Listeners de eventos de actividad
+    const events = ["mousemove", "keydown", "scroll", "click", "touchstart", "mousewheel"];
+    
+    if (user) {
+      // Añadir event listeners
+      events.forEach(event => {
+        window.addEventListener(event, handleActivity);
+      });
+
+      // Iniciar temporizador
+      resetTimer();
+    }
+
+    // Limpiar al desmontar o cuando el usuario cambia
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, handleActivity);
+      });
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      if (warningTimerRef.current) {
+        clearTimeout(warningTimerRef.current);
+      }
+    };
+  }, [user, showWarning, logout]);
+
+  // Efecto para la divisa preferida
   useEffect(() => {
     if (user && user.divisaPreferida) {
       if (divisaActual !== user.divisaPreferida) {
@@ -275,6 +344,54 @@ export function AuthProvider({ children }) {
     return <CompletarCuentaModal onComplete={handleCuentaCompletada} />;
   }
 
+  // Modal de advertencia de sesión a punto de expirar
+  const SessionWarningModal = () => (
+    <div className="modal-overlay open" style={{ zIndex: 9999 }}>
+      <div className="modal" style={{ maxWidth: "400px", textAlign: "center" }}>
+        <h3 style={{ color: "#dc2626", marginBottom: "16px" }}>⏰ Sesión a punto de expirar</h3>
+        <p style={{ marginBottom: "20px" }}>
+          Su sesión expirará en 5 segundos por inactividad.
+          <br />
+          ¿Desea mantener la sesión activa?
+        </p>
+        <button
+          id="keep-session"
+          className="btn btn-primary"
+          style={{ marginRight: "10px" }}
+          onClick={() => {
+            setShowWarning(false);
+            // Reiniciar el temporizador
+            if (timerRef.current) {
+              clearTimeout(timerRef.current);
+            }
+            if (warningTimerRef.current) {
+              clearTimeout(warningTimerRef.current);
+            }
+            // Configurar nuevos temporizadores
+            warningTimerRef.current = setTimeout(() => {
+              setShowWarning(true);
+            }, WARNING_TIME);
+            timerRef.current = setTimeout(() => {
+              setShowWarning(false);
+              logout();
+            }, INACTIVITY_TIMEOUT);
+          }}
+        >
+          Sí, mantener sesión
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => {
+            setShowWarning(false);
+            logout();
+          }}
+        >
+          No, cerrar sesión
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -290,6 +407,7 @@ export function AuthProvider({ children }) {
       }}
     >
       {children}
+      {showWarning && <SessionWarningModal />}
     </AuthContext.Provider>
   );
 }

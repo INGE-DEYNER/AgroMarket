@@ -547,6 +547,7 @@
     "placeholderDesc": "Describe quality, origin...",
     "cancel": "Cancel",
     "save": "Save product",
+    "saving": "Saving...",
     "errorSave": "Error saving: "
   },
   "admin": {

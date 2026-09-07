@@ -1,6 +1,7 @@
 package com.agromarket.domain.ports.in.product;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductPort {
     ProductResult createProduct(CreateProductCommand command);
@@ -22,4 +23,6 @@ public interface ProductPort {
     List<ProductResult> getProductsOnPromotion();
 
     ProductResult updateProductStock(Long productId, UpdateProductStockCommand command);
+
+    Optional<Product> findByNameAndProducerId(String name, Long producerId);
 }

@@ -471,6 +471,7 @@
     "placeholderDesc": "Décrivez la qualité, l'origine...",
     "cancel": "Annuler",
     "save": "Enregistrer le produit",
+    "saving": "Enregistrement...",
     "errorSave": "Erreur lors de l'enregistrement: "
   },
   "admin": {

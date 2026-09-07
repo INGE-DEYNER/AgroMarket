@@ -1,6 +1,7 @@
 package com.agromarket.application.adapters.persistence.mongodb.repositories.product;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -19,4 +20,7 @@ public interface ProductMongoRepository extends MongoRepository<ProductDocument,
 
     @Query("{'$or':[{'name':{'$regex':?0,'$options':'i'}},{'description':{'$regex':?0,'$options':'i'}}]}")
     List<ProductDocument> searchByNameOrDescription(String query);
+
+    @Query("{'name': ?0, 'producerId': ?1}")
+    Optional<ProductDocument> findByNameAndProducerId(String name, Long producerId);
 }

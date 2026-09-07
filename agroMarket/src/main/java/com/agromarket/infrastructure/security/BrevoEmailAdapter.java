@@ -3,6 +3,7 @@ package com.agromarket.infrastructure.security;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -16,13 +17,16 @@ public class BrevoEmailAdapter implements EmailPort {
 
     private final RestClient restClient;
     private final BrevoProperties properties;
+    private final String frontendUrl;
 
     public BrevoEmailAdapter(
             RestClient.Builder restClientBuilder,
-            BrevoProperties properties) {
+            BrevoProperties properties,
+            @Value("${app.frontend-url:http://localhost:5173}") String frontendUrl) {
 
         this.restClient = restClientBuilder.build();
         this.properties = properties;
+        this.frontendUrl = frontendUrl.replaceAll("/+$", "");
     }
 
     @Override
@@ -391,17 +395,12 @@ public class BrevoEmailAdapter implements EmailPort {
             String token) {
 
         /*
-         * La URL del frontend viene de brevo.frontend-url
-         * (FRONTEND_URL en el .env). En producción apunta a
-         * https://www.agro-market.app; el fallback localhost solo
-         * aplica en desarrollo sin configuración.
+         * La URL del frontend viene de app.frontend-url (centralizado)
+         * que usa la variable de entorno FRONTEND_URL.
+         * En producción debe apuntar a https://www.agro-market.app
+         * o la URL pública del frontend.
+         * Fallback a localhost solo aplica en desarrollo sin configuración.
          */
-        String frontendUrl = (properties == null
-                || properties.getFrontendUrl() == null
-                || properties.getFrontendUrl().isBlank())
-                        ? "http://localhost:5173"
-                        : properties.getFrontendUrl().replaceAll("/+$", "");
-
         return frontendUrl + "/verify-email?token="
                 + token;
     }

@@ -66,6 +66,7 @@ export default function DashboardProductor() {
   });
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // RFQ (Licitaciones) states
   const [activeRfqs, setActiveRfqs] = useState([]);
@@ -467,38 +468,43 @@ export default function DashboardProductor() {
   };
 
   const guardarProducto = async () => {
-    const mapTipoToEnum = (tipo) => {
-      const mapping = {
-        Banano: "BANANA",
-        Piña: "PINEAPPLE",
-        Mango: "MANGO",
-        "Maracuyá": "PASSION_FRUIT",
-        Guanábana: "SOURSOP",
-        Naranja: "ORANGE",
-        Coco: "COCONUT",
-        Limón: "LEMON",
-      };
-      return mapping[tipo] || "OTHER";
-    };
-
-    const payload = {
-      name: form.nombre,
-      fruitType: mapTipoToEnum(form.tipo),
-      price: Number(form.precio),
-      availableQuantity: Number(form.stock),
-      description: form.descripcion,
-      imageUrl: form.imagenUrl || "",
-      minimumWholesaleQuantity:    
-        form.cantidadMinimaMayorista && !Number.isNaN(Number(form.cantidadMinimaMayorista))
-          ? Number(form.cantidadMinimaMayorista)
-          : null,
-      wholesalePrice:
-        form.precioMayorista && !Number.isNaN(Number(form.precioMayorista))
-          ? Number(form.precioMayorista)
-          : null,
-    };
-
+    // Prevenir múltiples envíos
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
     try {
+      const mapTipoToEnum = (tipo) => {
+        const mapping = {
+          Banano: "BANANA",
+          Piña: "PINEAPPLE",
+          Mango: "MANGO",
+          "Maracuyá": "PASSION_FRUIT",
+          Guanábana: "SOURSOP",
+          Naranja: "ORANGE",
+          Coco: "COCONUT",
+          Limón: "LEMON",
+        };
+        return mapping[tipo] || "OTHER";
+      };
+
+      const payload = {
+        name: form.nombre,
+        fruitType: mapTipoToEnum(form.tipo),
+        price: Number(form.precio),
+        availableQuantity: Number(form.stock),
+        description: form.descripcion,
+        imageUrl: form.imagenUrl || "",
+        minimumWholesaleQuantity:    
+          form.cantidadMinimaMayorista && !Number.isNaN(Number(form.cantidadMinimaMayorista))
+            ? Number(form.cantidadMinimaMayorista)
+            : null,
+        wholesalePrice:
+          form.precioMayorista && !Number.isNaN(Number(form.precioMayorista))
+            ? Number(form.precioMayorista)
+            : null,
+      };
+
       let res;
       if (editId) {
         res = await api.put(`/productos/${editId}`, payload);
@@ -534,6 +540,8 @@ export default function DashboardProductor() {
         t("dashboardProductor.errorSave", "Error al guardar: ") +
           (err.message || "Inténtalo de nuevo."),
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -2632,8 +2640,15 @@ export default function DashboardProductor() {
                 className="btn btn-primary"
                 style={{ flex: 2 }}
                 onClick={guardarProducto}
+                disabled={isSubmitting}
               >
-                {t("dashboardProductor.save", "Guardar producto")}
+                {isSubmitting ? (
+                  <span className="loading-spinner">
+                    {t("dashboardProductor.saving", "Guardando...")}
+                  </span>
+                ) : (
+                  t("dashboardProductor.save", "Guardar producto")
+                )}
               </button>
             </div>
           </div>

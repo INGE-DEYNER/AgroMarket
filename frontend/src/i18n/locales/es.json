@@ -547,6 +547,7 @@
     "placeholderDesc": "Describe la calidad, procedencia...",
     "cancel": "Cancelar",
     "save": "Guardar producto",
+    "saving": "Guardando...",
     "errorSave": "Error al guardar: "
   },
   "admin": {

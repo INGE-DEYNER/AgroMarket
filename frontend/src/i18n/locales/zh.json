@@ -471,6 +471,7 @@
     "placeholderDesc": "描述产品质量、产地...",
     "cancel": "取消",
     "save": "保存产品",
+    "saving": "正在保存...",
     "errorSave": "保存失败: "
   },
   "admin": {
