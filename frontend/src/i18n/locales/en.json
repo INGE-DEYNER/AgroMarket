@@ -1,4 +1,59 @@
 {
+  "home": {
+    "hero": {
+      "badge": "🌽 DIRECT FROM THE PRODUCER TO YOUR HOME",
+      "title": "From the fields of Urabá and all of Colombia to your table",
+      "description": "Support the Colombian countryside by buying fruits, vegetables, tubers, and coffee cultivated with passion by local producers. Fast and guaranteed delivery.",
+      "buyNow": "Shop now",
+      "howItWorks": "How it works"
+    },
+    "trust": {
+      "secureTitle": "100% Secure Shopping",
+      "secureText": "Protected transactions",
+      "expressTitle": "Express Shipping",
+      "expressText": "Direct to your door",
+      "freshTitle": "Guaranteed Freshness",
+      "freshText": "Harvested today",
+      "localTitle": "Direct Local Support",
+      "localText": "No harmful middlemen",
+      "supportTitle": "Friendly Support",
+      "supportText": "24/7 WhatsApp assistance"
+    },
+    "categories": {
+      "fruits": "Fruits & Vegetables",
+      "bananas": "Plantains & Bananas",
+      "roots": "Tubers & Roots",
+      "coffee": "Cocoa & Coffee",
+      "processed": "Processed Products",
+      "flowers": "Flowers & Plants",
+      "title": "Featured Categories",
+      "subtitle": "Explore the freshest treasures of our Colombian land",
+      "viewAll": "View all categories →",
+      "loading": "Loading categories..."
+    },
+    "farmers": {
+      "title": "Real support for our Colombian farmers",
+      "description": "100% of your purchase goes directly to the farmers' association. Fair and transparent payments.",
+      "button": "Meet the Producers"
+    },
+    "products": {
+      "title": "Fresh Harvest of the Week",
+      "subtitle": "The latest products from our producers",
+      "viewAll": "View full catalog →",
+      "loading": "Loading products...",
+      "empty": "No products registered yet.",
+      "explore": "Explore catalog →",
+      "presentation": "Presentation: Kg",
+      "priceLabel": "Price COP / kg",
+      "add": "Add to cart"
+    },
+    "newsletter": {
+      "title": "Subscribe to our weekly harvest",
+      "description": "Receive exclusive offers, news, and recipes directly from Colombian farmers.",
+      "placeholder": "Your email address",
+      "button": "Subscribe"
+    }
+  },
   "nav": {
     "home": "Home",
     "catalog": "Catalog",

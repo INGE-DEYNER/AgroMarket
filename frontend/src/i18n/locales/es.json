@@ -1,4 +1,59 @@
 {
+  "home": {
+    "hero": {
+      "badge": "🌽 DIRECTO DEL PRODUCTOR A TU CASA",
+      "title": "Del campo de Urabá y de toda Colombia a tu mesa",
+      "description": "Apoya al campo colombiano comprando frutas, verduras, tubérculos y café cultivados con pasión por productores locales. Entrega rápida y garantizada.",
+      "buyNow": "Comprar ahora",
+      "howItWorks": "Cómo funciona"
+    },
+    "trust": {
+      "secureTitle": "Compra 100% Segura",
+      "secureText": "Transacciones protegidas",
+      "expressTitle": "Envíos Express",
+      "expressText": "Directo a tu domicilio",
+      "freshTitle": "Frescura Garantizada",
+      "freshText": "Cosechados en el día",
+      "localTitle": "Apoyo Directo Local",
+      "localText": "Sin intermediarios dañinos",
+      "supportTitle": "Soporte Amigable",
+      "supportText": "Atención WhatsApp 24/7"
+    },
+    "categories": {
+      "fruits": "Frutas y Verduras",
+      "bananas": "Plátanos y Banano",
+      "roots": "Tubérculos y Raíces",
+      "coffee": "Cacao y Café",
+      "processed": "Productos Procesados",
+      "flowers": "Flores y Plantas",
+      "title": "Categorías Destacadas",
+      "subtitle": "Explora los tesoros más frescos de nuestra tierra colombiana",
+      "viewAll": "Ver todas las categorías →",
+      "loading": "Cargando categorías..."
+    },
+    "farmers": {
+      "title": "Apoyo real a nuestros campesinos colombianos",
+      "description": "El 100% de tu compra va directamente a la asociación de campesinos. Pagos justos y transparentes.",
+      "button": "Conoce a los Productores"
+    },
+    "products": {
+      "title": "Cosecha Fresca de la Semana",
+      "subtitle": "Los productos más recientes de nuestros productores",
+      "viewAll": "Ver catálogo completo →",
+      "loading": "Cargando productos...",
+      "empty": "Aún no hay productos registrados.",
+      "explore": "Explorar catálogo →",
+      "presentation": "Presentación: Kg",
+      "priceLabel": "Precio COP / kg",
+      "add": "Agregar"
+    },
+    "newsletter": {
+      "title": "Suscríbete a nuestra cosecha semanal",
+      "description": "Recibe ofertas exclusivas, novedades y recetas directo de los campesinos colombianos.",
+      "placeholder": "Tu correo electrónico",
+      "button": "Suscribirse"
+    }
+  },
   "nav": {
     "home": "Inicio",
     "catalog": "Catálogo",

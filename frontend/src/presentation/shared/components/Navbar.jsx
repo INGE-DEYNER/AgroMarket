@@ -47,15 +47,15 @@ export default function Navbar() {
         const data = res.data || res;
         if (Array.isArray(data) && active) {
           const map = {
-            BANANA: "Banano",
-            MANGO: "Mango",
-            PINEAPPLE: "Piña",
-            PASSION_FRUIT: "Maracuyá",
-            SOURSOP: "Guanábana",
-            ORANGE: "Naranja",
-            COCONUT: "Coco",
-            LEMON: "Limón",
-            OTHER: "Otro",
+            BANANA: t("nav.categories.bananas", "Banano"),
+            MANGO: t("nav.categories.mango", "Mango"),
+            PINEAPPLE: t("nav.categories.pineapple", "Piña"),
+            PASSION_FRUIT: t("nav.categories.passionFruit", "Maracuyá"),
+            SOURSOP: t("nav.categories.soursop", "Guanábana"),
+            ORANGE: t("nav.categories.orange", "Naranja"),
+            COCONUT: t("nav.categories.coconut", "Coco"),
+            LEMON: t("nav.categories.lemon", "Limón"),
+            OTHER: t("nav.categories.other", "Otro"),
           };
           const formatted = data.map(
             (c) =>
@@ -212,7 +212,7 @@ export default function Navbar() {
               user?.direccion ||
               user?.ubicacion ||
               user?.ciudad
-                ? "Enviar a"
+                ? t("nav.sendTo", "Enviar a")
                 : t("nav.configurarDireccion", "Configura tu dirección")}
             </small>
             <strong>

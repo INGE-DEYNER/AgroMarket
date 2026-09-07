@@ -205,12 +205,9 @@ export default function Footer() {
             <h4 id="footer-buy">{t("home.footerUi.buy")}</h4>
 
             <Link to="/catalogo">{t("home.footerUi.catalogProducts")}</Link>
-
-            <Link to="/catalogo?ofertas=true">Ofertas</Link>
-
-            <Link to="/productores">Productores</Link>
-
-            <Link to="/como-funciona">Cómo funciona</Link>
+            <Link to="/catalogo?ofertas=true">{t("home.footerUi.offers", "Ofertas")}</Link>
+            <Link to="/productores">{t("home.footerUi.producers", "Productores")}</Link>
+            <Link to="/como-funciona">{t("home.footerUi.howItWorks", "Cómo funciona")}</Link>
           </nav>
 
           {/* INSTITUCIONAL */}
@@ -223,8 +220,7 @@ export default function Footer() {
             </h4>
 
             <Link to="/sobre-asafrut">{t("home.footerUi.about")}</Link>
-
-            <Link to="/como-funciona">Cómo funciona</Link>
+            <Link to="/como-funciona">{t("home.footerUi.howItWorks", "Cómo funciona")}</Link>
 
             <Link to="/terminos">{t("home.footerUi.terms")}</Link>
 
