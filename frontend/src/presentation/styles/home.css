@@ -240,7 +240,8 @@ ul {
   margin: 0 auto;
 }
 .hero-left {
-  flex: 0 0 55%;
+  flex: 1 1 0;
+  min-width: 0;
 }
 .hero-badge {
   display: inline-flex;
@@ -330,7 +331,8 @@ ul {
 }
 
 .hero-right {
-  flex: 0 0 45%;
+  flex: 1 1 0;
+  min-width: 0;
   position: relative;
 }
 .hero-img-wrap {
@@ -759,7 +761,8 @@ ul {
   margin: 0 auto;
 }
 .fp-left {
-  flex: 0 0 50%;
+  flex: 1 1 0;
+  min-width: 0;
 }
 .fp-badge {
   display: inline-block;
@@ -804,7 +807,8 @@ ul {
   flex-shrink: 0;
 }
 .fp-right {
-  flex: 0 0 calc(50% - 60px);
+  flex: 1 1 0;
+  min-width: 0;
   position: relative;
 }
 .fp-img-wrap {
@@ -1101,5 +1105,688 @@ ul {
   }
   .cta-title {
     font-size: 2rem !important;
+  }
+}
+
+/* ============================================================
+   AGROMARKET HOME — RESPONSIVE FINAL
+   Este bloque corrige únicamente los componentes de Home.
+   No modifica grids ni componentes de otras páginas.
+   ============================================================ */
+
+.home,
+.home-page,
+main.home,
+main.home-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.hero,
+.metrics,
+.how-it-works,
+.featured,
+.for-producers,
+.testimonials,
+.cta-final,
+.footer {
+  width: 100%;
+  max-width: 100%;
+}
+
+.hero-content,
+.metrics-grid,
+.steps-grid,
+.products-grid,
+.fp-content,
+.test-grid,
+.footer-grid,
+.featured-header,
+.cta-content {
+  min-width: 0;
+}
+
+.hero-content > *,
+.fp-content > *,
+.featured-header > *,
+.cta-content > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.hero-img-wrap,
+.fp-img-wrap {
+  width: 100%;
+  max-width: 100%;
+}
+
+.hero-img,
+.fp-img,
+.product-img {
+  max-width: 100%;
+}
+
+/* Desktop grande: proporciones estables sin overflow */
+@media (min-width: 1201px) {
+  .hero-content {
+    gap: clamp(40px, 4vw, 72px);
+  }
+
+  .hero-left,
+  .hero-right {
+    flex: 1 1 0;
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 4.5vw, 4.5rem);
+  }
+}
+
+/* Laptop / tablet horizontal */
+@media (max-width: 1200px) and (min-width: 1025px) {
+  .hero {
+    padding-inline: clamp(24px, 4vw, 48px);
+  }
+
+  .hero-content {
+    gap: 36px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.6rem, 4.5vw, 3.7rem);
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+  }
+
+  .float-card-1 {
+    left: 12px;
+  }
+
+  .float-card-2 {
+    right: 12px;
+  }
+}
+
+/* Tablet y pantallas medianas */
+@media (max-width: 1024px) {
+  .hero {
+    min-height: auto;
+    padding: 48px clamp(20px, 5vw, 48px) 56px;
+  }
+
+  .hero-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 44px;
+    text-align: center;
+  }
+
+  .hero-left,
+  .hero-right {
+    width: 100%;
+    flex: 0 1 auto;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-sub {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-bullets {
+    width: min(100%, 520px);
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .hero-btns,
+  .hero-avatars {
+    justify-content: center;
+  }
+
+  .hero-img-wrap {
+    height: clamp(300px, 42vw, 420px);
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fp-content {
+    flex-direction: column-reverse;
+    gap: 44px;
+    text-align: center;
+  }
+
+  .fp-left,
+  .fp-right {
+    width: 100%;
+    flex: 0 1 auto;
+  }
+
+  .fp-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .fp-sub {
+    max-width: 680px;
+  }
+
+  .fp-list {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .fp-float {
+    left: 20px;
+    bottom: 20px;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tablet vertical / móvil grande */
+@media (max-width: 768px) {
+  .hero {
+    padding: 36px 24px 44px;
+  }
+
+  .hero-content {
+    gap: 36px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.15rem, 7vw, 3rem);
+    line-height: 1.08;
+    max-width: 680px;
+  }
+
+  .hero-sub {
+    max-width: 620px;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .hero-img-wrap {
+    height: clamp(260px, 52vw, 360px);
+    border-radius: 20px;
+  }
+
+  .float-card {
+    padding: 12px 14px;
+    max-width: 180px;
+  }
+
+  .float-card-1 {
+    left: 12px;
+    bottom: 12px;
+  }
+
+  .float-card-2 {
+    right: 12px;
+    top: 12px;
+  }
+
+  .metrics {
+    padding: 40px 24px;
+  }
+
+  .metric-val {
+    font-size: clamp(2rem, 7vw, 2.8rem);
+  }
+
+  .how-it-works,
+  .featured,
+  .for-producers,
+  .testimonials,
+  .cta-final {
+    padding: 64px 24px;
+  }
+
+  .section-title,
+  .fp-title {
+    font-size: clamp(2rem, 6vw, 2.5rem);
+  }
+
+  .section-sub {
+    margin-bottom: 44px;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .steps-grid::before {
+    display: none;
+  }
+
+  .featured-header {
+    align-items: flex-start;
+  }
+
+  .products-grid {
+    gap: 20px;
+  }
+
+  .product-img {
+    height: 200px;
+  }
+
+  .test-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cta-title {
+    font-size: clamp(2rem, 6vw, 2.8rem);
+  }
+
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Móvil */
+@media (max-width: 600px) {
+  .hero {
+    padding: 28px 16px 36px;
+  }
+
+  .hero-content {
+    gap: 28px;
+  }
+
+  .hero-badge {
+    margin-bottom: 14px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .hero-title {
+    width: 100%;
+    font-size: clamp(1.9rem, 9vw, 2.45rem);
+    line-height: 1.08;
+    margin-bottom: 14px;
+  }
+
+  .hero-sub {
+    width: 100%;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+
+  .hero-bullets {
+    width: 100%;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .hero-bullet {
+    gap: 9px;
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+
+  .hero-bullet svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .hero-btns {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .hero-btns .btn {
+    width: 100%;
+    max-width: 360px;
+    margin-inline: auto;
+  }
+
+  .hero-avatars {
+    width: 100%;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+
+  .hero-avatars-text {
+    font-size: 0.8rem;
+  }
+
+  .hero-img-wrap {
+    height: clamp(210px, 62vw, 300px);
+    border-radius: 16px;
+  }
+
+  .float-card {
+    display: none;
+  }
+
+  .metrics {
+    padding: 36px 16px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 16px;
+  }
+
+  .metric-item:not(:last-child)::after {
+    display: none;
+  }
+
+  .metric-val {
+    font-size: 2rem;
+  }
+
+  .metric-label {
+    font-size: 0.78rem;
+  }
+
+  .how-it-works,
+  .featured,
+  .for-producers,
+  .testimonials,
+  .cta-final {
+    padding: 48px 16px;
+  }
+
+  .section-eyebrow,
+  .fp-badge {
+    font-size: 0.72rem;
+    padding: 5px 12px;
+  }
+
+  .section-title,
+  .fp-title {
+    font-size: 1.85rem;
+    line-height: 1.12;
+  }
+
+  .section-sub {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin-bottom: 36px;
+  }
+
+  .step-card {
+    padding-inline: 8px;
+  }
+
+  .step-icon-wrap {
+    width: 96px;
+    height: 96px;
+    margin-bottom: 18px;
+  }
+
+  .step-icon-wrap svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .step-num {
+    font-size: 3rem;
+  }
+
+  .step-title {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .step-desc {
+    font-size: 0.88rem;
+  }
+
+  .featured-header {
+    display: block;
+    margin-bottom: 28px;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .product-img {
+    height: clamp(180px, 58vw, 240px);
+  }
+
+  .product-info {
+    padding: 16px;
+  }
+
+  .product-name {
+    font-size: 1.08rem;
+  }
+
+  .product-price {
+    font-size: 1.25rem;
+  }
+
+  .fp-content {
+    gap: 30px;
+  }
+
+  .fp-title {
+    margin-bottom: 16px;
+  }
+
+  .fp-sub {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin-bottom: 24px;
+  }
+
+  .fp-list {
+    width: 100%;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .fp-item {
+    font-size: 0.9rem;
+  }
+
+  .fp-item svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .fp-img-wrap {
+    border-radius: 16px;
+  }
+
+  .fp-float {
+    display: none;
+  }
+
+  .test-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .test-header {
+    margin-bottom: 36px;
+  }
+
+  .test-card {
+    padding: 26px 20px;
+  }
+
+  .test-content {
+    min-height: auto;
+  }
+
+  .cta-final {
+    padding-block: 56px;
+    background-position: center;
+  }
+
+  .cta-title {
+    font-size: 2rem;
+    line-height: 1.12;
+  }
+
+  .cta-sub {
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+  }
+
+  .cta-btns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-btns .btn {
+    width: 100%;
+  }
+
+  .footer {
+    padding: 48px 16px 24px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .footer-desc {
+    max-width: none;
+  }
+}
+
+/* Teléfonos pequeños */
+@media (max-width: 380px) {
+  .hero {
+    padding-inline: 12px;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-sub {
+    font-size: 0.9rem;
+  }
+
+  .hero-bullet {
+    font-size: 0.84rem;
+  }
+
+  .hero-img-wrap {
+    height: 205px;
+  }
+
+  .metrics {
+    padding-inline: 12px;
+  }
+
+  .metrics-grid {
+    gap: 24px 10px;
+  }
+
+  .metric-val {
+    font-size: 1.8rem;
+  }
+
+  .how-it-works,
+  .featured,
+  .for-producers,
+  .testimonials,
+  .cta-final {
+    padding-inline: 12px;
+  }
+
+  .section-title,
+  .fp-title {
+    font-size: 1.7rem;
+  }
+
+  .product-info {
+    padding: 14px;
+  }
+}
+
+/* Móviles en landscape: evitar que el hero ocupe una pantalla entera */
+@media (max-width: 900px) and (orientation: landscape) {
+  .hero {
+    min-height: auto;
+    padding-top: 24px;
+    padding-bottom: 32px;
+  }
+
+  .hero-content {
+    gap: 28px;
+  }
+
+  .hero-img-wrap {
+    height: min(52vh, 320px);
+  }
+
+  .float-card {
+    display: none;
+  }
+}
+
+/* Pantallas muy bajas */
+@media (max-height: 600px) and (max-width: 900px) {
+  .hero {
+    min-height: auto;
+    padding-top: 20px;
+    padding-bottom: 28px;
+  }
+
+  .hero-content {
+    gap: 24px;
+  }
+
+  .hero-img-wrap {
+    height: min(48vh, 260px);
+  }
+}
+
+/* Dispositivos táctiles: no desplazar tarjetas por hover */
+@media (hover: none) and (pointer: coarse) {
+  .product-card:hover,
+  .test-card:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-white:hover,
+  .btn-outline-white:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .float-card,
+  .fp-float,
+  .product-card,
+  .test-card,
+  .btn {
+    animation: none !important;
+    transition: none !important;
   }
 }
