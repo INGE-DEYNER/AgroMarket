@@ -1,10 +1,13 @@
 // infrastructure/security/SecurityConfig.java
 package com.agromarket.infrastructure.security;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -17,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import com.agromarket.infrastructure.config.properties.AppProperties;
 
@@ -67,6 +71,16 @@ public class SecurityConfig {
                                                 SessionCreationPolicy.IF_REQUIRED))
 
                                 .authorizeHttpRequests(auth -> auth
+
+                                                /*
+                                                 * Preflight CORS: siempre
+                                                 * público, sin importar el
+                                                 * endpoint real.
+                                                 */
+                                                .requestMatchers(
+                                                                HttpMethod.OPTIONS,
+                                                                "/**")
+                                                .permitAll()
 
                                                 // Autenticación.
                                                 .requestMatchers(
@@ -174,9 +188,9 @@ public class SecurityConfig {
                 CorsConfiguration configuration = new CorsConfiguration();
 
                 configuration.setAllowedOrigins(
-                                appProperties
+                                normalizeOrigins(appProperties
                                                 .getCors()
-                                                .getAllowedOrigins());
+                                                .getAllowedOrigins()));
 
                 configuration.setAllowedMethods(
                                 List.of(
@@ -211,5 +225,83 @@ public class SecurityConfig {
                                 configuration);
 
                 return source;
+        }
+
+        /*
+         * Filtro CORS independiente registrado al NIVEL DE SERVLET con la
+         * máxima prioridad. Se ejecuta ANTES que el filtro de Spring Security,
+         * por lo que garantiza que todos los preflights (OPTIONS) reciban
+         * respuesta con las cabeceras Access-Control-*, incluso si el
+         * CorsFilter interno de Spring Security no llega a procesarlos.
+         */
+        @Bean
+        public FilterRegistrationBean<CorsFilter> standaloneCorsFilter(
+                        AppProperties appProperties) {
+
+                CorsConfiguration configuration = new CorsConfiguration();
+
+                configuration.setAllowedOrigins(
+                                normalizeOrigins(appProperties
+                                                .getCors()
+                                                .getAllowedOrigins()));
+
+                configuration.setAllowedMethods(
+                                List.of(
+                                                "GET",
+                                                "POST",
+                                                "PUT",
+                                                "PATCH",
+                                                "DELETE",
+                                                "OPTIONS"));
+
+                configuration.setAllowedHeaders(List.of("*"));
+
+                configuration.setExposedHeaders(
+                                List.of(
+                                                "Authorization",
+                                                "X-RateLimit-Remaining"));
+
+                configuration.setAllowCredentials(true);
+
+                configuration.setMaxAge(3600L);
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+                source.registerCorsConfiguration(
+                                "/**",
+                                configuration);
+
+                FilterRegistrationBean<CorsFilter> registration = new FilterRegistrationBean<>(
+                                new CorsFilter(source));
+
+                registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+                registration.setName("standaloneCorsFilter");
+
+                return registration;
+        }
+
+        /**
+         * Spring Boot 3.x ya no divide automáticamente los valores separados
+         * por coma de una variable de entorno (p. ej. APP_CORS_ALLOWED_ORIGIN)
+         * al hacer binding sobre una List<String>. Este método normaliza la
+         * lista dividiendo cada elemento que contenga comas en varios
+         * orígenes.
+         */
+        private List<String> normalizeOrigins(
+                        List<String> origins) {
+
+                if (origins == null || origins.isEmpty()) {
+                        return List.of();
+                }
+
+                return origins.stream()
+                                .filter(origin -> origin != null
+                                                && !origin.isBlank())
+                                .flatMap(origin -> Arrays.stream(
+                                                origin.split(",")))
+                                .map(String::trim)
+                                .filter(origin -> !origin.isEmpty())
+                                .distinct()
+                                .toList();
         }
 }

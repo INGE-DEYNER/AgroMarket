@@ -15,6 +15,11 @@
 FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 WORKDIR /app
 COPY pom.xml .
+
+# Descargar dependencias en una capa aparte (se cachea mientras
+# pom.xml no cambie, así los rebuilds con cambios en src son rápidos)
+RUN mvn dependency:go-offline -B -q
+
 COPY src ./src
 RUN mvn clean package -DskipTests -q
 

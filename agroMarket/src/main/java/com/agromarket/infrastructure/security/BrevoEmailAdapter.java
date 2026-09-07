@@ -390,7 +390,19 @@ public class BrevoEmailAdapter implements EmailPort {
     private String buildVerificationUrl(
             String token) {
 
-        return "http://localhost:5173/verify-email?token="
+        /*
+         * La URL del frontend viene de brevo.frontend-url
+         * (FRONTEND_URL en el .env). En producción apunta a
+         * https://www.agro-market.app; el fallback localhost solo
+         * aplica en desarrollo sin configuración.
+         */
+        String frontendUrl = (properties == null
+                || properties.getFrontendUrl() == null
+                || properties.getFrontendUrl().isBlank())
+                        ? "http://localhost:5173"
+                        : properties.getFrontendUrl().replaceAll("/+$", "");
+
+        return frontendUrl + "/verify-email?token="
                 + token;
     }
 }

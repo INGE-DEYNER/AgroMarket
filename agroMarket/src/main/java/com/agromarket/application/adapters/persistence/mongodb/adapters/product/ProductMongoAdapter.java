@@ -1,3 +1,4 @@
+
 package com.agromarket.application.adapters.persistence.mongodb.adapters.product;
 
 import java.util.List;
@@ -36,14 +37,16 @@ public class ProductMongoAdapter implements ProductPort {
     }
 
     public Optional<Product> findById(Long id) {
-        if (id == null) return Optional.empty();
+        if (id == null)
+            return Optional.empty();
         Optional<ProductDocument> found = repository.findById(String.valueOf(id));
         if (found.isPresent()) {
             return found.map(ProductDocument::toDomain);
         }
         return repository.findAll().stream()
                 .filter(doc -> {
-                    if (doc.getId() == null) return false;
+                    if (doc.getId() == null)
+                        return false;
                     try {
                         return Long.parseLong(doc.getId()) == id;
                     } catch (NumberFormatException e) {
@@ -81,7 +84,8 @@ public class ProductMongoAdapter implements ProductPort {
     }
 
     public void delete(Product p) {
-        if (p == null || p.getId() == null) return;
+        if (p == null || p.getId() == null)
+            return;
         String searchId = String.valueOf(p.getId());
         if (repository.existsById(searchId)) {
             repository.deleteById(searchId);
