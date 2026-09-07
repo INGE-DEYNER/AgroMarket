@@ -665,7 +665,7 @@
 
 /* Drawer becomes a desktop shopping panel while preserving its behavior. */
 .buyer-shell .cart-drawer {
-  width: min(620px, 100vw);
+  width: min(620px, 100%);
   border-left: 1px solid var(--buyer-border);
 }
 
@@ -774,7 +774,7 @@
   .buyer-page-content .chat-contacts { max-height: 180px; border-right: 0; border-bottom: 1px solid var(--buyer-border); }
   .buyer-page-content .profile-grid { grid-template-columns: 1fr !important; }
   .buyer-local-banner { align-items: flex-start; flex-direction: column; }
-  .buyer-shell .cart-drawer { width: 100vw; }
+  .buyer-shell .cart-drawer { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

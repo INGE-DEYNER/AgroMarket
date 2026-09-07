@@ -263,7 +263,7 @@ export default function ChatbotSoporte() {
           bottom: 76px;
           right: 0;
           width: 380px;
-          max-width: calc(100vw - 48px);
+          max-width: calc(100% - 48px);
           height: 520px;
           max-height: calc(100vh - 120px);
           background: rgba(255, 255, 255, 0.95);
@@ -518,7 +518,7 @@ export default function ChatbotSoporte() {
           .chatbot-window {
             bottom: 70px;
             right: 0;
-            width: calc(100vw - 32px);
+            width: calc(100% - 32px);
             height: 400px;
           }
         }

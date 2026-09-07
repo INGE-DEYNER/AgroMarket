@@ -583,7 +583,7 @@
   top: calc(100% + 8px);
 
   width: 245px;
-  max-width: calc(100vw - 20px);
+  max-width: calc(100% - 20px);
 
   padding: 7px;
 

@@ -127,6 +127,9 @@ function App() {
                   display: "flex",
                   flexDirection: "column",
                   minHeight: "100vh",
+                  width: "100%",
+                  maxWidth: "100%",
+                  overflowX: "hidden",
                 }}
               >
                 <main
