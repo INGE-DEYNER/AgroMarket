@@ -36,6 +36,9 @@ services:
     container_name: agromarket-backend
     env_file:
       - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://agromarket-mysql:3306/agromarket?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+      - SPRING_DATA_MONGODB_URI=mongodb://agromarket-mongo:27017/agromarket
     ports:
       - "8080:8080"
     depends_on:
