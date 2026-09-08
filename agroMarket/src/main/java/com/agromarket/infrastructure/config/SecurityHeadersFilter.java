@@ -24,7 +24,7 @@ public class SecurityHeadersFilter extends OncePerRequestFilter {
         // XSS protection (legacy)
         response.setHeader("X-XSS-Protection", "1; mode=block");
         // Content Security Policy minimal
-        response.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:");
+        response.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https: https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https:; connect-src 'self' https://static.cloudflareinsights.com;");
         // Referrer policy
         response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
         // HSTS (only over HTTPS in production)

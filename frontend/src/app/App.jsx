@@ -119,9 +119,9 @@ function App() {
   return (
     <ToastProvider>
       <DivisaProvider>
-        <AuthProvider>
-          <CartProvider>
-            <Router>
+        <Router>
+          <AuthProvider>
+            <CartProvider>
               <div
                 style={{
                   display: "flex",
@@ -527,9 +527,9 @@ function App() {
 
                 <NetworkError />
               </div>
-            </Router>
           </CartProvider>
         </AuthProvider>
+      </Router>
       </DivisaProvider>
     </ToastProvider>
   );
