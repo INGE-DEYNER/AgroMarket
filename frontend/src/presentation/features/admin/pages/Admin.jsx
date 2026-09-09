@@ -455,9 +455,10 @@ export default function Admin() {
 
   const toggleVerificarProductor = async (u) => {
     try {
-      await api.put(`/admin/productores/${u.idEncriptado}/verificar`);
+      await api.put(`/admin/productores/${u.id}/verificar`);
       alert("Estado de verificación del productor actualizado.");
       void loadAll();
+      void loadUsuarios();
     } catch (err) {
       alert(err.message || "Error al cambiar la verificación del productor.");
     }
@@ -502,6 +503,7 @@ export default function Admin() {
         await api.put(`/usuarios/${u.id}/habilitar`);
       }
       void loadAll();
+      void loadUsuarios();
     } catch (err) {
       alert(err.message || "Error al cambiar estado del usuario.");
     }
@@ -517,6 +519,7 @@ export default function Admin() {
     try {
       await api.delete(`/productos/${id}`);
       void loadAll();
+      void loadProductos();
     } catch (err) {
       alert(err.message);
     }

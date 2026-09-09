@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/infrastructure/http/api";
 import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
@@ -239,86 +239,73 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = async () => {
-    // Limpiamos el estado local de forma INMEDIATA y síncrona para que
-    // ningún componente quede leyendo un usuario que ya no existe (esto
-    // evita la pantalla en blanco que ocurría al navegar con user=null).
+  const logout = useCallback(async () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+
     localStorage.removeItem("token");
     localStorage.removeItem("agromarket_cart");
+    setShowWarning(false);
     setUser(null);
 
-    // El cierre de sesión en el backend es best-effort: si falla (red,
-    // token expirado, endpoint inexistente) no debe bloquear el logout
-    // local ni dejar la UI en un estado inconsistente.
     try {
       await api.post("/auth/logout");
     } catch (err) {
-      console.error("Error cerrando sesión:", err);
+      console.warn("Logout remoto no disponible:", err);
     } finally {
-      // Redirigir a home después de logout
       navigate("/");
     }
-  };
+  }, [navigate]);
+
+  const expireSession = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("agromarket_cart");
+    setShowWarning(false);
+    setUser(null);
+    navigate("/login?message=expired", { replace: true });
+  }, [navigate]);
 
   const { divisaActual, cambiarDivisa, formatearPrecio } = useDivisa();
 
-  // Efecto para manejar expiración de sesión por inactividad
+  // Expira exactamente después de 1 minuto sin actividad.
   useEffect(() => {
-    // Función para resetear el temporizador
+    if (!user) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      return undefined;
+    }
+
     const resetTimer = () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      if (warningTimerRef.current) {
-        clearTimeout(warningTimerRef.current);
-      }
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
       setShowWarning(false);
 
-      // Configurar temporizador de advertencia
       warningTimerRef.current = setTimeout(() => {
         setShowWarning(true);
       }, WARNING_TIME);
 
-      // Configurar temporizador de expiración
       timerRef.current = setTimeout(() => {
-        setShowWarning(false);
-        logout();
+        expireSession();
       }, INACTIVITY_TIMEOUT);
     };
 
-    // Función para manejar eventos de actividad
-    const handleActivity = () => {
-      if (user && !showWarning) {
-        resetTimer();
-      }
-    };
+    const events = [
+      "mousemove", "mousedown", "keydown", "scroll", "touchstart",
+      "pointerdown", "wheel",
+    ];
 
-    // Listeners de eventos de actividad
-    const events = ["mousemove", "keydown", "scroll", "click", "touchstart", "mousewheel"];
-    
-    if (user) {
-      // Añadir event listeners
-      events.forEach(event => {
-        window.addEventListener(event, handleActivity);
-      });
+    events.forEach((event) => window.addEventListener(event, resetTimer, { passive: true }));
+    resetTimer();
 
-      // Iniciar temporizador
-      resetTimer();
-    }
-
-    // Limpiar al desmontar o cuando el usuario cambia
     return () => {
-      events.forEach(event => {
-        window.removeEventListener(event, handleActivity);
-      });
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      if (warningTimerRef.current) {
-        clearTimeout(warningTimerRef.current);
-      }
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
     };
-  }, [user, showWarning, logout]);
+  }, [user, expireSession, INACTIVITY_TIMEOUT, WARNING_TIME]);
 
   // Efecto para la divisa preferida
   useEffect(() => {
@@ -360,21 +347,8 @@ export function AuthProvider({ children }) {
           style={{ marginRight: "10px" }}
           onClick={() => {
             setShowWarning(false);
-            // Reiniciar el temporizador
-            if (timerRef.current) {
-              clearTimeout(timerRef.current);
-            }
-            if (warningTimerRef.current) {
-              clearTimeout(warningTimerRef.current);
-            }
-            // Configurar nuevos temporizadores
-            warningTimerRef.current = setTimeout(() => {
-              setShowWarning(true);
-            }, WARNING_TIME);
-            timerRef.current = setTimeout(() => {
-              setShowWarning(false);
-              logout();
-            }, INACTIVITY_TIMEOUT);
+            setShowWarning(false);
+            window.dispatchEvent(new Event("mousemove"));
           }}
         >
           Sí, mantener sesión

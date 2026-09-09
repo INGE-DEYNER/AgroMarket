@@ -129,7 +129,6 @@ function App() {
                   minHeight: "100vh",
                   width: "100%",
                   maxWidth: "100%",
-                  overflowX: "hidden",
                 }}
               >
                 <main

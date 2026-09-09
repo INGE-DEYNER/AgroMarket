@@ -25,7 +25,7 @@ public class ProductUseCase implements com.agromarket.domain.ports.in.product.Pr
   private final ReviewPort reviewPort;
 
   @Override
-  public ProductResult createProduct(CreateProductCommand c) {
+  public synchronized ProductResult createProduct(CreateProductCommand c) {
     User producer = producer(c.getProducerId());
     
     // Validar que no exista producto duplicado (mismo nombre y productor)

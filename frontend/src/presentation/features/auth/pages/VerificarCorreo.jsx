@@ -25,7 +25,7 @@ export default function VerificarCorreo() {
     async (tk) => {
       setLoading(true);
       try {
-        const res = await api.post("/auth/verificar", { token: tk });
+        const res = await api.post("/auth/email-verification/verify", { token: tk });
         if (res.pendiente) setPendiente(true);
         setSuccess(
           res.message ||
@@ -63,9 +63,8 @@ export default function VerificarCorreo() {
     setError("");
     setSuccess("");
     try {
-      const res = await api.post("/auth/verificar-correo", {
-        correo: email,
-        codigo,
+      const res = await api.post("/auth/email-verification/verify", {
+        token: codigo,
       });
       if (res.pendiente) setPendiente(true);
       setSuccess(
@@ -97,7 +96,7 @@ export default function VerificarCorreo() {
     setError("");
     setSuccess("");
     try {
-      await api.post("/auth/reenviar-verificacion", { correo: email });
+      await api.post("/auth/email-verification/resend", { email });
       setSuccess(
         t(
           "verifyEmail.resendSuccess",

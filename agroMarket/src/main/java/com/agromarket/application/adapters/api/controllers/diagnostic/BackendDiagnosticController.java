@@ -33,6 +33,9 @@ public class BackendDiagnosticController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @org.springframework.beans.factory.annotation.Value("${app.ai.gemini-api-key:}")
+    private String geminiApiKey;
+
     /** Diagnóstico interno del backend (DB, perfil, etc.) */
     @GetMapping("/diagnostic")
     public Map<String, Object> runDiagnostic() {
@@ -140,7 +143,9 @@ public class BackendDiagnosticController {
         String mensaje = request.getOrDefault("mensaje", "");
         
         Map<String, Object> response = new HashMap<>();
-        String respuestaIA = consultarGemini(geminiKey, mensaje);
+        String respuestaIA = consultarGemini(
+                (geminiKey != null && !geminiKey.isBlank()) ? geminiKey : geminiApiKey,
+                mensaje);
         String respuesta = respuestaIA != null
                 ? respuestaIA
                 : asistenteLocal(mensaje);

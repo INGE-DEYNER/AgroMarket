@@ -64,13 +64,11 @@ public class OrderController {
             @RequestBody CreateOrderRequest request,
             @AuthenticationPrincipal JwtUserPrincipal principal) {
 
-        Long buyerId = request.getBuyerId();
-        if (buyerId == null && principal != null) {
-            buyerId = principal.getUserId();
+        if (principal == null || principal.getUserId() == null) {
+            throw new IllegalStateException("La sesión del comprador es obligatoria");
         }
-        if (buyerId == null) {
-            buyerId = 1001L;
-        }
+
+        Long buyerId = principal.getUserId();
 
         return ResponseEntity.ok(toResponse(orderPort.createOrder(
                 CreateOrderCommand.builder()
