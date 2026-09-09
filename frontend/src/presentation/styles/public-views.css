@@ -3667,3 +3667,214 @@ html[data-theme="dark"] .hm-product-card {
     margin: 0 auto;
   }
 }
+
+
+/* ============================================================
+   AGROMARKET — HOME MOBILE FINAL
+   Protección contra desbordamiento y tamaños mínimos reales.
+   ============================================================ */
+
+.public-shell,
+.public-main,
+.hm-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.hm-hero,
+.hm-trust,
+.hm-categories,
+.hm-farmers,
+.hm-products,
+.hm-newsletter {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.hm-hero-overlay,
+.hm-trust-item,
+.hm-section-head,
+.hm-farmers-left,
+.hm-newsletter,
+.hm-newsletter-form {
+  min-width: 0;
+}
+
+@media (max-width: 799px) {
+  .hm-hero {
+    min-height: 330px;
+    background-position: center center;
+  }
+
+  .hm-hero-overlay {
+    padding: 24px 18px 28px;
+    gap: 13px;
+  }
+
+  .hm-hero-badge {
+    padding: 6px 11px;
+    font-size: 10px;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .hm-hero h1 {
+    max-width: 100%;
+    font-size: clamp(25px, 8vw, 36px);
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+
+  .hm-hero p {
+    max-width: 100%;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .hm-hero-btns {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 9px;
+    padding-top: 3px;
+  }
+
+  .hm-btn-primary,
+  .hm-btn-outline {
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 16px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .hm-trust {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 10px;
+    padding: 24px 12px;
+  }
+
+  .hm-trust-item {
+    width: 100%;
+    flex-direction: column;
+    text-align: center;
+    gap: 7px;
+  }
+
+  .hm-trust-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .hm-trust-item strong {
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .hm-trust-item span:last-child {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .hm-trust-item:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(50%, 150px);
+  }
+
+  .hm-categories,
+  .hm-products {
+    padding: 36px 14px;
+  }
+
+  .hm-section-head {
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .hm-section-head h2 {
+    font-size: 22px;
+    overflow-wrap: anywhere;
+  }
+
+  .hm-section-head p {
+    font-size: 13px;
+  }
+
+  .hm-section-head > a {
+    font-size: 12px;
+  }
+
+  .hm-cat-grid,
+  .hm-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 10px;
+  }
+
+  .hm-cat-circle {
+    width: 82px;
+    height: 82px;
+  }
+
+  .hm-cat-name {
+    font-size: 12px;
+  }
+
+  .hm-farmers {
+    padding: 32px 16px;
+  }
+
+  .hm-farmers-left {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hm-farmers-left h2 {
+    font-size: 21px;
+  }
+
+  .hm-farmers-left p {
+    font-size: 13px;
+  }
+
+  .hm-farmers-btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .hm-newsletter {
+    padding: 32px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .hm-hero {
+    min-height: 340px;
+  }
+
+  .hm-hero-overlay {
+    padding: 20px 14px 24px;
+  }
+
+  .hm-hero-badge {
+    display: none;
+  }
+
+  .hm-hero h1 {
+    font-size: 27px;
+  }
+
+  .hm-hero p {
+    font-size: 12.5px;
+  }
+
+  .hm-cat-grid,
+  .hm-product-grid {
+    grid-template-columns: 1fr;
+  }
+}
