@@ -16,6 +16,35 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [successData, setSuccessData] = useState(null);
 
+  /*
+   * Costo de envío provisto por el BACKEND (GET /envios/config).
+   * El backend es la fuente de verdad del total: al crear el pedido,
+   * el servidor aplica este mismo valor (una sola vez por checkout)
+   * y recalcula el total, ignorando cualquier valor enviado por el cliente.
+   */
+  const [costoEnvio, setCostoEnvio] = useState(15000);
+
+  useEffect(() => {
+    let mounted = true;
+
+    api
+      .get("/envios/config")
+      .then((res) => {
+        const data = res?.data || res;
+        const valor = Number(data?.costoEnvio);
+        if (mounted && Number.isFinite(valor) && valor >= 0) {
+          setCostoEnvio(valor);
+        }
+      })
+      .catch((err) =>
+        console.error("No se pudo cargar el costo de envío:", err),
+      );
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   // Step 2 Address State
   const [addressForm, setAddressForm] = useState({
     departamento: "",
@@ -187,6 +216,8 @@ export default function Checkout() {
   };
 
   const handlePayNow = async () => {
+    // Guard de reentrada: evita pagos duplicados por dobles clicks
+    if (loading) return;
     setLoading(true);
     try {
       const localCheckoutId = `CHK-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -598,6 +629,63 @@ export default function Checkout() {
                     ))}
                   </div>
                 )}
+                {cart.length > 0 && (
+                  <div
+                    style={{
+                      borderTop: "1px solid #eef2ee",
+                      paddingTop: "16px",
+                      marginBottom: "20px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "0.95rem",
+                        color: "#718096",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <span>Subtotal</span>
+                      <span>{formatPrice(total)}</span>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "0.95rem",
+                        color: "#718096",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <span>Envío</span>
+                      <span>{formatPrice(costoEnvio)}</span>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "1.1rem",
+                        fontWeight: "800",
+                      }}
+                    >
+                      <span style={{ color: "#1b4332" }}>Total</span>
+                      <span style={{ color: "#2d6a4f" }}>
+                        {formatPrice(total + costoEnvio)}
+                      </span>
+                    </div>
+                    <p
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "#94a3b8",
+                        marginTop: "8px",
+                      }}
+                    >
+                      El envío se cobra una sola vez por compra.
+                    </p>
+                  </div>
+                )}
+
                 <button className="btn-primary-chk" onClick={handleNextStep}>
                   Continuar
                 </button>
@@ -1335,7 +1423,7 @@ export default function Checkout() {
                 }}
               >
                 <span>Envío:</span>
-                <span>{formatPrice(15000)}</span>
+                <span>{formatPrice(costoEnvio)}</span>
               </div>
             </div>
 
@@ -1349,7 +1437,7 @@ export default function Checkout() {
               }}
             >
               <span>Total:</span>
-              <span>{formatPrice(total + 15000)}</span>
+              <span>{formatPrice(total + costoEnvio)}</span>
             </div>
           </div>
         </div>

@@ -180,7 +180,7 @@
 .stakeholder-card {
   position: relative;
 
-  width: 340px;
+  width: clamp(280px, 70vw, 340px);
   min-height: 126px;
 
   padding: 18px 20px;
@@ -234,10 +234,10 @@
    ============================================================ */
 
 .stakeholder-card__image-wrapper {
-  width: 112px;
-  height: 82px;
+  width: clamp(80px, 20vw, 112px);
+  height: clamp(60px, 15vw, 82px);
 
-  flex: 0 0 112px;
+  flex: 0 0 clamp(80px, 20vw, 112px);
 
   display: grid;
   place-items: center;
@@ -329,14 +329,14 @@
    ============================================================ */
 
 .stakeholder-card--developer {
-  width: 340px;
+  width: clamp(280px, 70vw, 340px);
 }
 
 .stakeholder-card--developer .stakeholder-card__image-wrapper {
-  width: 82px;
-  height: 82px;
+  width: clamp(60px, 15vw, 82px);
+  height: clamp(60px, 15vw, 82px);
 
-  flex-basis: 82px;
+  flex-basis: clamp(60px, 15vw, 82px);
 
   border-radius: 10px;
 
@@ -439,7 +439,7 @@ html.dark .stakeholder-card__prefix {
   }
 
   .stakeholder-card {
-    width: 300px;
+    width: clamp(260px, 75vw, 300px);
     min-height: 112px;
 
     padding: 15px 16px;
@@ -448,21 +448,21 @@ html.dark .stakeholder-card__prefix {
   }
 
   .stakeholder-card--developer {
-    width: 300px;
+    width: clamp(260px, 75vw, 300px);
   }
 
   .stakeholder-card__image-wrapper {
-    width: 96px;
-    height: 72px;
+    width: clamp(70px, 18vw, 96px);
+    height: clamp(55px, 14vw, 72px);
 
-    flex-basis: 96px;
+    flex-basis: clamp(70px, 18vw, 96px);
   }
 
   .stakeholder-card--developer .stakeholder-card__image-wrapper {
-    width: 72px;
-    height: 72px;
+    width: clamp(60px, 15vw, 72px);
+    height: clamp(60px, 15vw, 72px);
 
-    flex-basis: 72px;
+    flex-basis: clamp(60px, 15vw, 72px);
   }
 
   .stakeholder-card__name {
@@ -514,7 +514,7 @@ html.dark .stakeholder-card__prefix {
 
   .stakeholder-card,
   .stakeholder-card--developer {
-    width: 270px;
+    width: clamp(240px, 80vw, 270px);
     min-height: 96px;
 
     padding: 12px 14px;
@@ -530,17 +530,17 @@ html.dark .stakeholder-card__prefix {
   }
 
   .stakeholder-card__image-wrapper {
-    width: 82px;
-    height: 62px;
+    width: clamp(60px, 20vw, 82px);
+    height: clamp(50px, 15vw, 62px);
 
-    flex-basis: 82px;
+    flex-basis: clamp(60px, 20vw, 82px);
   }
 
   .stakeholder-card--developer .stakeholder-card__image-wrapper {
-    width: 62px;
-    height: 62px;
+    width: clamp(50px, 15vw, 62px);
+    height: clamp(50px, 15vw, 62px);
 
-    flex-basis: 62px;
+    flex-basis: clamp(50px, 15vw, 62px);
   }
 
   .stakeholder-card__name {
@@ -563,20 +563,20 @@ html.dark .stakeholder-card__prefix {
 @media (max-width: 380px) {
   .stakeholder-card,
   .stakeholder-card--developer {
-    width: 245px;
+    width: clamp(220px, 85vw, 245px);
     min-height: 90px;
   }
 
   .stakeholder-card__image-wrapper {
-    width: 72px;
-    height: 56px;
+    width: clamp(55px, 18vw, 72px);
+    height: clamp(45px, 14vw, 56px);
 
-    flex-basis: 72px;
+    flex-basis: clamp(55px, 18vw, 72px);
   }
 
   .stakeholder-card--developer .stakeholder-card__image-wrapper {
-    width: 56px;
-    height: 56px;
+    width: clamp(50px, 15vw, 56px);
+    height: clamp(50px, 15vw, 56px);
 
     flex-basis: 56px;
   }

@@ -115,6 +115,11 @@ public class ProductUseCase implements com.agromarket.domain.ports.in.product.Pr
     return result(productRepository.save(p));
   }
 
+  @Override
+  public java.util.Optional<Product> findByNameAndProducerId(String name, Long producerId) {
+    return productRepository.findByNameAndProducerId(name, producerId);
+  }
+
   private User producer(Long id) {
     User u = userPort.findById(id).orElseThrow(() -> new ProductNotFoundException("Productor no encontrado: " + id));
     if (!u.isProducer())

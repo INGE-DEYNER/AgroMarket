@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
+import api from "@/infrastructure/http/api";
 import "@/presentation/styles/CartDrawer.css";
 
 export default function CartDrawer({ isOpen, onClose }) {
@@ -11,6 +12,34 @@ export default function CartDrawer({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, total, count } = useCart();
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  /*
+   * Costo de envío provisto por el backend (GET /envios/config).
+   * Mismo valor que el backend aplicará al crear el pedido, de modo
+   * que el total mostrado aquí coincida con el del checkout y el pago.
+   */
+  const [costoEnvio, setCostoEnvio] = useState(15000);
+
+  useEffect(() => {
+    let mounted = true;
+
+    api
+      .get("/envios/config")
+      .then((res) => {
+        const data = res?.data || res;
+        const valor = Number(data?.costoEnvio);
+        if (mounted && Number.isFinite(valor) && valor >= 0) {
+          setCostoEnvio(valor);
+        }
+      })
+      .catch(() => {
+        // Sin sesión o sin conexión: se conserva el valor por defecto.
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -243,14 +272,16 @@ export default function CartDrawer({ isOpen, onClose }) {
             <div className="cart-subtotal-row">
               <span>{t("catalog.shippingEst", "Envío estimado")}</span>
 
-              <span className="cart-footer-price">{formatPrice(15000)}</span>
+              <span className="cart-footer-price">
+                {formatPrice(costoEnvio)}
+              </span>
             </div>
 
             <div className="cart-total-row">
               <span>{t("catalog.total", "TOTAL")}</span>
 
               <span className="cart-footer-price-total">
-                {formatPrice(total + 15000)}
+                {formatPrice(total + costoEnvio)}
               </span>
             </div>
 

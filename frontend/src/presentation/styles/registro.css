@@ -394,7 +394,7 @@ body {
 
 .role-desc {
   margin-top: 4px;
-  max-width: 150px;
+  max-width: min(150px, 40vw);
   font-size: 0.68rem;
   line-height: 1.35;
   color: #7b8f80;

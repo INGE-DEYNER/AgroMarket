@@ -797,6 +797,18 @@
   padding: 0 !important;
 }
 
+/* RESPONSIVE TABLES FOR MOBILE */
+@media (max-width: 768px) {
+  .buyer-page-content .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .buyer-page-content table {
+    min-width: 600px; /* Permite scroll horizontal */
+  }
+}
+
 .buyer-shell .footer-pro {
   margin-top: 0;
 }

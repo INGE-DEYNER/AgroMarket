@@ -29,11 +29,31 @@ export default function Mensajeria() {
     })();
   }, []);
 
+  /*
+   * Normaliza un mensaje del backend (MessageResponse: id, senderId,
+   * content, sentAt) al formato que usa la UI (texto, mio, hora).
+   */
+  const normalizarMensaje = (m) => ({
+    id: m.id ?? `${m.senderId}-${m.sentAt}`,
+    texto: m.texto || m.contenido || m.content || "",
+    mio: m.mio ?? String(m.senderId) === String(user?.id),
+    hora:
+      m.hora ||
+      (m.sentAt
+        ? new Date(m.sentAt).toLocaleTimeString("es-CO", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : ""),
+  });
+
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
     try {
       const data = await api.get(`/mensajes/conversacion/${contacto.id}`);
-      setMessages(Array.isArray(data) ? data : []);
+      setMessages(
+        (Array.isArray(data) ? data : []).map(normalizarMensaje),
+      );
     } catch (err) {
       console.error("Error loadMessages:", err);
       setMessages([]);
@@ -63,6 +83,15 @@ export default function Mensajeria() {
         destinatarioId: selectedContact.id,
         contenido: texto,
       });
+
+      // Recargar la conversación desde el backend para confirmar que el
+      // mensaje quedó persistido y visible para el destinatario.
+      const data = await api.get(
+        `/mensajes/conversacion/${selectedContact.id}`,
+      );
+      setMessages(
+        (Array.isArray(data) ? data : []).map(normalizarMensaje),
+      );
     } catch (err) {
       console.error("Error enviando mensaje:", err);
     }

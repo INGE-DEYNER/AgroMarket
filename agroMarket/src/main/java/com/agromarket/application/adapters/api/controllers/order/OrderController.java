@@ -77,6 +77,7 @@ public class OrderController {
                         .buyerId(buyerId)
                         .productId(request.getProductId())
                         .quantity(request.getQuantity())
+                        .checkoutId(request.getCheckoutId())
                         .build())));
     }
 
@@ -133,6 +134,7 @@ public class OrderController {
                         : ProductSummaryResponse.builder().id(p.getId()).name(p.getName()).unitPrice(r.getUnitPrice())
                                 .producerId(p.getProducer() == null ? null : p.getProducer().getId()).build())
                 .quantity(r.getQuantity()).unitPrice(r.getUnitPrice()).total(r.getTotal()).state(r.getState())
+                .shippingCost(r.getShippingCost())
                 .createdAt(r.getCreatedAt()).checkoutId(r.getCheckoutId()).build();
     }
 }

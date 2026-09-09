@@ -24,7 +24,7 @@ public class SecurityHeadersFilter extends OncePerRequestFilter {
         // XSS protection (legacy)
         response.setHeader("X-XSS-Protection", "1; mode=block");
         // Content Security Policy minimal
-        response.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https: https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https:; connect-src 'self' https://static.cloudflareinsights.com;");
+        response.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https: https://static.cloudflareinsights.com https://sdk.mercadopago.com https://*.mercadopago.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.agro-market.app https://www.agro-market.app https://static.cloudflareinsights.com https://fonts.googleapis.com https://fonts.gstatic.com;");
         // Referrer policy
         response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
         // HSTS (only over HTTPS in production)

@@ -101,6 +101,13 @@ public class OrderSqlAdapter implements OrderPort {
     public boolean existsById(Long id) {
         return repository.existsById(id);
     }
+@Override
+    public boolean existsByCheckoutId(String checkoutId) {
+        if (checkoutId == null || checkoutId.isBlank()) {
+            return false;
+        }
+        return repository.existsByCheckoutId(checkoutId);
+    }
 
     private Order toDomain(OrderEntity entity) {
 

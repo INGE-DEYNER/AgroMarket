@@ -33,8 +33,8 @@
   position: absolute;
   top: -60px;
   right: -60px;
-  width: 260px;
-  height: 260px;
+  width: clamp(180px, 25vw, 260px);
+  height: clamp(180px, 25vw, 260px);
   background: rgba(255, 255, 255, 0.06);
   border-radius: 50%;
 }
@@ -71,7 +71,7 @@
   margin: 0;
 }
 .catalog-hero-emoji {
-  font-size: 5rem;
+  font-size: clamp(3rem, 8vw, 5rem);
   line-height: 1;
   position: relative;
   z-index: 1;
@@ -81,7 +81,7 @@
 /* ─── CATALOG LAYOUT GRID ─── */
 .catalog-layout-grid {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: clamp(240px, 25vw, 280px) 1fr;
   gap: 32px;
   align-items: flex-start;
   margin-top: 16px;
@@ -141,7 +141,7 @@
 }
 .catalog-search-inline {
   flex: 1;
-  min-width: 220px;
+  min-width: min(220px, 60vw);
 }
 .catalog-meta-row .search-input {
   width: 100%;
@@ -386,8 +386,7 @@
     top: 0;
     left: 0;
     bottom: 0;
-    width: 280px;
-    max-width: 85vw;
+    width: clamp(240px, 85vw, 280px);
     z-index: 300;
     border-radius: 0;
     overflow-y: auto;

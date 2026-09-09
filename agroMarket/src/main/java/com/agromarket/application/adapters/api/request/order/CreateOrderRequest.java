@@ -1,5 +1,7 @@
 package com.agromarket.application.adapters.api.request.order;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +28,17 @@ public class CreateOrderRequest {
     private String direccionEnvio;
     private String direccionCompleta;
 
+    private String checkoutId;
+    private String checkout;
+
+    /**
+     * Valor de envío que el cliente declara (COP). El backend lo IGNORA si no
+     * coincide con el costo configurado: la fuente de verdad del total es el
+     * servidor, que cobra el envío una única vez por checkout.
+     */
+    private BigDecimal shippingCost;
+    private BigDecimal envio;
+
     public Long getProductId() {
         if (productId != null) return productId;
         return productoId;
@@ -46,5 +59,11 @@ public class CreateOrderRequest {
         if (direccionEnvio != null && !direccionEnvio.isBlank()) return direccionEnvio;
         if (direccionCompleta != null && !direccionCompleta.isBlank()) return direccionCompleta;
         return "Dirección de entrega";
+    }
+
+    public String getCheckoutId() {
+        if (checkoutId != null && !checkoutId.isBlank()) return checkoutId;
+        if (checkout != null && !checkout.isBlank()) return checkout;
+        return null;
     }
 }

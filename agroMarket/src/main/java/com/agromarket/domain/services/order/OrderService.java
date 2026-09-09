@@ -12,7 +12,9 @@ import com.agromarket.domain.models.order.Order;
 public class OrderService {
 
     /**
-     * Calcula el total del pedido.
+     * Calcula el total del pedido: subtotal (precio unitario * cantidad)
+     * más el costo de envío cuando corresponde (el primer pedido de un
+     * checkout).
      */
     public BigDecimal calculateTotal(Order order) {
 
@@ -37,12 +39,24 @@ public class OrderService {
             );
         }
 
-        return order.getUnitPrice()
+        BigDecimal subtotal = order.getUnitPrice()
                 .multiply(
                         BigDecimal.valueOf(
                                 order.getQuantity()
                         )
                 );
+
+        BigDecimal envio = order.getShippingCost() == null
+                ? BigDecimal.ZERO
+                : order.getShippingCost();
+
+        if (envio.signum() < 0) {
+            throw new IllegalArgumentException(
+                    "El costo de envío no puede ser negativo"
+            );
+        }
+
+        return subtotal.add(envio);
     }
 
     /**

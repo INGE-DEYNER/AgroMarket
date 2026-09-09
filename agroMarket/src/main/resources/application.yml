@@ -52,6 +52,8 @@ app:
       - ${APP_CORS_ALLOWED_ORIGIN:http://localhost:3000}
       - http://localhost:5173
       - http://localhost:5174
+      - https://agro-market.app
+      - https://www.agro-market.app
 
   security:
     id-encryption-key: ${APP_SECURITY_ID_ENCRYPTION_KEY:change-me}
@@ -70,13 +72,16 @@ app:
     secret: ${JWT_SECRET:change-me}
     expiration-ms: ${JWT_EXPIRATION_MS:3600000}
 
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+
   mercadopago:
     base-url: ${MERCADOPAGO_BASE_URL:https://api.mercadopago.com}
     access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
     use-mock: ${MERCADOPAGO_USE_MOCK:false}
     webhook-url: ${MERCADOPAGO_WEBHOOK_URL:}
 
-  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  shipping:
+    cost: ${SHIPPING_COST:15000}
 
   scheduler:
     promotions-delay-ms: ${PROMOTIONS_JOB_DELAY_MS:300000}
@@ -88,8 +93,6 @@ brevo:
   sender:
     email: ${BREVO_SENDER_EMAIL:}
     name: ${BREVO_SENDER_NAME:AgroMarket}
-
-  frontend-url: ${FRONTEND_URL:http://localhost:5173}
 
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME:}

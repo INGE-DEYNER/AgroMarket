@@ -128,6 +128,22 @@ public class SecurityConfig {
                                                                 "/api/divisas/**")
                                                 .permitAll()
 
+                                                /*
+                                                 * Costo de envío configurado:
+                                                 * lectura pública para que el
+                                                 * carrito lo muestre también
+                                                 * sin sesión; la escritura es
+                                                 * exclusiva del administrador.
+                                                 */
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/v1/shipments/config")
+                                                .permitAll()
+                                                .requestMatchers(
+                                                                HttpMethod.PUT,
+                                                                "/api/v1/shipments/config")
+                                                .hasRole("ADMIN")
+
                                                 // Listado público de productores (para la página /productores).
                                                 .requestMatchers(
                                                                 HttpMethod.GET,

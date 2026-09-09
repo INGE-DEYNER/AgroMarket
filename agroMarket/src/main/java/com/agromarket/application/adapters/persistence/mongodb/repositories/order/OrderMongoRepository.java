@@ -11,4 +11,6 @@ public interface OrderMongoRepository extends MongoRepository<OrderDocument, Str
     List<OrderDocument> findByProducerId(Long producerId);
 
     List<OrderDocument> findByState(OrderState state);
+
+    boolean existsByCheckoutId(String checkoutId);
 }

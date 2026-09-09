@@ -16,6 +16,7 @@ public class OrderResult {
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal total;
+    private BigDecimal shippingCost;
     private OrderState state;
     private LocalDateTime createdAt;
     private String checkoutId;

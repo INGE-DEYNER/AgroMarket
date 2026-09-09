@@ -56,6 +56,13 @@ public class Order {
      * Total calculado del pedido (precio unitario * cantidad).
      */
     private BigDecimal total;
+
+    /**
+     * Costo de envío aplicado al pedido (COP). Sólo el primer pedido de
+     * un checkout (mismo checkoutId) lo lleva, para que el envío se cobre
+     * una única vez por compra.
+     */
+    private BigDecimal shippingCost;
     
     /**
      * Estado actual del pedido.
@@ -123,14 +130,17 @@ public class Order {
     }
     
     /**
-     * Calcula el total del pedido basado en la cantidad y el precio unitario.
+     * Calcula el total del pedido basado en la cantidad, el precio unitario
+     * y el costo de envío.
      * 
-     * @return total del pedido (precio unitario * cantidad)
+     * @return total del pedido (precio unitario * cantidad + envío)
      */
     public BigDecimal calculateTotal() {
         if (quantity == null || unitPrice == null) {
             return BigDecimal.ZERO;
         }
-        return unitPrice.multiply(BigDecimal.valueOf(quantity));
+        BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+        BigDecimal envio = shippingCost == null ? BigDecimal.ZERO : shippingCost;
+        return subtotal.add(envio);
     }
 }

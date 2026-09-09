@@ -13,4 +13,6 @@ public interface OrderJpaRepository extends JpaRepository<OrderEntity, Long> {
 
     List<OrderEntity> findByState(
             com.agromarket.domain.models.enums.order.OrderState state);
+
+    boolean existsByCheckoutId(String checkoutId);
 }

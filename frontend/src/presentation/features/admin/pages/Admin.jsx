@@ -124,9 +124,8 @@ export default function Admin() {
     usuarioId: "",
     fechaExpiracion: "",
   });
-  const [costoEnvioNacional, setCostoEnvioNacional] = useState(
-    Number(localStorage.getItem("costo_envio")) || 15000,
-  );
+  const [costoEnvioNacional, setCostoEnvioNacional] = useState(15000);
+  const [guardandoEnvio, setGuardandoEnvio] = useState(false);
   const [mantenimientoMode, setMantenimientoMode] = useState(
     localStorage.getItem("mantenimiento_mode") === "true",
   );
@@ -176,6 +175,49 @@ export default function Admin() {
       void loadUsuarios();
     } catch (err) {
       alert("Error al rechazar usuario: " + err.message);
+    }
+  };
+
+  // Cargar el costo de envío real desde el backend (GET /envios/config).
+  // Es la fuente de verdad compartida por carrito, checkout, pedidos y pago.
+  useEffect(() => {
+    let mounted = true;
+
+    api
+      .get("/envios/config")
+      .then((res) => {
+        const data = res?.data || res;
+        const valor = Number(data?.costoEnvio);
+        if (mounted && Number.isFinite(valor) && valor >= 0) {
+          setCostoEnvioNacional(valor);
+        }
+      })
+      .catch((err) =>
+        console.error("No se pudo cargar el costo de envío:", err),
+      );
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleGuardarCostoEnvio = async () => {
+    if (guardandoEnvio) return;
+    setGuardandoEnvio(true);
+    try {
+      await api.put("/envios/config", {
+        costoEnvio: costoEnvioNacional,
+      });
+      alert(
+        "Costo de envío guardado en el servidor. Se aplica a carrito, checkout y pedidos.",
+      );
+    } catch (err) {
+      alert(
+        "Error al guardar el costo de envío: " +
+          (err.message || "inténtalo de nuevo."),
+      );
+    } finally {
+      setGuardandoEnvio(false);
     }
   };
 
@@ -2539,15 +2581,10 @@ export default function Admin() {
                           />
                           <button
                             className="btn btn-primary"
-                            onClick={() => {
-                              localStorage.setItem(
-                                "costo_envio",
-                                costoEnvioNacional,
-                              );
-                              alert("Costo de envío guardado.");
-                            }}
+                            disabled={guardandoEnvio}
+                            onClick={handleGuardarCostoEnvio}
                           >
-                            Guardar
+                            {guardandoEnvio ? "Guardando..." : "Guardar"}
                           </button>
                         </div>
                       </div>

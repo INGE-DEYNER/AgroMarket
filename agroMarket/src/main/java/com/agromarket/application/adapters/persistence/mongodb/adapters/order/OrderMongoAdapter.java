@@ -52,6 +52,13 @@ public class OrderMongoAdapter implements OrderPort {
         return repository.existsById(String.valueOf(id));
     }
 
+@Override
+    public boolean existsByCheckoutId(String checkoutId) {
+        if (checkoutId == null || checkoutId.isBlank()) {
+            return false;
+        }
+        return repository.existsByCheckoutId(checkoutId);
+    }
     @Override
     public void deleteById(Order order) {
         if (order != null && order.getId() != null) {

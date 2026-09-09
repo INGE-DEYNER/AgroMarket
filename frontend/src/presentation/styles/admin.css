@@ -21,7 +21,7 @@
 }
 
 .sidebar {
-  width: 230px;
+  width: clamp(200px, 20vw, 230px);
   background: linear-gradient(180deg, #06451f 0%, #063b1b 100%);
   color: #fff;
   box-shadow: 6px 0 24px rgba(0, 0, 0, 0.08);

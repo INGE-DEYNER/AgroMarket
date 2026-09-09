@@ -2960,7 +2960,7 @@ html[data-theme="dark"] .ay-contact {
 /* Hero */
 .hm-hero {
   position: relative;
-  min-height: clamp(360px, 40vw, 580px);
+  min-height: clamp(280px, 45vw, 580px);
   display: flex;
   align-items: center;
   background-size: cover;
@@ -3218,8 +3218,8 @@ html[data-theme="dark"] .ay-contact {
   display: flex;
   align-items: center;
   gap: 24px;
-  flex: 1;
-  min-width: min(560px, 100%);
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .hm-farmers-icon {
@@ -3420,8 +3420,8 @@ html[data-theme="dark"] .ay-contact {
 }
 
 .hm-newsletter-text {
-  flex: 1;
-  min-width: min(420px, 100%);
+  flex: 1 1 min(420px, 100%);
+  min-width: 0;
 }
 
 .hm-newsletter-text h2 {
@@ -3546,4 +3546,124 @@ body.dark .hm-product-card,
 html[data-theme="dark"] .hm-trust,
 html[data-theme="dark"] .hm-product-card {
   background: var(--am-surface, #17221a);
+}
+
+/* ============================================================
+   RESPONSIVE: Home - Mobile XS (< 360px)
+   ============================================================ */
+@media (max-width: 360px) {
+  .hm-cat-circle {
+    width: 80px;
+    height: 80px;
+  }
+  .hm-cat-name {
+    font-size: 13px;
+  }
+  .hm-hero-btns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hm-btn-primary,
+  .hm-btn-outline {
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 14px;
+    justify-content: center;
+  }
+  .hm-trust {
+    justify-content: center;
+    gap: 12px;
+  }
+  .hm-trust-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  .hm-product-grid {
+    grid-template-columns: 1fr;
+  }
+  .hm-newsletter-form input {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE: Home - Mobile S (< 480px)
+   ============================================================ */
+@media (max-width: 480px) {
+  .hm-hero {
+    min-height: clamp(240px, 50vw, 450px);
+  }
+  .hm-hero-overlay {
+    padding: clamp(20px, 6vw, 48px);
+    gap: 16px;
+  }
+  .hm-hero h1 {
+    font-size: clamp(24px, 6vw, 42px);
+  }
+  .hm-hero p {
+    font-size: clamp(13px, 2vw, 15px);
+  }
+  .hm-btn-primary,
+  .hm-btn-outline {
+    padding: 14px 28px;
+    font-size: 14px;
+  }
+  .hm-cat-circle {
+    width: 90px;
+    height: 90px;
+  }
+  .hm-cat-name {
+    font-size: 14px;
+  }
+  .hm-trust {
+    justify-content: center;
+    gap: 16px;
+  }
+  .hm-farmers-left h2 {
+    font-size: clamp(18px, 3vw, 24px);
+  }
+  .hm-product-body h3 {
+    font-size: 16px;
+  }
+  .hm-product-body {
+    padding: 0 16px 16px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE: Home - Mobile M (< 720px)
+   ============================================================ */
+@media (max-width: 720px) {
+  .hm-btn-primary,
+  .hm-btn-outline {
+    padding: 14px 28px;
+  }
+  .hm-trust-item strong {
+    font-size: 14px;
+  }
+  .hm-trust-item span:last-child {
+    font-size: 12px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE: Home - Desktop XL (> 1200px)
+   ============================================================ */
+@media (min-width: 1201px) {
+  .hm-cat-grid {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .hm-product-grid {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .hm-farmers {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .hm-newsletter {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
 }

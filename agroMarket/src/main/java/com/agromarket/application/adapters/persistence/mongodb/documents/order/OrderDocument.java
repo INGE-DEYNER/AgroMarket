@@ -32,6 +32,7 @@ public class OrderDocument {
         private Integer quantity;
         private BigDecimal unitPrice;
         private BigDecimal total;
+        private BigDecimal shippingCost;
         @Indexed
         private OrderState state;
         private LocalDateTime createdAt;
@@ -46,8 +47,9 @@ public class OrderDocument {
                                                                 : User.builder().id(producerId).build())
                                                 .build();
                 return Order.builder().id(parseId(id)).buyer(buyer).product(product)
-                                .quantity(quantity).unitPrice(unitPrice).total(total).state(state)
-                                .createdAt(createdAt).checkoutId(checkoutId).build();
+                                .quantity(quantity).unitPrice(unitPrice).total(total)
+                                .shippingCost(shippingCost)
+                                .state(state).createdAt(createdAt).checkoutId(checkoutId).build();
         }
 
         public static OrderDocument fromDomain(Order order) {
@@ -59,6 +61,7 @@ public class OrderDocument {
                 return OrderDocument.builder().id(order.getId() == null ? null : order.getId().toString())
                                 .buyerId(buyer).productId(product).producerId(producer)
                                 .quantity(order.getQuantity()).unitPrice(order.getUnitPrice()).total(order.getTotal())
+                                .shippingCost(order.getShippingCost())
                                 .state(order.getState()).createdAt(order.getCreatedAt())
                                 .checkoutId(order.getCheckoutId()).build();
         }

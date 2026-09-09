@@ -3,6 +3,8 @@ package com.agromarket.domain.ports.in.product;
 import java.util.List;
 import java.util.Optional;
 
+import com.agromarket.domain.models.product.Product;
+
 public interface ProductPort {
     ProductResult createProduct(CreateProductCommand command);
 
