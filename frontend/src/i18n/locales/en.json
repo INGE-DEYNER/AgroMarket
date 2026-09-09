@@ -178,7 +178,21 @@
     "trending": "Best sellers",
     "deals": "Offers",
     "producers": "Producers",
-    "admin": "Admin"
+    "admin": "Admin",
+    "cart": "Cart",
+    "viewCart": "View cart",
+    "mobileMenu": "Mobile menu",
+    "closeMenu": "Close menu",
+    "categoriesLabel": "Categories",
+    "userMenu": {
+      "dashboard": "My dashboard",
+      "myOrders": "My orders",
+      "favorites": "Favorites",
+      "profile": "My profile",
+      "adminPanel": "Admin panel",
+      "myDashboardPurchases": "My dashboard (purchases)",
+      "producerPanel": "Producer panel"
+    }
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -211,6 +225,7 @@
     "heroTitleSpan": "direct from the field",
     "heroSub": "Fresh products from the farmers of ASAFRUT. No middle-men, fair prices.",
     "searchPlaceholder": "Search products...",
+    "searchAria": "Search products",
     "cartButton": "Cart",
     "category": {
       "all": "All",
@@ -223,6 +238,17 @@
       "Coco": "Coconut",
       "Limón": "Lemon"
     },
+    "fruits": {
+      "Banano": "Banana",
+      "Piña": "Pineapple",
+      "Mango": "Mango",
+      "Maracuyá": "Passion fruit",
+      "Guanábana": "Soursop",
+      "Naranja": "Orange",
+      "Coco": "Coconut",
+      "Limón": "Lemon",
+      "Otro": "Other"
+    },
     "resultsFound": "product found",
     "resultsFoundPlural": "products found",
     "noProducts": "No products found",
@@ -231,6 +257,7 @@
     "soldOut": "✗ Sold Out",
     "perKg": "/kg",
     "addToCart": "+ Add",
+    "added": "✓ Added",
     "cartTitle": "My cart",
     "cartItems": "items",
     "emptyCart": "Your cart is empty",
@@ -240,7 +267,46 @@
     "checkoutBtn": "Proceed to payment →",
     "keepShopping": "Keep shopping",
     "alertCheckoutError": "Error processing order: ",
-    "favorite": "Favorite"
+    "favorite": "Favorite",
+    "promo": "PROMO",
+    "goldSupplier": "Gold Supplier",
+    "retail": "Retail:",
+    "wholesaleFrom": "Wholesale (≥{{qty}}kg):",
+    "noReviews": "No reviews yet",
+    "registeredProducer": "Registered producer",
+    "productFallback": "Product",
+    "upTo": "Up to:",
+    "closeFilters": "Close filters",
+    "cartAria": "Shopping cart",
+    "closeCart": "Close cart",
+    "decreaseQty": "Decrease quantity",
+    "increaseQty": "Increase quantity",
+    "removeItem": "Remove {{name}}",
+    "sort": {
+      "relevance": "Most relevant",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "nameAsc": "Name A-Z"
+    }
+  },
+  "productDetail": {
+    "loading": "Loading product...",
+    "loadError": "The product could not be loaded.",
+    "notFound": "Product not found",
+    "notFoundDesc": "This product does not exist or was removed.",
+    "backToCatalog": "Back to catalog",
+    "registeredProducer": "Registered producer",
+    "verifiedProducer": "Verified producer · Urabá, Colombia",
+    "reviews": "reviews",
+    "producer": "Producer:",
+    "wholesale": "🏭 Wholesale price:",
+    "wholesaleFor": "for orders ≥",
+    "inStock": "✓ In stock: {{qty}} kg available",
+    "outOfStock": "✗ Out of stock",
+    "description": "Description",
+    "addToCart": "🛒 Add to cart",
+    "added": "✓ Added to cart",
+    "viewCatalog": "View catalog"
   },
   "profile": {
     "title": "My Profile",
@@ -543,6 +609,9 @@
   },
   "legal": {
     "breadcrumb": "Breadcrumb",
+    "eyebrow": "AgroMarket · ASAFRUT",
+    "toc": "Contents",
+    "appliesTo": "Applies to all of AgroMarket",
     "updated": "Last updated",
     "updateDate": "May 20, 2024",
     "terms": {
@@ -661,15 +730,25 @@
     "placeholder": "Describe your AgroMarket problem...",
     "send": "Send",
     "openAssistant": "Open help assistant",
+    "quickQuestions": {
+      "login": "I cannot log in",
+      "email": "I did not receive the email",
+      "currency": "Currency does not change",
+      "language": "Language does not change",
+      "payment": "I have a payment problem",
+      "order": "My order does not appear",
+      "cart": "I cannot add to cart",
+      "sell": "I want to sell"
+    },
     "quick": {
-      "No puedo iniciar sesión": "I cannot log in",
-      "No recibí el correo": "I did not receive the email",
-      "No cambia la divisa": "Currency does not change",
-      "El idioma no cambia": "Language does not change",
-      "Tengo un problema con el pago": "Payment problem",
-      "Mi pedido no aparece": "My order does not appear",
-      "No puedo agregar al carrito": "Cart problem",
-      "Quiero vender": "How to sell as a producer"
+      "login": "I cannot log in",
+      "email": "I did not receive the email",
+      "currency": "Currency does not change",
+      "language": "Language does not change",
+      "payment": "Payment problem",
+      "order": "My order does not appear",
+      "cart": "Cart problem",
+      "sell": "How to sell as a producer"
     }
   }
 }

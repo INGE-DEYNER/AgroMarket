@@ -15,7 +15,23 @@
     "deals": "Angebote",
     "producers": "Produzenten",
     "searchPlaceholder": "Obst, Gemüse, Produzenten suchen...",
-    "trending": "Bestseller"
+    "trending": "Bestseller",
+    "deals": "Angebote",
+    "producers": "Produzenten",
+    "cart": "Warenkorb",
+    "viewCart": "Warenkorb ansehen",
+    "mobileMenu": "Mobiles Menü",
+    "closeMenu": "Menü schließen",
+    "categoriesLabel": "Kategorien",
+    "userMenu": {
+      "dashboard": "Mein Dashboard",
+      "myOrders": "Meine Bestellungen",
+      "favorites": "Favoriten",
+      "profile": "Mein Profil",
+      "adminPanel": "Admin-Bereich",
+      "myDashboardPurchases": "Mein Dashboard (Einkäufe)",
+      "producerPanel": "Produzenten-Bereich"
+    }
   },
   "auth": {
     "loginTitle": "Willkommen zurück",
@@ -240,7 +256,57 @@
     "checkoutBtn": "Zur Kasse gehen →",
     "keepShopping": "Weiter einkaufen",
     "alertCheckoutError": "Fehler beim Verarbeiten der Bestellung: ",
-    "favorite": "Favorit"
+    "favorite": "Favorit",
+    "added": "✓ Hinzugefügt",
+    "promo": "PROMO",
+    "goldSupplier": "Gold Supplier",
+    "retail": "Einzelhandel:",
+    "wholesaleFrom": "Großhandel (≥{{qty}}kg):",
+    "noReviews": "Noch keine Bewertungen",
+    "registeredProducer": "Registrierter Produzent",
+    "productFallback": "Produkt",
+    "upTo": "Bis zu:",
+    "closeFilters": "Filter schließen",
+    "cartAria": "Einkaufswagen",
+    "closeCart": "Warenkorb schließen",
+    "decreaseQty": "Menge verringern",
+    "increaseQty": "Menge erhöhen",
+    "removeItem": "{{name}} entfernen",
+    "fruits": {
+      "Banano": "Banane",
+      "Piña": "Ananas",
+      "Mango": "Mango",
+      "Maracuyá": "Maracuja",
+      "Guanábana": "Sauersack",
+      "Naranja": "Orange",
+      "Coco": "Kokosnuss",
+      "Limón": "Zitrone",
+      "Otro": "Andere"
+    },
+    "sort": {
+      "relevance": "Relevanz",
+      "priceAsc": "Preis: aufsteigend",
+      "priceDesc": "Preis: absteigend",
+      "nameAsc": "Name A-Z"
+    }
+  },
+  "productDetail": {
+    "loading": "Produkt wird geladen…",
+    "notFound": "Produkt nicht gefunden",
+    "notFoundDesc": "Dieses Produkt existiert nicht oder wurde entfernt.",
+    "backToCatalog": "Zurück zum Katalog",
+    "registeredProducer": "Registrierter Produzent",
+    "verifiedProducer": "Verifizierter Produzent · Urabá, Kolumbien",
+    "reviews": "Bewertungen",
+    "producer": "Produzent:",
+    "wholesale": "🏭 Großhandelspreis:",
+    "wholesaleFor": "für Bestellungen ≥",
+    "inStock": "✓ Auf Lager: {{qty}} kg verfügbar",
+    "outOfStock": "✗ Nicht auf Lager",
+    "description": "Beschreibung",
+    "addToCart": "🛒 In den Warenkorb",
+    "added": "✓ Zum Warenkorb hinzugefügt",
+    "viewCatalog": "Katalog ansehen"
   },
   "profile": {
     "title": "Mein Profil",
@@ -543,6 +609,9 @@
   },
   "legal": {
     "breadcrumb": "Brotkrümelnavigation",
+    "eyebrow": "AgroMarket · ASAFRUT",
+    "toc": "Inhalt",
+    "appliesTo": "Gilt für ganz AgroMarket",
     "updated": "Letzte Aktualisierung",
     "updateDate": "20. Mai 2024",
     "terms": {
@@ -661,15 +730,25 @@
     "placeholder": "Beschreiben Sie Ihr AgroMarket-Problem...",
     "send": "Senden",
     "openAssistant": "Hilfeassistent öffnen",
+    "quickQuestions": {
+      "login": "Anmeldung nicht möglich",
+      "email": "E-Mail nicht erhalten",
+      "currency": "Währung ändert sich nicht",
+      "language": "Sprache ändert sich nicht",
+      "payment": "Ich habe ein Zahlungsproblem",
+      "order": "Bestellung wird nicht angezeigt",
+      "cart": "Ich kann nicht zum Warenkorb hinzufügen",
+      "sell": "Ich möchte verkaufen"
+    },
     "quick": {
-      "No puedo iniciar sesión": "Anmeldung nicht möglich",
-      "No recibí el correo": "E-Mail nicht erhalten",
-      "No cambia la divisa": "Währung ändert sich nicht",
-      "El idioma no cambia": "Sprache ändert sich nicht",
-      "Tengo un problema con el pago": "Zahlungsproblem",
-      "Mi pedido no aparece": "Bestellung wird nicht angezeigt",
-      "No puedo agregar al carrito": "Warenkorbproblem",
-      "Quiero vender": "Als Produzent verkaufen"
+      "login": "Anmeldung nicht möglich",
+      "email": "E-Mail nicht erhalten",
+      "currency": "Währung ändert sich nicht",
+      "language": "Sprache ändert sich nicht",
+      "payment": "Zahlungsproblem",
+      "order": "Bestellung wird nicht angezeigt",
+      "cart": "Warenkorbproblem",
+      "sell": "Als Produzent verkaufen"
     }
   }
 }

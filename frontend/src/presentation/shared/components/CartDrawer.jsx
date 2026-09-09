@@ -3,12 +3,16 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
+import { useDivisa } from "@/app/hooks/useDivisa";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import api from "@/infrastructure/http/api";
 import "@/presentation/styles/CartDrawer.css";
 
 export default function CartDrawer({ isOpen, onClose }) {
-  const { user, formatPrice } = useAuth();
+  const { user } = useAuth();
+  const { formatearPrecio } = useDivisa();
+  // Divisa global reactiva: todo el carrito refleja idioma + divisa al instante.
+  const formatPrice = (v) => formatearPrecio(v);
   const { cart, removeFromCart, updateQuantity, total, count } = useCart();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -113,7 +117,7 @@ export default function CartDrawer({ isOpen, onClose }) {
         className="cart-drawer open"
         role="dialog"
         aria-modal="true"
-        aria-label="Carrito de compras"
+        aria-label={t("catalog.cartAria", "Carrito de compras")}
       >
         <div className="cart-header">
           <div className="cart-header-title">
@@ -128,7 +132,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             type="button"
             className="cart-close"
             onClick={onClose}
-            aria-label="Cerrar carrito"
+            aria-label={t("catalog.closeCart", "Cerrar carrito")}
           >
             ✕
           </button>
@@ -202,25 +206,25 @@ export default function CartDrawer({ isOpen, onClose }) {
                       {isWholesale ? (
                         <>
                           <span className="price-old">
-                            {formatPrice(item.precio)}/kg
+                            {formatPrice(item.precio)}{t("catalog.perKg", "/kg")}
                           </span>
 
                           <span className="price-wholesale">
-                            {formatPrice(unitPrice)}/kg
+                            {formatPrice(unitPrice)}{t("catalog.perKg", "/kg")}
                           </span>
                         </>
                       ) : isPromotion ? (
                         <>
                           <span className="price-old">
-                            {formatPrice(item.precio)}/kg
+                            {formatPrice(item.precio)}{t("catalog.perKg", "/kg")}
                           </span>
 
                           <span className="price-promo">
-                            {formatPrice(unitPrice)}/kg
+                            {formatPrice(unitPrice)}{t("catalog.perKg", "/kg")}
                           </span>
                         </>
                       ) : (
-                        `${formatPrice(unitPrice)}/kg`
+                        <span>{formatPrice(unitPrice)}{t("catalog.perKg", "/kg")}</span>
                       )}
                     </div>
 
@@ -229,7 +233,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                         type="button"
                         className="qty-btn"
                         onClick={() => updateQuantity(item.id, item.qty - 1)}
-                        aria-label="Disminuir cantidad"
+                        aria-label={t("catalog.decreaseQty", "Disminuir cantidad")}
                       >
                         −
                       </button>
@@ -240,7 +244,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                         type="button"
                         className="qty-btn"
                         onClick={() => updateQuantity(item.id, item.qty + 1)}
-                        aria-label="Aumentar cantidad"
+                        aria-label={t("catalog.increaseQty", "Aumentar cantidad")}
                       >
                         +
                       </button>
@@ -251,7 +255,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                     type="button"
                     className="cart-item-del"
                     onClick={() => removeFromCart(item.id)}
-                    aria-label={`Eliminar ${item.nombre}`}
+                    aria-label={t("catalog.removeItem", "Eliminar {{name}}", { name: item.nombre })}
                   >
                     ✕
                   </button>

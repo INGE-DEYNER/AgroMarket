@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
 import ProductCard from "@/presentation/features/product/components/ProductCard";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
+import { useDivisa } from "@/app/hooks/useDivisa";
 import api from "@/infrastructure/http/api";
 import "@/presentation/styles/catalogo.css";
 
@@ -14,12 +15,6 @@ function extractArray(response) {
   return [];
 }
 
-function productName(p) {
-  return p.nombre ?? p.name ?? "Producto";
-}
-function productCategory(p) {
-  return p.categoria ?? p.tipo ?? p.category ?? "";
-}
 function productPrice(p) {
   return Number(p.precio ?? p.price ?? 0);
 }
@@ -28,7 +23,8 @@ function producerName(p) {
     p.productorNombre ??
     p.productor?.nombre ??
     p.nombreProductor ??
-    "Productor registrado"
+    p.producer?.name ??
+    ""
   );
 }
 function producerLocation(p) {
@@ -36,17 +32,18 @@ function producerLocation(p) {
 }
 
 const SORT_OPTIONS = [
-  { value: "relevancia", label: "Más relevantes" },
-  { value: "precioAsc", label: "Precio: menor a mayor" },
-  { value: "precioDesc", label: "Precio: mayor a menor" },
-  { value: "nombreAsc", label: "Nombre A-Z" },
+  { value: "relevancia", labelKey: "catalog.sort.relevance" },
+  { value: "precioAsc", labelKey: "catalog.sort.priceAsc" },
+  { value: "precioDesc", labelKey: "catalog.sort.priceDesc" },
+  { value: "nombreAsc", labelKey: "catalog.sort.nameAsc" },
 ];
 
 export default function Catalogo() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { addToCart } = useCart();
+  const { formatearPrecio, divisaActual } = useDivisa();
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -92,16 +89,19 @@ export default function Catalogo() {
   };
 
   const visible = useMemo(() => {
+    const productNameOf = (p) => p.nombre ?? p.name ?? t("catalog.productFallback", "Producto");
+    const productCategoryOf = (p) => p.categoria ?? p.tipo ?? p.category ?? p.fruitType ?? "";
     let list = products.filter((p) => {
-      const text = `${productName(p)} ${producerName(p)} ${productCategory(p)}`.toLowerCase();
+      const text = `${productNameOf(p)} ${producerName(p)} ${productCategoryOf(p)}`.toLowerCase();
       const matchesQuery = !query.trim() || text.includes(query.trim().toLowerCase());
       const matchesCategory =
         !selectedCategory ||
-        productCategory(p).toLowerCase() === selectedCategory.toLowerCase();
+        productCategoryOf(p).toLowerCase() === selectedCategory.toLowerCase();
       const matchesPrice = productPrice(p) <= priceMax;
       return matchesQuery && matchesCategory && matchesPrice;
     });
 
+    const locale = String(i18n.resolvedLanguage || i18n.language || "es");
     switch (sort) {
       case "precioAsc":
         list = [...list].sort((a, b) => productPrice(a) - productPrice(b));
@@ -110,13 +110,16 @@ export default function Catalogo() {
         list = [...list].sort((a, b) => productPrice(b) - productPrice(a));
         break;
       case "nombreAsc":
-        list = [...list].sort((a, b) => productName(a).localeCompare(productName(b)));
+        list = [...list].sort((a, b) => productNameOf(a).localeCompare(productNameOf(b), locale));
         break;
       default:
         break;
     }
+    // expone helpers para el render sin romper el scope
+    list.productNameOf = productNameOf;
+    list.productCategoryOf = productCategoryOf;
     return list;
-  }, [products, query, selectedCategory, priceMax, sort]);
+  }, [products, query, selectedCategory, priceMax, sort, t, i18n.language, i18n.resolvedLanguage]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -169,7 +172,7 @@ export default function Catalogo() {
                 type="button"
                 className="close-filters-mobile-btn"
                 onClick={() => setFiltersOpen(false)}
-                aria-label="Cerrar filtros"
+                aria-label={t("catalog.closeFilters", "Cerrar filtros")}
               >
                 ✕
               </button>
@@ -225,11 +228,7 @@ export default function Catalogo() {
                   style={{ width: "100%" }}
                 />
                 <div style={{ fontSize: "0.85rem", fontWeight: 600 }}>
-                  {new Intl.NumberFormat("es-CO", {
-                    style: "currency",
-                    currency: "COP",
-                    maximumFractionDigits: 0,
-                  }).format(priceMax)}
+                  {t("catalog.upTo", "Hasta:")} {formatearPrecio(priceMax)} · {divisaActual}
                 </div>
               </div>
             </aside>
@@ -243,7 +242,7 @@ export default function Catalogo() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={t("catalog.searchPlaceholder", "Buscar productos…")}
-                    aria-label="Buscar productos"
+                    aria-label={t("catalog.searchAria", "Buscar productos")}
                   />
                 </form>
                 <div className="catalog-meta-count">
@@ -263,7 +262,7 @@ export default function Catalogo() {
                 >
                   {SORT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                      {t(opt.labelKey, opt.value)}
                     </option>
                   ))}
                 </select>
@@ -283,15 +282,19 @@ export default function Catalogo() {
                 </div>
               ) : (
                 <div className="catalog-grid">
-                  {visible.map((p) => (
+                  {visible.map((p) => {
+                    const nombre = p.nombre ?? p.name ?? t("catalog.productFallback", "Producto");
+                    const categoria = p.categoria ?? p.tipo ?? p.category ?? p.fruitType ?? "";
+                    const prodName = p.productorNombre ?? p.producer?.name ?? producerName(p) ?? "";
+                    return (
                     <ProductCard
-                      key={p.id ?? p.idEncriptado ?? `${productName(p)}-${producerName(p)}`}
+                      key={p.id ?? p.idEncriptado ?? `${nombre}-${prodName}`}
                       p={{
                         ...p,
-                        nombre: productName(p),
+                        nombre,
                         precio: productPrice(p),
-                        tipoFruta: p.fruitType ?? productCategory(p),
-                        productorNombre: p.producer?.name ?? producerName(p),
+                        tipoFruta: p.fruitType ?? categoria,
+                        productorNombre: prodName || t("catalog.registeredProducer", "Productor registrado"),
                         ubicacion: producerLocation(p),
                         imagenUrl: p.imageUrl || p.imagenUrl || null,
                         stock: p.availableQuantity ?? p.stock ?? 0,
@@ -303,7 +306,8 @@ export default function Catalogo() {
                       onViewDetails={(prod) => navigate(`/producto/${prod.id ?? ""}`)}
                       onContactProducer={() => navigate("/mensajeria")}
                     />
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </section>

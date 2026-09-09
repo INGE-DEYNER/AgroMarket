@@ -15,7 +15,23 @@
     "deals": "Ofertas",
     "producers": "Produtores",
     "searchPlaceholder": "Buscar frutas, verduras, produtores...",
-    "trending": "Mais vendidos"
+    "trending": "Mais vendidos",
+    "deals": "Ofertas",
+    "producers": "Produtores",
+    "cart": "Carrito",
+    "viewCart": "Ver carrito",
+    "mobileMenu": "Menu móvil",
+    "closeMenu": "Cerrar menú",
+    "categoriesLabel": "Categorías",
+    "userMenu": {
+      "dashboard": "Meu painel",
+      "myOrders": "Meus pedidos",
+      "favorites": "Favoritos",
+      "profile": "Meu perfil",
+      "adminPanel": "Painel admin",
+      "myDashboardPurchases": "Meu painel (compras)",
+      "producerPanel": "Painel productor"
+    }
   },
   "auth": {
     "loginTitle": "Bem-vindo de volta",
@@ -240,7 +256,57 @@
     "checkoutBtn": "Prosseguir para pagamento →",
     "keepShopping": "Continuar comprando",
     "alertCheckoutError": "Erro ao processar o pedido: ",
-    "favorite": "Favorito"
+    "favorite": "Favorito",
+    "added": "✓ Adicionado",
+    "promo": "PROMO",
+    "goldSupplier": "Gold Supplier",
+    "retail": "Varejo:",
+    "wholesaleFrom": "Atacado (≥{{qty}}kg):",
+    "noReviews": "Sem avaliações ainda",
+    "registeredProducer": "Produtor registrado",
+    "productFallback": "Produto",
+    "upTo": "Até:",
+    "closeFilters": "Fechar filtros",
+    "cartAria": "Carrito de compras",
+    "closeCart": "Fechar carrito",
+    "decreaseQty": "Diminuir quantidade",
+    "increaseQty": "Aumentar quantidade",
+    "removeItem": "Eliminar {{name}}",
+    "fruits": {
+      "Banano": "Banana",
+      "Piña": "Abacaxi",
+      "Mango": "Mango",
+      "Maracuyá": "Maracujá",
+      "Guanábana": "Graviola",
+      "Naranja": "Laranja",
+      "Coco": "Coco",
+      "Limón": "Limão",
+      "Otro": "Outro"
+    },
+    "sort": {
+      "relevance": "Mais relevantes",
+      "priceAsc": "Preço: menor a maior",
+      "priceDesc": "Preço: maior a menor",
+      "nameAsc": "Nome A-Z"
+    }
+  },
+  "productDetail": {
+    "loading": "Cargando produto…",
+    "notFound": "Produto não encontrado",
+    "notFoundDesc": "Este produto não existe ou foi eliminado.",
+    "backToCatalog": "Volver ao catálogo",
+    "registeredProducer": "Produtor registrado",
+    "verifiedProducer": "Produtor verificado · Urabá, Colombia",
+    "reviews": "avaliações",
+    "producer": "Produtor:",
+    "wholesale": "🏭 Preço por atacado:",
+    "wholesaleFor": "para pedidos ≥",
+    "inStock": "✓ Em stock: {{qty}} kg disponíveis",
+    "outOfStock": "✗ Sem stock",
+    "description": "Descrição",
+    "addToCart": "🛒 Adicionar ao carrito",
+    "added": "✓ Adicionado ao carrito",
+    "viewCatalog": "Ver catálogo"
   },
   "profile": {
     "title": "Meu Perfil",
@@ -543,6 +609,9 @@
   },
   "legal": {
     "breadcrumb": "Migas de pan",
+    "eyebrow": "AgroMarket · ASAFRUT",
+    "toc": "Contenido",
+    "appliesTo": "Aplica a todo AgroMarket",
     "updated": "Última actualización",
     "updateDate": "20 de mayo de 2024",
     "terms": {
@@ -661,15 +730,25 @@
     "placeholder": "Describe tu problema con AgroMarket...",
     "send": "Enviar",
     "openAssistant": "Abrir asistente de ayuda",
+    "quickQuestions": {
+      "login": "Não consigo entrar",
+      "email": "Não recebi o e-mail",
+      "currency": "A moeda não muda",
+      "language": "O idioma não muda",
+      "payment": "Tengo um problema com o pagamento",
+      "order": "O meu pedido não aparece",
+      "cart": "Não consigo agregar ao carrito",
+      "sell": "Quiero vender"
+    },
     "quick": {
-      "No puedo iniciar sesión": "No puedo iniciar sesión",
-      "No recibí el correo": "No recibí el correo",
-      "No cambia la divisa": "No cambia la divisa",
-      "El idioma no cambia": "El idioma no cambia",
-      "Tengo un problema con el pago": "Problema con el pago",
-      "Mi pedido no aparece": "Mi pedido no aparece",
-      "No puedo agregar al carrito": "Problema con el carrito",
-      "Quiero vender": "Cómo vender como productor"
+      "login": "Não consigo entrar",
+      "email": "Não recebi o e-mail",
+      "currency": "A moeda não muda",
+      "language": "O idioma não muda",
+      "payment": "Problema com o pagamento",
+      "order": "O meu pedido não aparece",
+      "cart": "Problema com o carrito",
+      "sell": "Vender como productor"
     }
   }
 }

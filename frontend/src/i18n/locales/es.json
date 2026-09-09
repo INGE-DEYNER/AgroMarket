@@ -178,7 +178,21 @@
     "trending": "Más vendidos",
     "deals": "Ofertas",
     "producers": "Productores",
-    "admin": "Admin"
+    "admin": "Admin",
+    "cart": "Carrito",
+    "viewCart": "Ver carrito",
+    "mobileMenu": "Menú móvil",
+    "closeMenu": "Cerrar menú",
+    "categoriesLabel": "Categorías",
+    "userMenu": {
+      "dashboard": "Mi dashboard",
+      "myOrders": "Mis pedidos",
+      "favorites": "Favoritos",
+      "profile": "Mi perfil",
+      "adminPanel": "Panel admin",
+      "myDashboardPurchases": "Mi dashboard (compras)",
+      "producerPanel": "Panel productor"
+    }
   },
   "auth": {
     "loginTitle": "Bienvenido de nuevo",
@@ -211,6 +225,7 @@
     "heroTitleSpan": "directo del campo",
     "heroSub": "Productos frescos de los agricultores de ASAFRUT. Sin intermediarios, precios justos.",
     "searchPlaceholder": "Buscar productos...",
+    "searchAria": "Buscar productos",
     "cartButton": "Carrito",
     "category": {
       "all": "Todos",
@@ -223,6 +238,17 @@
       "Coco": "Coco",
       "Limón": "Limón"
     },
+    "fruits": {
+      "Banano": "Banano",
+      "Piña": "Piña",
+      "Mango": "Mango",
+      "Maracuyá": "Maracuyá",
+      "Guanábana": "Guanábana",
+      "Naranja": "Naranja",
+      "Coco": "Coco",
+      "Limón": "Limón",
+      "Otro": "Otro"
+    },
     "resultsFound": "producto encontrado",
     "resultsFoundPlural": "productos encontrados",
     "noProducts": "No se encontraron productos",
@@ -231,6 +257,7 @@
     "soldOut": "✗ Agotado",
     "perKg": "/kg",
     "addToCart": "+ Agregar",
+    "added": "✓ Agregado",
     "cartTitle": "Mi carrito",
     "cartItems": "items",
     "emptyCart": "Tu carrito está vacío",
@@ -240,7 +267,46 @@
     "checkoutBtn": "Proceder al pago →",
     "keepShopping": "Seguir comprando",
     "alertCheckoutError": "Error al procesar el pedido: ",
-    "favorite": "Favorito"
+    "favorite": "Favorito",
+    "promo": "PROMO",
+    "goldSupplier": "Gold Supplier",
+    "retail": "Por menor:",
+    "wholesaleFrom": "Por mayor (≥{{qty}}kg):",
+    "noReviews": "Sin reseñas aún",
+    "registeredProducer": "Productor registrado",
+    "productFallback": "Producto",
+    "upTo": "Hasta:",
+    "closeFilters": "Cerrar filtros",
+    "cartAria": "Carrito de compras",
+    "closeCart": "Cerrar carrito",
+    "decreaseQty": "Disminuir cantidad",
+    "increaseQty": "Aumentar cantidad",
+    "removeItem": "Eliminar {{name}}",
+    "sort": {
+      "relevance": "Más relevantes",
+      "priceAsc": "Precio: menor a mayor",
+      "priceDesc": "Precio: mayor a menor",
+      "nameAsc": "Nombre A-Z"
+    }
+  },
+  "productDetail": {
+    "loading": "Cargando producto…",
+    "loadError": "No se pudo cargar el producto.",
+    "notFound": "Producto no encontrado",
+    "notFoundDesc": "Este producto no existe o fue eliminado.",
+    "backToCatalog": "Volver al catálogo",
+    "registeredProducer": "Productor registrado",
+    "verifiedProducer": "Productor verificado · Urabá, Colombia",
+    "reviews": "reseñas",
+    "producer": "Productor:",
+    "wholesale": "🏭 Precio mayorista:",
+    "wholesaleFor": "para pedidos ≥",
+    "inStock": "✓ En stock: {{qty}} kg disponibles",
+    "outOfStock": "✗ Sin stock disponible",
+    "description": "Descripción",
+    "addToCart": "🛒 Agregar al carrito",
+    "added": "✓ Agregado al carrito",
+    "viewCatalog": "Ver catálogo"
   },
   "profile": {
     "title": "Mi Perfil",
@@ -543,6 +609,9 @@
   },
   "legal": {
     "breadcrumb": "Migas de pan",
+    "eyebrow": "AgroMarket · ASAFRUT",
+    "toc": "Contenido",
+    "appliesTo": "Aplica a todo AgroMarket",
     "updated": "Última actualización",
     "updateDate": "20 de mayo de 2024",
     "terms": {
@@ -661,15 +730,25 @@
     "placeholder": "Describe tu problema con AgroMarket...",
     "send": "Enviar",
     "openAssistant": "Abrir asistente de ayuda",
+    "quickQuestions": {
+      "login": "No puedo iniciar sesión",
+      "email": "No recibí el correo",
+      "currency": "No cambia la divisa",
+      "language": "El idioma no cambia",
+      "payment": "Tengo un problema con el pago",
+      "order": "Mi pedido no aparece",
+      "cart": "No puedo agregar al carrito",
+      "sell": "Quiero vender"
+    },
     "quick": {
-      "No puedo iniciar sesión": "No puedo iniciar sesión",
-      "No recibí el correo": "No recibí el correo",
-      "No cambia la divisa": "No cambia la divisa",
-      "El idioma no cambia": "El idioma no cambia",
-      "Tengo un problema con el pago": "Problema con el pago",
-      "Mi pedido no aparece": "Mi pedido no aparece",
-      "No puedo agregar al carrito": "Problema con el carrito",
-      "Quiero vender": "Cómo vender como productor"
+      "login": "No puedo iniciar sesión",
+      "email": "No recibí el correo",
+      "currency": "No cambia la divisa",
+      "language": "El idioma no cambia",
+      "payment": "Problema con el pago",
+      "order": "Mi pedido no aparece",
+      "cart": "Problema con el carrito",
+      "sell": "Cómo vender como productor"
     }
   }
 }

@@ -1,9 +1,20 @@
 ﻿import { useState, useEffect, useCallback } from "react";
+import i18n from "@/i18n/index";
 import api from "@/infrastructure/http/api";
 
 import DivisaContext from "@/app/contexts/DivisaContext";
 
 const INTERVALO_TASAS = 60 * 60 * 1000;
+
+const IDIOMA_A_LOCALE = {
+  es: "es-CO",
+  en: "en-US",
+  pt: "pt-BR",
+  fr: "fr-FR",
+  de: "de-DE",
+  zh: "zh-CN",
+  ar: "ar-EG",
+};
 
 const SIMBOLOS_DIVISA = {
   COP: {
@@ -92,6 +103,22 @@ export const DivisaProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
+
+  // Idioma activo: fuerza re-render de formatearPrecio cuando cambia el idioma,
+  // para que absolutamente todo el proyecto refleje idioma + divisa al instante.
+  const [idiomaActivo, setIdiomaActivo] = useState(() =>
+    String(i18n.resolvedLanguage || i18n.language || "es").split("-")[0].toLowerCase(),
+  );
+
+  useEffect(() => {
+    const onLanguage = (language) => {
+      setIdiomaActivo(String(language || "es").split("-")[0].toLowerCase());
+    };
+    i18n.on("languageChanged", onLanguage);
+    return () => {
+      i18n.off("languageChanged", onLanguage);
+    };
+  }, []);
 
   /**
    * Obtiene las tasas de cambio desde el backend.
@@ -182,6 +209,8 @@ export const DivisaProvider = ({ children }) => {
 
   /**
    * Formatea un precio según la divisa actual.
+   * Usa el locale del idioma activo para que el formato numérico
+   * acompañe al idioma (es-CO, en-US, pt-BR, fr-FR, de-DE, zh-CN, ar-EG).
    */
   const formatearPrecio = useCallback(
     (precioCOP) => {
@@ -192,14 +221,17 @@ export const DivisaProvider = ({ children }) => {
         decimales: 2,
       };
 
-      const formatted = new Intl.NumberFormat("es-CO", {
+      const idioma = idiomaActivo;
+      const locale = IDIOMA_A_LOCALE[idioma] || "es-CO";
+
+      const formatted = new Intl.NumberFormat(locale, {
         minimumFractionDigits: config.decimales,
         maximumFractionDigits: config.decimales,
       }).format(valor);
 
       return `${config.simbolo} ${formatted}`;
     },
-    [convertir, divisaActual],
+    [convertir, divisaActual, idiomaActivo],
   );
 
   const value = {

@@ -15,7 +15,23 @@
     "deals": "优惠",
     "producers": "生产者",
     "searchPlaceholder": "搜索水果、蔬菜、生产者...",
-    "trending": "热销商品"
+    "trending": "热销商品",
+    "deals": "优惠",
+    "producers": "生产者",
+    "cart": "购物车",
+    "viewCart": "查看购物车",
+    "mobileMenu": "移动菜单",
+    "closeMenu": "关闭菜单",
+    "categoriesLabel": "分类",
+    "userMenu": {
+      "dashboard": "我的面板",
+      "myOrders": "我的订单",
+      "favorites": "收藏",
+      "profile": "我的资料",
+      "adminPanel": "管理面板",
+      "myDashboardPurchases": "我的面板（购买）",
+      "producerPanel": "生产者面板"
+    }
   },
   "auth": {
     "loginTitle": "欢迎回来",
@@ -240,7 +256,57 @@
     "checkoutBtn": "进行支付 →",
     "keepShopping": "继续购物",
     "alertCheckoutError": "处理订单时出错：",
-    "favorite": "收藏"
+    "favorite": "收藏",
+    "added": "✓ 已添加",
+    "promo": "促销",
+    "goldSupplier": "金牌供应商",
+    "retail": "零售：",
+    "wholesaleFrom": "批发（≥{{qty}}公斤）：",
+    "noReviews": "暂无评价",
+    "registeredProducer": "注册生产者",
+    "productFallback": "产品",
+    "upTo": "最高：",
+    "closeFilters": "关闭筛选",
+    "cartAria": "购物车",
+    "closeCart": "关闭购物车",
+    "decreaseQty": "减少数量",
+    "increaseQty": "增加数量",
+    "removeItem": "移除 {{name}}",
+    "fruits": {
+      "Banano": "香蕉",
+      "Piña": "菠萝",
+      "Mango": "芒果",
+      "Maracuyá": "百香果",
+      "Guanábana": "刺果番荔枝",
+      "Naranja": "橙子",
+      "Coco": "椰子",
+      "Limón": "柠檬",
+      "Otro": "其他"
+    },
+    "sort": {
+      "relevance": "最相关",
+      "priceAsc": "价格：从低到高",
+      "priceDesc": "价格：从高到低",
+      "nameAsc": "名称 A-Z"
+    }
+  },
+  "productDetail": {
+    "loading": "正在加载产品…",
+    "notFound": "未找到产品",
+    "notFoundDesc": "该产品不存在或已被删除。",
+    "backToCatalog": "返回目录",
+    "registeredProducer": "注册生产者",
+    "verifiedProducer": "认证生产者 · 乌拉巴，哥伦比亚",
+    "reviews": "条评价",
+    "producer": "生产者：",
+    "wholesale": "🏭 批发价格：",
+    "wholesaleFor": "订单≥",
+    "inStock": "✓ 库存：{{qty}} 公斤可用",
+    "outOfStock": "✗ 无库存",
+    "description": "描述",
+    "addToCart": "🛒 加入购物车",
+    "added": "✓ 已加入购物车",
+    "viewCatalog": "查看目录"
   },
   "profile": {
     "title": "我的个人资料",
@@ -543,6 +609,9 @@
   },
   "legal": {
     "breadcrumb": "面包屑",
+    "eyebrow": "AgroMarket · ASAFRUT",
+    "toc": "目录",
+    "appliesTo": "适用于整个 AgroMarket",
     "updated": "最后更新",
     "updateDate": "2024年5月20日",
     "terms": {
@@ -661,15 +730,25 @@
     "placeholder": "描述您的 AgroMarket 问题...",
     "send": "发送",
     "openAssistant": "打开帮助助手",
+    "quickQuestions": {
+      "login": "无法登录",
+      "email": "未收到邮件",
+      "currency": "货币无法更改",
+      "language": "语言无法更改",
+      "payment": "我有支付问题",
+      "order": "订单未显示",
+      "cart": "无法添加到购物车",
+      "sell": "我想出售"
+    },
     "quick": {
-      "No puedo iniciar sesión": "无法登录",
-      "No recibí el correo": "未收到邮件",
-      "No cambia la divisa": "货币无法更改",
-      "El idioma no cambia": "语言无法更改",
-      "Tengo un problema con el pago": "支付问题",
-      "Mi pedido no aparece": "订单未显示",
-      "No puedo agregar al carrito": "购物车问题",
-      "Quiero vender": "作为生产者销售"
+      "login": "无法登录",
+      "email": "未收到邮件",
+      "currency": "货币无法更改",
+      "language": "语言无法更改",
+      "payment": "支付问题",
+      "order": "订单未显示",
+      "cart": "购物车问题",
+      "sell": "作为生产者销售"
     }
   }
 }

@@ -1,41 +1,61 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import api from "@/infrastructure/http/api";
+import knowledgeBase from "@/application/support/chatbotKnowledgeBase";
 
-const QUICK = [
-  ["No puedo iniciar sesión", "No puedo iniciar sesión"],
-  ["No recibí el correo", "No recibí el correo de verificación"],
-  ["No cambia la divisa", "No cambia la divisa"],
-  ["El idioma no cambia", "El idioma no cambia"],
-  ["Tengo un problema con el pago", "Tengo un problema con el pago"],
-  ["Mi pedido no aparece", "Mi pedido no aparece"],
-  ["No puedo agregar al carrito", "No puedo agregar un producto al carrito"],
-  ["Quiero vender", "Cómo puedo vender como productor"],
+const QUICK_KEYS = [
+  "login",
+  "email",
+  "currency",
+  "language",
+  "payment",
+  "order",
+  "cart",
+  "sell",
 ];
 
 export default function ChatbotSoporte() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([{ id: 1, sender: "bot", text: t("support.botWelcome"), time: now() }]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
 
-  function now() { return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" }).format(new Date()); }
+  function now() { return new Intl.DateTimeFormat(String(i18n.resolvedLanguage || i18n.language || "es"), { hour: "2-digit", minute: "2-digit" }).format(new Date()); }
+
+  // Base local multilingüe (7 idiomas): sin Gemini, sin API externa.
+  function answerLocally(raw) {
+    const text = String(raw || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const lang = String(i18n.resolvedLanguage || i18n.language || "es").split("-")[0].toLowerCase();
+    const kb = knowledgeBase[lang] || knowledgeBase.es;
+    for (const entry of kb) {
+      if (entry.keywords.some((k) => text.includes(k))) return entry.answer;
+    }
+    return t("support.noAnswer");
+  }
+
+  // Re-traduce el saludo si el usuario cambia el idioma con el chat abierto.
+  useEffect(() => {
+    const onLang = () => {
+      setMessages((prev) => {
+        if (prev.length !== 1 || prev[0].sender !== "bot") return prev;
+        return [{ ...prev[0], text: i18n.t("support.botWelcome") }];
+      });
+    };
+    i18n.on("languageChanged", onLang);
+    return () => { i18n.off("languageChanged", onLang); };
+  }, [i18n]);
 
   const send = async (raw) => {
     const text = String(raw || "").trim();
     if (!text || loading) return;
     setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: "user", text, time: now() }]);
     setInputText(""); setLoading(true);
-    try {
-      const res = await api.post("/public/chatbot", { mensaje: text });
-      const data = res?.data || res;
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: "bot", text: data.respuesta || t("support.noAnswer"), time: now() }]);
-    } catch (error) {
-      console.error("Error en asistente de soporte:", error);
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: "bot", text: t("support.connectionError"), time: now() }]);
-    } finally { setLoading(false); }
+    // Pequeña pausa para UX; la respuesta es 100% local.
+    await new Promise((r) => setTimeout(r, 350));
+    const answer = answerLocally(text);
+    setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: "bot", text: answer, time: now() }]);
+    setLoading(false);
   };
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
@@ -47,7 +67,7 @@ export default function ChatbotSoporte() {
     <div className={`chatbot-window ${isOpen ? "open" : ""}`}>
       <div className="chatbot-header"><div className="chatbot-header-info"><div className="chatbot-avatar">A</div><div><h4 className="chatbot-title">{t("support.title")}</h4><p className="chatbot-status">{t("support.online")}</p></div></div><button className="chatbot-close" type="button" onClick={() => setIsOpen(false)}>×</button></div>
       <div className="chatbot-body">{messages.map(m => <div key={m.id} className={`chat-message ${m.sender}`}><div className="message-bubble">{m.text}</div><span className="message-time">{m.time}</span></div>)}{loading && <div className="chat-message bot"><div className="message-bubble">{t("support.thinking")}</div></div>}<div ref={endRef}/></div>
-      {messages.length === 1 && <div className="chatbot-quick-actions"><div className="chips-container">{QUICK.map(([label,value]) => <button key={label} className="quick-chip" type="button" onClick={() => send(value)}>{t(`support.quick.${label}`, label)}</button>)}</div></div>}
+      {messages.length === 1 && <div className="chatbot-quick-actions"><div className="chips-container">{QUICK_KEYS.map((key) => <button key={key} className="quick-chip" type="button" onClick={() => send(t(`support.quickQuestions.${key}`, key))}>{t(`support.quick.${key}`, t(`support.quickQuestions.${key}`, key))}</button>)}</div></div>}
       <div className="chatbot-footer"><input className="chatbot-input" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === "Enter" && send(inputText)} placeholder={t("support.placeholder")} maxLength={500} disabled={loading}/><button className="chatbot-send" type="button" onClick={() => send(inputText)} disabled={loading || !inputText.trim()} aria-label={t("support.send")}>➤</button></div>
     </div>
     <button className="chatbot-trigger" type="button" onClick={() => setIsOpen(v => !v)} aria-label={t("support.openAssistant")}>{isOpen ? "×" : "?"}</button>

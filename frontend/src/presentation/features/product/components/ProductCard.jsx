@@ -1,5 +1,6 @@
 import React from "react";
 import { useAuth } from "@/app/hooks/useAuth";
+import { useDivisa } from "@/app/hooks/useDivisa";
 
 const ProductCard = React.memo(
   ({
@@ -10,7 +11,10 @@ const ProductCard = React.memo(
     onViewDetails,
     onContactProducer,
   }) => {
-    const { formatPrice, user } = useAuth();
+    const { user } = useAuth();
+    // Divisa global: formatearPrecio reacciona a idioma + divisa en todo el proyecto.
+    const { formatearPrecio } = useDivisa();
+    const formatPrice = (v) => formatearPrecio(v);
 
     return (
       <div className="catalog-card" style={{ cursor: "pointer" }}>
@@ -46,7 +50,7 @@ const ProductCard = React.memo(
                 fontWeight: "bold",
               }}
             >
-              % PROMO
+              % {t("catalog.promo", "PROMO")}
             </span>
           )}
         </div>
@@ -98,7 +102,7 @@ const ProductCard = React.memo(
               {p.productorNombre ||
                 p.productor ||
                 p.nombreProductor ||
-                "Productor ASAFRUT"}
+                t("catalog.registeredProducer", "Productor ASAFRUT")}
             </span>
             {p.productorVerificado && (
               <span
@@ -112,7 +116,7 @@ const ProductCard = React.memo(
                   border: "1px solid #385723",
                 }}
               >
-                Gold Supplier
+                {t("catalog.goldSupplier", "Gold Supplier")}
               </span>
             )}
           </div>
@@ -131,8 +135,8 @@ const ProductCard = React.memo(
               onClick={() => onViewDetails?.(p)}
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>Por menor:</span>
-                <span>{formatPrice(p.precio)}/kg</span>
+                <span>{t("catalog.retail", "Por menor:")}</span>
+                <span>{formatPrice(p.precio)}{t("catalog.perKg", "/kg")}</span>
               </div>
               <div
                 style={{
@@ -142,8 +146,8 @@ const ProductCard = React.memo(
                   color: "var(--primary)",
                 }}
               >
-                <span>Por mayor (≥{p.cantidadMinimaMayorista}kg):</span>
-                <span>{formatPrice(p.precioMayorista)}/kg</span>
+                <span>{t("catalog.wholesaleFrom", "Por mayor (≥{{qty}}kg):", { qty: p.cantidadMinimaMayorista })}</span>
+                <span>{formatPrice(p.precioMayorista)}{t("catalog.perKg", "/kg")}</span>
               </div>
             </div>
           )}
@@ -154,7 +158,7 @@ const ProductCard = React.memo(
             {p.calificacion ? (
               <>★★★★★<span>({p.calificacion})</span></>
             ) : (
-              <span style={{ color: "var(--text-dim)", fontSize: "0.8rem" }}>Sin reseñas aún</span>
+              <span style={{ color: "var(--text-dim)", fontSize: "0.8rem" }}>{t("catalog.noReviews", "Sin reseñas aún")}</span>
             )}
           </div>
           <div className="catalog-card-footer">
@@ -179,7 +183,7 @@ const ProductCard = React.memo(
                   </span>
                 </div>
               ) : (
-                formatPrice(p.precio)
+                <span>{formatPrice(p.precio)}</span>
               )}
               <small>{t("catalog.perKg", "/kg")}</small>
             </div>
@@ -195,7 +199,7 @@ const ProductCard = React.memo(
                 disabled={p.stock <= 0}
               >
                 {addedStates[p.id]
-                  ? "✓ Agregado"
+                  ? t("catalog.added", "✓ Agregado")
                   : t("catalog.addToCart", "+ Agregar")}
               </button>
             )}

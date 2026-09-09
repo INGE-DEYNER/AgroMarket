@@ -21,24 +21,44 @@ export default function InfoLegal() {
   return (
     <PublicLayout>
       <div className="page-wrap">
-        <article className="legal-page">
-          <nav className="breadcrumb" aria-label={t("legal.breadcrumb", "Breadcrumb")}>
-            <span>{t("nav.home", "Inicio")}</span><span aria-hidden="true">›</span><strong>{t(`legal.${ns}.title`)}</strong>
-          </nav>
-          <header className="legal-page-header">
+        <section className="legal-hero">
+          <div className="legal-hero-inner">
+            <nav className="breadcrumb" aria-label={t("legal.breadcrumb", "Breadcrumb")}>
+              <span>{t("nav.home", "Inicio")}</span><span aria-hidden="true">›</span><strong>{t(`legal.${ns}.title`)}</strong>
+            </nav>
+            <span className="legal-eyebrow">{t("legal.eyebrow", "AgroMarket · ASAFRUT")}</span>
             <h1>{t(`legal.${ns}.title`)}</h1>
             <p>{t(`legal.${ns}.intro`)}</p>
-            <div className="legal-page__updated">{t("legal.updated", "Última actualización")}: {t("legal.updateDate", "20 de mayo de 2024")}</div>
-          </header>
-          <div className="legal-page-content">
-            {Array.isArray(sections) && sections.map((section, index) => (
-              <section className="legal-section" key={index}>
-                <h2>{section.title}</h2>
-                {Array.isArray(section.paragraphs) ? section.paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>) : <p>{section.text}</p>}
-              </section>
-            ))}
-            {key === "terminos" && <div className="legal-note"><strong>{t("legal.terms.acceptanceTitle")}</strong><p>{t("legal.terms.acceptance")}</p></div>}
-            {key === "privacidad" && <div className="legal-note"><strong>{t("legal.privacy.contactTitle")}</strong><p>{t("legal.privacy.contact")}</p></div>}
+            <div className="legal-meta-row">
+              <span className="legal-chip">📅 {t("legal.updated", "Última actualización")}: {t("legal.updateDate", "20 de mayo de 2024")}</span>
+              <span className="legal-chip">🌐 {t("legal.appliesTo", "Aplica a todo AgroMarket")}</span>
+            </div>
+          </div>
+        </section>
+        <div className="legal-grid">
+          <aside className="legal-toc-card" aria-label={t("legal.toc", "Contenido")}>
+            <h2>{t("legal.toc", "Contenido")}</h2>
+            <ol>
+              {Array.isArray(sections) && sections.map((section, index) => (
+                <li key={index}>
+                  <a href={`#legal-sec-${index}`}>
+                    <span className="legal-toc-num">{index + 1}</span>
+                    <span>{String(section.title || "").replace(/^\d+\.\s*/, "")}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </aside>
+          <article className="legal-doc-card">
+            <div className="legal-doc-body">
+              {Array.isArray(sections) && sections.map((section, index) => (
+                <section className="legal-section-card" id={`legal-sec-${index}`} key={index}>
+                  <h2>{section.title}</h2>
+                  {Array.isArray(section.paragraphs) ? section.paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>) : <p>{section.text}</p>}
+                </section>
+              ))}
+              {key === "terminos" && <div className="legal-callout"><span className="legal-callout-icon">✓</span><div><strong>{t("legal.terms.acceptanceTitle")}</strong><p style={{ margin: "4px 0 0" }}>{t("legal.terms.acceptance")}</p></div></div>}
+              {key === "privacidad" && <div className="legal-callout"><span className="legal-callout-icon">✉</span><div><strong>{t("legal.privacy.contactTitle")}</strong><p style={{ margin: "4px 0 0" }}>{t("legal.privacy.contact")}</p></div></div>}
             {key === "cookies" && (consent !== "accepted" && consent !== "configured") && (
               <div className="cookie-actions">
                 <button className="accept" type="button" onClick={acceptCookies}>{t("legal.cookies.acceptAll")}</button>
@@ -51,8 +71,9 @@ export default function InfoLegal() {
                 <button type="button" className="accept" onClick={savePreferences}>{t("legal.cookies.savePreferences")}</button>
               </div>
             )}
-          </div>
-        </article>
+            </div>
+          </article>
+        </div>
       </div>
     </PublicLayout>
   );

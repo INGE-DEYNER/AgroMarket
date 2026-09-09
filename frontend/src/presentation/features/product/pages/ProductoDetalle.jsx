@@ -4,26 +4,29 @@ import { useTranslation } from "react-i18next";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import { useAuth } from "@/app/hooks/useAuth";
+import { useDivisa } from "@/app/hooks/useDivisa";
 import api from "@/infrastructure/http/api";
-
-const FRUIT_LABELS = {
-  BANANA: "Banano",
-  PINEAPPLE: "Piña",
-  MANGO: "Mango",
-  PASSION_FRUIT: "Maracuyá",
-  SOURSOP: "Guanábana",
-  ORANGE: "Naranja",
-  COCONUT: "Coco",
-  LEMON: "Limón",
-  OTHER: "Otro",
-};
 
 export default function ProductoDetalle() {
   const { id } = useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { formatPrice, user } = useAuth();
+  const { user } = useAuth();
+  const { formatearPrecio, divisaActual } = useDivisa();
+  const formatPrice = (v) => formatearPrecio(v);
+
+  const FRUIT_LABELS = {
+    BANANA: t("catalog.fruits.Banano", "Banano"),
+    PINEAPPLE: t("catalog.fruits.Piña", "Piña"),
+    MANGO: t("catalog.fruits.Mango", "Mango"),
+    PASSION_FRUIT: t("catalog.fruits.Maracuyá", "Maracuyá"),
+    SOURSOP: t("catalog.fruits.Guanábana", "Guanábana"),
+    ORANGE: t("catalog.fruits.Naranja", "Naranja"),
+    COCONUT: t("catalog.fruits.Coco", "Coco"),
+    LEMON: t("catalog.fruits.Limón", "Limón"),
+    OTHER: t("catalog.fruits.Otro", "Otro"),
+  };
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +43,7 @@ export default function ProductoDetalle() {
       })
       .catch((err) => {
         console.error("Error cargando producto:", err);
-        setError("No se pudo cargar el producto.");
+        setError(t("productDetail.loadError", "No se pudo cargar el producto."));
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -67,7 +70,7 @@ export default function ProductoDetalle() {
       <PublicLayout>
         <div style={{ padding: "80px 20px", textAlign: "center" }}>
           <div className="spinner" style={{ margin: "0 auto 16px" }} />
-          <p>Cargando producto…</p>
+          <p>{t("productDetail.loading", "Cargando producto…")}</p>
         </div>
       </PublicLayout>
     );
@@ -78,9 +81,9 @@ export default function ProductoDetalle() {
       <PublicLayout>
         <div style={{ padding: "80px 20px", textAlign: "center" }}>
           <span style={{ fontSize: "3rem" }}>😔</span>
-          <h2 style={{ marginTop: 16 }}>Producto no encontrado</h2>
+          <h2 style={{ marginTop: 16 }}>{t("productDetail.notFound", "Producto no encontrado")}</h2>
           <p style={{ color: "var(--text-dim)" }}>
-            {error || "Este producto no existe o fue eliminado."}
+            {error || t("productDetail.notFoundDesc", "Este producto no existe o fue eliminado.")}
           </p>
           <button
             type="button"
@@ -96,7 +99,7 @@ export default function ProductoDetalle() {
               fontWeight: 700,
             }}
           >
-            ← Volver al catálogo
+            ← {t("productDetail.backToCatalog", "Volver al catálogo")}
           </button>
         </div>
       </PublicLayout>
@@ -108,7 +111,7 @@ export default function ProductoDetalle() {
     product.producer?.name ??
     (product.producer
       ? `${product.producer.firstName ?? ""} ${product.producer.lastName ?? ""}`.trim()
-      : "Productor registrado");
+      : t("productDetail.registeredProducer", "Productor registrado"));
 
   return (
     <PublicLayout>
@@ -232,7 +235,7 @@ export default function ProductoDetalle() {
           >
             <span>👨‍🌾</span>
             <span>
-              Productor:{" "}
+              {t("productDetail.producer", "Productor:")}{" "}
               <strong style={{ color: "var(--primary)" }}>{producerName}</strong>
             </span>
             {product.producer?.companyName && (
@@ -246,7 +249,7 @@ export default function ProductoDetalle() {
               <span style={{ color: "#f5a623" }}>★★★★★</span>
               <strong>{product.averageRating.toFixed(1)}</strong>
               <span style={{ color: "var(--text-dim)", fontSize: "0.85rem" }}>
-                ({product.totalReviews} reseñas)
+                ({product.totalReviews} {t("productDetail.reviews", "reseñas")})
               </span>
             </div>
           )}
@@ -288,7 +291,7 @@ export default function ProductoDetalle() {
               </span>
             )}
             <div style={{ fontSize: "0.85rem", color: "var(--text-dim)", marginTop: 4 }}>
-              / kg · COP
+              {t("catalog.perKg", "/kg")} · {divisaActual}
             </div>
 
             {/* Precio mayorista */}
@@ -303,8 +306,9 @@ export default function ProductoDetalle() {
                   fontSize: "0.9rem",
                 }}
               >
-                <strong>🏭 Precio mayorista:</strong>{" "}
-                {formatPrice(product.wholesalePrice)}/kg para pedidos ≥{" "}
+                <strong>{t("productDetail.wholesale", "🏭 Precio mayorista:")}</strong>{" "}
+                {formatPrice(product.wholesalePrice)}{t("catalog.perKg", "/kg")}{" "}
+                {t("productDetail.wholesaleFor", "para pedidos ≥")}{" "}
                 {product.minimumWholesaleQuantity} kg
               </div>
             )}
@@ -322,15 +326,15 @@ export default function ProductoDetalle() {
             }}
           >
             {product.availableQuantity > 0
-              ? `✓ En stock: ${product.availableQuantity} kg disponibles`
-              : "✗ Sin stock disponible"}
+              ? t("productDetail.inStock", "✓ En stock: {{qty}} kg disponibles", { qty: product.availableQuantity })
+              : t("productDetail.outOfStock", "✗ Sin stock disponible")}
           </div>
 
           {/* Descripción */}
           {product.description && (
             <div>
               <h3 style={{ marginBottom: 8, fontSize: "1rem", fontWeight: 700 }}>
-                Descripción
+                {t("productDetail.description", "Descripción")}
               </h3>
               <p style={{ color: "var(--text-dim)", lineHeight: 1.7, margin: 0 }}>
                 {product.description}
@@ -360,7 +364,7 @@ export default function ProductoDetalle() {
                   transition: "background 0.2s",
                 }}
               >
-                {added ? "✓ Agregado al carrito" : "🛒 Agregar al carrito"}
+                {added ? t("productDetail.added", "✓ Agregado al carrito") : t("productDetail.addToCart", "🛒 Agregar al carrito")}
               </button>
             )}
             <button
@@ -376,7 +380,7 @@ export default function ProductoDetalle() {
                 fontWeight: 700,
               }}
             >
-              Ver catálogo
+              {t("productDetail.viewCatalog", "Ver catálogo")}
             </button>
           </div>
         </div>

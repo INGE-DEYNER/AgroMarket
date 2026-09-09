@@ -14,7 +14,7 @@ import api from "@/infrastructure/http/api";
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { count: totalItems, cartOpen, setCartOpen } = useCart();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [busqueda, setBusqueda] = useState("");
   const [menuUsuario, setMenuUsuario] = useState(false);
   const [menuCategorias, setMenuCategorias] = useState(false);
@@ -71,7 +71,8 @@ export default function Navbar() {
     return () => {
       active = false;
     };
-  }, []);
+    // Re-traduce categorías cuando cambia el idioma en todo el proyecto.
+  }, [t, i18n.resolvedLanguage, i18n.language]);
 
   // Glassmorphism on scroll
   useEffect(() => {
@@ -249,8 +250,8 @@ export default function Navbar() {
               type="button"
               onClick={() => setCartOpen(true)}
               className="nav-icon-btn"
-              title="Carrito"
-              aria-label="Ver carrito"
+              title={t("nav.cart", "Carrito")}
+              aria-label={t("nav.viewCart", "Ver carrito")}
             >
               <CartIcon />
               {totalItems > 0 && (
@@ -277,8 +278,8 @@ export default function Navbar() {
               <Link
                 to="/mensajeria"
                 className="nav-icon-btn"
-                title="Mensajes"
-                aria-label="Mensajes"
+                title={t("nav.messages", "Mensajes")}
+                aria-label={t("nav.messages", "Mensajes")}
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -362,7 +363,7 @@ export default function Navbar() {
                           >
                             <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
                           </svg>
-                          Mi dashboard
+                          {t("nav.userMenu.dashboard", "Mi dashboard")}
                         </Link>
                         <Link
                           to="/pedidos"
@@ -376,7 +377,7 @@ export default function Navbar() {
                           >
                             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
                           </svg>
-                          Mis pedidos
+                          {t("nav.userMenu.myOrders", "Mis pedidos")}
                         </Link>
                         <Link
                           to="/dashboard-comprador?tab=favoritos"
@@ -390,7 +391,7 @@ export default function Navbar() {
                           >
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                           </svg>
-                          Favoritos
+                          {t("nav.userMenu.favorites", "Favoritos")}
                         </Link>
                         <Link
                           to="/mensajeria"
@@ -404,7 +405,7 @@ export default function Navbar() {
                           >
                             <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
                           </svg>
-                          Mensajes
+                          {t("nav.messages", "Mensajes")}
                         </Link>
                         <Link
                           to="/perfil"
@@ -418,7 +419,7 @@ export default function Navbar() {
                           >
                             <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                           </svg>
-                          Mi perfil
+                          {t("nav.userMenu.profile", "Mi perfil")}
                         </Link>
                       </>
                     )}
@@ -438,7 +439,7 @@ export default function Navbar() {
                           >
                             <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z" />
                           </svg>
-                          Mi dashboard
+                          {t("nav.userMenu.dashboard", "Mi dashboard")}
                         </Link>
                         <Link
                           to="/pedidos"
@@ -452,7 +453,7 @@ export default function Navbar() {
                           >
                             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
                           </svg>
-                          Mis pedidos
+                          {t("nav.userMenu.myOrders", "Mis pedidos")}
                         </Link>
                         <Link
                           to="/mensajeria"
@@ -466,7 +467,7 @@ export default function Navbar() {
                           >
                             <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
                           </svg>
-                          Mensajes
+                          {t("nav.messages", "Mensajes")}
                         </Link>
                         <Link
                           to="/perfil"
@@ -480,7 +481,7 @@ export default function Navbar() {
                           >
                             <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                           </svg>
-                          Mi perfil
+                          {t("nav.userMenu.profile", "Mi perfil")}
                         </Link>
                       </>
                     )}
@@ -497,7 +498,7 @@ export default function Navbar() {
                           >
                             <path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z" />
                           </svg>
-                          Panel admin
+                          {t("nav.userMenu.adminPanel", "Panel admin")}
                         </Link>
                         <Link
                           to="/dashboard-comprador"
@@ -511,7 +512,7 @@ export default function Navbar() {
                           >
                             <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
                           </svg>
-                          Mi dashboard (compras)
+                          {t("nav.userMenu.myDashboardPurchases", "Mi dashboard (compras)")}
                         </Link>
                         <Link
                           to="/dashboard-productor"
@@ -525,7 +526,7 @@ export default function Navbar() {
                           >
                             <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z" />
                           </svg>
-                          Panel productor
+                          {t("nav.userMenu.producerPanel", "Panel productor")}
                         </Link>
                         <Link
                           to="/pedidos"
@@ -539,7 +540,7 @@ export default function Navbar() {
                           >
                             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
                           </svg>
-                          Mis pedidos
+                          {t("nav.userMenu.myOrders", "Mis pedidos")}
                         </Link>
                         <Link
                           to="/mensajeria"
@@ -553,7 +554,7 @@ export default function Navbar() {
                           >
                             <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
                           </svg>
-                          Mensajes
+                          {t("nav.messages", "Mensajes")}
                         </Link>
                         <Link
                           to="/perfil"
@@ -567,7 +568,7 @@ export default function Navbar() {
                           >
                             <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                           </svg>
-                          Mi perfil
+                          {t("nav.userMenu.profile", "Mi perfil")}
                         </Link>
                       </>
                     )}
@@ -625,7 +626,7 @@ export default function Navbar() {
               >
                 <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
               </svg>
-              Categorías
+              {t("nav.categoriesLabel", "Categorías")}
             </button>
             {menuCategorias && (
               <div
@@ -697,7 +698,7 @@ export default function Navbar() {
       <div
         className={`mobile-drawer ${menuMovil ? "open" : ""}`}
         role="navigation"
-        aria-label="Menú móvil"
+        aria-label={t("nav.mobileMenu", "Menú móvil")}
       >
         <div className="mobile-drawer-header">
           <Link
@@ -720,7 +721,7 @@ export default function Navbar() {
           <button
             className="mobile-drawer-close"
             onClick={() => setMenuMovil(false)}
-            aria-label="Cerrar menú"
+            aria-label={t("nav.closeMenu", "Cerrar menú")}
           >
             ✕
           </button>
@@ -791,22 +792,22 @@ export default function Navbar() {
                     to="/dashboard-comprador"
                     onClick={() => setMenuMovil(false)}
                   >
-                    Mi dashboard
+                    {t("nav.userMenu.dashboard", "Mi dashboard")}
                   </Link>
                   <Link to="/pedidos" onClick={() => setMenuMovil(false)}>
-                    Mis pedidos
+                    {t("nav.userMenu.myOrders", "Mis pedidos")}
                   </Link>
                   <Link
                     to="/dashboard-comprador?tab=favoritos"
                     onClick={() => setMenuMovil(false)}
                   >
-                    Favoritos
+                    {t("nav.userMenu.favorites", "Favoritos")}
                   </Link>
                   <Link to="/mensajeria" onClick={() => setMenuMovil(false)}>
-                    Mensajes
+                    {t("nav.messages", "Mensajes")}
                   </Link>
                   <Link to="/perfil" onClick={() => setMenuMovil(false)}>
-                    Mi perfil
+                    {t("nav.userMenu.profile", "Mi perfil")}
                   </Link>
                 </>
               )}
@@ -818,16 +819,16 @@ export default function Navbar() {
                     to="/dashboard-productor"
                     onClick={() => setMenuMovil(false)}
                   >
-                    Mi dashboard
+                    {t("nav.userMenu.dashboard", "Mi dashboard")}
                   </Link>
                   <Link to="/pedidos" onClick={() => setMenuMovil(false)}>
-                    Mis pedidos
+                    {t("nav.userMenu.myOrders", "Mis pedidos")}
                   </Link>
                   <Link to="/mensajeria" onClick={() => setMenuMovil(false)}>
-                    Mensajes
+                    {t("nav.messages", "Mensajes")}
                   </Link>
                   <Link to="/perfil" onClick={() => setMenuMovil(false)}>
-                    Mi perfil
+                    {t("nav.userMenu.profile", "Mi perfil")}
                   </Link>
                 </>
               )}
@@ -836,28 +837,28 @@ export default function Navbar() {
               {user.role?.toLowerCase() === "admin" && (
                 <>
                   <Link to="/admin" onClick={() => setMenuMovil(false)}>
-                    Panel admin
+                    {t("nav.userMenu.adminPanel", "Panel admin")}
                   </Link>
                   <Link
                     to="/dashboard-comprador"
                     onClick={() => setMenuMovil(false)}
                   >
-                    Mi dashboard (compras)
+                    {t("nav.userMenu.myDashboardPurchases", "Mi dashboard (compras)")}
                   </Link>
                   <Link
                     to="/dashboard-productor"
                     onClick={() => setMenuMovil(false)}
                   >
-                    Panel productor
+                    {t("nav.userMenu.producerPanel", "Panel productor")}
                   </Link>
                   <Link to="/pedidos" onClick={() => setMenuMovil(false)}>
-                    Mis pedidos
+                    {t("nav.userMenu.myOrders", "Mis pedidos")}
                   </Link>
                   <Link to="/mensajeria" onClick={() => setMenuMovil(false)}>
-                    Mensajes
+                    {t("nav.messages", "Mensajes")}
                   </Link>
                   <Link to="/perfil" onClick={() => setMenuMovil(false)}>
-                    Mi perfil
+                    {t("nav.userMenu.profile", "Mi perfil")}
                   </Link>
                 </>
               )}

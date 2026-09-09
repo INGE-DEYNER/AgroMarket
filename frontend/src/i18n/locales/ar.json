@@ -15,7 +15,23 @@
     "deals": "العروض",
     "producers": "المنتجون",
     "searchPlaceholder": "ابحث عن الفواكه والخضروات والمنتجين...",
-    "trending": "الأكثر مبيعاً"
+    "trending": "الأكثر مبيعاً",
+    "deals": "العروض",
+    "producers": "المنتجون",
+    "cart": "السلة",
+    "viewCart": "عرض السلة",
+    "mobileMenu": "قائمة الجوال",
+    "closeMenu": "إغلاق القائمة",
+    "categoriesLabel": "التصنيفات",
+    "userMenu": {
+      "dashboard": "لوحتي",
+      "myOrders": "طلباتي",
+      "favorites": "المفضلة",
+      "profile": "ملفي",
+      "adminPanel": "لوحة المشرف",
+      "myDashboardPurchases": "لوحتي (المشتريات)",
+      "producerPanel": "لوحة المنتج"
+    }
   },
   "auth": {
     "loginTitle": "مرحباً بعودتك",
@@ -240,7 +256,57 @@
     "checkoutBtn": "المتابعة للدفع ←",
     "keepShopping": "مواصلة التسوق",
     "alertCheckoutError": "حدث خطأ أثناء معالجة الطلب: ",
-    "favorite": "المفضلة"
+    "favorite": "المفضلة",
+    "added": "✓ تمت الإضافة",
+    "promo": "عرض",
+    "goldSupplier": "مورد ذهبي",
+    "retail": "قطاعي:",
+    "wholesaleFrom": "جملة (≥{{qty}}كجم):",
+    "noReviews": "لا توجد تقييمات بعد",
+    "registeredProducer": "منتج مسجل",
+    "productFallback": "منتج",
+    "upTo": "حتى:",
+    "closeFilters": "إغلاق الفلاتر",
+    "cartAria": "سلة التسوق",
+    "closeCart": "إغلاق السلة",
+    "decreaseQty": "تقليل الكمية",
+    "increaseQty": "زيادة الكمية",
+    "removeItem": "إزالة {{name}}",
+    "fruits": {
+      "Banano": "موز",
+      "Piña": "أناناس",
+      "Mango": "مانجو",
+      "Maracuyá": "ماراكوجا",
+      "Guanábana": "قشطة",
+      "Naranja": "برتقال",
+      "Coco": "جوز الهند",
+      "Limón": "ليمون",
+      "Otro": "أخرى"
+    },
+    "sort": {
+      "relevance": "الأكثر صلة",
+      "priceAsc": "السعر: من الأقل للأعلى",
+      "priceDesc": "السعر: من الأعلى للأقل",
+      "nameAsc": "الاسم أ-ي"
+    }
+  },
+  "productDetail": {
+    "loading": "جارٍ تحميل المنتج…",
+    "notFound": "المنتج غير موجود",
+    "notFoundDesc": "هذا المنتج غير موجود أو تم حذفه.",
+    "backToCatalog": "العودة إلى الكتالوج",
+    "registeredProducer": "منتج مسجل",
+    "verifiedProducer": "منتج موثق · أورابا، كولومبيا",
+    "reviews": "تقييمات",
+    "producer": "المنتج:",
+    "wholesale": "🏭 سعر الجملة:",
+    "wholesaleFor": "للطلبات ≥",
+    "inStock": "✓ متوفر: {{qty}} كجم",
+    "outOfStock": "✗ غير متوفر",
+    "description": "الوصف",
+    "addToCart": "🛒 أضف إلى السلة",
+    "added": "✓ تمت الإضافة إلى السلة",
+    "viewCatalog": "عرض الكتالوج"
   },
   "profile": {
     "title": "ملفي الشخصي",
@@ -543,6 +609,9 @@
   },
   "legal": {
     "breadcrumb": "مسار التنقل",
+    "eyebrow": "AgroMarket · ASAFRUT",
+    "toc": "المحتوى",
+    "appliesTo": "ينطبق على كل AgroMarket",
     "updated": "آخر تحديث",
     "updateDate": "20 مايو 2024",
     "terms": {
@@ -661,15 +730,25 @@
     "placeholder": "صف مشكلة AgroMarket...",
     "send": "إرسال",
     "openAssistant": "فتح مساعد الدعم",
+    "quickQuestions": {
+      "login": "لا أستطيع تسجيل الدخول",
+      "email": "لم تصلني الرسالة",
+      "currency": "العملة لا تتغير",
+      "language": "اللغة لا تتغير",
+      "payment": "لدي مشكلة في الدفع",
+      "order": "لا يظهر طلبي",
+      "cart": "لا أستطيع الإضافة إلى السلة",
+      "sell": "أريد البيع"
+    },
     "quick": {
-      "No puedo iniciar sesión": "لا أستطيع تسجيل الدخول",
-      "No recibí el correo": "لم تصلني الرسالة",
-      "No cambia la divisa": "العملة لا تتغير",
-      "El idioma no cambia": "اللغة لا تتغير",
-      "Tengo un problema con el pago": "مشكلة في الدفع",
-      "Mi pedido no aparece": "لا يظهر طلبي",
-      "No puedo agregar al carrito": "مشكلة في السلة",
-      "Quiero vender": "البيع كمنتج"
+      "login": "لا أستطيع تسجيل الدخول",
+      "email": "لم تصلني الرسالة",
+      "currency": "العملة لا تتغير",
+      "language": "اللغة لا تتغير",
+      "payment": "مشكلة في الدفع",
+      "order": "لا يظهر طلبي",
+      "cart": "مشكلة في السلة",
+      "sell": "البيع كمنتج"
     }
   }
 }
