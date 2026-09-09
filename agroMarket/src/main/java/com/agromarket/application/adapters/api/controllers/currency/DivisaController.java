@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.agromarket.application.services.currency.ExchangeRateService;
 
 @RestController
-@RequestMapping("/api/divisas")
+@RequestMapping({"/api/v1/divisas", "/api/divisas"})
 public class DivisaController {
 
     private final ExchangeRateService exchangeRateService;
@@ -23,7 +23,9 @@ public class DivisaController {
 
     @GetMapping("/tasas")
     public ResponseEntity<Map<String, Object>> getTasas() {
+
         Map<String, Object> response = new LinkedHashMap<>();
+
         response.put("base", "COP");
         response.put("tasas", exchangeRateService.getRates());
         response.put("actualizadoEn", Instant.now().toString());
