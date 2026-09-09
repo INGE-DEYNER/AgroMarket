@@ -10,10 +10,10 @@ import catTuberculosImg from "@/assets/home/cat-tuberculos-raices.png";
 import catCacaoImg from "@/assets/home/cat-cacao-cafe.png";
 import catProcesadosImg from "@/assets/home/cat-procesados.png";
 import catFloresImg from "@/assets/home/cat-flores-plantas.png";
-import mapPinIcon from "@/assets/icon-map-pin.svg";
 import handHeartIcon from "@/assets/icon-hand-heart.svg";
 import "@/presentation/styles/public-views.css";
 import { useTranslation } from "react-i18next";
+import { useDivisa } from "@/app/hooks/useDivisa";
 
 const getTrustBadges = (t) => [
   {
@@ -92,6 +92,7 @@ function extractArray(response) {
 export default function Home() {
   const { t } = useTranslation();
   const { addToCart } = useCart();
+  const { formatearPrecio, divisaActual } = useDivisa();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -265,9 +266,7 @@ export default function Home() {
             <div className="hm-product-grid">
               {featuredProducts.map((p) => {
                 const price = Number(p.price ?? p.precio ?? 0);
-                const formattedPrice = new Intl.NumberFormat("es-CO", {
-                  style: "currency", currency: "COP", maximumFractionDigits: 0,
-                }).format(price);
+                const formattedPrice = formatearPrecio(price);
                 const producerName = p.producer?.name ?? "Productor ASAFRUT";
                 return (
                   <article
@@ -310,7 +309,7 @@ export default function Home() {
                       <div className="hm-product-foot">
                         <div>
                           <strong className="hm-price">{formattedPrice}</strong>
-                          <span className="hm-price-label">{t("home.products.priceLabel", "Precio COP / kg")}</span>
+                          <span className="hm-price-label">{t("home.products.priceLabel", "Precio {{currency}} / kg", { currency: divisaActual })}</span>
                         </div>
                         <button
                           className="hm-add-btn"

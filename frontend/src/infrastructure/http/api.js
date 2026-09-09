@@ -32,7 +32,10 @@ const GET_ONLY_PUBLIC_PATHS = ["/productos", "/resenas"];
  * Rutas que cuelgan de un prefijo público pero SIEMPRE requieren
  * autenticación (el backend las protege explícitamente).
  */
-const AUTHENTICATED_PATHS = ["/productos/mis-productos", "/resenas/mis-resenas"];
+const AUTHENTICATED_PATHS = [
+  "/productos/mis-productos",
+  "/resenas/mis-resenas",
+];
 
 function getPathname(path) {
   if (!path) {
@@ -129,12 +132,6 @@ async function request(method, path, body) {
    */
   if (token && !publicEndpoint) {
     headers.Authorization = `Bearer ${token}`;
-  }
-
-  const userGeminiKey = localStorage.getItem("user_gemini_key");
-
-  if (userGeminiKey) {
-    headers["X-Gemini-Key"] = userGeminiKey;
   }
 
   let requestBody;

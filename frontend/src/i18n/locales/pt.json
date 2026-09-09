@@ -10,7 +10,12 @@
     "myPanel": "Meu Painel",
     "orders": "Pedidos",
     "messages": "Mensagens",
-    "shipping": "Entregas"
+    "shipping": "Entregas",
+    "admin": "Admin",
+    "deals": "Ofertas",
+    "producers": "Produtores",
+    "searchPlaceholder": "Buscar frutas, verduras, produtores...",
+    "trending": "Mais vendidos"
   },
   "auth": {
     "loginTitle": "Bem-vindo de volta",
@@ -54,7 +59,23 @@
       "families": "Familias produtoras",
       "fruits": "Tipos de frutas disponíveis",
       "rating": "Classificação média",
-      "payments": "Pagamentos seguros"
+      "payments": "Pagamentos seguros",
+      "floatCard1": {
+        "title": "Pedido a caminho",
+        "desc": "Acompanhamento em tempo real"
+      },
+      "goToDashboard": "Meu painel →",
+      "heroImgAlt": "Frutas frescas",
+      "heroSubExtra": "Frutas frescas, preços justos e rastreabilidade total.",
+      "metrics": {
+        "products": "Produtos publicados",
+        "producers": "Produtores ativos",
+        "avgPrice": "Preço médio",
+        "avgRating": "Classificação média"
+      },
+      "testimonials": {
+        "verified": "Usuário verificado"
+      }
     },
     "how": {
       "eyebrow": "PROCESSO",
@@ -519,5 +540,136 @@
     "earningsSixMonths": "Rendimentos de 6 Meses",
     "noEarningsData": "Sem dados",
     "logout": "Sair"
+  },
+  "legal": {
+    "breadcrumb": "Migas de pan",
+    "updated": "Última actualización",
+    "updateDate": "20 de mayo de 2024",
+    "terms": {
+      "title": "Términos y Condiciones",
+      "intro": "Bienvenido a AgroMarket. Al acceder y utilizar nuestra plataforma, aceptas cumplir con los siguientes términos y condiciones.",
+      "sections": [
+        {
+          "title": "1. Uso de la plataforma",
+          "text": "AgroMarket permite la compra y venta de productos agropecuarios entre productores y compradores."
+        },
+        {
+          "title": "2. Cuentas de usuario",
+          "text": "Para acceder a ciertos servicios, debes crear una cuenta y proporcionar información veraz y actualizada."
+        },
+        {
+          "title": "3. Productos y precios",
+          "text": "Los productores son responsables de la información de sus productos, precios y disponibilidad. Los precios se registran en pesos colombianos (COP)."
+        },
+        {
+          "title": "4. Pagos",
+          "text": "Los pagos se procesan mediante los métodos habilitados por la plataforma. La moneda de presentación no modifica el valor financiero original almacenado en COP."
+        },
+        {
+          "title": "5. Envíos y entregas",
+          "text": "Los tiempos y costos de entrega pueden variar según la configuración vigente y la ubicación del productor y del comprador."
+        }
+      ],
+      "acceptanceTitle": "Aceptación",
+      "acceptance": "Al continuar utilizando AgroMarket, aceptas estos términos."
+    },
+    "privacy": {
+      "title": "Política de Privacidad",
+      "intro": "En AgroMarket, respetamos tu privacidad y protegemos tus datos personales. Esta política explica cómo recopilamos, usamos y protegemos tu información.",
+      "sections": [
+        {
+          "title": "1. Información que recopilamos",
+          "text": "Nombre, correo, teléfono, dirección y datos relacionados con tus compras y uso de la plataforma."
+        },
+        {
+          "title": "2. Uso de la información",
+          "text": "Usamos tus datos para procesar pedidos, mejorar nuestros servicios, proteger las cuentas y comunicarnos contigo cuando sea necesario."
+        },
+        {
+          "title": "3. Protección de datos",
+          "text": "Implementamos medidas de seguridad para proteger tu información contra accesos no autorizados."
+        },
+        {
+          "title": "4. Tus derechos",
+          "text": "Puedes solicitar acceso, actualización o eliminación de tus datos de acuerdo con las opciones disponibles en la plataforma."
+        }
+      ],
+      "contactTitle": "Contacto de privacidad",
+      "contact": "Para más información, contáctanos en privacidad@agro-market.app."
+    },
+    "cookies": {
+      "title": "Política de Cookies",
+      "intro": "Utilizamos cookies para mejorar tu experiencia en AgroMarket. Esta política explica qué son las cookies y cómo las usamos.",
+      "sections": [
+        {
+          "title": "1. ¿Qué son las cookies?",
+          "text": "Son archivos pequeños que se almacenan en tu dispositivo para reconocer preferencias y mejorar la experiencia."
+        },
+        {
+          "title": "2. Tipos de cookies que usamos",
+          "paragraphs": [
+            "Esenciales: necesarias para el funcionamiento del sitio.",
+            "Analíticas: nos ayudan a entender cómo utilizas la plataforma.",
+            "Preferencias: recuerdan configuraciones como idioma y divisa."
+          ]
+        },
+        {
+          "title": "3. Gestión de cookies",
+          "text": "Puedes aceptar, configurar o administrar las cookies desde las opciones disponibles de la plataforma y de tu navegador."
+        }
+      ],
+      "acceptAll": "Aceptar todas las cookies",
+      "configure": "Configurar preferencias",
+      "preferencesText": "Las cookies esenciales permanecen activas. Puedes guardar tus preferencias para las demás categorías.",
+      "savePreferences": "Guardar preferencias"
+    }
+  },
+  "report": {
+    "title": "Reportar un problema",
+    "subtitle": "Describe el inconveniente y la pantalla donde ocurrió. Este formulario es independiente del asistente de ayuda.",
+    "successTitle": "Reporte preparado",
+    "successText": "El reporte quedó registrado en este navegador con un identificador de seguimiento. Conserva los detalles del problema si necesitas contactar al soporte.",
+    "newReport": "Crear otro reporte",
+    "category": "Categoría",
+    "categories": {
+      "general": "Problema general",
+      "account": "Cuenta e inicio de sesión",
+      "purchase": "Compra y carrito",
+      "payment": "Pago",
+      "shipping": "Envíos",
+      "product": "Productos",
+      "technical": "Problema técnico"
+    },
+    "subject": "Asunto",
+    "subjectPlaceholder": "Ej.: No puedo finalizar mi compra",
+    "description": "Descripción del problema",
+    "descriptionPlaceholder": "Qué estabas haciendo, qué ocurrió y qué mensaje apareció...",
+    "email": "Correo de contacto (opcional)",
+    "emailPlaceholder": "tu@correo.com",
+    "submit": "Enviar reporte",
+    "helpTitle": "¿Necesitas una solución inmediata?",
+    "helpText": "El asistente de ayuda conoce los problemas frecuentes de AgroMarket y te indica los pasos para resolverlos.",
+    "openAssistant": "Abrir asistente de ayuda"
+  },
+  "support": {
+    "title": "Ayuda AgroMarket",
+    "online": "Asistente de plataforma",
+    "botWelcome": "Hola. Soy el asistente de ayuda de AgroMarket. Puedo ayudarte a resolver problemas de cuenta, productos, carrito, divisas, idiomas, pagos, pedidos, envíos y mensajería.",
+    "noAnswer": "No encontré una solución concreta para ese caso. Describe la pantalla y el error.",
+    "connectionError": "No pude consultar la base de conocimiento. Revisa tu conexión e inténtalo de nuevo.",
+    "thinking": "Consultando soluciones...",
+    "placeholder": "Describe tu problema con AgroMarket...",
+    "send": "Enviar",
+    "openAssistant": "Abrir asistente de ayuda",
+    "quick": {
+      "No puedo iniciar sesión": "No puedo iniciar sesión",
+      "No recibí el correo": "No recibí el correo",
+      "No cambia la divisa": "No cambia la divisa",
+      "El idioma no cambia": "El idioma no cambia",
+      "Tengo un problema con el pago": "Problema con el pago",
+      "Mi pedido no aparece": "Mi pedido no aparece",
+      "No puedo agregar al carrito": "Problema con el carrito",
+      "Quiero vender": "Cómo vender como productor"
+    }
   }
 }

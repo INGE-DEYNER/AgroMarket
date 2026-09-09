@@ -85,14 +85,6 @@ const PAYMENT_LOGOS = [
    CHATBOT
    ============================================================ */
 
-function openChatbot() {
-  const trigger = document.querySelector(".chatbot-trigger");
-
-  if (trigger) {
-    trigger.click();
-  }
-}
-
 /* ============================================================
    VOLVER ARRIBA
    ============================================================ */
@@ -241,13 +233,9 @@ export default function Footer() {
 
             <Link to="/ayuda#pagos">{t("home.footerUi.payments")}</Link>
 
-            <button
-              type="button"
-              className="footer-text-button"
-              onClick={openChatbot}
-            >
+            <Link to="/reportar-problema" className="footer-text-button">
               {t("home.footerUi.report")}
-            </button>
+            </Link>
           </nav>
 
           {/* REDES SOCIALES */}

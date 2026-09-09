@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 
 import App from "@/app/App";
 import i18n from "@/i18n/index";
+import LegacyI18nBridge from "@/i18n/LegacyI18nBridge";
 
 import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
 import { runFrontendDiagnostic } from "@/infrastructure/config/FrontendDiagnostic";
@@ -56,6 +57,7 @@ export default function MainApp() {
 
   return (
     <ThemeProvider>
+      <LegacyI18nBridge />
       <App />
     </ThemeProvider>
   );

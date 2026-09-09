@@ -1,4 +1,4 @@
-package com.agromarket.domain.services.currency;
+package com.agromarket.application.services.currency;
 
 import java.time.Duration;
 import java.time.Instant;

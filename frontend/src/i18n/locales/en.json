@@ -1,103 +1,5 @@
 {
   "home": {
-    "hero": {
-      "badge": "🌽 DIRECT FROM THE PRODUCER TO YOUR HOME",
-      "title": "From the fields of Urabá and all of Colombia to your table",
-      "description": "Support the Colombian countryside by buying fruits, vegetables, tubers, and coffee cultivated with passion by local producers. Fast and guaranteed delivery.",
-      "buyNow": "Shop now",
-      "howItWorks": "How it works"
-    },
-    "trust": {
-      "secureTitle": "100% Secure Shopping",
-      "secureText": "Protected transactions",
-      "expressTitle": "Express Shipping",
-      "expressText": "Direct to your door",
-      "freshTitle": "Guaranteed Freshness",
-      "freshText": "Harvested today",
-      "localTitle": "Direct Local Support",
-      "localText": "No harmful middlemen",
-      "supportTitle": "Friendly Support",
-      "supportText": "24/7 WhatsApp assistance"
-    },
-    "categories": {
-      "fruits": "Fruits & Vegetables",
-      "bananas": "Plantains & Bananas",
-      "roots": "Tubers & Roots",
-      "coffee": "Cocoa & Coffee",
-      "processed": "Processed Products",
-      "flowers": "Flowers & Plants",
-      "title": "Featured Categories",
-      "subtitle": "Explore the freshest treasures of our Colombian land",
-      "viewAll": "View all categories →",
-      "loading": "Loading categories..."
-    },
-    "farmers": {
-      "title": "Real support for our Colombian farmers",
-      "description": "100% of your purchase goes directly to the farmers' association. Fair and transparent payments.",
-      "button": "Meet the Producers"
-    },
-    "products": {
-      "title": "Fresh Harvest of the Week",
-      "subtitle": "The latest products from our producers",
-      "viewAll": "View full catalog →",
-      "loading": "Loading products...",
-      "empty": "No products registered yet.",
-      "explore": "Explore catalog →",
-      "presentation": "Presentation: Kg",
-      "priceLabel": "Price COP / kg",
-      "add": "Add to cart"
-    },
-    "newsletter": {
-      "title": "Subscribe to our weekly harvest",
-      "description": "Receive exclusive offers, news, and recipes directly from Colombian farmers.",
-      "placeholder": "Your email address",
-      "button": "Subscribe"
-    }
-  },
-  "nav": {
-    "home": "Home",
-    "catalog": "Catalog",
-    "howItWorks": "How it works",
-    "about": "About ASAFRUT",
-    "login": "Login",
-    "register": "Register",
-    "logout": "Logout",
-    "myPanel": "My Panel",
-    "orders": "Orders",
-    "messages": "Messages",
-    "shipping": "Shipping",
-    "searchPlaceholder": "Search fruits, vegetables, producers...",
-    "trending": "Best sellers",
-    "deals": "Offers",
-    "producers": "Producers",
-    "admin": "Admin"
-  },
-  "auth": {
-    "loginTitle": "Welcome back",
-    "loginSub": "Enter your credentials to continue.",
-    "email": "Email",
-    "password": "Password",
-    "submit": "Sign in",
-    "noAccount": "Don't have an account?",
-    "registerFree": "Register for free",
-    "forgotPassword": "Forgot your password?",
-    "continueWithGoogle": "Continue with Google",
-    "registerWithGoogle": "Register with Google",
-    "accountCreated": "Account created. Redirecting to verification...",
-    "registerTitle": "Start your journey",
-    "registerSub": "Select your profile and join the agricultural revolution.",
-    "createAccount": "Create account",
-    "haveAccount": "Already have an account?",
-    "signIn": "Sign in",
-    "firstName": "First name",
-    "lastName": "Last name",
-    "phone": "Phone",
-    "confirmPassword": "Confirm password",
-    "location": "Location / Village",
-    "buyer": "Buyer",
-    "producer": "Producer"
-  },
-  "home": {
     "heroBadge": "🌿 ASAFRUT · Chigorodó, Urabá",
     "heroTitle": "From the fields of Urabá directly to your table.",
     "heroSub": "We connect agricultural producers with buyers, eliminating intermediaries.",
@@ -259,6 +161,49 @@
       "rights": "All rights reserved",
       "backTop": "Back to top ↑"
     }
+  },
+  "nav": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "howItWorks": "How it works",
+    "about": "About ASAFRUT",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "myPanel": "My Panel",
+    "orders": "Orders",
+    "messages": "Messages",
+    "shipping": "Shipping",
+    "searchPlaceholder": "Search fruits, vegetables, producers...",
+    "trending": "Best sellers",
+    "deals": "Offers",
+    "producers": "Producers",
+    "admin": "Admin"
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSub": "Enter your credentials to continue.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "noAccount": "Don't have an account?",
+    "registerFree": "Register for free",
+    "forgotPassword": "Forgot your password?",
+    "continueWithGoogle": "Continue with Google",
+    "registerWithGoogle": "Register with Google",
+    "accountCreated": "Account created. Redirecting to verification...",
+    "registerTitle": "Start your journey",
+    "registerSub": "Select your profile and join the agricultural revolution.",
+    "createAccount": "Create account",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "confirmPassword": "Confirm password",
+    "location": "Location / Village",
+    "buyer": "Buyer",
+    "producer": "Producer"
   },
   "catalog": {
     "heroBadge": "🌿 ASAFRUT · Chigorodó, Antioquia",
@@ -595,5 +540,136 @@
     "earningsSixMonths": "6 Months Earnings",
     "noEarningsData": "No data",
     "logout": "Logout"
+  },
+  "legal": {
+    "breadcrumb": "Breadcrumb",
+    "updated": "Last updated",
+    "updateDate": "May 20, 2024",
+    "terms": {
+      "title": "Terms and Conditions",
+      "intro": "Welcome to AgroMarket. By accessing and using our platform, you agree to comply with these terms and conditions.",
+      "sections": [
+        {
+          "title": "1. Use of the platform",
+          "text": "AgroMarket enables the purchase and sale of agricultural products between producers and buyers."
+        },
+        {
+          "title": "2. User accounts",
+          "text": "Some services require an account and truthful, up-to-date information."
+        },
+        {
+          "title": "3. Products and prices",
+          "text": "Producers are responsible for product information, prices and availability. Producer prices are stored in Colombian pesos (COP)."
+        },
+        {
+          "title": "4. Payments",
+          "text": "Payments are processed through the methods enabled by the platform. Display currency does not change the original financial value stored in COP."
+        },
+        {
+          "title": "5. Shipping and delivery",
+          "text": "Delivery times and costs may vary according to current settings and locations."
+        }
+      ],
+      "acceptanceTitle": "Acceptance",
+      "acceptance": "By continuing to use AgroMarket, you accept these terms."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "intro": "At AgroMarket, we respect your privacy and protect your personal data. This policy explains how we collect, use and protect your information.",
+      "sections": [
+        {
+          "title": "1. Information we collect",
+          "text": "Name, email, phone, address and information related to purchases and platform use."
+        },
+        {
+          "title": "2. Use of information",
+          "text": "We use your data to process orders, improve services, protect accounts and communicate when necessary."
+        },
+        {
+          "title": "3. Data protection",
+          "text": "We implement security measures to protect your information from unauthorized access."
+        },
+        {
+          "title": "4. Your rights",
+          "text": "You can request access, updates or deletion of your data through the options available on the platform."
+        }
+      ],
+      "contactTitle": "Privacy contact",
+      "contact": "For more information, contact privacidad@agro-market.app."
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "intro": "We use cookies to improve your AgroMarket experience. This policy explains what cookies are and how we use them.",
+      "sections": [
+        {
+          "title": "1. What are cookies?",
+          "text": "Small files stored on your device to remember preferences and improve your experience."
+        },
+        {
+          "title": "2. Cookie types we use",
+          "paragraphs": [
+            "Essential: required for the site to work.",
+            "Analytics: help us understand platform usage.",
+            "Preferences: remember settings such as language and currency."
+          ]
+        },
+        {
+          "title": "3. Managing cookies",
+          "text": "You can accept, configure or manage cookies through the platform and browser options."
+        }
+      ],
+      "acceptAll": "Accept all cookies",
+      "configure": "Configure preferences",
+      "preferencesText": "Essential cookies remain active. You can save your preferences for other categories.",
+      "savePreferences": "Save preferences"
+    }
+  },
+  "report": {
+    "title": "Report a problem",
+    "subtitle": "Describe the issue and the screen where it happened. This form is separate from the help assistant.",
+    "successTitle": "Report prepared",
+    "successText": "The report was saved in this browser with a tracking identifier.",
+    "newReport": "Create another report",
+    "category": "Category",
+    "categories": {
+      "general": "General problem",
+      "account": "Account and login",
+      "purchase": "Purchase and cart",
+      "payment": "Payment",
+      "shipping": "Shipping",
+      "product": "Products",
+      "technical": "Technical problem"
+    },
+    "subject": "Subject",
+    "subjectPlaceholder": "E.g. I cannot complete my purchase",
+    "description": "Problem description",
+    "descriptionPlaceholder": "What you were doing, what happened and what message appeared...",
+    "email": "Contact email (optional)",
+    "emailPlaceholder": "you@email.com",
+    "submit": "Submit report",
+    "helpTitle": "Need an immediate solution?",
+    "helpText": "The help assistant knows common AgroMarket problems and provides steps to solve them.",
+    "openAssistant": "Open help assistant"
+  },
+  "support": {
+    "title": "AgroMarket Help",
+    "online": "Platform assistant",
+    "botWelcome": "Hello. I am AgroMarket’s help assistant. I can help solve account, product, cart, currency, language, payment, order, shipping and messaging problems.",
+    "noAnswer": "I could not find a specific solution. Describe the screen and error.",
+    "connectionError": "I could not consult the knowledge base. Check your connection and try again.",
+    "thinking": "Checking solutions...",
+    "placeholder": "Describe your AgroMarket problem...",
+    "send": "Send",
+    "openAssistant": "Open help assistant",
+    "quick": {
+      "No puedo iniciar sesión": "I cannot log in",
+      "No recibí el correo": "I did not receive the email",
+      "No cambia la divisa": "Currency does not change",
+      "El idioma no cambia": "Language does not change",
+      "Tengo un problema con el pago": "Payment problem",
+      "Mi pedido no aparece": "My order does not appear",
+      "No puedo agregar al carrito": "Cart problem",
+      "Quiero vender": "How to sell as a producer"
+    }
   }
 }

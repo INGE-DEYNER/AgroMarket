@@ -1,16 +1,59 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
 import "@/presentation/styles/public-views.css";
-const docs={
- terminos:{title:"Términos y Condiciones",intro:"Bienvenido a AgroMarket. Al acceder y utilizar nuestra plataforma, aceptas cumplir con los siguientes términos y condiciones.",sections:[["1. Uso de la plataforma","AgroMarket permite la compra y venta de productos agropecuarios entre productores y compradores."],["2. Cuentas de usuario","Para acceder a ciertos servicios, debes crear una cuenta y proporcionar información veraz y actualizada."],["3. Productos y precios","Los productores son responsables de la información de sus productos, precios y disponibilidad."],["4. Pagos","Los pagos se realizan de forma segura a través de nuestros aliados estratégicos."],["5. Envíos y entregas","Los tiempos de entrega pueden variar según la ubicación del productor y del comprador."]]},
- privacidad:{title:"Política de Privacidad",intro:"En AgroMarket, respetamos tu privacidad y protegemos tus datos personales. Esta política explica cómo recopilamos, usamos y protegemos tu información.",sections:[["1. Información que recopilamos","Nombre, correo, teléfono, dirección y datos de compra."],["2. Uso de la información","Usamos tus datos para procesar pedidos, mejorar nuestros servicios y comunicarnos contigo."],["3. Protección de datos","Implementamos medidas de seguridad para proteger tu información contra accesos no autorizados."],["4. Tus derechos","Puedes acceder, actualizar o eliminar tus datos personales en cualquier momento."]]},
- cookies:{title:"Política de Cookies",intro:"Utilizamos cookies para mejorar tu experiencia en AgroMarket. Esta política explica qué son las cookies y cómo las usamos.",sections:[["1. ¿Qué son las cookies?","Son archivos pequeños que se almacenan en tu dispositivo para reconocerte y mejorar tu experiencia."],["2. Tipos de cookies que usamos","Esenciales: necesarias para el funcionamiento del sitio. Analíticas: nos ayudan a entender cómo usas la plataforma. Publicitarias: se usan para mostrarte contenido relevante."],["3. Gestión de cookies","Puedes aceptar, rechazar o configurar el uso de cookies desde la configuración de tu navegador."]]}
-};
-export default function InfoLegal(){
- const {pathname}=useLocation();
- const [cookiesVisible,setCookiesVisible]=useState(() => typeof window !== "undefined" && localStorage.getItem("agromarket-cookie-consent") !== "accepted");
- const [showPreferences,setShowPreferences]=useState(false);
- const acceptCookies=()=>{localStorage.setItem("agromarket-cookie-consent","accepted");setCookiesVisible(false);};
- const configureCookies=()=>setShowPreferences(true);const key=pathname.includes("privacidad")?"privacidad":pathname.includes("cookies")?"cookies":"terminos";const doc=docs[key];return <PublicLayout><div className="page-wrap"><div className="legal-page"><div className="breadcrumb">Inicio › {doc.title}</div><h1>{doc.title}</h1><div className="legal-update">Última actualización: 20 de mayo de 2024</div><p>{doc.intro}</p>{doc.sections.map(([h,p])=><section key={h}><h2>{h}</h2><p>{p}</p></section>)}{key==="terminos"&&<p>Al continuar utilizando AgroMarket, aceptas estos términos.</p>}{key==="privacidad"&&<p>Para más información, contáctanos en privacidad@agromarket.com.co</p>}{key==="cookies" && cookiesVisible && <div className="cookie-actions"><button className="accept" type="button" onClick={acceptCookies}>Aceptar todas las cookies</button><button className="configure" type="button" onClick={configureCookies}>Configurar preferencias</button></div>}
-{showPreferences && key==="cookies" && <div className="cookie-preferences"><p>Las cookies esenciales permanecen activas. Puedes administrar las demás desde tu navegador.</p><button type="button" className="accept" onClick={()=>{localStorage.setItem("agromarket-cookie-consent","configured");setShowPreferences(false);setCookiesVisible(false);}}>Guardar preferencias</button></div>}</div></div></PublicLayout>}
+
+const DOC_KEYS = { terminos: "terms", privacidad: "privacy", cookies: "cookies" };
+
+export default function InfoLegal() {
+  const { pathname } = useLocation();
+  const { t } = useTranslation();
+  const key = pathname.includes("privacidad") ? "privacidad" : pathname.includes("cookies") ? "cookies" : "terminos";
+  const ns = DOC_KEYS[key];
+  const [consent, setConsent] = useState(() => typeof window !== "undefined" ? localStorage.getItem("agromarket-cookie-consent") : null);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const sections = t(`legal.${ns}.sections`, { returnObjects: true });
+
+  const acceptCookies = () => { localStorage.setItem("agromarket-cookie-consent", "accepted"); setConsent("accepted"); };
+  const savePreferences = () => { localStorage.setItem("agromarket-cookie-consent", "configured"); setConsent("configured"); setShowPreferences(false); };
+
+  return (
+    <PublicLayout>
+      <div className="page-wrap">
+        <article className="legal-page">
+          <nav className="breadcrumb" aria-label={t("legal.breadcrumb", "Breadcrumb")}>
+            <span>{t("nav.home", "Inicio")}</span><span aria-hidden="true">›</span><strong>{t(`legal.${ns}.title`)}</strong>
+          </nav>
+          <header className="legal-page-header">
+            <h1>{t(`legal.${ns}.title`)}</h1>
+            <p>{t(`legal.${ns}.intro`)}</p>
+            <div className="legal-page__updated">{t("legal.updated", "Última actualización")}: {t("legal.updateDate", "20 de mayo de 2024")}</div>
+          </header>
+          <div className="legal-page-content">
+            {Array.isArray(sections) && sections.map((section, index) => (
+              <section className="legal-section" key={index}>
+                <h2>{section.title}</h2>
+                {Array.isArray(section.paragraphs) ? section.paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>) : <p>{section.text}</p>}
+              </section>
+            ))}
+            {key === "terminos" && <div className="legal-note"><strong>{t("legal.terms.acceptanceTitle")}</strong><p>{t("legal.terms.acceptance")}</p></div>}
+            {key === "privacidad" && <div className="legal-note"><strong>{t("legal.privacy.contactTitle")}</strong><p>{t("legal.privacy.contact")}</p></div>}
+            {key === "cookies" && (consent !== "accepted" && consent !== "configured") && (
+              <div className="cookie-actions">
+                <button className="accept" type="button" onClick={acceptCookies}>{t("legal.cookies.acceptAll")}</button>
+                <button className="configure" type="button" onClick={() => setShowPreferences(true)}>{t("legal.cookies.configure")}</button>
+              </div>
+            )}
+            {showPreferences && key === "cookies" && (
+              <div className="cookie-preferences">
+                <p>{t("legal.cookies.preferencesText")}</p>
+                <button type="button" className="accept" onClick={savePreferences}>{t("legal.cookies.savePreferences")}</button>
+              </div>
+            )}
+          </div>
+        </article>
+      </div>
+    </PublicLayout>
+  );
+}

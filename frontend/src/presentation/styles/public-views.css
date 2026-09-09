@@ -3878,3 +3878,18 @@ html[data-theme="dark"] .hm-product-card {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   REPORTE DE PROBLEMAS / SOPORTE
+   ============================================================ */
+.report-page{max-width:920px}.report-card{background:var(--public-surface,#fff);border:1px solid var(--public-border,#dce5de);border-radius:20px;padding:clamp(20px,4vw,38px);box-shadow:0 14px 38px rgba(17,24,39,.08)}.report-heading{display:flex;gap:16px;align-items:flex-start;padding-bottom:22px;border-bottom:1px solid var(--public-border,#e5ebe6)}.report-icon{width:48px;height:48px;flex:0 0 48px;border-radius:14px;display:grid;place-items:center;background:#e8f5e9;color:#11823b;font-size:24px;font-weight:800}.report-heading h1{margin:0 0 7px;font-size:clamp(28px,5vw,42px);font-weight:800}.report-heading p{margin:0;color:var(--public-text-muted,#667280);line-height:1.6}.report-form{display:grid;gap:18px;padding-top:24px}.report-form label{display:grid;gap:7px;color:var(--public-text,#111827);font-size:13px;font-weight:700}.report-form input,.report-form select,.report-form textarea{width:100%;border:1px solid #cfd9d1;border-radius:10px;background:var(--public-surface,#fff);color:var(--public-text,#111827);padding:12px 13px;font:inherit;font-weight:400;outline:none}.report-form textarea{resize:vertical;min-height:150px}.report-form input:focus,.report-form select:focus,.report-form textarea:focus{border-color:#11823b;box-shadow:0 0 0 3px rgba(17,130,59,.1)}.report-submit,.report-success button,.report-help button{border:0;border-radius:10px;background:#11823b;color:#fff;padding:12px 18px;font-weight:800;cursor:pointer}.report-success{padding:28px 0 8px}.report-success h2{margin:0 0 8px}.report-success p{color:var(--public-text-muted);line-height:1.7}.report-help{margin-top:20px;padding:24px;border-radius:18px;background:#eef7ee;border:1px solid #d5e8d7}.report-help h2{margin:0 0 7px}.report-help p{margin:0 0 15px;color:var(--public-text-muted);line-height:1.6}.dark .report-card{background:#101713;border-color:#26352c}.dark .report-form input,.dark .report-form select,.dark .report-form textarea{background:#17211b;color:#eef7f0;border-color:#34453a}.dark .report-help{background:#17251b;border-color:#29432f}@media(max-width:600px){.report-card{padding:20px 15px}.report-heading{gap:11px}.report-icon{width:40px;height:40px;flex-basis:40px}.report-help{padding:18px}}
+
+
+/* Acciones de consentimiento de cookies */
+.cookie-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;padding-top:22px;border-top:1px solid var(--public-border,#dce5de)}
+.cookie-actions button,.cookie-preferences button{border:0;border-radius:10px;padding:11px 16px;font-weight:800;cursor:pointer}
+.cookie-actions .accept,.cookie-preferences .accept{background:var(--public-primary,#11823b);color:#fff}
+.cookie-actions .configure{background:transparent;color:var(--public-primary,#11823b);border:1px solid var(--public-primary,#11823b)}
+.cookie-preferences{margin-top:16px;padding:18px;border-radius:14px;background:var(--public-surface-2,#f3f7f4);border:1px solid var(--public-border,#dce5de)}
+.cookie-preferences p{margin-bottom:12px}
+@media(max-width:480px){.cookie-actions{flex-direction:column}.cookie-actions button,.cookie-preferences button{width:100%}}

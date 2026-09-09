@@ -10,7 +10,12 @@
     "myPanel": "我的面板",
     "orders": "订单",
     "messages": "消息",
-    "shipping": "配送"
+    "shipping": "配送",
+    "admin": "管理员",
+    "deals": "优惠",
+    "producers": "生产者",
+    "searchPlaceholder": "搜索水果、蔬菜、生产者...",
+    "trending": "热销商品"
   },
   "auth": {
     "loginTitle": "欢迎回来",
@@ -54,7 +59,23 @@
       "families": "生产者家庭",
       "fruits": "可用水果种类",
       "rating": "平均评分",
-      "payments": "安全支付"
+      "payments": "安全支付",
+      "floatCard1": {
+        "title": "订单配送中",
+        "desc": "实时跟踪"
+      },
+      "goToDashboard": "我的面板 →",
+      "heroImgAlt": "新鲜水果",
+      "heroSubExtra": "新鲜水果、公平价格、完整溯源。",
+      "metrics": {
+        "products": "已发布产品",
+        "producers": "活跃生产者",
+        "avgPrice": "平均价格",
+        "avgRating": "平均评分"
+      },
+      "testimonials": {
+        "verified": "已验证用户"
+      }
     },
     "how": {
       "eyebrow": "流程",
@@ -519,5 +540,136 @@
     "earningsSixMonths": "六个月收入",
     "noEarningsData": "暂无数据",
     "logout": "退出登录"
+  },
+  "legal": {
+    "breadcrumb": "面包屑",
+    "updated": "最后更新",
+    "updateDate": "2024年5月20日",
+    "terms": {
+      "title": "条款与条件",
+      "intro": "欢迎使用 AgroMarket。访问和使用本平台即表示您同意以下条款与条件。",
+      "sections": [
+        {
+          "title": "1. 平台使用",
+          "text": "AgroMarket 为生产者和买家提供农产品买卖服务。"
+        },
+        {
+          "title": "2. 用户账户",
+          "text": "部分服务需要账户，并要求提供真实、最新的信息。"
+        },
+        {
+          "title": "3. 产品与价格",
+          "text": "生产者负责产品信息、价格和库存。生产者价格以哥伦比亚比索（COP）存储。"
+        },
+        {
+          "title": "4. 支付",
+          "text": "支付通过平台启用的方式处理。显示货币不会改变以 COP 存储的原始财务金额。"
+        },
+        {
+          "title": "5. 配送",
+          "text": "配送时间和费用可能根据当前设置以及生产者和买家所在地而变化。"
+        }
+      ],
+      "acceptanceTitle": "接受条款",
+      "acceptance": "继续使用 AgroMarket 即表示您接受这些条款。"
+    },
+    "privacy": {
+      "title": "隐私政策",
+      "intro": "AgroMarket 尊重您的隐私并保护您的个人数据。本政策说明我们如何收集、使用和保护您的信息。",
+      "sections": [
+        {
+          "title": "1. 我们收集的信息",
+          "text": "姓名、电子邮件、电话、地址以及与购买和平台使用相关的信息。"
+        },
+        {
+          "title": "2. 信息使用",
+          "text": "我们使用数据处理订单、改进服务、保护账户并在必要时与您联系。"
+        },
+        {
+          "title": "3. 数据保护",
+          "text": "我们采取安全措施保护您的信息免受未经授权的访问。"
+        },
+        {
+          "title": "4. 您的权利",
+          "text": "您可以通过平台提供的选项申请访问、更新或删除个人数据。"
+        }
+      ],
+      "contactTitle": "隐私联系方式",
+      "contact": "更多信息：privacidad@agro-market.app。"
+    },
+    "cookies": {
+      "title": "Cookie 政策",
+      "intro": "我们使用 Cookie 来改善您的 AgroMarket 体验。本政策说明 Cookie 是什么以及我们如何使用它们。",
+      "sections": [
+        {
+          "title": "1. 什么是 Cookie？",
+          "text": "存储在设备上的小型文件，用于记住偏好并改善体验。"
+        },
+        {
+          "title": "2. 我们使用的 Cookie 类型",
+          "paragraphs": [
+            "必要 Cookie：网站运行所必需。",
+            "分析 Cookie：帮助我们了解平台使用情况。",
+            "偏好 Cookie：记住语言和货币等设置。"
+          ]
+        },
+        {
+          "title": "3. Cookie 管理",
+          "text": "您可以通过平台和浏览器接受、配置或管理 Cookie。"
+        }
+      ],
+      "acceptAll": "接受所有 Cookie",
+      "configure": "配置偏好",
+      "preferencesText": "必要 Cookie 始终启用。您可以保存其他类别的偏好。",
+      "savePreferences": "保存偏好"
+    }
+  },
+  "report": {
+    "title": "报告问题",
+    "subtitle": "描述问题以及发生问题的页面。此表单独立于帮助助手。",
+    "successTitle": "报告已准备",
+    "successText": "报告已保存在此浏览器中，并生成了跟踪标识。",
+    "newReport": "创建另一个报告",
+    "category": "类别",
+    "categories": {
+      "general": "一般问题",
+      "account": "账户和登录",
+      "purchase": "购买和购物车",
+      "payment": "支付",
+      "shipping": "配送",
+      "product": "产品",
+      "technical": "技术问题"
+    },
+    "subject": "主题",
+    "subjectPlaceholder": "例如：无法完成购买",
+    "description": "问题描述",
+    "descriptionPlaceholder": "您正在进行什么操作、发生了什么以及显示了什么错误...",
+    "email": "联系邮箱（可选）",
+    "emailPlaceholder": "you@example.com",
+    "submit": "提交报告",
+    "helpTitle": "需要立即解决方案？",
+    "helpText": "帮助助手了解 AgroMarket 的常见问题，并提供解决步骤。",
+    "openAssistant": "打开帮助助手"
+  },
+  "support": {
+    "title": "AgroMarket 帮助",
+    "online": "平台助手",
+    "botWelcome": "您好，我是 AgroMarket 帮助助手。我可以帮助解决账户、产品、购物车、货币、语言、支付、订单、配送和消息问题。",
+    "noAnswer": "我没有找到具体解决方案。请描述页面和错误。",
+    "connectionError": "无法查询知识库。请检查网络连接后重试。",
+    "thinking": "正在查询解决方案...",
+    "placeholder": "描述您的 AgroMarket 问题...",
+    "send": "发送",
+    "openAssistant": "打开帮助助手",
+    "quick": {
+      "No puedo iniciar sesión": "无法登录",
+      "No recibí el correo": "未收到邮件",
+      "No cambia la divisa": "货币无法更改",
+      "El idioma no cambia": "语言无法更改",
+      "Tengo un problema con el pago": "支付问题",
+      "Mi pedido no aparece": "订单未显示",
+      "No puedo agregar al carrito": "购物车问题",
+      "Quiero vender": "作为生产者销售"
+    }
   }
 }
