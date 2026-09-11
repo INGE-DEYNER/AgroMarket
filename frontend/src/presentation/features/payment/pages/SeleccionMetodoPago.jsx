@@ -4,6 +4,7 @@ import api from '@/infrastructure/http/api';
 import TarjetaPagoBrick from '../components/TarjetaPagoBrick';
 import PSEBrick from '../components/PSEBrick';
 import { useCart } from '@/presentation/features/order/hooks/useCart';
+import { usePriceDisplay } from '@/app/hooks/usePriceDisplay';
 
 /**
  *SeleccionMetodoPago - Página para seleccionar método de pago (Tarjeta o PSE)
@@ -15,6 +16,7 @@ export default function SeleccionMetodoPago() {
   const navigate = useNavigate();
   const { clearCart } = useCart();
   const [searchParams] = useSearchParams();
+  const { formatPrice, divisaActual } = usePriceDisplay();
 
   // Obtener parámetros de la URL
   const orderId = searchParams.get('orderId');
@@ -75,13 +77,8 @@ export default function SeleccionMetodoPago() {
     navigate('/dashboard-comprador?cancelled=1');
   };
 
-  // Formatear monto
-  const formatAmount = (amt) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-    }).format(amt || 0);
-  };
+  // Formatear monto usando divisa activa (precio base en COP, visualización en divisa del cliente)
+  const formatAmount = (amt) => formatPrice(amt);
 
   // si está cargando
   if (loading) {

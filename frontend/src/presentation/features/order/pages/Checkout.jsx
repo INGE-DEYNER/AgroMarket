@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-// src/pages/Checkout.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
+import { usePriceDisplay } from "@/app/hooks/usePriceDisplay";
 import api from "@/infrastructure/http/api";
 import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 

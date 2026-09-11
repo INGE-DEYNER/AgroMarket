@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@/app/contexts/ThemeContext.js";
 import api from "@/infrastructure/http/api";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
+import { usePriceDisplay } from "@/app/hooks/usePriceDisplay";
 
 /**
  * PagoPasarela - Integración con MercadoPago Checkout Pro
@@ -29,6 +30,10 @@ export default function PagoPasarela() {
   const navigate = useNavigate();
   const { clearCart } = useCart();
   const { darkMode } = useTheme();
+  const { formatPrice } = usePriceDisplay();
+
+  // Formatear monto en divisa activa (precio base en COP)
+  const formatAmount = (amt) => formatPrice(amt);
 
   // Parámetros de URL (callback de MercadoPago)
   const preferenceId = searchParams.get("preference_id");
@@ -157,7 +162,6 @@ export default function PagoPasarela() {
   }, [preferenceId, collectionStatus, collectionId, handleMercadoPagoCallback, initializeCheckout]);
 
   // Formateadores
-  const formatAmount = (amt) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(amt || 0);
   const formatDate = (d) => d ? new Date(d).toLocaleString("es-CO") : "-";
 
   // ===== RENDERIZADO =====

@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/app/hooks/useAuth";
+import { usePriceDisplay } from "@/app/hooks/usePriceDisplay";
 
 const PedidoCard = React.memo(({ p, t, badgeClass, openFactura }) => {
-  const { formatPrice } = useAuth();
+  const { formatPrice } = usePriceDisplay();
 
   return (
     <tr>
