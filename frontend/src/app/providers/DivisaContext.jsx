@@ -67,6 +67,27 @@ const SIMBOLOS_DIVISA = {
   },
 };
 
+/**
+ * Tasas de respaldo (aproximadas, base: 1 unidad = N COP).
+ * Se usan si el backend no responde o devuelve datos inválidos,
+ * para que la conversión de divisa NUNCA dependa exclusivamente
+ * de un servicio externo.
+ */
+const TASAS_RESPALDO = {
+  COP: 1.0,
+  USD: 4150,
+  EUR: 4520,
+  GBP: 5280,
+  BRL: 780,
+  MXN: 245,
+  CLP: 4.8,
+  JPY: 27.8,
+  CNY: 575,
+  PEN: 1130,
+  ARS: 4.5,
+  CAD: 3050,
+};
+
 function obtenerDivisaInicial() {
   return localStorage.getItem("divisa_preferida") || "COP";
 }
@@ -81,24 +102,30 @@ function normalizarTasas(respuesta) {
     !Array.isArray(sourceTasas)
   ) {
     Object.entries(sourceTasas).forEach(([key, value]) => {
-      tasasData[key] =
-        value && typeof value === "object" && "tasa" in value
-          ? value.tasa
-          : value;
+      const valor = value && typeof value === "object" && "tasa" in value
+        ? value.tasa
+        : value;
+
+      const num = Number(valor);
+      if (Number.isFinite(num) && num > 0) {
+        tasasData[key] = num;
+      }
     });
   }
 
-  tasasData.COP = 1.0;
+  // Si el backend no devolvió tasas válidas, usar las de respaldo.
+  if (Object.keys(tasasData).length === 0) {
+    return { ...TASAS_RESPALDO };
+  }
 
+  tasasData.COP = 1.0;
   return tasasData;
 }
 
 export const DivisaProvider = ({ children }) => {
   const [divisaActual, setDivisaActual] = useState(obtenerDivisaInicial);
 
-  const [tasas, setTasas] = useState({
-    COP: 1.0,
-  });
+  const [tasas, setTasas] = useState({ ...TASAS_RESPALDO });
 
   const [loading, setLoading] = useState(true);
 
@@ -128,10 +155,15 @@ export const DivisaProvider = ({ children }) => {
       const respuesta = await api.get("/divisas/tasas");
       const tasasData = normalizarTasas(respuesta);
 
-      setTasas(tasasData);
-      setUltimaActualizacion(new Date());
+      if (Object.keys(tasasData).length > 1) {
+        setTasas(tasasData);
+        setUltimaActualizacion(new Date());
+      }
+      // Si el backend no devolvió nada válido, conservamos las tasas
+      // de respaldo que ya están en el estado.
     } catch (error) {
       console.error("Error cargando tasas de divisas:", error);
+      // En error: mantener tasas de respaldo (ya están en el estado).
     } finally {
       setLoading(false);
     }
