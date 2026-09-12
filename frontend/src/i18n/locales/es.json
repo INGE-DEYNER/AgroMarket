@@ -745,10 +745,18 @@
     "generateReport": "Generar Reporte Mensual 📊",
     "generatingReportAlert": "Generando reporte PDF...",
     "nav": {
-      "title": "Panel de Control",
+      "dashboard": "Dashboard",
       "users": "Usuarios",
       "products": "Productos",
-      "moderation": "Moderación"
+      "orders": "Pedidos",
+      "producers": "Productores",
+      "payments": "Pagos",
+      "reports": "Reportes",
+      "settings": "Configuración",
+      "support": "Soporte",
+      "audit": "Auditoría",
+      "moderation": "Moderación",
+      "title": "Panel de Control"
     },
     "reports": {
       "title": "Reportes",
@@ -782,7 +790,9 @@
     "earningsSixMonths": "Ingresos 6 Meses",
     "noEarningsData": "Sin datos",
     "logout": "Cerrar sesión",
-    "searchProducts": "Buscar productos..."
+    "searchProducts": "Buscar productos...",
+    "searchPlaceholder": "Buscar en AgroMarket...",
+    "reportError": "Error al generar el reporte"
   },
   "legal": {
     "breadcrumb": "Migas de pan",

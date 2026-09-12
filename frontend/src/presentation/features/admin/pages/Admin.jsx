@@ -503,6 +503,90 @@ export default function Admin() {
     }
   };
 
+  /*
+   * Respaldo del reporte: si el backend no responde con el PDF (404 de un
+   * backend desplegado antiguo, 500 real, etc.), se genera un reporte
+   * imprimible con los datos que ya están cargados en el panel.
+   */
+  const generarReporteImprimible = () => {
+    const d = dashboardData || {};
+    const esc = (v) =>
+      String(v == null ? "—" : v)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;");
+    const kpis = [
+      ["Usuarios totales", d.usuariosTotales],
+      ["Productores activos", d.productores],
+      ["Productos publicados", d.productosPublicados],
+      ["Pedidos totales", d.pedidosTotales],
+      ["Ingresos confirmados", d.ingresos != null ? formatPrice(d.ingresos) : null],
+      ["Ventas de hoy", d.ventasHoy != null ? formatPrice(d.ventasHoy) : null],
+      ["Nuevos usuarios (30 días)", d.nuevosUsuarios],
+      ["Nuevos productores (30 días)", d.nuevosProductores],
+    ];
+    const estados = [
+      ["Entregados", d.pedidosEntregados ?? 0],
+      ["En camino (enviados)", d.pedidosEnCamino ?? 0],
+      ["Pendientes", d.pedidosPendientes ?? 0],
+      ["Cancelados", d.pedidosCancelados ?? 0],
+    ];
+    const top = Array.isArray(d.topProductores) ? d.topProductores : [];
+    const meses = Array.isArray(d.ingresosPorMes) ? d.ingresosPorMes : [];
+
+    const fila = (a, b) => `<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`;
+    const topFilas = top.length
+      ? top
+          .map(
+            (t, i) =>
+              `<tr><td>${i + 1}</td><td>${esc(t.nombre)}</td><td>${t.pedidos}</td><td>$ ${esc(t.totalVentas)}</td></tr>`,
+          )
+          .join("")
+      : `<tr><td colspan="4">Sin datos</td></tr>`;
+    const mesFilas = meses.length
+      ? meses
+          .map(
+            (m) =>
+              `<tr><td>${esc(m.etiqueta)}</td><td>$ ${esc(m.total)}</td></tr>`,
+          )
+          .join("")
+      : `<tr><td colspan="2">Sin datos</td></tr>`;
+
+    const win = window.open("", "_blank", "width=920,height=760");
+    if (!win) {
+      alert(
+        "El navegador bloqueó la ventana del reporte. Habilita las ventanas emergentes para este sitio e intenta de nuevo.",
+      );
+      return;
+    }
+    win.document.write(`<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Reporte AgroMarket</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;color:#111827;margin:36px;}
+  h1{color:#0a5a27;margin:0 0 4px;font-size:24px;}
+  h2{color:#11823b;font-size:15px;margin:22px 0 8px;border-bottom:2px solid #e2e8f0;padding-bottom:4px;}
+  .meta{color:#667280;font-size:12px;margin-bottom:18px;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{background:#e8f5e9;color:#0a5a27;text-align:left;padding:7px 9px;border:1px solid #d9e5dc;}
+  td{padding:6px 9px;border:1px solid #d9e5dc;}
+  @media print{button{display:none}}
+</style></head><body>
+<h1>AgroMarket · ASAFRUT</h1>
+<div class="meta">Reporte general de la plataforma — ${new Date().toLocaleString("es-CO")}</div>
+<h2>1. Indicadores generales</h2>
+<table><tbody>${kpis.map(([k, v]) => fila(k, v)).join("")}</tbody></table>
+<h2>2. Pedidos por estado</h2>
+<table><tbody>${estados.map(([k, v]) => fila(k, v)).join("")}</tbody></table>
+<h2>3. Top productores</h2>
+<table><thead><tr><th>#</th><th>Productor</th><th>Pedidos</th><th>Total ventas</th></tr></thead><tbody>${topFilas}</tbody></table>
+<h2>4. Ingresos por mes (últimos 6)</h2>
+<table><thead><tr><th>Mes</th><th>Ingresos</th></tr></thead><tbody>${mesFilas}</tbody></table>
+<p style="margin-top:24px;color:#667280;font-size:11px;">Reporte generado desde el panel de administración de AgroMarket.</p>
+<button onclick="window.print()" style="padding:10px 16px;background:#11823b;color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button>
+</body></html>`);
+    win.document.close();
+    win.focus();
+  };
+
   const handleGenerateReport = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -511,7 +595,23 @@ export default function Admin() {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error("Error al generar el reporte.");
+      if (!res.ok) {
+        if (
+          res.status === 404 ||
+          res.status === 401 ||
+          res.status === 403 ||
+          res.status >= 500
+        ) {
+          const usarFallback = window.confirm(
+            `El servidor respondió ${res.status} (${res.statusText || "sin detalle"}) al generar el PDF.\n\n` +
+              "Esto suele ocurrir cuando el backend desplegado todavía no tiene el endpoint de reportes.\n\n" +
+              "¿Quieres generar un reporte imprimible con los datos cargados en el panel?",
+          );
+          if (usarFallback) generarReporteImprimible();
+          return;
+        }
+        throw new Error(`Error ${res.status} al generar el reporte.`);
+      }
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -521,8 +621,17 @@ export default function Admin() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+      alert("Reporte mensual descargado (reporte-mensual.pdf).");
     } catch (err) {
-      alert(err.message || "Error al generar el reporte.");
+      if (err?.isNetworkError) {
+        alert("Sin conexión con el backend. " + err.message);
+        return;
+      }
+      const usarFallback = window.confirm(
+        `No se pudo descargar el PDF (${err.message}).\n\n` +
+          "¿Quieres generar un reporte imprimible con los datos cargados en el panel?",
+      );
+      if (usarFallback) generarReporteImprimible();
     }
   };
 
@@ -656,16 +765,16 @@ export default function Admin() {
           {t("admin.nav.title", "Panel de Control")}
         </div>
         {[
-          ["dashboard", "Dashboard", "▦"],
+          ["dashboard", t("admin.nav.dashboard", "Dashboard"), "▦"],
           ["usuarios", t("admin.nav.users", "Usuarios"), "◉"],
           ["productos", t("admin.nav.products", "Productos"), "□"],
-          ["pedidos", "Pedidos", "▤"],
-          ["productores", "Productores", "♧"],
-          ["pagos", "Pagos", "◈"],
-          ["reportes", "Reportes", "◫"],
-          ["configuracion", "Configuración", "⚙"],
-          ["soporte", "Soporte", "?"],
-          ["auditoria", "Auditoría", "◌"],
+          ["pedidos", t("admin.nav.orders", "Pedidos"), "▤"],
+          ["productores", t("admin.nav.producers", "Productores"), "♧"],
+          ["pagos", t("admin.nav.payments", "Pagos"), "◈"],
+          ["reportes", t("admin.nav.reports", "Reportes"), "◫"],
+          ["configuracion", t("admin.nav.settings", "Configuración"), "⚙"],
+          ["soporte", t("admin.nav.support", "Soporte"), "?"],
+          ["auditoria", t("admin.nav.audit", "Auditoría"), "◌"],
         ].map(([section, label, icon]) => (
           <a
             key={section}
@@ -732,7 +841,8 @@ export default function Admin() {
             ☰ Menú
           </button>
           <div className="admin-search">
-            Buscar en AgroMarket... <span>⌕</span>
+            {t("admin.searchPlaceholder", "Buscar en AgroMarket...")}{" "}
+            <span>⌕</span>
           </div>
           <div className="admin-top-actions">
             <button

@@ -745,10 +745,18 @@
     "generateReport": "Generate Monthly Report 📊",
     "generatingReportAlert": "Generating PDF report...",
     "nav": {
-      "title": "Control Panel",
+      "dashboard": "Dashboard",
       "users": "Users",
       "products": "Products",
-      "moderation": "Moderation"
+      "orders": "Orders",
+      "producers": "Producers",
+      "payments": "Payments",
+      "reports": "Reports",
+      "settings": "Settings",
+      "support": "Support",
+      "audit": "Audit",
+      "moderation": "Moderation",
+      "title": "Control Panel"
     },
     "reports": {
       "title": "Reports",
@@ -782,7 +790,9 @@
     "earningsSixMonths": "6 Months Earnings",
     "noEarningsData": "No data",
     "logout": "Logout",
-    "searchProducts": "Search products..."
+    "searchProducts": "Search products...",
+    "searchPlaceholder": "Search AgroMarket...",
+    "reportError": "Error generating the report"
   },
   "legal": {
     "breadcrumb": "Breadcrumb",

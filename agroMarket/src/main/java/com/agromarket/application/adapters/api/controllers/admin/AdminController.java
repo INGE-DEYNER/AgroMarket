@@ -72,18 +72,35 @@ public class AdminController {
          */
         @GetMapping("/reportes/pdf")
         public ResponseEntity<byte[]> reportePdf() {
+                try {
+                        byte[] pdf = adminReportPdfGenerator
+                                        .generar(adminDashboardUseCase.construir());
 
-                byte[] pdf = adminReportPdfGenerator
-                                .generar(adminDashboardUseCase.construir());
+                        String filename = "reporte-agromarket-"
+                                        + java.time.YearMonth.now() + ".pdf";
 
-                String filename = "reporte-agromarket-"
-                                + java.time.YearMonth.now() + ".pdf";
-
-                return ResponseEntity.ok()
-                                .header("Content-Disposition",
-                                                "attachment; filename=\"" + filename + "\"")
-                                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
-                                .body(pdf);
+                        return ResponseEntity.ok()
+                                        .header("Content-Disposition",
+                                                        "attachment; filename=\"" + filename + "\"")
+                                        .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                                        .body(pdf);
+                } catch (Exception ex) {
+                        /*
+                         * Nunca un 500 silencioso: el GlobalExceptionHandler no
+                         * captura IllegalStateException y Spring devolvería el
+                         * error por defecto SIN mensaje. Aquí devolvemos JSON
+                         * con el motivo real para que el frontend lo muestre.
+                         */
+                        String motivo = ex.getMessage() == null
+                                        ? "error desconocido"
+                                        : ex.getMessage().replace("\"", "'");
+                        String body = "{\"status\":500,\"error\":\"Error generando el reporte\",\"message\":\""
+                                        + motivo + "\"}";
+                        return ResponseEntity.status(
+                                        org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .header("Content-Type", "application/json")
+                                        .body(body.getBytes());
+                }
         }
 
         @GetMapping("/usuarios-pendientes")

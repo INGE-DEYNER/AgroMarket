@@ -337,8 +337,8 @@
   gap: 12px;
   margin: -18px -22px 18px;
   padding: 12px 22px;
-  background: var(--admin-lighter);
-  border-bottom: 1px solid var(--admin-border);
+  background: var(--surface, var(--admin-lighter));
+  border-bottom: 1px solid var(--border-light, var(--admin-border));
 }
 
 .admin-dashboard-grid {
