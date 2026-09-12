@@ -41,8 +41,8 @@ export function useIdleTimer(timeoutMinutes = 1) {
     timerRef.current = setTimeout(() => {
       setIsIdle(true);
       setShowWarning(false);
+      // logout() redirige al home 0.3 s después (comportamiento global).
       logout();
-      navigate("/login");
     }, timeoutMinutes * 60 * 1000);
   }, [logout, navigate, timeoutMinutes, warningTime]);
 

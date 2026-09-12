@@ -1,11 +1,15 @@
 package com.agromarket.application.adapters.api.controllers.order;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.agromarket.application.adapters.api.request.order.CreateOrderRequest;
@@ -13,6 +17,7 @@ import com.agromarket.application.adapters.api.response.order.BuyerSummaryRespon
 import com.agromarket.application.adapters.api.response.order.OrderResponse;
 import com.agromarket.application.adapters.api.response.order.ProductSummaryResponse;
 import com.agromarket.domain.ports.in.order.*;
+import com.agromarket.domain.models.enums.order.OrderState;
 import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.user.User;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
@@ -117,6 +122,63 @@ public class OrderController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         orderPort.deleteOrder(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * PUT /api/v1/orders/{id}/estado (alias frontend: /pedidos/{id}/estado)
+     *
+     * Permite al productor dueño del pedido (o a un administrador) actualizar
+     * el estado del pedido. Mapea etiquetas en español: Aceptado/Enviado ->
+     * SHIPPED, Entregado -> DELIVERED, Cancelado -> CANCELLED.
+     *
+     * CAUSA RAÍZ del alert "Not Found" en el dashboard del productor: este
+     * endpoint no existía y el PUT caía en 404.
+     */
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<OrderResponse> updateEstado(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> body,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        Object raw = body == null ? null : body.get("estado");
+        OrderState target = mapEstado(raw == null ? "" : String.valueOf(raw));
+
+        OrderResult current = orderPort.getOrderById(id);
+        if (current == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Pedido no encontrado: " + id);
+        }
+
+        Long producerId = current.getProduct() != null
+                && current.getProduct().getProducer() != null
+                ? current.getProduct().getProducer().getId()
+                : null;
+
+        boolean isAdmin = principal != null && "ADMIN".equals(principal.getRole());
+        boolean isOwnerProducer = producerId != null
+                && principal != null
+                && producerId.equals(principal.getUserId());
+
+        if (!isAdmin && !isOwnerProducer) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return ResponseEntity.ok(toResponse(orderPort.updateOrderState(id, target)));
+    }
+
+    /** Mapea etiquetas de estado (español/inglés, sin acentos) a OrderState. */
+    private OrderState mapEstado(String raw) {
+        String normalizado = Normalizer
+                .normalize(raw.trim().toLowerCase(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "");
+        return switch (normalizado) {
+            case "aceptado", "confirmado", "enviado", "shipped" -> OrderState.SHIPPED;
+            case "entregado", "delivered" -> OrderState.DELIVERED;
+            case "cancelado", "cancelled", "canceled" -> OrderState.CANCELLED;
+            case "pendiente", "pending" -> OrderState.PENDING;
+            default -> throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Estado no válido: " + raw);
+        };
     }
 
     private OrderResponse toResponse(OrderResult r) {

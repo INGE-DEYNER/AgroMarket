@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/invoices")
@@ -65,6 +66,53 @@ public class InvoiceController {
                 .map(this::toResult)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * POST /api/v1/invoices/generate/{orderId} (alias frontend:
+     * /facturas/generate/{orderId}).
+     *
+     * Genera la factura del pedido a demanda si aún no existe (p. ej. cuando
+     * el webhook de MercadoPago no llegó o el pago se confirmó por fuera).
+     * Solo el comprador dueño del pedido (o un admin) puede generarla.
+     * Idempotente: si ya existe una factura, devuelve la existente.
+     */
+    @PostMapping("/generate/{orderId}")
+    public ResponseEntity<InvoiceResult> generateForOrder(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        Order order = orderPort.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Pedido no encontrado: " + orderId));
+
+        boolean isAdmin = principal != null && "ADMIN".equals(principal.getRole());
+        boolean isBuyer = order.getBuyer() != null
+                && principal != null
+                && order.getBuyer().getId().equals(principal.getUserId());
+
+        if (!isAdmin && !isBuyer) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Invoice existing = invoicePort.findByOrderId(orderId).orElse(null);
+        if (existing == null) {
+            if (order.getTotal() == null) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "El pedido no tiene un total válido para facturar");
+            }
+            Invoice invoice = Invoice.builder().order(order).build();
+            invoice.calculateValues(order.getTotal());
+            invoice.generateInvoiceNumber();
+            existing = invoicePort.save(invoice);
+            if (existing.getId() != null) {
+                existing.generateInvoiceNumber();
+                existing = invoicePort.save(existing);
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResult(existing));
     }
 
     // =====================================================================

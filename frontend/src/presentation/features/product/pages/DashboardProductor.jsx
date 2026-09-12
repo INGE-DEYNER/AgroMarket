@@ -5,6 +5,11 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import api, { API_BASE } from "@/infrastructure/http/api";
+import {
+  formatearHora,
+  normalizarMensaje,
+  normalizarPedido,
+} from "@/infrastructure/normalizar";
 import "@/presentation/styles/envios.css";
 import "@/presentation/styles/mensajeria.css";
 import "@/presentation/styles/productor.css";
@@ -150,7 +155,7 @@ export default function DashboardProductor() {
   const loadPedidos = useCallback(async () => {
     try {
       const data = await api.get("/pedidos/mis-pedidos");
-      setPedidos(extractArray(data));
+      setPedidos(extractArray(data).map(normalizarPedido));
     } catch (err) {
       console.error("Error loadPedidos:", err);
       setPedidos([]);
@@ -306,10 +311,9 @@ export default function DashboardProductor() {
     setSelectedContact(contacto);
     try {
       const data = await api.get(`/mensajes/conversacion/${contacto.id}`);
-      const list = extractArray(data).map((m) => ({
-        ...m,
-        mio: m.remitenteId === user?.id,
-      }));
+      const list = extractArray(data).map((m) =>
+        normalizarMensaje(m, user?.id),
+      );
       setMessages(list);
     } catch (err) {
       console.error("Error loadMessages:", err);
@@ -320,6 +324,31 @@ export default function DashboardProductor() {
         chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }, 100);
   };
+
+  // TIEMPO REAL: sondea contactos y conversación activa mientras la
+  // sección de mensajería está visible (sin recargar la página).
+  useEffect(() => {
+    if (activeSection !== "mensajeria") return undefined;
+    const contactosTimer = setInterval(() => void loadContactos(), 10000);
+    return () => clearInterval(contactosTimer);
+  }, [activeSection, loadContactos]);
+
+  useEffect(() => {
+    if (activeSection !== "mensajeria" || !selectedContact) return undefined;
+    const conversacionTimer = setInterval(async () => {
+      try {
+        const data = await api.get(
+          `/mensajes/conversacion/${selectedContact.id}`,
+        );
+        setMessages(
+          extractArray(data).map((m) => normalizarMensaje(m, user?.id)),
+        );
+      } catch {
+        /* silencioso: la siguiente iteración reintenta */
+      }
+    }, 3500);
+    return () => clearInterval(conversacionTimer);
+  }, [activeSection, selectedContact, user, extractArray]);
 
   const sendMessage = async () => {
     if (!msgInput.trim() || !selectedContact) return;
@@ -1083,8 +1112,10 @@ export default function DashboardProductor() {
                         <td data-label="Acciones">
                           <select
                             className="form-select"
-                            style={{ width: "140px" }}
+                            style={{ width: "150px" }}
+                            value=""
                             onChange={async (e) => {
+                              if (!e.target.value) return;
                               try {
                                 await api.put(`/pedidos/${p.id}/estado`, {
                                   estado: e.target.value,
@@ -1095,15 +1126,15 @@ export default function DashboardProductor() {
                               }
                             }}
                           >
-                            <option>
+                            <option value="">
                               {t(
                                 "dashboardProductor.changeState",
                                 "Cambiar estado",
                               )}
                             </option>
-                            <option value="Aceptado">Aceptar</option>
-                            <option value="Enviado">Enviado</option>
-                            <option value="Entregado">Entregado</option>
+                            <option value="Enviado">Marcar Enviado</option>
+                            <option value="Entregado">Marcar Entregado</option>
+                            <option value="Cancelar">Cancelar pedido</option>
                           </select>
                         </td>
                       </tr>
@@ -1354,10 +1385,7 @@ export default function DashboardProductor() {
                               }}
                             >
                               {m.hora ||
-                                new Date(m.fechaEnvio).toLocaleTimeString(
-                                  "es-CO",
-                                  { hour: "2-digit", minute: "2-digit" },
-                                )}
+                                formatearHora(m.fechaEnvio ?? m.sentAt)}
                             </div>
                           </div>
                         </div>

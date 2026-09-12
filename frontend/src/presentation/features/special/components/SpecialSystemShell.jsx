@@ -115,8 +115,8 @@ export default function SpecialSystemShell({ activeKey, children }) {
   };
 
   const handleLogout = async () => {
+    // AuthContext.logout() redirige al home 0.3 s después de limpiar sesión.
     await logout();
-    navigate("/");
   };
 
   return (

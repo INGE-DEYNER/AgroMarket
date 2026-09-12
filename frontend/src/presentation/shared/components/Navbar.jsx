@@ -135,11 +135,8 @@ export default function Navbar() {
   };
 
   const handleLogout = async () => {
+    // AuthContext.logout() redirige al home 0.3 s después de limpiar sesión.
     await logout();
-    // Después de limpiar la sesión completamente, redirigimos a Home.
-    // Navegar a "/login" dejaba la app en blanco porque varios
-    // componentes seguían montados leyendo user=null.
-    navigate("/");
   };
 
   return (

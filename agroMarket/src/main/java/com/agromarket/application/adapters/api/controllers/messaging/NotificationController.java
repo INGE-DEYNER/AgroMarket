@@ -1,5 +1,6 @@
 package com.agromarket.application.adapters.api.controllers.messaging;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,8 @@ public class NotificationController {
                 .recipient(User.builder().id(request.getRecipientId()).build())
                 .type(request.getType())
                 .content(request.getContent())
+                .read(false)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Notification saved = messagingPort.createNotification(notification);

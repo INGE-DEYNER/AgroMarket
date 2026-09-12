@@ -6,6 +6,7 @@ import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useSecureParams } from "@/presentation/shared/hooks/useSecureParams";
 import api from "@/infrastructure/http/api";
+import { normalizarPedido } from "@/infrastructure/normalizar";
 import PedidoCard from "@/presentation/features/order/components/PedidoCard";
 
 export default function Pedidos() {
@@ -23,7 +24,8 @@ export default function Pedidos() {
     try {
       const data = await api.get("/pedidos/mis-pedidos");
 
-      setPedidos(Array.isArray(data) ? data : data?.content || []);
+      const list = Array.isArray(data) ? data : data?.content || [];
+      setPedidos(list.map(normalizarPedido));
     } catch (err) {
       console.error("Error loadPedidos:", err);
       setPedidos([]);
@@ -240,22 +242,43 @@ export default function Pedidos() {
                       alert("No se encontro el pedido.");
                       return;
                     }
-                    const invRes = await api.get(`/facturas/pedido/${pedidoId}`);
-                    // La API devuelve un objeto factura (o 404); normalizar.
-                    const data = invRes?.data || invRes;
-                    const factura = Array.isArray(data)
-                      ? data[0]
-                      : data?.id
-                        ? data
-                        : null;
-                    const facturaId = factura?.id;
-                    if (!facturaId) {
+                    let factura = null;
+                    try {
+                      const invRes = await api.get(
+                        `/facturas/pedido/${pedidoId}`,
+                      );
+                      // La API devuelve un objeto factura (o 404); normalizar.
+                      const data = invRes?.data || invRes;
+                      factura = Array.isArray(data)
+                        ? data[0]
+                        : data?.id
+                          ? data
+                          : null;
+                    } catch (err) {
+                      // 404 = aún no hay factura emitida; seguimos para
+                      // intentar generarla on-demand.
+                      if (err?.status !== 404) throw err;
+                    }
+                    if (!factura?.id) {
+                      try {
+                        const genRes = await api.post(
+                          `/facturas/generate/${pedidoId}`,
+                        );
+                        const genData = genRes?.data || genRes;
+                        factura = genData?.id ? genData : null;
+                      } catch (err) {
+                        if (err?.status !== 404 && err?.status !== 409) {
+                          throw err;
+                        }
+                      }
+                    }
+                    if (!factura?.id) {
                       alert(
-                        "No se encontro una factura emitida para este pedido. La factura se genera cuando el pago es confirmado por MercadoPago.",
+                        "No se pudo generar la factura para este pedido. Verifica que el pago esté confirmado e intenta de nuevo.",
                       );
                       return;
                     }
-                    const res = await api.post(`/facturas/${facturaId}/enviar`);
+                    const res = await api.post(`/facturas/${factura.id}/enviar`);
                     alert(
                       `Factura enviada al correo ${res?.email || "registrado"} exitosamente.`,
                     );

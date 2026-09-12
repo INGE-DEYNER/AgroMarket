@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 import api from "@/infrastructure/http/api";
+import { normalizarMensaje as normalizarMensajeBase } from "@/infrastructure/normalizar";
 import "@/presentation/styles/mensajeria.css";
 
 export default function Mensajeria() {
@@ -33,19 +34,7 @@ export default function Mensajeria() {
    * Normaliza un mensaje del backend (MessageResponse: id, senderId,
    * content, sentAt) al formato que usa la UI (texto, mio, hora).
    */
-  const normalizarMensaje = (m) => ({
-    id: m.id ?? `${m.senderId}-${m.sentAt}`,
-    texto: m.texto || m.contenido || m.content || "",
-    mio: m.mio ?? String(m.senderId) === String(user?.id),
-    hora:
-      m.hora ||
-      (m.sentAt
-        ? new Date(m.sentAt).toLocaleTimeString("es-CO", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : ""),
-  });
+  const normalizarMensaje = (m) => normalizarMensajeBase(m, user?.id);
 
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
@@ -63,6 +52,39 @@ export default function Mensajeria() {
         chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }, 100);
   };
+
+  // TIEMPO REAL: sondea la conversación activa (3.5 s) y los contactos
+  // (10 s) para que los mensajes de otros usuarios aparezcan solos.
+  useEffect(() => {
+    if (!selectedContact) return undefined;
+    const conversacionTimer = setInterval(async () => {
+      try {
+        const data = await api.get(
+          `/mensajes/conversacion/${selectedContact.id}`,
+        );
+        setMessages(
+          (Array.isArray(data) ? data : []).map((m) =>
+            normalizarMensaje(m),
+          ),
+        );
+      } catch {
+        /* silencioso: la siguiente iteración reintenta */
+      }
+    }, 3500);
+    return () => clearInterval(conversacionTimer);
+  }, [selectedContact, normalizarMensaje]);
+
+  useEffect(() => {
+    const contactosTimer = setInterval(async () => {
+      try {
+        const data = await api.get("/mensajes/contactos");
+        setContactos(Array.isArray(data) ? data : []);
+      } catch {
+        /* silencioso */
+      }
+    }, 10000);
+    return () => clearInterval(contactosTimer);
+  }, []);
 
   const sendMessage = async () => {
     if (!msgInput.trim() || !selectedContact) return;

@@ -8,6 +8,7 @@ import { DivisaProvider } from "@/app/providers/DivisaContext";
 import ProtectedRoute from "@/app/router/ProtectedRoute";
 
 import NetworkError from "@/presentation/shared/components/NetworkError";
+import MaintenanceLayer from "@/presentation/shared/components/MaintenanceLayer";
 
 import Home from "@/presentation/features/home/pages/Home";
 import Login from "@/presentation/features/auth/pages/Login";
@@ -525,6 +526,8 @@ function App() {
                 <AppFooter />
 
                 <NetworkError />
+
+                <MaintenanceLayer />
               </div>
           </CartProvider>
         </AuthProvider>

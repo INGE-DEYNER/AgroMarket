@@ -1128,5 +1128,22 @@
     "referencia": "Reference (optional)",
     "subtitulo": "This is the address where we will deliver your orders.",
     "titulo": "Set up your address"
+  },
+  "maintenance": {
+    "title": "🛠️ AgroMarket is under maintenance",
+    "sub": "We are improving the platform to bring you freshness without interruptions. We will be back very soon.",
+    "badge": "Maintenance mode active",
+    "adminLogin": "Administrative access",
+    "user": "User",
+    "password": "Password",
+    "login": "Sign in",
+    "error": "Wrong user or password."
+  },
+  "notificationsPage": {
+    "loading": "Loading notifications...",
+    "empty": "You have no notifications yet.",
+    "error": "Notifications could not be loaded.",
+    "loginRequired": "Sign in to see your notifications.",
+    "markAllRead": "Mark all as read"
   }
 }

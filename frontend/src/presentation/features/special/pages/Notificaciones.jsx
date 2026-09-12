@@ -1,30 +1,189 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/app/hooks/useAuth";
+import api from "@/infrastructure/http/api";
+import {
+  TIPO_NOTIFICACION,
+  tiempoRelativo,
+} from "@/infrastructure/normalizar";
 
-const DATA = [
-  { type: "Pedidos", title: "Tu pedido #AM-000123 está en camino", text: "Tu pedido de Aguacate Hass será entregado el 28 May 2024.", time: "Hace 2 horas", unread: true, icon: "🚚" },
-  { type: "Sistema", title: "Nuevo mensaje de Finca El Paraíso", text: "Tienes un nuevo mensaje sobre tu pedido #AM-000122.", time: "Hace 5 horas", unread: true, icon: "💬" },
-  { type: "Pedidos", title: "Pago confirmado", text: "Hemos confirmado tu pago por $29.700 COP.", time: "Hace 1 día", unread: false, icon: "✓" },
-  { type: "Promociones", title: "¡Oferta especial para ti!", text: "Aprovecha 10% de descuento en frutas tropicales.", time: "Hace 2 días", unread: false, icon: "🏷" },
-];
-
+/*
+ * CENTRO DE NOTIFICACIONES 100% REAL:
+ * - GET  /notifications/user/{userId}  -> lista real desde MongoDB
+ * - PATCH /notifications/{id}/read     -> marca notificaciones como leídas
+ * - Sondeo cada 20 s + botón "Marcar todas como leídas".
+ * Las notificaciones se generan cuando el productor cambia el estado de un
+ * pedido y cuando llega un pedido nuevo (ver OrderUseCase en el backend).
+ */
 export default function Notificaciones() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [filter, setFilter] = useState("Todas");
-  const [items, setItems] = useState(DATA);
-  const visible = useMemo(() => filter === "Todas" ? items : items.filter((item) => filter === "No leídas (5)" ? item.unread : item.type === filter), [filter, items]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const load = useCallback(async () => {
+    if (!user?.id) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+    try {
+      const data = await api.get(`/notifications/user/${user.id}`);
+      const list = Array.isArray(data) ? data : data?.content || [];
+      setItems(list);
+      setError("");
+    } catch (err) {
+      setError(
+        err?.message ||
+          t(
+            "notificationsPage.error",
+            "No se pudieron cargar las notificaciones.",
+          ),
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id, t]);
+
+  useEffect(() => {
+    void load();
+    const interval = setInterval(() => void load(), 20000);
+    return () => clearInterval(interval);
+  }, [load]);
+
+  const marcarTodas = async () => {
+    const noLeidas = items.filter((n) => !n.read);
+    if (noLeidas.length === 0) return;
+    try {
+      await Promise.all(
+        noLeidas.map((n) => api.patch(`/notifications/${n.id}/read`)),
+      );
+      void load();
+    } catch (err) {
+      setError(
+        err?.message ||
+          "No se pudieron marcar las notificaciones como leídas.",
+      );
+    }
+  };
+
+  const unread = items.filter((n) => !n.read).length;
+
+  const visible = useMemo(() => {
+    if (filter === "Todas") return items;
+    if (filter.startsWith("No leídas")) return items.filter((n) => !n.read);
+    return items.filter(
+      (n) => (TIPO_NOTIFICACION[n.type]?.label || "Sistema") === filter,
+    );
+  }, [filter, items]);
+
+  const iconoDe = (n) => TIPO_NOTIFICACION[n.type]?.icon || "🔔";
 
   return <SpecialSystemShell activeKey="notificaciones">
-    <div className="special-heading"><div><h1>{t("special.notifications", "Notificaciones")}</h1><p>{t("special.notificationsSub", "Mantente al día con pedidos, pagos, mensajes y promociones.")}</p></div><button className="special-link-button" onClick={() => setItems(items.map((item) => ({ ...item, unread: false })))}>{t("special.markAllRead", "Marcar todas como leídas")}</button></div>
-    <div className="special-tabs">
-      {["Todas", "No leídas (5)", "Pedidos", "Envíos", "Promociones", "Sistema"].map((tab) => <button key={tab} className={filter === tab ? "active" : ""} onClick={() => setFilter(tab)}>{tab}</button>)}
+    <div className="special-heading">
+      <div>
+        <h1>{t("special.notifications", "Notificaciones")}</h1>
+        <p>{t("special.notificationsSub", "Mantente al día con pedidos, pagos, mensajes y promociones.")}</p>
+      </div>
+      <button className="special-link-button" onClick={marcarTodas}>
+        {t("notificationsPage.markAllRead", "Marcar todas como leídas")}
+        {unread > 0 ? ` (${unread})` : ""}
+      </button>
     </div>
-    <section className="special-list">
-      {visible.map((item) => <article className="special-notification" key={item.title}>
-        <div className="special-notification-icon">{item.icon}</div><div className="special-notification-content"><h3>{item.title} {item.unread && <span className="special-dot" />}</h3><p>{item.text}</p><small>{item.time}</small></div>
-      </article>)}
-    </section>
-    <button type="button" className="special-secondary-action" onClick={()=>{setFilter("Todas");window.scrollTo({top:0,behavior:"smooth"});}}>{t("special.viewAllNotifications", "Ver todas las notificaciones")}</button>
+    <div className="special-tabs">
+      {[
+        "Todas",
+        `No leídas (${unread})`,
+        "Pedidos",
+        "Pagos",
+        "Mensajes",
+        "Inventario",
+      ].map((tab) => (
+        <button
+          key={tab}
+          className={filter === tab ? "active" : ""}
+          onClick={() => setFilter(tab)}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+    {!user ? (
+      <section className="special-list">
+        <article className="special-notification">
+          <div className="special-notification-icon">🔐</div>
+          <div className="special-notification-content">
+            <h3>{t("notificationsPage.loginRequired", "Inicia sesión para ver tus notificaciones.")}</h3>
+            <p><Link to="/login">{t("nav.login", "Iniciar sesión")}</Link></p>
+          </div>
+        </article>
+      </section>
+    ) : loading ? (
+      <section className="special-list">
+        <article className="special-notification">
+          <div className="special-notification-icon">⏳</div>
+          <div className="special-notification-content">
+            <h3>{t("notificationsPage.loading", "Cargando notificaciones...")}</h3>
+          </div>
+        </article>
+      </section>
+    ) : error ? (
+      <section className="special-list">
+        <article className="special-notification">
+          <div className="special-notification-icon">⚠️</div>
+          <div className="special-notification-content">
+            <h3>{error}</h3>
+            <p>
+              <button
+                type="button"
+                className="special-link-button"
+                onClick={() => void load()}
+              >
+                {t("special.viewAllNotifications", "Ver todas las notificaciones")}
+              </button>
+            </p>
+          </div>
+        </article>
+      </section>
+    ) : visible.length === 0 ? (
+      <section className="special-list">
+        <article className="special-notification">
+          <div className="special-notification-icon">🔔</div>
+          <div className="special-notification-content">
+            <h3>{t("notificationsPage.empty", "No tienes notificaciones todavía.")}</h3>
+          </div>
+        </article>
+      </section>
+    ) : (
+      <section className="special-list">
+        {visible.map((n) => (
+          <article className="special-notification" key={n.id}>
+            <div className="special-notification-icon">{iconoDe(n)}</div>
+            <div className="special-notification-content">
+              <h3>
+                {(TIPO_NOTIFICACION[n.type]?.label || "Sistema") + " · "}
+                {n.content}
+                {!n.read && <span className="special-dot" />}
+              </h3>
+              <small>{tiempoRelativo(n.createdAt)}</small>
+            </div>
+          </article>
+        ))}
+      </section>
+    )}
+    <button
+      type="button"
+      className="special-secondary-action"
+      onClick={() => {
+        setFilter("Todas");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }}
+    >
+      {t("special.viewAllNotifications", "Ver todas las notificaciones")}
+    </button>
   </SpecialSystemShell>;
 }

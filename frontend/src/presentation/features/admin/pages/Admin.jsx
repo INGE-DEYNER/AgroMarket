@@ -126,9 +126,48 @@ export default function Admin() {
   });
   const [costoEnvioNacional, setCostoEnvioNacional] = useState(15000);
   const [guardandoEnvio, setGuardandoEnvio] = useState(false);
-  const [mantenimientoMode, setMantenimientoMode] = useState(
-    localStorage.getItem("mantenimiento_mode") === "true",
-  );
+  const [mantenimientoMode, setMantenimientoMode] = useState(false);
+  const [notificacionesNoLeidas, setNotificacionesNoLeidas] = useState(0);
+
+  // Modo mantenimiento: la fuente de verdad es el backend (app_config),
+  // compartida por TODOS los navegadores. Reemplaza el localStorage previo,
+  // que solo afectaba al navegador del admin.
+  useEffect(() => {
+    let mounted = true;
+    api
+      .get("/config/system")
+      .then((res) => {
+        const data = res?.data || res;
+        if (mounted) setMantenimientoMode(Boolean(data?.mantenimiento));
+      })
+      .catch((err) => console.error("Error cargando mantenimiento:", err));
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Campana del topbar: contador REAL de notificaciones sin leer.
+  useEffect(() => {
+    if (!user?.id) return undefined;
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await api.get(`/notifications/user/${user.id}`);
+        const list = Array.isArray(data) ? data : data?.content || [];
+        if (mounted) {
+          setNotificacionesNoLeidas(list.filter((n) => !n.read).length);
+        }
+      } catch {
+        /* silencioso */
+      }
+    };
+    void load();
+    const interval = setInterval(load, 30000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [user?.id]);
 
   // States for Finanzas and Logística Reports
   const [finanzasData, setFinanzasData] = useState(null);
@@ -663,8 +702,9 @@ export default function Admin() {
           style={{ marginTop: "auto", color: "var(--red)" }}
           onClick={async (e) => {
             e.preventDefault();
+            // AuthContext.logout() redirige al home 0.3 s después de limpiar
+            // la sesión (comportamiento global para todos los roles).
             await logout();
-            navigate("/");
           }}
         >
           <svg
@@ -695,9 +735,16 @@ export default function Admin() {
             Buscar en AgroMarket... <span>⌕</span>
           </div>
           <div className="admin-top-actions">
-            <span className="admin-bell">
-              ♧<b>8</b>
-            </span>
+            <button
+              type="button"
+              className="admin-bell"
+              onClick={() => navigate("/especial/notificaciones")}
+              title={t("special.notifications", "Notificaciones")}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+            >
+              ♧
+              {notificacionesNoLeidas > 0 && <b>{notificacionesNoLeidas}</b>}
+            </button>
             <span className="admin-user-avatar">
               {(user?.nombre || "A").slice(0, 1).toUpperCase()}
             </span>
@@ -2641,15 +2688,26 @@ export default function Admin() {
                         <input
                           type="checkbox"
                           checked={mantenimientoMode}
-                          onChange={(e) => {
-                            setMantenimientoMode(e.target.checked);
-                            localStorage.setItem(
-                              "mantenimiento_mode",
-                              e.target.checked,
-                            );
-                            alert(
-                              `Modo mantenimiento ${e.target.checked ? "ACTIVADO" : "DESACTIVADO"}.`,
-                            );
+                          onChange={async (e) => {
+                            const activo = e.target.checked;
+                            try {
+                              await api.put("/config/system/mantenimiento", {
+                                activo,
+                              });
+                              setMantenimientoMode(activo);
+                              // Avisa a MaintenanceLayer para refrescar ya.
+                              window.dispatchEvent(
+                                new Event("agromarket:maintenance-changed"),
+                              );
+                              alert(
+                                `Modo mantenimiento ${activo ? "ACTIVADO" : "DESACTIVADO"}. Todos los usuarios verán el aviso automáticamente.`,
+                              );
+                            } catch (err) {
+                              alert(
+                                "No se pudo cambiar el modo mantenimiento: " +
+                                  (err.message || "intenta de nuevo."),
+                              );
+                            }
                           }}
                           id="chkMantenimiento"
                           style={{

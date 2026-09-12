@@ -5,6 +5,11 @@ import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import CartDrawer from "@/presentation/shared/components/CartDrawer";
 import api, { API_BASE } from "@/infrastructure/http/api";
+import {
+  formatearHora,
+  normalizarMensaje,
+  normalizarPedido,
+} from "@/infrastructure/normalizar";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import ProductCard from "@/presentation/features/product/components/ProductCard";
 import "@/presentation/styles/catalogo.css";
@@ -280,7 +285,7 @@ export default function DashboardComprador() {
   const loadPedidos = useCallback(async () => {
     try {
       const data = await api.get("/pedidos/mis-pedidos");
-      setPedidos(extractArray(data));
+      setPedidos(extractArray(data).map(normalizarPedido));
     } catch (err) {
       console.error("Error loadPedidos:", err);
       setPedidos([]);
@@ -294,6 +299,31 @@ export default function DashboardComprador() {
     }, 0);
     return () => clearTimeout(timer);
   }, [loadPedidos]);
+
+  // TIEMPO REAL: sondea contactos y conversación activa mientras la
+  // sección de mensajería está visible (sin recargar la página).
+  useEffect(() => {
+    if (activeSection !== "mensajeria") return undefined;
+    const contactosTimer = setInterval(() => void loadContactos(), 10000);
+    return () => clearInterval(contactosTimer);
+  }, [activeSection, loadContactos]);
+
+  useEffect(() => {
+    if (activeSection !== "mensajeria" || !selectedContact) return undefined;
+    const conversacionTimer = setInterval(async () => {
+      try {
+        const data = await api.get(
+          `/mensajes/conversacion/${selectedContact.id}`,
+        );
+        setMessages(
+          extractArray(data).map((m) => normalizarMensaje(m, user?.id)),
+        );
+      } catch {
+        /* silencioso: la siguiente iteración reintenta */
+      }
+    }, 3500);
+    return () => clearInterval(conversacionTimer);
+  }, [activeSection, selectedContact, user, extractArray]);
 
   const loadRfqs = useCallback(async () => {
     try {
@@ -2212,11 +2242,7 @@ export default function DashboardComprador() {
                                 textAlign: "right",
                               }}
                             >
-                              {m.hora ||
-                                new Date(m.fechaEnvio).toLocaleTimeString(
-                                  "es-CO",
-                                  { hour: "2-digit", minute: "2-digit" },
-                                )}
+                              {m.hora || formatearHora(m.fechaEnvio ?? m.sentAt)}
                             </div>
                           </div>
                         </div>
@@ -3276,25 +3302,60 @@ export default function DashboardComprador() {
                         : [{ id: facturaData?.pedidoId ?? facturaData?.id }];
 
                     let enviados = 0;
+                    let sinFactura = 0;
                     for (const ped of pedidos) {
                       const pedidoId = ped.id ?? ped.pedidoId;
                       if (!pedidoId) continue;
-                      const invRes = await api.get(
-                        `/facturas/pedido/${pedidoId}`,
-                      );
-                      // La API devuelve un objeto factura (o 404); normalizar.
-                      const data = invRes?.data || invRes;
-                      const factura = Array.isArray(data)
-                        ? data[0]
-                        : data?.id
-                          ? data
-                          : null;
-                      const facturaId = factura?.id;
-                      if (!facturaId) continue;
-                      const res = await api.post(
-                        `/facturas/${facturaId}/enviar`,
-                      );
-                      enviados += res?.email ? 1 : 0;
+                      try {
+                        const invRes = await api.get(
+                          `/facturas/pedido/${pedidoId}`,
+                        );
+                        // La API devuelve un objeto factura (o 404); normalizar.
+                        const data = invRes?.data || invRes;
+                        const factura = Array.isArray(data)
+                          ? data[0]
+                          : data?.id
+                            ? data
+                            : null;
+                        if (!factura?.id) {
+                          sinFactura += 1;
+                          continue;
+                        }
+                        const res = await api.post(
+                          `/facturas/${factura.id}/enviar`,
+                        );
+                        enviados += res?.email ? 1 : 0;
+                      } catch (err) {
+                        // 404 = el pedido aún no tiene factura emitida:
+                        // intentamos generarla on-demand y reintentamos.
+                        if (err?.status !== 404) throw err;
+                        try {
+                          await api.post(`/facturas/generate/${pedidoId}`);
+                          const trasGenerar = await api.get(
+                            `/facturas/pedido/${pedidoId}`,
+                          );
+                          const dataGen = trasGenerar?.data || trasGenerar;
+                          const facturaGen = Array.isArray(dataGen)
+                            ? dataGen[0]
+                            : dataGen?.id
+                              ? dataGen
+                              : null;
+                          if (!facturaGen?.id) {
+                            sinFactura += 1;
+                            continue;
+                          }
+                          const res = await api.post(
+                            `/facturas/${facturaGen.id}/enviar`,
+                          );
+                          enviados += res?.email ? 1 : 0;
+                        } catch (err2) {
+                          if (err2?.status === 404) {
+                            sinFactura += 1;
+                          } else {
+                            throw err2;
+                          }
+                        }
+                      }
                     }
 
                     if (enviados > 0) {
@@ -3302,10 +3363,12 @@ export default function DashboardComprador() {
                         `Factura(s) enviada(s) al correo ${user?.email || "registrado"} (${enviados} enviada(s)).`,
                       );
                       setModalFactura(false);
-                    } else {
+                    } else if (sinFactura > 0) {
                       alert(
-                        "No se encontro una factura emitida para este pedido. La factura se genera automaticamente cuando el pago es confirmado por MercadoPago.",
+                        "No se encontro una factura emitida para este pedido. Genera el pago desde MercadoPago o intentalo de nuevo mas tarde.",
                       );
+                    } else {
+                      alert("No hay pedidos con datos suficientes para facturar.");
                     }
                   } catch (err) {
                     alert(

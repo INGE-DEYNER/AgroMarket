@@ -43,6 +43,7 @@ public class AdminController {
         private final UserPort userPort;
         private final ProductPort productPort;
         private final AdminDashboardUseCase adminDashboardUseCase;
+        private final com.agromarket.infrastructure.pdf.AdminReportPdfGenerator adminReportPdfGenerator;
 
         // =========================================================
         // DASHBOARD / PANEL DE ADMINISTRACIÓN
@@ -59,6 +60,30 @@ public class AdminController {
         public ResponseEntity<?> dashboard() {
 
                 return ResponseEntity.ok(adminDashboardUseCase.construir());
+        }
+
+        /**
+         * GET /api/v1/admins/reportes/pdf (alias frontend: /admin/reportes/pdf)
+         *
+         * CAUSA RAÍZ del botón "Generar Reporte Mensual" roto: el frontend
+         * pedía /admin/reportes/pdf y el endpoint no existía (404 Not Found).
+         * Ahora genera un PDF real con los datos del dashboard: totales,
+         * estados de pedidos, top productores e ingresos por mes.
+         */
+        @GetMapping("/reportes/pdf")
+        public ResponseEntity<byte[]> reportePdf() {
+
+                byte[] pdf = adminReportPdfGenerator
+                                .generar(adminDashboardUseCase.construir());
+
+                String filename = "reporte-agromarket-"
+                                + java.time.YearMonth.now() + ".pdf";
+
+                return ResponseEntity.ok()
+                                .header("Content-Disposition",
+                                                "attachment; filename=\"" + filename + "\"")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                                .body(pdf);
         }
 
         @GetMapping("/usuarios-pendientes")

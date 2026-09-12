@@ -253,7 +253,9 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.warn("Logout remoto no disponible:", err);
     } finally {
-      navigate("/");
+      // Requisito: al cerrar sesión en CUALQUIER rol, redirigir al home
+      // automáticamente 0.3 s después de limpiar la sesión.
+      setTimeout(() => navigate("/"), 300);
     }
   }, [navigate]);
 

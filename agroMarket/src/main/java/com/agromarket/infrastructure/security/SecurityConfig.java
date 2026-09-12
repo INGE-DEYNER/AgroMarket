@@ -145,6 +145,22 @@ public class SecurityConfig {
                                                                 "/api/v1/shipments/config")
                                                 .hasRole("ADMIN")
 
+                                                /*
+                                                 * Configuración global del
+                                                 * sistema: lectura pública
+                                                 * (aviso de mantenimiento en
+                                                 * todo el frontend) y
+                                                 * escritura solo para ADMIN.
+                                                 */
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/v1/config/**")
+                                                .permitAll()
+                                                .requestMatchers(
+                                                                HttpMethod.PUT,
+                                                                "/api/v1/config/**")
+                                                .hasRole("ADMIN")
+
                                                 // Listado público de productores (para la página /productores).
                                                 .requestMatchers(
                                                                 HttpMethod.GET,

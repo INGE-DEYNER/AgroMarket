@@ -1128,5 +1128,22 @@
     "referencia": "Referencia (opcional)",
     "subtitulo": "Esta es la dirección donde recibiremos tus pedidos.",
     "titulo": "Configura tu dirección"
+  },
+  "maintenance": {
+    "title": "🛠️ AgroMarket está en mantenimiento",
+    "sub": "Estamos mejorando la plataforma para ofrecerte frescura sin interrupciones. Volveremos muy pronto.",
+    "badge": "Modo mantenimiento activo",
+    "adminLogin": "Acceso administrativo",
+    "user": "Usuario",
+    "password": "Contraseña",
+    "login": "Entrar",
+    "error": "Usuario o contraseña incorrectos."
+  },
+  "notificationsPage": {
+    "loading": "Cargando notificaciones...",
+    "empty": "No tienes notificaciones todavía.",
+    "error": "No se pudieron cargar las notificaciones.",
+    "loginRequired": "Inicia sesión para ver tus notificaciones.",
+    "markAllRead": "Marcar todas como leídas"
   }
 }

@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.agromarket.domain.exceptions.order.OrderNotFoundException;
+import com.agromarket.domain.models.enums.messaging.NotificationType;
 import com.agromarket.domain.models.enums.order.OrderState;
+import com.agromarket.domain.models.messaging.Notification;
 import com.agromarket.domain.models.order.Order;
 import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.user.User;
@@ -18,6 +20,7 @@ import com.agromarket.domain.models.enums.user.Role;
 import com.agromarket.domain.ports.in.order.CreateOrderCommand;
 import com.agromarket.domain.ports.in.order.OrderPort;
 import com.agromarket.domain.ports.in.order.OrderResult;
+import com.agromarket.domain.ports.in.messaging.MessagingPort;
 import com.agromarket.domain.ports.out.product.ProductPort;
 import com.agromarket.domain.ports.out.user.UserPort;
 import com.agromarket.domain.services.order.OrderService;
@@ -37,6 +40,7 @@ public class OrderUseCase implements OrderPort {
     private final ProductService productService;
     private final ProductStockService productStockService;
     private final com.agromarket.domain.ports.out.config.AppConfigPort appConfigPort;
+    private final MessagingPort messagingPort;
 
     /**
      * Costo de envío nacional configurado (COP). Valor por defecto estático;
@@ -53,6 +57,7 @@ public class OrderUseCase implements OrderPort {
             ProductService productService,
             ProductStockService productStockService,
             com.agromarket.domain.ports.out.config.AppConfigPort appConfigPort,
+            MessagingPort messagingPort,
             @Value("${app.shipping.cost:15000}") BigDecimal shippingCost) {
         this.orderPort = orderPort;
         this.productPort = productPort;
@@ -61,6 +66,7 @@ public class OrderUseCase implements OrderPort {
         this.productService = productService;
         this.productStockService = productStockService;
         this.appConfigPort = appConfigPort;
+        this.messagingPort = messagingPort;
         this.shippingCost = shippingCost == null ? BigDecimal.ZERO : shippingCost;
     }
 
@@ -108,7 +114,9 @@ public class OrderUseCase implements OrderPort {
                 .createdAt(LocalDateTime.now())
                 .build();
         order.setTotal(orderService.calculateTotal(order));
-        return toResult(orderPort.save(order));
+        Order savedOrder = orderPort.save(order);
+        notificarNuevoPedido(savedOrder);
+        return toResult(savedOrder);
     }
 
     @Override
@@ -162,6 +170,42 @@ public class OrderUseCase implements OrderPort {
     }
 
     @Override
+    public OrderResult updateOrderState(Long orderId, OrderState newState) {
+        if (newState == null) {
+            throw new IllegalArgumentException("El estado solicitado es obligatorio");
+        }
+
+        if (newState == OrderState.CANCELLED) {
+            cancelOrder(orderId);
+            OrderResult cancelled = getOrderById(orderId);
+            notificarCambioEstado(orderId, OrderState.CANCELLED);
+            return cancelled;
+        }
+
+        Order order = findOrder(orderId);
+        OrderState current = order.getState();
+
+        if (current == newState) {
+            return toResult(order);
+        }
+
+        boolean transicionValida =
+                (current == OrderState.PENDING && newState == OrderState.SHIPPED)
+                        || (current == OrderState.PENDING && newState == OrderState.DELIVERED)
+                        || (current == OrderState.SHIPPED && newState == OrderState.DELIVERED);
+
+        if (!transicionValida) {
+            throw new IllegalStateException(
+                    "Transición de estado no permitida: " + current + " -> " + newState);
+        }
+
+        order.setState(newState);
+        orderPort.save(order);
+        notificarCambioEstado(orderId, newState);
+        return toResult(order);
+    }
+
+    @Override
     public void deleteOrder(Long id) {
         Order order = findOrder(id);
         orderPort.deleteById(order);
@@ -170,6 +214,87 @@ public class OrderUseCase implements OrderPort {
     private Order findOrder(Long id) {
         return orderPort.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Pedido no encontrado: " + id));
+    }
+
+    /**
+     * Notifica al productor cuando llega un pedido nuevo (centro de
+     * notificaciones). Nunca rompe la operación de negocio.
+     */
+    private void notificarNuevoPedido(Order order) {
+        try {
+            if (order.getProduct() == null
+                    || order.getProduct().getProducer() == null
+                    || order.getProduct().getProducer().getId() == null) {
+                return;
+            }
+            String producto = order.getProduct().getName() == null
+                    ? "tu producto"
+                    : order.getProduct().getName();
+            crearNotificacion(
+                    order.getProduct().getProducer().getId(),
+                    NotificationType.NEW_ORDER,
+                    "¡Nuevo pedido #" + order.getId() + "! "
+                            + order.getQuantity() + " kg de " + producto + ".");
+        } catch (Exception ex) {
+            // ignorado a propósito: la notificación es un efecto secundario
+        }
+    }
+
+    /**
+     * Crea notificaciones reales para comprador y productor cuando el pedido
+     * cambia de estado (alimenta el centro de notificaciones).
+     */
+    private void notificarCambioEstado(Long orderId, OrderState estado) {
+        try {
+            Order order = findOrder(orderId);
+            String etiqueta = etiquetaEstado(estado);
+
+            if (order.getBuyer() != null && order.getBuyer().getId() != null) {
+                crearNotificacion(
+                        order.getBuyer().getId(),
+                        NotificationType.ORDER_UPDATED,
+                        "Tu pedido #" + orderId + " cambió de estado a "
+                                + etiqueta + ".");
+            }
+
+            if (order.getProduct() != null
+                    && order.getProduct().getProducer() != null
+                    && order.getProduct().getProducer().getId() != null) {
+                Long producerId = order.getProduct().getProducer().getId();
+                Long buyerId = order.getBuyer() == null ? null : order.getBuyer().getId();
+                if (buyerId == null || !producerId.equals(buyerId)) {
+                    crearNotificacion(
+                            producerId,
+                            NotificationType.ORDER_UPDATED,
+                            "El pedido #" + orderId + " pasó a " + etiqueta + ".");
+                }
+            }
+        } catch (Exception ex) {
+            // ignorado a propósito: la notificación es un efecto secundario
+        }
+    }
+
+    private void crearNotificacion(Long recipientId, NotificationType type, String content) {
+        messagingPort.createNotification(
+                Notification.builder()
+                        .recipient(User.builder().id(recipientId).build())
+                        .type(type)
+                        .content(content)
+                        .read(false)
+                        .createdAt(LocalDateTime.now())
+                        .build());
+    }
+
+    private String etiquetaEstado(OrderState estado) {
+        if (estado == null) {
+            return "Pendiente";
+        }
+        return switch (estado) {
+            case SHIPPED -> "Enviado";
+            case DELIVERED -> "Entregado";
+            case CANCELLED -> "Cancelado";
+            default -> "Pendiente";
+        };
     }
 
     /**
