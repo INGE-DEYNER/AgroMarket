@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
+import { useTranslation } from "react-i18next";
 
 const CATS=["Pedidos y compras","Envíos y entregas","Pagos y facturación","Devoluciones y reembolsos","Productos y calidad","Cuenta y seguridad","Productores y vendedores","Cupones y promociones"];
 const ARTICLES=[["¿Cómo rastrear mi pedido?","Conoce cómo hacer seguimiento a tu pedido en tiempo real."],["¿Cuánto tarda en llegar mi pedido?","Tiempos de entrega según tu ubicación."],["¿Qué métodos de pago aceptan?","Conoce todos los métodos de pago disponibles."],["¿Cómo realizar una devolución?","Paso a paso para solicitar una devolución o reembolso."]];
 
 export default function CentroAyudaDetallado() {
+ const { t } = useTranslation();
  const [query,setQuery]=useState(""); const [cat,setCat]=useState(CATS[0]);
  const filtered=useMemo(()=>ARTICLES.filter(a=>`${a[0]} ${a[1]}`.toLowerCase().includes(query.toLowerCase())),[query]);
  return <SpecialSystemShell activeKey="ayuda-detallada">

@@ -1325,7 +1325,7 @@ export default function Admin() {
                     >
                       <input
                         type="text"
-                        placeholder="Buscar productos..."
+                        placeholder={t("admin.searchProducts", "Buscar productos...")}
                         value={searchProductosInput}
                         onChange={(e) =>
                           setSearchProductosInput(e.target.value)

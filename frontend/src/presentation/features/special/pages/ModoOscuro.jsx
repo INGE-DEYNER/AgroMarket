@@ -27,7 +27,7 @@ export default function ModoOscuro() {
       <section className={`dark-demo${darkMode ? " darkMode" : ""}`}>
         <div className="dark-demo-top">
           <strong>AgroMarket</strong>
-          <span>Buscar productos, categorías o productores...</span>
+          <span>{t("catalog.searchPlaceholder", "Buscar productos…")}</span>
           <b>ES</b>
           <b>COP</b>
           <b>Urabá, Colombia</b>

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
+import { useTranslation } from "react-i18next";
 
 const INITIAL=[{id:1,brand:"VISA",title:"Visa terminada en 4567",name:"Juan Pérez",date:"07/26",main:true},{id:2,brand:"MASTERCARD",title:"Mastercard terminada en 1234",name:"Juan Pérez",date:"08/27",main:false},{id:3,brand:"PSE",title:"PSE - Cuenta Bancolombia",name:"juanperez@email.com",date:"",main:false}];
 
 export default function MetodosPagoGuardados(){
+ const { t } = useTranslation();
  const [items,setItems]=useState(INITIAL); const [adding,setAdding]=useState(false);
  return <SpecialSystemShell activeKey="pagos-guardados">
   <div className="special-heading"><div><h1>Métodos de pago</h1><p>Administra los medios de pago guardados en tu cuenta.</p></div><button className="special-primary-action" onClick={()=>setAdding(true)}>+ Agregar método</button></div>

@@ -765,12 +765,12 @@ export default function DashboardProductor() {
             <span className="producer-brand-mark">AM</span>
             <div>
               <strong>AgroMarket</strong>
-              <small>Del campo de Urabá y Colombia a tu mesa</small>
+              <small>{t("nav.brandTagline", "Del campo de Urabá y Colombia a tu mesa")}</small>
             </div>
           </div>
           <div className="producer-topbar-center">
-            <strong>PRODUCTOR / VENDEDOR</strong>
-            <span>Gestiona tu negocio, productos y ventas en AgroMarket</span>
+            <strong>{t("dashboardProductor.producerRole", "PRODUCTOR / VENDEDOR")}</strong>
+            <span>{t("dashboardProductor.producerSub", "Gestiona tu negocio, productos y ventas en AgroMarket")}</span>
           </div>
           <div className="producer-topbar-actions">
             <button

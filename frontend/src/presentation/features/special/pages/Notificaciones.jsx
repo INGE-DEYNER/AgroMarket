@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
+import { useTranslation } from "react-i18next";
 
 const DATA = [
   { type: "Pedidos", title: "Tu pedido #AM-000123 está en camino", text: "Tu pedido de Aguacate Hass será entregado el 28 May 2024.", time: "Hace 2 horas", unread: true, icon: "🚚" },
@@ -9,12 +10,13 @@ const DATA = [
 ];
 
 export default function Notificaciones() {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState("Todas");
   const [items, setItems] = useState(DATA);
   const visible = useMemo(() => filter === "Todas" ? items : items.filter((item) => filter === "No leídas (5)" ? item.unread : item.type === filter), [filter, items]);
 
   return <SpecialSystemShell activeKey="notificaciones">
-    <div className="special-heading"><div><h1>Notificaciones</h1><p>Mantente al día con pedidos, pagos, mensajes y promociones.</p></div><button className="special-link-button" onClick={() => setItems(items.map((item) => ({ ...item, unread: false })))}>Marcar todas como leídas</button></div>
+    <div className="special-heading"><div><h1>{t("special.notifications", "Notificaciones")}</h1><p>{t("special.notificationsSub", "Mantente al día con pedidos, pagos, mensajes y promociones.")}</p></div><button className="special-link-button" onClick={() => setItems(items.map((item) => ({ ...item, unread: false })))}>{t("special.markAllRead", "Marcar todas como leídas")}</button></div>
     <div className="special-tabs">
       {["Todas", "No leídas (5)", "Pedidos", "Envíos", "Promociones", "Sistema"].map((tab) => <button key={tab} className={filter === tab ? "active" : ""} onClick={() => setFilter(tab)}>{tab}</button>)}
     </div>
@@ -23,6 +25,6 @@ export default function Notificaciones() {
         <div className="special-notification-icon">{item.icon}</div><div className="special-notification-content"><h3>{item.title} {item.unread && <span className="special-dot" />}</h3><p>{item.text}</p><small>{item.time}</small></div>
       </article>)}
     </section>
-    <button type="button" className="special-secondary-action" onClick={()=>{setFilter("Todas");window.scrollTo({top:0,behavior:"smooth"});}}>Ver todas las notificaciones</button>
+    <button type="button" className="special-secondary-action" onClick={()=>{setFilter("Todas");window.scrollTo({top:0,behavior:"smooth"});}}>{t("special.viewAllNotifications", "Ver todas las notificaciones")}</button>
   </SpecialSystemShell>;
 }

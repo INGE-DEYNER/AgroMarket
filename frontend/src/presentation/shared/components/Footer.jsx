@@ -271,13 +271,13 @@ export default function Footer() {
           <div className="footer-link-column">
             <h4>{t("home.footerUi.account")}</h4>
 
-            <Link to="/login">Iniciar sesión</Link>
+            <Link to="/login">{t("nav.login", "Iniciar sesión")}</Link>
 
-            <Link to="/registro">Registrarse gratis</Link>
+            <Link to="/registro">{t("nav.register", "Registrarse")}</Link>
 
-            <Link to="/perfil">Mi perfil</Link>
+            <Link to="/perfil">{t("nav.profile", "Mi perfil")}</Link>
 
-            <Link to="/pedidos">Mis pedidos</Link>
+            <Link to="/pedidos">{t("nav.orders", "Mis pedidos")}</Link>
           </div>
 
           {/* CONTACTO */}

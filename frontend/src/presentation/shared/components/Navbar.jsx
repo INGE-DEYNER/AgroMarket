@@ -174,7 +174,7 @@ export default function Navbar() {
               "nav.searchPlaceholder",
               "Buscar frutas, verduras, productores...",
             )}
-            aria-label="Buscar productos"
+            aria-label={t("nav.searchAria", "Buscar productos")}
           />
           <button type="submit" className="nav-search-btn" aria-label="Buscar">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="white">

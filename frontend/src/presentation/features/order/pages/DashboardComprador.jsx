@@ -3765,7 +3765,7 @@ export default function DashboardComprador() {
                   }}
                   disabled={selectedProduct.stock <= 0}
                 >
-                  Agregar al Carrito
+                  {t("catalog.addToCart", "🛒 Agregar al carrito")}
                 </button>
               </div>
             </div>

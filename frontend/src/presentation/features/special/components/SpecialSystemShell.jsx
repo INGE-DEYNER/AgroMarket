@@ -141,7 +141,7 @@ export default function SpecialSystemShell({ activeKey, children }) {
           <img src="/logo-asafrut.jpg" alt="AgroMarket" />
           <span>
             <strong>AgroMarket</strong>
-            <small>Del campo de Urabá y Colombia a tu mesa</small>
+            <small>{t("nav.brandTagline", "Del campo de Urabá y Colombia a tu mesa")}</small>
           </span>
         </Link>
 
@@ -149,8 +149,8 @@ export default function SpecialSystemShell({ activeKey, children }) {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar productos, categorías o productores..."
-            aria-label="Buscar"
+            placeholder={t("catalog.searchPlaceholder", "Buscar productos…")}
+            aria-label={t("catalog.searchAria", "Buscar productos")}
           />
           <button type="submit" aria-label="Buscar">
             ⌕
