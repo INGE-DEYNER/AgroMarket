@@ -6,7 +6,6 @@ import { ToastProvider } from "@/app/providers/ToastContext";
 import { CartProvider } from "@/app/providers/CartContext";
 import { DivisaProvider } from "@/app/providers/DivisaContext";
 import ProtectedRoute from "@/app/router/ProtectedRoute";
-import useAutoTranslateAll from "@/app/hooks/useAutoTranslateAll";
 
 import NetworkError from "@/presentation/shared/components/NetworkError";
 
@@ -116,15 +115,6 @@ const Checkout = lazy(
 // APP
 // ============================================================
 
-// Observador global de traducción automática: se monta a nivel
-// raíz para cubrir TODAS las rutas (públicas, buyer, especial,
-// seguridad, admin, dashboards) incluso si un layout individual
-// no lo invoca.
-function AutoTranslateRoot() {
-  useAutoTranslateAll();
-  return null;
-}
-
 function App() {
   return (
     <ToastProvider>
@@ -132,7 +122,6 @@ function App() {
         <Router>
           <AuthProvider>
             <CartProvider>
-              <AutoTranslateRoot />
               <div
                 style={{
                   display: "flex",

@@ -129,11 +129,6 @@ public class SecurityConfig {
         "/api/v1/divisas/**")
 .permitAll()
 
-                                                // Traducción automática (LibreTranslate): pública.
-                                                .requestMatchers(
-                                                                "/api/v1/translation/**")
-                                                .permitAll()
-
                                                 /*
                                                  * Costo de envío configurado:
                                                  * lectura pública para que el

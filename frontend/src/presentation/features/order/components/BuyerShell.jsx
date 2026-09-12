@@ -6,7 +6,6 @@ import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher"
 import DivisaSwitcher from "@/presentation/shared/components/DivisaSwitcher";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import CartDrawer from "@/presentation/shared/components/CartDrawer";
-import useAutoTranslateAll from "@/app/hooks/useAutoTranslateAll";
 import "@/presentation/styles/comprador.css";
 
 function Icon({ name, size = 18 }) {
@@ -150,7 +149,6 @@ export default function BuyerShell({
   onNavigate,
   children,
 }) {
-  useAutoTranslateAll();
   const { user, logout } = useAuth();
   const { count } = useCart();
   const navigate = useNavigate();

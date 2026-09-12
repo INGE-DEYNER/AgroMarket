@@ -1,4 +1,8 @@
 {
+  "languageSwitcher": {
+    "notAvailable": "Lo sentimos, actualmente esta opción no está disponible. En la siguiente actualización estará disponible un nuevo idioma.",
+    "soon": "Próximamente"
+  },
   "home": {
     "heroBadge": "🌿 ASAFRUT · Chigorodó, Urabá",
     "heroTitle": "Del campo de Urabá directamente a tu mesa.",

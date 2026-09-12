@@ -1,41 +1,49 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/app/hooks/useToast";
 
 const LANGUAGES = [
   {
     code: "es",
     label: "Español",
     flag: "🇪🇸",
+    available: true,
   },
   {
     code: "en",
     label: "English",
     flag: "🇺🇸",
+    available: true,
   },
   {
     code: "pt",
     label: "Português",
     flag: "🇧🇷",
+    available: false,
   },
   {
     code: "fr",
     label: "Français",
     flag: "🇫🇷",
+    available: false,
   },
   {
     code: "de",
     label: "Deutsch",
     flag: "🇩🇪",
+    available: false,
   },
   {
     code: "zh",
     label: "中文",
     flag: "🇨🇳",
+    available: false,
   },
   {
     code: "ar",
     label: "العربية",
     flag: "🇸🇦",
+    available: false,
   },
 ];
 
@@ -48,7 +56,8 @@ function normalizeLanguage(language) {
 }
 
 export default function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const toast = useToast();
 
   const [isOpen, setIsOpen] = useState(false);
   const [changing, setChanging] = useState(false);
@@ -103,6 +112,24 @@ export default function LanguageSwitcher() {
       normalizedCode === activeLanguage ||
       !LANGUAGES.some((language) => language.code === normalizedCode)
     ) {
+      setIsOpen(false);
+      return;
+    }
+
+    const selected = LANGUAGES.find(
+      (language) => language.code === normalizedCode,
+    );
+
+    // Idiomas aún no disponibles: mostrar mensaje informativo y NO cambiar
+    // el idioma actual. Estarán disponibles en la próxima actualización.
+    if (!selected?.available) {
+      toast?.warning(
+        t(
+          "languageSwitcher.notAvailable",
+          "Lo sentimos, actualmente esta opción no está disponible. En la siguiente actualización estará disponible un nuevo idioma.",
+        ),
+        6000,
+      );
       setIsOpen(false);
       return;
     }
@@ -218,6 +245,7 @@ export default function LanguageSwitcher() {
                 type="button"
                 role="option"
                 aria-selected={selected}
+                aria-disabled={!language.available}
                 disabled={changing}
                 onClick={() => selectLanguage(language.code)}
                 style={{
@@ -234,11 +262,29 @@ export default function LanguageSwitcher() {
                     : "transparent",
                   color: selected
                     ? "var(--color-primary-dark, #065f46)"
-                    : "var(--color-text-primary, #1f2937)",
-                  cursor: changing ? "wait" : "pointer",
+                    : language.available
+                      ? "var(--color-text-primary, #1f2937)"
+                      : "var(--color-text-muted, #9ca3af)",
+                  cursor: changing
+                    ? "wait"
+                    : language.available
+                      ? "pointer"
+                      : "not-allowed",
                   fontSize: "14px",
                   fontWeight: selected ? "700" : "500",
                   textAlign: "left",
+                  opacity: language.available ? 1 : 0.7,
+                }}
+                onMouseEnter={(e) => {
+                  if (language.available && !selected) {
+                    e.currentTarget.style.background =
+                      "var(--color-surface-hover, #f3f4f6)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = selected
+                    ? "var(--color-primary-light, #d1fae5)"
+                    : "transparent";
                 }}
               >
                 <span
@@ -252,6 +298,23 @@ export default function LanguageSwitcher() {
                 </span>
 
                 <span>{language.label}</span>
+
+                {!language.available && !selected && (
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      padding: "2px 7px",
+                      borderRadius: "999px",
+                      background: "var(--color-surface-hover, #f3f4f6)",
+                      color: "var(--color-text-muted, #6b7280)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {t("languageSwitcher.soon", "Próximamente")}
+                  </span>
+                )}
 
                 {selected && (
                   <span

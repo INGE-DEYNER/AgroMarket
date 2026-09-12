@@ -83,10 +83,6 @@ app:
     use-mock: ${MERCADOPAGO_USE_MOCK:false}
     webhook-url: ${MERCADOPAGO_WEBHOOK_URL:}
 
-  libretranslate:
-    url: ${APP_LIBRETRANSLATE_URL:https://translate.terraprint.co}
-    api-key: ${APP_LIBRETRANSLATE_API_KEY:}
-
   shipping:
     cost: ${SHIPPING_COST:15000}
 

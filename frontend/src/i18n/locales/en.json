@@ -1,4 +1,8 @@
 {
+  "languageSwitcher": {
+    "notAvailable": "Sorry, this option is currently not available. A new language will be available in the next update.",
+    "soon": "Coming soon"
+  },
   "home": {
     "heroBadge": "🌿 ASAFRUT · Chigorodó, Urabá",
     "heroTitle": "From the fields of Urabá directly to your table.",
