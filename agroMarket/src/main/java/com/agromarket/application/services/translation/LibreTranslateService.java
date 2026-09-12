@@ -27,10 +27,10 @@ import java.util.Map;
 @Service
 public class LibreTranslateService {
 
-    @Value("${libretranslate.url:https://translate.terraprint.co}")
+    @Value("${app.libretranslate.url:https://translate.terraprint.co}")
     private String apiUrl;
 
-    @Value("${libretranslate.api-key:}")
+    @Value("${app.libretranslate.api-key:}")
     private String apiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();

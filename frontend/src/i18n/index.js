@@ -1,6 +1,8 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
+import { getCachedTranslation, setCachedTranslation } from "@/infrastructure/translation/translationCache";
+import { translateText } from "@/infrastructure/translation/translationApi";
 
 import es from "@/i18n/locales/es";
 import en from "@/i18n/locales/en";
@@ -59,6 +61,37 @@ i18n
 
     interpolation: {
       escapeValue: false,
+    },
+
+    // Si una clave de traducción falta en TODOS los idiomas, se intenta
+    // traducir por LibreTranslate en tiempo real (100% gratis, con caché).
+    // Se desactiva saveMissingPlurals/updateMissing para no romper el render.
+    saveMissing: true,
+    updateMissing: true,
+    missingKeyHandler: (lngs, ns, key, fallbackValue) => {
+      const text = fallbackValue && fallbackValue !== key ? fallbackValue : key;
+      // No traducir claves técnicas (IDs, rutas, etc.).
+      if (!text || text.length < 2 || /^[a-z0-9_.-]+$/i.test(text) && text === key) {
+        return;
+      }
+      const target = String(Array.isArray(lngs) ? lngs[0] : lngs || "en").split("-")[0].toLowerCase();
+      if (target === "es") return;
+      (async () => {
+        try {
+          const cached = getCachedTranslation(text, "es", target);
+          if (cached) {
+            i18n.addResource(target, "translation", key, cached);
+            return;
+          }
+          const translated = await translateText(text, "es", target);
+          if (translated && translated !== text) {
+            setCachedTranslation(text, "es", target, translated);
+            i18n.addResource(target, "translation", key, translated);
+          }
+        } catch (e) {
+          console.warn("AutoTranslate falló:", e?.message);
+        }
+      })();
     },
 
     detection: {

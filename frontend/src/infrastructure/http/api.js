@@ -12,6 +12,7 @@ const PUBLIC_PATHS = [
   "/auth",
   "/public",
   "/divisas",
+  "/translation",
   "/productos",
   "/resenas",
   "/actuator",

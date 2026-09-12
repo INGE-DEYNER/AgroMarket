@@ -72,13 +72,20 @@ app:
     secret: ${JWT_SECRET:change-me}
     expiration-ms: ${JWT_EXPIRATION_MS:3600000}
 
-  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  frontend-url: ${FRONTEND_URL:}
+
+  ai:
+    gemini-api-key: ${GEMINI_API_KEY:}
 
   mercadopago:
     base-url: ${MERCADOPAGO_BASE_URL:https://api.mercadopago.com}
     access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
     use-mock: ${MERCADOPAGO_USE_MOCK:false}
     webhook-url: ${MERCADOPAGO_WEBHOOK_URL:}
+
+  libretranslate:
+    url: ${APP_LIBRETRANSLATE_URL:https://translate.terraprint.co}
+    api-key: ${APP_LIBRETRANSLATE_API_KEY:}
 
   shipping:
     cost: ${SHIPPING_COST:15000}

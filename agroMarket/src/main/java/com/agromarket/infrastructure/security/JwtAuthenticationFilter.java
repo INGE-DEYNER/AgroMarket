@@ -208,6 +208,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return matches(path, "/api/public")
                                 || matches(path, "/api/auth")
                                 || matches(path, "/api/v1/auth")
+                                || matches(path, "/api/v1/translation")
                                 || matches(path, "/actuator");
         }
 

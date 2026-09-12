@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import Navbar from "@/presentation/shared/components/Navbar";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import useAutoTranslateAll from "@/app/hooks/useAutoTranslateAll";
 
 export default function PublicLayout({ children }) {
   const location = useLocation();
   const { i18n } = useTranslation();
+  useAutoTranslateAll();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
