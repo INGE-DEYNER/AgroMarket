@@ -168,7 +168,7 @@ export default function LanguageSwitcher() {
         disabled={changing}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-label="Seleccionar idioma"
+        aria-label={t("languageSwitcher.selectLanguage", "Seleccionar idioma")}
         style={{
           display: "flex",
           alignItems: "center",
@@ -222,7 +222,7 @@ export default function LanguageSwitcher() {
       {isOpen && (
         <div
           role="listbox"
-          aria-label="Idiomas disponibles"
+          aria-label={t("languageSwitcher.availableLanguages", "Idiomas disponibles")}
           style={{
             position: "absolute",
             top: "calc(100% + 6px)",

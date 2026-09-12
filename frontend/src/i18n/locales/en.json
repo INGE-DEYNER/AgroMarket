@@ -1,7 +1,9 @@
 {
   "languageSwitcher": {
     "notAvailable": "Sorry, this option is currently not available. A new language will be available in the next update.",
-    "soon": "Coming soon"
+    "soon": "Coming soon",
+    "selectLanguage": "Select language",
+    "availableLanguages": "Available languages"
   },
   "home": {
     "heroBadge": "🌿 ASAFRUT · Chigorodó, Urabá",
@@ -163,7 +165,61 @@
       "stakeholders": "Project partners and responsible parties",
       "stakeholderText": "Spaces for ASAFRUT, related entities, institutional partners and those responsible for developing the platform.",
       "rights": "All rights reserved",
-      "backTop": "Back to top ↑"
+      "backTop": "Back to top ↑",
+      "howItWorks": "How it works"
+    },
+    "categories": {
+      "bananas": "Plantains and Bananas",
+      "coffee": "Cocoa and Coffee",
+      "flowers": "Flowers and Plants",
+      "fruits": "Fruits and Vegetables",
+      "loading": "Loading categories...",
+      "processed": "Processed Products",
+      "roots": "Tubers and Roots",
+      "subtitle": "Explore the freshest treasures of our Colombian land",
+      "title": "Featured Categories",
+      "viewAll": "View all categories →"
+    },
+    "farmers": {
+      "button": "Meet the Producers",
+      "description": "100% of your purchase goes directly to the farmers' association. Fair and transparent payments.",
+      "title": "Real support for our Colombian farmers"
+    },
+    "hero": {
+      "badge": "🌽 STRAIGHT FROM PRODUCER TO YOUR HOME",
+      "buyNow": "Buy now",
+      "description": "Support the Colombian countryside by buying fruits, vegetables, tubers and coffee grown with passion by local producers. Fast and guaranteed delivery.",
+      "howItWorks": "How it works",
+      "title": "From the fields of Urabá and all of Colombia to your table"
+    },
+    "newsletter": {
+      "button": "Subscribe",
+      "description": "Receive exclusive offers, news and recipes straight from Colombian farmers.",
+      "placeholder": "Your email address",
+      "title": "Subscribe to our weekly harvest"
+    },
+    "products": {
+      "add": "Add",
+      "empty": "There are no registered products yet.",
+      "explore": "Explore catalog →",
+      "loading": "Loading products...",
+      "presentation": "Presentation: Kg",
+      "priceLabel": "Price {{currency}} / kg",
+      "subtitle": "The most recent products from our producers",
+      "title": "Fresh Harvest of the Week",
+      "viewAll": "View full catalog →"
+    },
+    "trust": {
+      "expressText": "Straight to your doorstep",
+      "expressTitle": "Express Shipping",
+      "freshText": "Harvested the same day",
+      "freshTitle": "Guaranteed Freshness",
+      "localText": "No harmful middlemen",
+      "localTitle": "Direct Local Support",
+      "secureText": "Protected transactions",
+      "secureTitle": "100% Secure Shopping",
+      "supportText": "24/7 WhatsApp support",
+      "supportTitle": "Friendly Support"
     }
   },
   "nav": {
@@ -198,7 +254,23 @@
       "adminPanel": "Admin panel",
       "myDashboardPurchases": "My dashboard (purchases)",
       "producerPanel": "Producer panel"
-    }
+    },
+    "categories": {
+      "bananas": "Banana",
+      "coconut": "Coconut",
+      "lemon": "Lemon",
+      "mango": "Mango",
+      "orange": "Orange",
+      "other": "Other",
+      "passionFruit": "Passion fruit",
+      "pineapple": "Pineapple",
+      "soursop": "Soursop"
+    },
+    "configurarDireccion": "Set up your address",
+    "enviarA": "Deliver to your address",
+    "profile": "My profile",
+    "promo": "BUY DIRECT FROM THE PRODUCER",
+    "sendTo": "Deliver to"
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -223,7 +295,49 @@
     "confirmPassword": "Confirm password",
     "location": "Location / Village",
     "buyer": "Buyer",
-    "producer": "Producer"
+    "producer": "Producer",
+    "acceptPrefix": "I accept the",
+    "andThe": "and the",
+    "bannerBadge": "Straight from the Colombian countryside",
+    "company": "Company",
+    "companyName": "Company name",
+    "companyPlaceholder": "Company S.A.S.",
+    "countryCode": "Country code",
+    "creating": "Creating account...",
+    "emailPlaceholder": "johndoe@email.com",
+    "firstNamePlaceholder": "E.g. John",
+    "formSub": "Enter your credentials to access the freshness of the countryside.",
+    "goVerify": "Go to email verification",
+    "google": "Google",
+    "lastNamePlaceholder": "Smith",
+    "leftNote": "Farms from Urabá and all of Colombia united in one place.",
+    "locationPlaceholder": "E.g. Vereda Las Margaritas, Chigorodó",
+    "nameLabel": "Name",
+    "ofAgromarket": "of AgroMarket.",
+    "orContinueWith": "or continue with",
+    "orRegisterWith": "or sign up with",
+    "privacy": "Privacy policy",
+    "registerCta": "Sign up for AgroMarket",
+    "registerFormSub": "Join AgroMarket and proudly support our farmers.",
+    "registerHere": "Sign up here",
+    "registerHeroSub": "100% fresh local products, direct support for farming families, and guaranteed purchases without harmful middlemen.",
+    "registerHeroTitle": "Join the countryside movement",
+    "remember": "Remember me",
+    "roleCompany": "Company",
+    "roleLabel": "Profile",
+    "strength": "Strength",
+    "submitting": "Signing in...",
+    "successSub": "Verify your email to activate your account and start enjoying AgroMarket.",
+    "successTitle": "Account created!",
+    "terms": "Terms and conditions",
+    "trustLocal": "Direct countryside support",
+    "trustSecure": "100% Secure Shopping",
+    "welcomeBackSub": "Sign in to buy the freshest foods, directly harvested by our farmers from Urabá and all of Colombia.",
+    "welcomeBackTitle": "Welcome back to AgroMarket!",
+    "comprador": "Buyer",
+    "productor": "Producer",
+    "admin": "Admin",
+    "empresa": "Company"
   },
   "catalog": {
     "heroBadge": "🌿 ASAFRUT · Chigorodó, Antioquia",
@@ -293,7 +407,18 @@
       "priceAsc": "Price: low to high",
       "priceDesc": "Price: high to low",
       "nameAsc": "Name A-Z"
-    }
+    },
+    "allCategories": "All categories",
+    "badge": "Straight from the fields of Urabá",
+    "categories": "Categories",
+    "filters": "Filters",
+    "loading": "Loading catalog...",
+    "price": "Maximum price",
+    "sortBy": "Sort by",
+    "startShopping": "Start shopping",
+    "subtitle": "Fruits, vegetables and fresh products, straight from local producers.",
+    "title": "Product catalog",
+    "tryAgain": "Try adjusting the filters or the search."
   },
   "productDetail": {
     "loading": "Loading product...",
@@ -346,7 +471,15 @@
     "incorrectCodeError": "Incorrect or expired code.",
     "badge": "🌿 Official platform of the Association",
     "rightTitle": "Almost there!",
-    "rightSub": "Verify your email to start buying or selling on AgroMarket."
+    "rightSub": "Verify your email to start buying or selling on AgroMarket.",
+    "formSub": "We have sent a 6-digit verification code to your registered email address to protect your account:",
+    "needHelp": "Having any trouble?",
+    "resending": "Resending...",
+    "step1": "Check your inbox or spam folder.",
+    "step2": "Click the confirmation button.",
+    "step3": "Done! Start buying straight from the farm.",
+    "successTitle": "Email verified!",
+    "whatsappHelp": "Contact us on WhatsApp 24/7"
   },
   "forgotPass": {
     "title": "Forgot your password?",
@@ -360,7 +493,12 @@
     "badge": "🌿 AgroMarket ASAFRUT",
     "rightTitle": "Recover your access easily.",
     "rightSub": "Your account is safe. Just follow the instructions and verify with the code.",
-    "codeLabel": "Recovery code"
+    "codeLabel": "Recovery code",
+    "emailLabel": "Registered email address",
+    "emailPlaceholder": "example@email.com",
+    "invalidEmail": "Enter a valid email address.",
+    "redirecting": "Redirecting you to enter the code...",
+    "safetyBadge": "Your safety is our top priority"
   },
   "resetPass": {
     "title": "Reset password",
@@ -379,7 +517,34 @@
     "verifyBtn": "Verify code",
     "requestNewCodeBtn": "Request new code",
     "rightTitle": "Your new password is your key.",
-    "rightSub": "Create a secure password to protect your account."
+    "rightSub": "Create a secure password to protect your account.",
+    "codeLabel": "Recovery code",
+    "codeRequired": "The recovery code is required.",
+    "confirmPassword": "Confirm new password",
+    "confirmPlaceholder": "Repeat your password",
+    "emailRequired": "The email address is required.",
+    "invalidCode": "The code is not valid or has expired.",
+    "invalidCodeFormat": "The code must contain exactly 6 digits.",
+    "newPasswordPlaceholder": "At least 8 characters",
+    "newPasswordSub": "Please create a new secure password for your account.",
+    "newPasswordTitle": "Create a new secure password",
+    "passwordLength": "The password must be at least 8 characters long.",
+    "passwordMismatch": "The passwords do not match.",
+    "passwordRequired": "The new password is required.",
+    "reqLength": "At least 8 characters long",
+    "reqLower": "At least one lowercase letter",
+    "reqNumber": "At least one number or special character",
+    "reqUpper": "At least one uppercase letter",
+    "requirementsTitle": "The password must contain:",
+    "resetButton": "Reset password",
+    "resetting": "Updating...",
+    "subtitle": "Enter your email and the 6-digit code you received by email.",
+    "successLogin": "Password updated successfully. You can now sign in.",
+    "successMessage": "Your password was updated successfully. You will be redirected to the login page.",
+    "successTitle": "Password updated",
+    "verify": "Verify code",
+    "verifying": "Verifying...",
+    "verifyingLink": "Verifying the recovery code..."
   },
   "errors": {
     "required": "Required field.",
@@ -474,7 +639,8 @@
       "title": "Navigation",
       "summary": "Summary",
       "explore": "Explore Catalog",
-      "myOrders": "My Orders"
+      "myOrders": "My Orders",
+      "myInvoices": "My Invoices"
     },
     "services": {
       "title": "Services",
@@ -566,7 +732,10 @@
     "cancel": "Cancel",
     "save": "Save product",
     "saving": "Saving...",
-    "errorSave": "Error saving: "
+    "errorSave": "Error saving: ",
+    "changeImage": "Change image",
+    "image": "Product image",
+    "selectImage": "Select image"
   },
   "admin": {
     "roleAdmin": "Administrator",
@@ -612,7 +781,8 @@
     "noData": "Not enough data",
     "earningsSixMonths": "6 Months Earnings",
     "noEarningsData": "No data",
-    "logout": "Logout"
+    "logout": "Logout",
+    "searchProducts": "Search products..."
   },
   "legal": {
     "breadcrumb": "Breadcrumb",
@@ -725,7 +895,8 @@
     "submit": "Submit report",
     "helpTitle": "Need an immediate solution?",
     "helpText": "The help assistant knows common AgroMarket problems and provides steps to solve them.",
-    "openAssistant": "Open help assistant"
+    "openAssistant": "Open help assistant",
+    "breadcrumb": "Breadcrumb"
   },
   "support": {
     "title": "AgroMarket Help",
@@ -830,26 +1001,14 @@
     "viewDetails": "View details",
     "noCoupons": "No coupons for the selected category.",
     "viewCouponTerms": "View coupon terms and conditions",
-    "phone": "Phone",
-    "addressName": "Address name",
-    "address": "Address",
-    "city": "City / department",
-    "mainAddressLabel": "Main address",
-    "cancel": "Cancel",
-    "save": "Save",
-    "editAddress": "Edit address",
-    "addNewAddress": "Add address",
     "order": "Order",
     "requestedOn": "Requested on",
     "quantity": "Quantity",
     "reason": "Reason",
     "refund": "Refund",
     "status": "Status",
-    "inProcess": "In process",
-    "completed": "Completed",
     "rejected": "Rejected",
     "requestNewReturn": "Request new return",
-    "mainMethod": "Main",
     "paymentSecure": "Your payment information is secure and encrypted.",
     "addPaymentMethod": "Add payment method",
     "cardType": "Card type or method",
@@ -923,5 +1082,51 @@
       "q": "How do return policies work?",
       "a": "If a batch of fruits or vegetables does not arrive in the optimal freshness agreed upon, you can send us a photo to the support chat within the first 12 hours of receipt and we will replace it at no additional cost."
     }
+  },
+  "completar": {
+    "error": {
+      "documento": "The document number is required",
+      "documentoCorto": "The document number is not valid",
+      "edad": "You must be at least 18 years old to use the platform",
+      "fecha": "The date of birth is required",
+      "fechaInvalida": "The entered date is not valid",
+      "general": "Error saving the data"
+    },
+    "fechaNac": "Date of birth",
+    "formSub": "Please provide the details needed to verify your identity and comply with the law.",
+    "formTitle": "Personal information",
+    "guardando": "Saving...",
+    "guardar": "Save and continue",
+    "numDoc": "Document number",
+    "placeholder": {
+      "numDoc": "Enter your document number"
+    },
+    "privacidad": "Your data is protected under our strict personal data protection law.",
+    "seguridad": "Your information is safe. We only use it to verify your identity and comply with the law.",
+    "subtitulo": "We want to give you the best fast and direct delivery experience based on your location in Colombia.",
+    "tipoDoc": "Document type",
+    "titulo": "Complete your profile"
+  },
+  "direccion": {
+    "ciudad": "City",
+    "codigoPostal": "Postal code (optional)",
+    "departamento": "State / Department",
+    "direccion": "Full address",
+    "error": {
+      "guardar": "The address could not be saved",
+      "obligatoria": "The shipping address is required"
+    },
+    "exito": "Address saved successfully",
+    "guardando": "Saving...",
+    "guardar": "Save address",
+    "placeholder": {
+      "ciudad": "Apartadó",
+      "departamento": "Antioquia",
+      "direccion": "Calle 10 # 20-30, Apt 501",
+      "referencia": "Green-door house, near the park"
+    },
+    "referencia": "Reference (optional)",
+    "subtitulo": "This is the address where we will deliver your orders.",
+    "titulo": "Set up your address"
   }
 }

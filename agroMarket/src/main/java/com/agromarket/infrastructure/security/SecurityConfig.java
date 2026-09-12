@@ -124,10 +124,10 @@ public class SecurityConfig {
 
                                                 // Divisas públicas.
                                                .requestMatchers(
-        HttpMethod.GET,
-        "/api/divisas/**",
-        "/api/v1/divisas/**")
-.permitAll()
+                                                                HttpMethod.GET,
+                                                                "/api/divisas/**",
+                                                                "/api/v1/divisas/**")
+                                                .permitAll()
 
                                                 /*
                                                  * Costo de envío configurado:
