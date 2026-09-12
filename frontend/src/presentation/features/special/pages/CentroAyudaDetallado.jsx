@@ -2,8 +2,8 @@ import { useMemo, useState } from "react";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
 import { useTranslation } from "react-i18next";
 
-const CATS=["Pedidos y compras","Envíos y entregas","Pagos y facturación","Devoluciones y reembolsos","Productos y calidad","Cuenta y seguridad","Productores y vendedores","Cupones y promociones"];
-const ARTICLES=[["¿Cómo rastrear mi pedido?","Conoce cómo hacer seguimiento a tu pedido en tiempo real."],["¿Cuánto tarda en llegar mi pedido?","Tiempos de entrega según tu ubicación."],["¿Qué métodos de pago aceptan?","Conoce todos los métodos de pago disponibles."],["¿Cómo realizar una devolución?","Paso a paso para solicitar una devolución o reembolso."]];
+const CATS=["special.catOrders","special.catShipping","special.catPayments","special.catReturns","special.catProducts","special.catAccount","special.catProducers","special.catCoupons"];
+const ARTICLES=[["special.articleTrack","special.articleTrackDesc"],["special.articleDelivery","special.articleDeliveryDesc"],["special.articlePayments","special.articlePaymentsDesc"],["special.articleReturn","special.articleReturnDesc"]];
 
 export default function CentroAyudaDetallado() {
  const { t } = useTranslation();

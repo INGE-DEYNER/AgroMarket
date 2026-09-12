@@ -805,6 +805,22 @@
     "clearHistory": "Clear history",
     "helpCenter": "Help center",
     "helpCenterSub": "Find answers to the most frequently asked questions.",
+    "catOrders": "Orders and purchases",
+    "catShipping": "Shipping and delivery",
+    "catPayments": "Payments and billing",
+    "catReturns": "Returns and refunds",
+    "catProducts": "Products and quality",
+    "catAccount": "Account and security",
+    "catProducers": "Producers and sellers",
+    "catCoupons": "Coupons and promotions",
+    "articleTrack": "How to track my order?",
+    "articleTrackDesc": "Learn how to track your order in real time.",
+    "articleDelivery": "How long does it take for my order to arrive?",
+    "articleDeliveryDesc": "Delivery times depending on your location.",
+    "articlePayments": "What payment methods do you accept?",
+    "articlePaymentsDesc": "Learn about all available payment methods.",
+    "articleReturn": "How to make a return?",
+    "articleReturnDesc": "Step by step to request a return or refund.",
     "minPurchase": "Minimum purchase",
     "validUntil": "Valid until",
     "viewDetails": "View details",
@@ -843,5 +859,65 @@
     "searchHelp": "Search in help...",
     "emptyHistory": "Your history is empty.",
     "viewFullHistory": "View full history"
+  },
+  "ayuda": {
+    "breadcrumb": "Breadcrumb",
+    "home": "Home",
+    "help": "Help",
+    "title": "How can we help you today?",
+    "searchPlaceholder": "Search for answers to your questions...",
+    "searchAria": "Search in help",
+    "frequentTopics": "Frequent Topics",
+    "noResults": "We found no results for your search.",
+    "contactTitle": "Didn't find what you were looking for?",
+    "contactText": "Our local producer and customer support team is ready to assist you directly via chat.",
+    "whatsapp247": "WhatsApp 24/7",
+    "email": "Email",
+    "talkToSupport": "Talk to Support via WhatsApp"
+  },
+  "comoFunciona": {
+    "badge": "Simple and transparent process",
+    "title": "How does AgroMarket work?",
+    "subtitle": "Buying the freshest products from the Colombian countryside is now a simple, direct reality without harmful intermediaries.",
+    "step1": {
+      "title": "Explore and Discover",
+      "text": "Browse our catalog of fruits, vegetables, tubers and delights grown directly in Colombian Urabá."
+    },
+    "step2": {
+      "title": "Choose Your Harvest",
+      "text": "Select the desired quantities. You will see exactly which farm harvested each product and at what fair price they suggest."
+    },
+    "step3": {
+      "title": "Buy with Confidence",
+      "text": "Make your 100% secure payment through multiple options quickly and easily."
+    },
+    "step4": {
+      "title": "Receive at Home",
+      "text": "Our peasant logistics network collects the fresh product of the day and delivers it directly to your door."
+    },
+    "whyTitle": "We support local and return value to the countryside",
+    "whyText1": "Traditionally, agricultural intermediaries retain up to 70% of a product's value, leaving our farmers with losses.",
+    "whyText2": "At AgroMarket, 100% of the sale goes directly to local producer associations. By buying here, you are allowing families in Urabá to continue cultivating their lands with decent living conditions, education and regional development.",
+    "cta": "Start shopping",
+    "faq1": {
+      "q": "How do I make a purchase on the platform?",
+      "a": "It's very simple: browse the store, select your favorite fruits or tubers, tell us how many kilos you need, enter your shipping information, and make the secure online payment."
+    },
+    "faq2": {
+      "q": "What payment methods are accepted?",
+      "a": "We accept PSE transfers, credit cards (Visa, Mastercard, American Express), and Colombian mobile digital wallet applications."
+    },
+    "faq3": {
+      "q": "How long does it take for my order to arrive?",
+      "a": "Orders are coordinated directly to be harvested in the morning. We take between 24 and 48 hours to dispatch and deliver to your door to maintain guaranteed freshness."
+    },
+    "faq4": {
+      "q": "How can I join if I am a producer in Urabá?",
+      "a": "You can contact the Asafrut association through our WhatsApp technical support or fill out the form in the producers tab. We will help you with the physical verification of your farm."
+    },
+    "faq5": {
+      "q": "How do return policies work?",
+      "a": "If a batch of fruits or vegetables does not arrive in the optimal freshness agreed upon, you can send us a photo to the support chat within the first 12 hours of receipt and we will replace it at no additional cost."
+    }
   }
 }

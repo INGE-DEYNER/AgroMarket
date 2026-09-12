@@ -805,6 +805,22 @@
     "clearHistory": "Effacer l'historique",
     "helpCenter": "Centre d'aide",
     "helpCenterSub": "Trouvez les réponses aux questions les plus fréquemment posées.",
+    "catOrders": "Commandes et achats",
+    "catShipping": "Expéditions et livraisons",
+    "catPayments": "Paiements et facturation",
+    "catReturns": "Retours et remboursements",
+    "catProducts": "Produits et qualité",
+    "catAccount": "Compte et sécurité",
+    "catProducers": "Producteurs et vendeurs",
+    "catCoupons": "Coupons et promotions",
+    "articleTrack": "Comment suivre ma commande ?",
+    "articleTrackDesc": "Apprenez à suivre votre commande en temps réel.",
+    "articleDelivery": "Combien de temps faut-il pour que ma commande arrive ?",
+    "articleDeliveryDesc": "Délais de livraison selon votre emplacement.",
+    "articlePayments": "Quels modes de paiement acceptez-vous ?",
+    "articlePaymentsDesc": "Découvrez tous les modes de paiement disponibles.",
+    "articleReturn": "Comment effectuer un retour ?",
+    "articleReturnDesc": "Étape par étape pour demander un retour ou un remboursement.",
     "minPurchase": "Achat minimum",
     "validUntil": "Valable jusqu'au",
     "viewDetails": "Voir les détails",
@@ -843,5 +859,65 @@
     "searchHelp": "Rechercher dans l'aide...",
     "emptyHistory": "Votre historique est vide.",
     "viewFullHistory": "Voir l'historique complet"
+  },
+  "ayuda": {
+    "breadcrumb": "Fil d'Ariane",
+    "home": "Accueil",
+    "help": "Aide",
+    "title": "Comment pouvons-nous vous aider aujourd'hui ?",
+    "searchPlaceholder": "Recherchez des réponses à vos questions...",
+    "searchAria": "Rechercher dans l'aide",
+    "frequentTopics": "Sujets Fréquents",
+    "noResults": "Nous n'avons trouvé aucun résultat pour votre recherche.",
+    "contactTitle": "Vous n'avez pas trouviez ce que vous cherchiez ?",
+    "contactText": "Notre équipe de support local pour les producteurs et les clients est prête à vous aider directement via le chat.",
+    "whatsapp247": "WhatsApp 24/7",
+    "email": "E-mail",
+    "talkToSupport": "Parler au Support via WhatsApp"
+  },
+  "comoFunciona": {
+    "badge": "Processus simple et transparent",
+    "title": "Comment fonctionne AgroMarket ?",
+    "subtitle": "Acheter les produits les plus frais de la campagne colombienne est désormais une réalité simple, directe et sans intermédiaires nuisibles.",
+    "step1": {
+      "title": "Explorer et Découvrir",
+      "text": "Parcourez notre catalogue de fruits, légumes, tubercules et délices cultivés directement dans l'Urabá colombien."
+    },
+    "step2": {
+      "title": "Choisissez votre Récolte",
+      "text": "Sélectionnez les quantités souhaitées. Vous verrez exactement quelle ferme a récolté chaque produit et à quel prix juste ils suggèrent."
+    },
+    "step3": {
+      "title": "Acheter en toute Confiance",
+      "text": "Effectuez votre paiement 100 % sécurisé via plusieurs options rapidement et sans complications."
+    },
+    "step4": {
+      "title": "Recevez chez vous",
+      "text": "Notre réseau logistique paysan collecte le produit frais du jour et le livre directement à votre porte."
+    },
+    "whyTitle": "Nous soutenons le local et redonnons de la valeur à la campagne",
+    "whyText1": "Traditionnellement, les intermédiaires agricoles retiennent jusqu'à 70 % de la valeur d'un produit, laissant nos paysans avec des pertes.",
+    "whyText2": "Chez AgroMarket, 100 % de la vente va directement aux associations locales de producteurs. En achetant ici, vous permettez aux familles d'Urabá de continuer à cultiver leurs terres avec des conditions de vie décentes, l'éducation et le développement régional.",
+    "cta": "Commencer à acheter",
+    "faq1": {
+      "q": "Comment effectuer un achat sur la plateforme ?",
+      "a": "C'est très simple : parcourez la boutique, sélectionnez vos fruits ou tubercules préférés, dites-nous combien de kilos vous avez besoin, entrez vos informations d'expédition et effectuez le paiement sécurisé en ligne."
+    },
+    "faq2": {
+      "q": "Quels sont les modes de paiement acceptés ?",
+      "a": "Nous acceptons les virements PSE, les cartes de crédit (Visa, Mastercard, American Express) et les applications de portefeuille numérique mobiles colombiennes."
+    },
+    "faq3": {
+      "q": "Combien de temps faut-il pour que ma commande arrive ?",
+      "a": "Les commandes sont coordonnées directement pour être récoltées le matin. Nous prenons entre 24 et 48 heures pour expédier et livrer à votre porte afin de maintenir la fraîcheur garantie."
+    },
+    "faq4": {
+      "q": "Comment puis-je m'inscrire si je suis producteur d'Urabá ?",
+      "a": "Vous pouvez contacter l'association Asafrut via notre support technique WhatsApp ou remplir le formulaire dans l'onglet producteurs. Nous vous aiderons à vérifier physiquement votre ferme."
+    },
+    "faq5": {
+      "q": "Comment fonctionnent les politiques de retour ?",
+      "a": "Si un lot de fruits ou légumes n'arrive pas dans la fraîcheur optimale convenue, vous pouvez nous envoyer une photo dans le chat de support dans les 12 premières heures de réception et nous le remplacerons sans frais supplémentaires."
+    }
   }
 }

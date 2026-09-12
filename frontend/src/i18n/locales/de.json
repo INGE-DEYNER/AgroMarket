@@ -805,6 +805,22 @@
     "clearHistory": "Verlauf löschen",
     "helpCenter": "Hilfecenter",
     "helpCenterSub": "Finden Sie Antworten auf die häufigsten Fragen.",
+    "catOrders": "Bestellungen und Einkäufe",
+    "catShipping": "Versand und Lieferung",
+    "catPayments": "Zahlungen und Abrechnung",
+    "catReturns": "Rückgaben und Erstattungen",
+    "catProducts": "Produkte und Qualität",
+    "catAccount": "Konto und Sicherheit",
+    "catProducers": "Produzenten und Verkäufer",
+    "catCoupons": "Gutscheine und Aktionen",
+    "articleTrack": "Wie verfolge ich meine Bestellung?",
+    "articleTrackDesc": "Erfahren Sie, wie Sie Ihre Bestellung in Echtzeit verfolgen.",
+    "articleDelivery": "Wie lange dauert es, bis meine Bestellung ankommt?",
+    "articleDeliveryDesc": "Lieferzeiten je nach Standort.",
+    "articlePayments": "Welche Zahlungsmethoden akzeptieren Sie?",
+    "articlePaymentsDesc": "Erfahren Sie über alle verfügbaren Zahlungsmethoden.",
+    "articleReturn": "Wie kann ich eine Rückgabe vornehmen?",
+    "articleReturnDesc": "Schritt für Schritt zur Anforderung einer Rückgabe oder Erstattung.",
     "minPurchase": "Mindesteinkauf",
     "validUntil": "Gültig bis",
     "viewDetails": "Details anzeigen",
@@ -843,5 +859,65 @@
     "searchHelp": "In der Hilfe suchen...",
     "emptyHistory": "Ihr Verlauf ist leer.",
     "viewFullHistory": "Vollständigen Verlauf anzeigen"
+  },
+  "ayuda": {
+    "breadcrumb": "Brotkrumen",
+    "home": "Startseite",
+    "help": "Hilfe",
+    "title": "Wie können wir Ihnen heute helfen?",
+    "searchPlaceholder": "Suchen Sie nach Antworten auf Ihre Fragen...",
+    "searchAria": "In der Hilfe suchen",
+    "frequentTopics": "Häufige Themen",
+    "noResults": "Wir haben keine Ergebnisse für Ihre Suche gefunden.",
+    "contactTitle": "Nicht gefunden, was Sie suchten?",
+    "contactText": "Unser lokales Produzenten- und Kundensupportteam ist bereit, Ihnen direkt über Chat zu helfen.",
+    "whatsapp247": "WhatsApp 24/7",
+    "email": "E-Mail",
+    "talkToSupport": "Mit Support via WhatsApp sprechen"
+  },
+  "comoFunciona": {
+    "badge": "Einfacher und transparenter Prozess",
+    "title": "Wie funktioniert AgroMarket?",
+    "subtitle": "Der Kauf der frischsten Produkte vom kolumbianischen Land ist jetzt eine einfache, direkte Realität ohne schädliche Zwischenhändler.",
+    "step1": {
+      "title": "Entdecke und Erkunde",
+      "text": "Durchstören Sie unser Katalog von Obst, Gemüse, Knollen und Köstlichkeiten, die direkt im kolumbianischen Urabá angebaut werden."
+    },
+    "step2": {
+      "title": "Wählen Sie Ihre Ernte",
+      "text": "Wählen Sie die gewünschten Mengen. Sie werden genau sehen, welcher Betrieb jedes Produkt geerntet hat und zu welchem fairen Preis sie vorschlagen."
+    },
+    "step3": {
+      "title": "Kaufen Sie mit Vertrauen",
+      "text": "Führen Sie Ihre 100% sichere Zahlung über mehrere Optionen schnell und unkompliziert durch."
+    },
+    "step4": {
+      "title": "Zu Hause empfangen",
+      "text": "Unser bäuerliches Logistiknetzwerk sammelt das frische Produkt des Tages und liefert es direkt an Ihre Tür."
+    },
+    "whyTitle": "Wir unterstützen Lokales und geben dem Land Wert zurück",
+    "whyText1": "Traditionell behalten landwirtschaftliche Zwischenhändler bis zu 70% des Werts eines Produkts und lassen unsere Bauern mit Verlusten zurück.",
+    "whyText2": "Bei AgroMarket geht 100% des Verkaufs direkt an lokale Produzentenvereinigungen. Indem Sie hier kaufen, ermöglichen Sie Familien in Urabá, ihre Ländereien mit menschlichen Lebensbedingungen, Bildung und regionaler Entwicklung weiter zu bestellen.",
+    "cta": "Einkaufen beginnen",
+    "faq1": {
+      "q": "Wie kaufe ich auf der Plattform ein?",
+      "a": "Es ist sehr einfach: Durchstören Sie den Laden, wählen Sie Ihre Lieblingsoffeln oder Knollen aus, sagen Sie uns, wie viele Kilogramm Sie benötigen, geben Sie Ihre Versandinformationen ein und führen Sie die sichere Online-Zahlung durch."
+    },
+    "faq2": {
+      "q": "Welche Zahlungsmethoden werden akzeptiert?",
+      "a": "Wir akzeptieren PSE-Überweisungen, Kreditkarten (Visa, Mastercard, American Express) und kolumbianische mobile digitale Brieftaschenanwendungen."
+    },
+    "faq3": {
+      "q": "Wie lange dauert es, bis meine Bestellung ankommt?",
+      "a": "Bestellungen werden direkt koordiniert, um morgens geerntet zu werden. Wir brauchen zwischen 24 und 48 Stunden, um an Ihre Tür zu liefern, um die garantierte Frische zu erhalten."
+    },
+    "faq4": {
+      "q": "Wie kann ich beitreten, wenn ich ein Produzent in Urabá bin?",
+      "a": "Sie können den Asafrut-Verein über unseren WhatsApp-Support kontaktieren oder das Formular im Produzenten-Tab ausfüllen. Wir helfen Ihnen bei der physischen Verifizierung Ihrer Farm."
+    },
+    "faq5": {
+      "q": "Wie funktionieren die Rückgaberichtlinien?",
+      "a": "Wenn eine Charge von Obst oder Gemüse nicht in der vereinbarten optimalen Frische ankommen, können Sie uns innerhalb der ersten 12 Stunden nach Erhalt ein Foto an den Support-Chat senden und wir werden es ohne zusätzliche Kosten ersetzen."
+    }
   }
 }

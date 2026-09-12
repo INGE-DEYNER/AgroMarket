@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
 import whySupportImg from "@/assets/why-support.png";
+import { useTranslation } from "react-i18next";
 import "@/presentation/styles/public-views.css";
 
 const STEPS = [
   {
     num: "01",
-    title: "Explora y Descubre",
-    text: "Navega por nuestro catálogo de frutas, verduras, tubérculos y delicias cultivadas directamente en el Urabá colombiano.",
+    title: "comoFunciona.step1.title",
+    text: "comoFunciona.step1.text",
     icon: (
       <svg
         width="24"
@@ -46,8 +47,8 @@ const STEPS = [
   },
   {
     num: "03",
-    title: "Compra con Confianza",
-    text: "Realiza tu pago 100% seguro a través de múltiples opciones de manera rápida y sin complicaciones.",
+    title: "comoFunciona.step3.title",
+    text: "comoFunciona.step3.text",
     icon: (
       <svg
         width="24"
@@ -66,8 +67,8 @@ const STEPS = [
   },
   {
     num: "04",
-    title: "Recibe en tu Hogar",
-    text: "Nuestra red de logística campesina recolecta el producto fresco del día y lo entrega directamente en tu puerta.",
+    title: "comoFunciona.step4.title",
+    text: "comoFunciona.step4.text",
     icon: (
       <svg
         width="24"
@@ -89,16 +90,16 @@ const STEPS = [
 ];
 
 export default function ComoFunciona() {
+  const { t } = useTranslation();
   return (
     <PublicLayout>
       <div className="cf-page">
         {/* Encabezado centrado (frame: content-header) */}
         <section className="cf-header">
-          <span className="cf-badge">Proceso simple y transparente</span>
-          <h1>¿Cómo funciona AgroMarket?</h1>
+          <span className="cf-badge">{t("comoFunciona.badge", "Proceso simple y transparente")}</span>
+          <h1>{t("comoFunciona.title", "¿Cómo funciona AgroMarket?")}</h1>
           <p>
-            Comprar los productos más frescos del campo colombiano es ahora una
-            realidad sencilla, directa y sin intermediarios perjudiciales.
+            {t("comoFunciona.subtitle", "Comprar los productos más frescos del campo colombiano es ahora una realidad sencilla, directa y sin intermediarios perjudiciales.")}
           </p>
         </section>
 
@@ -110,8 +111,8 @@ export default function ComoFunciona() {
                 <span className="cf-step-icon">{s.icon}</span>
                 <span className="cf-step-num">{s.num}</span>
               </div>
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
+              <h3>{t(s.title)}</h3>
+              <p>{t(s.text)}</p>
             </article>
           ))}
         </section>
@@ -125,20 +126,15 @@ export default function ComoFunciona() {
             loading="lazy"
           />
           <div className="cf-why-content">
-            <h2>Apoyamos lo local y devolvemos el valor al campo</h2>
+            <h2>{t("comoFunciona.whyTitle", "Apoyamos lo local y devolvemos el valor al campo")}</h2>
             <p>
-              Tradicionalmente, los intermediarios agrícolas retienen hasta el
-              70% del valor de un producto, dejando a nuestros campesinos con
-              pérdidas.
+              {t("comoFunciona.whyText1", "Tradicionalmente, los intermediarios agrícolas retienen hasta el 70% del valor de un producto, dejando a nuestros campesinos con pérdidas.")}
             </p>
             <p>
-              En AgroMarket, el <strong>100% de la venta va directo</strong> a
-              las asociaciones locales de productores. Al comprar aquí, estás
-              permitiendo que las familias de Urabá sigan cultivando sus tierras
-              con condiciones de vida dignas, educación y desarrollo regional.
+              {t("comoFunciona.whyText2", "En AgroMarket, el 100% de la venta va directo a las asociaciones locales de productores. Al comprar aquí, estás permitiendo que las familias de Urabá sigan cultivando sus tierras con condiciones de vida dignas, educación y desarrollo regional.")}
             </p>
             <Link to="/catalogo" className="cf-cta">
-              Empezar a comprar
+              {t("comoFunciona.cta", "Empezar a comprar")}
             </Link>
           </div>
         </section>

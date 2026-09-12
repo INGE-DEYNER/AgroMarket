@@ -805,6 +805,22 @@
     "clearHistory": "Limpar histórico",
     "helpCenter": "Central de ajuda",
     "helpCenterSub": "Encontre respostas para as perguntas mais frequentes.",
+    "catOrders": "Pedidos e compras",
+    "catShipping": "Envios e entregas",
+    "catPayments": "Pagamentos e faturamento",
+    "catReturns": "Devoluções e reembolsos",
+    "catProducts": "Produtos e qualidade",
+    "catAccount": "Conta e segurança",
+    "catProducers": "Produtores e vendedores",
+    "catCoupons": "Cupons e promoções",
+    "articleTrack": "Como rastrear meu pedido?",
+    "articleTrackDesc": "Saiba como acompanhar seu pedido em tempo real.",
+    "articleDelivery": "Quanto tempo leva para meu pedido chegar?",
+    "articleDeliveryDesc": "Tempos de entrega de acordo com sua localização.",
+    "articlePayments": "Quais métodos de pagamento vocês aceitam?",
+    "articlePaymentsDesc": "Conheça todos os métodos de pagamento disponíveis.",
+    "articleReturn": "Como fazer uma devolução?",
+    "articleReturnDesc": "Passo a passo para solicitar uma devolução ou reembolso.",
     "minPurchase": "Compra mínima",
     "validUntil": "Válido até",
     "viewDetails": "Ver detalhes",
@@ -843,5 +859,65 @@
     "searchHelp": "Buscar na ajuda...",
     "emptyHistory": "Seu histórico está vazio.",
     "viewFullHistory": "Ver histórico completo"
+  },
+  "ayuda": {
+    "breadcrumb": "Migalhas de pão",
+    "home": "Início",
+    "help": "Ajuda",
+    "title": "Como podemos ajudar você hoje?",
+    "searchPlaceholder": "Busque respostas para suas perguntas...",
+    "searchAria": "Buscar na ajuda",
+    "frequentTopics": "Tópicos Frequentes",
+    "noResults": "Não encontramos resultados para sua busca.",
+    "contactTitle": "Não encontrou o que procurava?",
+    "contactText": "Nossa equipe de suporte local ao produtor e cliente está pronta para atendê-lo diretamente via chat.",
+    "whatsapp247": "WhatsApp 24/7",
+    "email": "E-mail",
+    "talkToSupport": "Falar com o Suporte via WhatsApp"
+  },
+  "comoFunciona": {
+    "badge": "Processo simples e transparente",
+    "title": "Como funciona o AgroMarket?",
+    "subtitle": "Comprar os produtos mais frescos do campo colombiano é agora uma realidade simples, direta e sem intermediários prejudiciais.",
+    "step1": {
+      "title": "Explore e Descubra",
+      "text": "Navegue pelo nosso catálogo de frutas, legumes, tubérculos e delícias cultivadas diretamente no Urabá colombiano."
+    },
+    "step2": {
+      "title": "Escolha sua Colheita",
+      "text": "Selecione as quantidades desejadas. Você verá exatamente qual fazenda colheu cada produto e a que preço justo sugerem."
+    },
+    "step3": {
+      "title": "Compra com Confiança",
+      "text": "Faça seu pagamento 100% seguro através de várias opções de forma rápida e sem complicações."
+    },
+    "step4": {
+      "title": "Receba em Casa",
+      "text": "Nossa rede de logística camponesa coleta o produto fresco do dia e o entrega diretamente na sua porta."
+    },
+    "whyTitle": "Apoiamos o local e devolvemos o valor ao campo",
+    "whyText1": "Tradicionalmente, os intermediários agrícolas retêm até 70% do valor de um produto, deixando nossos camponeses com perdas.",
+    "whyText2": "No AgroMarket, 100% da venda vai diretamente para as associações locais de produtores. Ao comprar aqui, você está permitindo que as famílias de Urabá continuem cultivando suas terras com condições de vida dignas, educação e desenvolvimento regional.",
+    "cta": "Começar a comprar",
+    "faq1": {
+      "q": "Como faço uma compra na plataforma?",
+      "a": "É muito simples: explore a loja, selecione as frutas ou tubérculos preferidos, diga-nos quantos quilos você precisa, insira suas informações de envio e faça o pagamento online seguro."
+    },
+    "faq2": {
+      "q": "Quais são os métodos de pagamento aceitos?",
+      "a": "Aceitamos transferências PSE, cartões de crédito (Visa, Mastercard, American Express) e aplicativos de carteira digital móvel colombianos."
+    },
+    "faq3": {
+      "q": "Quanto tempo leva para meu pedido chegar?",
+      "a": "Os pedidos são coordenados diretamente para serem colhidos pela manhã. Levamos entre 24 e 48 horas para despachar e entregar na sua porta para manter a frescura garantida."
+    },
+    "faq4": {
+      "q": "Como posso se sou um produtor de Urabá?",
+      "a": "Você pode entrar em contato com a associação Asafrut através do nosso suporte técnico no WhatsApp ou preencher o formulário na aba de produtores. Ajudaremos você com a verificação física da sua fazenda."
+    },
+    "faq5": {
+      "q": "Como funcionam as políticas de devolução?",
+      "a": "Se um lote de frutas ou vegetais não chegar na frescura ótima acordada, você pode nos enviar uma foto para o chat de suporte nas primeiras 12 horas do reposição sem custos adicionais."
+    }
   }
 }

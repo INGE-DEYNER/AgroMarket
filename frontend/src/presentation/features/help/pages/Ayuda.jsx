@@ -1,54 +1,56 @@
 import { useState } from "react";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
+import { useTranslation } from "react-i18next";
 import "@/presentation/styles/public-views.css";
 
 const FAQS = [
   {
-    q: "¿Cómo realizo mi compra en la plataforma?",
-    a: "Es muy sencillo: explora la tienda, selecciona las frutas o tubérculos preferidos, indícanos cuántos kilos necesitas, ingresa tus datos de envío y realiza el pago seguro en línea.",
+    q: "ayuda.faq1.q",
+    a: "ayuda.faq1.a",
   },
   {
-    q: "¿Cuáles son los métodos de pago aceptados?",
-    a: "Aceptamos transferencias por PSE, tarjetas de crédito (Visa, Mastercard, American Express), y aplicaciones de billetera digital móvil colombianas.",
+    q: "ayuda.faq2.q",
+    a: "ayuda.faq2.a",
   },
   {
-    q: "¿Cuánto tiempo tarda en llegar mi pedido?",
-    a: "Los pedidos se coordinan directamente para cosecharse en la mañana. Tardamos entre 24 y 48 horas en despachar y entregar en tu puerta para mantener la frescura garantizada.",
+    q: "ayuda.faq3.q",
+    a: "ayuda.faq3.a",
   },
   {
-    q: "¿Cómo puedo unirme si soy productor de Urabá?",
-    a: "Puedes comunicarte con la asociación Asafrut a través de nuestro soporte técnico en WhatsApp o diligenciar el formulario en la pestaña de productores. Te ayudaremos con la verificación física de tu finca.",
+    q: "ayuda.faq4.q",
+    a: "ayuda.faq4.a",
   },
   {
-    q: "¿Cómo funcionan las políticas de devoluciones?",
-    a: "Si un lote de frutas o vegetales no llega en la frescura óptima acordada, puedes enviarnos una foto al chat de soporte en las primeras 12 horas del recibo y realizaremos la reposición sin costos adicionales.",
+    q: "ayuda.faq5.q",
+    a: "ayuda.faq5.a",
   },
 ];
 
 export default function Ayuda() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(null);
   const [query, setQuery] = useState("");
 
   const filtered = FAQS.filter(
     (f) =>
       !query ||
-      f.q.toLowerCase().includes(query.toLowerCase()) ||
-      f.a.toLowerCase().includes(query.toLowerCase()),
+      t(f.q).toLowerCase().includes(query.toLowerCase()) ||
+      t(f.a).toLowerCase().includes(query.toLowerCase()),
   );
 
   return (
     <PublicLayout>
       <div className="ay-page">
         {/* Migas de pan */}
-        <nav className="ay-breadcrumb" aria-label="Migas de pan">
-          <span>Inicio</span>
+        <nav className="ay-breadcrumb" aria-label={t("ayuda.breadcrumb", "Migas de pan")}>
+          <span>{t("ayuda.home", "Inicio")}</span>
           <span aria-hidden="true">›</span>
-          <strong>Ayuda</strong>
+          <strong>{t("ayuda.help", "Ayuda")}</strong>
         </nav>
 
         {/* Banner de búsqueda (frame: search-box-help) */}
         <section className="ay-hero">
-          <h1>¿En qué podemos ayudarte hoy?</h1>
+          <h1>{t("ayuda.title", "¿En qué podemos ayudarte hoy?")}</h1>
           <div className="ay-search-wrap">
             <svg
               width="18"
@@ -66,10 +68,10 @@ export default function Ayuda() {
             </svg>
             <input
               type="search"
-              placeholder="Busca respuestas a tus preguntas..."
+              placeholder={t("ayuda.searchPlaceholder", "Busca respuestas a tus preguntas...")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              aria-label="Buscar en ayuda"
+              aria-label={t("ayuda.searchAria", "Buscar en ayuda")}
             />
           </div>
         </section>
@@ -77,7 +79,7 @@ export default function Ayuda() {
         {/* Contenido principal */}
         <section className="ay-content">
           <div className="ay-faqs">
-            <h2>Temas Frecuentes</h2>
+            <h2>{t("ayuda.frequentTopics", "Temas Frecuentes")}</h2>
             {filtered.map((f) => {
               const index = FAQS.indexOf(f);
               const isOpen = open === index;
@@ -89,7 +91,7 @@ export default function Ayuda() {
                     onClick={() => setOpen(isOpen ? null : index)}
                     aria-expanded={isOpen}
                   >
-                    <span>{f.q}</span>
+                    <span>{t(f.q)}</span>
                     <svg
                       width="14"
                       height="14"
@@ -109,23 +111,22 @@ export default function Ayuda() {
                       <path d="M3 5l4 4 4-4" />
                     </svg>
                   </button>
-                  {isOpen && <p className="ay-faq-body">{f.a}</p>}
+                  {isOpen && <p className="ay-faq-body">{t(f.a)}</p>}
                 </article>
               );
             })}
             {filtered.length === 0 && (
               <p className="ay-empty">
-                No encontramos resultados para tu búsqueda.
+                {t("ayuda.noResults", "No encontramos resultados para tu búsqueda.")}
               </p>
             )}
           </div>
 
           {/* Tarjeta de contacto (frame: sidebar) */}
           <aside className="ay-contact" id="contacto">
-            <h2>¿No encontraste lo que buscabas?</h2>
+            <h2>{t("ayuda.contactTitle", "¿No encontraste lo que buscabas?")}</h2>
             <p>
-              Nuestro equipo de soporte al productor y cliente local está listo
-              para atenderte directamente por chat.
+              {t("ayuda.contactText", "Nuestro equipo de soporte al productor y cliente local está listo para atenderte directamente por chat.")}
             </p>
             <hr className="ay-divider" />
             <div className="ay-contact-list">
@@ -146,7 +147,7 @@ export default function Ayuda() {
                   </svg>
                 </span>
                 <div>
-                  <small>WhatsApp 24/7</small>
+                  <small>{t("ayuda.whatsapp247", "WhatsApp 24/7")}</small>
                   <strong>+57 300 123 4567</strong>
                 </div>
               </div>
@@ -168,7 +169,7 @@ export default function Ayuda() {
                   </svg>
                 </span>
                 <div>
-                  <small>Correo electrónico</small>
+                  <small>{t("ayuda.email", "Correo electrónico")}</small>
                   <strong>soporte@agromarket.co</strong>
                 </div>
               </div>
@@ -179,7 +180,7 @@ export default function Ayuda() {
               target="_blank"
               rel="noreferrer"
             >
-              Hablar con Soporte por WhatsApp
+              {t("ayuda.talkToSupport", "Hablar con Soporte por WhatsApp")}
             </a>
           </aside>
         </section>

@@ -805,6 +805,22 @@
     "clearHistory": "清除历史",
     "helpCenter": "帮助中心",
     "helpCenterSub": "找到最常见问题的答案。",
+    "catOrders": "订单和购买",
+    "catShipping": "配送和交付",
+    "catPayments": "付款和账单",
+    "catReturns": "退货和退款",
+    "catProducts": "产品和质量",
+    "catAccount": "账户和安全",
+    "catProducers": "生产者和卖家",
+    "catCoupons": "优惠券和促销",
+    "articleTrack": "如何追踪我的订单？",
+    "articleTrackDesc": "了解如何实时追踪您的订单。",
+    "articleDelivery": "我的订单需要多长时间才能送达？",
+    "articleDeliveryDesc": "根据您的位置确定的交货时间。",
+    "articlePayments": "您接受哪些付款方式？",
+    "articlePaymentsDesc": "了解所有可用的付款方式。",
+    "articleReturn": "如何退货？",
+    "articleReturnDesc": "逐步请求退货或退款。",
     "minPurchase": "最低消费",
     "validUntil": "有效期至",
     "viewDetails": "查看详情",
@@ -843,5 +859,65 @@
     "searchHelp": "在帮助中搜索...",
     "emptyHistory": "您的历史记录为空。",
     "viewFullHistory": "查看完整历史"
+  },
+  "ayuda": {
+    "breadcrumb": "面包屑",
+    "home": "首页",
+    "help": "帮助",
+    "title": "今天我们如何帮助您？",
+    "searchPlaceholder": "搜索您问题的答案...",
+    "searchAria": "在帮助中搜索",
+    "frequentTopics": "常见主题",
+    "noResults": "我们没有找到您搜索的结果。",
+    "contactTitle": "没有找到您要找的内容？",
+    "contactText": "我们的本地生产者和客户支持团队准备通过聊天直接为您提供帮助。",
+    "whatsapp247": "WhatsApp 24/7",
+    "email": "电子邮件",
+    "talkToSupport": "通过WhatsApp与支持人员交谈"
+  },
+  "comoFunciona": {
+    "badge": "简单透明的流程",
+    "title": "AgroMarket如何运作？",
+    "subtitle": "购买哥伦比亚乡村最新鲜的产品现在是一个简单、直接、没有有害中介的现实。",
+    "step1": {
+      "title": "探索和发现",
+      "text": "浏览我们的水果、蔬菜、块茎和直接在哥伦比亚乌拉巴种植的美食目录。"
+    },
+    "step2": {
+      "title": "选择您的收获",
+      "text": "选择所需的数量。您将确切看到哪个农场收获了他们建议的每个产品的公平价格。"
+    },
+    "step3": {
+      "title": "信心购买",
+      "text": "通过多种选择快速轻松地进行100%安全的支付。"
+    },
+    "step4": {
+      "title": "在家接收",
+      "text": "我们的农民物流网络收集当天的新鲜产品并直接送到您门口。"
+    },
+    "whyTitle": "我们支持本地并将价值回馈乡村",
+    "whyText1": "传统上，农业中介保留产品价值的70%，让农民蒙受损失。",
+    "whyText2": "在AgroMarket，100%的销售额直接归当地生产者协会所有。通过在这里购买，您正在允许乌拉巴的家庭继续以体面的生活条件、教育和区域发展耕种他们的土地。",
+    "cta": "开始购物",
+    "faq1": {
+      "q": "我如何在平台上购买？",
+      "a": "非常简单：浏览商店，选择您喜欢的水果或块茎，告诉我们您需要多少公斤，输入您的运输信息，然后进行安全的在线支付。"
+    },
+    "faq2": {
+      "q": "接受哪些付款方式？",
+      "a": "我们接受PSE转账、信用卡（Visa、Mastercard、American Express）和哥伦比亚移动数字钱包应用程序。"
+    },
+    "faq3": {
+      "q": "我的订单需要多长时间才能送达？",
+      "a": "订单直接协调在早上收获。我们需要24到48小时才能发货并送到您门口，以保持保证的新鲜度。"
+    },
+    "faq4": {
+      "q": "如果我是乌拉巴的生产者，我如何加入？",
+      "a": "您可以通过我们的WhatsApp技术支持联系Asafrut协会，或填写生产者选项卡中的表格。我们将帮助您对农场进行物理验证。"
+    },
+    "faq5": {
+      "q": "退货政策如何运作？",
+      "a": "如果一批水果或蔬菜没有以约定的最佳新鲜度到达，您可以在收到后的前12小时内将照片发送到支持聊天，我们将免费更换。"
+    }
   }
 }
