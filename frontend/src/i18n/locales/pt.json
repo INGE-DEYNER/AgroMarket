@@ -229,6 +229,7 @@
     "heroTitleSpan": "direto do campo",
     "heroSub": "Produtos frescos dos agricultores da ASAFRUT. Sem intermediários, preços justos.",
     "searchPlaceholder": "Buscar produtos...",
+    "searchAria": "Buscar produtos",
     "cartButton": "Carrinho",
     "category": {
       "all": "Todos",
@@ -294,6 +295,7 @@
   },
   "productDetail": {
     "loading": "Cargando produto…",
+    "loadError": "Não foi possível carregar o produto.",
     "notFound": "Produto não encontrado",
     "notFoundDesc": "Este produto não existe ou foi eliminado.",
     "backToCatalog": "Volver ao catálogo",

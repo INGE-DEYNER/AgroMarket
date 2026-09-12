@@ -229,6 +229,7 @@
     "heroTitleSpan": "直接来自农田",
     "heroSub": "来自 ASAFRUT 农户的新鲜产品。无中间商，价格公正。",
     "searchPlaceholder": "搜索商品...",
+    "searchAria": "搜索商品",
     "cartButton": "购物车",
     "category": {
       "all": "全部",
@@ -294,6 +295,7 @@
   },
   "productDetail": {
     "loading": "正在加载产品…",
+    "loadError": "无法加载该产品。",
     "notFound": "未找到产品",
     "notFoundDesc": "该产品不存在或已被删除。",
     "backToCatalog": "返回目录",

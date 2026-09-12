@@ -229,6 +229,7 @@
     "heroTitleSpan": "directement du champ",
     "heroSub": "Produits frais des agriculteurs d'ASAFRUT. Sans intermédiaires, prix justes.",
     "searchPlaceholder": "Rechercher des produits...",
+    "searchAria": "Rechercher des produits",
     "cartButton": "Panier",
     "category": {
       "all": "Tous",
@@ -294,6 +295,7 @@
   },
   "productDetail": {
     "loading": "Chargement du produit…",
+    "loadError": "Impossible de charger le produit.",
     "notFound": "Produit introuvable",
     "notFoundDesc": "Ce produit n'existe pas ou a été supprimé.",
     "backToCatalog": "Retour au catalogue",

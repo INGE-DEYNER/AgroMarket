@@ -229,6 +229,7 @@
     "heroTitleSpan": "direkt vom Feld",
     "heroSub": "Frische Produkte von den Landwirten von ASAFRUT. Ohne Zwischenhändler, faire Preise.",
     "searchPlaceholder": "Produkte suchen...",
+    "searchAria": "Produkte suchen",
     "cartButton": "Warenkorb",
     "category": {
       "all": "Alle",
@@ -294,6 +295,7 @@
   },
   "productDetail": {
     "loading": "Produkt wird geladen…",
+    "loadError": "Das Produkt konnte nicht geladen werden.",
     "notFound": "Produkt nicht gefunden",
     "notFoundDesc": "Dieses Produkt existiert nicht oder wurde entfernt.",
     "backToCatalog": "Zurück zum Katalog",

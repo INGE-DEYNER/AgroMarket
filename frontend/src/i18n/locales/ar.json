@@ -229,6 +229,7 @@
     "heroTitleSpan": "مباشرة من المزرعة",
     "heroSub": "منتجات طازجة من مزارعي ASAFRUT. بدون وسطاء، وبأسعار عادلة.",
     "searchPlaceholder": "البحث عن المنتجات...",
+    "searchAria": "البحث عن المنتجات",
     "cartButton": "السلة",
     "category": {
       "all": "الكل",
@@ -294,6 +295,7 @@
   },
   "productDetail": {
     "loading": "جارٍ تحميل المنتج…",
+    "loadError": "تعذر تحميل المنتج.",
     "notFound": "المنتج غير موجود",
     "notFoundDesc": "هذا المنتج غير موجود أو تم حذفه.",
     "backToCatalog": "العودة إلى الكتالوج",
