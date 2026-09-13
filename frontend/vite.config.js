@@ -14,6 +14,7 @@ export default defineConfig({
   base: "/",
   define: {
     "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production"),
+    global: 'window',
   },
   optimizeDeps: {
     exclude: ['react', 'react-dom'],
@@ -22,10 +23,15 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     rollupOptions: {
+      external: ['react', 'react-dom'],
       output: {
         entryFileNames: `assets/[name]-[hash].js`,
         chunkFileNames: `assets/[name]-[hash].js`,
         assetFileNames: `assets/[name]-[hash].[ext]`,
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+        },
       },
     },
     chunkSizeWarningLimit: 600,
@@ -33,6 +39,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      react: 'react',
+      'react-dom': 'react-dom',
     },
   },
   server: {

@@ -1,7 +1,6 @@
-import React from "react"; // FIX: Added for JSX support v2
-import { useState, useEffect } from "react";
-import ReactDOM from "react-dom/client";
-console.log("React 18 fix applied - cache bust 20260913");
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom/client';
+console.log("React 18 CDN loaded - cache bust 20260913");
 
 import App from "@/app/App";
 import i18n from "@/i18n/index";
