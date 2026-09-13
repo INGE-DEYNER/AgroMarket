@@ -122,14 +122,7 @@ export default function DashboardProductor() {
     try {
       const data = await api.get("/productos/mis-productos");
       const ENUM_TO_TIPO = {
-        BANANA: "Banano",
-        PINEAPPLE: "Piña",
-        MANGO: "Mango",
         PASSION_FRUIT: "Maracuyá",
-        SOURSOP: "Guanábana",
-        ORANGE: "Naranja",
-        COCONUT: "Coco",
-        LEMON: "Limón",
       };
       const items = extractArray(data).map((p) => {
         const rawType = p.fruitType || p.tipoFruta || p.tipo || "";
@@ -138,11 +131,14 @@ export default function DashboardProductor() {
           ...p,
           nombre: p.name || p.nombre || "Producto sin nombre",
           precio: Number(p.price ?? p.precio ?? 0),
-          stock: Number(p.availableQuantity ?? p.stock ?? p.cantidadDisponible ?? 0),
+          stock: Number(
+            p.availableQuantity ?? p.stock ?? p.cantidadDisponible ?? 0,
+          ),
           tipo: mappedType,
           descripcion: p.description || p.descripcion || "",
           imagenUrl: p.imageUrl || p.imagenUrl || "",
-          cantidadMinimaMayorista: p.minimumWholesaleQuantity ?? p.cantidadMinimaMayorista ?? "",
+          cantidadMinimaMayorista:
+            p.minimumWholesaleQuantity ?? p.cantidadMinimaMayorista ?? "",
           precioMayorista: p.wholesalePrice ?? p.precioMayorista ?? "",
         };
       });
@@ -457,11 +453,13 @@ export default function DashboardProductor() {
         nombre: prod.name || prod.nombre || "",
         tipo: mappedType,
         precio: prod.price ?? prod.precio ?? "",
-        stock: prod.availableQuantity ?? prod.stock ?? prod.cantidadDisponible ?? "",
+        stock:
+          prod.availableQuantity ?? prod.stock ?? prod.cantidadDisponible ?? "",
         descripcion: prod.description || prod.descripcion || "",
         imagenUrl: img,
         cantidadMinimaMayorista:
-          (prod.minimumWholesaleQuantity ?? prod.cantidadMinimaMayorista) != null
+          (prod.minimumWholesaleQuantity ?? prod.cantidadMinimaMayorista) !=
+          null
             ? (prod.minimumWholesaleQuantity ?? prod.cantidadMinimaMayorista)
             : "",
         precioMayorista:
@@ -500,20 +498,13 @@ export default function DashboardProductor() {
   const guardarProducto = async () => {
     // Prevenir múltiples envíos
     if (isSubmitting) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const mapTipoToEnum = (tipo) => {
         const mapping = {
-          Banano: "BANANA",
-          Piña: "PINEAPPLE",
-          Mango: "MANGO",
-          "Maracuyá": "PASSION_FRUIT",
-          Guanábana: "SOURSOP",
-          Naranja: "ORANGE",
-          Coco: "COCONUT",
-          Limón: "LEMON",
+          Maracuyá: "PASSION_FRUIT",
         };
         return mapping[tipo] || "OTHER";
       };
@@ -525,8 +516,9 @@ export default function DashboardProductor() {
         availableQuantity: Number(form.stock),
         description: form.descripcion,
         imageUrl: form.imagenUrl || "",
-        minimumWholesaleQuantity:    
-          form.cantidadMinimaMayorista && !Number.isNaN(Number(form.cantidadMinimaMayorista))
+        minimumWholesaleQuantity:
+          form.cantidadMinimaMayorista &&
+          !Number.isNaN(Number(form.cantidadMinimaMayorista))
             ? Number(form.cantidadMinimaMayorista)
             : null,
         wholesalePrice:
@@ -554,12 +546,14 @@ export default function DashboardProductor() {
         try {
           const imageRes = await api.post(`/images`, formData);
           if (imageRes && imageRes.url) {
-             const updatedPayload = { ...payload, imageUrl: imageRes.url };
-             await api.put(`/productos/${productId}`, updatedPayload);
+            const updatedPayload = { ...payload, imageUrl: imageRes.url };
+            await api.put(`/productos/${productId}`, updatedPayload);
           }
         } catch (imgErr) {
           console.error("Error subiendo imagen:", imgErr);
-          alert("El producto se guardó, pero hubo un error al subir la imagen.");
+          alert(
+            "El producto se guardó, pero hubo un error al subir la imagen.",
+          );
         }
       }
 
@@ -795,12 +789,24 @@ export default function DashboardProductor() {
             <span className="producer-brand-mark">AM</span>
             <div>
               <strong>AgroMarket</strong>
-              <small>{t("nav.brandTagline", "Del campo de Urabá y Colombia a tu mesa")}</small>
+              <small>
+                {t(
+                  "nav.brandTagline",
+                  "Del campo de Urabá y Colombia a tu mesa",
+                )}
+              </small>
             </div>
           </div>
           <div className="producer-topbar-center">
-            <strong>{t("dashboardProductor.producerRole", "PRODUCTOR / VENDEDOR")}</strong>
-            <span>{t("dashboardProductor.producerSub", "Gestiona tu negocio, productos y ventas en AgroMarket")}</span>
+            <strong>
+              {t("dashboardProductor.producerRole", "PRODUCTOR / VENDEDOR")}
+            </strong>
+            <span>
+              {t(
+                "dashboardProductor.producerSub",
+                "Gestiona tu negocio, productos y ventas en AgroMarket",
+              )}
+            </span>
           </div>
           <div className="producer-topbar-actions">
             <button
@@ -2403,7 +2409,15 @@ export default function DashboardProductor() {
       {/* MODAL PRODUCTO */}
       {modalOpen && (
         <div className="modal-overlay open" id="modalProducto">
-          <div className="modal" style={{ maxWidth: "600px", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+          <div
+            className="modal"
+            style={{
+              maxWidth: "600px",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <div className="modal-header" style={{ flexShrink: 0 }}>
               <span className="modal-title">
                 {editId
@@ -2417,249 +2431,266 @@ export default function DashboardProductor() {
                 ✕
               </button>
             </div>
-            <div className="modal-body-scrollable" style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
-              <div className="form-group">
-              <label className="form-label">
-                {t("dashboardProductor.productName", "Nombre del producto")}
-              </label>
-              <input
-                className="form-input"
-                id="pNombre"
-                placeholder={t(
-                  "dashboardProductor.placeholderName",
-                  "Ej. Banano Urabá",
-                )}
-                value={form.nombre}
-                onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">
-                {t("dashboardProductor.productType", "Tipo de fruta")}
-              </label>
-              <select
-                className="form-select"
-                id="pTipo"
-                value={form.tipo}
-                onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-              >
-                {TIPOS.map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">
-                  {t("dashboardProductor.productPrice", "Precio/kg (COP)")}
-                </label>
-                <input
-                  className="form-input"
-                  id="pPrecio"
-                  type="number"
-                  placeholder="$ 0"
-                  value={form.precio}
-                  onChange={(e) => setForm({ ...form, precio: e.target.value })}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">
-                  {t(
-                    "dashboardProductor.productStock",
-                    "Stock disponible (kg)",
-                  )}
-                </label>
-                <input
-                  className="form-input"
-                  id="pStock"
-                  type="number"
-                  placeholder="0"
-                  value={form.stock}
-                  onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                />
-              </div>
-            </div>
-
             <div
-              className="form-row"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "16px",
-                margin: "0 0 16px 0",
-              }}
+              className="modal-body-scrollable"
+              style={{ flex: 1, overflowY: "auto", padding: "20px" }}
             >
               <div className="form-group">
                 <label className="form-label">
-                  Cant. Mínima Mayorista (kg)
+                  {t("dashboardProductor.productName", "Nombre del producto")}
                 </label>
                 <input
                   className="form-input"
-                  type="number"
-                  placeholder="Ej: 100"
-                  value={form.cantidadMinimaMayorista}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      cantidadMinimaMayorista: e.target.value,
-                    })
-                  }
+                  id="pNombre"
+                  placeholder={t(
+                    "dashboardProductor.placeholderName",
+                    "Ej. Banano Urabá",
+                  )}
+                  value={form.nombre}
+                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Precio Mayorista (COP)</label>
-                <input
-                  className="form-input"
-                  type="number"
-                  placeholder="Ej: 2400"
-                  value={form.precioMayorista}
-                  onChange={(e) =>
-                    setForm({ ...form, precioMayorista: e.target.value })
-                  }
-                />
+                <label className="form-label">
+                  {t("dashboardProductor.productType", "Tipo de fruta")}
+                </label>
+                <select
+                  className="form-select"
+                  id="pTipo"
+                  value={form.tipo}
+                  onChange={(e) => setForm({ ...form, tipo: e.target.value })}
+                >
+                  {TIPOS.map((t) => (
+                    <option key={t}>{t}</option>
+                  ))}
+                </select>
               </div>
-            </div>
-            <div className="form-group">
-              <label className="form-label">
-                {t("dashboardProductor.description", "Descripción")}
-              </label>
-              <textarea
-                className="form-textarea"
-                id="pDesc"
-                rows="3"
-                placeholder={t(
-                  "dashboardProductor.placeholderDesc",
-                  "Describe la calidad, procedencia...",
-                )}
-                value={form.descripcion}
-                onChange={(e) =>
-                  setForm({ ...form, descripcion: e.target.value })
-                }
-              ></textarea>
-            </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">
+                    {t("dashboardProductor.productPrice", "Precio/kg (COP)")}
+                  </label>
+                  <input
+                    className="form-input"
+                    id="pPrecio"
+                    type="number"
+                    placeholder="$ 0"
+                    value={form.precio}
+                    onChange={(e) =>
+                      setForm({ ...form, precio: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">
+                    {t(
+                      "dashboardProductor.productStock",
+                      "Stock disponible (kg)",
+                    )}
+                  </label>
+                  <input
+                    className="form-input"
+                    id="pStock"
+                    type="number"
+                    placeholder="0"
+                    value={form.stock}
+                    onChange={(e) =>
+                      setForm({ ...form, stock: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
 
-            <div className="form-group" style={{ marginBottom: "16px" }}>
-              <label className="form-label">
-                {t("dashboardProductor.image", "Imagen del Producto")}
-              </label>
               <div
+                className="form-row"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
                   gap: "16px",
-                  marginTop: "8px",
+                  margin: "0 0 16px 0",
                 }}
               >
-                {imagePreviewUrl ? (
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "80px",
-                      height: "80px",
-                      borderRadius: "8px",
-                      overflow: "hidden",
-                      border: "1px solid var(--border-light)",
-                    }}
-                  >
-                    <img
-                      src={imagePreviewUrl}
-                      alt="Vista previa"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedImageFile(null);
-                        setImagePreviewUrl("");
-                        setForm((prev) => ({ ...prev, imagenUrl: "" }));
-                      }}
-                      style={{
-                        position: "absolute",
-                        top: "2px",
-                        right: "2px",
-                        background: "rgba(255, 0, 0, 0.8)",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: "20px",
-                        height: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        fontSize: "10px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      borderRadius: "8px",
-                      border: "2px dashed var(--border-light)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "var(--text-light)",
-                      fontSize: "1.5rem",
-                    }}
-                  ></div>
-                )}
+                <div className="form-group">
+                  <label className="form-label">
+                    Cant. Mínima Mayorista (kg)
+                  </label>
+                  <input
+                    className="form-input"
+                    type="number"
+                    placeholder="Ej: 100"
+                    value={form.cantidadMinimaMayorista}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        cantidadMinimaMayorista: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Precio Mayorista (COP)</label>
+                  <input
+                    className="form-input"
+                    type="number"
+                    placeholder="Ej: 2400"
+                    value={form.precioMayorista}
+                    onChange={(e) =>
+                      setForm({ ...form, precioMayorista: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">
+                  {t("dashboardProductor.description", "Descripción")}
+                </label>
+                <textarea
+                  className="form-textarea"
+                  id="pDesc"
+                  rows="3"
+                  placeholder={t(
+                    "dashboardProductor.placeholderDesc",
+                    "Describe la calidad, procedencia...",
+                  )}
+                  value={form.descripcion}
+                  onChange={(e) =>
+                    setForm({ ...form, descripcion: e.target.value })
+                  }
+                ></textarea>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: "16px" }}>
+                <label className="form-label">
+                  {t("dashboardProductor.image", "Imagen del Producto")}
+                </label>
                 <div
                   style={{
                     display: "flex",
-                    flexDirection: "column",
-                    gap: "8px",
+                    alignItems: "center",
+                    gap: "16px",
+                    marginTop: "8px",
                   }}
                 >
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    type="button"
-                    onClick={() =>
-                      document.getElementById("product-image-input").click()
-                    }
-                  >
-                    {imagePreviewUrl
-                      ? t("dashboardProductor.changeImage", "Cambiar imagen")
-                      : t(
-                          "dashboardProductor.selectImage",
-                          "Seleccionar imagen",
-                        )}
-                  </button>
-                  <input
-                    id="product-image-input"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setSelectedImageFile(file);
-                        setImagePreviewUrl(URL.createObjectURL(file));
-                      }
+                  {imagePreviewUrl ? (
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "80px",
+                        height: "80px",
+                        borderRadius: "8px",
+                        overflow: "hidden",
+                        border: "1px solid var(--border-light)",
+                      }}
+                    >
+                      <img
+                        src={imagePreviewUrl}
+                        alt="Vista previa"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedImageFile(null);
+                          setImagePreviewUrl("");
+                          setForm((prev) => ({ ...prev, imagenUrl: "" }));
+                        }}
+                        style={{
+                          position: "absolute",
+                          top: "2px",
+                          right: "2px",
+                          background: "rgba(255, 0, 0, 0.8)",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "20px",
+                          height: "20px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          fontSize: "10px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        borderRadius: "8px",
+                        border: "2px dashed var(--border-light)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "var(--text-light)",
+                        fontSize: "1.5rem",
+                      }}
+                    ></div>
+                  )}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
                     }}
-                  />
-                  <span
-                    style={{ fontSize: "0.75rem", color: "var(--text-light)" }}
                   >
-                    JPG, PNG. Máx 5MB.
-                  </span>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      type="button"
+                      onClick={() =>
+                        document.getElementById("product-image-input").click()
+                      }
+                    >
+                      {imagePreviewUrl
+                        ? t("dashboardProductor.changeImage", "Cambiar imagen")
+                        : t(
+                            "dashboardProductor.selectImage",
+                            "Seleccionar imagen",
+                          )}
+                    </button>
+                    <input
+                      id="product-image-input"
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setSelectedImageFile(file);
+                          setImagePreviewUrl(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "var(--text-light)",
+                      }}
+                    >
+                      JPG, PNG. Máx 5MB.
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
             </div>
 
             <div
               className="modal-footer"
-              style={{ flexShrink: 0, display: "flex", gap: "12px", padding: "20px", borderTop: "1px solid var(--border-light, #e2e8f0)", background: "#fff" }}
+              style={{
+                flexShrink: 0,
+                display: "flex",
+                gap: "12px",
+                padding: "20px",
+                borderTop: "1px solid var(--border-light, #e2e8f0)",
+                background: "#fff",
+              }}
             >
               <button
                 className="btn btn-secondary"

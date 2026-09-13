@@ -17,15 +17,7 @@ export default function ProductoDetalle() {
   const formatPrice = (v) => formatearPrecio(v);
 
   const FRUIT_LABELS = {
-    BANANA: t("catalog.fruits.Banano", "Banano"),
-    PINEAPPLE: t("catalog.fruits.Piña", "Piña"),
-    MANGO: t("catalog.fruits.Mango", "Mango"),
     PASSION_FRUIT: t("catalog.fruits.Maracuyá", "Maracuyá"),
-    SOURSOP: t("catalog.fruits.Guanábana", "Guanábana"),
-    ORANGE: t("catalog.fruits.Naranja", "Naranja"),
-    COCONUT: t("catalog.fruits.Coco", "Coco"),
-    LEMON: t("catalog.fruits.Limón", "Limón"),
-    OTHER: t("catalog.fruits.Otro", "Otro"),
   };
 
   const [product, setProduct] = useState(null);
@@ -43,7 +35,9 @@ export default function ProductoDetalle() {
       })
       .catch((err) => {
         console.error("Error cargando producto:", err);
-        setError(t("productDetail.loadError", "No se pudo cargar el producto."));
+        setError(
+          t("productDetail.loadError", "No se pudo cargar el producto."),
+        );
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -81,9 +75,15 @@ export default function ProductoDetalle() {
       <PublicLayout>
         <div style={{ padding: "80px 20px", textAlign: "center" }}>
           <span style={{ fontSize: "3rem" }}>😔</span>
-          <h2 style={{ marginTop: 16 }}>{t("productDetail.notFound", "Producto no encontrado")}</h2>
+          <h2 style={{ marginTop: 16 }}>
+            {t("productDetail.notFound", "Producto no encontrado")}
+          </h2>
           <p style={{ color: "var(--text-dim)" }}>
-            {error || t("productDetail.notFoundDesc", "Este producto no existe o fue eliminado.")}
+            {error ||
+              t(
+                "productDetail.notFoundDesc",
+                "Este producto no existe o fue eliminado.",
+              )}
           </p>
           <button
             type="button"
@@ -236,7 +236,9 @@ export default function ProductoDetalle() {
             <span>👨‍🌾</span>
             <span>
               {t("productDetail.producer", "Productor:")}{" "}
-              <strong style={{ color: "var(--primary)" }}>{producerName}</strong>
+              <strong style={{ color: "var(--primary)" }}>
+                {producerName}
+              </strong>
             </span>
             {product.producer?.companyName && (
               <span>· {product.producer.companyName}</span>
@@ -286,11 +288,23 @@ export default function ProductoDetalle() {
                 </span>
               </div>
             ) : (
-              <span style={{ fontSize: "2rem", fontWeight: 800, color: "var(--primary)" }}>
+              <span
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: 800,
+                  color: "var(--primary)",
+                }}
+              >
                 {formatPrice(product.price)}
               </span>
             )}
-            <div style={{ fontSize: "0.85rem", color: "var(--text-dim)", marginTop: 4 }}>
+            <div
+              style={{
+                fontSize: "0.85rem",
+                color: "var(--text-dim)",
+                marginTop: 4,
+              }}
+            >
               {t("catalog.perKg", "/kg")} · {divisaActual}
             </div>
 
@@ -306,8 +320,11 @@ export default function ProductoDetalle() {
                   fontSize: "0.9rem",
                 }}
               >
-                <strong>{t("productDetail.wholesale", "🏭 Precio mayorista:")}</strong>{" "}
-                {formatPrice(product.wholesalePrice)}{t("catalog.perKg", "/kg")}{" "}
+                <strong>
+                  {t("productDetail.wholesale", "🏭 Precio mayorista:")}
+                </strong>{" "}
+                {formatPrice(product.wholesalePrice)}
+                {t("catalog.perKg", "/kg")}{" "}
                 {t("productDetail.wholesaleFor", "para pedidos ≥")}{" "}
                 {product.minimumWholesaleQuantity} kg
               </div>
@@ -319,31 +336,39 @@ export default function ProductoDetalle() {
             style={{
               fontSize: "0.9rem",
               color:
-                product.availableQuantity > 0
-                  ? "var(--primary)"
-                  : "#e53935",
+                product.availableQuantity > 0 ? "var(--primary)" : "#e53935",
               fontWeight: 600,
             }}
           >
             {product.availableQuantity > 0
-              ? t("productDetail.inStock", "✓ En stock: {{qty}} kg disponibles", { qty: product.availableQuantity })
+              ? t(
+                  "productDetail.inStock",
+                  "✓ En stock: {{qty}} kg disponibles",
+                  { qty: product.availableQuantity },
+                )
               : t("productDetail.outOfStock", "✗ Sin stock disponible")}
           </div>
 
           {/* Descripción */}
           {product.description && (
             <div>
-              <h3 style={{ marginBottom: 8, fontSize: "1rem", fontWeight: 700 }}>
+              <h3
+                style={{ marginBottom: 8, fontSize: "1rem", fontWeight: 700 }}
+              >
                 {t("productDetail.description", "Descripción")}
               </h3>
-              <p style={{ color: "var(--text-dim)", lineHeight: 1.7, margin: 0 }}>
+              <p
+                style={{ color: "var(--text-dim)", lineHeight: 1.7, margin: 0 }}
+              >
                 {product.description}
               </p>
             </div>
           )}
 
           {/* Botones */}
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
+          <div
+            style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}
+          >
             {canBuy && (
               <button
                 type="button"
@@ -357,14 +382,17 @@ export default function ProductoDetalle() {
                   color: "#fff",
                   border: "none",
                   borderRadius: 10,
-                  cursor: product.availableQuantity <= 0 ? "not-allowed" : "pointer",
+                  cursor:
+                    product.availableQuantity <= 0 ? "not-allowed" : "pointer",
                   fontWeight: 700,
                   fontSize: "1rem",
                   opacity: product.availableQuantity <= 0 ? 0.5 : 1,
                   transition: "background 0.2s",
                 }}
               >
-                {added ? t("productDetail.added", "✓ Agregado al carrito") : t("productDetail.addToCart", "🛒 Agregar al carrito")}
+                {added
+                  ? t("productDetail.added", "✓ Agregado al carrito")
+                  : t("productDetail.addToCart", "🛒 Agregar al carrito")}
               </button>
             )}
             <button

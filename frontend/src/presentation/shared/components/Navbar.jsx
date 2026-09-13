@@ -47,15 +47,7 @@ export default function Navbar() {
         const data = res.data || res;
         if (Array.isArray(data) && active) {
           const map = {
-            BANANA: t("nav.categories.bananas", "Banano"),
-            MANGO: t("nav.categories.mango", "Mango"),
-            PINEAPPLE: t("nav.categories.pineapple", "Piña"),
             PASSION_FRUIT: t("nav.categories.passionFruit", "Maracuyá"),
-            SOURSOP: t("nav.categories.soursop", "Guanábana"),
-            ORANGE: t("nav.categories.orange", "Naranja"),
-            COCONUT: t("nav.categories.coconut", "Coco"),
-            LEMON: t("nav.categories.lemon", "Limón"),
-            OTHER: t("nav.categories.other", "Otro"),
           };
           const formatted = data.map(
             (c) =>
@@ -509,7 +501,10 @@ export default function Navbar() {
                           >
                             <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
                           </svg>
-                          {t("nav.userMenu.myDashboardPurchases", "Mi dashboard (compras)")}
+                          {t(
+                            "nav.userMenu.myDashboardPurchases",
+                            "Mi dashboard (compras)",
+                          )}
                         </Link>
                         <Link
                           to="/dashboard-productor"
@@ -840,7 +835,10 @@ export default function Navbar() {
                     to="/dashboard-comprador"
                     onClick={() => setMenuMovil(false)}
                   >
-                    {t("nav.userMenu.myDashboardPurchases", "Mi dashboard (compras)")}
+                    {t(
+                      "nav.userMenu.myDashboardPurchases",
+                      "Mi dashboard (compras)",
+                    )}
                   </Link>
                   <Link
                     to="/dashboard-productor"

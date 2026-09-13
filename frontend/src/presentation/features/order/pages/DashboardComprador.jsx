@@ -422,9 +422,7 @@ export default function DashboardComprador() {
           imagenUrl: p.imageUrl || p.imagenUrl || null,
           tipoFruta: p.fruitType ?? p.tipoFruta ?? null,
           calificacion:
-            p.averageRating > 0
-              ? Number(p.averageRating).toFixed(1)
-              : null,
+            p.averageRating > 0 ? Number(p.averageRating).toFixed(1) : null,
           productorNombre:
             p.producer?.name ||
             p.producer?.firstName ||
@@ -699,16 +697,7 @@ export default function DashboardComprador() {
     const matchTipo =
       !filtroTipoCatalog ||
       (filtroTipoCatalog === "Frutas" &&
-        [
-          "BANANA",
-          "MANGO",
-          "PINEAPPLE",
-          "PASSION_FRUIT",
-          "SOURSOP",
-          "ORANGE",
-          "COCONUT",
-          "LEMON",
-        ].includes(p.tipoFruta)) ||
+        ["PASSION_FRUIT"].includes(p.tipoFruta)) ||
       (filtroTipoCatalog === "Otros" && p.tipoFruta === "OTHER") ||
       (filtroTipoCatalog === "Verduras" && false) ||
       (filtroTipoCatalog === "Tubérculos" && false) ||
@@ -2242,7 +2231,8 @@ export default function DashboardComprador() {
                                 textAlign: "right",
                               }}
                             >
-                              {m.hora || formatearHora(m.fechaEnvio ?? m.sentAt)}
+                              {m.hora ||
+                                formatearHora(m.fechaEnvio ?? m.sentAt)}
                             </div>
                           </div>
                         </div>
@@ -2802,14 +2792,7 @@ export default function DashboardComprador() {
                         setRfqForm({ ...rfqForm, tipoFruta: e.target.value })
                       }
                     >
-                      <option value="BANANA"> Banano</option>
-                      <option value="PINEAPPLE"> Piña</option>
-                      <option value="MANGO"> Mango</option>
                       <option value="PASSION_FRUIT"> Maracuyá</option>
-                      <option value="SOURSOP"> Guanábana</option>
-                      <option value="ORANGE"> Naranja</option>
-                      <option value="COCONUT"> Coco</option>
-                      <option value="LEMON"> Limón</option>
                     </select>
                   </div>
                   <div className="form-group" style={{ marginBottom: "16px" }}>
@@ -3368,7 +3351,9 @@ export default function DashboardComprador() {
                         "No se encontro una factura emitida para este pedido. Genera el pago desde MercadoPago o intentalo de nuevo mas tarde.",
                       );
                     } else {
-                      alert("No hay pedidos con datos suficientes para facturar.");
+                      alert(
+                        "No hay pedidos con datos suficientes para facturar.",
+                      );
                     }
                   } catch (err) {
                     alert(
