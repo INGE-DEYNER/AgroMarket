@@ -265,337 +265,178 @@ export default function Footer() {
         </div>
       </div>
 
-     {/* ======================================================
+    {/* ======================================================
     FOOTER PRINCIPAL
-    NO MODIFICAR LA SECCIÓN "MÁS INFORMACIÓN" ANTERIOR
 ====================================================== */}
 
 <section className="am-footer-main">
-
   <div className="am-footer-container">
 
-    {/* ==================================================
-        IDENTIDAD
-    ================================================== */}
-
+    {/* IDENTIDAD */}
     <div className="am-footer-brand">
 
-      <a
-        href="/"
-        className="am-footer-logo-link"
-        aria-label="AgroMarket"
-      >
-        <img
-          src="/agromarket/logo.png"
-          alt="AgroMarket"
-          className="am-footer-logo"
-        />
-      </a>
+      <img
+        src="/agromarket/logo.png"
+        alt="AgroMarket"
+        className="am-footer-logo"
+      />
 
-      <h2 className="am-footer-tagline">
+      <h2>
         {t("home.heroTitle")}
       </h2>
 
-      <p className="am-footer-description">
+      <p>
         {t("home.footer.desc")}
       </p>
 
-      <p className="am-footer-location">
-        ASAFRUT · {t("home.footerUi.address")}, Colombia
-      </p>
-
-      <div
-        className="am-footer-socials"
-        aria-label={t("home.footerUi.social")}
-      >
-
-        <a
-          href="https://www.facebook.com/ASAFRUT67"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Facebook"
-          className="am-footer-social"
-        >
-          f
-        </a>
-
-        <a
-          href="https://www.instagram.com/asociacion_asafrut/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Instagram"
-          className="am-footer-social"
-        >
-          ◎
-        </a>
-
-        <a
-          href="https://wa.me/573127658412"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="WhatsApp"
-          className="am-footer-social"
-        >
-          ◔
-        </a>
-
-      </div>
-
-    </div>
-
-
-    {/* ==================================================
-        ENLACES INSTITUCIONALES
-    ================================================== */}
-
-    <div className="am-footer-column">
-
-      <span className="am-footer-column-label">
-        AgroMarket
-      </span>
-
-      <h3>
-        {t("home.footerUi.institutional")}
-      </h3>
-
-      <Link to="/sobre-asafrut">
-        {t("home.footerUi.about")}
-      </Link>
-
-      <Link to="/como-funciona">
-        {t(
-          "home.footerUi.howItWorks",
-          "Cómo funciona"
-        )}
-      </Link>
-
-      <Link to="/productores">
-        {t(
-          "home.footerUi.producers",
-          "Productores"
-        )}
-      </Link>
-
-    </div>
-
-
-    {/* ==================================================
-        AYUDA
-    ================================================== */}
-
-    <div className="am-footer-column">
-
-      <span className="am-footer-column-label">
-        AgroMarket
-      </span>
-
-      <h3>
-        {t("home.footerUi.help")}
-      </h3>
-
-      <Link to="/ayuda">
-        {t("home.footerUi.helpCenter")}
-      </Link>
-
-      <Link to="/envioEntregas">
-        {t("home.footerUi.shippingDelivery")}
-      </Link>
-
-      <Link to="/devoluciones">
-        {t("home.footerUi.returns")}
-      </Link>
-
-      <Link to="/metodosPagos">
-        {t("home.footerUi.payments")}
-      </Link>
-
-    </div>
-
-
-    {/* ==================================================
-        CONTACTO
-    ================================================== */}
-
-    <div className="am-footer-column">
-
-      <span className="am-footer-column-label">
-        ASAFRUT
-      </span>
-
-      <h3>
-        {t("home.footerUi.contact")}
-      </h3>
-
-      <span className="am-footer-contact-text">
-        {t("home.footerUi.address")}
-      </span>
-
-      <a href="mailto:contacto@agro-market.app">
-        contacto@agro-market.app
-      </a>
-
-      <a href="tel:+573127658412">
-        +57 312 765 8412
-      </a>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-{/* ======================================================
-    MÉTODOS DE PAGO
-====================================================== */}
-
-<section
-  className="am-footer-payments"
-  aria-label={t("home.footerUi.paymentMethods")}
->
-
-  <div className="am-footer-container am-footer-payments-inner">
-
-    {/* SEGURIDAD */}
-
-    <div className="am-footer-security">
-
-      <div className="am-footer-security-icon">
-        ✓
-      </div>
-
-      <div className="am-footer-security-text">
-
-        <strong>
-          {t("home.footerUi.securePayment")}
-        </strong>
-
+      <div className="am-footer-brand-bottom">
         <span>
-          {t("home.footerUi.protected")}
+          ASAFRUT · {t("home.footerUi.address")}, Colombia
         </span>
 
-      </div>
-
-    </div>
-
-
-    {/* MÉTODOS */}
-
-    <div className="am-footer-payment-area">
-
-      <span className="am-footer-payment-label">
-        {t("home.footerUi.paymentMethods")}
-      </span>
-
-      <div className="am-footer-payment-list">
-
-        {PAYMENT_LOGOS.map((payment) => (
-
-          <div
-            className="am-footer-payment-card"
-            key={payment.name}
+        <div className="am-footer-socials">
+          <a
+            href="https://www.facebook.com/ASAFRUT67"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
           >
+            f
+          </a>
 
-            <img
-              src={payment.src}
-              alt={payment.name}
-            />
+          <a
+            href="https://www.instagram.com/asociacion_asafrut/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            ◎
+          </a>
 
-          </div>
-
-        ))}
-
+          <a
+            href="https://wa.me/573127658412"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
+          >
+            ◔
+          </a>
+        </div>
       </div>
 
     </div>
 
   </div>
-
 </section>
 
 
 {/* ======================================================
-    ECOSISTEMA AGROMARKET
+    PAGOS + PARTNERS
 ====================================================== */}
 
-<section
-  className="am-footer-ecosystem"
-  aria-label={t("home.footerUi.stakeholders")}
->
+<section className="am-footer-services">
 
   <div className="am-footer-container">
 
-    {/* ENCABEZADO */}
+    <div className="am-footer-services-grid">
 
-    <div className="am-footer-ecosystem-header">
+      {/* PAGOS */}
+      <div className="am-footer-payment-block">
 
-      <div>
+        <div className="am-footer-block-heading">
+          <span className="am-footer-heading-kicker">
+            Secure payments
+          </span>
 
-        <span className="am-footer-ecosystem-kicker">
-          {t("home.footerUi.ecosystem")}
-        </span>
+          <h3>
+            100% secure payment
+          </h3>
 
-        <h2>
-          {t("home.footerUi.stakeholders")}
-        </h2>
+          <p>
+            Your information is protected.
+          </p>
+        </div>
+
+        <div className="am-footer-payment-methods">
+
+          <span className="am-footer-method-label">
+            Accepted methods
+          </span>
+
+          <div className="am-footer-payment-list">
+
+            {PAYMENT_LOGOS.map((payment) => (
+              <div
+                className="am-footer-payment-card"
+                key={payment.name}
+              >
+                <img
+                  src={payment.src}
+                  alt={payment.name}
+                />
+              </div>
+            ))}
+
+          </div>
+
+        </div>
 
       </div>
 
-      <p>
-        {t("home.footerUi.stakeholderText")}
-      </p>
 
-    </div>
+      {/* PARTNERS */}
+      <div className="am-footer-partners-block">
 
+        <div className="am-footer-block-heading">
+          <span className="am-footer-heading-kicker">
+            AgroMarket
+          </span>
 
-    {/* ==================================================
-        PARTICIPANTES
-    ================================================== */}
-
-    <div className="am-footer-stakeholders">
-
-      {STAKEHOLDER_LOGOS.map((logo) => (
-
-        <article
-          className={`am-footer-stakeholder ${
-            logo.type === "developer"
-              ? "am-footer-stakeholder-developer"
-              : ""
-          }`}
-          key={logo.id}
-        >
-
-          <div className="am-footer-stakeholder-image">
-
-            <img
-              src={logo.src}
-              alt={logo.alt}
-            />
-
-          </div>
+          <h3>
+            Project partners &amp; stakeholders
+          </h3>
+        </div>
 
 
-          <div className="am-footer-stakeholder-content">
+        <div className="am-footer-partners-list">
 
-            {logo.prefix && (
-              <span className="am-footer-stakeholder-prefix">
-                {logo.prefix}
-              </span>
-            )}
+          {STAKEHOLDER_LOGOS.map((logo) => (
+            <article
+              className="am-footer-partner"
+              key={logo.id}
+            >
 
-            <h3>
-              {logo.name}
-            </h3>
+              <div className="am-footer-partner-logo">
+                <img
+                  src={logo.src}
+                  alt={logo.alt}
+                />
+              </div>
 
-            <p>
-              {logo.role}
-            </p>
+              <div className="am-footer-partner-info">
 
-          </div>
+                {logo.prefix && (
+                  <span>
+                    {logo.prefix}
+                  </span>
+                )}
 
-        </article>
+                <strong>
+                  {logo.name}
+                </strong>
 
-      ))}
+                <p>
+                  {logo.role}
+                </p>
+
+              </div>
+
+            </article>
+          ))}
+
+        </div>
+
+      </div>
 
     </div>
 
@@ -605,53 +446,91 @@ export default function Footer() {
 
 
 {/* ======================================================
-    BARRA FINAL
+    ECOSISTEMA
+====================================================== */}
+
+<section className="am-footer-ecosystem">
+
+  <div className="am-footer-container">
+
+    <div className="am-footer-ecosystem-content">
+
+      <div>
+        <span>
+          AGROMARKET ECOSYSTEM
+        </span>
+
+        <h2>
+          Our ecosystem
+        </h2>
+      </div>
+
+      <p>
+        Spaces for ASAFRUT, related entities,
+        institutional partners and those responsible
+        for developing the platform.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+{/* ======================================================
+    BARRA LEGAL
 ====================================================== */}
 
 <section className="am-footer-bottom">
 
-  <div className="am-footer-container am-footer-bottom-inner">
+  <div className="am-footer-container">
 
-    <nav
-      className="am-footer-legal"
-      aria-label="Enlaces legales"
-    >
+    <div className="am-footer-bottom-top">
 
-      <Link to="/terminos">
-        {t("home.footerUi.terms")}
-      </Link>
+      <nav className="am-footer-legal">
 
-      <Link to="/privacidad">
-        {t("home.footerUi.privacy")}
-      </Link>
+        <Link to="/terminos">
+          {t("home.footerUi.terms")}
+        </Link>
 
-      <Link to="/cookies">
-        {t("home.footerUi.cookies")}
-      </Link>
+        <Link to="/privacidad">
+          {t("home.footerUi.privacy")}
+        </Link>
 
-      <Link to="/ayuda">
-        {t("home.footerUi.help")}
-      </Link>
+        <Link to="/cookies">
+          {t("home.footerUi.cookies")}
+        </Link>
+
+        <Link to="/ayuda">
+          {t("home.footerUi.help")}
+        </Link>
+
+      </nav>
 
       <button
         type="button"
         onClick={scrollToTop}
+        className="am-footer-back-top"
       >
         {t("home.footerUi.backTop")} ↑
       </button>
 
-    </nav>
+    </div>
 
 
-    <p className="am-footer-copyright">
-      © {new Date().getFullYear()} AgroMarket · ASAFRUT ·{" "}
-      {t("home.footerUi.rights")}
-    </p>
+    <div className="am-footer-bottom-final">
 
+      <span>
+        © {new Date().getFullYear()} AgroMarket · ASAFRUT ·{" "}
+        {t("home.footerUi.rights")}
+      </span>
 
-    <p className="am-footer-colombia">
-      Hecho en Colombia · Chigorodó, Antioquia
-    </p>
+      <span>
+        Hecho en Colombia · Chigorodó, Antioquia
+      </span>
+
+    </div>
 
   </div>
 
