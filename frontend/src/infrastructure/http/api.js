@@ -11,7 +11,6 @@ const API_BASE = rawApiUrl.replace(/\/+$/, "");
 const PUBLIC_PATHS = [
   "/auth",
   "/public",
-  "/divisas",
   "/translation",
   "/actuator",
 ];
@@ -25,7 +24,7 @@ const PUBLIC_PATHS = [
  * /productos/mis-productos: antes se clasificaba solo por la ruta, sin
  * mirar el método, así que el token nunca se enviaba en esas peticiones.
  */
-const GET_ONLY_PUBLIC_PATHS = ["/productos", "/resenas", "/config", "/notifications"];
+const GET_ONLY_PUBLIC_PATHS = ["/productos", "/resenas", "/config", "/notifications", "/divisas"];
 
 /*
  * Rutas que cuelgan de un prefijo público pero SIEMPRE requieren

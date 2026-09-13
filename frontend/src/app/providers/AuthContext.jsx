@@ -332,7 +332,7 @@ export function AuthProvider({ children }) {
   // Verificar si el usuario YA tiene los datos requeridos completos
   // (documento y fecha de nacimiento). Si los tiene, NO mostrar el modal.
   const tieneDocumento = !!(user?.cedula || user?.numeroDocumento);
-  const tieneFechaNacimiento = !!user.fechaNacimiento;
+  const tieneFechaNacimiento = !!(user?.fechaNacimiento);
   const datosCompletos = tieneDocumento && tieneFechaNacimiento;
 
   if (user && !datosCompletos && !esAdmin && !user.cuentaCompleta) {

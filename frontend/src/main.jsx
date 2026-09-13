@@ -19,6 +19,7 @@ window.MERCADOPAGO_PUBLIC_KEY =
 
 export default function MainApp() {
   const [appReady, setAppReady] = useState(false);
+  const [initError, setInitError] = useState(null);
 
   useEffect(() => {
     runFrontendDiagnostic();
@@ -38,25 +39,69 @@ export default function MainApp() {
         console.error("Error inicializando internacionalización:", error);
 
         if (mounted) {
+          setInitError(error?.message || "Error al cargar la aplicación");
+          // Still mark as ready to show error state
           setAppReady(true);
         }
       }
     };
 
+    // Timeout fallback - force app to load after 5 seconds
+    const timeout = setTimeout(() => {
+      if (mounted && !appReady) {
+        console.warn("App initialization timeout - forcing load");
+        setAppReady(true);
+      }
+    }, 5000);
+
     waitForI18n();
 
     return () => {
       mounted = false;
+      clearTimeout(timeout);
     };
   }, []);
 
-  if (!appReady) {
-    return <LoadingScreen />;
+  if (initError) {
+    return (
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        background: "#f8faf8",
+        fontFamily: "Arial, sans-serif",
+        padding: "20px",
+        textAlign: "center"
+      }}>
+        <div style={{ fontSize: "48px", marginBottom: "20px" }}>⚠️</div>
+        <h1 style={{ color: "#dc2626", marginBottom: "10px" }}>Error al cargar</h1>
+        <p style={{ color: "#64748b", marginBottom: "20px", maxWidth: "400px" }}>
+          {initError}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            padding: "12px 24px",
+            background: "#1a5c2a",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: "bold"
+          }}
+        >
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   return (
     <ThemeProvider>
-      <App />
+      {appReady ? <App /> : <LoadingScreen />}
     </ThemeProvider>
   );
 }
