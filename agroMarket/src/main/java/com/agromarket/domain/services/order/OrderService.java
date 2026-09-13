@@ -78,6 +78,7 @@ public class OrderService {
         }
 
         return order.getState() == OrderState.PENDING
+                || order.getState() == OrderState.ACCEPTED
                 || order.getState() == OrderState.SHIPPED;
     }
 
@@ -92,8 +93,11 @@ public class OrderService {
             );
         }
 
-        return order.getState() == OrderState.PENDING
-                ? OrderState.SHIPPED
-                : OrderState.DELIVERED;
+        return switch (order.getState()) {
+            case PENDING -> OrderState.ACCEPTED;
+            case ACCEPTED -> OrderState.SHIPPED;
+            case SHIPPED -> OrderState.DELIVERED;
+            default -> throw new InvalidOrderStateException("Estado no válido para avanzar");
+        };
     }
 }

@@ -47,6 +47,7 @@ export function formatearFecha(value) {
 
 const ESTADO_POR_STATE = {
   PENDING: "Pendiente",
+  ACCEPTED: "Aceptado",
   SHIPPED: "Enviado",
   DELIVERED: "Entregado",
   CANCELLED: "Cancelado",

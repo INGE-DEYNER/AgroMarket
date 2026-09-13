@@ -100,13 +100,18 @@ public class Order {
     /**
      * Avanza el estado del pedido según su estado actual.
      * Transiciones válidas:
-     * - PENDING → SHIPPED
+     * - PENDING → ACCEPTED
+     * - ACCEPTED → SHIPPED
      * - SHIPPED → DELIVERED
      * 
      * @throws InvalidOrderStateException si el pedido no puede avanzar desde su estado actual
      */
     public void advanceState() {
         if (state == OrderState.PENDING) {
+            state = OrderState.ACCEPTED;
+            return;
+        }
+        if (state == OrderState.ACCEPTED) {
             state = OrderState.SHIPPED;
             return;
         }

@@ -13,6 +13,11 @@ public enum OrderState {
     PENDING,
     
     /**
+     * El pedido ha sido aceptado por el productor.
+     */
+    ACCEPTED,
+    
+    /**
      * El pedido ha sido enviado al productor o está en preparación.
      */
     SHIPPED,

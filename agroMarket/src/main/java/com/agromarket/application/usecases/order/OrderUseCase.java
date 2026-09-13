@@ -190,8 +190,11 @@ public class OrderUseCase implements OrderPort {
         }
 
         boolean transicionValida =
-                (current == OrderState.PENDING && newState == OrderState.SHIPPED)
+                (current == OrderState.PENDING && newState == OrderState.ACCEPTED)
+                        || (current == OrderState.PENDING && newState == OrderState.SHIPPED)
                         || (current == OrderState.PENDING && newState == OrderState.DELIVERED)
+                        || (current == OrderState.ACCEPTED && newState == OrderState.SHIPPED)
+                        || (current == OrderState.ACCEPTED && newState == OrderState.DELIVERED)
                         || (current == OrderState.SHIPPED && newState == OrderState.DELIVERED);
 
         if (!transicionValida) {

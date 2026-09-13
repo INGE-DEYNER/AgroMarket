@@ -320,7 +320,7 @@ public class AdminController {
                         throw new IllegalArgumentException("Estado no puede estar vacío");
                 }
                 switch (raw.toUpperCase()) {
-                        case "ACEPTADO": case "ACEPTADO":
+                        case "ACEPTADO": case "ACCEPTED":
                                 return OrderState.ACCEPTED;
                         case "ENVIADO": case "SHIPPED":
                                 return OrderState.SHIPPED;
