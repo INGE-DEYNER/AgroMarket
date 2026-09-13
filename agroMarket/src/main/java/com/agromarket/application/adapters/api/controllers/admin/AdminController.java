@@ -26,7 +26,9 @@ import com.agromarket.application.usecases.admin.AdminDashboardUseCase;
 import com.agromarket.domain.models.admin.Admin;
 import com.agromarket.domain.models.enums.admin.AdminAction;
 import com.agromarket.domain.models.product.Product;
+import com.agromarket.domain.models.enums.order.OrderState;
 import com.agromarket.domain.ports.in.admin.AdminPort;
+import com.agromarket.domain.ports.in.order.OrderPort;
 import com.agromarket.domain.ports.in.product.ProductPort;
 import com.agromarket.domain.ports.in.product.ProductResult;
 import com.agromarket.domain.ports.in.user.UserPort;
@@ -42,6 +44,7 @@ public class AdminController {
         private final AdminPort adminPort;
         private final UserPort userPort;
         private final ProductPort productPort;
+        private final OrderPort orderPort;
         private final AdminDashboardUseCase adminDashboardUseCase;
         private final com.agromarket.infrastructure.pdf.AdminReportPdfGenerator adminReportPdfGenerator;
 
@@ -101,6 +104,28 @@ public class AdminController {
                                         .header("Content-Type", "application/json")
                                         .body(body.getBytes());
                 }
+        }
+
+        /**
+         * PUT /api/v1/admins/pedidos/{id}/estado
+         *
+         * Permite al administrador actualizar el estado de cualquier pedido.
+         */
+        @PutMapping("/pedidos/{id}/estado")
+        public ResponseEntity<Map<String, Object>> actualizarEstadoPedido(
+                        @PathVariable Long id,
+                        @RequestBody Map<String, Object> body) {
+
+                Object raw = body == null ? null : body.get("estado");
+                OrderState target = mapEstado(raw == null ? "" : String.valueOf(raw));
+
+                orderPort.updateOrderState(id, target);
+
+                Map<String, Object> response = new LinkedHashMap<>();
+                response.put("success", true);
+                response.put("pedidoId", id);
+                response.put("nuevoEstado", target.name());
+                return ResponseEntity.ok(response);
         }
 
         @GetMapping("/usuarios-pendientes")
@@ -288,5 +313,29 @@ public class AdminController {
 
         private AdminResponse toResponse(Admin admin) {
                 return AdminResponse.fromDomain(admin);
+        }
+
+        private static OrderState mapEstado(String raw) {
+                if (raw == null || raw.isBlank()) {
+                        throw new IllegalArgumentException("Estado no puede estar vacío");
+                }
+                switch (raw.toUpperCase()) {
+                        case "ACEPTADO": case "ACEPTADO":
+                                return OrderState.ACCEPTED;
+                        case "ENVIADO": case "SHIPPED":
+                                return OrderState.SHIPPED;
+                        case "ENTREGADO": case "DELIVERED":
+                                return OrderState.DELIVERED;
+                        case "CANCELADO": case "CANCELAR": case "CANCELLED":
+                                return OrderState.CANCELLED;
+                        case "PENDIENTE": case "PENDING":
+                                return OrderState.PENDING;
+                        default:
+                                try {
+                                        return OrderState.valueOf(raw.toUpperCase());
+                                } catch (IllegalArgumentException e) {
+                                        throw new IllegalArgumentException("Estado no válido: " + raw);
+                                }
+                }
         }
 }

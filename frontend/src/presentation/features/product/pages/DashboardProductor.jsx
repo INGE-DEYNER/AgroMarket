@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
+import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import {
   formatearHora,
@@ -830,6 +831,7 @@ export default function DashboardProductor() {
               </span>
             </button>
             <LanguageSwitcher />
+            <ThemeToggle />
           </div>
         </header>
         <div className="producer-mobile-toolbar">
@@ -2401,8 +2403,8 @@ export default function DashboardProductor() {
       {/* MODAL PRODUCTO */}
       {modalOpen && (
         <div className="modal-overlay open" id="modalProducto">
-          <div className="modal">
-            <div className="modal-header">
+          <div className="modal" style={{ maxWidth: "600px", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+            <div className="modal-header" style={{ flexShrink: 0 }}>
               <span className="modal-title">
                 {editId
                   ? t("dashboardProductor.editProduct", "Editar producto")
@@ -2415,7 +2417,8 @@ export default function DashboardProductor() {
                 ✕
               </button>
             </div>
-            <div className="form-group">
+            <div className="modal-body-scrollable" style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
+              <div className="form-group">
               <label className="form-label">
                 {t("dashboardProductor.productName", "Nombre del producto")}
               </label>
@@ -2655,7 +2658,7 @@ export default function DashboardProductor() {
 
             <div
               className="modal-footer"
-              style={{ display: "flex", gap: "12px", marginTop: "24px" }}
+              style={{ flexShrink: 0, display: "flex", gap: "12px", padding: "20px", borderTop: "1px solid var(--border-light, #e2e8f0)", background: "#fff" }}
             >
               <button
                 className="btn btn-secondary"
@@ -2665,7 +2668,7 @@ export default function DashboardProductor() {
                 {t("dashboardProductor.cancel", "Cancelar")}
               </button>
               <button
-                className="btn btn-primary"
+                className="btn btn-primary publicar-btn"
                 style={{ flex: 2 }}
                 onClick={guardarProducto}
                 disabled={isSubmitting}
@@ -2675,7 +2678,7 @@ export default function DashboardProductor() {
                     {t("dashboardProductor.saving", "Guardando...")}
                   </span>
                 ) : (
-                  t("dashboardProductor.save", "Guardar producto")
+                  t("dashboardProductor.save", "Publicar Producto")
                 )}
               </button>
             </div>

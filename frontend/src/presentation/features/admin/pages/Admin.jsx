@@ -1506,12 +1506,13 @@ export default function Admin() {
                           <th>Total</th>
                           <th>Estado</th>
                           <th>Fecha</th>
+                          <th>Acciones</th>
                         </tr>
                       </thead>
                       <tbody>
                         {adminPedidos.length === 0 ? (
                           <tr>
-                            <td colSpan="5" className="empty-cell">
+                            <td colSpan="6" className="empty-cell">
                               El endpoint administrativo actual no expone un
                               listado global de pedidos. Se muestran pedidos
                               aquí cuando /admin/dashboard devuelve una
@@ -1537,12 +1538,37 @@ export default function Admin() {
                                 {p.total != null ? formatPrice(p.total) : "—"}
                               </td>
                               <td data-label="Estado">
-                                <span className="badge-status status-shipped">
+                                <span className={`badge-status ${p.estado === 'ENTREGADO' || p.estado === 'Entregado' ? 'status-delivered' : p.estado === 'ENVIADO' || p.estado === 'Enviado' ? 'status-shipped' : p.estado === 'CANCELADO' || p.estado === 'Cancelado' ? 'status-cancelled' : 'status-pending'}`}>
                                   {p.estado || "—"}
                                 </span>
                               </td>
                               <td data-label="Fecha">
                                 {p.fecha || p.fechaCreacion || "—"}
+                              </td>
+                              <td data-label="Acciones">
+                                <select
+                                  className="form-select"
+                                  style={{ width: "140px", fontSize: "0.8rem" }}
+                                  defaultValue=""
+                                  onChange={async (e) => {
+                                    if (!e.target.value) return;
+                                    try {
+                                      await api.put(`/admin/pedidos/${p.id}/estado`, {
+                                        estado: e.target.value,
+                                      });
+                                      void loadAll();
+                                      void loadPedidos();
+                                    } catch (err) {
+                                      alert("Error: " + err.message);
+                                    }
+                                  }}
+                                >
+                                  <option value="">Cambiar...</option>
+                                  <option value="ACEPTADO">Aceptar</option>
+                                  <option value="ENVIADO">Enviado</option>
+                                  <option value="ENTREGADO">Entregado</option>
+                                  <option value="CANCELADO">Cancelar</option>
+                                </select>
                               </td>
                             </tr>
                           ))
