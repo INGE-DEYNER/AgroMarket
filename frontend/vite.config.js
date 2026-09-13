@@ -5,12 +5,13 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// FIX: 2026-09-13 - Cache bust for Cloudflare
+
 export default defineConfig({
   plugins: [react()],
   base: "/",
   define: {
     "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production"),
-    global: "window",
   },
   build: {
     outDir: "dist",
@@ -19,8 +20,8 @@ export default defineConfig({
       output: {
         entryFileNames: `assets/[name]-[hash].js`,
         chunkFileNames: `assets/[name]-[hash].js`,
-        assetFileNames: `assets/[name]-[hash].[ext]`
-      }
+        assetFileNames: `assets/[name]-[hash].[ext]`,
+      },
     },
     chunkSizeWarningLimit: 600,
   },
