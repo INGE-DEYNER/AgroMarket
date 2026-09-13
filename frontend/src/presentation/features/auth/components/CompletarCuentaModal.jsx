@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import api from "@/infrastructure/http/api";
 import { useTranslation } from "react-i18next";
 import leafIcon from "@/assets/icon-leaf.svg";

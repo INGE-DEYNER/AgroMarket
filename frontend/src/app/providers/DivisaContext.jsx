@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import i18n from "@/i18n/index";
 import api from "@/infrastructure/http/api";
 

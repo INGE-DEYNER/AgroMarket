@@ -36,7 +36,9 @@ spring:
             issuer-uri: https://accounts.google.com
 
   flyway:
-    enabled: false
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
 
 logging:
   level:
