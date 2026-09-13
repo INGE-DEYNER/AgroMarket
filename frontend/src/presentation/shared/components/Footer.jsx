@@ -361,7 +361,21 @@ export default function Footer() {
                 </span>
 
                 <div className="am-footer-partners-viewport">
-                  <div className="am-footer-partners-track">
+                  {/* style inline = el carrusel se mueve aunque el footer.css esté en caché */}
+                  <div
+                    className="am-footer-partners-track am-footer-partners-track--css"
+                    style={{
+                      width: "max-content",
+                      maxWidth: "none",
+                      display: "flex",
+                      flexWrap: "nowrap",
+                      alignItems: "stretch",
+                      gap: 0,
+                      animation:
+                        "am-footer-partners-scroll 18s linear infinite",
+                      willChange: "transform",
+                    }}
+                  >
                     {[0, 1, 2, 3].map((copy) => (
                       <div
                         className="am-footer-partners-group"
