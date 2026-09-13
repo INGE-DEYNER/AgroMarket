@@ -213,7 +213,7 @@ export default function Footer() {
             <h4>{t("home.footerUi.social")}</h4>
 
             <a
-              href="https://www.facebook.com/asafrut"
+              href="https://www.facebook.com//ASAFRUT67"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -221,7 +221,7 @@ export default function Footer() {
             </a>
 
             <a
-              href="https://www.instagram.com/asafrut"
+              href="https://www.instagram.com/asociacion_asafrut/?utm_source=ig_web_button_share_sheet"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -294,7 +294,7 @@ export default function Footer() {
               aria-label={t("home.footerUi.social")}
             >
               <a
-                href="https://www.facebook.com/asafrut"
+                href="https://www.facebook.com/ASAFRUT67"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -303,7 +303,7 @@ export default function Footer() {
               </a>
 
               <a
-                href="https://www.instagram.com/asafrut"
+                href="https://www.instagram.com/ASAFRUT67/?utm_source=ig_web_button_share_sheet"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
