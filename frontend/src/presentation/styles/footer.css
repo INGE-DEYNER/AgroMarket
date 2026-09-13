@@ -1737,11 +1737,17 @@
 
 @media (prefers-reduced-motion: reduce) {
   .am-footer-partners-carousel .am-footer-partners-track,
-  .am-footer-partners-carousel .am-footer-partners-track--css,
-  .footer-ml-style .am-footer-payment-track {
-    animation: am-footer-partners-scroll 18s linear infinite !important;
+  .am-footer-partners-carousel .am-footer-partners-track--css {
+    animation: am-footer-partners-scroll 34s linear infinite !important;
     animation-play-state: running !important;
-    animation-duration: 18s !important;
+    animation-duration: 34s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  .footer-ml-style .am-footer-payment-track {
+    animation: am-footer-partners-scroll 30s linear infinite !important;
+    animation-play-state: running !important;
+    animation-duration: 30s !important;
     animation-iteration-count: infinite !important;
   }
 
@@ -2035,27 +2041,29 @@
   }
 }
 
-/* 32. DISTRIBUCION + FUENTE LEGIBLE AL 100% ZOOM */
-.footer-ml-style { font-size: 15px; }
-.footer-ml-style .am-footer-services-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important; align-items: stretch; }
-.footer-ml-style .am-footer-payment-block, .footer-ml-style .am-footer-partners-block { display: flex; flex-direction: column; justify-content: center; min-height: 148px; }
-.footer-ml-style .am-footer-payment-methods { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; margin-top: 8px !important; }
-.footer-ml-style .am-footer-payment-viewport { width: 100%; align-self: stretch; }
-.footer-ml-style .am-footer-brand h2 { font-size: 1.02rem !important; line-height: 1.3; }
-.footer-ml-style .am-footer-brand > p { font-size: .84rem !important; line-height: 1.45; }
-.footer-ml-style .am-footer-brand-bottom > span { font-size: .76rem !important; }
-.footer-ml-style .am-footer-heading-kicker { font-size: .68rem !important; }
-.footer-ml-style .am-footer-block-heading h3 { font-size: .94rem !important; line-height: 1.3; }
-.footer-ml-style .am-footer-block-heading p { font-size: .8rem !important; line-height: 1.4; }
-.footer-ml-style .am-footer-method-label { font-size: .78rem !important; }
-.footer-ml-style .am-footer-partner-info strong { font-size: .74rem !important; line-height: 1.2; }
-.footer-ml-style .am-footer-partner-info p, .footer-ml-style .am-footer-partner-info span { font-size: .64rem !important; line-height: 1.3; }
-.footer-ml-style .am-footer-ecosystem-content h2 { font-size: 1rem !important; }
-.footer-ml-style .am-footer-ecosystem-content p, .footer-ml-style .am-footer-ecosystem-content > div > span { font-size: .76rem !important; }
-.footer-ml-style .am-footer-legal a, .footer-ml-style .am-footer-back-top, .footer-ml-style .am-footer-bottom-final span { font-size: .76rem !important; }
-.footer-ml-style .am-footer-partners-hint { font-size: .6rem !important; }
-.footer-ml-style .am-footer-payment-card { width: 72px !important; min-width: 72px !important; max-width: 72px !important; height: 42px !important; min-height: 42px !important; max-height: 42px !important; flex-basis: 72px; }
-.footer-ml-style .am-footer-partner { width: 172px !important; min-width: 172px !important; max-width: 172px !important; height: 58px !important; min-height: 58px !important; max-height: 58px !important; flex-basis: 172px; }
+/* 33. FOOTER TRANSPARENTE E IGUALADO AL SUBSCRIBE.
+   Sin cuadros/bordes: todo respira sobre el verde.
+   Tamanos de fuente del subscribe (22-28px titulo / 16px texto). */
+.footer-ml-style .am-footer-brand-bottom > span { font-size: .84rem !important; }
+.footer-ml-style .am-footer-heading-kicker { font-size: .74rem !important; letter-spacing: .14em; }
+.footer-ml-style .am-footer-block-heading h3 { font-size: 1.02rem !important; line-height: 1.3; }
+.footer-ml-style .am-footer-block-heading p { font-size: .86rem !important; line-height: 1.45; }
+.footer-ml-style .am-footer-method-label { font-size: .84rem !important; }
+.footer-ml-style .am-footer-partner-info strong { font-size: .8rem !important; line-height: 1.25; }
+.footer-ml-style .am-footer-partner-info p, .footer-ml-style .am-footer-partner-info span { font-size: .7rem !important; line-height: 1.35; }
+.footer-ml-style .am-footer-brand h2 { font-size: 1.1rem !important; line-height: 1.3; }
+.footer-ml-style .am-footer-brand > p { font-size: .9rem !important; line-height: 1.5; }
+.footer-ml-style .am-footer-ecosystem-content h2 { font-size: 1.05rem !important; }
+.footer-ml-style .am-footer-ecosystem-content p, .footer-ml-style .am-footer-ecosystem-content > div > span { font-size: .82rem !important; line-height: 1.5; }
+.footer-ml-style .am-footer-legal a, .footer-ml-style .am-footer-back-top, .footer-ml-style .am-footer-bottom-final span { font-size: .82rem !important; }
+.footer-ml-style .am-footer-partners-hint { display: none !important; }
+
+/* Quita cuadros: transparente total en servicios/partners/pagos */
+.footer-ml-style .am-footer-payment-block, .footer-ml-style .am-footer-partners-block { background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding: 10px 0 !important; }
+.footer-ml-style .am-footer-payment-block { border-right: 0 !important; }
+.footer-ml-style .am-footer-partner { background: transparent !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; width: 180px !important; min-width: 180px !important; max-width: 180px !important; height: 62px !important; min-height: 62px !important; max-height: 62px !important; flex-basis: 180px; }
+.footer-ml-style .am-footer-payment-card { background: #fff !important; border: 0 !important; box-shadow: none !important; }
+.footer-ml-style .am-footer-partners-arrow { background: transparent !important; border-color: rgba(255,255,255,.28) !important; }
 .footer-ml-style .am-footer-partner-logo { width: 40px !important; height: 40px !important; min-width: 40px !important; min-height: 40px !important; max-width: 40px !important; max-height: 40px !important; flex-basis: 40px; }
 
 /* 31. ULTRA COMPACTO — quita huecos, mantiene info.

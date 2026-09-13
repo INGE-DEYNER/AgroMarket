@@ -341,7 +341,7 @@ export default function Footer() {
                       alignItems: "center",
                       gap: 0,
                       animation:
-                        "am-footer-partners-scroll 16s linear infinite",
+                        "am-footer-partners-scroll 30s linear infinite",
                       willChange: "transform",
                     }}
                   >
@@ -415,7 +415,7 @@ export default function Footer() {
                       alignItems: "stretch",
                       gap: 0,
                       animation:
-                        "am-footer-partners-scroll 18s linear infinite",
+                        "am-footer-partners-scroll 34s linear infinite",
                       willChange: "transform",
                     }}
                   >
@@ -465,8 +465,8 @@ export default function Footer() {
                 </span>
               </div>
 
-              <p className="am-footer-partners-hint" aria-hidden="true">
-                Carrusel continuo · en movimiento
+              <p className="am-footer-partners-hint" hidden aria-hidden="true">
+                Carrusel continuo
               </p>
             </div>
           </div>
