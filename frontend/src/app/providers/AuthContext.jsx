@@ -44,8 +44,7 @@ function normalizeRole(rawRole) {
 function normalizeUser(userData) {
   if (!userData) return userData;
 
-  const roleRaw =
-    userData.role || userData.rol?.name || userData.rol;
+  const roleRaw = userData.role || userData.rol?.name || userData.rol;
 
   return {
     ...userData,
@@ -76,8 +75,7 @@ function normalizeUser(userData) {
     ubicacion: userData.location || userData.ubicacion,
     departamento: userData.department || userData.departamento,
     ciudad: userData.city || userData.ciudad,
-    direccionCompleta:
-      userData.fullAddress || userData.direccionCompleta,
+    direccionCompleta: userData.fullAddress || userData.direccionCompleta,
     referencia: userData.addressReference || userData.referencia,
     codigoPostal: userData.postalCode || userData.codigoPostal,
     codigoPais: userData.countryCode || userData.codigoPais,
@@ -101,7 +99,7 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
   const timerRef = useRef(null);
   const warningTimerRef = useRef(null);
-  const INACTIVITY_TIMEOUT = 60000; // 1 minuto en milisegundos
+  const INACTIVITY_TIMEOUT = 300000; // 5 minutos en milisegundos
   const WARNING_TIME = INACTIVITY_TIMEOUT - 5000; // 5 segundos antes
 
   const refetchUser = useCallback(async () => {
@@ -219,7 +217,7 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, [refetchUser]);
 
-    const login = async (userData, token) => {
+  const login = async (userData, token) => {
     if (token) {
       localStorage.setItem("token", token);
     }
@@ -295,11 +293,18 @@ export function AuthProvider({ children }) {
     };
 
     const events = [
-      "mousemove", "mousedown", "keydown", "scroll", "touchstart",
-      "pointerdown", "wheel",
+      "mousemove",
+      "mousedown",
+      "keydown",
+      "scroll",
+      "touchstart",
+      "pointerdown",
+      "wheel",
     ];
 
-    events.forEach((event) => window.addEventListener(event, resetTimer, { passive: true }));
+    events.forEach((event) =>
+      window.addEventListener(event, resetTimer, { passive: true }),
+    );
     resetTimer();
 
     return () => {
@@ -332,7 +337,7 @@ export function AuthProvider({ children }) {
   // Verificar si el usuario YA tiene los datos requeridos completos
   // (documento y fecha de nacimiento). Si los tiene, NO mostrar el modal.
   const tieneDocumento = !!(user?.cedula || user?.numeroDocumento);
-  const tieneFechaNacimiento = !!(user?.fechaNacimiento);
+  const tieneFechaNacimiento = !!user?.fechaNacimiento;
   const datosCompletos = tieneDocumento && tieneFechaNacimiento;
 
   if (user && !datosCompletos && !esAdmin && !user.cuentaCompleta) {
@@ -343,7 +348,9 @@ export function AuthProvider({ children }) {
   const SessionWarningModal = () => (
     <div className="modal-overlay open" style={{ zIndex: 9999 }}>
       <div className="modal" style={{ maxWidth: "400px", textAlign: "center" }}>
-        <h3 style={{ color: "#dc2626", marginBottom: "16px" }}>⏰ Sesión a punto de expirar</h3>
+        <h3 style={{ color: "#dc2626", marginBottom: "16px" }}>
+          ⏰ Sesión a punto de expirar
+        </h3>
         <p style={{ marginBottom: "20px" }}>
           Su sesión expirará en 5 segundos por inactividad.
           <br />
