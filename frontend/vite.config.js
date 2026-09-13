@@ -8,10 +8,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // FIX: 2026-09-13 - Cache bust for Cloudflare
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react({
+    jsxImportSource: 'react',
+  })],
   base: "/",
   define: {
     "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production"),
+  },
+  optimizeDeps: {
+    exclude: ['react', 'react-dom'],
   },
   build: {
     outDir: "dist",
