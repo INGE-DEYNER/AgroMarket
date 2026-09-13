@@ -6,15 +6,6 @@ import "@/presentation/styles/footer.css";
 /* ============================================================
    BENEFICIOS
    ============================================================ */
-
-const TRUST_ITEMS = [
-  { icon: "▣", key: "secure", textKey: "secureText" },
-  { icon: "▤", key: "shipping", textKey: "shippingText" },
-  { icon: "♧", key: "fresh", textKey: "freshText" },
-  { icon: "◇", key: "support", textKey: "supportText" },
-  { icon: "◎", key: "customer", textKey: "customerText" },
-];
-
 /* ============================================================
    STAKEHOLDERS
    TODO:
@@ -137,32 +128,6 @@ export default function Footer() {
   return (
     <footer className="footer-ml-style">
       {/* ======================================================
-          BENEFICIOS
-          ====================================================== */}
-
-      <section
-        className="footer-trust"
-        aria-label={t("home.footerUi.benefits")}
-      >
-        <div className="footer-container footer-trust-grid">
-          {TRUST_ITEMS.map((item) => (
-            <article
-              className="footer-trust-card"
-              key={t(`home.footerUi.${item.key}`)}
-            >
-              <div className="footer-trust-icon" aria-hidden="true">
-                {item.icon}
-              </div>
-
-              <h3>{t(`home.footerUi.${item.key}`)}</h3>
-
-              <p>{t(`home.footerUi.${item.textKey}`)}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* ======================================================
           MÁS INFORMACIÓN
           ====================================================== */}
 
@@ -197,9 +162,12 @@ export default function Footer() {
             <h4 id="footer-buy">{t("home.footerUi.buy")}</h4>
 
             <Link to="/catalogo">{t("home.footerUi.catalogProducts")}</Link>
-            <Link to="/catalogo?ofertas=true">{t("home.footerUi.offers", "Ofertas")}</Link>
-            <Link to="/productores">{t("home.footerUi.producers", "Productores")}</Link>
-            <Link to="/como-funciona">{t("home.footerUi.howItWorks", "Cómo funciona")}</Link>
+            <Link to="/catalogo?ofertas=true">
+              {t("home.footerUi.offers", "Ofertas")}
+            </Link>
+            <Link to="/productores">
+              {t("home.footerUi.producers", "Productores")}
+            </Link>
           </nav>
 
           {/* INSTITUCIONAL */}
@@ -212,7 +180,9 @@ export default function Footer() {
             </h4>
 
             <Link to="/sobre-asafrut">{t("home.footerUi.about")}</Link>
-            <Link to="/como-funciona">{t("home.footerUi.howItWorks", "Cómo funciona")}</Link>
+            <Link to="/como-funciona">
+              {t("home.footerUi.howItWorks", "Cómo funciona")}
+            </Link>
 
             <Link to="/terminos">{t("home.footerUi.terms")}</Link>
 
@@ -227,15 +197,15 @@ export default function Footer() {
 
             <Link to="/ayuda">{t("home.footerUi.helpCenter")}</Link>
 
-            <Link to="/ayuda#envios">{t("home.footerUi.shippingDelivery")}</Link>
-
-            <Link to="/ayuda#devoluciones">{t("home.footerUi.returns")}</Link>
-
-            <Link to="/ayuda#pagos">{t("home.footerUi.payments")}</Link>
-
-            <Link to="/reportar-problema" className="footer-text-button">
-              {t("home.footerUi.report")}
+            <Link to="/envioEntregas">
+              {t("home.footerUi.shippingDelivery")}
             </Link>
+
+            <Link to="/devoluciones">{t("home.footerUi.returns")}</Link>
+
+            <Link to="/metodosPagos">{t("home.footerUi.payments")}</Link>
+
+            <Link to="/reportarProblema">{t("home.footerUi.report")}</Link>
           </nav>
 
           {/* REDES SOCIALES */}
@@ -350,22 +320,6 @@ export default function Footer() {
                 ◔
               </a>
             </div>
-          </div>
-
-          {/* NEWSLETTER */}
-          <div className="footer-newsletter-block">
-            <span className="footer-section-kicker">AgroMarket</span>
-
-            <h2>{t("home.footerUi.newsletterTitle")}</h2>
-
-            <p>{t("home.footerUi.newsletterText")}</p>
-
-            <a
-              className="footer-contact-button"
-              href="mailto:contacto@agro-market.app?subject=Quiero%20recibir%20novedades%20de%20AgroMarket"
-            >
-              {t("home.footerUi.contactEmail")}
-            </a>
           </div>
         </div>
       </section>
