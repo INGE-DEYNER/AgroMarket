@@ -12,26 +12,25 @@ const STAKEHOLDER_LOGOS = [
     id: "asafrut",
     name: "ASAFRUT",
     src: "/by/asafrut.jpg",
-    alt: "ASAFRUT - Asociación Agropecuaria El Sabor de las Frutas y el Campo",
-    role: "Organización promotora de AgroMarket",
+    alt: "ASAFRUT",
+    role: "Organización promotora",
     type: "organization",
   },
   {
     id: "sic",
     name: "SIC",
     src: "/stakeholders/sic.svg",
-    alt: "Superintendencia de Industria y Comercio",
-    role: "Entidad relacionada con el proyecto",
+    alt: "SIC",
+    role: "Entidad aliada",
     type: "organization",
   },
   {
     id: "developer",
     name: "Deyner Chaverra",
     src: "/by/DeyDev.png",
-    alt: "DeyDev - creador y desarrollador de AgroMarket",
-    role: "Desarrollador de AgroMarket",
+    alt: "Deyner Chaverra",
+    role: "Desarrollador",
     type: "developer",
-    prefix: "Desarrollado por",
   },
 ];
 
@@ -444,8 +443,6 @@ export default function Footer() {
                             </div>
 
                             <div className="am-footer-partner-info">
-                              {logo.prefix && <span>{logo.prefix}</span>}
-
                               <strong>{logo.name}</strong>
 
                               <p>{logo.role}</p>

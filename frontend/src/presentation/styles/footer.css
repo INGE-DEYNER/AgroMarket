@@ -2063,7 +2063,12 @@
 .footer-ml-style .am-footer-payment-block { border-right: 0 !important; }
 .footer-ml-style .am-footer-partner { background: transparent !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; width: 180px !important; min-width: 180px !important; max-width: 180px !important; height: 62px !important; min-height: 62px !important; max-height: 62px !important; flex-basis: 180px; }
 .footer-ml-style .am-footer-payment-card { background: #fff !important; border: 0 !important; box-shadow: none !important; }
-.footer-ml-style .am-footer-partners-arrow { background: transparent !important; border-color: rgba(255,255,255,.28) !important; }
+/* Stakeholders: solo nombre + rol, legible y sin recortes */
+.footer-ml-style .am-footer-partner { align-items: center !important; overflow: visible !important; }
+.footer-ml-style .am-footer-partner-info { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 2px; overflow: visible; }
+.footer-ml-style .am-footer-partner-info strong { display: block; white-space: nowrap; overflow: visible; text-overflow: clip; font-size: .82rem !important; line-height: 1.2; }
+.footer-ml-style .am-footer-partner-info p { display: block; white-space: nowrap; overflow: visible; margin: 0; font-size: .72rem !important; line-height: 1.3; }
+.footer-ml-style .am-footer-partner-info span { display: none !important; }
 .footer-ml-style .am-footer-partner-logo { width: 40px !important; height: 40px !important; min-width: 40px !important; min-height: 40px !important; max-width: 40px !important; max-height: 40px !important; flex-basis: 40px; }
 
 /* 31. ULTRA COMPACTO — quita huecos, mantiene info.
