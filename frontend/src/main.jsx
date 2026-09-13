@@ -113,7 +113,7 @@ export default function MainApp() {
 
   return (
     <ThemeProvider>
-      {appReady ? <App /> : <LoadingScreen />}
+      <App />
     </ThemeProvider>
   );
 }

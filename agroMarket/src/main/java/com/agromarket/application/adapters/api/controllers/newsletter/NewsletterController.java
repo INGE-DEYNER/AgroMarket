@@ -56,7 +56,7 @@ public class NewsletterController {
         doc.put("fecha", LocalDateTime.now().toString());
         doc.put("origen", body.getOrDefault("origen", "home"));
         try {
-            mongoTemplate.save(doc, "newsletter_subscriptions");
+            mongoTemplate.getCollection("newsletter_subscriptions").insertOne(new org.bson.Document(doc));
         } catch (Exception ex) {
             // Si ya existe (duplicado) igual respondemos OK: ya está suscrito.
         }
