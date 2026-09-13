@@ -329,7 +329,13 @@ export function AuthProvider({ children }) {
   // Los administradores no necesitan completar el proceso KYC.
   const esAdmin = user?.role === "admin" || user?.role === "administrador";
 
-  if (user && !user.cuentaCompleta && !esAdmin) {
+  // Verificar si el usuario YA tiene los datos requeridos completos
+  // (documento y fecha de nacimiento). Si los tiene, NO mostrar el modal.
+  const tieneDocumento = !!(user?.cedula || user?.numeroDocumento);
+  const tieneFechaNacimiento = !!user.fechaNacimiento;
+  const datosCompletos = tieneDocumento && tieneFechaNacimiento;
+
+  if (user && !datosCompletos && !esAdmin && !user.cuentaCompleta) {
     return <CompletarCuentaModal onComplete={handleCuentaCompletada} />;
   }
 

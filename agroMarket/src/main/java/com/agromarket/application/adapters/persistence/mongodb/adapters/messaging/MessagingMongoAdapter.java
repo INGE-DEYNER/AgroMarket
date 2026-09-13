@@ -38,8 +38,8 @@ public class MessagingMongoAdapter implements MessagingPort {
     }
 
     @Override
-    public Optional<Notification> findNotificationById(Long notificationId) {
-        return notificationRepository.findById(notificationId.toString())
+    public Optional<Notification> findNotificationById(String notificationId) {
+        return notificationRepository.findById(notificationId)
                 .map(entity -> entity.toDomain());
     }
 

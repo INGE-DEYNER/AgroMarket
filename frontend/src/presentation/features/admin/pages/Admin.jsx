@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import api, { API_BASE } from "@/infrastructure/http/api";
+import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import "@/presentation/styles/admin.css";
 
 export default function Admin() {
@@ -943,6 +944,7 @@ export default function Admin() {
               <small>Administrador</small>
             </span>
             <LanguageSwitcher />
+            <ThemeToggle />
           </div>
         </div>
 

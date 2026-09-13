@@ -78,7 +78,7 @@ public class MessagingUseCase implements MessagingPort {
 
     @Override
     @Transactional
-    public Notification markAsRead(Long notificationId) {
+    public Notification markAsRead(String notificationId) {
         Notification notification = messagingPersistencePort
                 .findNotificationById(notificationId)
                 .orElseThrow(() -> new NotificationNotFoundException(

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationResponse {
-    private Long id;
+    private String id;
     private Long recipientId;
     private NotificationType type;
     private String content;

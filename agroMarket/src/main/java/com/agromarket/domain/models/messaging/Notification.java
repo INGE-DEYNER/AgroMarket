@@ -25,8 +25,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notification {
-    
-    private Long id;
+
+    private String id;
     
     /**
      * Usuario destinatario de la notificación.

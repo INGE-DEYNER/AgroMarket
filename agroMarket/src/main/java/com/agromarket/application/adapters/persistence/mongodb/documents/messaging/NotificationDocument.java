@@ -29,7 +29,7 @@ public class NotificationDocument {
 
     public Notification toDomain() {
         return Notification.builder()
-                .id(parseId(id))
+                .id(id)
                 .recipient(User.builder().id(recipientId).build())
                 .type(type).content(content).read(read).createdAt(createdAt).build();
     }
@@ -39,19 +39,9 @@ public class NotificationDocument {
                 ? notification.getRecipient().getId()
                 : null;
         return NotificationDocument.builder()
-                .id(notification.getId() != null ? notification.getId().toString() : null)
+                .id(notification.getId())
                 .recipientId(recipientId).type(notification.getType())
                 .content(notification.getContent()).read(notification.isRead())
                 .createdAt(notification.getCreatedAt()).build();
-    }
-
-    private static Long parseId(String value) {
-        if (value == null || value.isBlank())
-            return null;
-        try {
-            return Long.valueOf(value);
-        } catch (NumberFormatException ex) {
-            return null;
-        }
     }
 }

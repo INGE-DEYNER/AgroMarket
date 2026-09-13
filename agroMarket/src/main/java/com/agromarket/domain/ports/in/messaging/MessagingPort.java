@@ -43,5 +43,5 @@ public interface MessagingPort {
     /**
      * Marca una notificación como leída.
      */
-    Notification markAsRead(Long notificationId);
+    Notification markAsRead(String notificationId);
 }
