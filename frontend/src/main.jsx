@@ -28,10 +28,20 @@ export default function MainApp() {
 
     const waitForI18n = async () => {
       try {
+        // i18n ya se inicializa al importar @/i18n/index. No llamar
+        // a i18n.init() de nuevo: en producción eso deja la promesa
+        // colgada y la app se queda en la pantalla verde (LoadingScreen).
         if (!i18n.isInitialized) {
-          await i18n.init();
+          await Promise.race([
+            i18n.init(),
+            new Promise((resolve) => setTimeout(resolve, 3000)),
+          ]);
+          if (!i18n.isInitialized && mounted) {
+            console.warn("i18n no se marcó como inicializado; continuar igual");
+          }
         }
 
+        console.log("MainApp: i18n listo, renderizando App");
         if (mounted) {
           setAppReady(true);
         }
@@ -54,6 +64,7 @@ export default function MainApp() {
       }
     }, 5000);
 
+    console.log("MainApp: iniciando waitForI18n");
     waitForI18n();
 
     return () => {
@@ -70,10 +81,11 @@ export default function MainApp() {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "100vh",
-        background: "#f8faf8",
         fontFamily: "Arial, sans-serif",
         padding: "20px",
-        textAlign: "center"
+        textAlign: "center",
+        background: "var(--surface-1, #0b1b12)",
+        color: "var(--text-1, #e5e7eb)"
       }}>
         <div style={{ fontSize: "48px", marginBottom: "20px" }}>⚠️</div>
         <h1 style={{ color: "#dc2626", marginBottom: "10px" }}>Error al cargar</h1>

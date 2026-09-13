@@ -106,7 +106,7 @@ function clearSession() {
   localStorage.removeItem("agromarket_cart");
 }
 
-async function request(method, path, body) {
+async function request(method, path, body, { timeoutMs = 12000 } = {}) {
   const publicEndpoint = isPublicEndpoint(path, method);
 
   const token = localStorage.getItem("token");
@@ -146,6 +146,13 @@ async function request(method, path, body) {
 
   let response;
 
+  const controller =
+    typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timeoutId =
+    controller && timeoutMs > 0
+      ? setTimeout(() => controller.abort(), timeoutMs)
+      : null;
+
   try {
     const options = {
       method,
@@ -160,22 +167,35 @@ async function request(method, path, body) {
       options.credentials = "include";
     }
 
+    if (controller) {
+      options.signal = controller.signal;
+    }
+
     response = await fetch(`${API_BASE}${path}`, options);
 
     window.dispatchEvent(new CustomEvent("agromarket:network-ok"));
   } catch (error) {
-    window.dispatchEvent(new CustomEvent("agromarket:network-error"));
+    const aborted =
+      error?.name === "AbortError" || error?.name === "TimeoutError";
+    if (!aborted) {
+      window.dispatchEvent(new CustomEvent("agromarket:network-error"));
+    }
 
     throw Object.assign(
       new Error(
-        "Sin conexión. Verifica que el backend y el frontend estén ejecutándose.",
+        aborted
+          ? "El servidor está tardando demasiado en responder. Intenta de nuevo."
+          : "Sin conexión. Verifica que el backend y el frontend estén ejecutándose.",
       ),
       {
         status: 0,
         isNetworkError: true,
+        isTimeoutError: aborted,
         cause: error,
       },
     );
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 
   const contentType = response.headers.get("content-type") || "";

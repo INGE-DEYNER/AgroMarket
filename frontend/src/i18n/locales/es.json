@@ -177,9 +177,11 @@
     "categories": {
       "bananas": "Plátanos y Banano",
       "coffee": "Cacao y Café",
+      "comingSoon": "Próximamente",
       "flowers": "Flores y Plantas",
       "fruits": "Frutas y Verduras",
       "loading": "Cargando categorías...",
+      "passionFruit": "Maracuyá",
       "processed": "Productos Procesados",
       "roots": "Tubérculos y Raíces",
       "subtitle": "Explora los tesoros más frescos de nuestra tierra colombiana",
@@ -201,7 +203,11 @@
     "newsletter": {
       "button": "Suscribirse",
       "description": "Recibe ofertas exclusivas, novedades y recetas directo de los campesinos colombianos.",
+      "done": "¡Listo! Te llegará el primer correo pronto.",
+      "error": "No se pudo suscribir. Intenta de nuevo.",
+      "invalid": "Ingresa un correo válido.",
       "placeholder": "Tu correo electrónico",
+      "sending": "Enviando…",
       "title": "Suscríbete a nuestra cosecha semanal"
     },
     "products": {
@@ -264,6 +270,7 @@
     "categories": {
       "bananas": "Banano",
       "coconut": "Coco",
+      "comingSoon": "Próximamente",
       "lemon": "Limón",
       "mango": "Mango",
       "orange": "Naranja",
@@ -417,8 +424,10 @@
     "allCategories": "Todas las categorías",
     "badge": "Directo del campo de Urabá",
     "categories": "Categorías",
+    "comingSoon": "Próximamente",
     "filters": "Filtros",
     "loading": "Cargando catálogo...",
+    "maracuyaOnly": "Maracuyá",
     "price": "Precio máximo",
     "sortBy": "Ordenar por",
     "startShopping": "Comenzar a comprar",

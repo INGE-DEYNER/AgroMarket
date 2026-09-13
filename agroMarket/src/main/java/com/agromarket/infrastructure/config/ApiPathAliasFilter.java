@@ -1,23 +1,24 @@
 package com.agromarket.infrastructure.config;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * Alias de rutas API (causa raíz de los 401 masivos en consola).
+ * Alias de rutas API (causa raíz de los 401/404 masivos en consola).
  *
  * PROBLEMA:
  * El frontend siempre llama a la API usando VITE_API_URL =
@@ -47,10 +48,16 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
  * No es un redirect (el navegador no se entera y no cambia la URL visible),
  * es una reescritura interna del request antes de que llegue al resto de la
  * cadena de filtros.
+ *
+ * DIAGNÓSTICO: este filtro ABRE el registro de la petición (inicio de traza)
+ * antes de reescribir la URI. El filtro DebugApiFilter (más abajo en la cadena)
+ * imprimirá el resultado final y la excepción.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiPathAliasFilter implements Filter {
+
+    private static final Logger log = LoggerFactory.getLogger(ApiPathAliasFilter.class);
 
     /**
      * Orden del mapa importante: se evalúa de arriba hacia abajo y se aplica
@@ -65,6 +72,10 @@ public class ApiPathAliasFilter implements Filter {
         ALIASES.put("/api/v1/resenas", "/api/v1/reviews");
         ALIASES.put("/api/v1/divisas", "/api/divisas");
         ALIASES.put("/api/v1/public", "/api/public");
+
+        // Configuración del sistema (modo mantenimiento) — la UI lo consulta
+        // como GET /config/system, pero el controlador vive en /api/v1/config/system.
+        ALIASES.put("/config/system", "/api/v1/config/system");
 
         // Módulos autenticados
         ALIASES.put("/api/v1/pedidos", "/api/v1/orders");
@@ -90,18 +101,28 @@ public class ApiPathAliasFilter implements Filter {
 
         if (request instanceof HttpServletRequest httpRequest) {
             String uri = httpRequest.getRequestURI();
+            String method = httpRequest.getMethod();
+
+            String matchedFrom = null;
+            String rewritten = null;
 
             for (Map.Entry<String, String> alias : ALIASES.entrySet()) {
                 String from = alias.getKey();
 
                 if (uri.equals(from) || uri.startsWith(from + "/")) {
-                    String rewritten = alias.getValue() + uri.substring(from.length());
-
-                    chain.doFilter(new RewrittenUriRequest(httpRequest, rewritten), response);
-
-                    return;
+                    matchedFrom = from;
+                    rewritten = alias.getValue() + uri.substring(from.length());
+                    break;
                 }
             }
+
+            if (rewritten != null) {
+                log.trace("api-alias [{}] {} -> {}", method, uri, rewritten);
+                chain.doFilter(new RewrittenUriRequest(httpRequest, rewritten), response);
+                return;
+            }
+
+            log.trace("api-alias-no-match [{}] {}", method, uri);
         }
 
         chain.doFilter(request, response);

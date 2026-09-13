@@ -1,0 +1,2 @@
+npx vite build --mode development 2>&1
+exitcode=0

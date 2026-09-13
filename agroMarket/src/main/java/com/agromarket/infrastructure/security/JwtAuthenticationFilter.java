@@ -199,6 +199,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 /*
+                 * Newsletter pública: el formulario "Suscríbete" del home
+                 * debe funcionar sin sesión.
+                 */
+                if ("POST".equalsIgnoreCase(method)
+                                && matches(path, "/api/v1/newsletter/subscribe")) {
+                        return true;
+                }
+
+                /*
+                 * Configuración global del sistema: GET /api/v1/config/system
+                 * es público (el frontend sondea el modo mantenimiento sin
+                 * estar autenticado). Cualquier escritura (PUT/POST/DELETE)
+                 * sobre /api/v1/config o /api/v1/admins requiere JWT.
+                 * Sin esto, tanto el filtro como SecurityConfig caen en
+                 * anyRequest().authenticated() y el aviso de mantenimiento
+                 * nunca se muestra (o el admin recibe 401/404).
+                 */
+                if (isRead && matches(path, "/api/v1/config")) {
+                        return true;
+                }
+
+                /*
                  * Divisas: GET (consultar tasas) es público.
                  */
                 if (isRead && matches(path, "/api/divisas")) {

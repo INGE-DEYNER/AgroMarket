@@ -1,0 +1,4 @@
+npx vite build --mode development
+exit
+with
+0

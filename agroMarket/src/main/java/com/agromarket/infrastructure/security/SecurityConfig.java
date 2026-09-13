@@ -160,6 +160,25 @@ public class SecurityConfig {
                                                                 HttpMethod.PUT,
                                                                 "/api/v1/config/**")
                                                 .hasRole("ADMIN")
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/v1/config/**")
+                                                .hasRole("ADMIN")
+
+                                                /*
+                                                 * Newsletter: suscripción pública
+                                                 * (formulario "Suscríbete" del
+                                                 * home). El conteo queda
+                                                 * reservado al ADMIN.
+                                                 */
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/v1/newsletter/subscribe")
+                                                .permitAll()
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/v1/newsletter/count")
+                                                .hasRole("ADMIN")
 
                                                 // Listado público de productores (para la página /productores).
                                                 .requestMatchers(

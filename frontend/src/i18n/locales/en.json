@@ -177,9 +177,11 @@
     "categories": {
       "bananas": "Plantains and Bananas",
       "coffee": "Cocoa and Coffee",
+      "comingSoon": "Coming soon",
       "flowers": "Flowers and Plants",
       "fruits": "Fruits and Vegetables",
       "loading": "Loading categories...",
+      "passionFruit": "Passion fruit",
       "processed": "Processed Products",
       "roots": "Tubers and Roots",
       "subtitle": "Explore the freshest treasures of our Colombian land",
@@ -201,7 +203,11 @@
     "newsletter": {
       "button": "Subscribe",
       "description": "Receive exclusive offers, news and recipes straight from Colombian farmers.",
+      "done": "Done! Your first email will arrive soon.",
+      "error": "Could not subscribe. Please try again.",
+      "invalid": "Enter a valid email address.",
       "placeholder": "Your email address",
+      "sending": "Sending…",
       "title": "Subscribe to our weekly harvest"
     },
     "products": {
@@ -264,6 +270,7 @@
     "categories": {
       "bananas": "Banana",
       "coconut": "Coconut",
+      "comingSoon": "Coming soon",
       "lemon": "Lemon",
       "mango": "Mango",
       "orange": "Orange",
@@ -417,8 +424,10 @@
     "allCategories": "All categories",
     "badge": "Straight from the fields of Urabá",
     "categories": "Categories",
+    "comingSoon": "Coming soon",
     "filters": "Filters",
     "loading": "Loading catalog...",
+    "maracuyaOnly": "Passion fruit",
     "price": "Maximum price",
     "sortBy": "Sort by",
     "startShopping": "Start shopping",

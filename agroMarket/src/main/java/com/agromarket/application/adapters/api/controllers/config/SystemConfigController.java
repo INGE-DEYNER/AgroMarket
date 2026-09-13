@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +53,18 @@ public class SystemConfigController {
                 activo ? BigDecimal.ONE : BigDecimal.ZERO);
 
         return ResponseEntity.ok(buildPayload());
+    }
+
+    /**
+     * Alias POST del toggle de mantenimiento.
+     * Algunos despliegues/proxies convierten o bloquean PUT y el panel de
+     * administración terminaba mostrando "Not Found". El frontend intenta
+     * PUT primero y reintenta con POST automáticamente.
+     */
+    @PostMapping("/system/mantenimiento")
+    public ResponseEntity<Map<String, Object>> setMantenimientoPost(
+            @RequestBody Map<String, Object> body) {
+        return setMantenimiento(body);
     }
 
     private Map<String, Object> buildPayload() {

@@ -199,6 +199,12 @@ export function AuthProvider({ children }) {
         return;
       }
 
+      // Red de seguridad: si el backend no responde (caído, túnel caído,
+      // CORS...), NO dejar la app colgada en la pantalla verde de carga.
+      // El timeout de api.js ya evita el cuelgue, pero este garantiza que
+      // el loading se apague aunque algo falle fuera del flujo normal.
+      const safety = setTimeout(() => setLoading(false), 8000);
+
       try {
         await refetchUser();
       } catch (err) {
@@ -210,6 +216,7 @@ export function AuthProvider({ children }) {
           setUser(null);
         }
       } finally {
+        clearTimeout(safety);
         setLoading(false);
       }
     };

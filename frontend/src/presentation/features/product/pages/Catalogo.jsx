@@ -91,12 +91,22 @@ export default function Catalogo() {
   const visible = useMemo(() => {
     const productNameOf = (p) => p.nombre ?? p.name ?? t("catalog.productFallback", "Producto");
     const productCategoryOf = (p) => p.categoria ?? p.tipo ?? p.category ?? p.fruitType ?? "";
+    const isMaracuyaValue = (v) => {
+      const n = String(v || "").toLowerCase();
+      return n.includes("maracuy") || n.includes("passion");
+    };
     let list = products.filter((p) => {
       const text = `${productNameOf(p)} ${producerName(p)} ${productCategoryOf(p)}`.toLowerCase();
       const matchesQuery = !query.trim() || text.includes(query.trim().toLowerCase());
+      // REGLA ASAFRUT: solo opera Maracuyá. Si el usuario pide otra
+      // categoría (URL vieja / filtro), se muestra vacío con el aviso
+      // "Próximamente" en vez de productos de otras frutas.
       const matchesCategory =
         !selectedCategory ||
-        productCategoryOf(p).toLowerCase() === selectedCategory.toLowerCase();
+        (!isMaracuyaValue(selectedCategory)
+          ? false
+          : productCategoryOf(p).toLowerCase() === selectedCategory.toLowerCase() ||
+            isMaracuyaValue(productCategoryOf(p)));
       const matchesPrice = productPrice(p) <= priceMax;
       return matchesQuery && matchesCategory && matchesPrice;
     });
@@ -192,23 +202,40 @@ export default function Catalogo() {
                   />
                   {t("catalog.allCategories", "Todas las categorías")}
                 </label>
-                {categories.map((raw) => {
-                  const value =
-                    typeof raw === "string"
-                      ? raw
-                      : raw.nombre ?? raw.name ?? raw.categoria ?? "";
-                  if (!value) return null;
-                  return (
-                    <label key={value}>
-                      <input
-                        type="checkbox"
-                        checked={selectedCategory.toLowerCase() === value.toLowerCase()}
-                        onChange={() => setCategoria(value)}
-                      />
-                      {value}
-                    </label>
-                  );
-                })}
+                {/* REGLA ASAFRUT: solo Maracuyá habilitada. */}
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedCategory.toLowerCase().includes("maracuy") ||
+                      selectedCategory.toLowerCase().includes("passion")
+                    }
+                    onChange={() => setCategoria("Maracuyá")}
+                  />
+                  {t("catalog.maracuyaOnly", "Maracuyá")}
+                </label>
+                {[
+                  "Banano",
+                  "Mango",
+                  "Piña",
+                  "Guanábana",
+                  "Naranja",
+                  "Coco",
+                  "Limón",
+                  "Otro",
+                ].map((value) => (
+                  <label
+                    key={value}
+                    style={{ opacity: 0.55, cursor: "not-allowed" }}
+                    title={t("catalog.comingSoon", "Próximamente")}
+                  >
+                    <input type="checkbox" checked={false} disabled />
+                    {value}{" "}
+                    <span style={{ fontSize: "0.7rem" }}>
+                      ({t("catalog.comingSoon", "Próximamente")})
+                    </span>
+                  </label>
+                ))}
               </div>
 
               <h3>

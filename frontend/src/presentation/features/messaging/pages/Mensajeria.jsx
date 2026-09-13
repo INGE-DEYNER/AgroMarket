@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import BuyerShell from "@/presentation/features/order/components/BuyerShell";
-import api from "@/infrastructure/http/api";
+import api, { API_BASE } from "@/infrastructure/http/api";
 import { normalizarMensaje as normalizarMensajeBase } from "@/infrastructure/normalizar";
 import "@/presentation/styles/mensajeria.css";
 
@@ -17,17 +17,26 @@ export default function Mensajeria() {
   const [messages, setMessages] = useState([]);
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
+  const selectedContactRef = useRef(null);
+  // Control de la conexión SSE (tiempo real).
+  const streamRef = useRef(null);
+  const reconnectRef = useRef(null);
+  const closedByUser = useRef(false);
+
+  /*
+   * REFRESCO de contactos (compartido por el sondeo y por el SSE).
+   */
+  const refreshContactos = async () => {
+    try {
+      const data = await api.get("/mensajes/contactos");
+      setContactos(Array.isArray(data) ? data : []);
+    } catch {
+      /* silencioso: el siguiente ciclo reintenta */
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await api.get("/mensajes/contactos");
-        setContactos(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Error loadContactos:", err);
-        setContactos([]);
-      }
-    })();
+    void refreshContactos();
   }, []);
 
   /*
@@ -36,8 +45,17 @@ export default function Mensajeria() {
    */
   const normalizarMensaje = (m) => normalizarMensajeBase(m, user?.id);
 
+  const scrollChat = () => {
+    setTimeout(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      }
+    }, 100);
+  };
+
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
+    selectedContactRef.current = contacto;
     try {
       const data = await api.get(`/mensajes/conversacion/${contacto.id}`);
       setMessages(
@@ -47,14 +65,101 @@ export default function Mensajeria() {
       console.error("Error loadMessages:", err);
       setMessages([]);
     }
-    setTimeout(() => {
-      if (chatRef.current)
-        chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }, 100);
+    scrollChat();
   };
 
-  // TIEMPO REAL: sondea la conversación activa (3.5 s) y los contactos
-  // (10 s) para que los mensajes de otros usuarios aparezcan solos.
+  /*
+   * Parsea un bloque SSE (event:\ndata:\n\n) y aplica el mensaje recibido.
+   */
+  const handleSseBlock = (block) => {
+    let eventName = "message";
+    let data = "";
+    for (const line of block.split("\n")) {
+      if (line.startsWith("event:")) {
+        eventName = line.slice(6).trim();
+      } else if (line.startsWith("data:")) {
+        data += (data ? "\n" : "") + line.slice(5).trim();
+      }
+    }
+    if (eventName !== "message" || !data) return;
+    try {
+      const raw = JSON.parse(data);
+      const contactoActual = selectedContactRef.current;
+      if (!contactoActual) {
+        // Sin conversación abierta: solo refrescar la lista de contactos.
+        void refreshContactos();
+        return;
+      }
+      const pertenece =
+        String(raw.senderId) === String(contactoActual.id) ||
+        String(raw.recipientId) === String(contactoActual.id);
+      if (pertenece) {
+        const norm = normalizarMensaje(raw);
+        setMessages((prev) => {
+          if (prev.some((m) => String(m.id) === String(raw.id))) return prev;
+          return [...prev, norm];
+        });
+        scrollChat();
+      }
+    } catch {
+      /* bloque no-JSON: ignorar */
+    }
+  };
+
+  /*
+   * TIEMPO REAL vía SSE: GET /mensajes/stream (alias → /messages/stream).
+   * El backend empuja cada mensaje al instante. Si la conexión se corta,
+   * se reintenta en 4 s; además el sondeo de abajo actúa de respaldo.
+   */
+  const openStream = async () => {
+    if (closedByUser.current) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/mensajes/stream`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.body) throw new Error("sin cuerpo SSE");
+      streamRef.current = res.body;
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (!closedByUser.current) {
+        const chunk = await reader.read();
+        if (chunk?.done) break;
+        buffer += decoder.decode(chunk?.value, { stream: true });
+        let idx;
+        while ((idx = buffer.indexOf("\n\n")) !== -1) {
+          const block = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 2);
+          handleSseBlock(block);
+        }
+      }
+    } catch (err) {
+      console.warn("SSE mensajería cortado:", err?.message);
+    } finally {
+      streamRef.current = null;
+      if (!closedByUser.current) {
+        reconnectRef.current = setTimeout(() => void openStream(), 4000);
+      }
+    }
+  };
+
+  useEffect(() => {
+    closedByUser.current = false;
+    const token = localStorage.getItem("token");
+    if (token) void openStream();
+    const cleanup = () => {
+      closedByUser.current = true;
+      if (reconnectRef.current) clearTimeout(reconnectRef.current);
+      if (streamRef.current) streamRef.current.cancel();
+    };
+    return cleanup;
+  }, []);
+
+  // TIEMPO REAL (respaldo): sondea la conversación activa (4 s) por si el
+  // SSE se corta o algún proxy no lo soporta.
   useEffect(() => {
     if (!selectedContact) return undefined;
     const conversacionTimer = setInterval(async () => {
@@ -70,34 +175,17 @@ export default function Mensajeria() {
       } catch {
         /* silencioso: la siguiente iteración reintenta */
       }
-    }, 3500);
+    }, 4000);
     return () => clearInterval(conversacionTimer);
   }, [selectedContact, normalizarMensaje]);
 
   useEffect(() => {
-    const contactosTimer = setInterval(async () => {
-      try {
-        const data = await api.get("/mensajes/contactos");
-        setContactos(Array.isArray(data) ? data : []);
-      } catch {
-        /* silencioso */
-      }
-    }, 10000);
+    const contactosTimer = setInterval(() => void refreshContactos(), 10000);
     return () => clearInterval(contactosTimer);
   }, []);
 
   const sendMessage = async () => {
     if (!msgInput.trim() || !selectedContact) return;
-    const msg = {
-      id: Date.now(),
-      texto: msgInput,
-      mio: true,
-      hora: new Date().toLocaleTimeString("es-CO", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-    setMessages((prev) => [...prev, msg]);
     const texto = msgInput;
     setMsgInput("");
     try {
@@ -117,10 +205,7 @@ export default function Mensajeria() {
     } catch (err) {
       console.error("Error enviando mensaje:", err);
     }
-    setTimeout(() => {
-      if (chatRef.current)
-        chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }, 50);
+    scrollChat();
   };
 
   const handleKey = (e) => {

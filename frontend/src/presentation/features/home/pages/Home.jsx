@@ -73,14 +73,76 @@ const getTrustBadges = (t) => [
   },
 ];
 
-const getCategories = (t) => [
-  { name: t("home.categories.fruits", "Frutas y Verduras"), img: catFrutasImg, slug: "Frutas y Verduras" },
-  { name: t("home.categories.bananas", "Plátanos y Banano"), img: catPlatanosImg, slug: "Plátanos y Banano" },
-  { name: t("home.categories.roots", "Tubérculos y Raíces"), img: catTuberculosImg, slug: "Tubérculos y Raíces" },
-  { name: t("home.categories.coffee", "Cacao y Café"), img: catCacaoImg, slug: "Cacao y Café" },
-  { name: t("home.categories.processed", "Productos Procesados"), img: catProcesadosImg, slug: "Productos Procesados" },
-  { name: t("home.categories.flowers", "Flores y Plantas"), img: catFloresImg, slug: "Flores y Plantas" },
+/*
+ * REGLA DE NEGOCIO (ASAFRUT): por ahora solo opera la categoría MARACUYÁ.
+ * Las demás categorías se muestran como "Próximamente" (deshabilitadas).
+ */
+const COMING_SOON_CATEGORY_NAMES = [
+  "Frutas y Verduras",
+  "Plátanos y Banano",
+  "Tubérculos y Raíces",
+  "Cacao y Café",
+  "Productos Procesados",
+  "Flores y Plantas",
+  "Banano",
+  "Mango",
+  "Piña",
+  "Guanábana",
+  "Naranja",
+  "Coco",
+  "Limón",
+  "Otro",
 ];
+
+export function isMaracuyaCategoryName(name) {
+  const n = String(name || "").toLowerCase();
+  return (
+    n.includes("maracuy") ||
+    n.includes("passion") ||
+    n.includes("maracuyá")
+  );
+}
+
+const getCategories = (t) => [
+  {
+    name: t("home.categories.passionFruit", "Maracuyá"),
+    img: catFrutasImg,
+    slug: "Maracuyá",
+    active: true,
+  },
+  {
+    name: t("home.categories.bananas", "Plátanos y Banano"),
+    img: catPlatanosImg,
+    slug: "Plátanos y Banano",
+    active: false,
+  },
+  {
+    name: t("home.categories.roots", "Tubérculos y Raíces"),
+    img: catTuberculosImg,
+    slug: "Tubérculos y Raíces",
+    active: false,
+  },
+  {
+    name: t("home.categories.coffee", "Cacao y Café"),
+    img: catCacaoImg,
+    slug: "Cacao y Café",
+    active: false,
+  },
+  {
+    name: t("home.categories.processed", "Productos Procesados"),
+    img: catProcesadosImg,
+    slug: "Productos Procesados",
+    active: false,
+  },
+  {
+    name: t("home.categories.flowers", "Flores y Plantas"),
+    img: catFloresImg,
+    slug: "Flores y Plantas",
+    active: false,
+  },
+];
+
+export { COMING_SOON_CATEGORY_NAMES };
 
 function extractArray(response) {
   const data = response?.data ?? response;
@@ -98,6 +160,51 @@ export default function Home() {
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  // Newsletter: estado del formulario "Suscríbete".
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterMsg, setNewsletterMsg] = useState({ type: "", text: "" });
+  const [newsletterSending, setNewsletterSending] = useState(false);
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    const email = newsletterEmail.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setNewsletterMsg({
+        type: "error",
+        text: t("home.newsletter.invalid", "Ingresa un correo válido."),
+      });
+      return;
+    }
+    setNewsletterSending(true);
+    setNewsletterMsg({ type: "", text: "" });
+    try {
+      const res = await api.post("/newsletter/subscribe", {
+        email,
+        origen: "home",
+      });
+      const data = res?.data ?? res;
+      setNewsletterMsg({
+        type: "ok",
+        text:
+          data?.message ||
+          t(
+            "home.newsletter.done",
+            "¡Listo! Te llegará el primer correo pronto.",
+          ),
+      });
+      setNewsletterEmail("");
+    } catch (err) {
+      setNewsletterMsg({
+        type: "error",
+        text:
+          err?.response?.data?.message ||
+          err?.message ||
+          t("home.newsletter.error", "No se pudo suscribir. Intenta de nuevo."),
+      });
+    } finally {
+      setNewsletterSending(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -133,26 +240,10 @@ export default function Home() {
   }, []);
 
   const categoryCards = useMemo(() => {
-    const cats = getCategories(t);
-    if (!categories.length) return cats;
-
-    const apiNames = categories.map((raw) => {
-      const name =
-        typeof raw === "string"
-          ? raw
-          : (raw.nombre ?? raw.name ?? raw.categoria ?? "");
-      return String(name).trim().toLowerCase();
-    });
-
-    const mapped = cats.filter((c) =>
-      apiNames.some(
-        (n) =>
-          c.name.toLowerCase().includes(n) || n.includes(c.name.toLowerCase()),
-      ),
-    );
-
-    return mapped.length ? mapped : cats;
-  }, [categories, t]);
+    // Regla ASAFRUT: solo Maracuyá está habilitada. Siempre mostramos las
+    // 6 tarjetas, pero las no habilitadas van como "Próximamente".
+    return getCategories(t);
+  }, [t]);
 
   const trustBadges = getTrustBadges(t);
 
@@ -212,18 +303,52 @@ export default function Home() {
             <div className="hm-loading">{t("home.categories.loading", "Cargando categorías...")}</div>
           ) : (
             <div className="hm-cat-grid">
-              {categoryCards.map((cat) => (
-                <Link
-                  className="hm-cat-item"
-                  key={cat.name}
-                  to={`/catalogo?categoria=${encodeURIComponent(cat.slug || cat.name)}`}
-                >
-                  <span className="hm-cat-circle">
-                    <img src={cat.img} alt={cat.name} loading="lazy" />
-                  </span>
-                  <span className="hm-cat-name">{cat.name}</span>
-                </Link>
-              ))}
+              {categoryCards.map((cat) =>
+                cat.active ? (
+                  <Link
+                    className="hm-cat-item"
+                    key={cat.name}
+                    to={`/catalogo?categoria=${encodeURIComponent(cat.slug || cat.name)}`}
+                  >
+                    <span className="hm-cat-circle">
+                      <img src={cat.img} alt={cat.name} loading="lazy" />
+                    </span>
+                    <span className="hm-cat-name">{cat.name}</span>
+                  </Link>
+                ) : (
+                  <div
+                    className="hm-cat-item hm-cat-coming"
+                    key={cat.name}
+                    aria-disabled="true"
+                    title={t("home.categories.comingSoon", "Próximamente")}
+                    style={{ cursor: "not-allowed", opacity: 0.75 }}
+                  >
+                    <span
+                      className="hm-cat-circle"
+                      style={{ position: "relative", filter: "grayscale(35%)" }}
+                    >
+                      <img src={cat.img} alt={cat.name} loading="lazy" />
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: "6px",
+                          right: "6px",
+                          background: "#14532d",
+                          color: "#fff",
+                          fontSize: "0.65rem",
+                          fontWeight: 800,
+                          padding: "3px 8px",
+                          borderRadius: "999px",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        {t("home.categories.comingSoon", "Próximamente")}
+                      </span>
+                    </span>
+                    <span className="hm-cat-name">{cat.name}</span>
+                  </div>
+                ),
+              )}
             </div>
           )}
         </section>
@@ -337,16 +462,34 @@ export default function Home() {
           </div>
           <form
             className="hm-newsletter-form"
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleNewsletterSubmit}
           >
             <input
               type="email"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder={t("home.newsletter.placeholder", "Tu correo electrónico")}
               aria-label={t("home.newsletter.placeholder", "Tu correo electrónico")}
               required
             />
-            <button type="submit">{t("home.newsletter.button", "Suscribirse")}</button>
+            <button type="submit" disabled={newsletterSending}>
+              {newsletterSending
+                ? t("home.newsletter.sending", "Enviando…")
+                : t("home.newsletter.button", "Suscribirse")}
+            </button>
           </form>
+          {newsletterMsg.text && (
+            <p
+              role="status"
+              style={{
+                marginTop: "8px",
+                fontSize: "0.85rem",
+                color: newsletterMsg.type === "ok" ? "#15803d" : "#b91c1c",
+              }}
+            >
+              {newsletterMsg.text}
+            </p>
+          )}
         </section>
       </div>
     </PublicLayout>

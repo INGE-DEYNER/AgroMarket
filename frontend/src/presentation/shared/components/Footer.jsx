@@ -25,7 +25,7 @@ const STAKEHOLDER_LOGOS = [
     altKey: "home.footerUi.stakeSicName",
     altFallback: "SIC",
     roleKey: "home.footerUi.stakeSicRole",
-    roleFallback: "Entidad aliada",
+    roleFallback: "Entidad de control ",
     type: "organization",
   },
   {
@@ -393,7 +393,7 @@ export default function Footer() {
                   AgroMarket ecosystem
                 </span>
 
-                <h3>Project partners &amp; stakeholders</h3>
+                <h3>Proyectos partners &amp; stakeholders</h3>
               </div>
 
               <div
@@ -478,12 +478,13 @@ export default function Footer() {
             <div>
               <span>AGROMARKET ECOSYSTEM</span>
 
-              <h2>Our ecosystem</h2>
+              <h2>Nuestro ecosistema</h2>
             </div>
 
             <p>
-              Spaces for ASAFRUT, related entities, institutional partners and
-              those responsible for developing the platform.
+              Espacios para ASAFRUT, entidades relacionadas, socios
+              institucionales y los responsables del desarrollo de la
+              plataforma.
             </p>
           </div>
         </div>

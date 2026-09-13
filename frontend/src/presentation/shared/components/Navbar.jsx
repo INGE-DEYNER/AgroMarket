@@ -27,33 +27,19 @@ export default function Navbar() {
   const userMenuRef = useRef(null);
   const categoriesMenuRef = useRef(null);
   const prevItemsRef = useRef(totalItems);
-  const [categorias, setCategorias] = useState([
-    "Banano",
-    "Mango",
-    "Piña",
-    "Maracuyá",
-    "Guanábana",
-    "Naranja",
-    "Coco",
-    "Limón",
-    "Otro",
-  ]);
+  const [categorias, setCategorias] = useState(["Maracuyá"]);
 
   useEffect(() => {
+    // REGLA ASAFRUT: solo Maracuyá está habilitada. El navbar muestra
+    // Maracuyá como única categoría activa y el resto como Próximamente
+    // (no navegables). Se intenta leer el backend solo para confirmar que
+    // hay catálogo, pero no se habilitan más categorías.
     let active = true;
     const fetchCats = async () => {
       try {
-        const res = await api.get("/productos/categorias");
-        const data = res.data || res;
-        if (Array.isArray(data) && active) {
-          const map = {
-            PASSION_FRUIT: t("nav.categories.passionFruit", "Maracuyá"),
-          };
-          const formatted = data.map(
-            (c) =>
-              map[c] || c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(),
-          );
-          setCategorias(formatted);
+        await api.get("/productos/categorias");
+        if (active) {
+          setCategorias([t("nav.categories.passionFruit", "Maracuyá")]);
         }
       } catch (err) {
         console.error("Error fetching real categories:", err);
@@ -662,6 +648,46 @@ export default function Navbar() {
                   >
                     {cat}
                   </Link>
+                ))}
+                {[
+                  t("nav.categories.banana", "Banano"),
+                  t("nav.categories.mango", "Mango"),
+                  t("nav.categories.pineapple", "Piña"),
+                  t("nav.categories.soursop", "Guanábana"),
+                  t("nav.categories.orange", "Naranja"),
+                  t("nav.categories.coconut", "Coco"),
+                  t("nav.categories.lemon", "Limón"),
+                  t("nav.categories.other", "Otro"),
+                ].map((cat) => (
+                  <span
+                    key={cat}
+                    aria-disabled="true"
+                    title={t("nav.categories.comingSoon", "Próximamente")}
+                    style={{
+                      padding: "8px 16px",
+                      color: "#9ca3af",
+                      fontSize: "0.9rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: "8px",
+                      cursor: "not-allowed",
+                    }}
+                  >
+                    {cat}
+                    <span
+                      style={{
+                        background: "#e5e7eb",
+                        color: "#4b5563",
+                        fontSize: "0.65rem",
+                        fontWeight: 800,
+                        padding: "2px 8px",
+                        borderRadius: "999px",
+                      }}
+                    >
+                      {t("nav.categories.comingSoon", "Próximamente")}
+                    </span>
+                  </span>
                 ))}
               </div>
             )}

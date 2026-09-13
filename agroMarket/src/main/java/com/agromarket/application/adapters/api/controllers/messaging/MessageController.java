@@ -1,11 +1,16 @@
 package com.agromarket.application.adapters.api.controllers.messaging;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.agromarket.application.adapters.api.request.messaging.SendMessageRequest;
 import com.agromarket.application.adapters.api.response.messaging.MessageResponse;
@@ -33,6 +39,15 @@ public class MessageController {
 
     private final MessagingPort messagingPort;
     private final UserPort userPort;
+
+    /*
+     * Canales SSE en memoria por usuario: permiten empujar mensajes en
+     * tiempo real al destinatario sin WebSocket/STOMP (sin dependencias
+     * nuevas). El frontend abre GET /api/v1/messages/stream con su JWT y
+     * recibe eventos "message". Si el destinatario no tiene el stream
+     * abierto, el mensaje igual queda persistido y lo verá con el sondeo.
+     */
+    private final Map<Long, List<SseEmitter>> streams = new ConcurrentHashMap<>();
 
     /**
      * POST /api/v1/messages (alias frontend: /mensajes)
@@ -67,7 +82,70 @@ public class MessageController {
         }
 
         Message message = messagingPort.sendMessage(senderId, receiverId, content);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(message));
+        MessageResponse body = toResponse(message);
+        pushToUser(receiverId, body);
+        pushToUser(senderId, body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    /**
+     * GET /api/v1/messages/stream — canal SSE en tiempo real.
+     * El frontend lo abre una vez (con JWT) y recibe cada mensaje nuevo
+     * al instante mediante eventos "message". Timeout de 30 min; el
+     * frontend reconecta solo si se cae.
+     */
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter stream(
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+        Long userId = principal.getUserId();
+        SseEmitter emitter = new SseEmitter(30 * 60 * 1000L);
+        streams.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>())
+                .add(emitter);
+        emitter.onCompletion(() -> removeEmitter(userId, emitter));
+        emitter.onTimeout(() -> removeEmitter(userId, emitter));
+        emitter.onError(e -> removeEmitter(userId, emitter));
+        try {
+            emitter.send(SseEmitter.event().name("connected").data("ok"));
+        } catch (IOException ex) {
+            removeEmitter(userId, emitter);
+        }
+        return emitter;
+    }
+
+    private void pushToUser(Long userId, MessageResponse body) {
+        if (userId == null) return;
+        List<SseEmitter> list = streams.getOrDefault(userId, List.of());
+        for (SseEmitter emitter : new ArrayList<>(list)) {
+            try {
+                emitter.send(SseEmitter.event().name("message").data(body));
+            } catch (IOException | IllegalStateException ex) {
+                removeEmitter(userId, emitter);
+            }
+        }
+    }
+
+    private void removeEmitter(Long userId, SseEmitter emitter) {
+        List<SseEmitter> list = streams.get(userId);
+        if (list != null) {
+            list.remove(emitter);
+            if (list.isEmpty()) {
+                streams.remove(userId, list);
+            }
+        }
+    }
+
+    /**
+     * GET /api/v1/messages/stream/info — ayuda a diagnosticar si el
+     * tiempo real está activo (cuántos oyentes hay conectados).
+     */
+    @GetMapping("/stream/info")
+    public ResponseEntity<Map<String, Object>> streamInfo() {
+        Map<String, Object> info = new LinkedHashMap<>();
+        int total = streams.values().stream().mapToInt(List::size).sum();
+        Set<Long> usuarios = streams.keySet();
+        info.put("oyentes", total);
+        info.put("usuariosConectados", usuarios.size());
+        return ResponseEntity.ok(info);
     }
 
     /**

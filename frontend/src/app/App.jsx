@@ -117,11 +117,73 @@ const Checkout = lazy(
 // ============================================================
 
 function App() {
+  const [mountError, setMountError] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      // Evita que errored states queden colgados enreen mount.
+      setMountError(false);
+    };
+  }, []);
+
+  if (mountError) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          fontFamily: "Arial, sans-serif",
+          padding: "20px",
+          textAlign: "center",
+          background: "var(--surface-1, #0b1b12)",
+          color: "var(--text-1, #e5e7eb)",
+        }}
+      >
+        <div style={{ fontSize: "48px", marginBottom: "20px" }}>⚠️</div>
+        <h1 style={{ color: "var(--danger, #dc2626)", marginBottom: "10px" }}>
+          Error al cargar la aplicación
+        </h1>
+        <p
+          style={{
+            color: "var(--muted, #9ca3af)",
+            marginBottom: "20px",
+            maxWidth: "400px",
+          }}
+        >
+          No se pudo montar el shell de la app. Recarga para intentar de
+          nuevo.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            padding: "12px 24px",
+            background: "var(--primary, #1a5c2a)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: "bold",
+          }}
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
+
   return (
     <ToastProvider>
       <DivisaProvider>
         <Router>
-          <AuthProvider>
+          <AuthProvider
+            onError={() => {
+              setMountError(true);
+            }}
+          >
             <CartProvider>
               <div
                 style={{
