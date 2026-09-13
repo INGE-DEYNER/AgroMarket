@@ -4355,68 +4355,101 @@ html[data-theme="dark"] .hm-product-card {
 
 .sa-videos {
   width: 100%;
-  margin-top: 70px;
+
+  /*
+   * Separación respecto al contenido anterior.
+   * Como los videos están al final de la página,
+   * dejamos suficiente espacio para que funcionen
+   * como sección independiente.
+   */
+  margin-top: 75px;
   margin-bottom: 70px;
+
+  padding-top: 10px;
 }
 
+/* ============================================================
+   ENCABEZADO DE LA SECCIÓN
+   ============================================================ */
+
 .sa-videos-head {
-  max-width: 850px;
+  max-width: 720px;
+
   margin: 0 auto 38px;
+
   text-align: center;
 }
 
 .sa-section-label {
   display: inline-block;
+
   margin-bottom: 10px;
 
   font-size: 0.78rem;
   font-weight: 700;
+
   letter-spacing: 0.12em;
+
   text-transform: uppercase;
 }
 
 .sa-videos-head h2 {
   margin: 0 0 14px;
 
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+
   line-height: 1.15;
 }
 
 .sa-videos-head p {
-  max-width: 700px;
+  max-width: 650px;
+
   margin: 0 auto;
 
   font-size: 1rem;
+
   line-height: 1.7;
+
   opacity: 0.85;
 }
 
 /* ============================================================
-   GRID DE VIDEOS
+   CONTENEDOR DE LOS DOS VIDEOS
    ============================================================ */
 
 .sa-videos-grid {
   display: grid;
 
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /*
+   * Dos columnas, pero limitamos el tamaño total
+   * para que los videos queden MEDIANOS.
+   */
+  grid-template-columns: repeat(2, minmax(0, 300px));
 
-  gap: 32px;
+  justify-content: center;
 
-  max-width: 1050px;
+  gap: 28px;
+
+  width: 100%;
+
+  max-width: 680px;
+
   margin: 0 auto;
 }
 
 /* ============================================================
-   TARJETA DEL VIDEO
+   TARJETA
    ============================================================ */
 
 .sa-video-card {
-  display: flex;
-  flex-direction: column;
+  width: 100%;
 
   overflow: hidden;
 
-  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+
+  border-radius: 16px;
 
   background: var(--surface, #ffffff);
 
@@ -4433,6 +4466,7 @@ html[data-theme="dark"] .hm-product-card {
   width: 100%;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -4442,22 +4476,31 @@ html[data-theme="dark"] .hm-product-card {
 }
 
 /* ============================================================
-   VIDEO
+   VIDEO VERTICAL
    ============================================================ */
 
 .sa-video {
   display: block;
 
+  /*
+   * El video se adapta al ancho de la tarjeta.
+   */
   width: 100%;
+
+  /*
+   * Altura automática para conservar la proporción
+   * original de los videos verticales.
+   */
   height: auto;
 
   /*
-   * Mantiene la proporción original:
+   * Proporción vertical.
    *
-   * Video 1: 360 x 640
-   * Video 2: 720 x 1274
+   * Video 1:
+   * 720 x 1274
    *
-   * No se recorta el contenido.
+   * Video 2:
+   * 360 x 640
    */
   aspect-ratio: 9 / 16;
 
@@ -4467,25 +4510,27 @@ html[data-theme="dark"] .hm-product-card {
 }
 
 /* ============================================================
-   INFORMACIÓN DEBAJO DEL VIDEO
+   INFORMACIÓN DEL VIDEO
    ============================================================ */
 
 .sa-video-info {
-  padding: 22px 24px 24px;
+  padding: 18px 20px 20px;
 }
 
 .sa-video-info h3 {
   margin: 0 0 8px;
 
-  font-size: 1.15rem;
+  font-size: 1.08rem;
+
   line-height: 1.3;
 }
 
 .sa-video-info p {
   margin: 0;
 
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.9rem;
+
+  line-height: 1.55;
 
   opacity: 0.78;
 }
@@ -4496,18 +4541,20 @@ html[data-theme="dark"] .hm-product-card {
 
 @media (max-width: 800px) {
   .sa-videos {
-    margin-top: 55px;
-    margin-bottom: 55px;
+    margin-top: 60px;
+    margin-bottom: 60px;
   }
 
   .sa-videos-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 280px));
 
-    gap: 20px;
+    gap: 22px;
+
+    max-width: 620px;
   }
 
   .sa-video-info {
-    padding: 18px;
+    padding: 16px 18px 18px;
   }
 }
 
@@ -4517,8 +4564,8 @@ html[data-theme="dark"] .hm-product-card {
 
 @media (max-width: 600px) {
   .sa-videos {
-    margin-top: 45px;
-    margin-bottom: 45px;
+    margin-top: 50px;
+    margin-bottom: 50px;
   }
 
   .sa-videos-head {
@@ -4530,13 +4577,20 @@ html[data-theme="dark"] .hm-product-card {
   }
 
   .sa-videos-head p {
+    padding: 0 12px;
+
     font-size: 0.92rem;
   }
 
+  /*
+   * En celular dejamos un solo video por fila.
+   */
   .sa-videos-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 280px);
 
     gap: 28px;
+
+    max-width: 280px;
   }
 
   .sa-video-card {
@@ -4544,6 +4598,14 @@ html[data-theme="dark"] .hm-product-card {
   }
 
   .sa-video-info {
-    padding: 18px 20px 20px;
+    padding: 17px 18px 19px;
+  }
+
+  .sa-video-info h3 {
+    font-size: 1rem;
+  }
+
+  .sa-video-info p {
+    font-size: 0.88rem;
   }
 }
