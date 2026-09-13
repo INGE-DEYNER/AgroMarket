@@ -154,7 +154,7 @@ export default function SobreAsafrut() {
                   aria-label="Video sobre el trabajo en el campo de Asafrut"
                 >
                   <source
-                    src="PEGAR_AQUI_EL_LINK_DEL_VIDEO_TRABAJO_EN_EL_CAMPO.mp4"
+                    src="https://res.cloudinary.com/mvbulpuz/video/upload/v1789270381/AQMIRajIbpj4imlfMKld9aYuBIXABJ95AjPiqqeWNCMPkY7Af1RQqEuXvONQukJRxhc0Fx9injIwvkhEyEjPxe5Lg8xTfuPJLLxQtiftl_i8nA.mp4"
                     type="video/mp4"
                   />
                   Tu navegador no soporta la reproducción de videos HTML5.
@@ -191,7 +191,7 @@ export default function SobreAsafrut() {
                   aria-label="Video de presentación de Asafrut"
                 >
                   <source
-                    src="PEGAR_AQUI_EL_LINK_DEL_VIDEO_PRESENTACION_ASAFRUT.mp4"
+                    src="https://res.cloudinary.com/mvbulpuz/video/upload/v1789270072/ASAFRUT_YOUTUBE_PRESENTACION.mp4"
                     type="video/mp4"
                   />
                   Tu navegador no soporta la reproducción de videos HTML5.
