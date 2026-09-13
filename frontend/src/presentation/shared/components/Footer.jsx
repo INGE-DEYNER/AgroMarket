@@ -12,24 +12,30 @@ const STAKEHOLDER_LOGOS = [
     id: "asafrut",
     name: "ASAFRUT",
     src: "/by/asafrut.jpg",
-    alt: "ASAFRUT",
-    role: "Organización promotora",
+    altKey: "home.footerUi.stakeAsafrutName",
+    altFallback: "ASAFRUT",
+    roleKey: "home.footerUi.stakeAsafrutRole",
+    roleFallback: "Organización promotora",
     type: "organization",
   },
   {
     id: "sic",
     name: "SIC",
     src: "/stakeholders/sic.svg",
-    alt: "SIC",
-    role: "Entidad aliada",
+    altKey: "home.footerUi.stakeSicName",
+    altFallback: "SIC",
+    roleKey: "home.footerUi.stakeSicRole",
+    roleFallback: "Entidad aliada",
     type: "organization",
   },
   {
     id: "developer",
     name: "Deyner Chaverra",
     src: "/by/DeyDev.png",
-    alt: "Deyner Chaverra",
-    role: "Desarrollador",
+    altKey: "home.footerUi.stakeDevName",
+    altFallback: "Deyner Chaverra",
+    roleKey: "home.footerUi.stakeDevRole",
+    roleFallback: "Desarrollador",
     type: "developer",
   },
 ];
@@ -391,17 +397,10 @@ export default function Footer() {
               </div>
 
               <div
-                className="am-footer-partners-carousel"
+                className="am-footer-partners-carousel am-footer-partners-carousel--no-arrows"
                 role="region"
                 aria-label="Carrusel de aliados del ecosistema AgroMarket"
               >
-                <span
-                  className="am-footer-partners-arrow am-footer-partners-arrow-left"
-                  aria-hidden="true"
-                >
-                  ←
-                </span>
-
                 <div className="am-footer-partners-viewport">
                   {/* style inline = el carrusel se mueve aunque el footer.css esté en caché */}
                   <div
@@ -437,15 +436,21 @@ export default function Footer() {
                             <div className="am-footer-partner-logo">
                               <img
                                 src={logo.src}
-                                alt={copy === 0 ? logo.alt : ""}
+                                alt={
+                                  copy === 0
+                                    ? t(logo.altKey, logo.altFallback)
+                                    : ""
+                                }
                                 loading="lazy"
                               />
                             </div>
 
                             <div className="am-footer-partner-info">
-                              <strong>{logo.name}</strong>
+                              <strong>
+                                {t(logo.altKey, logo.altFallback)}
+                              </strong>
 
-                              <p>{logo.role}</p>
+                              <p>{t(logo.roleKey, logo.roleFallback)}</p>
                             </div>
                           </article>
                         ))}
@@ -453,13 +458,6 @@ export default function Footer() {
                     ))}
                   </div>
                 </div>
-
-                <span
-                  className="am-footer-partners-arrow am-footer-partners-arrow-right"
-                  aria-hidden="true"
-                >
-                  →
-                </span>
               </div>
 
               <p className="am-footer-partners-hint" hidden aria-hidden="true">

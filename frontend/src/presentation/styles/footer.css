@@ -2063,6 +2063,15 @@
 .footer-ml-style .am-footer-payment-block { border-right: 0 !important; }
 .footer-ml-style .am-footer-partner { background: transparent !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; width: 180px !important; min-width: 180px !important; max-width: 180px !important; height: 62px !important; min-height: 62px !important; max-height: 62px !important; flex-basis: 180px; }
 .footer-ml-style .am-footer-payment-card { background: #fff !important; border: 0 !important; box-shadow: none !important; }
+/* Alineación pareja de los 2 carruseles + sin flechas */
+.footer-ml-style .am-footer-services-grid { align-items: start !important; }
+.footer-ml-style .am-footer-payment-block { justify-content: flex-start !important; }
+.footer-ml-style .am-footer-partners-block { justify-content: flex-start !important; }
+.footer-ml-style .am-footer-block-heading { min-height: 64px; display: flex; flex-direction: column; justify-content: flex-start; }
+.footer-ml-style .am-footer-payment-methods { margin-top: 2px !important; }
+.footer-ml-style .am-footer-partners-carousel { margin-top: 2px; }
+.footer-ml-style .am-footer-partners-carousel--no-arrows { gap: 0; }
+.footer-ml-style .am-footer-partners-arrow { display: none !important; }
 /* Stakeholders: solo nombre + rol, legible y sin recortes */
 .footer-ml-style .am-footer-partner { align-items: center !important; overflow: visible !important; }
 .footer-ml-style .am-footer-partner-info { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 2px; overflow: visible; }
