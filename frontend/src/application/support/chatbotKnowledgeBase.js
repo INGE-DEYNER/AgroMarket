@@ -1168,7 +1168,7 @@ const es = [
       "help",
     ],
     answer:
-      "Claro. Puedes utilizar la sección 'Ayuda' o 'Reportar un problema' dentro de AgroMarket. También puedes contactar al soporte por WhatsApp al +57 300 123 4567 o escribir a soporte@agromarket.co.",
+      "Claro. Puedes utilizar la sección 'Ayuda' o 'Reportar un problema' dentro de AgroMarket. También puedes contactar al soporte por WhatsApp al +57 312 765 8412 o escribir a soporte@agromarket.co.",
   },
 
   {
@@ -1196,7 +1196,7 @@ const es = [
       "contacto whatsapp",
     ],
     answer:
-      "Puedes contactar al soporte de AgroMarket por WhatsApp al +57 300 123 4567. Si tu consulta está relacionada con un pedido, ten a mano la información de la orden.",
+      "Puedes contactar al soporte de AgroMarket por WhatsApp al +57 312 765 8412. Si tu consulta está relacionada con un pedido, ten a mano la información de la orden.",
   },
 
   // ==========================================================
@@ -2702,7 +2702,7 @@ const en = [
       "support number",
     ],
     answer:
-      "Of course. You can use the 'Help' or 'Report a Problem' sections in AgroMarket. You can also contact support through WhatsApp at +57 300 123 4567 or email support@agromarket.co.",
+      "Of course. You can use the 'Help' or 'Report a Problem' sections in AgroMarket. You can also contact support through WhatsApp at +57 312 765 8412 or email support@agromarket.co.",
   },
 
   {
@@ -2730,7 +2730,7 @@ const en = [
       "contact whatsapp",
     ],
     answer:
-      "You can contact AgroMarket support through WhatsApp at +57 300 123 4567. If your question is related to an order, have your order information ready.",
+      "You can contact AgroMarket support through WhatsApp at +57 312 765 8412. If your question is related to an order, have your order information ready.",
   },
 
   // ==========================================================
@@ -3118,7 +3118,7 @@ const pt = [
     id: "sell",
     keywords: ["vender", "produtor", "publicar", "fazenda"],
     answer:
-      "Registra-te como Produtor, completa a fazenda e publica com preço por kg. Ajuda: +57 300 123 4567.",
+      "Registra-te como Produtor, completa a fazenda e publica com preço por kg. Ajuda: +57 312 765 8412.",
   },
   {
     id: "shipping",
@@ -3130,12 +3130,12 @@ const pt = [
     id: "returns",
     keywords: ["devolucion", "reembolso", "danificado", "foto"],
     answer:
-      "Tira fotos em 12 h e reporta em Reportar problema ou WhatsApp +57 300 123 4567.",
+      "Tira fotos em 12 h e reporta em Reportar problema ou WhatsApp +57 312 765 8412.",
   },
   {
     id: "help",
     keywords: ["ajuda", "suporte", "whatsapp", "contacto"],
-    answer: "Suporte WhatsApp 24/7: +57 300 123 4567 ou soporte@agromarket.co.",
+    answer: "Suporte WhatsApp 24/7: +57 312 765 8412 ou soporte@agromarket.co.",
   },
 ];
 
@@ -3210,7 +3210,7 @@ const fr = [
     id: "sell",
     keywords: ["vendre", "producteur", "publier", "ferme"],
     answer:
-      "Inscrivez-vous comme Producteur, complétez la ferme et publiez. Aide: +57 300 123 4567.",
+      "Inscrivez-vous comme Producteur, complétez la ferme et publiez. Aide: +57 312 765 8412.",
   },
   {
     id: "shipping",
@@ -3222,12 +3222,12 @@ const fr = [
     id: "returns",
     keywords: ["retour", "remboursement", "abime", "photo"],
     answer:
-      "Photos sous 12 h et Signaler un problème ou WhatsApp +57 300 123 4567.",
+      "Photos sous 12 h et Signaler un problème ou WhatsApp +57 312 765 8412.",
   },
   {
     id: "help",
     keywords: ["aide", "support", "whatsapp", "contact"],
-    answer: "Support WhatsApp 24/7: +57 300 123 4567 ou soporte@agromarket.co.",
+    answer: "Support WhatsApp 24/7: +57 312 765 8412 ou soporte@agromarket.co.",
   },
 ];
 
@@ -3315,7 +3315,7 @@ const de = [
     id: "sell",
     keywords: ["verkaufen", "produzent", "veroffentlichen", "farm"],
     answer:
-      "Als Produzent registrieren, Farmprofil vervollständigen und veröffentlichen. Hilfe: +57 300 123 4567.",
+      "Als Produzent registrieren, Farmprofil vervollständigen und veröffentlichen. Hilfe: +57 312 765 8412.",
   },
   {
     id: "shipping",
@@ -3326,13 +3326,13 @@ const de = [
   {
     id: "returns",
     keywords: ["ruckgabe", "erstattung", "beschadigt", "foto"],
-    answer: "Fotos in 12 h und Problem melden oder WhatsApp +57 300 123 4567.",
+    answer: "Fotos in 12 h und Problem melden oder WhatsApp +57 312 765 8412.",
   },
   {
     id: "help",
     keywords: ["hilfe", "support", "whatsapp", "kontakt"],
     answer:
-      "Support WhatsApp 24/7: +57 300 123 4567 oder soporte@agromarket.co.",
+      "Support WhatsApp 24/7: +57 312 765 8412 oder soporte@agromarket.co.",
   },
 ];
 
@@ -3381,7 +3381,7 @@ const zh = [
   {
     id: "sell",
     keywords: ["卖", "销售", "生产者", "农场"],
-    answer: "注册为生产者、完善农场资料并发布。帮助：+57 300 123 4567。",
+    answer: "注册为生产者、完善农场资料并发布。帮助：+57 312 765 8412。",
   },
   {
     id: "shipping",
@@ -3391,12 +3391,12 @@ const zh = [
   {
     id: "returns",
     keywords: ["退货", "退款", "损坏", "照片"],
-    answer: "12小时内拍照，报告问题或 WhatsApp +57 300 123 4567。",
+    answer: "12小时内拍照，报告问题或 WhatsApp +57 312 765 8412。",
   },
   {
     id: "help",
     keywords: ["帮助", "支持", "联系", "电话"],
-    answer: "客服 WhatsApp 24/7：+57 300 123 4567 或 soporte@agromarket.co。",
+    answer: "客服 WhatsApp 24/7：+57 312 765 8412 或 soporte@agromarket.co。",
   },
 ];
 
@@ -3453,7 +3453,7 @@ const ar = [
   {
     id: "sell",
     keywords: ["بيع", "منتج", "نشر", "مزرعة"],
-    answer: "سجّل كمنتج وأكمل المزرعة وانشر بالسعر. مساعدة: +57 300 123 4567.",
+    answer: "سجّل كمنتج وأكمل المزرعة وانشر بالسعر. مساعدة: +57 312 765 8412.",
   },
   {
     id: "shipping",
@@ -3465,12 +3465,12 @@ const ar = [
     id: "returns",
     keywords: ["ارجاع", "استرداد", "تالف", "صورة"],
     answer:
-      "التقط صوراً خلال 12 ساعة وأبلغ عبر الإبلاغ عن مشكلة أو واتساب +57 300 123 4567.",
+      "التقط صوراً خلال 12 ساعة وأبلغ عبر الإبلاغ عن مشكلة أو واتساب +57 312 765 8412.",
   },
   {
     id: "help",
     keywords: ["مساعدة", "دعم", "واتساب", "اتصال"],
-    answer: "الدعم واتساب 24/7: +57 300 123 4567 أو soporte@agromarket.co.",
+    answer: "الدعم واتساب 24/7: +57 312 765 8412 أو soporte@agromarket.co.",
   },
 ];
 

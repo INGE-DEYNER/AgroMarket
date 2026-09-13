@@ -26,21 +26,23 @@ export default function SobreAsafrut() {
   return (
     <PublicLayout>
       <div className="sa-page">
-        {/* Migas de pan (frame: breadcrumb) */}
+        {/* Migas de pan */}
         <nav className="sa-breadcrumb" aria-label="Migas de pan">
           <span>Inicio</span>
           <span aria-hidden="true">›</span>
           <strong>Sobre Asafrut</strong>
         </nav>
 
-        {/* Introducción (frame: intro row) */}
+        {/* Introducción */}
         <section className="sa-intro">
           <div className="sa-intro-texts">
             <h1>Sobre Asafrut y la Asociación Campesina</h1>
+
             <p>
               Asafrut nació en el corazón de Urabá como una alianza de familias
               cultivadoras que buscaban proteger la agricultura familiar.
             </p>
+
             <p>
               Somos una organización sin fines de lucro enfocada en empoderar
               tecnológicamente, logísticamente y económicamente a los pequeños
@@ -49,6 +51,7 @@ export default function SobreAsafrut() {
               hasta tu alacena en todo el territorio nacional.
             </p>
           </div>
+
           <img
             className="sa-intro-img"
             src={aboutImg}
@@ -57,10 +60,90 @@ export default function SobreAsafrut() {
           />
         </section>
 
-        {/* Misión y Visión (frame: mission-vision) */}
+        {/* =====================================================
+            VIDEOS INSTITUCIONALES
+        ====================================================== */}
+
+        <section className="sa-videos">
+          <header className="sa-videos-head">
+            <span className="sa-section-label">ASAFRUT</span>
+
+            <h2>Conoce nuestra labor</h2>
+
+            <p>
+              Conoce más sobre el trabajo de nuestros productores, nuestra
+              comunidad campesina y el territorio de Urabá.
+            </p>
+          </header>
+
+          <div className="sa-videos-grid">
+            {/* VIDEO 1 - 360 x 640 */}
+            <article className="sa-video-card">
+              <div className="sa-video-wrapper">
+                <video
+                  className="sa-video"
+                  controls
+                  preload="metadata"
+                  playsInline
+                  width="360"
+                  height="640"
+                  aria-label="Video institucional de Asafrut"
+                >
+                  <source
+                    src="https://res.cloudinary.com/mvbulpuz/video/upload/v1789270072/ASAFRUT_YOUTUBE_PRESENTACION.mp4"
+                    type="video/mp4"
+                  />
+                  Tu navegador no soporta la reproducción de videos HTML5.
+                </video>
+              </div>
+
+              <div className="sa-video-info">
+                <h3>Conoce Asafrut</h3>
+
+                <p>
+                  Descubre nuestra asociación y el trabajo que realizamos junto
+                  a los productores campesinos.
+                </p>
+              </div>
+            </article>
+
+            {/* VIDEO 2 - 720 x 1274 */}
+            <article className="sa-video-card">
+              <div className="sa-video-wrapper">
+                <video
+                  className="sa-video"
+                  controls
+                  preload="metadata"
+                  playsInline
+                  width="720"
+                  height="1274"
+                  aria-label="Video sobre el trabajo de los productores de Asafrut"
+                >
+                  <source
+                    src="https://res.cloudinary.com/mvbulpuz/video/upload/v1789270381/AQMIRajIbpj4imlfMKld9aYuBIXABJ95AjPiqqeWNCMPkY7Af1RQqEuXvONQukJRxhc0Fx9injIwvkhEyEjPxe5Lg8xTfuPJLLxQtiftl_i8nA.mp4"
+                    type="video/mp4"
+                  />
+                  Tu navegador no soporta la reproducción de videos HTML5.
+                </video>
+              </div>
+
+              <div className="sa-video-info">
+                <h3>El trabajo en el campo</h3>
+
+                <p>
+                  Conoce de cerca el trabajo de nuestros productores y la
+                  importancia de la agricultura campesina.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        {/* Misión y Visión */}
         <section className="sa-mission-vision">
           <article className="sa-card-lg">
             <h2>Nuestra Misión</h2>
+
             <p>
               Impulsar el desarrollo sostenible de la comunidad campesina en
               Urabá, facilitando el acceso equitativo al comercio justo,
@@ -68,8 +151,10 @@ export default function SobreAsafrut() {
               frescura óptima a los hogares colombianos.
             </p>
           </article>
+
           <article className="sa-card-lg">
             <h2>Nuestra Visión</h2>
+
             <p>
               Para el 2030, ser el modelo asociativo agrícola y de comercio
               electrónico directo referente en Colombia, beneficiando a más de
@@ -79,14 +164,16 @@ export default function SobreAsafrut() {
           </article>
         </section>
 
-        {/* Pilares (frame: grid) */}
+        {/* Pilares */}
         <section className="sa-pillars">
           <header className="sa-pillars-head">
             <h2>Nuestros Pilares de Calidad</h2>
+
             <p>
               Valores que guían nuestra labor diaria de sol a sol en el campo
             </p>
           </header>
+
           <div className="sa-pillars-grid">
             {PILARES.map((p) => (
               <article className="sa-card-sm" key={p.title}>
@@ -97,8 +184,7 @@ export default function SobreAsafrut() {
           </div>
         </section>
 
-        {/* Ecosistema AgroMarket — Aliados y responsables del proyecto.
-            Sección movida desde el Footer compartido (info institucional). */}
+        {/* Ecosistema AgroMarket */}
         <div id="ecosistema">
           <StakeholderCarousel />
         </div>
