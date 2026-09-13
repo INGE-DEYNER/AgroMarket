@@ -10,24 +10,27 @@ export default defineConfig({
   base: "/",
   define: {
     "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production"),
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+    global: "window",
   },
   build: {
     outDir: "dist",
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
-      },
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`
+      }
     },
     chunkSizeWarningLimit: 600,
   },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   server: {
-    host: true, // escucha en 0.0.0.0 (necesario en Docker/VMs/entornos remotos)
+    host: true,
     port: 5173,
     strictPort: true,
     proxy: {
