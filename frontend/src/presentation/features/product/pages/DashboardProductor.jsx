@@ -2655,6 +2655,7 @@ export default function DashboardProductor() {
                 </div>
               </div>
             </div>
+            </div>
 
             <div
               className="modal-footer"
