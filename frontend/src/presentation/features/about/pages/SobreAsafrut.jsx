@@ -114,13 +114,6 @@ export default function SobreAsafrut() {
         </section>
 
         {/* =====================================================
-            ECOSISTEMA AGROMARKET
-        ====================================================== */}
-        <div id="ecosistema">
-          <StakeholderCarousel />
-        </div>
-
-        {/* =====================================================
             VIDEOS INSTITUCIONALES
             ESTA SECCIÓN QUEDA AL FINAL DE TODO
         ====================================================== */}
