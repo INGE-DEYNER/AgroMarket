@@ -325,12 +325,55 @@ export default function Footer() {
                   {t("home.footerUi.paymentMethods")}
                 </span>
 
-                <div className="am-footer-payment-list">
-                  {PAYMENT_LOGOS.map((payment) => (
-                    <div className="am-footer-payment-card" key={payment.name}>
-                      <img src={payment.src} alt={payment.name} />
-                    </div>
-                  ))}
+                <div
+                  className="am-footer-payment-viewport"
+                  role="region"
+                  aria-label="Carrusel de métodos de pago aceptados"
+                >
+                  {/* style inline = se mueve aunque el footer.css esté en caché */}
+                  <div
+                    className="am-footer-payment-track"
+                    style={{
+                      width: "max-content",
+                      maxWidth: "none",
+                      display: "flex",
+                      flexWrap: "nowrap",
+                      alignItems: "center",
+                      gap: 0,
+                      animation:
+                        "am-footer-partners-scroll 16s linear infinite",
+                      willChange: "transform",
+                    }}
+                  >
+                    {[0, 1, 2, 3].map((copy) => (
+                      <div
+                        className="am-footer-payment-track-group"
+                        aria-hidden={copy === 0 ? undefined : "true"}
+                        key={`pay-copy-${copy}`}
+                        style={{
+                          display: "flex",
+                          flexWrap: "nowrap",
+                          alignItems: "center",
+                          flexShrink: 0,
+                          gap: 8,
+                          paddingRight: 8,
+                        }}
+                      >
+                        {PAYMENT_LOGOS.map((payment) => (
+                          <div
+                            className="am-footer-payment-card"
+                            key={`${copy}-${payment.name}`}
+                          >
+                            <img
+                              src={payment.src}
+                              alt={copy === 0 ? payment.name : ""}
+                              loading="lazy"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
