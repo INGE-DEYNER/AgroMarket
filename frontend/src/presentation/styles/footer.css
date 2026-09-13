@@ -1,30 +1,33 @@
 /* ============================================================
-   AGROMARKET - FOOTER COMPLETO
+   AGROMARKET
+   FOOTER — COMPLETE STYLES
    ============================================================ */
 
 /* ============================================================
-   VARIABLES
+   RESET DEL FOOTER
 ============================================================ */
 
 .footer-ml-style {
-  --footer-green: #075d2d;
-  --footer-green-dark: #064f27;
-  --footer-green-deep: #043d20;
-  --footer-dark: #0c1d14;
+  --ag-green: #075d2d;
+  --ag-green-2: #064f27;
+  --ag-green-3: #043f21;
+  --ag-dark: #0c1d14;
 
-  --footer-white: #ffffff;
-  --footer-text: rgba(255, 255, 255, 0.72);
-  --footer-muted: rgba(255, 255, 255, 0.56);
-  --footer-faint: rgba(255, 255, 255, 0.4);
+  --white: #ffffff;
+  --text: rgba(255, 255, 255, 0.72);
+  --muted: rgba(255, 255, 255, 0.55);
+  --faint: rgba(255, 255, 255, 0.38);
 
-  --footer-border: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.1);
 
   width: 100%;
 
   margin: 0;
   padding: 0;
 
-  color: var(--footer-white);
+  color: var(--white);
+
+  font-family: inherit;
 
   box-sizing: border-box;
 }
@@ -36,7 +39,7 @@
 }
 
 /* ============================================================
-   CONTENEDOR GENERAL
+   CONTENEDOR
 ============================================================ */
 
 .footer-ml-style .footer-container,
@@ -56,18 +59,11 @@
 .footer-more-bar {
   width: 100%;
 
-  margin: 0;
-  padding: 0;
+  background: var(--ag-green-2);
 
-  background: var(--footer-green-dark);
-
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
-
-/* ------------------------------------------------------------
-   BOTÓN
------------------------------------------------------------- */
 
 .footer-more-button {
   width: min(1180px, calc(100% - 48px));
@@ -83,51 +79,42 @@
   justify-content: space-between;
 
   border: 0;
-  outline: 0;
 
   background: transparent;
 
-  color: #ffffff;
+  color: var(--white);
 
   font-family: inherit;
   font-size: 0.78rem;
   font-weight: 600;
 
-  text-align: left;
-
   cursor: pointer;
 
-  transition: color 0.2s ease;
+  text-align: left;
 }
 
 .footer-more-button:hover {
-  color: #ffffff;
+  color: var(--white);
 }
 
 .footer-more-button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.55);
+  outline: 2px solid rgba(255, 255, 255, 0.6);
 
-  outline-offset: -2px;
+  outline-offset: -3px;
 }
-
-/* ------------------------------------------------------------
-   FLECHA
------------------------------------------------------------- */
 
 .footer-more-chevron {
   width: 28px;
   height: 28px;
-
-  flex: 0 0 28px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
-  color: rgba(255, 255, 255, 0.7);
-
   font-size: 0.85rem;
+
+  color: rgba(255, 255, 255, 0.75);
 
   transition: transform 0.25s ease;
 }
@@ -136,9 +123,9 @@
   transform: rotate(180deg);
 }
 
-/* ------------------------------------------------------------
-   PANEL
------------------------------------------------------------- */
+/* ============================================================
+   MORE INFORMATION — PANEL
+============================================================ */
 
 .footer-more-panel {
   width: 100%;
@@ -147,7 +134,7 @@
 
   overflow: hidden;
 
-  background: var(--footer-dark);
+  background: var(--ag-dark);
 
   opacity: 0;
 
@@ -160,16 +147,16 @@
 }
 
 .footer-more-panel.is-open {
-  max-height: 700px;
+  max-height: 800px;
 
   opacity: 1;
 
   visibility: visible;
 }
 
-/* ------------------------------------------------------------
-   GRID DEL PANEL
------------------------------------------------------------- */
+/* ============================================================
+   MORE INFORMATION — GRID
+============================================================ */
 
 .footer-more-panel .footer-links-grid {
   width: min(1180px, calc(100% - 48px));
@@ -182,12 +169,12 @@
 
   grid-template-columns: repeat(6, minmax(0, 1fr));
 
-  gap: 30px;
+  gap: 32px;
 }
 
-/* ------------------------------------------------------------
-   COLUMNAS
------------------------------------------------------------- */
+/* ============================================================
+   MORE INFORMATION — COLUMNA
+============================================================ */
 
 .footer-more-panel .footer-link-column {
   min-width: 0;
@@ -201,10 +188,6 @@
   gap: 9px;
 }
 
-/* ------------------------------------------------------------
-   TÍTULOS
------------------------------------------------------------- */
-
 .footer-more-panel .footer-link-column h4 {
   margin: 0 0 7px;
 
@@ -213,14 +196,11 @@
   color: #ffffff;
 
   font-size: 0.78rem;
+
   font-weight: 700;
 
   line-height: 1.3;
 }
-
-/* ------------------------------------------------------------
-   LINKS Y TEXTO
------------------------------------------------------------- */
 
 .footer-more-panel .footer-link-column a,
 .footer-more-panel .footer-link-column span {
@@ -229,15 +209,13 @@
   margin: 0;
   padding: 0;
 
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--muted);
 
   font-size: 0.71rem;
 
   line-height: 1.45;
 
   text-decoration: none;
-
-  word-break: normal;
 
   transition:
     color 0.2s ease,
@@ -257,12 +235,9 @@
 ============================================================ */
 
 .am-footer-main {
-  position: relative;
-
   width: 100%;
 
-  margin: 0;
-  padding: 0;
+  position: relative;
 
   background: linear-gradient(135deg, #075d2d 0%, #087238 50%, #075d2d 100%);
 
@@ -276,17 +251,14 @@
 
   position: absolute;
 
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
 
   pointer-events: none;
 
   background: radial-gradient(
-    circle at 88% 25%,
-    rgba(255, 255, 255, 0.055),
-    transparent 30%
+    circle at 90% 20%,
+    rgba(255, 255, 255, 0.045),
+    transparent 28%
   );
 }
 
@@ -294,28 +266,22 @@
   position: relative;
 
   z-index: 1;
-
-  width: min(1180px, calc(100% - 48px));
-
-  margin: 0 auto;
 }
 
 /* ============================================================
-   MARCA
+   BRAND
 ============================================================ */
 
 .am-footer-brand {
   width: 100%;
 
-  padding: 46px 0 42px;
+  padding: 46px 0 40px;
 }
 
 .am-footer-logo-link {
   display: inline-flex;
 
-  width: auto;
-
-  margin: 0 0 20px;
+  margin: 0 0 19px;
 
   padding: 0;
 
@@ -328,8 +294,8 @@
   width: 64px !important;
   height: 64px !important;
 
-  max-width: none !important;
-  max-height: none !important;
+  max-width: 64px !important;
+  max-height: 64px !important;
 
   margin: 0 !important;
   padding: 5px !important;
@@ -340,14 +306,13 @@
 
   border-radius: 13px;
 
-  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
 .am-footer-brand h2 {
-  max-width: 650px;
+  max-width: 720px;
 
-  margin: 0 0 10px;
-  padding: 0;
+  margin: 0 0 9px;
 
   color: #ffffff;
 
@@ -359,16 +324,15 @@
 }
 
 .am-footer-brand > p {
-  max-width: 620px;
+  max-width: 680px;
 
   margin: 0;
-  padding: 0;
 
   color: rgba(255, 255, 255, 0.7);
 
   font-size: 0.82rem;
 
-  line-height: 1.65;
+  line-height: 1.6;
 }
 
 /* ============================================================
@@ -378,7 +342,7 @@
 .am-footer-brand-bottom {
   width: 100%;
 
-  margin-top: 20px;
+  margin-top: 19px;
 
   display: flex;
 
@@ -396,10 +360,6 @@
 
   line-height: 1.5;
 }
-
-/* ============================================================
-   REDES SOCIALES
-============================================================ */
 
 .am-footer-socials {
   display: flex;
@@ -441,7 +401,7 @@
 .am-footer-socials a:hover {
   transform: translateY(-2px);
 
-  background: rgba(255, 255, 255, 0.11);
+  background: rgba(255, 255, 255, 0.1);
 
   border-color: rgba(255, 255, 255, 0.45);
 }
@@ -455,35 +415,33 @@
 .am-footer-services {
   width: 100%;
 
-  background: var(--footer-green-dark);
+  background: var(--ag-green-2);
 
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  overflow: hidden;
 }
 
 .am-footer-services > .am-footer-container {
   width: min(1180px, calc(100% - 48px));
-
-  margin: 0 auto;
 }
 
 .am-footer-services-grid {
   width: 100%;
 
-  min-height: 145px;
-
   display: grid;
 
   grid-template-columns:
-    minmax(360px, 0.9fr)
-    minmax(0, 1.6fr);
+    minmax(390px, 0.9fr)
+    minmax(0, 1.5fr);
 
   align-items: stretch;
 }
 
 /* ============================================================
-   PAGOS
+   PAGOS — CONTENEDOR
 ============================================================ */
 
 .am-footer-payment-block {
@@ -495,7 +453,7 @@
 
   justify-content: center;
 
-  padding: 28px 40px 28px 0;
+  padding: 30px 38px 30px 0;
 
   border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -509,7 +467,7 @@
 
   margin: 0 0 5px;
 
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.44);
 
   font-size: 0.62rem;
 
@@ -524,8 +482,6 @@
 
 .am-footer-block-heading h3 {
   margin: 0 0 4px;
-
-  padding: 0;
 
   color: #ffffff;
 
@@ -547,7 +503,7 @@
 }
 
 /* ============================================================
-   MÉTODOS DE PAGO
+   PAGOS — MÉTODOS
 ============================================================ */
 
 .am-footer-payment-methods {
@@ -557,7 +513,7 @@
 
   align-items: center;
 
-  gap: 14px;
+  gap: 15px;
 }
 
 .am-footer-method-label {
@@ -588,6 +544,9 @@
   width: 64px !important;
   height: 38px !important;
 
+  min-width: 64px !important;
+  min-height: 38px !important;
+
   flex: 0 0 64px;
 
   display: flex;
@@ -597,8 +556,6 @@
 
   margin: 0 !important;
   padding: 5px 7px !important;
-
-  box-sizing: border-box;
 
   background: #ffffff;
 
@@ -616,6 +573,9 @@
   max-width: 100% !important;
   max-height: 24px !important;
 
+  min-width: 0 !important;
+  min-height: 0 !important;
+
   margin: 0 !important;
   padding: 0 !important;
 
@@ -623,7 +583,7 @@
 }
 
 /* ============================================================
-   PARTNERS
+   PARTNERS — CONTENEDOR
 ============================================================ */
 
 .am-footer-partners-block {
@@ -635,15 +595,17 @@
 
   justify-content: center;
 
-  padding: 28px 0 28px 40px;
+  padding: 30px 0 30px 38px;
+
+  overflow: hidden;
 }
 
 .am-footer-partners-block .am-footer-block-heading {
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 /* ============================================================
-   CARRUSEL CONTINUO
+   PARTNERS — CARRUSEL
 ============================================================ */
 
 .am-footer-partners-carousel {
@@ -653,19 +615,24 @@
 
   overflow: hidden;
 
+  /*
+   La máscara evita que aparezcan tarjetas cortadas
+   de forma brusca en los extremos.
+  */
+
   mask-image: linear-gradient(
     to right,
     transparent 0%,
-    #000 4%,
-    #000 96%,
+    #000 5%,
+    #000 95%,
     transparent 100%
   );
 
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0%,
-    #000 4%,
-    #000 96%,
+    #000 5%,
+    #000 95%,
     transparent 100%
   );
 }
@@ -677,19 +644,28 @@
 
   align-items: stretch;
 
-  animation: am-footer-partners-scroll 24s linear infinite;
+  /*
+   IMPORTANTE:
+   el track nunca debe hacer wrap.
+  */
+
+  flex-wrap: nowrap;
+
+  animation: am-footer-partners-scroll 26s linear infinite;
 
   will-change: transform;
 }
 
 /* ============================================================
-   GRUPOS DUPLICADOS
+   GRUPOS
 ============================================================ */
 
 .am-footer-partners-group {
   display: flex;
 
   align-items: stretch;
+
+  flex-wrap: nowrap;
 
   gap: 12px;
 
@@ -699,28 +675,35 @@
 }
 
 /* ============================================================
-   TARJETAS
+   TARJETA PARTNER
 ============================================================ */
 
 .am-footer-partner {
-  width: 235px !important;
-  min-width: 235px !important;
+  width: 220px !important;
+
+  min-width: 220px !important;
+
+  max-width: 220px !important;
 
   height: 70px !important;
+
   min-height: 70px !important;
 
-  flex: 0 0 235px;
+  max-height: 70px !important;
+
+  flex: 0 0 220px;
 
   display: flex;
+
+  flex-direction: row;
 
   align-items: center;
 
   gap: 11px;
 
   margin: 0 !important;
-  padding: 9px !important;
 
-  box-sizing: border-box;
+  padding: 9px !important;
 
   border: 1px solid rgba(255, 255, 255, 0.12);
 
@@ -729,6 +712,8 @@
   background: rgba(255, 255, 255, 0.025);
 
   overflow: hidden;
+
+  box-shadow: none;
 
   transition:
     border-color 0.2s ease,
@@ -742,15 +727,19 @@
 }
 
 /* ============================================================
-   LOGO DEL PARTNER
+   LOGO PARTNER
 ============================================================ */
 
 .am-footer-partner-logo {
   width: 50px !important;
+
   height: 50px !important;
 
   min-width: 50px !important;
   min-height: 50px !important;
+
+  max-width: 50px !important;
+  max-height: 50px !important;
 
   flex: 0 0 50px;
 
@@ -761,8 +750,6 @@
 
   margin: 0 !important;
   padding: 5px !important;
-
-  box-sizing: border-box;
 
   background: #ffffff;
 
@@ -790,11 +777,13 @@
 }
 
 /* ============================================================
-   INFORMACIÓN DEL PARTNER
+   INFORMACIÓN PARTNER
 ============================================================ */
 
 .am-footer-partner-info {
   min-width: 0;
+
+  width: auto;
 
   flex: 1;
 
@@ -814,15 +803,15 @@
 .am-footer-partner-info span {
   display: block;
 
-  max-width: 100%;
+  width: 100%;
 
   margin: 0;
 
   color: rgba(255, 255, 255, 0.42);
 
-  font-size: 0.55rem;
+  font-size: 0.54rem;
 
-  line-height: 1.2;
+  line-height: 1.15;
 
   white-space: nowrap;
 
@@ -834,7 +823,7 @@
 .am-footer-partner-info strong {
   display: block;
 
-  max-width: 100%;
+  width: 100%;
 
   margin: 0;
 
@@ -856,15 +845,17 @@
 .am-footer-partner-info p {
   display: block;
 
-  max-width: 100%;
+  width: 100%;
 
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(255, 255, 255, 0.5);
 
-  font-size: 0.57rem;
+  font-size: 0.56rem;
 
-  line-height: 1.25;
+  line-height: 1.2;
+
+  white-space: normal;
 
   overflow: hidden;
 }
@@ -874,7 +865,7 @@
 ============================================================ */
 
 .am-footer-partner-developer {
-  border-color: rgba(103, 187, 130, 0.25);
+  border-color: rgba(103, 187, 130, 0.24);
 }
 
 .am-footer-partner-developer:hover {
@@ -882,22 +873,18 @@
 }
 
 /* ============================================================
-   ANIMACIÓN INFINITA
+   CARRUSEL INFINITO
 ============================================================ */
 
 @keyframes am-footer-partners-scroll {
-  from {
-    transform: translateX(0);
+  0% {
+    transform: translate3d(0, 0, 0);
   }
 
-  to {
-    transform: translateX(-50%);
+  100% {
+    transform: translate3d(-50%, 0, 0);
   }
 }
-
-/* ============================================================
-   PAUSA AL PASAR EL MOUSE
-============================================================ */
 
 .am-footer-partners-carousel:hover .am-footer-partners-track {
   animation-play-state: paused;
@@ -912,9 +899,9 @@
 .am-footer-ecosystem {
   width: 100%;
 
-  background: var(--footer-dark);
+  background: var(--ag-dark);
 
-  padding: 31px 0;
+  padding: 30px 0;
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -922,13 +909,15 @@
 .am-footer-ecosystem-content {
   width: 100%;
 
+  min-height: 64px;
+
   display: flex;
 
   align-items: center;
 
   justify-content: space-between;
 
-  gap: 40px;
+  gap: 50px;
 }
 
 .am-footer-ecosystem-content > div {
@@ -938,7 +927,7 @@
 .am-footer-ecosystem-content > div > span {
   display: block;
 
-  margin: 0 0 7px;
+  margin: 0 0 6px;
 
   color: #67bb82;
 
@@ -964,7 +953,7 @@
 }
 
 .am-footer-ecosystem-content p {
-  max-width: 500px;
+  width: min(500px, 45%);
 
   margin: 0;
 
@@ -986,14 +975,10 @@
 .am-footer-bottom {
   width: 100%;
 
-  background: var(--footer-green-dark);
+  background: var(--ag-green-2);
 
   color: #ffffff;
 }
-
-/* ============================================================
-   LINKS LEGALES
-============================================================ */
 
 .am-footer-bottom-top {
   min-height: 55px;
@@ -1004,10 +989,14 @@
 
   justify-content: space-between;
 
-  gap: 20px;
+  gap: 25px;
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+/* ============================================================
+   LINKS LEGALES
+============================================================ */
 
 .am-footer-legal {
   display: flex;
@@ -1021,7 +1010,9 @@
 
 .am-footer-legal a,
 .am-footer-back-top {
-  display: inline-block;
+  display: inline-flex;
+
+  align-items: center;
 
   margin: 0;
   padding: 0;
@@ -1086,41 +1077,48 @@
    ============================================================
 ============================================================ */
 
-@media (max-width: 1100px) {
-  /* MORE INFO */
+@media (max-width: 1150px) {
+  .footer-ml-style .footer-container,
+  .footer-ml-style .am-footer-container,
+  .footer-more-button,
+  .footer-more-panel .footer-links-grid {
+    width: calc(100% - 40px);
+  }
+
+  /* MORE INFORMATION */
 
   .footer-more-panel .footer-links-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 
-    row-gap: 32px;
+    gap: 30px 35px;
   }
 
-  /* PAGOS */
+  /* SERVICES */
 
   .am-footer-services-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      minmax(330px, 0.85fr)
+      minmax(0, 1.5fr);
   }
 
   .am-footer-payment-block {
-    padding: 25px 0;
-
-    border-right: 0;
-
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-right: 25px;
   }
 
   .am-footer-partners-block {
-    padding: 25px 0;
+    padding-left: 25px;
   }
 
   /* PARTNERS */
 
   .am-footer-partner {
-    width: 225px !important;
+    width: 205px !important;
 
-    min-width: 225px !important;
+    min-width: 205px !important;
 
-    flex-basis: 225px;
+    max-width: 205px !important;
+
+    flex-basis: 205px;
   }
 }
 
@@ -1128,32 +1126,29 @@
    TABLET PEQUEÑA
 ============================================================ */
 
-@media (max-width: 800px) {
-  .footer-ml-style .footer-container,
-  .footer-ml-style .am-footer-container,
-  .footer-more-button,
-  .footer-more-panel .footer-links-grid {
-    width: calc(100% - 32px);
+@media (max-width: 900px) {
+  /* SERVICES */
+
+  .am-footer-services-grid {
+    grid-template-columns: 1fr;
   }
 
-  /* BRAND */
+  .am-footer-payment-block {
+    padding: 27px 0;
 
-  .am-footer-brand {
-    padding-top: 40px;
+    border-right: 0;
 
-    padding-bottom: 38px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  /* PAYMENTS */
-
-  .am-footer-payment-methods {
-    align-items: flex-start;
+  .am-footer-partners-block {
+    padding: 27px 0;
   }
 
   /* ECOSYSTEM */
 
   .am-footer-ecosystem-content {
-    align-items: flex-start;
+    gap: 30px;
   }
 }
 
@@ -1163,11 +1158,7 @@
    ============================================================
 ============================================================ */
 
-@media (max-width: 600px) {
-  /* ==========================================================
-     CONTENEDORES
-  ========================================================== */
-
+@media (max-width: 650px) {
   .footer-ml-style .footer-container,
   .footer-ml-style .am-footer-container,
   .footer-more-button,
@@ -1188,13 +1179,11 @@
   .footer-more-panel .footer-links-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    column-gap: 22px;
-
-    row-gap: 28px;
+    gap: 28px 20px;
 
     padding-top: 30px;
 
-    padding-bottom: 34px;
+    padding-bottom: 35px;
   }
 
   /* ==========================================================
@@ -1204,12 +1193,17 @@
   .am-footer-brand {
     padding-top: 36px;
 
-    padding-bottom: 36px;
+    padding-bottom: 35px;
   }
 
   .am-footer-logo {
     width: 62px !important;
+
     height: 62px !important;
+
+    max-width: 62px !important;
+
+    max-height: 62px !important;
   }
 
   .am-footer-brand h2 {
@@ -1233,9 +1227,9 @@
   ========================================================== */
 
   .am-footer-payment-block {
-    padding-top: 24px;
+    padding-top: 25px;
 
-    padding-bottom: 24px;
+    padding-bottom: 25px;
   }
 
   .am-footer-payment-methods {
@@ -1253,10 +1247,15 @@
   }
 
   .am-footer-payment-card {
-    width: 66px !important;
+    width: 65px !important;
+
     height: 39px !important;
 
-    flex-basis: 66px;
+    min-width: 65px !important;
+
+    min-height: 39px !important;
+
+    flex-basis: 65px;
   }
 
   /* ==========================================================
@@ -1264,9 +1263,9 @@
   ========================================================== */
 
   .am-footer-partners-block {
-    padding-top: 24px;
+    padding-top: 25px;
 
-    padding-bottom: 24px;
+    padding-bottom: 25px;
   }
 
   .am-footer-partners-carousel {
@@ -1276,25 +1275,35 @@
   }
 
   .am-footer-partner {
-    width: 210px !important;
+    width: 205px !important;
 
-    min-width: 210px !important;
+    min-width: 205px !important;
 
-    flex-basis: 210px;
+    max-width: 205px !important;
+
+    flex-basis: 205px;
 
     height: 68px !important;
 
     min-height: 68px !important;
+
+    max-height: 68px !important;
   }
 
   .am-footer-partner-logo {
-    width: 48px !important;
-    height: 48px !important;
+    width: 47px !important;
 
-    min-width: 48px !important;
-    min-height: 48px !important;
+    height: 47px !important;
 
-    flex-basis: 48px;
+    min-width: 47px !important;
+
+    min-height: 47px !important;
+
+    max-width: 47px !important;
+
+    max-height: 47px !important;
+
+    flex-basis: 47px;
   }
 
   /* ==========================================================
@@ -1334,8 +1343,6 @@
 
     align-items: flex-start;
 
-    justify-content: center;
-
     gap: 15px;
 
     padding-top: 17px;
@@ -1354,8 +1361,6 @@
 
     align-items: flex-start;
 
-    justify-content: center;
-
     gap: 8px;
 
     padding-top: 17px;
@@ -1371,31 +1376,42 @@
 ============================================================ */
 
 @media (max-width: 420px) {
+  /* MORE */
+
   .footer-more-panel .footer-links-grid {
     grid-template-columns: 1fr;
 
     gap: 24px;
   }
 
-  .am-footer-payment-card {
-    width: 62px !important;
-    height: 38px !important;
+  /* PAYMENTS */
 
-    flex-basis: 62px;
+  .am-footer-payment-card {
+    width: 61px !important;
+
+    height: 37px !important;
+
+    min-width: 61px !important;
+
+    flex-basis: 61px;
   }
 
+  /* PARTNERS */
+
   .am-footer-partner {
-    width: 200px !important;
+    width: 195px !important;
 
-    min-width: 200px !important;
+    min-width: 195px !important;
 
-    flex-basis: 200px;
+    max-width: 195px !important;
+
+    flex-basis: 195px;
   }
 }
 
 /* ============================================================
    ============================================================
-   ACCESIBILIDAD
+   REDUCED MOTION
    ============================================================
 ============================================================ */
 
@@ -1404,18 +1420,10 @@
     animation: none;
   }
 
-  .footer-more-panel {
-    transition: none;
-  }
-
-  .footer-more-chevron {
-    transition: none;
-  }
-
+  .footer-more-panel,
+  .footer-more-chevron,
   .am-footer-socials a,
-  .am-footer-socials a:hover,
-  .am-footer-partner,
-  .am-footer-partner:hover {
+  .am-footer-partner {
     transition: none;
   }
 }
