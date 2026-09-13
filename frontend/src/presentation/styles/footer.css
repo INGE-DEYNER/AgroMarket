@@ -1,67 +1,385 @@
 /* ============================================================
-   FOOTER — ESTRUCTURA PRINCIPAL
+   AGROMARKET - FOOTER COMPLETO
+   ============================================================ */
+
+/* ============================================================
+   VARIABLES
 ============================================================ */
 
-.am-footer-container {
+.footer-ml-style {
+  --footer-green: #075d2d;
+  --footer-green-dark: #064f27;
+  --footer-green-deep: #043d20;
+  --footer-dark: #0c1d14;
+
+  --footer-white: #ffffff;
+  --footer-text: rgba(255, 255, 255, 0.72);
+  --footer-muted: rgba(255, 255, 255, 0.56);
+  --footer-faint: rgba(255, 255, 255, 0.4);
+
+  --footer-border: rgba(255, 255, 255, 0.1);
+
+  width: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  color: var(--footer-white);
+
+  box-sizing: border-box;
+}
+
+.footer-ml-style *,
+.footer-ml-style *::before,
+.footer-ml-style *::after {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   CONTENEDOR GENERAL
+============================================================ */
+
+.footer-ml-style .footer-container,
+.footer-ml-style .am-footer-container {
   width: min(1180px, calc(100% - 48px));
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============================================================
+   ============================================================
+   MORE INFORMATION
+   ============================================================
+============================================================ */
+
+.footer-more-bar {
+  width: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  background: var(--footer-green-dark);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ------------------------------------------------------------
+   BOTÓN
+------------------------------------------------------------ */
+
+.footer-more-button {
+  width: min(1180px, calc(100% - 48px));
+
+  min-height: 48px;
+
+  margin: 0 auto;
+  padding: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.footer-more-button:hover {
+  color: #ffffff;
+}
+
+.footer-more-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.55);
+
+  outline-offset: -2px;
+}
+
+/* ------------------------------------------------------------
+   FLECHA
+------------------------------------------------------------ */
+
+.footer-more-chevron {
+  width: 28px;
+  height: 28px;
+
+  flex: 0 0 28px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 0.85rem;
+
+  transition: transform 0.25s ease;
+}
+
+.footer-more-button.is-open .footer-more-chevron {
+  transform: rotate(180deg);
+}
+
+/* ------------------------------------------------------------
+   PANEL
+------------------------------------------------------------ */
+
+.footer-more-panel {
+  width: 100%;
+
+  max-height: 0;
+
+  overflow: hidden;
+
+  background: var(--footer-dark);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease,
+    visibility 0.35s ease;
+}
+
+.footer-more-panel.is-open {
+  max-height: 700px;
+
+  opacity: 1;
+
+  visibility: visible;
+}
+
+/* ------------------------------------------------------------
+   GRID DEL PANEL
+------------------------------------------------------------ */
+
+.footer-more-panel .footer-links-grid {
+  width: min(1180px, calc(100% - 48px));
+
+  margin: 0 auto;
+
+  padding: 38px 0 42px;
+
+  display: grid;
+
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+
+  gap: 30px;
+}
+
+/* ------------------------------------------------------------
+   COLUMNAS
+------------------------------------------------------------ */
+
+.footer-more-panel .footer-link-column {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 9px;
+}
+
+/* ------------------------------------------------------------
+   TÍTULOS
+------------------------------------------------------------ */
+
+.footer-more-panel .footer-link-column h4 {
+  margin: 0 0 7px;
+
+  padding: 0;
+
+  color: #ffffff;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+/* ------------------------------------------------------------
+   LINKS Y TEXTO
+------------------------------------------------------------ */
+
+.footer-more-panel .footer-link-column a,
+.footer-more-panel .footer-link-column span {
+  display: block;
+
+  margin: 0;
+  padding: 0;
+
+  color: rgba(255, 255, 255, 0.58);
+
+  font-size: 0.71rem;
+
+  line-height: 1.45;
+
+  text-decoration: none;
+
+  word-break: normal;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.footer-more-panel .footer-link-column a:hover {
+  color: #ffffff;
+
+  transform: translateX(2px);
+}
+
+/* ============================================================
+   ============================================================
+   IDENTIDAD PRINCIPAL
+   ============================================================
+============================================================ */
+
+.am-footer-main {
+  position: relative;
+
+  width: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  background: linear-gradient(135deg, #075d2d 0%, #087238 50%, #075d2d 100%);
+
+  color: #ffffff;
+
+  overflow: hidden;
+}
+
+.am-footer-main::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  pointer-events: none;
+
+  background: radial-gradient(
+    circle at 88% 25%,
+    rgba(255, 255, 255, 0.055),
+    transparent 30%
+  );
+}
+
+.am-footer-main > .am-footer-container {
+  position: relative;
+
+  z-index: 1;
+
+  width: min(1180px, calc(100% - 48px));
+
   margin: 0 auto;
 }
 
 /* ============================================================
-   IDENTIDAD
+   MARCA
 ============================================================ */
 
-.am-footer-main {
-  background: #075d2d;
-  color: #fff;
-}
-
 .am-footer-brand {
+  width: 100%;
+
   padding: 46px 0 42px;
 }
 
+.am-footer-logo-link {
+  display: inline-flex;
+
+  width: auto;
+
+  margin: 0 0 20px;
+
+  padding: 0;
+
+  text-decoration: none;
+}
+
 .am-footer-logo {
-  width: 64px;
-  height: 64px;
+  display: block !important;
 
-  display: block;
+  width: 64px !important;
+  height: 64px !important;
 
-  object-fit: contain;
+  max-width: none !important;
+  max-height: none !important;
 
-  background: #fff;
+  margin: 0 !important;
+  padding: 5px !important;
+
+  object-fit: contain !important;
+
+  background: #ffffff;
 
   border-radius: 13px;
 
-  padding: 5px;
-
-  box-sizing: border-box;
-
-  margin-bottom: 20px;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.12);
 }
 
 .am-footer-brand h2 {
-  margin: 0 0 10px;
+  max-width: 650px;
 
-  color: #fff;
+  margin: 0 0 10px;
+  padding: 0;
+
+  color: #ffffff;
 
   font-size: 1.05rem;
+
+  font-weight: 700;
 
   line-height: 1.4;
 }
 
 .am-footer-brand > p {
-  max-width: 560px;
+  max-width: 620px;
 
   margin: 0;
+  padding: 0;
 
   color: rgba(255, 255, 255, 0.7);
 
   font-size: 0.82rem;
 
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
+/* ============================================================
+   UBICACIÓN + REDES
+============================================================ */
+
 .am-footer-brand-bottom {
+  width: 100%;
+
+  margin-top: 20px;
+
   display: flex;
 
   align-items: center;
@@ -69,16 +387,18 @@
   justify-content: space-between;
 
   gap: 30px;
+}
 
-  margin-top: 20px;
-
+.am-footer-brand-bottom > span {
   color: rgba(255, 255, 255, 0.62);
 
   font-size: 0.76rem;
+
+  line-height: 1.5;
 }
 
 /* ============================================================
-   REDES
+   REDES SOCIALES
 ============================================================ */
 
 .am-footer-socials {
@@ -90,8 +410,10 @@
 }
 
 .am-footer-socials a {
-  width: 34px;
-  height: 34px;
+  width: 35px;
+  height: 35px;
+
+  flex: 0 0 35px;
 
   display: flex;
 
@@ -102,46 +424,71 @@
 
   border-radius: 50%;
 
-  color: #fff;
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #ffffff;
+
+  font-size: 0.76rem;
 
   text-decoration: none;
 
-  font-size: 0.78rem;
-
-  transition: 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .am-footer-socials a:hover {
-  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
 
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.11);
+
+  border-color: rgba(255, 255, 255, 0.45);
 }
 
 /* ============================================================
+   ============================================================
    PAGOS + PARTNERS
+   ============================================================
 ============================================================ */
 
 .am-footer-services {
-  background: #064f27;
+  width: 100%;
+
+  background: var(--footer-green-dark);
 
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.am-footer-services-grid {
-  display: grid;
+.am-footer-services > .am-footer-container {
+  width: min(1180px, calc(100% - 48px));
 
-  grid-template-columns: 0.9fr 1.6fr;
+  margin: 0 auto;
+}
+
+.am-footer-services-grid {
+  width: 100%;
 
   min-height: 145px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(360px, 0.9fr)
+    minmax(0, 1.6fr);
+
+  align-items: stretch;
 }
 
 /* ============================================================
-   BLOQUE PAGOS
+   PAGOS
 ============================================================ */
 
 .am-footer-payment-block {
+  min-width: 0;
+
   display: flex;
 
   flex-direction: column;
@@ -154,13 +501,13 @@
 }
 
 .am-footer-block-heading {
-  margin-bottom: 18px;
+  margin: 0 0 17px;
 }
 
 .am-footer-heading-kicker {
   display: block;
 
-  margin-bottom: 5px;
+  margin: 0 0 5px;
 
   color: rgba(255, 255, 255, 0.45);
 
@@ -168,7 +515,9 @@
 
   font-weight: 700;
 
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
+
+  line-height: 1.3;
 
   text-transform: uppercase;
 }
@@ -176,9 +525,15 @@
 .am-footer-block-heading h3 {
   margin: 0 0 4px;
 
-  color: #fff;
+  padding: 0;
+
+  color: #ffffff;
 
   font-size: 0.9rem;
+
+  font-weight: 700;
+
+  line-height: 1.3;
 }
 
 .am-footer-block-heading p {
@@ -187,6 +542,8 @@
   color: rgba(255, 255, 255, 0.55);
 
   font-size: 0.72rem;
+
+  line-height: 1.4;
 }
 
 /* ============================================================
@@ -194,11 +551,13 @@
 ============================================================ */
 
 .am-footer-payment-methods {
+  min-width: 0;
+
   display: flex;
 
   align-items: center;
 
-  gap: 15px;
+  gap: 14px;
 }
 
 .am-footer-method-label {
@@ -207,9 +566,15 @@
   color: rgba(255, 255, 255, 0.55);
 
   font-size: 0.68rem;
+
+  line-height: 1.4;
+
+  white-space: nowrap;
 }
 
 .am-footer-payment-list {
+  min-width: 0;
+
   display: flex;
 
   align-items: center;
@@ -220,31 +585,39 @@
 }
 
 .am-footer-payment-card {
-  width: 64px;
-  height: 38px;
+  width: 64px !important;
+  height: 38px !important;
+
+  flex: 0 0 64px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
-  padding: 5px 7px;
+  margin: 0 !important;
+  padding: 5px 7px !important;
 
   box-sizing: border-box;
 
-  background: #fff;
+  background: #ffffff;
 
   border-radius: 7px;
+
+  overflow: hidden;
 }
 
 .am-footer-payment-card img {
-  display: block;
+  display: block !important;
 
   width: auto !important;
   height: auto !important;
 
   max-width: 100% !important;
   max-height: 24px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
 
   object-fit: contain !important;
 }
@@ -254,6 +627,8 @@
 ============================================================ */
 
 .am-footer-partners-block {
+  min-width: 0;
+
   display: flex;
 
   flex-direction: column;
@@ -267,108 +642,277 @@
   margin-bottom: 15px;
 }
 
-.am-footer-partners-list {
-  display: grid;
+/* ============================================================
+   CARRUSEL CONTINUO
+============================================================ */
 
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.am-footer-partners-carousel {
+  width: 100%;
 
-  gap: 10px;
+  position: relative;
+
+  overflow: hidden;
+
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 4%,
+    #000 96%,
+    transparent 100%
+  );
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 4%,
+    #000 96%,
+    transparent 100%
+  );
 }
 
-.am-footer-partner {
-  min-width: 0;
+.am-footer-partners-track {
+  width: max-content;
 
-  min-height: 66px;
+  display: flex;
+
+  align-items: stretch;
+
+  animation: am-footer-partners-scroll 24s linear infinite;
+
+  will-change: transform;
+}
+
+/* ============================================================
+   GRUPOS DUPLICADOS
+============================================================ */
+
+.am-footer-partners-group {
+  display: flex;
+
+  align-items: stretch;
+
+  gap: 12px;
+
+  flex-shrink: 0;
+
+  padding-right: 12px;
+}
+
+/* ============================================================
+   TARJETAS
+============================================================ */
+
+.am-footer-partner {
+  width: 235px !important;
+  min-width: 235px !important;
+
+  height: 70px !important;
+  min-height: 70px !important;
+
+  flex: 0 0 235px;
 
   display: flex;
 
   align-items: center;
 
-  gap: 10px;
+  gap: 11px;
 
-  padding: 9px;
+  margin: 0 !important;
+  padding: 9px !important;
 
   box-sizing: border-box;
 
   border: 1px solid rgba(255, 255, 255, 0.12);
 
-  border-radius: 9px;
+  border-radius: 10px;
 
   background: rgba(255, 255, 255, 0.025);
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
-.am-footer-partner-logo {
-  width: 48px;
-  height: 46px;
+.am-footer-partner:hover {
+  border-color: rgba(255, 255, 255, 0.28);
 
-  flex: 0 0 48px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+/* ============================================================
+   LOGO DEL PARTNER
+============================================================ */
+
+.am-footer-partner-logo {
+  width: 50px !important;
+  height: 50px !important;
+
+  min-width: 50px !important;
+  min-height: 50px !important;
+
+  flex: 0 0 50px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
-  padding: 5px;
+  margin: 0 !important;
+  padding: 5px !important;
 
   box-sizing: border-box;
 
-  background: #fff;
+  background: #ffffff;
 
-  border-radius: 6px;
+  border-radius: 7px;
 
   overflow: hidden;
 }
 
 .am-footer-partner-logo img {
+  display: block !important;
+
   width: auto !important;
   height: auto !important;
 
   max-width: 100% !important;
   max-height: 100% !important;
 
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
   object-fit: contain !important;
 }
 
+/* ============================================================
+   INFORMACIÓN DEL PARTNER
+============================================================ */
+
 .am-footer-partner-info {
   min-width: 0;
+
+  flex: 1;
 
   display: flex;
 
   flex-direction: column;
 
+  align-items: flex-start;
+
+  justify-content: center;
+
   gap: 2px;
+
+  overflow: hidden;
 }
 
-.am-footer-partner-info > span {
-  color: rgba(255, 255, 255, 0.4);
+.am-footer-partner-info span {
+  display: block;
 
-  font-size: 0.56rem;
+  max-width: 100%;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.42);
+
+  font-size: 0.55rem;
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
 }
 
 .am-footer-partner-info strong {
-  color: #fff;
+  display: block;
 
-  font-size: 0.7rem;
+  max-width: 100%;
+
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
 
   line-height: 1.2;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
 }
 
 .am-footer-partner-info p {
+  display: block;
+
+  max-width: 100%;
+
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.52);
 
   font-size: 0.57rem;
 
   line-height: 1.25;
+
+  overflow: hidden;
 }
 
 /* ============================================================
+   DESARROLLADOR
+============================================================ */
+
+.am-footer-partner-developer {
+  border-color: rgba(103, 187, 130, 0.25);
+}
+
+.am-footer-partner-developer:hover {
+  border-color: rgba(103, 187, 130, 0.45);
+}
+
+/* ============================================================
+   ANIMACIÓN INFINITA
+============================================================ */
+
+@keyframes am-footer-partners-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ============================================================
+   PAUSA AL PASAR EL MOUSE
+============================================================ */
+
+.am-footer-partners-carousel:hover .am-footer-partners-track {
+  animation-play-state: paused;
+}
+
+/* ============================================================
+   ============================================================
    ECOSISTEMA
+   ============================================================
 ============================================================ */
 
 .am-footer-ecosystem {
-  background: #0c1d14;
+  width: 100%;
+
+  background: var(--footer-dark);
 
   padding: 31px 0;
 
@@ -376,6 +920,8 @@
 }
 
 .am-footer-ecosystem-content {
+  width: 100%;
+
   display: flex;
 
   align-items: center;
@@ -385,10 +931,14 @@
   gap: 40px;
 }
 
+.am-footer-ecosystem-content > div {
+  min-width: 0;
+}
+
 .am-footer-ecosystem-content > div > span {
   display: block;
 
-  margin-bottom: 7px;
+  margin: 0 0 7px;
 
   color: #67bb82;
 
@@ -397,14 +947,20 @@
   font-weight: 700;
 
   letter-spacing: 0.15em;
+
+  line-height: 1.3;
 }
 
 .am-footer-ecosystem-content h2 {
   margin: 0;
 
-  color: #fff;
+  color: #ffffff;
 
   font-size: 1.15rem;
+
+  font-weight: 700;
+
+  line-height: 1.3;
 }
 
 .am-footer-ecosystem-content p {
@@ -422,14 +978,22 @@
 }
 
 /* ============================================================
-   BARRA INFERIOR
+   ============================================================
+   BARRA FINAL
+   ============================================================
 ============================================================ */
 
 .am-footer-bottom {
-  background: #064f27;
+  width: 100%;
 
-  color: #fff;
+  background: var(--footer-green-dark);
+
+  color: #ffffff;
 }
+
+/* ============================================================
+   LINKS LEGALES
+============================================================ */
 
 .am-footer-bottom-top {
   min-height: 55px;
@@ -457,17 +1021,24 @@
 
 .am-footer-legal a,
 .am-footer-back-top {
-  color: rgba(255, 255, 255, 0.58);
+  display: inline-block;
 
-  font-size: 0.68rem;
-
-  text-decoration: none;
-
-  background: transparent;
+  margin: 0;
+  padding: 0;
 
   border: 0;
 
-  padding: 0;
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.58);
+
+  font-family: inherit;
+
+  font-size: 0.68rem;
+
+  line-height: 1.4;
+
+  text-decoration: none;
 
   cursor: pointer;
 
@@ -476,8 +1047,16 @@
 
 .am-footer-legal a:hover,
 .am-footer-back-top:hover {
-  color: #fff;
+  color: #ffffff;
 }
+
+.am-footer-back-top {
+  white-space: nowrap;
+}
+
+/* ============================================================
+   COPYRIGHT
+============================================================ */
 
 .am-footer-bottom-final {
   min-height: 55px;
@@ -489,17 +1068,35 @@
   justify-content: space-between;
 
   gap: 20px;
+}
+
+.am-footer-bottom-final span {
+  margin: 0;
 
   color: rgba(255, 255, 255, 0.58);
 
   font-size: 0.66rem;
+
+  line-height: 1.5;
 }
 
 /* ============================================================
+   ============================================================
    TABLET
+   ============================================================
 ============================================================ */
 
-@media (max-width: 950px) {
+@media (max-width: 1100px) {
+  /* MORE INFO */
+
+  .footer-more-panel .footer-links-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    row-gap: 32px;
+  }
+
+  /* PAGOS */
+
   .am-footer-services-grid {
     grid-template-columns: 1fr;
   }
@@ -515,19 +1112,112 @@
   .am-footer-partners-block {
     padding: 25px 0;
   }
+
+  /* PARTNERS */
+
+  .am-footer-partner {
+    width: 225px !important;
+
+    min-width: 225px !important;
+
+    flex-basis: 225px;
+  }
 }
 
 /* ============================================================
+   TABLET PEQUEÑA
+============================================================ */
+
+@media (max-width: 800px) {
+  .footer-ml-style .footer-container,
+  .footer-ml-style .am-footer-container,
+  .footer-more-button,
+  .footer-more-panel .footer-links-grid {
+    width: calc(100% - 32px);
+  }
+
+  /* BRAND */
+
+  .am-footer-brand {
+    padding-top: 40px;
+
+    padding-bottom: 38px;
+  }
+
+  /* PAYMENTS */
+
+  .am-footer-payment-methods {
+    align-items: flex-start;
+  }
+
+  /* ECOSYSTEM */
+
+  .am-footer-ecosystem-content {
+    align-items: flex-start;
+  }
+}
+
+/* ============================================================
+   ============================================================
    MÓVIL
+   ============================================================
 ============================================================ */
 
 @media (max-width: 600px) {
-  .am-footer-container {
+  /* ==========================================================
+     CONTENEDORES
+  ========================================================== */
+
+  .footer-ml-style .footer-container,
+  .footer-ml-style .am-footer-container,
+  .footer-more-button,
+  .footer-more-panel .footer-links-grid {
     width: calc(100% - 28px);
   }
 
+  /* ==========================================================
+     MORE INFORMATION
+  ========================================================== */
+
+  .footer-more-button {
+    min-height: 45px;
+
+    font-size: 0.76rem;
+  }
+
+  .footer-more-panel .footer-links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    column-gap: 22px;
+
+    row-gap: 28px;
+
+    padding-top: 30px;
+
+    padding-bottom: 34px;
+  }
+
+  /* ==========================================================
+     BRAND
+  ========================================================== */
+
   .am-footer-brand {
-    padding: 36px 0;
+    padding-top: 36px;
+
+    padding-bottom: 36px;
+  }
+
+  .am-footer-logo {
+    width: 62px !important;
+    height: 62px !important;
+  }
+
+  .am-footer-brand h2 {
+    font-size: 0.98rem;
+  }
+
+  .am-footer-brand > p {
+    font-size: 0.78rem;
   }
 
   .am-footer-brand-bottom {
@@ -538,22 +1228,83 @@
     gap: 15px;
   }
 
+  /* ==========================================================
+     PAYMENTS
+  ========================================================== */
+
+  .am-footer-payment-block {
+    padding-top: 24px;
+
+    padding-bottom: 24px;
+  }
+
   .am-footer-payment-methods {
     flex-direction: column;
 
     align-items: flex-start;
+
+    gap: 12px;
   }
 
   .am-footer-payment-list {
     width: 100%;
+
+    gap: 7px;
   }
 
-  .am-footer-partners-list {
-    grid-template-columns: 1fr;
+  .am-footer-payment-card {
+    width: 66px !important;
+    height: 39px !important;
+
+    flex-basis: 66px;
+  }
+
+  /* ==========================================================
+     PARTNERS
+  ========================================================== */
+
+  .am-footer-partners-block {
+    padding-top: 24px;
+
+    padding-bottom: 24px;
+  }
+
+  .am-footer-partners-carousel {
+    mask-image: none;
+
+    -webkit-mask-image: none;
   }
 
   .am-footer-partner {
-    min-height: 72px;
+    width: 210px !important;
+
+    min-width: 210px !important;
+
+    flex-basis: 210px;
+
+    height: 68px !important;
+
+    min-height: 68px !important;
+  }
+
+  .am-footer-partner-logo {
+    width: 48px !important;
+    height: 48px !important;
+
+    min-width: 48px !important;
+    min-height: 48px !important;
+
+    flex-basis: 48px;
+  }
+
+  /* ==========================================================
+     ECOSYSTEM
+  ========================================================== */
+
+  .am-footer-ecosystem {
+    padding-top: 28px;
+
+    padding-bottom: 30px;
   }
 
   .am-footer-ecosystem-content {
@@ -561,30 +1312,110 @@
 
     align-items: flex-start;
 
-    gap: 15px;
+    gap: 14px;
   }
 
   .am-footer-ecosystem-content p {
+    width: 100%;
+
+    max-width: none;
+
     text-align: left;
   }
 
+  /* ==========================================================
+     BOTTOM
+  ========================================================== */
+
   .am-footer-bottom-top {
+    min-height: auto;
+
     flex-direction: column;
 
     align-items: flex-start;
 
     justify-content: center;
 
-    padding: 16px 0;
+    gap: 15px;
+
+    padding-top: 17px;
+
+    padding-bottom: 17px;
+  }
+
+  .am-footer-legal {
+    gap: 10px 15px;
   }
 
   .am-footer-bottom-final {
+    min-height: auto;
+
     flex-direction: column;
 
     align-items: flex-start;
 
     justify-content: center;
 
-    padding: 16px 0;
+    gap: 8px;
+
+    padding-top: 17px;
+
+    padding-bottom: 20px;
+  }
+}
+
+/* ============================================================
+   ============================================================
+   MÓVIL PEQUEÑO
+   ============================================================
+============================================================ */
+
+@media (max-width: 420px) {
+  .footer-more-panel .footer-links-grid {
+    grid-template-columns: 1fr;
+
+    gap: 24px;
+  }
+
+  .am-footer-payment-card {
+    width: 62px !important;
+    height: 38px !important;
+
+    flex-basis: 62px;
+  }
+
+  .am-footer-partner {
+    width: 200px !important;
+
+    min-width: 200px !important;
+
+    flex-basis: 200px;
+  }
+}
+
+/* ============================================================
+   ============================================================
+   ACCESIBILIDAD
+   ============================================================
+============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .am-footer-partners-track {
+    animation: none;
+  }
+
+  .footer-more-panel {
+    transition: none;
+  }
+
+  .footer-more-chevron {
+    transition: none;
+  }
+
+  .am-footer-socials a,
+  .am-footer-socials a:hover,
+  .am-footer-partner,
+  .am-footer-partner:hover {
+    transition: none;
   }
 }
