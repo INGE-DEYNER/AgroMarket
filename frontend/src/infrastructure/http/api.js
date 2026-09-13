@@ -13,8 +13,6 @@ const PUBLIC_PATHS = [
   "/public",
   "/divisas",
   "/translation",
-  "/productos",
-  "/resenas",
   "/actuator",
 ];
 
@@ -27,7 +25,7 @@ const PUBLIC_PATHS = [
  * /productos/mis-productos: antes se clasificaba solo por la ruta, sin
  * mirar el método, así que el token nunca se enviaba en esas peticiones.
  */
-const GET_ONLY_PUBLIC_PATHS = ["/productos", "/resenas"];
+const GET_ONLY_PUBLIC_PATHS = ["/productos", "/resenas", "/config", "/notifications"];
 
 /*
  * Rutas que cuelgan de un prefijo público pero SIEMPRE requieren
