@@ -348,30 +348,69 @@ export default function Footer() {
                 <h3>Project partners &amp; stakeholders</h3>
               </div>
 
-              <div className="am-footer-partners-list">
-                {STAKEHOLDER_LOGOS.map((logo) => (
-                  <article
-                    className={`am-footer-partner ${
-                      logo.type === "developer"
-                        ? "am-footer-partner-developer"
-                        : ""
-                    }`}
-                    key={logo.id}
-                  >
-                    <div className="am-footer-partner-logo">
-                      <img src={logo.src} alt={logo.alt} />
-                    </div>
+              <div
+                className="am-footer-partners-carousel"
+                role="region"
+                aria-label="Carrusel de aliados del ecosistema AgroMarket"
+              >
+                <span
+                  className="am-footer-partners-arrow am-footer-partners-arrow-left"
+                  aria-hidden="true"
+                >
+                  ←
+                </span>
 
-                    <div className="am-footer-partner-info">
-                      {logo.prefix && <span>{logo.prefix}</span>}
+                <div className="am-footer-partners-viewport">
+                  <div className="am-footer-partners-track">
+                    {[0, 1, 2, 3].map((copy) => (
+                      <div
+                        className="am-footer-partners-group"
+                        aria-hidden={copy === 0 ? undefined : "true"}
+                        key={`partners-copy-${copy}`}
+                      >
+                        {STAKEHOLDER_LOGOS.map((logo) => (
+                          <article
+                            className={`am-footer-partner ${
+                              logo.type === "developer"
+                                ? "am-footer-partner-developer"
+                                : ""
+                            }`}
+                            key={`${copy}-${logo.id}`}
+                            tabIndex={copy === 0 ? undefined : -1}
+                          >
+                            <div className="am-footer-partner-logo">
+                              <img
+                                src={logo.src}
+                                alt={copy === 0 ? logo.alt : ""}
+                                loading="lazy"
+                              />
+                            </div>
 
-                      <strong>{logo.name}</strong>
+                            <div className="am-footer-partner-info">
+                              {logo.prefix && <span>{logo.prefix}</span>}
 
-                      <p>{logo.role}</p>
-                    </div>
-                  </article>
-                ))}
+                              <strong>{logo.name}</strong>
+
+                              <p>{logo.role}</p>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <span
+                  className="am-footer-partners-arrow am-footer-partners-arrow-right"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
               </div>
+
+              <p className="am-footer-partners-hint" aria-hidden="true">
+                Carrusel continuo · en movimiento
+              </p>
             </div>
           </div>
         </div>

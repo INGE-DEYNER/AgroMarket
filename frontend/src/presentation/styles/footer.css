@@ -703,8 +703,8 @@
   );
 }
 
-/* Track */
-
+/* Track: 4 copias idénticas, loop perfecto en -50% (2 grupos).
+   Con número par de copias el salto es invisible. */
 .am-footer-partners-track {
   width: max-content;
 
@@ -944,10 +944,12 @@
   }
 }
 
-/* Pausar cuando el usuario pasa el mouse */
-
-.am-footer-partners-carousel:hover .am-footer-partners-track {
-  animation-play-state: paused;
+/* El carrusel no se detiene nunca: movimiento infinito */
+.am-footer-partners-carousel .am-footer-partners-track,
+.am-footer-partners-carousel:hover .am-footer-partners-track,
+.am-footer-partners-carousel:active .am-footer-partners-track,
+.am-footer-partners-carousel:focus-within .am-footer-partners-track {
+  animation-play-state: running;
 }
 
 /* ============================================================
@@ -1698,8 +1700,8 @@
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .am-footer-partners-track {
-    animation: none;
+  .am-footer-partners-carousel .am-footer-partners-track {
+    animation: am-footer-partners-scroll 26s linear infinite;
   }
 
   .footer-more-panel,
@@ -1707,5 +1709,139 @@
   .am-footer-socials a,
   .am-footer-partner {
     transition: none;
+  }
+}
+
+/* ============================================================
+   29. AJUSTE ASCII FOOTER — ANCHO TOTAL + 2 TARJETAS + CARRUSEL
+   No toca .footer-more-bar / .footer-more-panel
+   ============================================================ */
+
+.footer-ml-style {
+  width: 100%;
+  max-width: 100%;
+}
+
+.am-footer-main,
+.am-footer-services,
+.am-footer-ecosystem,
+.am-footer-bottom {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Grid 2 tarjetas: pagos + ecosistema / partners */
+.am-footer-services-grid {
+  padding: 28px 0;
+  gap: 22px;
+}
+
+/* Tarjetas con borde como en el ASCII */
+.am-footer-payment-block,
+.am-footer-partners-block {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 24px 24px 22px;
+  overflow: hidden;
+}
+
+/* Quita la división vertical anterior */
+.am-footer-payment-block {
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Carrusel con flechas laterales ← → */
+.am-footer-partners-carousel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: visible;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.am-footer-partners-viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+}
+
+.am-footer-partners-arrow {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.am-footer-partners-hint {
+  margin: 12px 0 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Compatibilidad: si queda alguna lista antigua */
+.am-footer-partners-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .am-footer-services-grid {
+    grid-template-columns: 1fr;
+    padding: 22px 0;
+  }
+
+  .am-footer-partners-viewport {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .am-footer-payment-block,
+  .am-footer-partners-block {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+
+  .am-footer-partners-arrow {
+    flex-basis: 26px;
+    width: 26px;
+    height: 26px;
+    font-size: 0.75rem;
+  }
+
+  .am-footer-partners-hint {
+    font-size: 0.58rem;
   }
 }
