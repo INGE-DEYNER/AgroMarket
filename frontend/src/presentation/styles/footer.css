@@ -1,170 +1,37 @@
 /* ============================================================
    AGROMARKET FOOTER
+   BLOQUE INFERIOR
    ============================================================ */
 
-.footer-ml-style {
+.am-footer-main,
+.am-footer-payments,
+.am-footer-ecosystem,
+.am-footer-bottom {
   width: 100%;
-  overflow: hidden;
-
-  font-family: inherit;
-
-  background: #071b11;
-  color: #ffffff;
+  box-sizing: border-box;
 }
 
-/* ============================================================
-   CONTENEDOR GENERAL
-   ============================================================ */
-
-.footer-container {
-  width: min(1180px, calc(100% - 40px));
+.am-footer-container {
+  width: min(1180px, calc(100% - 48px));
 
   margin: 0 auto;
-}
-
-/* ============================================================
-   MÁS INFORMACIÓN
-   ============================================================ */
-
-.footer-more-section {
-  background: #0a2417;
-
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.footer-more-button {
-  width: 100%;
-
-  min-height: 48px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-
-  padding: 12px 20px;
-
-  border: 0;
-
-  background: transparent;
-  color: rgba(255, 255, 255, 0.75);
-
-  font: inherit;
-  font-size: 0.88rem;
-
-  cursor: pointer;
-
-  transition:
-    color 0.2s ease,
-    background 0.2s ease;
-}
-
-.footer-more-button:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.footer-more-button.is-open {
-  color: #ffffff;
-}
-
-.footer-more-chevron {
-  font-size: 1rem;
-
-  transition: transform 0.2s ease;
-}
-
-.footer-more-button.is-open .footer-more-chevron {
-  transform: translateY(1px);
-}
-
-/* ============================================================
-   PANEL EXTRA
-   ============================================================ */
-
-.footer-more-panel {
-  max-height: 0;
-
-  overflow: hidden;
-
-  opacity: 0;
-
-  transition:
-    max-height 0.35s ease,
-    opacity 0.25s ease;
-}
-
-.footer-more-panel.is-open {
-  max-height: 700px;
-
-  opacity: 1;
-}
-
-.footer-links-grid {
-  display: grid;
-
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-
-  gap: 28px;
-
-  padding: 38px 0 42px;
-}
-
-.footer-link-column {
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: flex-start;
-
-  gap: 10px;
-}
-
-.footer-link-column h4 {
-  margin: 0 0 5px;
-
-  font-size: 0.85rem;
-
-  font-weight: 700;
-
-  color: #ffffff;
-}
-
-.footer-link-column a,
-.footer-link-column span {
-  color: rgba(255, 255, 255, 0.62);
-
-  font-size: 0.82rem;
-
-  line-height: 1.5;
-
-  text-decoration: none;
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.footer-link-column a:hover {
-  color: #ffffff;
-
-  transform: translateX(2px);
 }
 
 /* ============================================================
    FOOTER PRINCIPAL
    ============================================================ */
 
-.footer-main-green {
+.am-footer-main {
   position: relative;
 
-  background: linear-gradient(135deg, #075d2d 0%, #087034 48%, #075c2d 100%);
+  background: linear-gradient(135deg, #075d2d 0%, #087238 50%, #075d2d 100%);
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.footer-main-green::before {
+.am-footer-main::after {
   content: "";
 
   position: absolute;
@@ -176,144 +43,149 @@
   background: radial-gradient(
     circle at 85% 20%,
     rgba(255, 255, 255, 0.06),
-    transparent 32%
+    transparent 30%
   );
 }
 
-.footer-main-grid {
+.am-footer-main > .am-footer-container {
   position: relative;
+  z-index: 1;
 
   display: grid;
 
   grid-template-columns:
-    minmax(280px, 1.7fr)
-    repeat(3, minmax(150px, 0.8fr));
+    minmax(320px, 2fr)
+    repeat(3, minmax(150px, 1fr));
 
   gap: 55px;
 
-  padding-top: 58px;
-  padding-bottom: 58px;
+  padding-top: 52px;
+  padding-bottom: 52px;
 }
 
 /* ============================================================
    MARCA
    ============================================================ */
 
-.footer-brand-block {
+.am-footer-brand {
   max-width: 430px;
 }
 
-.footer-brand {
+.am-footer-logo-link {
   display: inline-flex;
 
-  align-items: center;
-
   margin-bottom: 22px;
+
+  text-decoration: none;
 }
 
-.footer-brand-image {
+.am-footer-logo {
   display: block;
 
   width: 76px;
   height: 76px;
 
-  object-fit: contain;
+  padding: 5px;
 
-  border-radius: 16px;
+  box-sizing: border-box;
+
+  object-fit: contain;
 
   background: #ffffff;
 
-  padding: 5px;
+  border-radius: 15px;
 
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.footer-tagline {
-  margin: 0 0 11px;
+.am-footer-tagline {
+  margin: 0 0 12px;
 
   color: #ffffff;
 
-  font-size: 1.12rem;
-
-  line-height: 1.45;
+  font-size: 1.08rem;
 
   font-weight: 700;
+
+  line-height: 1.4;
 }
 
-.footer-description {
+.am-footer-description {
   max-width: 410px;
 
   margin: 0;
 
   color: rgba(255, 255, 255, 0.72);
 
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 
   line-height: 1.7;
 }
 
-.footer-contact-summary {
-  margin-top: 20px;
+.am-footer-location {
+  margin: 18px 0 0;
 
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.65);
 
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+
+  line-height: 1.5;
 }
 
 /* ============================================================
-   REDES
+   REDES SOCIALES
    ============================================================ */
 
-.footer-social-row {
+.am-footer-socials {
   display: flex;
 
   align-items: center;
 
-  gap: 10px;
+  gap: 9px;
 
-  margin-top: 22px;
+  margin-top: 20px;
 }
 
-.footer-social-button {
-  width: 40px;
-  height: 40px;
+.am-footer-social {
+  width: 38px;
+  height: 38px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
-  border-radius: 50%;
-
   border: 1px solid rgba(255, 255, 255, 0.25);
+
+  border-radius: 50%;
 
   color: #ffffff;
 
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(255, 255, 255, 0.04);
 
   text-decoration: none;
 
-  font-size: 0.9rem;
+  font-size: 0.82rem;
 
   transition:
+    transform 0.2s ease,
     background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    border-color 0.2s ease;
 }
 
-.footer-social-button:hover {
+.am-footer-social:hover {
+  transform: translateY(-2px);
+
   background: rgba(255, 255, 255, 0.12);
 
-  border-color: rgba(255, 255, 255, 0.5);
-
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.45);
 }
 
 /* ============================================================
-   COLUMNAS DEL FOOTER PRINCIPAL
+   COLUMNAS
    ============================================================ */
 
-.footer-main-column {
+.am-footer-column {
   display: flex;
 
   flex-direction: column;
@@ -322,93 +194,98 @@
 
   gap: 10px;
 
-  padding-top: 10px;
+  padding-top: 13px;
 }
 
-.footer-main-label {
-  margin-bottom: 2px;
+.am-footer-column-label {
+  color: rgba(255, 255, 255, 0.45);
 
-  color: rgba(255, 255, 255, 0.5);
-
-  font-size: 0.68rem;
+  font-size: 0.65rem;
 
   font-weight: 700;
 
-  letter-spacing: 0.14em;
+  letter-spacing: 0.15em;
 
   text-transform: uppercase;
 }
 
-.footer-main-column h3 {
-  margin: 0 0 8px;
+.am-footer-column h3 {
+  margin: 0 0 7px;
 
   color: #ffffff;
 
-  font-size: 0.98rem;
+  font-size: 0.95rem;
+
+  font-weight: 700;
 }
 
-.footer-main-column a,
-.footer-main-column > span {
-  color: rgba(255, 255, 255, 0.68);
+.am-footer-column a,
+.am-footer-contact-text {
+  color: rgba(255, 255, 255, 0.65);
 
-  font-size: 0.83rem;
+  font-size: 0.81rem;
 
   line-height: 1.5;
 
   text-decoration: none;
 
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
+  transition: color 0.2s ease;
 }
 
-.footer-main-column a:hover {
+.am-footer-column a:hover {
   color: #ffffff;
+}
 
-  transform: translateX(2px);
+.am-footer-contact-text {
+  margin-bottom: 2px;
 }
 
 /* ============================================================
-   PAGOS
+   MÉTODOS DE PAGO
    ============================================================ */
 
-.footer-payments {
-  background: #064f27;
+.am-footer-payments {
+  background: #07582c;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.footer-payments-inner {
-  min-height: 108px;
+.am-footer-payments-inner {
+  min-height: 112px;
 
   display: grid;
 
-  grid-template-columns:
-    minmax(230px, 0.8fr)
-    minmax(0, 2fr);
+  grid-template-columns: 255px minmax(0, 1fr);
 
   align-items: center;
 
   gap: 45px;
+
+  padding-top: 20px;
+  padding-bottom: 20px;
+
+  box-sizing: border-box;
 }
 
 /* ============================================================
    SEGURIDAD
    ============================================================ */
 
-.footer-secure-label {
+.am-footer-security {
   display: flex;
 
   align-items: center;
 
-  gap: 14px;
+  gap: 13px;
 }
 
-.footer-secure-check {
+.am-footer-security-icon {
   width: 42px;
   height: 42px;
 
-  flex: 0 0 auto;
+  flex: 0 0 42px;
 
   display: flex;
 
@@ -421,10 +298,10 @@
 
   color: #ffffff;
 
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
-.footer-secure-label > div {
+.am-footer-security-text {
   display: flex;
 
   flex-direction: column;
@@ -432,23 +309,23 @@
   gap: 4px;
 }
 
-.footer-secure-label strong {
+.am-footer-security-text strong {
   color: #ffffff;
 
-  font-size: 0.86rem;
+  font-size: 0.83rem;
 }
 
-.footer-secure-label span {
-  color: rgba(255, 255, 255, 0.62);
+.am-footer-security-text span {
+  color: rgba(255, 255, 255, 0.6);
 
-  font-size: 0.77rem;
+  font-size: 0.73rem;
 }
 
 /* ============================================================
-   CONTENIDO PAGOS
+   PAGOS
    ============================================================ */
 
-.footer-payment-content {
+.am-footer-payment-area {
   min-width: 0;
 
   display: flex;
@@ -458,140 +335,83 @@
   gap: 25px;
 }
 
-.footer-payment-title {
+.am-footer-payment-label {
   flex: 0 0 auto;
 
   color: rgba(255, 255, 255, 0.68);
 
-  font-size: 0.78rem;
+  font-size: 0.77rem;
 
   white-space: nowrap;
 }
 
-/* ============================================================
-   MARQUEE
-   ============================================================ */
-
-.footer-marquee {
-  position: relative;
-
-  width: 100%;
-
-  overflow: hidden;
-}
-
-.footer-marquee::before,
-.footer-marquee::after {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  bottom: 0;
-
-  z-index: 3;
-
-  width: 45px;
-
-  pointer-events: none;
-}
-
-.footer-marquee::before {
-  left: 0;
-
-  background: linear-gradient(90deg, #064f27, transparent);
-}
-
-.footer-marquee::after {
-  right: 0;
-
-  background: linear-gradient(270deg, #064f27, transparent);
-}
-
-.footer-marquee-track {
-  display: flex;
-
-  width: max-content;
-
-  animation: footer-marquee-scroll 28s linear infinite;
-}
-
-.footer-marquee:hover .footer-marquee-track {
-  animation-play-state: paused;
-}
-
-.footer-marquee-group {
+.am-footer-payment-list {
   display: flex;
 
   align-items: center;
 
-  gap: 12px;
+  flex-wrap: wrap;
 
-  padding-right: 12px;
+  gap: 10px;
 }
 
-@keyframes footer-marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
+.am-footer-payment-card {
+  width: 78px;
+  height: 46px;
 
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-/* ============================================================
-   TARJETAS DE PAGO
-   ============================================================ */
-
-.footer-payment-item {
-  width: 92px;
-  height: 50px;
-
-  flex: 0 0 92px;
+  flex: 0 0 78px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
-  padding: 8px 12px;
+  padding: 7px 9px;
 
-  border-radius: 9px;
+  box-sizing: border-box;
 
   background: #ffffff;
 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
-.footer-payment-item img {
+.am-footer-payment-card img {
   display: block;
 
-  max-width: 100%;
-  max-height: 30px;
+  width: auto !important;
+  height: auto !important;
 
-  width: auto;
-  height: auto;
+  max-width: 100% !important;
+  max-height: 28px !important;
 
-  object-fit: contain;
+  object-fit: contain !important;
 }
 
 /* ============================================================
    ECOSISTEMA
    ============================================================ */
 
-.footer-partners {
-  background: #0a1d13;
+.am-footer-ecosystem {
+  background: #0c1d14;
 
-  padding: 52px 0 58px;
+  color: #ffffff;
+
+  padding: 55px 0 60px;
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.footer-partners-header {
+/* ============================================================
+   HEADER ECOSISTEMA
+   ============================================================ */
+
+.am-footer-ecosystem-header {
   display: flex;
 
   align-items: flex-end;
+
   justify-content: space-between;
 
   gap: 50px;
@@ -599,40 +419,40 @@
   margin-bottom: 30px;
 }
 
-.footer-section-kicker {
+.am-footer-ecosystem-kicker {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 
-  color: #61b77d;
+  color: #6fc58c;
 
-  font-size: 0.68rem;
+  font-size: 0.66rem;
 
   font-weight: 700;
 
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
 
   text-transform: uppercase;
 }
 
-.footer-partners-header h2 {
+.am-footer-ecosystem-header h2 {
   margin: 0;
 
   color: #ffffff;
 
-  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-size: clamp(1.45rem, 2.5vw, 1.9rem);
 
   line-height: 1.2;
 }
 
-.footer-partners-header p {
-  max-width: 480px;
+.am-footer-ecosystem-header p {
+  width: min(100%, 460px);
 
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(255, 255, 255, 0.6);
 
-  font-size: 0.82rem;
+  font-size: 0.79rem;
 
   line-height: 1.65;
 
@@ -640,128 +460,184 @@
 }
 
 /* ============================================================
-   CARRUSEL STAKEHOLDERS
+   GRID DE PARTICIPANTES
    ============================================================ */
 
-.footer-stakeholder-marquee {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+.am-footer-stakeholders {
+  display: grid;
 
-  padding: 18px 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+
+  width: 100%;
+
+  padding-top: 24px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 
-.footer-stakeholder-marquee::before {
-  background: linear-gradient(90deg, #0a1d13, transparent);
-}
+/* ============================================================
+   TARJETA
+   ============================================================ */
 
-.footer-stakeholder-marquee::after {
-  background: linear-gradient(270deg, #0a1d13, transparent);
-}
+.am-footer-stakeholder {
+  min-width: 0;
 
-.footer-stakeholder-card {
-  width: 270px;
-  min-height: 92px;
-
-  flex: 0 0 270px;
+  min-height: 130px;
 
   display: flex;
 
   align-items: center;
 
-  gap: 16px;
+  gap: 18px;
 
-  padding: 14px 16px;
+  padding: 18px;
+
+  box-sizing: border-box;
 
   border: 1px solid rgba(255, 255, 255, 0.13);
 
-  border-radius: 13px;
+  border-radius: 14px;
 
-  background: rgba(255, 255, 255, 0.025);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.045),
+    rgba(255, 255, 255, 0.018)
+  );
 
   transition:
+    transform 0.2s ease,
     border-color 0.2s ease,
     background 0.2s ease;
 }
 
-.footer-stakeholder-card:hover {
+.am-footer-stakeholder:hover {
+  transform: translateY(-3px);
+
   border-color: rgba(255, 255, 255, 0.25);
 
-  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.065),
+    rgba(255, 255, 255, 0.025)
+  );
 }
 
-.footer-stakeholder-logo {
-  width: 70px;
-  height: 62px;
+/* ============================================================
+   LOGO STAKEHOLDER
+   ============================================================ */
 
-  flex: 0 0 70px;
+.am-footer-stakeholder-image {
+  width: 88px;
+  height: 82px;
+
+  flex: 0 0 88px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
+  padding: 8px;
+
+  box-sizing: border-box;
+
   overflow: hidden;
 
-  border-radius: 7px;
-
   background: #ffffff;
+
+  border-radius: 10px;
 }
 
-.footer-stakeholder-logo img {
+.am-footer-stakeholder-image img {
   display: block;
 
-  width: 100%;
-  height: 100%;
+  width: auto !important;
+  height: auto !important;
 
-  object-fit: contain;
+  max-width: 100% !important;
+  max-height: 100% !important;
+
+  object-fit: contain !important;
+
+  margin: 0 !important;
 }
 
-.footer-stakeholder-info {
+/* ============================================================
+   INFORMACIÓN STAKEHOLDER
+   ============================================================ */
+
+.am-footer-stakeholder-content {
   min-width: 0;
+
+  flex: 1;
 
   display: flex;
 
   flex-direction: column;
 
-  gap: 3px;
+  align-items: flex-start;
+
+  gap: 5px;
 }
 
-.footer-stakeholder-prefix {
-  color: rgba(255, 255, 255, 0.48);
+.am-footer-stakeholder-prefix {
+  color: rgba(255, 255, 255, 0.42);
 
-  font-size: 0.65rem;
+  font-size: 0.64rem;
+
+  line-height: 1.2;
 }
 
-.footer-stakeholder-info strong {
+.am-footer-stakeholder-content h3 {
+  max-width: 100%;
+
+  margin: 0;
+
   color: #ffffff;
 
-  font-size: 0.84rem;
+  font-size: 0.9rem;
 
   line-height: 1.25;
 }
 
-.footer-stakeholder-info > span:last-child {
-  color: rgba(255, 255, 255, 0.6);
+.am-footer-stakeholder-content p {
+  max-width: 100%;
 
-  font-size: 0.69rem;
+  margin: 0;
 
-  line-height: 1.35;
-}
+  color: rgba(255, 255, 255, 0.58);
 
-.footer-stakeholder-card--developer {
-  border-color: rgba(255, 255, 255, 0.18);
+  font-size: 0.72rem;
+
+  line-height: 1.45;
 }
 
 /* ============================================================
-   BARRA INFERIOR
+   TARJETA DEL DESARROLLADOR
    ============================================================ */
 
-.footer-bottom {
-  background: #064f27;
+.am-footer-stakeholder-developer {
+  border-color: rgba(111, 197, 140, 0.28);
 }
 
-.footer-bottom-inner {
-  min-height: 88px;
+.am-footer-stakeholder-developer:hover {
+  border-color: rgba(111, 197, 140, 0.48);
+}
+
+/* ============================================================
+   BARRA FINAL
+   ============================================================ */
+
+.am-footer-bottom {
+  background: #07582c;
+
+  color: #ffffff;
+}
+
+.am-footer-bottom-inner {
+  min-height: 82px;
 
   display: grid;
 
@@ -772,18 +648,18 @@
   gap: 28px;
 }
 
-.footer-legal-links {
+.am-footer-legal {
   display: flex;
-
-  flex-wrap: wrap;
 
   align-items: center;
 
-  gap: 18px;
+  flex-wrap: wrap;
+
+  gap: 17px;
 }
 
-.footer-legal-links a,
-.footer-legal-links button {
+.am-footer-legal a,
+.am-footer-legal button {
   padding: 0;
 
   border: 0;
@@ -794,7 +670,7 @@
 
   font: inherit;
 
-  font-size: 0.72rem;
+  font-size: 0.7rem;
 
   text-decoration: none;
 
@@ -803,22 +679,25 @@
   transition: color 0.2s ease;
 }
 
-.footer-legal-links a:hover,
-.footer-legal-links button:hover {
+.am-footer-legal a:hover,
+.am-footer-legal button:hover {
   color: #ffffff;
 }
 
-.footer-bottom-inner > p {
+.am-footer-copyright,
+.am-footer-colombia {
   margin: 0;
 
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.62);
 
-  font-size: 0.7rem;
+  font-size: 0.68rem;
+
+  line-height: 1.5;
 
   white-space: nowrap;
 }
 
-.footer-made-colombia {
+.am-footer-colombia {
   text-align: right;
 }
 
@@ -827,42 +706,37 @@
    ============================================================ */
 
 @media (max-width: 1000px) {
-  .footer-main-grid {
-    grid-template-columns:
-      minmax(260px, 1.5fr)
-      repeat(2, minmax(150px, 1fr));
+  .am-footer-main > .am-footer-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    gap: 38px;
+    gap: 35px;
   }
 
-  .footer-brand-block {
+  .am-footer-brand {
     grid-column: 1 / -1;
 
     max-width: 650px;
   }
 
-  .footer-links-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .footer-payments-inner {
+  .am-footer-payments-inner {
     grid-template-columns: 1fr;
 
     gap: 18px;
-
-    padding-top: 22px;
-    padding-bottom: 22px;
   }
 
-  .footer-payment-content {
-    width: 100%;
+  .am-footer-payment-area {
+    align-items: flex-start;
   }
 
-  .footer-bottom-inner {
+  .am-footer-stakeholders {
+    grid-template-columns: 1fr;
+  }
+
+  .am-footer-bottom-inner {
     grid-template-columns: 1fr 1fr;
   }
 
-  .footer-legal-links {
+  .am-footer-legal {
     grid-column: 1 / -1;
   }
 }
@@ -871,36 +745,26 @@
    TABLET PEQUEÑA
    ============================================================ */
 
-@media (max-width: 760px) {
-  .footer-container {
-    width: min(100% - 30px, 680px);
+@media (max-width: 700px) {
+  .am-footer-container {
+    width: min(100% - 32px, 620px);
   }
 
-  .footer-main-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 30px;
-  }
-
-  .footer-brand-block {
-    grid-column: 1 / -1;
-  }
-
-  .footer-partners-header {
-    align-items: flex-start;
-
+  .am-footer-ecosystem-header {
     flex-direction: column;
+
+    align-items: flex-start;
 
     gap: 15px;
   }
 
-  .footer-partners-header p {
-    max-width: 600px;
+  .am-footer-ecosystem-header p {
+    width: 100%;
 
     text-align: left;
   }
 
-  .footer-payment-content {
+  .am-footer-payment-area {
     flex-direction: column;
 
     align-items: flex-start;
@@ -914,136 +778,103 @@
    ============================================================ */
 
 @media (max-width: 560px) {
-  .footer-container {
+  .am-footer-container {
     width: calc(100% - 28px);
-  }
-
-  /* PANEL EXTRA */
-
-  .footer-links-grid {
-    grid-template-columns: 1fr 1fr;
-
-    gap: 28px 18px;
-
-    padding-top: 28px;
-    padding-bottom: 32px;
   }
 
   /* FOOTER PRINCIPAL */
 
-  .footer-main-grid {
+  .am-footer-main > .am-footer-container {
     grid-template-columns: 1fr;
 
     gap: 28px;
 
-    padding-top: 42px;
+    padding-top: 40px;
     padding-bottom: 42px;
   }
 
-  .footer-brand-block {
+  .am-footer-brand {
     grid-column: auto;
 
     max-width: none;
   }
 
-  .footer-brand-image {
+  .am-footer-logo {
     width: 68px;
     height: 68px;
   }
 
-  .footer-tagline {
-    font-size: 1rem;
-  }
-
-  .footer-description {
-    font-size: 0.85rem;
-  }
-
   /* PAGOS */
 
-  .footer-payments-inner {
+  .am-footer-payments-inner {
     padding-top: 20px;
     padding-bottom: 20px;
   }
 
-  .footer-secure-label {
-    gap: 11px;
+  .am-footer-payment-list {
+    width: 100%;
+
+    gap: 8px;
   }
 
-  .footer-secure-check {
-    width: 38px;
-    height: 38px;
+  .am-footer-payment-card {
+    width: 70px;
+    height: 43px;
+
+    flex-basis: 70px;
   }
 
-  .footer-payment-title {
-    font-size: 0.74rem;
+  /* ECOSISTEMA */
+
+  .am-footer-ecosystem {
+    padding-top: 42px;
+    padding-bottom: 45px;
   }
 
-  .footer-payment-item {
-    width: 82px;
-    height: 46px;
-
-    flex-basis: 82px;
+  .am-footer-stakeholders {
+    gap: 13px;
   }
 
-  /* PARTNERS */
+  .am-footer-stakeholder {
+    min-height: 105px;
 
-  .footer-partners {
-    padding-top: 40px;
-    padding-bottom: 42px;
+    padding: 14px;
+
+    gap: 14px;
   }
 
-  .footer-partners-header {
-    margin-bottom: 22px;
-  }
+  .am-footer-stakeholder-image {
+    width: 70px;
+    height: 66px;
 
-  .footer-partners-header h2 {
-    font-size: 1.3rem;
-  }
-
-  .footer-stakeholder-card {
-    width: 245px;
-
-    flex-basis: 245px;
-
-    min-height: 86px;
-  }
-
-  .footer-stakeholder-logo {
-    width: 60px;
-    height: 56px;
-
-    flex-basis: 60px;
+    flex-basis: 70px;
   }
 
   /* BOTTOM */
 
-  .footer-bottom-inner {
+  .am-footer-bottom-inner {
     display: flex;
 
     flex-direction: column;
 
     align-items: flex-start;
 
-    gap: 14px;
+    gap: 13px;
 
-    padding-top: 22px;
-    padding-bottom: 24px;
+    padding-top: 21px;
+    padding-bottom: 23px;
   }
 
-  .footer-legal-links {
+  .am-footer-legal {
     width: 100%;
 
-    gap: 12px 16px;
+    gap: 11px 15px;
   }
 
-  .footer-bottom-inner > p {
+  .am-footer-copyright,
+  .am-footer-colombia {
     white-space: normal;
 
-    line-height: 1.5;
-  }
-
-  .footer-made-colombia {
     text-align: left;
   }
 }
@@ -1053,18 +884,23 @@
    ============================================================ */
 
 @media (max-width: 380px) {
-  .footer-links-grid {
-    grid-template-columns: 1fr;
+  .am-footer-payment-card {
+    width: 65px;
+    height: 41px;
+
+    flex-basis: 65px;
   }
 
-  .footer-social-button {
-    width: 38px;
-    height: 38px;
+  .am-footer-stakeholder-image {
+    width: 62px;
+    height: 59px;
+
+    flex-basis: 62px;
   }
 
-  .footer-stakeholder-card {
-    width: 225px;
+  .am-footer-stakeholder {
+    gap: 11px;
 
-    flex-basis: 225px;
+    padding: 12px;
   }
 }
