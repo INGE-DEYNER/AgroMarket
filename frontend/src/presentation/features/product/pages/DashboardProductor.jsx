@@ -436,14 +436,7 @@ export default function DashboardProductor() {
     setImagePreviewUrl("");
     if (prod) {
       const ENUM_TO_TIPO = {
-        BANANA: "Banano",
-        PINEAPPLE: "Piña",
-        MANGO: "Mango",
         PASSION_FRUIT: "Maracuyá",
-        SOURSOP: "Guanábana",
-        ORANGE: "Naranja",
-        COCONUT: "Coco",
-        LEMON: "Limón",
       };
       const rawType = prod.fruitType || prod.tipoFruta || prod.tipo || "";
       const mappedType = ENUM_TO_TIPO[rawType] || rawType || "Banano";
