@@ -9,9 +9,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react()],
   base: "/",
-  define: {
-    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production"),
-  },
   build: {
     outDir: "dist",
     emptyOutDir: true,
@@ -22,7 +19,7 @@ export default defineConfig({
         assetFileNames: `assets/[name]-[hash].[ext]`
       }
     },
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 1000,
   },
   resolve: {
     alias: {
