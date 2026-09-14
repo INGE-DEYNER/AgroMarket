@@ -1,5 +1,10 @@
-import { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { lazy, Suspense, useEffect, useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 
 import { AuthProvider } from "@/app/providers/AuthContext";
 import { ToastProvider } from "@/app/providers/ToastContext";
@@ -23,6 +28,7 @@ import ProductoDetalle from "@/presentation/features/product/pages/ProductoDetal
 import ChatbotSoporte from "@/presentation/shared/components/ChatbotSoporte";
 import Footer from "@/presentation/shared/components/Footer";
 import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
+
 import {
   Notificaciones,
   DireccionesGuardadas,
@@ -34,6 +40,7 @@ import {
   MetodosPagoGuardados,
   ModoOscuro,
 } from "@/presentation/features/special";
+
 import {
   RolesPermisos,
   ControlAcceso,
@@ -45,10 +52,12 @@ import {
   PrivacidadDatos,
   SellosConfianza,
 } from "@/presentation/features/security";
+
 import SecurityStatePage from "@/presentation/shared/feedback/SecurityStatePage";
-// ============================================================
-// COMPONENTES CARGADOS DE FORMA DIFERIDA
-// ============================================================
+
+/* ============================================================
+   COMPONENTES CARGADOS DE FORMA DIFERIDA
+   ============================================================ */
 
 const DashboardComprador = lazy(
   () => import("@/presentation/features/order/pages/DashboardComprador"),
@@ -112,16 +121,15 @@ const Checkout = lazy(
   () => import("@/presentation/features/order/pages/Checkout"),
 );
 
-// ============================================================
-// APP
-// ============================================================
+/* ============================================================
+   APP
+   ============================================================ */
 
 function App() {
   const [mountError, setMountError] = useState(false);
 
   useEffect(() => {
     return () => {
-      // Evita que errored states queden colgados enreen mount.
       setMountError(false);
     };
   }, []);
@@ -142,10 +150,24 @@ function App() {
           color: "var(--text-1, #e5e7eb)",
         }}
       >
-        <div style={{ fontSize: "48px", marginBottom: "20px" }}>⚠️</div>
-        <h1 style={{ color: "var(--danger, #dc2626)", marginBottom: "10px" }}>
+        <div
+          style={{
+            fontSize: "48px",
+            marginBottom: "20px",
+          }}
+        >
+          ⚠️
+        </div>
+
+        <h1
+          style={{
+            color: "var(--danger, #dc2626)",
+            marginBottom: "10px",
+          }}
+        >
           Error al cargar la aplicación
         </h1>
+
         <p
           style={{
             color: "var(--muted, #9ca3af)",
@@ -153,9 +175,9 @@ function App() {
             maxWidth: "400px",
           }}
         >
-          No se pudo montar el shell de la app. Recarga para intentar de
-          nuevo.
+          No se pudo montar el shell de la app. Recarga para intentar de nuevo.
         </p>
+
         <button
           onClick={() => window.location.reload()}
           style={{
@@ -204,7 +226,6 @@ function App() {
                     <Routes>
                       {/* ==================================================
                           RUTAS PÚBLICAS
-                          NO REQUIEREN INICIAR SESIÓN
                          ================================================== */}
 
                       <Route path="/" element={<Home />} />
@@ -247,7 +268,10 @@ function App() {
 
                       <Route path="/catalogo" element={<Catalogo />} />
 
-                      <Route path="/producto/:id" element={<ProductoDetalle />} />
+                      <Route
+                        path="/producto/:id"
+                        element={<ProductoDetalle />}
+                      />
 
                       <Route path="/productores" element={<Productores />} />
 
@@ -264,7 +288,7 @@ function App() {
                       <Route path="/ayuda" element={<Ayuda />} />
 
                       {/* ==================================================
-                          RUTAS PRIVADAS GENERALES
+                          RUTAS PRIVADAS
                          ================================================== */}
 
                       <Route
@@ -323,7 +347,6 @@ function App() {
 
                       {/* ==================================================
                           PAGOS
-                          REQUIEREN AUTENTICACIÓN
                          ================================================== */}
 
                       <Route
@@ -381,7 +404,7 @@ function App() {
                       />
 
                       {/* ==================================================
-                          ADMINISTRACIÓN
+                          ADMIN
                          ================================================== */}
 
                       <Route
@@ -394,8 +417,8 @@ function App() {
                       />
 
                       {/* ==================================================
-    PÁGINAS ESPECIALES DEL SISTEMA
-   ================================================== */}
+                          PÁGINAS ESPECIALES
+                         ================================================== */}
 
                       <Route
                         path="/especial/notificaciones"
@@ -477,9 +500,10 @@ function App() {
                           </ProtectedRoute>
                         }
                       />
+
                       {/* ==================================================
-    SEGURIDAD Y PERMISOS
-   ================================================== */}
+                          SEGURIDAD
+                         ================================================== */}
 
                       <Route
                         path="/seguridad/roles"
@@ -563,13 +587,14 @@ function App() {
                       />
 
                       {/* ==================================================
-    ESTADOS DE SEGURIDAD
-   ================================================== */}
+                          ESTADOS DE SEGURIDAD
+                         ================================================== */}
 
                       <Route
                         path="/estado/:code"
                         element={<SecurityStatePage />}
                       />
+
                       {/* ==================================================
                           404
                          ================================================== */}
@@ -579,10 +604,6 @@ function App() {
                   </Suspense>
                 </main>
 
-                {/* ========================================================
-                    ELEMENTOS GLOBALES
-                   ======================================================== */}
-
                 <ChatbotSoporte />
 
                 <AppFooter />
@@ -591,21 +612,17 @@ function App() {
 
                 <MaintenanceLayer />
               </div>
-          </CartProvider>
-        </AuthProvider>
-      </Router>
+            </CartProvider>
+          </AuthProvider>
+        </Router>
       </DivisaProvider>
     </ToastProvider>
   );
 }
 
-// ============================================================
-// FOOTER SEGÚN LA RUTA
-// El footer compartido (compacto) solo se muestra en páginas
-// públicas. Los dashboards/aplicación (comprador, productor,
-// admin, especial, seguridad, perfil, pedidos, checkout, etc.)
-// usan su propio pie de página y no deben heredar el global.
-// ============================================================
+/* ============================================================
+   RUTAS DONDE NO DEBE APARECER EL FOOTER GLOBAL
+   ============================================================ */
 
 const APP_FOOTER_HIDDEN_PREFIXES = [
   "/dashboard-comprador",
@@ -620,17 +637,21 @@ const APP_FOOTER_HIDDEN_PREFIXES = [
   "/resenas",
   "/checkout",
   "/pago-pasarela",
-  "/pago/",
+  "/pago",
 ];
 
 function AppFooter() {
-  const { pathname } = useLocation();
+  const location = useLocation();
 
-  const isAppRoute = APP_FOOTER_HIDDEN_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(prefix),
+  const hidden = APP_FOOTER_HIDDEN_PREFIXES.some((prefix) =>
+    location.pathname.startsWith(prefix),
   );
 
-  return isAppRoute ? null : <Footer />;
+  if (hidden) {
+    return null;
+  }
+
+  return <Footer />;
 }
 
 export default App;
