@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [develop]
   pull_request:
-    branches: [main, develop]
+    branches: [develop]
 
 jobs:
   build:
@@ -47,7 +47,7 @@ jobs:
       packages: write
     timeout-minutes: 15
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
       - name: Log in to GitHub Container Registry
@@ -70,7 +70,7 @@ jobs:
       contents: read
     timeout-minutes: 15
     needs: publish
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/develop'
     env:
       TESTCONTAINERS_RYUK_DISABLED: "true"
       DOCKER_HOST: unix:///var/run/docker.sock
@@ -109,7 +109,7 @@ jobs:
       contents: read
     timeout-minutes: 15
     needs: integration-tests
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
       - name: Set up kubectl
