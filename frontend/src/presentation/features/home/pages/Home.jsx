@@ -18,9 +18,18 @@ import { useDivisa } from "@/app/hooks/useDivisa";
 const getTrustBadges = (t) => [
   {
     title: t("home.trust.secureTitle", "Compra 100% Segura"),
-    text: t("home.trust.secureText", "Transacciones protegidas"),
+    text: t("home.trust.secureText", "<Trans1></Trans1>acciones protegidas"),
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         <path d="M9 12l2 2 4-4" />
       </svg>
@@ -30,7 +39,16 @@ const getTrustBadges = (t) => [
     title: t("home.trust.expressTitle", "Envíos Express"),
     text: t("home.trust.expressText", "Directo a tu domicilio"),
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="1" y="3" width="15" height="13" rx="1" />
         <path d="M16 8h4l3 3v5h-7V8z" />
         <circle cx="5.5" cy="18.5" r="2.5" />
@@ -42,7 +60,16 @@ const getTrustBadges = (t) => [
     title: t("home.trust.freshTitle", "Frescura Garantizada"),
     text: t("home.trust.freshText", "Cosechados en el día"),
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" />
         <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
       </svg>
@@ -52,7 +79,16 @@ const getTrustBadges = (t) => [
     title: t("home.trust.localTitle", "Apoyo Directo Local"),
     text: t("home.trust.localText", "Sin intermediarios dañinos"),
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -64,7 +100,16 @@ const getTrustBadges = (t) => [
     title: t("home.trust.supportTitle", "Soporte Amigable"),
     text: t("home.trust.supportText", "Atención WhatsApp 24/7"),
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="10" />
         <line x1="15" y1="9" x2="9" y2="15" />
         <line x1="9" y1="9" x2="15" y2="15" />
@@ -97,9 +142,7 @@ const COMING_SOON_CATEGORY_NAMES = [
 export function isMaracuyaCategoryName(name) {
   const n = String(name || "").toLowerCase();
   return (
-    n.includes("maracuy") ||
-    n.includes("passion") ||
-    n.includes("maracuyá")
+    n.includes("maracuy") || n.includes("passion") || n.includes("maracuyá")
   );
 }
 
@@ -231,8 +274,12 @@ export default function Home() {
         if (!active) return;
         setFeaturedProducts(extractArray(res).slice(0, 4));
       })
-      .catch((err) => console.error("No se pudieron cargar productos destacados:", err))
-      .finally(() => { if (active) setLoadingProducts(false); });
+      .catch((err) =>
+        console.error("No se pudieron cargar productos destacados:", err),
+      )
+      .finally(() => {
+        if (active) setLoadingProducts(false);
+      });
 
     return () => {
       active = false;
@@ -259,9 +306,17 @@ export default function Home() {
             <span className="hm-hero-badge">
               {t("home.hero.badge", "🌽 DIRECTO DEL PRODUCTOR A TU CASA")}
             </span>
-            <h1>{t("home.hero.title", "Del campo de Urabá y de toda Colombia a tu mesa")}</h1>
+            <h1>
+              {t(
+                "home.hero.title",
+                "Del campo de Urabá y de toda Colombia a tu mesa",
+              )}
+            </h1>
             <p>
-              {t("home.hero.description", "Apoya al campo colombiano comprando frutas, verduras, tubérculos y café cultivados con pasión por productores locales. Entrega rápida y garantizada.")}
+              {t(
+                "home.hero.description",
+                "Apoya al campo colombiano comprando frutas, verduras, tubérculos y café cultivados con pasión por productores locales. Entrega rápida y garantizada.",
+              )}
             </p>
             <div className="hm-hero-btns">
               <Link className="hm-btn-primary" to="/catalogo">
@@ -293,14 +348,21 @@ export default function Home() {
             <div>
               <h2>{t("home.categories.title", "Categorías Destacadas")}</h2>
               <p>
-                {t("home.categories.subtitle", "Explora los tesoros más frescos de nuestra tierra colombiana")}
+                {t(
+                  "home.categories.subtitle",
+                  "Explora los tesoros más frescos de nuestra tierra colombiana",
+                )}
               </p>
             </div>
-            <Link to="/catalogo">{t("home.categories.viewAll", "Ver todas las categorías →")}</Link>
+            <Link to="/catalogo">
+              {t("home.categories.viewAll", "Ver todas las categorías →")}
+            </Link>
           </div>
 
           {loadingCategories ? (
-            <div className="hm-loading">{t("home.categories.loading", "Cargando categorías...")}</div>
+            <div className="hm-loading">
+              {t("home.categories.loading", "Cargando categorías...")}
+            </div>
           ) : (
             <div className="hm-cat-grid">
               {categoryCards.map((cat) =>
@@ -360,9 +422,17 @@ export default function Home() {
               <img src={handHeartIcon} alt="" width="32" height="32" />
             </span>
             <div>
-              <h2>{t("home.farmers.title", "Apoyo real a nuestros campesinos colombianos")}</h2>
+              <h2>
+                {t(
+                  "home.farmers.title",
+                  "Apoyo real a nuestros campesinos colombianos",
+                )}
+              </h2>
               <p>
-                {t("home.farmers.description", "El 100% de tu compra va directamente a la asociación de campesinos. Pagos justos y transparentes.")}
+                {t(
+                  "home.farmers.description",
+                  "El 100% de tu compra va directamente a la asociación de campesinos. Pagos justos y transparentes.",
+                )}
               </p>
             </div>
           </div>
@@ -376,16 +446,28 @@ export default function Home() {
           <div className="hm-section-head">
             <div>
               <h2>{t("home.products.title", "Cosecha Fresca de la Semana")}</h2>
-              <p>{t("home.products.subtitle", "Los productos más recientes de nuestros productores")}</p>
+              <p>
+                {t(
+                  "home.products.subtitle",
+                  "Los productos más recientes de nuestros productores",
+                )}
+              </p>
             </div>
-            <Link to="/catalogo">{t("home.products.viewAll", "Ver catálogo completo →")}</Link>
+            <Link to="/catalogo">
+              {t("home.products.viewAll", "Ver catálogo completo →")}
+            </Link>
           </div>
 
           {loadingProducts ? (
-            <div className="hm-loading">{t("home.products.loading", "Cargando productos...")}</div>
+            <div className="hm-loading">
+              {t("home.products.loading", "Cargando productos...")}
+            </div>
           ) : featuredProducts.length === 0 ? (
             <div className="hm-loading" style={{ color: "var(--text-dim)" }}>
-              {t("home.products.empty", "Aún no hay productos registrados.")} <Link to="/catalogo">{t("home.products.explore", "Explorar catálogo →")}</Link>
+              {t("home.products.empty", "Aún no hay productos registrados.")}{" "}
+              <Link to="/catalogo">
+                {t("home.products.explore", "Explorar catálogo →")}
+              </Link>
             </div>
           ) : (
             <div className="hm-product-grid">
@@ -411,8 +493,10 @@ export default function Home() {
                       <div
                         className="hm-product-img"
                         style={{
-                          display: "flex", alignItems: "center",
-                          justifyContent: "center", fontSize: "4rem",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "4rem",
                           background: "var(--card-bg, #1e1e1e)",
                         }}
                       >
@@ -421,25 +505,47 @@ export default function Home() {
                     )}
                     <div className="hm-product-body">
                       <div className="hm-product-head">
-                        <span className="hm-product-producer">{producerName}</span>
+                        <span className="hm-product-producer">
+                          {producerName}
+                        </span>
                       </div>
                       <h3>{p.name}</h3>
-                      <span className="hm-product-presentation">{t("home.products.presentation", "Presentación: Kg")}</span>
+                      <span className="hm-product-presentation">
+                        {t("home.products.presentation", "Presentación: Kg")}
+                      </span>
                       {p.averageRating > 0 && (
                         <div className="hm-product-rating">
-                          <span className="hm-stars" aria-hidden="true">★★★★★</span>
-                          <span className="hm-score">({p.averageRating.toFixed(1)})</span>
+                          <span className="hm-stars" aria-hidden="true">
+                            ★★★★★
+                          </span>
+                          <span className="hm-score">
+                            ({p.averageRating.toFixed(1)})
+                          </span>
                         </div>
                       )}
                       <div className="hm-product-foot">
                         <div>
                           <strong className="hm-price">{formattedPrice}</strong>
-                          <span className="hm-price-label">{t("home.products.priceLabel", "Precio {{currency}} / kg", { currency: divisaActual })}</span>
+                          <span className="hm-price-label">
+                            {t(
+                              "home.products.priceLabel",
+                              "Precio {{currency}} / kg",
+                              { currency: divisaActual },
+                            )}
+                          </span>
                         </div>
                         <button
                           className="hm-add-btn"
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); addToCart({ ...p, nombre: p.name, precio: price, imagenUrl: p.imageUrl }); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart({
+                              ...p,
+                              nombre: p.name,
+                              precio: price,
+                              imagenUrl: p.imageUrl,
+                            });
+                          }}
                         >
                           {t("home.products.add", "Agregar")}
                         </button>
@@ -455,9 +561,17 @@ export default function Home() {
         {/* Newsletter (frame: newsletter) */}
         <section className="hm-newsletter">
           <div className="hm-newsletter-text">
-            <h2>{t("home.newsletter.title", "Suscríbete a nuestra cosecha semanal")}</h2>
+            <h2>
+              {t(
+                "home.newsletter.title",
+                "Suscríbete a nuestra cosecha semanal",
+              )}
+            </h2>
             <p>
-              {t("home.newsletter.description", "Recibe ofertas exclusivas, novedades y recetas directo de los campesinos colombianos.")}
+              {t(
+                "home.newsletter.description",
+                "Recibe ofertas exclusivas, novedades y recetas directo de los campesinos colombianos.",
+              )}
             </p>
           </div>
           <form
@@ -468,8 +582,14 @@ export default function Home() {
               type="email"
               value={newsletterEmail}
               onChange={(e) => setNewsletterEmail(e.target.value)}
-              placeholder={t("home.newsletter.placeholder", "Tu correo electrónico")}
-              aria-label={t("home.newsletter.placeholder", "Tu correo electrónico")}
+              placeholder={t(
+                "home.newsletter.placeholder",
+                "Tu correo electrónico",
+              )}
+              aria-label={t(
+                "home.newsletter.placeholder",
+                "Tu correo electrónico",
+              )}
               required
             />
             <button type="submit" disabled={newsletterSending}>
