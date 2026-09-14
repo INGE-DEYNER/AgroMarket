@@ -29,18 +29,18 @@ import lombok.RequiredArgsConstructor;
  * sin importar el navegador.
  */
 @RestController
-@RequestMapping("/api/v1/config")
+@RequestMapping("/api/v1/config/system")
 @RequiredArgsConstructor
 public class SystemConfigController {
 
     private final AppConfigPort appConfigPort;
 
-    @GetMapping("/system")
+    @GetMapping
     public ResponseEntity<Map<String, Object>> system() {
         return ResponseEntity.ok(buildPayload());
     }
 
-    @PutMapping("/system/mantenimiento")
+    @PutMapping("/mantenimiento")
     public ResponseEntity<Map<String, Object>> setMantenimiento(
             @RequestBody Map<String, Object> body) {
 

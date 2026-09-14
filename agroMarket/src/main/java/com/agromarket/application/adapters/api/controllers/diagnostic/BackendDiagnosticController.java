@@ -2,7 +2,6 @@ package com.agromarket.application.adapters.api.controllers.diagnostic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,14 +26,16 @@ public class BackendDiagnosticController {
     private static final String GEMINI_ENDPOINT =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
-    @Autowired
-    private Environment env;
+    private final Environment env;
+    private final JdbcTemplate jdbcTemplate;
+    private final String geminiApiKey;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @org.springframework.beans.factory.annotation.Value("${app.ai.gemini-api-key:}")
-    private String geminiApiKey;
+    public BackendDiagnosticController(Environment env, JdbcTemplate jdbcTemplate,
+            @org.springframework.beans.factory.annotation.Value("${app.ai.gemini-api-key:}") String geminiApiKey) {
+        this.env = env;
+        this.jdbcTemplate = jdbcTemplate;
+        this.geminiApiKey = geminiApiKey;
+    }
 
     /** Diagnóstico interno del backend (DB, perfil, etc.) */
     @GetMapping("/diagnostic")

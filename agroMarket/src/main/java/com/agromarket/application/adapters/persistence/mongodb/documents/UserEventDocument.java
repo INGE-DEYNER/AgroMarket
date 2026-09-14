@@ -15,12 +15,16 @@ import lombok.NoArgsConstructor;
 /**
  * Documento MongoDB para eventos de usuario.
  * Almacena eventos específicos del usuario para seguimiento y análisis.
+ * 
+ * NOTA: Todas las propiedades son utilizadas por Spring Data MongoDB en tiempo de ejecución
+ * para persistencia en la base de datos.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "user_events")
+@SuppressWarnings("PMD.UnusedPrivateField")
 public class UserEventDocument {
 
     @Id
