@@ -1,0 +1,79 @@
+/* Mensajeria Page Styles */
+.page-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.chat-layout {
+  flex: 1;
+  min-height: 0;
+  box-shadow: var(--shadow);
+}
+.chat-contacts {
+  background: var(--surface);
+}
+.chat-contact-item.active {
+  background: var(--green-bg);
+  border-left: 3px solid var(--green);
+}
+.chat-window {
+  background: var(--bg);
+}
+.chat-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Typing animation */
+.typing-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 1s infinite;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .chat-layout {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 650px !important;
+  }
+  .chat-contacts {
+    max-height: 180px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .chat-window {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+/* ─── RESPONSIVE: MÓVIL PEQUEÑO (<480px) ────────────────────────────── */
+@media (max-width: 480px) {
+  .page-wrap {
+    height: 100dvh;
+  }
+  .chat-layout {
+    height: calc(100dvh - 60px) !important;
+  }
+  .chat-contacts {
+    max-height: 140px;
+  }
+  .chat-header {
+    padding: 10px 12px;
+  }
+}

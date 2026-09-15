@@ -1,0 +1,130 @@
+{
+  "groups": [
+    {
+      "name": "app",
+      "type": "com.agromarket.infrastructure.config.properties.AppProperties"
+    },
+    {
+      "name": "app.jwt",
+      "type": "com.agromarket.infrastructure.config.properties.JwtProperties"
+    },
+    {
+      "name": "brevo",
+      "type": "com.agromarket.infrastructure.config.properties.BrevoProperties"
+    },
+    {
+      "name": "app.mail",
+      "type": "com.agromarket.infrastructure.config.properties.MailProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.util.List<java.lang.String>",
+      "defaultValue": ["http://localhost:3000"]
+    },
+    {
+      "name": "app.security.id-encryption-key",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.oauth2.success-redirect",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.oauth2.failure-redirect",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.oauth2.default-role",
+      "type": "java.lang.String",
+      "defaultValue": "BUYER"
+    },
+    {
+      "name": "app.google.client-id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.google.client-secret",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.google.redirect-uri",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.jwt.expiration-ms",
+      "type": "java.lang.Long",
+      "defaultValue": 3600000
+    },
+    {
+      "name": "app.frontend-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.ai.gemini-api-key",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.mercadopago.base-url",
+      "type": "java.lang.String",
+      "defaultValue": "https://api.mercadopago.com"
+    },
+    {
+      "name": "app.mercadopago.access-token",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.mercadopago.use-mock",
+      "type": "java.lang.Boolean",
+      "defaultValue": false
+    },
+    {
+      "name": "app.mercadopago.webhook-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.shipping.cost",
+      "type": "java.math.BigDecimal",
+      "defaultValue": 15000
+    },
+    {
+      "name": "app.scheduler.promotions-delay-ms",
+      "type": "java.lang.Long"
+    },
+    {
+      "name": "app.scheduler.rfq-delay-ms",
+      "type": "java.lang.Long"
+    },
+    {
+      "name": "brevo.api.key",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "brevo.sender.email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "brevo.sender.name",
+      "type": "java.lang.String",
+      "defaultValue": "AgroMarket"
+    },
+    {
+      "name": "cloudinary.cloud-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "cloudinary.api-key",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "cloudinary.api-secret",
+      "type": "java.lang.String"
+    }
+  ]
+}
+

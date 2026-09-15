@@ -1,0 +1,53 @@
+# docker-compose.yml
+# Levanta MySQL, MongoDB y el Backend Spring Boot en un solo comando.
+# IMPORTANTE: copia .env.example a .env y reemplaza con credenciales reales.
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: agromarket-mysql
+    environment:
+      MYSQL_DATABASE: agromarket
+      MYSQL_USER: ${SPRING_DATASOURCE_USERNAME}
+      MYSQL_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test:
+        ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    container_name: agromarket-mongo
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agromarket-backend
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://agromarket-mysql:3306/agromarket?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+      - SPRING_DATA_MONGODB_URI=mongodb://agromarket-mongo:27017/agromarket
+      - APP_CORS_ALLOWED_ORIGIN=${APP_CORS_ALLOWED_ORIGIN:-https://agro-market.app,https://www.agro-market.app,http://localhost:5173,http://localhost:3000}
+      - APP_SECURITY_ID_ENCRYPTION_KEY=${APP_SECURITY_ID_ENCRYPTION_KEY}
+      - ID_ENCRYPTION_KEY=${ID_ENCRYPTION_KEY}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+    restart: unless-stopped
