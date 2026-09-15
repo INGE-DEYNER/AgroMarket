@@ -35,10 +35,7 @@ spring:
           google:
             issuer-uri: https://accounts.google.com
 
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: 0
+  # Sin migraciones: el esquema lo genera Hibernate (ddl-auto: update)
 
 logging:
   level:
