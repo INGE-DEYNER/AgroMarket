@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import com.agromarket.domain.exceptions.order.InvalidOrderStateException;
 import com.agromarket.domain.models.enums.order.OrderState;
 import com.agromarket.domain.models.order.Order;
+import com.agromarket.domain.models.order.OrderItem;
 
 /**
  * Servicio de dominio para reglas del ciclo de vida del pedido.
@@ -12,39 +13,32 @@ import com.agromarket.domain.models.order.Order;
 public class OrderService {
 
     /**
-     * Calcula el total del pedido: subtotal (precio unitario * cantidad)
-     * más el costo de envío cuando corresponde (el primer pedido de un
-     * checkout).
+     * Calcula el total del pedido: la suma de los subtotales de sus ítems
+     * (precio unitario * cantidad) más el costo de envío cuando corresponde
+     * (el primer pedido de un checkout).
+     *
+     * @param order pedido con al menos un {@link OrderItem}
+     * @return total del pedido
      */
     public BigDecimal calculateTotal(Order order) {
 
-        if (order == null
-                || order.getQuantity() == null
-                || order.getUnitPrice() == null) {
-
+        if (order == null) {
             throw new IllegalArgumentException(
-                    "La cantidad y el precio unitario son obligatorios"
+                    "El pedido es obligatorio"
             );
         }
 
-        if (order.getQuantity() <= 0) {
+        if (order.getItems() == null || order.getItems().isEmpty()) {
             throw new IllegalArgumentException(
-                    "La cantidad debe ser mayor que cero"
+                    "El pedido debe tener al menos un producto"
             );
         }
 
-        if (order.getUnitPrice().signum() < 0) {
-            throw new IllegalArgumentException(
-                    "El precio unitario no puede ser negativo"
-            );
-        }
+        BigDecimal subtotal = BigDecimal.ZERO;
 
-        BigDecimal subtotal = order.getUnitPrice()
-                .multiply(
-                        BigDecimal.valueOf(
-                                order.getQuantity()
-                        )
-                );
+        for (OrderItem item : order.getItems()) {
+            subtotal = subtotal.add(validarItem(item));
+        }
 
         BigDecimal envio = order.getShippingCost() == null
                 ? BigDecimal.ZERO
@@ -57,6 +51,44 @@ public class OrderService {
         }
 
         return subtotal.add(envio);
+    }
+
+    /**
+     * Valida un ítem del pedido y devuelve su subtotal.
+     */
+    private BigDecimal validarItem(OrderItem item) {
+
+        if (item == null) {
+            throw new IllegalArgumentException(
+                    "El pedido no puede contener ítems nulos"
+            );
+        }
+
+        if (item.getProduct() == null) {
+            throw new IllegalArgumentException(
+                    "Cada ítem del pedido debe tener un producto"
+            );
+        }
+
+        if (item.getQuantity() == null || item.getUnitPrice() == null) {
+            throw new IllegalArgumentException(
+                    "La cantidad y el precio unitario son obligatorios en cada ítem"
+            );
+        }
+
+        if (item.getQuantity() <= 0) {
+            throw new IllegalArgumentException(
+                    "La cantidad debe ser mayor que cero"
+            );
+        }
+
+        if (item.getUnitPrice().signum() < 0) {
+            throw new IllegalArgumentException(
+                    "El precio unitario no puede ser negativo"
+            );
+        }
+
+        return item.calculateSubtotal();
     }
 
     /**

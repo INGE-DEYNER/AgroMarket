@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 class PersistenceWiringTest extends AbstractTestcontainersIntegrationTest {
 
     private static final List<String> EXPECTED_MONGO_COLLECTIONS = List.of(
-            "admins", "images", "messages", "notifications", "orders", "invoices",
+            "admins", "images", "messages", "notifications", "invoices",
             "payments", "products", "reviews", "auth_access_events", "password_history", "users");
 
     @Autowired
@@ -62,9 +62,6 @@ class PersistenceWiringTest extends AbstractTestcontainersIntegrationTest {
         assertIndex("products", "producerId");
         assertIndex("products", "active");
         assertIndex("products", "onPromotion");
-        assertIndex("orders", "buyerId");
-        assertIndex("orders", "producerId");
-        assertIndex("orders", "state");
         assertIndex("notifications", "recipientId");
         assertIndex("admins", "userId");
         assertIndex("payments", "orderId");

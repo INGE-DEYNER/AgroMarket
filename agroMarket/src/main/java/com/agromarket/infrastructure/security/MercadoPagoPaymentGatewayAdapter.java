@@ -24,10 +24,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import com.agromarket.domain.models.order.OrderItem;
 import com.agromarket.domain.models.payment.CardPaymentDetails;
 import com.agromarket.domain.models.payment.GatewayPaymentInfo;
 import com.agromarket.domain.models.payment.Payment;
 import com.agromarket.domain.models.payment.PaymentInitiationResult;
+import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.ports.out.payment.PaymentGatewayPort;
 
 /**
@@ -173,7 +175,7 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                                         e.getStatusCode(), e.getResponseBodyAsString());
                         throw new IllegalStateException(
                                         describeGatewayError("crear la preferencia de pago", e), e);
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                         logger.error("Error al crear preferencia de MercadoPago: " + e.getMessage(), e);
                         throw new IllegalStateException(
                                         "Error al conectar con MercadoPago: " + e.getMessage(), e);
@@ -202,6 +204,41 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                                 + ": " + body;
         }
 
+        /**
+         * Traduce un ítem del pedido ({@link OrderItem}) a un ítem de la
+         * preferencia de MercadoPago.
+         *
+         * @param item           ítem del pedido
+         * @param fallbackAmount monto del pago usado si el ítem no trae precio
+         * @return el ítem en el formato que espera la API de MercadoPago
+         */
+        private Map<String, Object> toMercadoPagoItem(OrderItem item, BigDecimal fallbackAmount) {
+
+                Product product = item == null ? null : item.getProduct();
+
+                Map<String, Object> mpItem = new HashMap<>();
+                mpItem.put("title", product != null && product.getName() != null
+                                ? product.getName()
+                                : "Producto");
+                mpItem.put("description", truncate(
+                                product != null ? product.getDescription() : null, 250));
+                mpItem.put("quantity", item != null && item.getQuantity() != null
+                                ? item.getQuantity()
+                                : 1);
+
+                BigDecimal unitPrice = item != null && item.getUnitPrice() != null
+                                ? item.getUnitPrice()
+                                : (item != null ? item.calculateSubtotal() : null);
+
+                if (unitPrice == null) {
+                        unitPrice = fallbackAmount != null ? fallbackAmount : BigDecimal.ZERO;
+                }
+
+                mpItem.put("unit_price", unitPrice.doubleValue());
+                mpItem.put("currency_id", "COP");
+                return mpItem;
+        }
+
         private Map<String, Object> buildPreference(Payment payment) {
                 Map<String, Object> preference = new HashMap<>();
 
@@ -212,21 +249,13 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                 // Items del pago (basado en el pedido)
                 List<Map<String, Object>> items = new ArrayList<>();
 
-                // AgroMarket modela cada Order como un único producto/cantidad
-                // (no una lista de items), así que el pedido se traduce en un
-                // único ítem de MercadoPago.
-                if (payment.getOrder() != null && payment.getOrder().getProduct() != null) {
-                        var order = payment.getOrder();
-                        Map<String, Object> mpItem = new HashMap<>();
-                        mpItem.put("title", order.getProduct().getName() != null ? order.getProduct().getName()
-                                        : "Producto");
-                        mpItem.put("description", truncate(order.getProduct().getDescription(), 250));
-                        mpItem.put("quantity", order.getQuantity() != null ? order.getQuantity() : 1);
-                        BigDecimal unitPrice = order.getUnitPrice() != null ? order.getUnitPrice()
-                                        : payment.getAmount();
-                        mpItem.put("unit_price", unitPrice.doubleValue());
-                        mpItem.put("currency_id", "COP");
-                        items.add(mpItem);
+                // Un ítem de la preferencia por cada OrderItem del pedido.
+                var order = payment.getOrder();
+
+                if (order != null && order.getItems() != null && !order.getItems().isEmpty()) {
+                        for (OrderItem item : order.getItems()) {
+                                items.add(toMercadoPagoItem(item, payment.getAmount()));
+                        }
                 } else {
                         // Si no hay pedido, creamos un item genérico
                         Map<String, Object> mpItem = new HashMap<>();
@@ -317,17 +346,16 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                                 ? fetchGatewayPayment(gatewayReference)
                                 : null;
 
-                boolean approved = info != null && info.isApproved();
-
-                if (approved) {
+                if (info != null && info.isApproved()) {
                         logger.info("Transacción verificada exitosamente en MercadoPago: {} (status={})",
                                         gatewayReference, info.getStatus());
-                } else {
-                        logger.warn("Transacción no aprobada en MercadoPago. Referencia={} status={}",
-                                        gatewayReference, info != null ? info.getStatus() : "desconocido");
+                        return true;
                 }
 
-                return approved;
+                logger.warn("Transacción no aprobada en MercadoPago. Referencia={} status={}",
+                                gatewayReference, info != null ? info.getStatus() : "desconocido");
+
+                return false;
         }
 
         @Override
@@ -355,7 +383,7 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                         logger.error("Error HTTP {} consultando pago {}: {}",
                                         e.getStatusCode(), gatewayPaymentId, e.getResponseBodyAsString());
                         return null;
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                         logger.error("Error consultando pago en MercadoPago {}: {}",
                                         gatewayPaymentId, e.getMessage(), e);
                         return null;
@@ -396,7 +424,7 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                         }
                         return null;
 
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                         logger.error("Error buscando pagos por external_reference {}: {}",
                                         externalReference, e.getMessage(), e);
                         return null;
@@ -503,7 +531,7 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                                         e.getStatusCode(), e.getResponseBodyAsString());
                         throw new IllegalStateException(
                                         describeGatewayError("procesar el pago con tarjeta", e), e);
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                         logger.error("Error creando pago con tarjeta en MercadoPago: " + e.getMessage(), e);
                         throw new IllegalStateException(
                                         "Error al conectar con MercadoPago: " + e.getMessage(), e);

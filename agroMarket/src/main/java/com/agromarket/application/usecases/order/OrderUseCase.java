@@ -2,7 +2,10 @@ package com.agromarket.application.usecases.order;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -14,6 +17,7 @@ import com.agromarket.domain.models.enums.messaging.NotificationType;
 import com.agromarket.domain.models.enums.order.OrderState;
 import com.agromarket.domain.models.messaging.Notification;
 import com.agromarket.domain.models.order.Order;
+import com.agromarket.domain.models.order.OrderItem;
 import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.user.User;
 import com.agromarket.domain.models.enums.user.Role;
@@ -29,6 +33,12 @@ import com.agromarket.domain.services.product.ProductStockService;
 
 /**
  * Casos de uso del agregado Order.
+ *
+ * <p>
+ * Un pedido se compone de uno o varios {@link OrderItem}, por lo que todas las
+ * operaciones (alta, cancelación, notificaciones y proyección a
+ * {@link OrderResult}) trabajan sobre los ítems y no sobre un único producto.
+ * </p>
  */
 @Service
 @Transactional
@@ -105,9 +115,7 @@ public class OrderUseCase implements OrderPort {
 
         Order order = Order.builder()
                 .buyer(buyer)
-                .product(product)
-                .quantity(command.getQuantity())
-                .unitPrice(unitPrice)
+                .items(new ArrayList<>(List.of(crearItem(product, command.getQuantity(), unitPrice))))
                 .shippingCost(envio)
                 .state(OrderState.PENDING)
                 .checkoutId(checkoutId)
@@ -117,6 +125,22 @@ public class OrderUseCase implements OrderPort {
         Order savedOrder = orderPort.save(order);
         notificarNuevoPedido(savedOrder);
         return toResult(savedOrder);
+    }
+
+    /**
+     * Construye un ítem del pedido congelando el precio efectivo del producto
+     * en el momento de la compra.
+     */
+    private OrderItem crearItem(Product product, Integer quantity, BigDecimal unitPrice) {
+
+        OrderItem item = OrderItem.builder()
+                .product(product)
+                .quantity(quantity)
+                .unitPrice(unitPrice)
+                .build();
+
+        item.setSubtotal(item.calculateSubtotal());
+        return item;
     }
 
     @Override
@@ -160,13 +184,34 @@ public class OrderUseCase implements OrderPort {
             throw new IllegalStateException("El pedido no puede cancelarse");
         }
         order.cancel();
-        if (order.getProduct() != null && order.getQuantity() != null) {
-            Product product = productPort.findById(order.getProduct().getId())
+        // Devuelve al inventario la cantidad de cada ítem del pedido.
+        devolverStock(order);
+        orderPort.save(order);
+    }
+
+    /**
+     * Repone el stock de todos los ítems del pedido (compra cancelada).
+     */
+    private void devolverStock(Order order) {
+
+        if (order.getItems() == null) {
+            return;
+        }
+
+        for (OrderItem item : order.getItems()) {
+
+            if (item == null
+                    || item.getProduct() == null
+                    || item.getProduct().getId() == null
+                    || item.getQuantity() == null) {
+                continue;
+            }
+
+            Product product = productPort.findById(item.getProduct().getId())
                     .orElseThrow(() -> new IllegalArgumentException("El producto asociado no existe"));
-            productStockService.increase(product, order.getQuantity());
+            productStockService.increase(product, item.getQuantity());
             productPort.save(product);
         }
-        orderPort.save(order);
     }
 
     @Override
@@ -210,8 +255,9 @@ public class OrderUseCase implements OrderPort {
 
     @Override
     public void deleteOrder(Long id) {
-        Order order = findOrder(id);
-        orderPort.deleteById(order);
+        // Valida existencia para mantener el 404 de OrderNotFoundException.
+        findOrder(id);
+        orderPort.deleteById(id);
     }
 
     private Order findOrder(Long id) {
@@ -220,61 +266,104 @@ public class OrderUseCase implements OrderPort {
     }
 
     /**
-     * Notifica al productor cuando llega un pedido nuevo (centro de
-     * notificaciones). Nunca rompe la operación de negocio.
+     * Resumen de los ítems de un pedido agrupados por productor.
+     */
+    private record ResumenProductor(Long producerId, String descripcion) {
+    }
+
+    /**
+     * Notifica a cada productor involucrado cuando llega un pedido nuevo
+     * (centro de notificaciones). Nunca rompe la operación de negocio.
      */
     private void notificarNuevoPedido(Order order) {
         try {
-            if (order.getProduct() == null
-                    || order.getProduct().getProducer() == null
-                    || order.getProduct().getProducer().getId() == null) {
-                return;
+            for (ResumenProductor resumen : resumenesPorProductor(order)) {
+                crearNotificacion(
+                        resumen.producerId(),
+                        NotificationType.NEW_ORDER,
+                        "¡Nuevo pedido #" + order.getId() + "! " + resumen.descripcion() + ".");
             }
-            String producto = order.getProduct().getName() == null
-                    ? "tu producto"
-                    : order.getProduct().getName();
-            crearNotificacion(
-                    order.getProduct().getProducer().getId(),
-                    NotificationType.NEW_ORDER,
-                    "¡Nuevo pedido #" + order.getId() + "! "
-                            + order.getQuantity() + " kg de " + producto + ".");
         } catch (Exception ex) {
             // ignorado a propósito: la notificación es un efecto secundario
         }
     }
 
     /**
-     * Crea notificaciones reales para comprador y productor cuando el pedido
+     * Crea notificaciones reales para comprador y productores cuando el pedido
      * cambia de estado (alimenta el centro de notificaciones).
      */
     private void notificarCambioEstado(Long orderId, OrderState estado) {
         try {
             Order order = findOrder(orderId);
             String etiqueta = etiquetaEstado(estado);
+            Long buyerId = order.getBuyer() == null ? null : order.getBuyer().getId();
 
-            if (order.getBuyer() != null && order.getBuyer().getId() != null) {
+            if (buyerId != null) {
                 crearNotificacion(
-                        order.getBuyer().getId(),
+                        buyerId,
                         NotificationType.ORDER_UPDATED,
-                        "Tu pedido #" + orderId + " cambió de estado a "
-                                + etiqueta + ".");
+                        "Tu pedido #" + orderId + " cambió de estado a " + etiqueta + ".");
             }
 
-            if (order.getProduct() != null
-                    && order.getProduct().getProducer() != null
-                    && order.getProduct().getProducer().getId() != null) {
-                Long producerId = order.getProduct().getProducer().getId();
-                Long buyerId = order.getBuyer() == null ? null : order.getBuyer().getId();
-                if (buyerId == null || !producerId.equals(buyerId)) {
-                    crearNotificacion(
-                            producerId,
-                            NotificationType.ORDER_UPDATED,
-                            "El pedido #" + orderId + " pasó a " + etiqueta + ".");
+            for (ResumenProductor resumen : resumenesPorProductor(order)) {
+                if (resumen.producerId().equals(buyerId)) {
+                    continue;
                 }
+                crearNotificacion(
+                        resumen.producerId(),
+                        NotificationType.ORDER_UPDATED,
+                        "El pedido #" + orderId + " pasó a " + etiqueta + ".");
             }
         } catch (Exception ex) {
             // ignorado a propósito: la notificación es un efecto secundario
         }
+    }
+
+    /**
+     * Agrupa los ítems del pedido por productor para poder notificar a cada
+     * uno con los productos que le corresponden.
+     */
+    private List<ResumenProductor> resumenesPorProductor(Order order) {
+
+        if (order == null || order.getItems() == null) {
+            return List.of();
+        }
+
+        Map<Long, StringBuilder> detalles = new LinkedHashMap<>();
+
+        for (OrderItem item : order.getItems()) {
+
+            if (item == null || item.getProduct() == null) {
+                continue;
+            }
+
+            User producer = item.getProduct().getProducer();
+
+            if (producer == null || producer.getId() == null) {
+                continue;
+            }
+
+            String nombre = item.getProduct().getName() == null
+                    ? "tu producto"
+                    : item.getProduct().getName();
+            String cantidad = item.getQuantity() == null
+                    ? ""
+                    : item.getQuantity() + " kg de ";
+
+            StringBuilder detalle = detalles.computeIfAbsent(
+                    producer.getId(), id -> new StringBuilder());
+
+            if (detalle.length() > 0) {
+                detalle.append(", ");
+            }
+
+            detalle.append(cantidad).append(nombre);
+        }
+
+        return detalles.entrySet().stream()
+                .map(entrada -> new ResumenProductor(
+                        entrada.getKey(), entrada.getValue().toString()))
+                .toList();
     }
 
     private void crearNotificacion(Long recipientId, NotificationType type, String content) {
@@ -311,13 +400,25 @@ public class OrderUseCase implements OrderPort {
                 .orElse(shippingCost);
     }
 
+    /**
+     * Proyecta el agregado a la vista de salida. {@code items} expone todos los
+     * ítems del pedido; {@code product}/{@code quantity}/{@code unitPrice}
+     * reflejan el primer ítem por compatibilidad con los clientes actuales.
+     */
     private OrderResult toResult(Order order) {
+
+        List<OrderItem> items = order.getItems() == null
+                ? List.of()
+                : order.getItems();
+        OrderItem primerItem = items.isEmpty() ? null : items.get(0);
+
         return OrderResult.builder()
                 .id(order.getId())
                 .buyer(order.getBuyer())
-                .product(order.getProduct())
-                .quantity(order.getQuantity())
-                .unitPrice(order.getUnitPrice())
+                .items(items)
+                .product(primerItem == null ? null : primerItem.getProduct())
+                .quantity(primerItem == null ? null : primerItem.getQuantity())
+                .unitPrice(primerItem == null ? null : primerItem.getUnitPrice())
                 .total(order.getTotal())
                 .shippingCost(order.getShippingCost())
                 .state(order.getState())

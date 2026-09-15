@@ -13,6 +13,7 @@ import com.agromarket.domain.models.enums.product.FruitType;
 import com.agromarket.domain.models.enums.rfq.QuoteOfferStatus;
 import com.agromarket.domain.models.enums.rfq.RequestForQuoteStatus;
 import com.agromarket.domain.models.order.Order;
+import com.agromarket.domain.models.order.OrderItem;
 import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.rfq.QuoteOffer;
 import com.agromarket.domain.models.rfq.RequestForQuote;
@@ -236,11 +237,16 @@ public class RfqUseCase implements RequestForQuotePort, QuoteOfferPort {
                                         "El producto de la oferta aceptada no tiene stock suficiente");
                 }
 
-                Order order = Order.builder()
-                                .buyer(request.getBuyer())
+                OrderItem item = OrderItem.builder()
                                 .product(product)
                                 .quantity(quantity)
                                 .unitPrice(acceptedOffer.getProposedPrice())
+                                .build();
+                item.setSubtotal(item.calculateSubtotal());
+
+                Order order = Order.builder()
+                                .buyer(request.getBuyer())
+                                .items(new java.util.ArrayList<>(List.of(item)))
                                 .state(com.agromarket.domain.models.enums.order.OrderState.PENDING)
                                 .createdAt(LocalDateTime.now())
                                 .build();

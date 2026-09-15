@@ -3,10 +3,14 @@ package com.agromarket.infrastructure.pdf;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
 import com.agromarket.domain.models.order.Order;
+import com.agromarket.domain.models.order.OrderItem;
 import com.agromarket.domain.models.payment.Invoice;
 import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.user.User;
@@ -47,7 +51,7 @@ public class InvoicePdfGenerator {
         private static final Font FONT_BOLD = FontFactory.getFont(
                         FontFactory.HELVETICA_BOLD, 10);
 
-        private void appendParties(Document document, User buyer, User producer)
+        private void appendParties(Document document, User buyer, List<User> producers)
                         throws Exception {
 
                 PdfPTable parties = new PdfPTable(2);
@@ -55,7 +59,11 @@ public class InvoicePdfGenerator {
                 parties.setSpacingAfter(12);
 
                 parties.addCell(cell("Datos del comprador", true));
-                parties.addCell(cell("Datos del productor", true));
+                parties.addCell(cell(
+                                producers != null && producers.size() > 1
+                                                ? "Datos de los productores"
+                                                : "Datos del productor",
+                                true));
 
                 StringBuilder buyerInfo = new StringBuilder();
                 if (buyer != null) {
@@ -67,9 +75,17 @@ public class InvoicePdfGenerator {
                 }
 
                 StringBuilder producerInfo = new StringBuilder();
-                if (producer != null) {
-                        producerInfo.append("Productor: ").append(displayName(producer)).append('\n');
-                        producerInfo.append("Correo: ").append(safe(producer.getEmail()));
+                if (producers != null && !producers.isEmpty()) {
+                        for (User producer : producers) {
+                                if (producer == null) {
+                                        continue;
+                                }
+                                if (producerInfo.length() > 0) {
+                                        producerInfo.append('\n');
+                                }
+                                producerInfo.append("Productor: ").append(displayName(producer)).append('\n');
+                                producerInfo.append("Correo: ").append(safe(producer.getEmail()));
+                        }
                 } else {
                         producerInfo.append("Productor ASAFRUT");
                 }
@@ -88,16 +104,15 @@ public class InvoicePdfGenerator {
          */
         public byte[] generate(Invoice invoice) {
 
-                try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+                                Document document = new Document(PageSize.A4, 36, 36, 36, 36)) {
 
-                        Document document = new Document(PageSize.A4, 36, 36, 36, 36);
                         PdfWriter.getInstance(document, out);
                         document.open();
 
                         Order order = invoice.getOrder();
-                        Product product = order != null ? order.getProduct() : null;
                         User buyer = order != null ? order.getBuyer() : null;
-                        User producer = product != null ? product.getProducer() : null;
+                        List<User> producers = producersOf(order);
 
                         // Encabezado
                         Paragraph title = new Paragraph("ASAFRUT - AgroMarket", FONT_TITLE);
@@ -119,8 +134,8 @@ public class InvoicePdfGenerator {
                         meta.setSpacingAfter(14);
                         document.add(meta);
 
-                        appendParties(document, buyer, producer);
-                        appendItems(document, order, product);
+                        appendParties(document, buyer, producers);
+                        appendItems(document, order);
                         appendTotals(document, invoice);
 
                         Paragraph footer = new Paragraph(
@@ -141,7 +156,7 @@ public class InvoicePdfGenerator {
                 }
         }
 
-        private void appendItems(Document document, Order order, Product product)
+        private void appendItems(Document document, Order order)
                         throws Exception {
 
                 PdfPTable items = new PdfPTable(new float[] { 45f, 12f, 20f, 23f });
@@ -153,27 +168,88 @@ public class InvoicePdfGenerator {
                 items.addCell(headerCell("Precio unitario"));
                 items.addCell(headerCell("Importe"));
 
+                List<OrderItem> orderItems = order == null || order.getItems() == null
+                                ? List.of()
+                                : order.getItems();
+
+                if (orderItems.isEmpty()) {
+                        // Factura sin detalle de ítems: fila de respaldo con el
+                        // total del pedido.
+                        addItemRow(items, null, order);
+                } else {
+                        for (OrderItem item : orderItems) {
+                                addItemRow(items, item, order);
+                        }
+                }
+
+                document.add(items);
+        }
+
+        /**
+         * Añade una fila por cada ítem del pedido (la factura puede tener
+         * varios productos, incluso de distintos productores).
+         */
+        private void addItemRow(PdfPTable table, OrderItem item, Order order) {
+
+                Product product = item == null ? null : item.getProduct();
+
                 String productName = product != null && product.getName() != null
                                 ? product.getName()
                                 : "Producto AgroMarket";
 
-                int quantity = order != null && order.getQuantity() != null
-                                ? order.getQuantity()
+                int quantity = item != null && item.getQuantity() != null
+                                ? item.getQuantity()
                                 : 1;
 
-                BigDecimal unitPrice = order != null && order.getUnitPrice() != null
-                                ? order.getUnitPrice()
+                BigDecimal unitPrice = item != null && item.getUnitPrice() != null
+                                ? item.getUnitPrice()
                                 : (order != null ? order.getTotal() : BigDecimal.ZERO);
 
-                items.addCell(cell(productName, false));
-                items.addCell(cell(String.valueOf(quantity), false));
-                items.addCell(cell(money(unitPrice), false));
-                items.addCell(cell(money(
-                                unitPrice != null
+                BigDecimal importe = item != null
+                                ? item.calculateSubtotal()
+                                : (unitPrice != null
                                                 ? unitPrice.multiply(BigDecimal.valueOf(quantity))
-                                                : BigDecimal.ZERO),
-                                false));
-                document.add(items);
+                                                : BigDecimal.ZERO);
+
+                table.addCell(cell(productName, false));
+                table.addCell(cell(String.valueOf(quantity), false));
+                table.addCell(cell(money(unitPrice), false));
+                table.addCell(cell(money(importe), false));
+        }
+
+        /**
+         * Productores distintos involucrados en los ítems del pedido (sin
+         * duplicados), para imprimir el bloque de datos del productor.
+         */
+        private List<User> producersOf(Order order) {
+
+                if (order == null || order.getItems() == null) {
+                        return List.of();
+                }
+
+                Set<Long> vistos = new LinkedHashSet<>();
+                List<User> producers = new java.util.ArrayList<>();
+
+                for (OrderItem item : order.getItems()) {
+
+                        if (item == null || item.getProduct() == null) {
+                                continue;
+                        }
+
+                        User producer = item.getProduct().getProducer();
+
+                        if (producer == null) {
+                                continue;
+                        }
+
+                        if (producer.getId() != null && !vistos.add(producer.getId())) {
+                                continue;
+                        }
+
+                        producers.add(producer);
+                }
+
+                return producers;
         }
 
         private void appendTotals(Document document, Invoice invoice) throws Exception {

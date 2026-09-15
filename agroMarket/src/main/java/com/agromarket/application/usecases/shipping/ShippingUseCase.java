@@ -46,10 +46,10 @@ public class ShippingUseCase implements ShippingPort {
                                                 "Pedido no encontrado: " + orderId));
 
                 if (order.getBuyer() == null
-                                || order.getProduct() == null) {
+                                || order.getItems() == null || order.getItems().isEmpty()) {
 
                         throw new IllegalArgumentException(
-                                        "El pedido debe tener comprador y producto");
+                                        "El pedido debe tener comprador y al menos un producto");
                 }
 
                 Shipping shipping = Shipping.builder()

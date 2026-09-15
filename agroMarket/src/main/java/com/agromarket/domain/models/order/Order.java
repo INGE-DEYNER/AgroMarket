@@ -2,150 +2,155 @@ package com.agromarket.domain.models.order;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.agromarket.domain.models.enums.order.OrderState;
-import com.agromarket.domain.models.user.User;
-import com.agromarket.domain.models.product.Product;
-import com.agromarket.domain.models.payment.Payment;
-import com.agromarket.domain.models.payment.Invoice;
-import com.agromarket.domain.models.shipping.Shipping;
 import com.agromarket.domain.exceptions.order.InvalidOrderStateException;
+import com.agromarket.domain.models.enums.order.OrderState;
+import com.agromarket.domain.models.payment.Invoice;
+import com.agromarket.domain.models.payment.Payment;
+import com.agromarket.domain.models.shipping.Shipping;
+import com.agromarket.domain.models.user.User;
 
+import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-/**
- * Entidad de dominio que representa un pedido en el sistema AgroMarket.
- * Contiene información sobre el comprador, el producto, la cantidad y el estado del pedido.
- * 
- * @author AgroMarket Team
- */
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
-    
+
     private Long id;
-    
+
     /**
-     * Usuario que realizó el pedido (debe ser un comprador).
+     * Usuario que realizÃ³ el pedido.
      */
     private User buyer;
-    
+
     /**
-     * Producto que se está pediendo.
+     * Productos incluidos en el pedido.
      */
-    private Product product;
-    
+    @Builder.Default
+    private List<OrderItem> items = new ArrayList<>();
+
     /**
-     * Cantidad de unidades del producto solicitadas.
-     */
-    private Integer quantity;
-    
-    /**
-     * Precio unitario del producto al momento de realizar el pedido.
-     */
-    private BigDecimal unitPrice;
-    
-    /**
-     * Total calculado del pedido (precio unitario * cantidad).
+     * Total de los productos mÃ¡s el costo de envÃ­o.
      */
     private BigDecimal total;
 
     /**
-     * Costo de envío aplicado al pedido (COP). Sólo el primer pedido de
-     * un checkout (mismo checkoutId) lo lleva, para que el envío se cobre
-     * una única vez por compra.
+     * Costo de envÃ­o.
      */
     private BigDecimal shippingCost;
-    
+
     /**
      * Estado actual del pedido.
      */
     private OrderState state;
-    
+
     /**
-     * Fecha y hora en que se creó el pedido.
+     * Fecha y hora de creaciÃ³n.
      */
     private LocalDateTime createdAt;
-    
+
     /**
-     * ID de la sesión de checkout asociada al pedido.
+     * ID de la sesiÃ³n de checkout.
      */
     private String checkoutId;
-    
-    /**
-     * Pago asociado al pedido.
-     */
+
     private Payment payment;
-    
-    /**
-     * Invoice generated for the order.
-     */
+
     private Invoice invoice;
-    
-    /**
-     * Información de envío asociada al pedido.
-     */
+
     private Shipping shipping;
-    
-    
-    // ==================== MÉTODOS DE NEGOCIO ====================
-    
-    /**
-     * Avanza el estado del pedido según su estado actual.
-     * Transiciones válidas:
-     * - PENDING → ACCEPTED
-     * - ACCEPTED → SHIPPED
-     * - SHIPPED → DELIVERED
-     * 
-     * @throws InvalidOrderStateException si el pedido no puede avanzar desde su estado actual
-     */
+
     public void advanceState() {
+
         if (state == OrderState.PENDING) {
             state = OrderState.ACCEPTED;
             return;
         }
+
         if (state == OrderState.ACCEPTED) {
             state = OrderState.SHIPPED;
             return;
         }
+
         if (state == OrderState.SHIPPED) {
             state = OrderState.DELIVERED;
             return;
         }
-        throw new InvalidOrderStateException("El pedido no puede avanzar desde el estado actual");
+
+        throw new InvalidOrderStateException(
+                "El pedido no puede avanzar desde el estado actual");
     }
-    
-    /**
-     * Cancela el pedido si está en estado PENDING.
-     * 
-     * @throws InvalidOrderStateException si el pedido no está en estado PENDING
-     */
+
     public void cancel() {
+
         if (state != OrderState.PENDING) {
-            throw new InvalidOrderStateException("Solo se puede cancelar un pedido pendiente");
+            throw new InvalidOrderStateException(
+                    "Solo se puede cancelar un pedido pendiente");
         }
+
         state = OrderState.CANCELLED;
     }
-    
+
     /**
-     * Calcula el total del pedido basado en la cantidad, el precio unitario
-     * y el costo de envío.
-     * 
-     * @return total del pedido (precio unitario * cantidad + envío)
+     * Calcula el subtotal de todos los productos.
      */
-    public BigDecimal calculateTotal() {
-        if (quantity == null || unitPrice == null) {
+    public BigDecimal calculateSubtotal() {
+
+        if (items == null || items.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
-        BigDecimal envio = shippingCost == null ? BigDecimal.ZERO : shippingCost;
-        return subtotal.add(envio);
+
+        return items.stream()
+                .map(OrderItem::calculateSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * Calcula el total incluyendo el envÃ­o.
+     */
+    public BigDecimal calculateTotal() {
+
+        BigDecimal subtotal = calculateSubtotal();
+
+        BigDecimal shipping = shippingCost == null
+                ? BigDecimal.ZERO
+                : shippingCost;
+
+        return subtotal.add(shipping);
+    }
+
+    /**
+     * Recalcula y actualiza el total del pedido.
+     */
+    public void recalculateTotal() {
+        this.total = calculateTotal();
+    }
+
+    /**
+     * Agrega un producto al pedido.
+     */
+    public void addItem(OrderItem item) {
+
+        if (item == null) {
+            return;
+        }
+
+        if (items == null) {
+            items = new ArrayList<>();
+        }
+
+        items.add(item);
+        recalculateTotal();
     }
 }
+
