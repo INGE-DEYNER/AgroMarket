@@ -10,6 +10,7 @@ import com.agromarket.application.adapters.persistence.sql.entities.order.OrderE
 import com.agromarket.application.adapters.persistence.sql.entities.payment.PaymentEntity;
 import com.agromarket.application.adapters.persistence.sql.repositories.payment.PaymentJpaRepository;
 import com.agromarket.domain.models.payment.Payment;
+import com.agromarket.domain.models.enums.payment.PaymentState;
 import com.agromarket.domain.ports.out.payment.PaymentPort;
 
 import lombok.RequiredArgsConstructor;
@@ -64,5 +65,13 @@ public class PaymentSqlAdapter implements PaymentPort {
     public Optional<Payment> findByGatewayReference(String gatewayReference) {
         return repository.findByGatewayReference(gatewayReference)
                 .map(entity -> entity.toDomain());
+    }
+
+    @Override
+    public List<Payment> findByState(PaymentState state) {
+        return repository.findByState(state)
+                .stream()
+                .map(PaymentEntity::toDomain)
+                .toList();
     }
 }

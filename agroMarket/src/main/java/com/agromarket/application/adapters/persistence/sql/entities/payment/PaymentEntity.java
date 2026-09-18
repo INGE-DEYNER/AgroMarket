@@ -51,6 +51,15 @@ public class PaymentEntity {
 
         private LocalDateTime paymentDate;
 
+        /** Fecha/hora de retención en fideicomiso. */
+        private LocalDateTime escrowHeldAt;
+
+        /** Fecha/hora de liberación al productor. */
+        private LocalDateTime releasedAt;
+
+        /** Fecha/hora del reembolso al comprador. */
+        private LocalDateTime refundedAt;
+
         public Payment toDomain() {
                 return Payment.builder()
                                 .id(id)
@@ -62,6 +71,9 @@ public class PaymentEntity {
                                 .state(state)
                                 .gatewayReference(gatewayReference)
                                 .paymentDate(paymentDate)
+                                .escrowHeldAt(escrowHeldAt)
+                                .releasedAt(releasedAt)
+                                .refundedAt(refundedAt)
                                 .build();
         }
 
@@ -77,6 +89,9 @@ public class PaymentEntity {
                                 .state(payment.getState())
                                 .gatewayReference(payment.getGatewayReference())
                                 .paymentDate(payment.getPaymentDate())
+                                .escrowHeldAt(payment.getEscrowHeldAt())
+                                .releasedAt(payment.getReleasedAt())
+                                .refundedAt(payment.getRefundedAt())
                                 .build();
         }
 }

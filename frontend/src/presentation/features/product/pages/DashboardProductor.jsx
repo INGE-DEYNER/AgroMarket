@@ -78,6 +78,7 @@ export default function DashboardProductor() {
   const [activeRfqs, setActiveRfqs] = useState([]);
   const [biddingRfq, setBiddingRfq] = useState(null);
   const [bidForm, setBidForm] = useState({
+    productId: "",
     precioPropuesto: "",
     comentarios: "",
   });
@@ -167,7 +168,7 @@ export default function DashboardProductor() {
 
   const loadActiveRfqs = useCallback(async () => {
     try {
-      const data = await api.get("/rfq/activas");
+      const data = await api.get("/rfq/active");
       setActiveRfqs(extractArray(data));
     } catch (err) {
       console.error("Error loadActiveRfqs:", err);
@@ -178,7 +179,7 @@ export default function DashboardProductor() {
   const enviarBid = async (e) => {
     e.preventDefault();
     setBidMsg({ type: "", text: "" });
-    if (!bidForm.precioPropuesto) {
+    if (!bidForm.productId || !bidForm.precioPropuesto) {
       setBidMsg({
         type: "error",
         text: "Por favor complete todos los campos obligatorios.",
@@ -186,12 +187,15 @@ export default function DashboardProductor() {
       return;
     }
     try {
-      await api.post(`/rfq/${biddingRfq.id}/ofertar`, {
-        precioPropuesto: parseFloat(bidForm.precioPropuesto),
-        comentarios: bidForm.comentarios,
-      });
+      await api.post(
+        `/rfq/${biddingRfq.id}/offers?producerId=${user.id}&productId=${bidForm.productId}`,
+        {
+          proposedPrice: parseFloat(bidForm.precioPropuesto),
+          comments: bidForm.comentarios,
+        },
+      );
       setBidMsg({ type: "success", text: "Cotización enviada exitosamente." });
-      setBidForm({ precioPropuesto: "", comentarios: "" });
+      setBidForm({ productId: "", precioPropuesto: "", comentarios: "" });
       setTimeout(() => {
         setBiddingRfq(null);
         void loadActiveRfqs();
@@ -207,7 +211,7 @@ export default function DashboardProductor() {
   // Shipments loading
   const loadEnvios = useCallback(async () => {
     try {
-      const data = await api.get("/envios/mis-despachos");
+      const data = await api.get("/envios");
       setShipments(extractArray(data));
     } catch (err) {
       console.error("Error loadEnvios:", err);
@@ -2335,6 +2339,32 @@ export default function DashboardProductor() {
                       className="form-group"
                       style={{ marginBottom: "16px" }}
                     >
+                      <label className="form-label">Producto ofrecido *</label>
+                      <select
+                        className="form-input"
+                        style={{
+                          width: "100%",
+                          padding: "10px 12px",
+                          border: "1px solid var(--border-light)",
+                          borderRadius: "6px",
+                          marginBottom: "16px",
+                        }}
+                        value={bidForm.productId}
+                        onChange={(e) =>
+                          setBidForm({
+                            ...bidForm,
+                            productId: e.target.value,
+                          })
+                        }
+                        required
+                      >
+                        <option value="">Selecciona un producto</option>
+                        {productos.map((producto) => (
+                          <option key={producto.id} value={producto.id}>
+                            {producto.nombre}
+                          </option>
+                        ))}
+                      </select>
                       <label className="form-label">
                         Precio Propuesto por kg (COP) *
                       </label>

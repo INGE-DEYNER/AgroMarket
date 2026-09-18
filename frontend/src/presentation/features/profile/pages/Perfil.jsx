@@ -273,10 +273,9 @@ export default function Perfil() {
 
     setLoading(true);
     try {
-      await api.post("/tarjetas", {
-        numero: numeroTarjeta.replace(/\s/g, ""),
-        predeterminada: tarjetaPredeterminada,
-      });
+      throw new Error(
+        "El backend aún no ofrece tokenización segura de tarjetas. Usa Mercado Pago en el checkout.",
+      );
       setNumeroTarjeta("");
       setTipoDetectado(null);
       setTarjetaValida(false);

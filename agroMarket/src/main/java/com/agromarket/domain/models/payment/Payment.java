@@ -59,6 +59,21 @@ public class Payment {
      */
     private LocalDateTime paymentDate;
 
+    /**
+     * Fecha/hora en que el dinero entró en fideicomiso (retenido).
+     */
+    private LocalDateTime escrowHeldAt;
+
+    /**
+     * Fecha/hora en que el dinero se liberó al productor.
+     */
+    private LocalDateTime releasedAt;
+
+    /**
+     * Fecha/hora en que el dinero se devolvió al comprador.
+     */
+    private LocalDateTime refundedAt;
+
     // ==================== MÉTODOS DE NEGOCIO ====================
 
     /**
@@ -79,5 +94,48 @@ public class Payment {
      */
     public void reject() {
         this.state = PaymentState.REJECTED;
+    }
+
+    /**
+     * Retiene el dinero en fideicomiso.
+     *
+     * <p>
+     * Transición válida: CONFIRMED → IN_ESCROW. Es idempotente: si el pago ya
+     * está IN_ESCROW no cambia nada.
+     * </p>
+     */
+    public void holdInEscrow() {
+
+        if (state == PaymentState.IN_ESCROW) {
+            return;
+        }
+
+        if (state != PaymentState.CONFIRMED) {
+            throw new IllegalStateException(
+                    "Solo un pago confirmado puede retenerse en fideicomiso. Estado actual: "
+                            + state);
+        }
+
+        this.state = PaymentState.IN_ESCROW;
+
+        if (this.escrowHeldAt == null) {
+            this.escrowHeldAt = LocalDateTime.now();
+        }
+    }
+
+    public void release() {
+        if (state != PaymentState.IN_ESCROW && state != PaymentState.CONFIRMED) {
+            throw new IllegalStateException("Solo un pago confirmado o en fideicomiso puede liberarse");
+        }
+        this.state = PaymentState.RELEASED;
+        this.releasedAt = LocalDateTime.now();
+    }
+
+    public void refund() {
+        if (state != PaymentState.CONFIRMED && state != PaymentState.IN_ESCROW) {
+            throw new IllegalStateException("El pago no puede reembolsarse desde su estado actual");
+        }
+        this.state = PaymentState.REFUNDED;
+        this.refundedAt = LocalDateTime.now();
     }
 }

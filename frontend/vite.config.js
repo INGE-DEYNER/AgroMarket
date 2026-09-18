@@ -16,8 +16,8 @@ export default defineConfig({
       output: {
         entryFileNames: `assets/[name]-[hash].js`,
         chunkFileNames: `assets/[name]-[hash].js`,
-        assetFileNames: `assets/[name]-[hash].[ext]`
-      }
+        assetFileNames: `assets/[name]-[hash].[ext]`,
+      },
     },
     chunkSizeWarningLimit: 1000,
   },
@@ -31,7 +31,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
-      "/api": { target: "http://localhost:8080", changeOrigin: true },
+      "/api": { target: "http://localhost:18080", changeOrigin: true },
     },
   },
 });

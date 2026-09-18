@@ -61,4 +61,23 @@ public interface PaymentPort {
     PaymentResult handleGatewayNotification(String gatewayPaymentId);
 
     PaymentResult cancelPayment(Long paymentId);
+
+        List<PaymentResult> getByState(com.agromarket.domain.models.enums.payment.PaymentState state);
+
+        /**
+         * Retiene el pago en fideicomiso: CONFIRMED -> IN_ESCROW.
+         *
+         * <p>
+         * Idempotente: si el pago ya está en fideicomiso devuelve el estado
+         * actual sin efectos adicionales.
+         * </p>
+         *
+         * @param paymentId ID interno del pago
+         * @return resultado del pago en fideicomiso
+         */
+        PaymentResult holdInEscrow(Long paymentId);
+
+        PaymentResult releasePayment(Long paymentId);
+
+        PaymentResult refundPayment(Long paymentId);
     }

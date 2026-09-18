@@ -1,19 +1,155 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
 import { useToast } from "@/app/hooks/useToast";
-import { useTranslation } from "react-i18next";
+import api from "@/infrastructure/http/api";
 
-const RETURNS=[{order:"#AM-000112",date:"20 May 2024",status:"En proceso",product:"Cacao en grano 500g",qty:1,reason:"Producto dañado",detail:"En revisión"},{order:"#AM-000098",date:"10 May 2024",status:"Completada",product:"Miel de abejas 500ml",qty:2,reason:"No era lo que esperaba",detail:"$32.000 COP"}];
+function normalizeOrders(data) {
+  const orders = Array.isArray(data) ? data : data?.content || [];
+  return orders.map((order) => ({
+    id: order.id,
+    order: order.id ? `#AM-${String(order.id).padStart(6, "0")}` : "Pedido",
+    date: order.createdAt || order.fechaCreacion || null,
+    status: order.state || order.estado || "PENDING",
+    total: order.total || order.totalAmount || 0,
+  }));
+}
 
-export default function DevolucionesReembolsos(){
- const { t } = useTranslation();
- const toast=useToast();
- const [tab,setTab]=useState(t("special.allReturns", "Todas (2)")); const [items,setItems]=useState(RETURNS);
- const visible=tab==="Todas (2)"?items:items.filter(x=>tab.startsWith("En proceso")?x.status==="En proceso":tab.startsWith("Completadas")?x.status==="Completada":false);
- return <SpecialSystemShell activeKey="devoluciones">
-  <div className="special-heading"><div><h1>Mis devoluciones</h1><p>Consulta el estado de tus solicitudes de devolución y reembolso.</p></div></div>
-  <div className="special-tabs">{["Todas (2)","En proceso (1)","Completadas (1)","Rechazadas (0)"].map(x=><button className={tab===x?"active":""} onClick={()=>setTab(x)} key={x}>{x}</button>)}</div>
-  <section className="return-list">{visible.map(item=><article className="return-card" key={item.order}><div className="return-top"><div><strong>Pedido {item.order}</strong><span>Solicitado el {item.date}</span></div><span className={`special-badge ${item.status==="Completada"?"success":"warning"}`}>{item.status}</span></div><div className="return-body"><div><strong>{item.product}</strong><span>Cantidad: {item.qty}</span><span>Motivo: {item.reason}</span></div><div><small>{item.status==="Completada"?"Reembolso":"Estado"}</small><strong>{item.detail}</strong><button type="button" onClick={()=>toast.info(`Detalle de ${item.order}: ${item.detail}`,2500)}>Ver detalles</button></div></div></article>)}</section>
-  <button className="special-primary-action" onClick={()=>setItems([...items,{order:"#AM-NUEVO",date:"Hoy",status:"En proceso",product:"Nueva solicitud",qty:1,reason:"Pendiente de información",detail:"En revisión"}])}>Solicitar nueva devolución</button>
- </SpecialSystemShell>;
+export default function DevolucionesReembolsos() {
+  const toast = useToast();
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("TODOS");
+  const [returns, setReturns] = useState([]);
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      setOrders(normalizeOrders(await api.get("/pedidos/mis-pedidos")));
+      const savedReturns = await api.get("/devoluciones");
+      setReturns(Array.isArray(savedReturns) ? savedReturns : []);
+    } catch (error) {
+      toast.error(error.message || "No se pudieron cargar tus pedidos.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadOrders();
+  }, []);
+
+  const visibleOrders = useMemo(() => {
+    if (tab === "TODOS") return orders;
+    return orders.filter((item) => item.status === tab);
+  }, [orders, tab]);
+
+  const cancelOrder = async (orderId) => {
+    try {
+      await api.patch(`/pedidos/${orderId}/cancel`);
+      toast.success(
+        "Pedido cancelado. El reembolso depende del estado del pago.",
+      );
+      await loadOrders();
+    } catch (error) {
+      toast.error(error.message || "Este pedido no puede cancelarse.");
+    }
+  };
+
+  const requestReturn = async (orderId) => {
+    const reason = window.prompt("Indica el motivo de la devolución:");
+    if (!reason?.trim()) return;
+    try {
+      await api.post("/devoluciones", { orderId, reason: reason.trim() });
+      toast.success("Solicitud de devolución enviada.");
+      await loadOrders();
+    } catch (error) {
+      toast.error(error.message || "No se pudo crear la solicitud.");
+    }
+  };
+
+  return (
+    <SpecialSystemShell activeKey="devoluciones">
+      <div className="special-heading">
+        <div>
+          <h1>Pedidos y solicitudes</h1>
+          <p>
+            Consulta pedidos reales y cancela únicamente los que aún están
+            pendientes.
+          </p>
+        </div>
+        <button
+          className="special-primary-action"
+          onClick={() => navigate("/pedidos")}
+        >
+          Ver mis pedidos
+        </button>
+      </div>
+      <div className="special-tabs">
+        {["TODOS", "PENDING", "CANCELLED", "DELIVERED"].map((value) => (
+          <button
+            className={tab === value ? "active" : ""}
+            onClick={() => setTab(value)}
+            key={value}
+          >
+            {value === "TODOS" ? "Todos" : value}
+          </button>
+        ))}
+      </div>
+      <section className="return-list">
+        {loading ? <p>Cargando pedidos...</p> : null}
+        {!loading && visibleOrders.length === 0 ? (
+          <p>No hay pedidos para mostrar.</p>
+        ) : null}
+        {visibleOrders.map((item) => (
+          <article className="return-card" key={item.id}>
+            <div className="return-top">
+              <div>
+                <strong>Pedido {item.order}</strong>
+                <span>
+                  {item.date
+                    ? new Date(item.date).toLocaleDateString("es-CO")
+                    : "Sin fecha"}
+                </span>
+              </div>
+              <span className="special-badge warning">{item.status}</span>
+            </div>
+            <div className="return-body">
+              <div>
+                <strong>Total</strong>
+                <span>{item.total}</span>
+              </div>
+              {item.status === "PENDING" ? (
+                <button type="button" onClick={() => cancelOrder(item.id)}>
+                  Cancelar pedido
+                </button>
+              ) : item.status === "DELIVERED" ? (
+                <button type="button" onClick={() => requestReturn(item.id)}>
+                  Solicitar devolución
+                </button>
+              ) : (
+                <span>
+                  La devolución requiere un flujo de reembolso autorizado.
+                </span>
+              )}
+            </div>
+          </article>
+        ))}
+      </section>
+      {returns.length ? (
+        <section className="return-list">
+          <h2>Solicitudes enviadas</h2>
+          {returns.map((item) => (
+            <article className="return-card" key={item.id}>
+              <strong>Pedido #{item.orderId}</strong>
+              <span>
+                {item.status}: {item.reason}
+              </span>
+            </article>
+          ))}
+        </section>
+      ) : null}
+    </SpecialSystemShell>
+  );
 }

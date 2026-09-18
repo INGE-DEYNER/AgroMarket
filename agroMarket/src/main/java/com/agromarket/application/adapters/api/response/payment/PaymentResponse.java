@@ -33,6 +33,12 @@ public class PaymentResponse {
 
     private LocalDateTime paymentDate;
 
+    private LocalDateTime escrowHeldAt;
+
+    private LocalDateTime releasedAt;
+
+    private LocalDateTime refundedAt;
+
     private InvoiceResponse invoice;
 
     public static PaymentResponse fromResult(
@@ -53,6 +59,9 @@ public class PaymentResponse {
                         result.getGatewayReference())
                 .paymentDate(
                         result.getPaymentDate())
+                .escrowHeldAt(result.getEscrowHeldAt())
+                .releasedAt(result.getReleasedAt())
+                .refundedAt(result.getRefundedAt())
                 .invoice(
                         InvoiceResponse.fromResult(
                                 result.getInvoice()))

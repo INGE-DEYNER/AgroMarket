@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.agromarket.application.adapters.api.request.payment.ConfirmPaymentRequest;
 import com.agromarket.application.adapters.api.request.payment.InitiatePaymentRequest;
@@ -22,6 +23,7 @@ import com.agromarket.application.adapters.api.response.payment.PaymentResponse;
 import com.agromarket.domain.exceptions.payment.PaymentNotFoundException;
 import com.agromarket.domain.ports.in.payment.PaymentPort;
 import com.agromarket.domain.ports.in.payment.PaymentResult;
+import com.agromarket.domain.models.enums.payment.PaymentState;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -98,6 +100,77 @@ public class PaymentController {
                         .map(List::of)
                         .orElse(List.of()));
     }
+
+        /**
+         * GET /api/v1/payments/escrow (alias frontend: /pagos/fideicomiso)
+         *
+         * Lista los pagos confirmados y en fideicomiso para que el
+         * administrador pueda liberarlos o reembolsarlos.
+         *
+         * Si se pasa {@code ?state=CONFIRMED|IN_ESCROW|RELEASED|REFUNDED} se
+         * filtra por ese estado; sin parámetro devuelve un único listado con
+         * CONFIRMED + IN_ESCROW (vista de trabajo diaria del admin).
+         */
+        @GetMapping({ "/escrow", "/fideicomiso" })
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<List<PaymentResponse>> getEscrow(
+                        @RequestParam(required = false) String state) {
+
+                if (state != null && !state.isBlank()) {
+                        return ResponseEntity.ok(
+                                        paymentPort.getByState(parseState(state))
+                                                        .stream()
+                                                        .map(PaymentResponse::fromResult)
+                                                        .toList());
+                }
+
+                List<PaymentResult> payments = new java.util.ArrayList<>(
+                                paymentPort.getByState(PaymentState.IN_ESCROW));
+                payments.addAll(paymentPort.getByState(PaymentState.CONFIRMED));
+
+                return ResponseEntity.ok(payments.stream().map(PaymentResponse::fromResult).toList());
+        }
+
+        /**
+         * PATCH /api/v1/payments/{id}/escrow — CONFIRMED -> IN_ESCROW.
+         *
+         * <p>
+         * Idempotente: repetirlo sobre un pago ya en fideicomiso devuelve el
+         * estado actual sin efectos adicionales.
+         * </p>
+         */
+        @PatchMapping("/{id}/escrow")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<PaymentResponse> holdInEscrow(@PathVariable Long id) {
+                return ResponseEntity.ok(
+                                PaymentResponse.fromResult(paymentPort.holdInEscrow(id)));
+        }
+
+        /** PATCH /api/v1/payments/{id}/release — IN_ESCROW/CONFIRMED -> RELEASED. */
+        @PatchMapping("/{id}/release")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<PaymentResponse> release(@PathVariable Long id) {
+                return ResponseEntity.ok(PaymentResponse.fromResult(paymentPort.releasePayment(id)));
+        }
+
+        /** PATCH /api/v1/payments/{id}/refund — CONFIRMED/IN_ESCROW -> REFUNDED. */
+        @PatchMapping("/{id}/refund")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<PaymentResponse> refund(@PathVariable Long id) {
+                return ResponseEntity.ok(PaymentResponse.fromResult(paymentPort.refundPayment(id)));
+        }
+
+        /**
+         * Traduce el estado recibido por query param al enum de dominio,
+         * devolviendo 400 (no 500) si el valor es inválido.
+         */
+        private PaymentState parseState(String raw) {
+                try {
+                        return PaymentState.valueOf(raw.trim().toUpperCase(java.util.Locale.ROOT));
+                } catch (IllegalArgumentException ex) {
+                        throw new IllegalArgumentException("Estado de pago no válido: " + raw);
+                }
+        }
 
     @PatchMapping("/{id}/confirm")
     public ResponseEntity<PaymentResponse> confirm(

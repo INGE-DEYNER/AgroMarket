@@ -538,6 +538,41 @@ public class MercadoPagoPaymentGatewayAdapter implements PaymentGatewayPort {
                 }
         }
 
+        @Override
+        public boolean refundTransaction(String gatewayPaymentId) {
+                if (gatewayPaymentId == null || gatewayPaymentId.isBlank()) {
+                        return false;
+                }
+
+                if (useMock) {
+                        return gatewayPaymentId.startsWith("MOCK-");
+                }
+
+                if (!isNumeric(gatewayPaymentId)) {
+                        logger.warn("No se puede reembolsar una referencia no numérica: {}", gatewayPaymentId);
+                        return false;
+                }
+
+                try {
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.set("Authorization", "Bearer " + accessToken);
+                        HttpEntity<Void> request = new HttpEntity<>(headers);
+                        restTemplate.exchange(
+                                        baseUrl + "/v1/payments/" + gatewayPaymentId + "/refunds",
+                                        HttpMethod.POST,
+                                        request,
+                                        Void.class);
+                        return true;
+                } catch (HttpStatusCodeException e) {
+                        logger.error("Error HTTP {} reembolsando pago {}: {}",
+                                        e.getStatusCode(), gatewayPaymentId, e.getResponseBodyAsString());
+                        return false;
+                } catch (RuntimeException e) {
+                        logger.error("Error reembolsando pago {}: {}", gatewayPaymentId, e.getMessage(), e);
+                        return false;
+                }
+        }
+
         // ==================================================================
         // HELPERS
         // ==================================================================

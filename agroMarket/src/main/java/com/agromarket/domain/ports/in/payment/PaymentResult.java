@@ -32,5 +32,14 @@ public class PaymentResult {
 
     private LocalDateTime paymentDate;
 
+    /** Fecha/hora de retención en fideicomiso. */
+    private LocalDateTime escrowHeldAt;
+
+    /** Fecha/hora de liberación al productor. */
+    private LocalDateTime releasedAt;
+
+    /** Fecha/hora del reembolso al comprador. */
+    private LocalDateTime refundedAt;
+
     private InvoiceResult invoice;
 }

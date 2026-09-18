@@ -320,6 +320,74 @@ public class PaymentUseCase implements PaymentPort {
                                 paymentPort.save(payment));
         }
 
+        @Override
+        @Transactional(readOnly = true)
+        public List<PaymentResult> getByState(PaymentState state) {
+                return paymentPort.findByState(state).stream()
+                                .map(this::toResult)
+                                .toList();
+        }
+
+        @Override
+        @Transactional
+        public PaymentResult holdInEscrow(Long paymentId) {
+
+                Payment payment = findPayment(paymentId);
+
+                try {
+                        payment.holdInEscrow();
+                } catch (IllegalStateException ex) {
+                        throw new InvalidPaymentStateException(ex.getMessage());
+                }
+
+                return toResult(paymentPort.save(payment));
+        }
+
+        @Override
+        @Transactional
+        public PaymentResult releasePayment(Long paymentId) {
+                Payment payment = findPayment(paymentId);
+
+                try {
+                        payment.release();
+                } catch (IllegalStateException ex) {
+                        throw new InvalidPaymentStateException(ex.getMessage());
+                }
+
+                return toResult(paymentPort.save(payment));
+        }
+
+        @Override
+        @Transactional
+        public PaymentResult refundPayment(Long paymentId) {
+                Payment payment = findPayment(paymentId);
+
+                // Idempotencia: un pago ya reembolsado no vuelve a tocar la pasarela.
+                if (payment.getState() == PaymentState.REFUNDED) {
+                        return toResult(payment);
+                }
+
+                String gatewayReference = payment.getGatewayReference();
+
+                if (gatewayReference == null || gatewayReference.isBlank()) {
+                        throw new InvalidPaymentStateException(
+                                        "El pago no tiene referencia de pasarela");
+                }
+
+                if (!paymentGatewayPort.refundTransaction(gatewayReference)) {
+                        throw new InvalidPaymentStateException(
+                                        "La pasarela no pudo procesar el reembolso");
+                }
+
+                try {
+                        payment.refund();
+                } catch (IllegalStateException ex) {
+                        throw new InvalidPaymentStateException(ex.getMessage());
+                }
+
+                return toResult(paymentPort.save(payment));
+        }
+
         /**
          * Aplica el estado REAL reportado por la pasarela al pago local:
          * aprobado -> confirmado + factura; rechazado -> rechazado;
@@ -519,6 +587,9 @@ public class PaymentUseCase implements PaymentPort {
                                                 payment.getGatewayReference())
                                 .paymentDate(
                                                 payment.getPaymentDate())
+                                .escrowHeldAt(payment.getEscrowHeldAt())
+                                .releasedAt(payment.getReleasedAt())
+                                .refundedAt(payment.getRefundedAt())
                                 .invoice(invoiceResult)
                                 .build();
         }

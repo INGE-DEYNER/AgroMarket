@@ -8,6 +8,7 @@ import com.agromarket.domain.services.coupon.CouponService;
 import com.agromarket.domain.services.image.ImageService;
 import com.agromarket.domain.services.messaging.MessagingService;
 import com.agromarket.domain.services.order.OrderService;
+import com.agromarket.domain.services.order.ReturnRequestService;
 import com.agromarket.domain.services.payment.InvoiceService;
 import com.agromarket.domain.services.payment.PaymentService;
 import com.agromarket.domain.services.product.ProductService;
@@ -47,6 +48,11 @@ public class DomainServicesConfig {
     @Bean
     public OrderService orderService() {
         return new OrderService();
+    }
+
+    @Bean
+    public ReturnRequestService returnRequestService() {
+        return new ReturnRequestService();
     }
 
     @Bean

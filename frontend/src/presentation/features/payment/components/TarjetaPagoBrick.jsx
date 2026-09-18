@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
-import { useMercadoPago } from '@/infrastructure/payment/useMercadoPago';
-import { useTheme } from '@/app/contexts/ThemeContext.js';
-import api from '@/infrastructure/http/api';
+import { useState, useEffect, useRef } from "react";
+import { useMercadoPago } from "@/infrastructure/payment/useMercadoPago";
+import { useTheme } from "@/app/contexts/ThemeContext.js";
+import api from "@/infrastructure/http/api";
 
 /**
  * Componente TarjetaPagoBrick - Integración con Card Payment Brick de MercadoPago
- * 
+ *
  * Este componente permite el pago con tarjetas de crédito/débito usando el Brick de MercadoPago.
- * 
+ *
  * Props:
  * - amount: Monto del pago (requerido)
  * - orderId: ID del pedido (requerido)
@@ -39,23 +39,23 @@ export default function TarjetaPagoBrick({
         const failureUrl = `${window.location.origin}/pago/fallido?method=card`;
         const pendingUrl = `${window.location.origin}/pago/pendiente?method=card`;
 
-        const response = await api.post('/mercadopago/preferences', {
+        const response = await api.post("/mercadopago/preferences", {
           externalReference: `AGROMARKET-ORDER-${orderId}`,
           amount: amount,
           description: `Pago con tarjeta - Pedido #${orderId}`,
-          paymentMethod: 'CREDIT_CARD',
-          payerEmail: 'cliente@ejemplo.com', // Debería venir del contexto del usuario
-          payerName: 'Cliente AgroMarket', // Debería venir del contexto del usuario
+          paymentMethod: "CREDIT_CARD",
+          payerEmail: "cliente@ejemplo.com", // Debería venir del contexto del usuario
+          payerName: "Cliente AgroMarket", // Debería venir del contexto del usuario
           payerIdentification: null, // Debería venir del contexto del usuario
           successUrl: successUrl,
           failureUrl: failureUrl,
           pendingUrl: pendingUrl,
         });
 
-        const { preference } = response.data;
+        const { preference } = response;
 
         if (!preference) {
-          throw new Error('No se pudo crear la preferencia de pago');
+          throw new Error("No se pudo crear la preferencia de pago");
         }
 
         // Configurar el Brick con la preferencia
@@ -90,8 +90,11 @@ export default function TarjetaPagoBrick({
                 return new Promise((resolve) => resolve());
               } else {
                 // Error en los datos
-                if (onPaymentError) onPaymentError(new Error("Datos de tarjeta inválidos"));
-                return new Promise((_, reject) => reject(new Error("Datos inválidos")));
+                if (onPaymentError)
+                  onPaymentError(new Error("Datos de tarjeta inválidos"));
+                return new Promise((_, reject) =>
+                  reject(new Error("Datos inválidos")),
+                );
               }
             },
             onError: (error) => {
@@ -124,7 +127,9 @@ export default function TarjetaPagoBrick({
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
-          <p className="text-gray-600 dark:text-gray-300">Cargando MercadoPago...</p>
+          <p className="text-gray-600 dark:text-gray-300">
+            Cargando MercadoPago...
+          </p>
         </div>
       </div>
     );

@@ -290,7 +290,7 @@ export default function DashboardComprador() {
       console.error("Error loadPedidos:", err);
       setPedidos([]);
     }
-  }, [extractArray]);
+  }, [extractArray, user?.id]);
 
   // Initialization
   useEffect(() => {
@@ -327,7 +327,7 @@ export default function DashboardComprador() {
 
   const loadRfqs = useCallback(async () => {
     try {
-      const data = await api.get("/rfq/mis-solicitudes");
+      const data = await api.get(`/rfq/buyer/${user.id}`);
       setRfqs(extractArray(data));
     } catch (err) {
       console.error("Error loadRfqs:", err);
@@ -346,11 +346,11 @@ export default function DashboardComprador() {
       return;
     }
     try {
-      await api.post("/rfq", {
-        tipoFruta: rfqForm.tipoFruta,
-        cantidadRequerida: parseFloat(rfqForm.cantidadRequerida),
+      await api.post(`/rfq?buyerId=${user.id}`, {
+        fruitType: rfqForm.tipoFruta,
+        requiredQuantity: parseFloat(rfqForm.cantidadRequerida),
         descripcion: rfqForm.descripcion,
-        fechaLimite: new Date(rfqForm.fechaLimite).toISOString(),
+        deadline: new Date(rfqForm.fechaLimite).toISOString(),
       });
       setRfqMsg({
         type: "success",
@@ -371,7 +371,7 @@ export default function DashboardComprador() {
     }
   };
 
-  const aceptarOfertaRfq = async (ofertaId) => {
+  const aceptarOfertaRfq = async (requestForQuoteId, ofertaId) => {
     if (
       !window.confirm(
         "¿Está seguro de que desea aceptar esta oferta? Se generará un pedido automático con los datos propuestos.",
@@ -379,7 +379,9 @@ export default function DashboardComprador() {
     )
       return;
     try {
-      await api.put(`/rfq/ofertas/${ofertaId}/aceptar`);
+      await api.patch(
+        `/rfq/${requestForQuoteId}/offers/${ofertaId}/accept?buyerId=${user.id}`,
+      );
       alert(
         "Oferta aceptada correctamente. Se ha generado un pedido en estado pendiente.",
       );
@@ -447,7 +449,7 @@ export default function DashboardComprador() {
   // Shipments loading
   const loadEnvios = useCallback(async () => {
     try {
-      const data = await api.get("/envios/mis-envios");
+      const data = await api.get("/envios");
       const list = extractArray(data);
       setShipments(list.filter((e) => e.estado !== "Entregado"));
       setHistorialEnvios(list);
@@ -3014,7 +3016,9 @@ export default function DashboardComprador() {
                                     padding: "4px 8px",
                                     fontSize: "0.7rem",
                                   }}
-                                  onClick={() => aceptarOfertaRfq(of.id)}
+                                  onClick={() =>
+                                    aceptarOfertaRfq(rfq.id, of.id)
+                                  }
                                 >
                                   Aceptar
                                 </button>

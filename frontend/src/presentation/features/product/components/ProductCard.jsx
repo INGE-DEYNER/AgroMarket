@@ -10,6 +10,7 @@ const ProductCard = React.memo(
     handlePedirAhora,
     onViewDetails,
     onContactProducer,
+    onToggleWishlist,
   }) => {
     const { user } = useAuth();
     // Divisa global: formatearPrecio reacciona a idioma + divisa en todo el proyecto.
@@ -136,7 +137,10 @@ const ProductCard = React.memo(
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span>{t("catalog.retail", "Por menor:")}</span>
-                <span>{formatPrice(p.precio)}{t("catalog.perKg", "/kg")}</span>
+                <span>
+                  {formatPrice(p.precio)}
+                  {t("catalog.perKg", "/kg")}
+                </span>
               </div>
               <div
                 style={{
@@ -146,8 +150,15 @@ const ProductCard = React.memo(
                   color: "var(--primary)",
                 }}
               >
-                <span>{t("catalog.wholesaleFrom", "Por mayor (≥{{qty}}kg):", { qty: p.cantidadMinimaMayorista })}</span>
-                <span>{formatPrice(p.precioMayorista)}{t("catalog.perKg", "/kg")}</span>
+                <span>
+                  {t("catalog.wholesaleFrom", "Por mayor (≥{{qty}}kg):", {
+                    qty: p.cantidadMinimaMayorista,
+                  })}
+                </span>
+                <span>
+                  {formatPrice(p.precioMayorista)}
+                  {t("catalog.perKg", "/kg")}
+                </span>
               </div>
             </div>
           )}
@@ -156,9 +167,13 @@ const ProductCard = React.memo(
             onClick={() => onViewDetails?.(p)}
           >
             {p.calificacion ? (
-              <>★★★★★<span>({p.calificacion})</span></>
+              <>
+                ★★★★★<span>({p.calificacion})</span>
+              </>
             ) : (
-              <span style={{ color: "var(--text-dim)", fontSize: "0.8rem" }}>{t("catalog.noReviews", "Sin reseñas aún")}</span>
+              <span style={{ color: "var(--text-dim)", fontSize: "0.8rem" }}>
+                {t("catalog.noReviews", "Sin reseñas aún")}
+              </span>
             )}
           </div>
           <div className="catalog-card-footer">
@@ -203,6 +218,19 @@ const ProductCard = React.memo(
                   : t("catalog.addToCart", "+ Agregar")}
               </button>
             )}
+            {onToggleWishlist && user && (
+              <button
+                type="button"
+                className="catalog-card-wishlist"
+                aria-label="Guardar en lista de deseos"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleWishlist(p);
+                }}
+              >
+                ♡
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -213,5 +241,3 @@ const ProductCard = React.memo(
 ProductCard.displayName = "ProductCard";
 
 export default ProductCard;
-
-
