@@ -1,0 +1,103 @@
+# src/main/resources/application.yml
+spring:
+  application:
+    name: agromarket
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+    group:
+      dev: sql
+      prod: sql
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+  cache:
+    type: caffeine
+
+  # Sin migraciones: el esquema lo genera Hibernate (ddl-auto: update)
+
+  jackson:
+    time-zone: UTC
+
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+app:
+  cors:
+    allowed-origins:
+      - ${APP_CORS_ALLOWED_ORIGIN:http://localhost:3000}
+      - http://localhost:5173
+      - http://localhost:5174
+      - https://agro-market.app
+      - https://www.agro-market.app
+
+  security:
+    id-encryption-key: ${APP_SECURITY_ID_ENCRYPTION_KEY:change-me}
+
+  oauth2:
+    success-redirect: ${APP_OAUTH2_SUCCESS_REDIRECT:http://localhost:3000/oauth2/success}
+    failure-redirect: ${APP_OAUTH2_FAILURE_REDIRECT:http://localhost:3000/oauth2/failure}
+    default-role: ${APP_OAUTH2_DEFAULT_ROLE:BUYER}
+
+  google:
+    client-id: ${GOOGLE_OAUTH2_CLIENT_ID:}
+    client-secret: ${GOOGLE_OAUTH2_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_OAUTH2_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+
+  jwt:
+    secret: ${JWT_SECRET:change-me}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+    temporary-expiration-ms: ${JWT_TEMPORARY_EXPIRATION_MS:300000}
+
+  frontend-url: ${FRONTEND_URL:}
+
+  ai:
+    gemini-api-key: ${GEMINI_API_KEY:}
+
+  mercadopago:
+    base-url: ${MERCADOPAGO_BASE_URL:https://api.mercadopago.com}
+    access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
+    use-mock: ${MERCADOPAGO_USE_MOCK:false}
+    webhook-url: ${MERCADOPAGO_WEBHOOK_URL:}
+
+  shipping:
+    origin-latitude: ${SHIPPING_ORIGIN_LATITUDE:7.6667}
+    origin-longitude: ${SHIPPING_ORIGIN_LONGITUDE:-76.6811}
+    price-per-kilometer: ${SHIPPING_PRICE_PER_KM:1000}
+    minimum-cost: ${SHIPPING_MINIMUM_COST:0}
+
+  scheduler:
+    promotions-delay-ms: ${PROMOTIONS_JOB_DELAY_MS:300000}
+    rfq-delay-ms: ${RFQ_JOB_DELAY_MS:300000}
+
+brevo:
+  api:
+    key: ${BREVO_API_KEY:}
+  sender:
+    email: ${BREVO_SENDER_EMAIL:}
+    name: ${BREVO_SENDER_NAME:AgroMarket}
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+  api-key: ${CLOUDINARY_API_KEY:}
+  api-secret: ${CLOUDINARY_API_SECRET:}

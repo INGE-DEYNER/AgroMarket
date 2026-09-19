@@ -1,0 +1,856 @@
+/* AgroMarket — component theme primitives */
+@import "./variables.css";
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  font-family: var(--am-font-body);
+  background: var(--am-bg);
+  color: var(--am-gray-950);
+}
+
+body {
+  font-family: var(--am-font-body);
+  background: var(--am-bg);
+  color: var(--am-gray-950);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading,
+.card-title,
+.page-title {
+  font-family: var(--am-font-heading);
+  color: var(--am-gray-950);
+  line-height: 1.25;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--am-green-700);
+  outline-offset: 2px;
+  box-shadow: var(--am-focus-ring);
+}
+
+.am-btn,
+.btn {
+  min-height: 40px;
+  border-radius: var(--am-radius-md);
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--am-font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color var(--am-duration-base) var(--am-ease),
+    border-color var(--am-duration-base) var(--am-ease),
+    color var(--am-duration-base) var(--am-ease),
+    box-shadow var(--am-duration-base) var(--am-ease),
+    transform var(--am-duration-fast) var(--am-ease);
+}
+
+.am-btn:hover:not(:disabled),
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.am-btn:active:not(:disabled),
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.am-btn:disabled,
+.btn:disabled,
+button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.am-btn--primary,
+.btn-primary {
+  background: var(--am-green-700);
+  color: var(--am-white);
+}
+
+.am-btn--primary:hover:not(:disabled),
+.btn-primary:hover:not(:disabled) {
+  background: var(--am-green-900);
+}
+
+.am-btn--secondary,
+.btn-secondary {
+  background: var(--am-white);
+  color: var(--am-green-900);
+  border-color: var(--am-green-700);
+}
+
+.am-btn--secondary:hover:not(:disabled),
+.btn-secondary:hover:not(:disabled) {
+  background: var(--am-green-100);
+}
+
+.am-btn--tertiary,
+.btn-tertiary {
+  background: transparent;
+  color: var(--am-green-700);
+}
+
+.am-btn--tertiary:hover:not(:disabled),
+.btn-tertiary:hover:not(:disabled) {
+  background: var(--am-green-100);
+}
+
+.am-btn--danger,
+.btn-danger {
+  background: var(--am-danger);
+  color: var(--am-white);
+}
+
+.am-btn--danger:hover:not(:disabled),
+.btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.am-input,
+.form-input,
+.form-select,
+.form-textarea,
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  border: 1px solid var(--am-gray-300);
+  border-radius: var(--am-radius-md);
+  background: var(--am-white);
+  color: var(--am-gray-950);
+  transition:
+    border-color var(--am-duration-base) var(--am-ease),
+    box-shadow var(--am-duration-base) var(--am-ease),
+    background-color var(--am-duration-base) var(--am-ease);
+}
+
+.am-input:hover,
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover,
+input:not([type="checkbox"]):not([type="radio"]):hover,
+select:hover,
+textarea:hover {
+  border-color: var(--am-gray-500);
+}
+
+.am-input:focus,
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--am-green-700);
+  box-shadow: var(--am-focus-ring);
+  outline: none;
+}
+
+.am-field--error .am-input,
+.am-field--error input,
+.am-field--error select,
+.am-field--error textarea,
+.form-error .form-input {
+  border-color: var(--am-danger);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.am-field__message,
+.form-error-message {
+  margin-top: 4px;
+  color: var(--am-danger);
+  font-size: 12px;
+}
+
+.am-badge,
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 4px 10px;
+  border-radius: var(--am-radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.am-badge--success {
+  background: var(--am-green-100);
+  color: var(--am-green-900);
+}
+.am-badge--warning {
+  background: #fff8db;
+  color: #7a5200;
+}
+.am-badge--danger {
+  background: #fef2f2;
+  color: #991b1b;
+}
+.am-badge--info {
+  background: #eff6ff;
+  color: #1e40af;
+}
+.am-badge--neutral {
+  background: var(--am-gray-100);
+  color: var(--am-gray-700);
+}
+
+.am-alert {
+  border: 1px solid transparent;
+  border-radius: var(--am-radius-lg);
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.am-alert--success {
+  background: var(--am-green-100);
+  color: var(--am-green-900);
+  border-color: var(--am-green-300);
+}
+.am-alert--warning {
+  background: #fff8db;
+  color: #694c00;
+  border-color: #f0c84b;
+}
+.am-alert--danger {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+.am-alert--info {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+
+.am-modal-backdrop,
+.modal-overlay {
+  background: rgba(17, 24, 39, 0.52);
+  backdrop-filter: blur(3px);
+}
+
+.am-modal,
+.modal {
+  border-radius: var(--am-radius-xl);
+  box-shadow: var(--am-shadow-lg);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.am-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--am-gray-300);
+}
+
+.am-tab {
+  border: 0;
+  background: transparent;
+  color: var(--am-gray-500);
+  padding: 10px 14px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.am-tab:hover {
+  color: var(--am-green-700);
+  background: var(--am-green-100);
+}
+.am-tab[aria-selected="true"],
+.am-tab.active {
+  color: var(--am-green-900);
+  border-bottom-color: var(--am-green-700);
+  font-weight: 700;
+}
+
+.am-accordion {
+  border: 1px solid var(--am-gray-300);
+  border-radius: var(--am-radius-lg);
+  background: var(--am-white);
+  overflow: hidden;
+}
+
+.am-accordion > summary {
+  cursor: pointer;
+  padding: 14px 16px;
+  font-weight: 600;
+}
+
+.am-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.am-pagination button {
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid var(--am-gray-300);
+  background: var(--am-white);
+  color: var(--am-gray-700);
+  border-radius: var(--am-radius-md);
+  cursor: pointer;
+}
+
+.am-pagination button:hover {
+  border-color: var(--am-green-700);
+  color: var(--am-green-700);
+}
+.am-pagination button[aria-current="page"] {
+  background: var(--am-green-700);
+  color: #fff;
+  border-color: var(--am-green-700);
+}
+
+.am-skeleton {
+  background: linear-gradient(90deg, #edf4ee 25%, #dcebdd 50%, #edf4ee 75%);
+  background-size: 200% 100%;
+  animation: am-shimmer 1.4s linear infinite;
+  border-radius: var(--am-radius-md);
+}
+
+@keyframes am-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.am-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(17, 130, 59, 0.18);
+  border-top-color: var(--am-green-700);
+  border-radius: 50%;
+  animation: am-spin 0.7s linear infinite;
+}
+
+@keyframes am-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.am-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--am-white);
+}
+
+.am-table th,
+.am-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--am-gray-300);
+  text-align: left;
+}
+
+.am-table th {
+  background: var(--am-gray-100);
+  color: var(--am-gray-700);
+  font-weight: 700;
+}
+
+.am-table tbody tr:hover {
+  background: #fafcfa;
+}
+
+.am-dropdown {
+  position: relative;
+}
+
+.am-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: var(--am-z-dropdown);
+  min-width: 180px;
+  padding: 6px;
+  background: var(--am-white);
+  border: 1px solid var(--am-gray-300);
+  border-radius: var(--am-radius-lg);
+  box-shadow: var(--am-shadow-md);
+}
+
+.am-dropdown__item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--am-gray-700);
+  padding: 9px 10px;
+  border-radius: var(--am-radius-md);
+  text-align: left;
+  cursor: pointer;
+}
+
+.am-dropdown__item:hover {
+  background: var(--am-green-100);
+  color: var(--am-green-900);
+}
+
+.am-toast {
+  border-radius: var(--am-radius-lg);
+  box-shadow: var(--am-shadow-lg);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+@media (max-width: 576px) {
+  .am-tabs {
+    overflow-x: auto;
+  }
+  .am-tab {
+    white-space: nowrap;
+  }
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   Tema oscuro global
+   ============================================================ */
+html.dark,
+html.dark body {
+  background: var(--am-bg);
+  color: var(--am-gray-950);
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6,
+html.dark .heading,
+html.dark .card-title,
+html.dark .page-title {
+  color: var(--am-gray-950);
+}
+
+html.dark .am-btn--secondary,
+html.dark .btn-secondary,
+html.dark .am-btn--tertiary,
+html.dark .btn-tertiary {
+  background: var(--am-surface);
+  color: var(--am-green-300);
+  border-color: var(--am-green-700);
+}
+
+html.dark .am-input,
+html.dark .form-input,
+html.dark .form-select,
+html.dark .form-textarea,
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+  background: var(--am-surface);
+  color: var(--am-gray-950);
+  border-color: var(--am-gray-300);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--am-gray-500);
+}
+
+html.dark .am-dropdown__menu,
+html.dark .am-accordion,
+html.dark .am-table,
+html.dark .am-empty-state,
+html.dark .favorite-button {
+  background: var(--am-surface);
+  color: var(--am-gray-950);
+  border-color: var(--am-gray-300);
+}
+
+html.dark .am-table th {
+  background: var(--am-surface-muted);
+  color: var(--am-gray-700);
+}
+
+html.dark .am-table td {
+  border-color: var(--am-gray-300);
+}
+
+html.dark .am-table tbody tr:hover {
+  background: #1d2a21;
+}
+
+html.dark .am-skeleton {
+  background: #263229;
+}
+
+html.dark .am-skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+}
+
+
+/* ============================================================
+   AGROMARKET — DARK MODE GLOBAL / OVERRIDES
+   Este bloque va al final para ganar a los estilos legacy que
+   todavía usan colores fijos (#fff, #f7faf8, etc.).
+   ============================================================ */
+
+html.dark,
+html.dark body,
+html.dark #root {
+  background: var(--am-bg) !important;
+  color: var(--am-gray-950);
+}
+
+html.dark body {
+  background-image: none !important;
+}
+
+html.dark main,
+html.dark .public-shell,
+html.dark .public-main {
+  background: var(--am-bg);
+  color: var(--am-gray-950);
+}
+
+/* Navbar */
+html.dark .navbar-header,
+html.dark .navbar-top,
+html.dark .navbar-categories {
+  background: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .nav-search,
+html.dark .theme-toggle,
+html.dark .nav-icon-btn,
+html.dark .nav-hamburger,
+html.dark .nav-dropdown,
+html.dark .mobile-drawer,
+html.dark .language-switcher button,
+html.dark .language-switcher [role="listbox"],
+html.dark .nav-user {
+  background: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .nav-search input,
+html.dark .nav-location,
+html.dark .nav-location strong,
+html.dark .nav-btn-text,
+html.dark .nav-cats-inner > a,
+html.dark .nav-cats-btn {
+  color: var(--color-text-primary) !important;
+}
+
+html.dark .nav-search input::placeholder,
+html.dark .nav-location small {
+  color: var(--color-text-muted) !important;
+}
+
+html.dark .nav-dropdown a,
+html.dark .nav-dropdown button,
+html.dark .language-switcher [role="option"],
+html.dark .mobile-drawer-links > a {
+  color: var(--color-text-primary) !important;
+}
+
+html.dark .nav-dropdown a:hover,
+html.dark .nav-dropdown button:hover,
+html.dark .nav-cats-inner > a:hover,
+html.dark .nav-cats-btn:hover {
+  background: var(--color-surface-hover) !important;
+  color: var(--am-green-300) !important;
+}
+
+/* Public pages */
+html.dark .page-wrap,
+html.dark .section-head,
+html.dark .section-head h2 {
+  color: var(--color-text-primary);
+}
+
+html.dark .trust-card,
+html.dark .category-card,
+html.dark .product-card,
+html.dark .producer-card,
+html.dark .filter-panel,
+html.dark .step-card,
+html.dark .contact-card,
+html.dark .catalog-top,
+html.dark .about-grid > *,
+html.dark .help-layout > * {
+  background: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .trust-card strong,
+html.dark .category-card span,
+html.dark .product-name,
+html.dark .producer-card,
+html.dark .step-card,
+html.dark .contact-card,
+html.dark .filter-panel h3,
+html.dark .filter-panel h4,
+html.dark .section-head h2 {
+  color: var(--color-text-primary) !important;
+}
+
+html.dark .trust-card > div:last-child,
+html.dark .product-meta,
+html.dark .filter-panel label,
+html.dark .breadcrumb,
+html.dark .section-head a {
+  color: var(--color-text-secondary) !important;
+}
+
+html.dark .category-card img,
+html.dark .producer-card img {
+  background: var(--am-surface-muted);
+}
+
+html.dark .pagination span,
+html.dark .catalog-top input {
+  background: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .local-banner {
+  background: linear-gradient(90deg, #063c20, #075d2e) !important;
+}
+
+/* Generic application surfaces used throughout dashboards/forms. */
+html.dark .card,
+html.dark .panel,
+html.dark .modal,
+html.dark .modal-content,
+html.dark .table-wrap,
+html.dark .table-container,
+html.dark .content-card,
+html.dark .section-card,
+html.dark .form-card,
+html.dark .settings-card,
+html.dark .stat-card,
+html.dark .info-card,
+html.dark .empty-state,
+html.dark .am-card {
+  background: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .card *,
+html.dark .panel *,
+html.dark .modal *,
+html.dark .modal-content *,
+html.dark .table-wrap *,
+html.dark .table-container *,
+html.dark .content-card *,
+html.dark .section-card *,
+html.dark .form-card *,
+html.dark .settings-card *,
+html.dark .stat-card *,
+html.dark .info-card *,
+html.dark .empty-state *,
+html.dark .am-card * {
+  border-color: var(--color-border);
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+  background: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+html.dark table,
+html.dark th,
+html.dark td {
+  color: var(--color-text-primary);
+  border-color: var(--color-border) !important;
+}
+
+html.dark th {
+  background: var(--am-surface-muted) !important;
+}
+
+/* Footer: keep the brand green/payment strip green, but switch all
+   neutral sections and cards to dark surfaces. */
+html.dark .footer-ml-style {
+  background: var(--am-bg) !important;
+  color: var(--color-text-primary) !important;
+}
+
+html.dark .footer-trust,
+html.dark .footer-more-bar,
+html.dark .footer-more-button,
+html.dark .footer-partners {
+  background: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .footer-trust-card,
+html.dark .footer-stakeholder-card {
+  background: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .footer-trust-card h3,
+html.dark .footer-stakeholder-info strong,
+html.dark .footer-link-column h4 {
+  color: var(--color-text-primary) !important;
+}
+
+html.dark .footer-trust-card p,
+html.dark .footer-stakeholder-info span,
+html.dark .footer-link-column a,
+html.dark .footer-link-column span,
+html.dark .footer-text-button,
+html.dark .footer-partners-header p {
+  color: var(--color-text-secondary) !important;
+}
+
+html.dark .footer-more-panel {
+  background: var(--am-surface-muted) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .footer-more-button {
+  border-color: var(--color-border) !important;
+}
+
+html.dark .footer-more-button:hover,
+html.dark .footer-link-column a:hover,
+html.dark .footer-text-button:hover {
+  background: var(--color-surface-hover) !important;
+  color: var(--am-green-300) !important;
+}
+
+html.dark .footer-section-kicker-dark {
+  color: var(--am-green-300) !important;
+}
+
+/* The payment strip and main brand strip intentionally remain green. */
+html.dark .footer-main-green,
+html.dark .footer-payments {
+  background: #075f2c !important;
+  color: #fff !important;
+}
+
+html.dark .footer-bottom {
+  background: #064d26 !important;
+  color: #fff !important;
+}
+
+/* Language/currency menus contain inline light colors in legacy code. */
+html.dark .language-switcher div[role="listbox"],
+html.dark .language-switcher div[role="listbox"] button,
+html.dark .language-switcher > div,
+html.dark [style*="background-color: rgb(255, 255, 255)"] {
+  background-color: var(--am-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* ============================================================
+   Carruseles: movimiento continuo + pausa + realce
+   ============================================================ */
+.footer-marquee-track {
+  animation-play-state: running !important;
+}
+
+.footer-marquee:hover .footer-marquee-track {
+  animation-play-state: paused !important;
+}
+
+.footer-stakeholder-card:focus-visible,
+.footer-stakeholder-card:hover {
+  transform: scale(1.08) translateY(-4px);
+  z-index: 30;
+  border-color: var(--am-green-500) !important;
+  box-shadow: 0 14px 32px rgba(8, 117, 47, 0.22);
+}
+
+html.dark .footer-stakeholder-card:hover,
+html.dark .footer-stakeholder-card:focus-visible {
+  border-color: var(--am-green-300) !important;
+  box-shadow: 0 14px 32px rgba(82, 184, 106, 0.18);
+}
+
+/* Do not let the accessibility reduced-motion rule stop the required
+   payment/partner marquees. */
+@media (prefers-reduced-motion: reduce) {
+  .footer-marquee-track {
+    animation-duration: 36s !important;
+    animation-iteration-count: infinite !important;
+    animation-timing-function: linear !important;
+  }
+}
+
+/* Responsive dark surfaces */
+@media (max-width: 799px) {
+  html.dark .mobile-drawer {
+    background: var(--am-surface) !important;
+    color: var(--color-text-primary) !important;
+  }
+}
