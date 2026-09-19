@@ -125,8 +125,6 @@ export default function Admin() {
     usuarioId: "",
     fechaExpiracion: "",
   });
-  const [costoEnvioNacional, setCostoEnvioNacional] = useState(15000);
-  const [guardandoEnvio, setGuardandoEnvio] = useState(false);
   const [mantenimientoMode, setMantenimientoMode] = useState(false);
   const [notificacionesNoLeidas, setNotificacionesNoLeidas] = useState(0);
 
@@ -227,49 +225,6 @@ export default function Admin() {
       void loadUsuarios();
     } catch (err) {
       alert("Error al rechazar usuario: " + err.message);
-    }
-  };
-
-  // Cargar el costo de envío real desde el backend (GET /envios/config).
-  // Es la fuente de verdad compartida por carrito, checkout, pedidos y pago.
-  useEffect(() => {
-    let mounted = true;
-
-    api
-      .get("/envios/config")
-      .then((res) => {
-        const data = res?.data || res;
-        const valor = Number(data?.costoEnvio);
-        if (mounted && Number.isFinite(valor) && valor >= 0) {
-          setCostoEnvioNacional(valor);
-        }
-      })
-      .catch((err) =>
-        console.error("No se pudo cargar el costo de envío:", err),
-      );
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const handleGuardarCostoEnvio = async () => {
-    if (guardandoEnvio) return;
-    setGuardandoEnvio(true);
-    try {
-      await api.put("/envios/config", {
-        costoEnvio: costoEnvioNacional,
-      });
-      alert(
-        "Costo de envío guardado en el servidor. Se aplica a carrito, checkout y pedidos.",
-      );
-    } catch (err) {
-      alert(
-        "Error al guardar el costo de envío: " +
-          (err.message || "inténtalo de nuevo."),
-      );
-    } finally {
-      setGuardandoEnvio(false);
     }
   };
 
@@ -3132,58 +3087,6 @@ export default function Admin() {
                     }}
                   >
                     {/* Costo envío */}
-                    <div
-                      style={{
-                        background: "#f8fafc",
-                        padding: "20px",
-                        borderRadius: "8px",
-                        border: "1px solid #e2e8f0",
-                      }}
-                    >
-                      <h4
-                        style={{
-                          margin: 0,
-                          marginBottom: "12px",
-                          color: "var(--primary-dark)",
-                          fontSize: "0.95rem",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Costos de Envío
-                      </h4>
-                      <div className="form-group" style={{ maxWidth: "300px" }}>
-                        <label
-                          className="form-label"
-                          style={{ fontSize: "0.85rem" }}
-                        >
-                          Costo de Envío Estándar Nacional (COP)
-                        </label>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "8px",
-                            marginTop: "6px",
-                          }}
-                        >
-                          <input
-                            type="number"
-                            className="form-input"
-                            value={costoEnvioNacional}
-                            onChange={(e) =>
-                              setCostoEnvioNacional(Number(e.target.value))
-                            }
-                          />
-                          <button
-                            className="btn btn-primary"
-                            disabled={guardandoEnvio}
-                            onClick={handleGuardarCostoEnvio}
-                          >
-                            {guardandoEnvio ? "Guardando..." : "Guardar"}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
                     {/* Mantenimiento mode */}
                     <div
                       style={{

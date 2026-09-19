@@ -28,6 +28,11 @@ public class CreateOrderRequest {
     private String direccionEnvio;
     private String direccionCompleta;
 
+    private Double originLatitude;
+    private Double originLongitude;
+    private Double destinationLatitude;
+    private Double destinationLongitude;
+
     private String checkoutId;
     private String checkout;
 

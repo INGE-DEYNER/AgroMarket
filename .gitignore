@@ -59,7 +59,6 @@ node_modules/
 # Environment and secrets
 .env
 *.env
-!.env.example
 
 # Local/generated runtime data
 uploads/

@@ -17,33 +17,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  /*
-   * Costo de envío provisto por el backend (GET /envios/config).
-   * Mismo valor que el backend aplicará al crear el pedido, de modo
-   * que el total mostrado aquí coincida con el del checkout y el pago.
-   */
-  const [costoEnvio, setCostoEnvio] = useState(15000);
-
-  useEffect(() => {
-    let mounted = true;
-
-    api
-      .get("/envios/config")
-      .then((res) => {
-        const data = res?.data || res;
-        const valor = Number(data?.costoEnvio);
-        if (mounted && Number.isFinite(valor) && valor >= 0) {
-          setCostoEnvio(valor);
-        }
-      })
-      .catch(() => {
-        // Sin sesión o sin conexión: se conserva el valor por defecto.
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const [costoEnvio] = useState(0);
 
   useEffect(() => {
     if (!isOpen) {
@@ -206,25 +180,32 @@ export default function CartDrawer({ isOpen, onClose }) {
                       {isWholesale ? (
                         <>
                           <span className="price-old">
-                            {formatPrice(item.precio)}{t("catalog.perKg", "/kg")}
+                            {formatPrice(item.precio)}
+                            {t("catalog.perKg", "/kg")}
                           </span>
 
                           <span className="price-wholesale">
-                            {formatPrice(unitPrice)}{t("catalog.perKg", "/kg")}
+                            {formatPrice(unitPrice)}
+                            {t("catalog.perKg", "/kg")}
                           </span>
                         </>
                       ) : isPromotion ? (
                         <>
                           <span className="price-old">
-                            {formatPrice(item.precio)}{t("catalog.perKg", "/kg")}
+                            {formatPrice(item.precio)}
+                            {t("catalog.perKg", "/kg")}
                           </span>
 
                           <span className="price-promo">
-                            {formatPrice(unitPrice)}{t("catalog.perKg", "/kg")}
+                            {formatPrice(unitPrice)}
+                            {t("catalog.perKg", "/kg")}
                           </span>
                         </>
                       ) : (
-                        <span>{formatPrice(unitPrice)}{t("catalog.perKg", "/kg")}</span>
+                        <span>
+                          {formatPrice(unitPrice)}
+                          {t("catalog.perKg", "/kg")}
+                        </span>
                       )}
                     </div>
 
@@ -233,7 +214,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                         type="button"
                         className="qty-btn"
                         onClick={() => updateQuantity(item.id, item.qty - 1)}
-                        aria-label={t("catalog.decreaseQty", "Disminuir cantidad")}
+                        aria-label={t(
+                          "catalog.decreaseQty",
+                          "Disminuir cantidad",
+                        )}
                       >
                         −
                       </button>
@@ -244,7 +228,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                         type="button"
                         className="qty-btn"
                         onClick={() => updateQuantity(item.id, item.qty + 1)}
-                        aria-label={t("catalog.increaseQty", "Aumentar cantidad")}
+                        aria-label={t(
+                          "catalog.increaseQty",
+                          "Aumentar cantidad",
+                        )}
                       >
                         +
                       </button>
@@ -255,7 +242,9 @@ export default function CartDrawer({ isOpen, onClose }) {
                     type="button"
                     className="cart-item-del"
                     onClick={() => removeFromCart(item.id)}
-                    aria-label={t("catalog.removeItem", "Eliminar {{name}}", { name: item.nombre })}
+                    aria-label={t("catalog.removeItem", "Eliminar {{name}}", {
+                      name: item.nombre,
+                    })}
                   >
                     ✕
                   </button>

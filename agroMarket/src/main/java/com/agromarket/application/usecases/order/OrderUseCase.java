@@ -49,15 +49,11 @@ public class OrderUseCase implements OrderPort {
     private final OrderService orderService;
     private final ProductService productService;
     private final ProductStockService productStockService;
-    private final com.agromarket.domain.ports.out.config.AppConfigPort appConfigPort;
     private final MessagingPort messagingPort;
-
-    /**
-     * Costo de envío nacional configurado (COP). Valor por defecto estático;
-     * el valor dinámico vive en la base de datos (app_config) y puede
-     * actualizarse desde el panel de administración.
-     */
-    private final BigDecimal shippingCost;
+    private final double shippingOriginLatitude;
+    private final double shippingOriginLongitude;
+    private final BigDecimal shippingPricePerKilometer;
+    private final BigDecimal shippingMinimumCost;
 
     public OrderUseCase(
             com.agromarket.domain.ports.out.order.OrderPort orderPort,
@@ -66,18 +62,22 @@ public class OrderUseCase implements OrderPort {
             OrderService orderService,
             ProductService productService,
             ProductStockService productStockService,
-            com.agromarket.domain.ports.out.config.AppConfigPort appConfigPort,
             MessagingPort messagingPort,
-            @Value("${app.shipping.cost:15000}") BigDecimal shippingCost) {
+            @Value("${app.shipping.origin-latitude}") double shippingOriginLatitude,
+            @Value("${app.shipping.origin-longitude}") double shippingOriginLongitude,
+            @Value("${app.shipping.price-per-kilometer}") BigDecimal shippingPricePerKilometer,
+            @Value("${app.shipping.minimum-cost:0}") BigDecimal shippingMinimumCost) {
         this.orderPort = orderPort;
         this.productPort = productPort;
         this.userPort = userPort;
         this.orderService = orderService;
         this.productService = productService;
         this.productStockService = productStockService;
-        this.appConfigPort = appConfigPort;
         this.messagingPort = messagingPort;
-        this.shippingCost = shippingCost == null ? BigDecimal.ZERO : shippingCost;
+        this.shippingOriginLatitude = shippingOriginLatitude;
+        this.shippingOriginLongitude = shippingOriginLongitude;
+        this.shippingPricePerKilometer = shippingPricePerKilometer;
+        this.shippingMinimumCost = shippingMinimumCost;
     }
 
     @Override
@@ -102,15 +102,15 @@ public class OrderUseCase implements OrderPort {
         /*
          * Envío: el backend es la única fuente de verdad. Se cobra UNA única
          * vez por compra: el primer pedido de un checkout (mismo checkoutId)
-         * lleva el costo de envío configurado; los siguientes llevan 0. Si el
-         * cliente envía su propio valor (envio), se ignora y se recalcula.
+         * lleva el costo calculado por distancia; los siguientes llevan 0.
+         * El valor enviado por el cliente nunca es la fuente de verdad.
          */
         String checkoutId = command.getCheckoutId();
         boolean primerPedidoDelCheckout = checkoutId != null
                 && !checkoutId.isBlank()
                 && !orderPort.existsByCheckoutId(checkoutId);
         BigDecimal envio = primerPedidoDelCheckout
-                ? costoEnvioVigente()
+            ? calcularCostoEnvio(command)
                 : BigDecimal.ZERO;
 
         Order order = Order.builder()
@@ -389,15 +389,40 @@ public class OrderUseCase implements OrderPort {
         };
     }
 
-    /**
-     * Costo de envío vigente: el valor dinámico guardado en base de datos
-     * (actualizable desde el panel Admin) con el estático de configuración
-     * como fallback.
-     */
-    private BigDecimal costoEnvioVigente() {
-        return appConfigPort
-                .getValor(com.agromarket.domain.ports.out.config.AppConfigPort.CLAVE_COSTO_ENVIO)
-                .orElse(shippingCost);
+    private BigDecimal calcularCostoEnvio(CreateOrderCommand command) {
+        double originLatitude = requireCoordinate(command.getOriginLatitude(), "originLatitude");
+        double originLongitude = requireCoordinate(command.getOriginLongitude(), "originLongitude");
+        double destinationLatitude = requireCoordinate(command.getDestinationLatitude(), "destinationLatitude");
+        double destinationLongitude = requireCoordinate(command.getDestinationLongitude(), "destinationLongitude");
+
+        double distanceKilometers = haversineKilometers(
+                originLatitude, originLongitude, destinationLatitude, destinationLongitude);
+        BigDecimal distanceCost = shippingPricePerKilometer
+                .multiply(BigDecimal.valueOf(distanceKilometers));
+
+        return distanceCost.max(shippingMinimumCost).setScale(0, java.math.RoundingMode.CEILING);
+    }
+
+    private double requireCoordinate(Double coordinate, String name) {
+        if (coordinate == null || !Double.isFinite(coordinate)) {
+            throw new IllegalArgumentException("Falta la coordenada " + name + " del envío");
+        }
+        return coordinate;
+    }
+
+    private double haversineKilometers(
+            double originLatitude,
+            double originLongitude,
+            double destinationLatitude,
+            double destinationLongitude) {
+        double earthRadiusKilometers = 6371.0088;
+        double latitudeDelta = Math.toRadians(destinationLatitude - originLatitude);
+        double longitudeDelta = Math.toRadians(destinationLongitude - originLongitude);
+        double a = Math.pow(Math.sin(latitudeDelta / 2), 2)
+                + Math.cos(Math.toRadians(originLatitude))
+                        * Math.cos(Math.toRadians(destinationLatitude))
+                        * Math.pow(Math.sin(longitudeDelta / 2), 2);
+        return earthRadiusKilometers * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
     /**

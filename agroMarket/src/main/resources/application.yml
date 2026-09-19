@@ -67,6 +67,7 @@ app:
   jwt:
     secret: ${JWT_SECRET:change-me}
     expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+    temporary-expiration-ms: ${JWT_TEMPORARY_EXPIRATION_MS:300000}
 
   frontend-url: ${FRONTEND_URL:}
 
@@ -80,7 +81,10 @@ app:
     webhook-url: ${MERCADOPAGO_WEBHOOK_URL:}
 
   shipping:
-    cost: ${SHIPPING_COST:15000}
+    origin-latitude: ${SHIPPING_ORIGIN_LATITUDE:7.6667}
+    origin-longitude: ${SHIPPING_ORIGIN_LONGITUDE:-76.6811}
+    price-per-kilometer: ${SHIPPING_PRICE_PER_KM:1000}
+    minimum-cost: ${SHIPPING_MINIMUM_COST:0}
 
   scheduler:
     promotions-delay-ms: ${PROMOTIONS_JOB_DELAY_MS:300000}

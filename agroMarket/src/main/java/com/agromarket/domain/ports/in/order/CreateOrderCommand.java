@@ -24,4 +24,8 @@ public class CreateOrderCommand {
      * de verdad del total.
      */
     private BigDecimal shippingCost;
+    private Double originLatitude;
+    private Double originLongitude;
+    private Double destinationLatitude;
+    private Double destinationLongitude;
 }

@@ -22,4 +22,9 @@ public class JwtProperties {
      * Tiempo de vida del JWT de acceso en milisegundos.
      */
     private long expirationMs = 3_600_000L;
+
+    /**
+     * Tiempo de vida de los JWT temporales en milisegundos.
+     */
+    private long temporaryExpirationMs = 300_000L;
 }

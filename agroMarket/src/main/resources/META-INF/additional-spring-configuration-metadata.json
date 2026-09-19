@@ -88,9 +88,21 @@
       "type": "java.lang.String"
     },
     {
-      "name": "app.shipping.cost",
+      "name": "app.shipping.origin-latitude",
+      "type": "java.lang.Double"
+    },
+    {
+      "name": "app.shipping.origin-longitude",
+      "type": "java.lang.Double"
+    },
+    {
+      "name": "app.shipping.price-per-kilometer",
+      "type": "java.math.BigDecimal"
+    },
+    {
+      "name": "app.shipping.minimum-cost",
       "type": "java.math.BigDecimal",
-      "defaultValue": 15000
+      "defaultValue": 0
     },
     {
       "name": "app.scheduler.promotions-delay-ms",
@@ -127,4 +139,3 @@
     }
   ]
 }
-
