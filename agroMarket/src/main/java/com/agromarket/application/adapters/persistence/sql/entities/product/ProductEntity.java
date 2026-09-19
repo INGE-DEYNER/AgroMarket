@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
@@ -91,8 +92,22 @@ public class ProductEntity {
     @Column(nullable = false)
     private boolean active;
 
+    /*
+     * FIX "Column 'created_at' cannot be null" (falso 401 "Token inválido o
+     * expirado" al guardar producto): el dominio llega sin createdAt al crear,
+     * el INSERT salía con NULL y MySQL (SQLState 23000) rechazaba la fila.
+     * Se sigue la convención del proyecto (ReturnRequestEntity,
+     * CreditCardEntity): valor por defecto + @PrePersist de respaldo.
+     */
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @PrePersist
+    void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
     @Version
     private Long version;

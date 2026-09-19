@@ -1,5 +1,6 @@
 package com.agromarket.application.usecases.product;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,15 @@ public class ProductUseCase implements com.agromarket.domain.ports.in.product.Pr
         .imageUrl(c.getImageUrl()).minimumWholesaleQuantity(c.getMinimumWholesaleQuantity())
         .wholesalePrice(c.getWholesalePrice()).fruitType(c.getFruitType())
         .producer(producer).onPromotion(c.isOnPromotion()).promotionPrice(c.getPromotionPrice())
-        .promotionEndDate(c.getPromotionEndDate()).active(true).build();
+        .promotionEndDate(c.getPromotionEndDate()).active(true)
+        /*
+         * Un producto nuevo nace sin ventas y con fecha de creación:
+         * sin totalSold el INSERT fallaba (columna NOT NULL) y sin
+         * createdAt la respuesta HTTP no incluía la fecha.
+         */
+        .totalSold(0)
+        .createdAt(LocalDateTime.now())
+        .build();
     return result(productRepository.save(p));
   }
 

@@ -139,15 +139,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                         .getContext()
                                         .setAuthentication(authentication);
 
-                        filterChain.doFilter(request, response);
-
                 } catch (Exception exception) {
 
                         SecurityContextHolder
                                         .clearContext();
 
                         unauthorized(response);
+                        return;
                 }
+
+                /*
+                 * CRÍTICO: la invocación del resto de la cadena (controladores,
+                 * servicios, BD) queda FUERA del try/catch anterior.
+                 *
+                 * CAUSA RAÍZ del falso "Error al guardar: Token inválido o
+                 * expirado" en el dashboard del productor: el try envolvía
+                 * filterChain.doFilter, así que CUALQUIER excepción del
+                 * servidor (p. ej. SQL 1048 "Column 'created_at' cannot be
+                 * null" al insertar el producto) era convertida en 401 con
+                 * ese mensaje, ocultando el error real y sacando al usuario.
+                 *
+                 * Con doFilter fuera del try, los errores del servidor
+                 * propagan hacia GlobalExceptionHandler (400/404/409 con el
+                 * mensaje de negocio) o hacia la respuesta 500 por defecto,
+                 * y el 401 solo aparece cuando el token de verdad falla.
+                 */
+                filterChain.doFilter(request, response);
         }
 
         /**
