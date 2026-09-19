@@ -1,5 +1,19 @@
 // src/components/EmptyState.jsx
 
+// Estilo del CTA declarado ANTES del componente que lo usa: así el módulo no
+// queda en Temporal Dead Zone si el componente se evalúa durante la
+// inicialización (evita "Cannot access 'ctaStyle' before initialization").
+const ctaStyle = {
+  display: 'inline-flex', alignItems: 'center', gap: '8px',
+  background: '#2d6a4f', color: '#fff',
+  padding: '10px 24px', borderRadius: '10px',
+  border: 'none', cursor: 'pointer',
+  fontWeight: '600', fontSize: '14px',
+  textDecoration: 'none',
+  transition: 'background 0.2s ease, transform 0.2s ease',
+  boxShadow: '0 4px 14px rgba(45,106,79,0.25)',
+};
+
 /**
  * Empty state with SVG tropical fruit illustration and float animation.
  * Props: title, description, ctaLabel, ctaHref, onCta (function)
@@ -54,17 +68,6 @@ export default function EmptyState({
     </div>
   );
 }
-
-const ctaStyle = {
-  display: 'inline-flex', alignItems: 'center', gap: '8px',
-  background: '#2d6a4f', color: '#fff',
-  padding: '10px 24px', borderRadius: '10px',
-  border: 'none', cursor: 'pointer',
-  fontWeight: '600', fontSize: '14px',
-  textDecoration: 'none',
-  transition: 'background 0.2s ease, transform 0.2s ease',
-  boxShadow: '0 4px 14px rgba(45,106,79,0.25)',
-};
 
 function ProduceSvg() {
   return (

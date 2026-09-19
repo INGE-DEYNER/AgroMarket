@@ -300,6 +300,28 @@ export default function DashboardComprador() {
     return () => clearTimeout(timer);
   }, [loadPedidos]);
 
+  // Carga de contactos de mensajería.
+  //
+  // IMPORTANTE: esta constante se declara ANTES de los efectos que la
+  // referencian dentro de su array de dependencias. Los arrays de
+  // dependencias se evalúan de forma síncrona durante el render, así que
+  // declararla más abajo lanzaba
+  // "ReferenceError: Cannot access 'loadContactos' before initialization"
+  // (TDZ) y el dashboard del comprador no montaba nunca.
+  const loadContactos = useCallback(async () => {
+    try {
+      const data = await api.get("/mensajes/contactos");
+      const list = extractArray(data).map((c) => ({
+        ...c,
+        id: c.id || c.usuarioId,
+      }));
+      setContactos(list);
+    } catch (err) {
+      console.error("Error loadContactos:", err);
+      setContactos([]);
+    }
+  }, [extractArray, setContactos]);
+
   // TIEMPO REAL: sondea contactos y conversación activa mientras la
   // sección de mensajería está visible (sin recargar la página).
   useEffect(() => {
@@ -460,21 +482,7 @@ export default function DashboardComprador() {
     }
   }, [extractArray]);
 
-  // Messaging loading & select
-  const loadContactos = useCallback(async () => {
-    try {
-      const data = await api.get("/mensajes/contactos");
-      const list = extractArray(data).map((c) => ({
-        ...c,
-        id: c.id || c.usuarioId,
-      }));
-      setContactos(list);
-    } catch (err) {
-      console.error("Error loadContactos:", err);
-      setContactos([]);
-    }
-  }, [extractArray, setContactos]);
-
+  // Messaging select & send
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
     try {

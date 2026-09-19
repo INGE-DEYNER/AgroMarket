@@ -29,7 +29,7 @@ public class DivisaController {
         response.put("base", "COP");
         response.put("tasas", exchangeRateService.getRates());
         response.put("actualizadoEn", Instant.now().toString());
-        response.put("fuente", "Frankfurter / ECB");
+        response.put("fuente", exchangeRateService.getSource());
         response.put("tipo", "tasas de referencia diarias");
 
         return ResponseEntity.ok(response);
