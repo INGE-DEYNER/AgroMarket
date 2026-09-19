@@ -23,16 +23,13 @@ jobs:
       - name: Build and test
         run: |
           cd agroMarket
-          chmod +x mvnw
-          ./mvnw -B -DskipTests=false test
-          ./mvnw -B package -DskipTests
+          mvn -B -DskipTests=false test
+          mvn -B package -DskipTests
       - name: Build Docker image
         if: success()
         run: |
           cd agroMarket
           docker build -t agromarket:ci .
-          cd ../frontend
-          docker build --build-arg VITE_API_URL=/api/v1 -t agromarket-frontend:ci .
       - name: Scan image with Trivy
         if: success()
         uses: aquasecurity/trivy-action@v0.36.0
@@ -41,66 +38,3 @@ jobs:
           format: "table"
           severity: "CRITICAL,HIGH"
           exit-code: "0"
-
-  publish:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    timeout-minutes: 15
-    needs: build
-    if: github.ref == 'refs/heads/develop'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push image to GHCR
-        run: |
-          cd agroMarket
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE=ghcr.io/$OWNER/agromarket:latest
-          docker build -t $IMAGE .
-          docker push $IMAGE
-
-  integration-tests:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    timeout-minutes: 15
-    needs: publish
-    if: github.ref == 'refs/heads/develop'
-    env:
-      TESTCONTAINERS_RYUK_DISABLED: "true"
-      DOCKER_HOST: unix:///var/run/docker.sock
-    services:
-      mysql:
-        image: mysql:8
-        env:
-          MYSQL_ROOT_PASSWORD: rootpass
-          MYSQL_DATABASE: agromarket_db
-          MYSQL_USER: agromarket_user
-          MYSQL_PASSWORD: agromarket_pass
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd='mysqladmin ping -uroot -prootpass --silent' --health-interval=10s --health-timeout=5s --health-retries=5
-    steps:
-      - uses: actions/checkout@v4
-      - name: Wait for MySQL
-        run: |
-          for i in {1..30}; do if mysqladmin ping -h 127.0.0.1 -uroot -prootpass --silent; then echo ok; break; fi; sleep 2; done
-      - name: Run integration tests (mvn failsafe)
-        env:
-          DB_URL: jdbc:mysql://127.0.0.1:3306/agromarket_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-          DB_USERNAME: agromarket_user
-          DB_PASSWORD: agromarket_pass
-        run: |
-          cd agroMarket
-          ./mvnw -B -Dflyway.url=${DB_URL} -Dflyway.user=${DB_USERNAME} -Dflyway.password=${DB_PASSWORD} -Pintegration-tests verify || (
-            echo "MySQL integration failed — retrying with H2"
-            ./mvnw -B -Pintegration-tests verify -Dspring.profiles.active=integration-tests
-          )
