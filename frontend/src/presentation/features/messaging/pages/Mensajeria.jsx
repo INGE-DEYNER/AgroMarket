@@ -2,51 +2,170 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
-import { useSocket } from "@/app/hooks/useSocket";
+import {
+  useMensajeriaApi,
+  useMensajeriaStream,
+} from "@/application/messaging/useMessaging";
 import BuyerShell from "@/presentation/features/order/components/BuyerShell";
-import api, { API_BASE } from "@/infrastructure/http/api";
 import { normalizarMensaje as normalizarMensajeBase } from "@/infrastructure/normalizar";
 import "@/presentation/styles/mensajeria.css";
 
 export default function Mensajeria() {
   const { t } = useTranslation();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
+
+  const {
+    listarContactos,
+    listarConversacion,
+    enviarMensaje,
+    listarTickets,
+    crearTicket,
+    responderTicket,
+  } = useMensajeriaApi();
+
   const [activeTab, setActiveTab] = useState('chat');
   const [showCreateTicket, setShowCreateTicket] = useState(false);
   const [ticketSubject, setTicketSubject] = useState('');
   const [ticketDescription, setTicketDescription] = useState('');
 
-  const {
-    isConnected,
-    isAuthenticated,
-    error: socketError,
-    contacts,
-    conversations,
-    tickets,
-    notifications,
-    onlineUsers,
-    sendMessage,
-    sendAdminMessage,
-    createTicket,
-    sendTicketMessage,
-    getConversation,
-    getContacts,
-    getMessagesForContact,
-    isUserOnline,
-    clearNotifications
-  } = useSocket(token);
+  const [contacts, setContacts] = useState([]);
+  const [tickets, setTickets] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [error, setError] = useState(null);
 
   const [selectedContact, setSelectedContact] = useState(null);
   const [msgInput, setMsgInput] = useState('');
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [ticketMessageInput, setTicketMessageInput] = useState('');
-  
+  const [messages, setMessages] = useState([]);
+
   const chatRef = useRef(null);
   const ticketChatRef = useRef(null);
 
+  const esAdmin = user?.role?.toUpperCase() === 'ADMIN';
+
   const normalizarMensaje = (m) => normalizarMensajeBase(m, user?.id);
-  const messages = selectedContact ? getMessagesForContact(selectedContact.userId) : [];
-  const ticketMessages = selectedTicket ? selectedTicket.messages : [];
+  const ticketMessages = selectedTicket ? selectedTicket.messages || [] : [];
+
+  const notificar = useCallback((title, body) => {
+    setNotifications((prev) => [{ title, body, read: false }, ...prev].slice(0, 10));
+  }, []);
+
+  const cargarContactos = useCallback(async () => {
+    try {
+      setContacts(await listarContactos());
+      setError(null);
+    } catch (err) {
+      setError(err?.message || 'No se pudieron cargar los contactos');
+    }
+  }, [listarContactos]);
+
+  const cargarConversacion = useCallback(async (contactoId) => {
+    if (!contactoId) {
+      setMessages([]);
+      return;
+    }
+    try {
+      setMessages(await listarConversacion(contactoId));
+      setError(null);
+    } catch (err) {
+      setError(err?.message || 'No se pudo cargar la conversación');
+    }
+  }, [listarConversacion]);
+
+  const cargarTickets = useCallback(async () => {
+    try {
+      setTickets(await listarTickets());
+    } catch (err) {
+      setError(err?.message || 'No se pudieron cargar los tickets');
+    }
+  }, [listarTickets]);
+
+  /*
+   * Tiempo real (SSE): los mensajes y los tickets llegan sin recargar la
+   * página. El backend valida las reglas de comunicación antes de emitir.
+   */
+  const handleStreamEvent = useCallback((evento) => {
+    if (!evento) return;
+
+    if (evento.event === 'message') {
+      const m = evento.data;
+      if (!m || typeof m !== 'object') return;
+
+      const esMio = String(m.senderId) === String(user?.id);
+      const otro = esMio ? m.recipientId : m.senderId;
+
+      setMessages((prev) => {
+        if (!selectedContact) return prev;
+        if (String(selectedContact.userId) !== String(otro)) return prev;
+        if (m.id != null && prev.some((item) => String(item.id) === String(m.id))) {
+          return prev;
+        }
+        return [...prev, { ...m, mio: esMio }];
+      });
+
+      if (!esMio) {
+        notificar(
+          `Nuevo mensaje de ${m.senderName || 'un usuario'}`,
+          (m.content || '').slice(0, 60),
+        );
+        void cargarContactos();
+      }
+      return;
+    }
+
+    if (evento.event === 'ticket') {
+      const ticket = evento.data;
+      if (!ticket || typeof ticket !== 'object') return;
+
+      setTickets((prev) => {
+        const existe = prev.some((item) => String(item.id) === String(ticket.id));
+        return existe
+          ? prev.map((item) =>
+              String(item.id) === String(ticket.id) ? ticket : item,
+            )
+          : [ticket, ...prev];
+      });
+      setSelectedTicket((prev) =>
+        prev && String(prev.id) === String(ticket.id) ? ticket : prev,
+      );
+
+      if (String(ticket.creatorId) !== String(user?.id)) {
+        notificar(
+          'Ticket de soporte',
+          `Nuevo movimiento en "${ticket.subject || 'un ticket'}"`,
+        );
+      }
+    }
+  }, [cargarContactos, notificar, selectedContact, user?.id]);
+
+  const { connected: streamConnected } = useMensajeriaStream({
+    enabled: Boolean(user),
+    onEvent: handleStreamEvent,
+  });
+
+  /*
+   * Enviar no depende del SSE: si el canal en tiempo real aún no está
+   * abierto, el mensaje igual se persiste y se refresca por REST.
+   */
+  const isConnected = streamConnected || Boolean(user);
+
+  useEffect(() => {
+    if (!user) return;
+    void cargarContactos();
+    void cargarTickets();
+  }, [user, cargarContactos, cargarTickets]);
+
+  useEffect(() => {
+    if (selectedContact) {
+      void cargarConversacion(selectedContact.userId);
+    }
+  }, [selectedContact, cargarConversacion]);
+
+  const isUserOnline = (userId) =>
+    contacts.some(
+      (c) => String(c.userId) === String(userId) && c.online === true,
+    );
 
   const scrollChat = () => {
     setTimeout(() => {
@@ -65,12 +184,6 @@ export default function Mensajeria() {
   };
 
   useEffect(() => {
-    if (selectedContact) {
-      getConversation(selectedContact.userId);
-    }
-  }, [selectedContact, getConversation]);
-
-  useEffect(() => {
     scrollChat();
   }, [messages]);
 
@@ -78,65 +191,92 @@ export default function Mensajeria() {
     scrollTicketChat();
   }, [ticketMessages]);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      getContacts();
-    }
-  }, [isAuthenticated, getContacts]);
-
-  if (user) {
-    const role = user.role?.toLowerCase();
-    if (role === "productor") {
-      return <Navigate to="/dashboard-productor?section=mensajeria" replace />;
-    } else if (role === "admin") {
-      return <Navigate to="/admin" replace />;
-    }
+  /*
+   * El comprador usa esta página como chat principal. El productor tiene su
+   * propio panel con la sección de mensajería. La administración SÍ usa esta
+   * página: desde aquí atiende las conversaciones y los tickets.
+   */
+  if (user?.role?.toLowerCase() === "productor") {
+    return <Navigate to="/dashboard-productor?section=mensajeria" replace />;
   }
 
   const handleSendMessage = async () => {
     if (!msgInput.trim() || !selectedContact) return;
-    
+
     const content = msgInput;
     setMsgInput('');
-    
+
     try {
-      if (user?.role?.toUpperCase() === 'ADMIN') {
-        await sendAdminMessage(selectedContact.userId, content);
-      } else {
-        await sendMessage(selectedContact.userId, content);
-      }
+      await enviarMensaje(selectedContact.userId, content);
+      await cargarConversacion(selectedContact.userId);
+      setError(null);
     } catch (err) {
-      console.error('Error enviando mensaje:', err);
+      // El backend responde 403 con el motivo cuando se rompe una regla
+      // (p. ej. escribir a administración sin ticket ni conversación previa).
+      notificar(
+        t('mensajeria.errorTitle', 'No se pudo enviar el mensaje'),
+        err?.message || '',
+      );
+      setError(err?.message || 'No se pudo enviar el mensaje');
+      setMsgInput(content);
     }
-    
+
     scrollChat();
   };
 
   const handleSendTicketMessage = async () => {
     if (!ticketMessageInput.trim() || !selectedTicket) return;
-    
+
     const content = ticketMessageInput;
     setTicketMessageInput('');
-    
+
     try {
-      await sendTicketMessage(selectedTicket.id, content);
+      const actualizado = await responderTicket(selectedTicket.id, content);
+      if (actualizado) {
+        setSelectedTicket(actualizado);
+        setTickets((prev) =>
+          prev.map((ticket) =>
+            String(ticket.id) === String(actualizado.id) ? actualizado : ticket,
+          ),
+        );
+      }
     } catch (err) {
-      console.error('Error enviando mensaje en ticket:', err);
+      notificar(
+        t('tickets.errorTitle', 'No se pudo responder el ticket'),
+        err?.message || '',
+      );
+      setError(err?.message || 'No se pudo responder el ticket');
+      setTicketMessageInput(content);
     }
-    
+
     scrollTicketChat();
   };
 
   const handleCreateNewTicket = async () => {
     if (!ticketSubject.trim() || !ticketDescription.trim()) return;
-    
+
     try {
-      await createTicket(ticketSubject, ticketDescription);
+      const creado = await crearTicket(
+        ticketSubject.trim(),
+        ticketDescription.trim(),
+      );
+
+      if (creado) {
+        setTickets((prev) => [creado, ...prev]);
+        setSelectedTicket(creado);
+        setActiveTab('tickets');
+      }
+
       setShowCreateTicket(false);
       setTicketSubject('');
       setTicketDescription('');
+      setError(null);
     } catch (err) {
-      console.error('Error creando ticket:', err);
+      notificar(
+        t('tickets.createErrorTitle', 'No se pudo crear el ticket'),
+        err?.message || '',
+      );
+      setError(err?.message || 'No se pudo crear el ticket');
     }
   };
 
@@ -160,7 +300,7 @@ export default function Mensajeria() {
     };
   };
 
-  const filteredContacts = user?.role?.toUpperCase() === 'ADMIN' 
+  const filteredContacts = esAdmin
     ? contacts.filter(c => ['COMPRADOR', 'BUYER', 'COMPRADOR_EMPRESA', 'BUYER_COMPANY', 'PRODUCTOR', 'PRODUCER'].includes(c.role?.toUpperCase()))
     : contacts;
 
@@ -195,7 +335,7 @@ export default function Mensajeria() {
               {t('notifications.title', 'Notificaciones')}
             </h4>
             <button
-              onClick={clearNotifications}
+              onClick={() => setNotifications([])}
               style={{
                 background: 'none',
                 border: 'none',
@@ -380,7 +520,7 @@ export default function Mensajeria() {
       alignItems: 'center',
       gap: '8px',
       padding: '8px 12px',
-      background: isConnected ? 'var(--success-bg)' : 'var(--danger-bg)',
+      background: streamConnected ? 'var(--success-bg)' : 'var(--warning-bg, var(--surface-2))',
       borderRadius: '6px',
       marginBottom: '16px',
       fontSize: '0.75rem'
@@ -389,20 +529,15 @@ export default function Mensajeria() {
         width: '8px',
         height: '8px',
         borderRadius: '50%',
-        background: isConnected ? 'var(--success)' : 'var(--danger)',
+        background: streamConnected ? 'var(--success)' : 'var(--warning)',
         display: 'inline-block'
       }} />
       <span style={{ color: 'var(--text-1)' }}>
-        {isConnected 
-          ? t('socket.connected', 'Conectado a mensajeria en tiempo real')
-          : t('socket.disconnected', 'Desconectado - Reintentando...')
+        {streamConnected
+          ? t('socket.connected', 'Mensajería en tiempo real activa')
+          : t('socket.reconnecting', 'Sincronizando mensajes...')
         }
       </span>
-      {!isAuthenticated && (
-        <span style={{ color: 'var(--warning)' }}>
-          ({t('socket.notAuthenticated', 'No autenticado')})
-        </span>
-      )}
     </div>
   );
 
@@ -425,6 +560,18 @@ export default function Mensajeria() {
             {t('mensajeria.title', 'Mensajeria')}
           </h1>
           <ConnectionStatus />
+          {error && (
+            <div style={{
+              marginTop: '8px',
+              padding: '8px 12px',
+              background: 'var(--danger-bg, #fef2f2)',
+              color: 'var(--danger, #dc2626)',
+              borderRadius: '6px',
+              fontSize: '0.8rem'
+            }}>
+              {error}
+            </div>
+          )}
         </div>
 
         <div className="chat-layout" style={{
@@ -485,7 +632,7 @@ export default function Mensajeria() {
             }}>
               {activeTab === 'chat' ? (
                 <>
-                  {user?.role?.toUpperCase() !== 'ADMIN' && (
+                  {!esAdmin && (
                     <div style={{
                       padding: '8px 12px',
                       margin: '8px 12px',
@@ -586,7 +733,7 @@ export default function Mensajeria() {
                       color: 'var(--text-muted)',
                       fontSize: '0.85rem'
                     }}>
-                      {user?.role?.toUpperCase() !== 'ADMIN' ? (
+                      {!esAdmin ? (
                         <>
                           <button
                             onClick={() => setShowCreateTicket(true)}

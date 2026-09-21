@@ -5,6 +5,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import CartDrawer from "@/presentation/shared/components/CartDrawer";
 import api, { API_BASE } from "@/infrastructure/http/api";
+import { useMensajeriaStream } from "@/application/messaging/useMessaging";
 import {
   formatearHora,
   normalizarMensaje,
@@ -346,6 +347,43 @@ export default function DashboardComprador() {
     }, 3500);
     return () => clearInterval(conversacionTimer);
   }, [activeSection, selectedContact, user, extractArray]);
+
+  /*
+   * TIEMPO REAL (SSE): el backend empuja el mensaje y se agrega al instante a
+   * la conversación abierta. El sondeo de arriba queda como respaldo por si el
+   * canal se cae. Solo se emiten mensajes permitidos por las reglas de
+   * comunicación (Comprador ↔ Productor y Administración → usuario).
+   */
+  const handleMensajeTiempoReal = useCallback(
+    (evento) => {
+      if (evento?.event !== "message" || !evento.data) return;
+
+      const nuevo = evento.data;
+      const esMio = String(nuevo.senderId) === String(user?.id);
+      const otro = esMio ? nuevo.recipientId : nuevo.senderId;
+
+      if (!selectedContact || String(selectedContact.id) !== String(otro)) {
+        if (!esMio) void loadContactos();
+        return;
+      }
+
+      setMessages((prev) => {
+        if (
+          nuevo.id != null &&
+          prev.some((m) => String(m.id) === String(nuevo.id))
+        ) {
+          return prev;
+        }
+        return [...prev, normalizarMensaje(nuevo, user?.id)];
+      });
+    },
+    [loadContactos, selectedContact, user?.id],
+  );
+
+  useMensajeriaStream({
+    enabled: Boolean(user) && activeSection === "mensajeria",
+    onEvent: handleMensajeTiempoReal,
+  });
 
   const loadRfqs = useCallback(async () => {
     try {

@@ -4,14 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Cuerpo de POST /mensajes. El frontend envía {destinatarioId, contenido};
  * se mantienen también los nombres en inglés para compatibilidad.
  * La validación se hace en el controlador porque los alias aceptan varias
  * formas del cuerpo.
+ *
+ * <p>
+ * IMPORTANTE: {@code @Setter} es obligatorio para que Jackson pueda escribir
+ * los campos privados al deserializar el JSON (los DTOs sin setters llegan
+ * con todos los valores en null y Spring responde 400).
+ * </p>
  */
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

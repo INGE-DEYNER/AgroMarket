@@ -1,105 +1,127 @@
-// Mensajería: envío y recepción en TIEMPO REAL.
+// Mensajería: hooks de tiempo real (SSE) y accesos REST.
 //
-// - Las lecturas se hacen con los alias del frontend (/mensajes/...).
-//   El backend reescribe /api/v1/mensajes -> /api/v1/messages, pero eso
-//   NO funciona para EventSource porque es un canal diferente al fetch.
-// - El SSE real se conecta en la ruta raíz / y usa una vista unificada.
-// - IMPORTANTE: el filtro de alias NO reescribe /api/v1/mensajes/stream
-//   porque tiene un sufijo /stream; por eso sin este hook la UI nunca
-//   recibe mensajes nuevos en tiempo real (solo por polling).
-import { useEffect, useRef } from "react";
-import api, { API_BASE } from "@/infrastructure/http/api";
-import { useAuth } from "@/app/hooks/useAuth";
+// Reglas de comunicación implementadas en el backend (fuente de verdad):
+//  - Comprador ↔ Productor: chat directo.
+//  - Administración → Comprador/Productor: chat directo (el admin inicia).
+//  - Comprador/Productor → Administración: TICKETS de soporte.
+//
+// El backend expone:
+//  GET  /api/v1/messages/stream                     (SSE: message | ticket)
+//  GET  /api/v1/messages/contactos
+//  GET  /api/v1/messages/conversacion/{otroUserId}
+//  POST /api/v1/messages
+//  GET  /api/v1/messages/tickets
+//  POST /api/v1/messages/tickets
+//  POST /api/v1/messages/tickets/{id}/mensajes
+//
+// El frontend usa los alias en español (/mensajes/...): ApiPathAliasFilter
+// los reescribe a /api/v1/messages antes de Security y del controlador, así
+// que también funcionan en fetch/SSE (no solo en las llamadas de api.js).
 
-export function useMensajeriaStream(onMessage) {
-  const { user } = useAuth();
-  const streamRef = useRef(null);
-  const reconnectTimer = useRef(null);
-  const activeRef = useRef(false);
-  const userAgentInitRef = useRef(false);
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useAuth } from "@/app/hooks/useAuth";
+import api from "@/infrastructure/http/api";
+import {
+  subscribeToMensajeriaStream,
+  subscribeToMensajeriaStatus,
+} from "@/infrastructure/messaging/stream";
+
+/**
+ * Tiempo real de mensajería.
+ *
+ * @param {object}   options
+ * @param {Function} options.onEvent recibe { event: 'message'|'ticket', data }
+ * @param {boolean}  options.enabled false para desactivar (sin sesión)
+ * @returns {{ connected: boolean }}
+ */
+export function useMensajeriaStream({ onEvent, enabled = true } = {}) {
+  const handlerRef = useRef(onEvent);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-    if (userAgentInitRef.current) return;
-    userAgentInitRef.current = true;
+    handlerRef.current = onEvent;
+  }, [onEvent]);
 
-    // SSE raíz: el backend expone un stream unificado de mensajes en /.
-    // Este endpoint está protegido con JWT, así que usamos el token del
-    // localStorage y Authorization como cabecera HTTP (EventSource puro no
-    // lo permite; en su lugar abrimos el stream con fetch + ReadableStream).
-    const token = localStorage.getItem("token");
-    const headers = new Headers();
-    headers.set("Accept", "text/event-stream");
-    if (token) headers.set("Authorization", `Bearer ${token}`);
+  useEffect(() => {
+    if (!enabled) {
+      setConnected(false);
+      return undefined;
+    }
 
-    const controller = new AbortController();
-    const response = fetch(`${API_BASE}/mensajes/stream`, {
-      method: "GET",
-      headers,
-      signal: controller.signal,
+    const unsubscribeEvent = subscribeToMensajeriaStream((payload) => {
+      if (handlerRef.current) handlerRef.current(payload);
     });
-
-    void response.then(async (res) => {
-      if (!res.ok) {
-        console.error("[mensajeria] stream status:", res.status);
-        scheduleReconnect();
-        return;
-      }
-      activeRef.current = true;
-
-      const reader = res.body?.getReader();
-      if (!reader) {
-        scheduleReconnect();
-        return;
-      }
-
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (activeRef.current) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n\n");
-        buffer = lines.pop() || "";
-
-        for (const block of lines) {
-          if (!block.trim()) continue;
-          try {
-            onMessage(block);
-          } catch (err) {
-            console.error("[mensajeria] onMessage error:", err);
-          }
-        }
-      }
-    }).catch((err) => {
-      if (err.name !== "AbortError") {
-        console.error("[mensajeria] stream fetch error:", err);
-        scheduleReconnect();
-      }
-    });
-
-    const scheduleReconnect = () => {
-      if (reconnectTimer.current) return;
-      reconnectTimer.current = setTimeout(() => {
-        reconnectTimer.current = null;
-        void (async () => {
-          await new Promise((r) => setTimeout(r, 1500));
-          // React re-render: el efecto se reejecutará si el componente
-          // sigue vivo. Forzamos la re-conexión invocando la callback.
-          onMessage("[reconnect]");
-        })();
-      }, 4000);
-    };
+    const unsubscribeStatus = subscribeToMensajeriaStatus(setConnected);
 
     return () => {
-      activeRef.current = false;
-      controller.abort();
-      if (reconnectTimer.current) {
-        clearTimeout(reconnectTimer.current);
-        reconnectTimer.current = null;
-      }
+      unsubscribeEvent();
+      unsubscribeStatus();
     };
-  }, [user, onMessage]);
+  }, [enabled]);
+
+  return { connected };
 }
+
+/**
+ * Accesos REST de mensajería y tickets.
+ */
+export function useMensajeriaApi() {
+  const { user } = useAuth();
+  const userId = user?.id;
+
+  const listarContactos = useCallback(async () => {
+    const data = await api.get("/mensajes/contactos");
+    const lista = Array.isArray(data) ? data : data?.content || [];
+    return lista
+      .map((c) => ({
+        userId: c.id ?? c.userId,
+        username: c.nombre || c.username || c.email || "Usuario",
+        role: c.rol || c.role || "USUARIO",
+        iniciales: c.iniciales,
+        online: Boolean(c.online),
+      }))
+      .filter((c) => c.userId !== undefined && c.userId !== null);
+  }, []);
+
+  const listarConversacion = useCallback(
+    async (contactoId) => {
+      if (!contactoId) return [];
+      const data = await api.get(`/mensajes/conversacion/${contactoId}`);
+      const lista = Array.isArray(data) ? data : data?.content || [];
+      return lista.map((m) => ({
+        ...m,
+        mio: String(m.senderId) === String(userId),
+      }));
+    },
+    [userId],
+  );
+
+  const enviarMensaje = useCallback(async (destinatarioId, contenido) => {
+    return api.post("/mensajes", { destinatarioId, contenido });
+  }, []);
+
+  const listarTickets = useCallback(async () => {
+    const data = await api.get("/mensajes/tickets");
+    return Array.isArray(data) ? data : data?.content || [];
+  }, []);
+
+  const crearTicket = useCallback(async (asunto, descripcion) => {
+    return api.post("/mensajes/tickets", { asunto, descripcion });
+  }, []);
+
+  const responderTicket = useCallback(async (ticketId, contenido) => {
+    return api.post(`/mensajes/tickets/${ticketId}/mensajes`, { contenido });
+  }, []);
+
+  return {
+    listarContactos,
+    listarConversacion,
+    enviarMensaje,
+    listarTickets,
+    crearTicket,
+    responderTicket,
+  };
+}
+
+export default useMensajeriaApi;

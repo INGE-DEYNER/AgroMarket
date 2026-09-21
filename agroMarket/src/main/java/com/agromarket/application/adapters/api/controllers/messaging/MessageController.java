@@ -21,13 +21,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.agromarket.application.adapters.api.request.messaging.CreateTicketRequest;
 import com.agromarket.application.adapters.api.request.messaging.SendMessageRequest;
+import com.agromarket.application.adapters.api.request.messaging.TicketMessageRequest;
 import com.agromarket.application.adapters.api.response.messaging.MessageResponse;
+import com.agromarket.application.adapters.api.response.messaging.TicketResponse;
+import com.agromarket.domain.models.enums.messaging.NotificationType;
 import com.agromarket.domain.models.enums.user.Role;
 import com.agromarket.domain.models.messaging.Message;
+import com.agromarket.domain.models.messaging.Notification;
+import com.agromarket.domain.models.messaging.Ticket;
 import com.agromarket.domain.models.user.User;
 import com.agromarket.domain.ports.in.messaging.MessagingPort;
 import com.agromarket.domain.ports.out.user.UserPort;
+import com.agromarket.domain.services.messaging.MessagingService;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 
 import lombok.RequiredArgsConstructor;
@@ -36,6 +43,9 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/messages")
 @RequiredArgsConstructor
 public class MessageController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
+            .getLogger(MessageController.class);
 
     private final MessagingPort messagingPort;
     private final UserPort userPort;
@@ -112,7 +122,7 @@ public class MessageController {
         return emitter;
     }
 
-    private void pushToUser(Long userId, MessageResponse body) {
+    private void pushToUser(Long userId, Object body) {
         if (userId == null) return;
         List<SseEmitter> list = streams.getOrDefault(userId, List.of());
         for (SseEmitter emitter : new ArrayList<>(list)) {
@@ -121,6 +131,33 @@ public class MessageController {
             } catch (IOException | IllegalStateException ex) {
                 removeEmitter(userId, emitter);
             }
+        }
+    }
+
+    /**
+     * Empuja un ticket (creado o actualizado) por SSE. El frontend escucha
+     * el evento "ticket" para refrescar la bandeja desde el backend.
+     */
+    private void pushTicketToUser(Long userId, TicketResponse body) {
+        if (userId == null) return;
+        List<SseEmitter> list = streams.getOrDefault(userId, List.of());
+        for (SseEmitter emitter : new ArrayList<>(list)) {
+            try {
+                emitter.send(SseEmitter.event().name("ticket").data(body));
+            } catch (IOException | IllegalStateException ex) {
+                removeEmitter(userId, emitter);
+            }
+        }
+    }
+
+    private Role parseRole(String role) {
+        if (role == null || role.isBlank()) {
+            return null;
+        }
+        try {
+            return Role.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
         }
     }
 
@@ -173,28 +210,65 @@ public class MessageController {
             @AuthenticationPrincipal JwtUserPrincipal principal) {
 
         Long yo = principal.getUserId();
-        String miRol = principal.getRole();
+        Role miRol = parseRole(principal.getRole());
 
         List<User> candidatos = new ArrayList<>();
 
-        if ("ADMIN".equals(miRol)) {
-            candidatos.addAll(userPort.findAll());
-        } else if ("PRODUCER".equals(miRol)) {
-            // El productor chatea con compradores y con administración.
+        if (MessagingService.isAdmin(miRol)) {
+            /*
+             * La administración puede iniciar conversación con cualquier
+             * comprador o productor.
+             */
             candidatos.addAll(userPort.findByRole(Role.BUYER.name()));
-            candidatos.addAll(userPort.findByRole(Role.ADMIN.name()));
-        } else {
-            // El comprador chatea con productores y con administración.
             candidatos.addAll(userPort.findByRole(Role.PRODUCER.name()));
-            candidatos.addAll(userPort.findByRole(Role.ADMIN.name()));
+        } else {
+            /*
+             * Comprador ↔ Productor es libre. La administración solo aparece
+             * como contacto cuando YA inició una conversación: mientras eso
+             * no pase, el canal con administración son los tickets.
+             */
+            Role rolContraparte = MessagingService.isProducer(miRol)
+                    ? Role.BUYER
+                    : Role.PRODUCER;
+            candidatos.addAll(userPort.findByRole(rolContraparte.name()));
+            candidatos.addAll(administracionesQueYaEscribieron(yo));
         }
 
-        List<Map<String, Object>> contactos = candidatos.stream()
-                .filter(u -> u != null && u.getId() != null && !u.getId().equals(yo))
+        Map<Long, User> porId = new LinkedHashMap<>();
+        for (User candidato : candidatos) {
+            if (candidato == null || candidato.getId() == null) continue;
+            if (candidato.getId().equals(yo)) continue;
+            porId.putIfAbsent(candidato.getId(), candidato);
+        }
+
+        List<Map<String, Object>> contactos = porId.values().stream()
                 .map(this::toContact)
                 .toList();
 
         return ResponseEntity.ok(contactos);
+    }
+
+    /**
+     * Administraciones que ya escribieron al usuario. Como la regla dice que
+     * Comprador/Productor no puede iniciar la conversación con administración,
+     * el usuario solo ve a la administración si ya recibió un mensaje suyo.
+     */
+    private List<User> administracionesQueYaEscribieron(Long usuarioId) {
+
+        if (usuarioId == null) {
+            return List.of();
+        }
+
+        return userPort.findByRole(Role.ADMIN.name()).stream()
+                .filter(admin -> admin != null && admin.getId() != null)
+                .filter(admin -> messagingPort
+                        .getConversation(admin.getId(), usuarioId)
+                        .stream()
+                        .anyMatch(message -> message != null
+                                && message.getSender() != null
+                                && admin.getId()
+                                        .equals(message.getSender().getId())))
+                .toList();
     }
 
     private Map<String, Object> toContact(User u) {
@@ -240,6 +314,170 @@ public class MessageController {
         return ResponseEntity.ok(
                 messagingPort.getConversation(userA, userB)
                         .stream().map(this::toResponse).toList());
+    }
+
+    // ==================== TICKETS DE SOPORTE ====================
+
+    /**
+     * POST /api/v1/messages/tickets (alias frontend: /mensajes/tickets).
+     *
+     * Canal oficial para que un comprador o productor se comunique con la
+     * administración (regla de comunicación de Asafrut).
+     */
+    @PostMapping("/tickets")
+    public ResponseEntity<TicketResponse> crearTicket(
+            @RequestBody CreateTicketRequest request,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        Ticket nuevo = Ticket.builder()
+                .creatorId(principal.getUserId())
+                .subject(request.getSubject())
+                .description(request.getDescription())
+                .build();
+
+        Ticket guardado = messagingPort.createTicket(nuevo);
+        TicketResponse body = TicketResponse.fromDomain(guardado);
+
+        notificarAdministracionNuevoTicket(guardado);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    /**
+     * GET /api/v1/messages/tickets
+     * El usuario ve sus tickets; la administración ve todos.
+     */
+    @GetMapping("/tickets")
+    public ResponseEntity<List<TicketResponse>> listarTickets(
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        return ResponseEntity.ok(
+                messagingPort.getTickets(
+                        principal.getUserId(),
+                        parseRole(principal.getRole()))
+                        .stream().map(TicketResponse::fromDomain).toList());
+    }
+
+    /**
+     * GET /api/v1/messages/tickets/{ticketId}
+     * Solo el creador o la administración.
+     */
+    @GetMapping("/tickets/{ticketId}")
+    public ResponseEntity<TicketResponse> verTicket(
+            @PathVariable String ticketId,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        return ResponseEntity.ok(TicketResponse.fromDomain(
+                messagingPort.getTicket(
+                        ticketId,
+                        principal.getUserId(),
+                        parseRole(principal.getRole()))));
+    }
+
+    /**
+     * POST /api/v1/messages/tickets/{ticketId}/mensajes
+     * Respuesta dentro del ticket: creador ↔ administración.
+     */
+    @PostMapping("/tickets/{ticketId}/mensajes")
+    public ResponseEntity<TicketResponse> responderTicket(
+            @PathVariable String ticketId,
+            @RequestBody TicketMessageRequest request,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        Role rol = parseRole(principal.getRole());
+
+        Ticket actualizado = messagingPort.addTicketMessage(
+                ticketId,
+                principal.getUserId(),
+                rol,
+                request.getContent());
+
+        TicketResponse body = TicketResponse.fromDomain(actualizado);
+
+        notificarRespuestaTicket(actualizado, principal.getUserId(), rol);
+
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * Notifica a toda la administración del ticket nuevo: centro de
+     * notificaciones (Mongo) + empujón SSE para que aparezca al instante.
+     */
+    private void notificarAdministracionNuevoTicket(Ticket ticket) {
+
+        if (ticket == null) {
+            return;
+        }
+
+        String contenido = "Nuevo ticket de soporte de "
+                + (ticket.getCreatorName() == null
+                        ? "un usuario"
+                        : ticket.getCreatorName())
+                + ": " + ticket.getSubject();
+
+        TicketResponse body = TicketResponse.fromDomain(ticket);
+
+        for (User admin : userPort.findByRole(Role.ADMIN.name())) {
+            if (admin == null || admin.getId() == null) continue;
+
+            crearNotificacionSegura(admin.getId(), contenido);
+            pushTicketToUser(admin.getId(), body);
+        }
+    }
+
+    /**
+     * Notifica del nuevo mensaje del ticket a la contraparte:
+     * si respondió el usuario, avisa a la administración; si respondió la
+     * administración, avisa al creador.
+     */
+    private void notificarRespuestaTicket(
+            Ticket ticket,
+            Long authorId,
+            Role authorRole) {
+
+        if (ticket == null) {
+            return;
+        }
+
+        String contenido = "Nuevo mensaje en el ticket \""
+                + ticket.getSubject() + "\"";
+
+        TicketResponse body = TicketResponse.fromDomain(ticket);
+
+        if (MessagingService.isAdmin(authorRole)) {
+            crearNotificacionSegura(ticket.getCreatorId(), contenido);
+            pushTicketToUser(ticket.getCreatorId(), body);
+            return;
+        }
+
+        for (User admin : userPort.findByRole(Role.ADMIN.name())) {
+            if (admin == null || admin.getId() == null) continue;
+            if (admin.getId().equals(authorId)) continue;
+
+            crearNotificacionSegura(admin.getId(), contenido);
+            pushTicketToUser(admin.getId(), body);
+        }
+    }
+
+    /**
+     * Crea la notificación sin romper la operación principal si falla el
+     * centro de notificaciones.
+     */
+    private void crearNotificacionSegura(Long recipientId, String contenido) {
+        if (recipientId == null) {
+            return;
+        }
+
+        try {
+            messagingPort.createNotification(Notification.builder()
+                    .recipient(User.builder().id(recipientId).build())
+                    .type(NotificationType.NEW_MESSAGE)
+                    .content(contenido)
+                    .build());
+        } catch (RuntimeException ex) {
+            log.warn("No se pudo crear la notificación del ticket para {}: {}",
+                    recipientId, ex.getMessage());
+        }
     }
 
     private MessageResponse toResponse(Message message) {

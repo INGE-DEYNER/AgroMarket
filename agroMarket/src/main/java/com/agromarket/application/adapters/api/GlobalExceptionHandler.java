@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.agromarket.domain.exceptions.DomainException;
+import com.agromarket.domain.exceptions.messaging.MessageNotAllowedException;
 
 /**
  * Manejador global de excepciones HTTP.
@@ -59,6 +60,17 @@ public class GlobalExceptionHandler {
                 return ResponseEntity
                                 .badRequest()
                                 .body(body);
+        }
+
+        @ExceptionHandler(MessageNotAllowedException.class)
+        public ResponseEntity<Map<String, Object>> handleMessageNotAllowed(
+                        MessageNotAllowedException exception) {
+
+                return ResponseEntity
+                                .status(HttpStatus.FORBIDDEN)
+                                .body(buildBody(
+                                                HttpStatus.FORBIDDEN,
+                                                exception.getMessage()));
         }
 
         @ExceptionHandler(IllegalArgumentException.class)

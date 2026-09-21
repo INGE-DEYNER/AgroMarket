@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -22,6 +23,15 @@ const io = new Server(httpServer, {
 
 const PORT = process.env.SOCKET_PORT || 3001;
 
+/**
+ * URL del backend Spring: fuente de verdad de los mensajes y de las reglas
+ * de comunicación. El servidor Socket.io persiste aquí cada mensaje para que
+ * el historial sea el mismo que ve el resto de la aplicación.
+ */
+const SPRING_BACKEND_URL = (
+  process.env.SPRING_BACKEND_URL || 'http://localhost:8080'
+).replace(/\/+$/, '');
+
 // Middleware para CORS en Express
 app.use(cors({
   origin: allowedOrigins
@@ -40,59 +50,183 @@ const messagesStore = new Map();
 // Almacenamiento de tickets
 const ticketsStore = new Map();
 
-// Función para extraer información del token JWT (simplificado)
-// En producción, validar contra el backend Spring
+// Función para extraer información del token JWT.
+//
+// Si JWT_SECRET está configurado (debe coincidir con app.jwt.secret del
+// backend Spring) se VERIFICA la firma con jsonwebtoken. Solo si no hay
+// secreto configurado se cae al decodificado simple, que es inseguro y por
+// eso queda registrado como advertencia.
 function extractUserFromToken(token) {
   if (!token) return null;
-  
+
   try {
-    // Decodificar JWT manualmente (simplificado)
-    // En producción, usar jwt.verify() o validar contra el backend
-    const base64Payload = token.split('.')[1];
-    const payload = Buffer.from(base64Payload, 'base64').toString('utf-8');
-    const payloadObj = JSON.parse(payload);
-    
+    const secret = process.env.JWT_SECRET;
+    let payloadObj;
+
+    if (secret) {
+      payloadObj = jwt.verify(token, secret);
+    } else {
+      console.warn(
+        '[auth] JWT_SECRET no configurado: se decodifica el token SIN verificar la firma.'
+      );
+      const base64Payload = token.split('.')[1];
+      payloadObj = JSON.parse(
+        Buffer.from(base64Payload, 'base64').toString('utf-8')
+      );
+    }
+
+    const userId = payloadObj.sub || payloadObj.userId || payloadObj.id;
+
+    if (!userId) return null;
+
     return {
-      userId: payloadObj.sub || payloadObj.userId,
-      username: payloadObj.username || payloadObj.sub,
+      userId: String(userId),
+      username: payloadObj.username || payloadObj.email || String(userId),
       role: payloadObj.role || payloadObj.rol,
-      email: payloadObj.email
+      email: payloadObj.email,
     };
   } catch (error) {
-    console.error('Error decodificando token:', error);
+    console.error('Error decodificando token:', error.message);
     return null;
   }
 }
 
-// Validar si un rol puede comunicarse con otro
-function canCommunicate(senderRole, receiverRole) {
-  // Normalizar roles
-  const sender = (senderRole || '').toUpperCase();
-  const receiver = (receiverRole || '').toUpperCase();
-  
-  // Comprador y Productor pueden comunicarse entre sí
-  const buyerRoles = ['COMPRADOR', 'BUYER', 'COMPRADOR_EMPRESA', 'BUYER_COMPANY'];
-  const producerRoles = ['PRODUCTOR', 'PRODUCER'];
-  
-  if (buyerRoles.includes(sender) && producerRoles.includes(receiver)) {
-    return true;
-  }
-  if (producerRoles.includes(sender) && buyerRoles.includes(receiver)) {
-    return true;
-  }
-  
-  // Admin puede enviar mensajes a Comprador y Vendedor
-  if (sender === 'ADMIN' && (buyerRoles.includes(receiver) || producerRoles.includes(receiver))) {
-    return true;
-  }
-  
-  // Comprador/Vendedor NO pueden iniciar comunicación con Admin directamente
-  // Solo a través de tickets
-  if ((buyerRoles.includes(sender) || producerRoles.includes(sender)) && receiver === 'ADMIN') {
+// ==================== REGLAS DE COMUNICACIÓN (ASAFRUT) ====================
+//
+// Deben coincidir con MessagingService.java del backend Spring:
+//  - Comprador ↔ Productor: comunicación directa.
+//  - Administración → Comprador/Productor: permitida (la administración inicia).
+//  - Comprador/Productor → Administración: solo si la administración ya inició
+//    la conversación; si no, el canal es el ticket de soporte.
+
+const BUYER_ROLES = ['COMPRADOR', 'BUYER', 'COMPRADOR_EMPRESA', 'BUYER_COMPANY'];
+const PRODUCER_ROLES = ['PRODUCTOR', 'PRODUCER'];
+const ADMIN_ROLES = ['ADMIN', 'ADMINISTRADOR'];
+const STAFF_ROLES = [...BUYER_ROLES, ...PRODUCER_ROLES];
+
+function normalizeRole(role) {
+  return (role || '').toString().toUpperCase();
+}
+
+function esRol(role, familia) {
+  return familia.includes(normalizeRole(role));
+}
+
+function esAdmin(role) {
+  return esRol(role, ADMIN_ROLES);
+}
+
+function esCompradorOProductor(role) {
+  return esRol(role, STAFF_ROLES);
+}
+
+/**
+ * ¿El remitente puede escribir al destinatario?
+ *
+ * @param {boolean} adminInitiated true cuando ya existe una conversación en la
+ *   que la administración escribió primero (permite la respuesta del usuario).
+ */
+function canCommunicate(senderRole, receiverRole, adminInitiated = false) {
+  const sender = normalizeRole(senderRole);
+  const receiver = normalizeRole(receiverRole);
+
+  if (!sender || !receiver || sender === receiver) {
     return false;
   }
-  
+
+  // Comprador ↔ Productor.
+  const cruzado =
+    (esRol(sender, BUYER_ROLES) && esRol(receiver, PRODUCER_ROLES)) ||
+    (esRol(sender, PRODUCER_ROLES) && esRol(receiver, BUYER_ROLES));
+
+  if (cruzado) return true;
+
+  // Administración → Comprador/Productor.
+  if (esAdmin(sender) && esCompradorOProductor(receiver)) return true;
+
+  // Comprador/Productor → Administración: solo respondiendo a la admin.
+  if (esAdmin(receiver) && esCompradorOProductor(sender)) {
+    return adminInitiated;
+  }
+
   return false;
+}
+
+/**
+ * Motivo legible del rechazo (el frontend lo muestra al usuario).
+ */
+function motivoRechazo(senderRole, receiverRole) {
+  if (esAdmin(receiverRole) && esCompradorOProductor(senderRole)) {
+    return 'Para comunicarte con la administración debes crear un ticket de soporte.';
+  }
+  if (normalizeRole(senderRole) === normalizeRole(receiverRole)) {
+    return 'No puedes enviar mensajes a usuarios con tu mismo rol.';
+  }
+  return 'No puedes enviar mensajes a este usuario: la mensajería directa solo está permitida entre compradores y productores.';
+}
+
+/**
+ * ¿La administración ya escribió a este usuario? Habilita la respuesta del
+ * usuario dentro de la conversación que la administración inició.
+ */
+function adminInitiatedConversation(usuarioId, adminId) {
+  if (!usuarioId || !adminId) return false;
+
+  const claves = [`${adminId}_${usuarioId}`];
+
+  return claves.some((clave) =>
+    (messagesStore.get(clave) || []).some(
+      (mensaje) =>
+        String(mensaje.senderId) === String(adminId) &&
+        esAdmin(mensaje.senderRole)
+    )
+  );
+}
+
+/** Busca la conexión activa de un usuario (o null). */
+function findConnectionByUserId(userId) {
+  for (const [, conn] of activeConnections) {
+    if (String(conn.userId) === String(userId)) {
+      return conn;
+    }
+  }
+  return null;
+}
+
+/**
+ * Persiste el mensaje en el backend Spring (fuente de verdad). Spring valida
+ * las reglas de comunicación y responde 403 con el motivo cuando no se puede.
+ *
+ * @returns {Promise<{message?: object, error?: string}>}
+ */
+async function persistirMensajeEnBackend(token, recipientId, content) {
+  try {
+    const respuesta = await fetch(`${SPRING_BACKEND_URL}/api/v1/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        destinatarioId: Number(recipientId),
+        contenido: content,
+      }),
+    });
+
+    const data = await respuesta.json().catch(() => null);
+
+    if (!respuesta.ok) {
+      return { error: data?.message || `HTTP ${respuesta.status}` };
+    }
+
+    return { message: data };
+  } catch (error) {
+    console.error('[backend] no se pudo persistir el mensaje:', error.message);
+    return {
+      error:
+        'No se pudo guardar el mensaje. Verifica que el backend esté disponible.',
+    };
+  }
 }
 
 // Conectar Socket.io
@@ -140,80 +274,103 @@ io.on('connection', (socket) => {
     });
   });
   
-  // Manejar mensaje directo
+  // Manejar mensaje directo (chat entre roles permitidos)
   socket.on('send_message', async ({ recipientId, content, token }) => {
     const sender = extractUserFromToken(token);
-    
+
     if (!sender || !sender.userId) {
       socket.emit('error', { message: 'Token inválido' });
       return;
     }
-    
-    // Buscar la conexión del destinatario
-    let recipientConnection = null;
-    for (const [, conn] of activeConnections) {
-      if (conn.userId === recipientId) {
-        recipientConnection = conn;
-        break;
+
+    if (!recipientId || !content || !String(content).trim()) {
+      socket.emit('error', { message: 'El destinatario y el contenido son obligatorios' });
+      return;
+    }
+
+    const recipientConnection = findConnectionByUserId(recipientId);
+    const recipientRole = recipientConnection?.role;
+
+    /*
+     * Reglas de comunicación. Si el destinatario está conectado se valida de
+     * inmediato con su rol; si no, la validación definitiva la hace Spring al
+     * persistir (y devuelve el motivo del rechazo).
+     */
+    if (recipientRole) {
+      const adminInitiated =
+        esAdmin(recipientRole) &&
+        adminInitiatedConversation(sender.userId, recipientId);
+
+      if (!canCommunicate(sender.role, recipientRole, adminInitiated)) {
+        socket.emit('error', {
+          message: motivoRechazo(sender.role, recipientRole),
+          reason: 'comunicacion_no_permitida',
+        });
+        return;
       }
     }
-    
-    if (!recipientConnection) {
-      socket.emit('error', { message: 'Destinatario no conectado' });
+
+    // Persistir en el backend: única fuente de verdad del historial.
+    const { message: guardado, error } = await persistirMensajeEnBackend(
+      token,
+      recipientId,
+      String(content).trim()
+    );
+
+    if (error) {
+      socket.emit('error', { message: error, reason: 'persistencia' });
       return;
     }
-    
-    // Verificar si el remitente puede comunicarse con el destinatario
-    if (!canCommunicate(sender.role, recipientConnection.role)) {
-      socket.emit('error', { 
-        message: 'No puedes enviar mensajes a este usuario',
-        reason: 'comunicacion_no_permitida'
-      });
-      return;
-    }
-    
-    // Crear el mensaje
-    const messageId = Date.now().toString();
-    const timestamp = new Date().toISOString();
-    
+
+    const conversationKey = `${sender.userId}_${recipientId}`;
+    const timestamp = guardado?.sentAt || new Date().toISOString();
+
     const message = {
-      id: messageId,
+      id: guardado?.id != null ? String(guardado.id) : Date.now().toString(),
       senderId: sender.userId,
-      senderUsername: sender.username,
+      senderUsername: guardado?.senderName || sender.username,
       senderRole: sender.role,
       recipientId,
-      recipientRole: recipientConnection.role,
-      content,
+      recipientRole,
+      content: guardado?.content || String(content).trim(),
       timestamp,
-      read: false
+      read: false,
     };
-    
-    // Almacenar el mensaje
-    const conversationKey = `${sender.userId}_${recipientId}`;
+
     if (!messagesStore.has(conversationKey)) {
       messagesStore.set(conversationKey, []);
     }
     messagesStore.get(conversationKey).push(message);
-    
-    // Enviar al destinatario
-    recipientConnection.socket.emit('receive_message', message);
-    
-    // Confirmación al remitente
+
+    // Confirmación al remitente.
     socket.emit('message_sent', message);
-    
-    // Notificación al destinatario
-    recipientConnection.socket.emit('notification', {
-      type: 'new_message',
-      title: `Nuevo mensaje de ${sender.username}`,
-      body: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
-      data: {
-        senderId: sender.userId,
-        senderUsername: sender.username,
-        conversationId: conversationKey
-      }
-    });
-    
-    console.log(`Mensaje enviado de ${sender.username} a ${recipientConnection.username}`);
+
+    // Entrega en vivo solo si el destinatario está conectado.
+    if (recipientConnection) {
+      recipientConnection.socket.emit('receive_message', message);
+
+      recipientConnection.socket.emit('notification', {
+        type: 'new_message',
+        title: `Nuevo mensaje de ${message.senderUsername}`,
+        body:
+          message.content.substring(0, 50) +
+          (message.content.length > 50 ? '...' : ''),
+        data: {
+          senderId: sender.userId,
+          senderUsername: message.senderUsername,
+          conversationId: conversationKey,
+        },
+      });
+
+      console.log(
+        `Mensaje enviado de ${sender.username} a ${recipientConnection.username}`
+      );
+      return;
+    }
+
+    console.log(
+      `Mensaje de ${sender.username} guardado para ${recipientId} (destinatario desconectado)`
+    );
   });
   
   // Manejar creación de ticket
@@ -335,75 +492,87 @@ io.on('connection', (socket) => {
   // Manejar Admin iniciando comunicación
   socket.on('admin_send_message', async ({ recipientId, content, token }) => {
     const admin = extractUserFromToken(token);
-    
-    if (!admin || !admin.userId || admin.role?.toUpperCase() !== 'ADMIN') {
+
+    if (!admin || !admin.userId || !esAdmin(admin.role)) {
       socket.emit('error', { message: 'Solo los administradores pueden usar este canal' });
       return;
     }
-    
-    // Buscar la conexión del destinatario
-    let recipientConnection = null;
-    for (const [, conn] of activeConnections) {
-      if (conn.userId === recipientId) {
-        recipientConnection = conn;
-        break;
-      }
-    }
-    
-    if (!recipientConnection) {
-      socket.emit('error', { message: 'Destinatario no conectado' });
+
+    if (!recipientId || !content || !String(content).trim()) {
+      socket.emit('error', { message: 'El destinatario y el contenido son obligatorios' });
       return;
     }
-    
-    // Verificar que el destinatario es Comprador o Vendedor
-    if (!['COMPRADOR', 'BUYER', 'COMPRADOR_EMPRESA', 'BUYER_COMPANY', 'PRODUCTOR', 'PRODUCER'].includes(recipientConnection.role?.toUpperCase())) {
-      socket.emit('error', { message: 'Solo puedes enviar mensajes a compradores o vendedores' });
+
+    const recipientConnection = findConnectionByUserId(recipientId);
+    const recipientRole = recipientConnection?.role;
+
+    // Regla: la administración solo escribe a compradores o productores.
+    if (recipientRole && !esCompradorOProductor(recipientRole)) {
+      socket.emit('error', {
+        message: 'Solo puedes enviar mensajes a compradores o productores',
+      });
       return;
     }
-    
-    // Crear el mensaje
-    const messageId = Date.now().toString();
-    const timestamp = new Date().toISOString();
-    
+
+    const { message: guardado, error } = await persistirMensajeEnBackend(
+      token,
+      recipientId,
+      String(content).trim()
+    );
+
+    if (error) {
+      socket.emit('error', { message: error, reason: 'persistencia' });
+      return;
+    }
+
+    const conversationKey = `${admin.userId}_${recipientId}`;
+
     const message = {
-      id: messageId,
+      id: guardado?.id != null ? String(guardado.id) : Date.now().toString(),
       senderId: admin.userId,
-      senderUsername: admin.username,
+      senderUsername: guardado?.senderName || admin.username,
       senderRole: admin.role,
       recipientId,
-      recipientRole: recipientConnection.role,
-      content,
-      timestamp,
+      recipientRole,
+      content: guardado?.content || String(content).trim(),
+      timestamp: guardado?.sentAt || new Date().toISOString(),
       read: false,
-      isAdminMessage: true
+      isAdminMessage: true,
     };
-    
-    // Almacenar el mensaje
-    const conversationKey = `${admin.userId}_${recipientId}`;
+
     if (!messagesStore.has(conversationKey)) {
       messagesStore.set(conversationKey, []);
     }
     messagesStore.get(conversationKey).push(message);
-    
-    // Enviar al destinatario
-    recipientConnection.socket.emit('receive_admin_message', message);
-    
-    // Confirmación al admin
+
+    // Confirmación al administrador.
     socket.emit('admin_message_sent', message);
-    
-    // Notificación al destinatario
-    recipientConnection.socket.emit('notification', {
-      type: 'admin_message',
-      title: `Mensaje del administrador ${admin.username}`,
-      body: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
-      data: {
-        senderId: admin.userId,
-        senderUsername: admin.username,
-        conversationId: conversationKey
-      }
-    });
-    
-    console.log(`Admin ${admin.username} envió mensaje a ${recipientConnection.username}`);
+
+    if (recipientConnection) {
+      recipientConnection.socket.emit('receive_admin_message', message);
+
+      recipientConnection.socket.emit('notification', {
+        type: 'admin_message',
+        title: `Mensaje del administrador ${message.senderUsername}`,
+        body:
+          message.content.substring(0, 50) +
+          (message.content.length > 50 ? '...' : ''),
+        data: {
+          senderId: admin.userId,
+          senderUsername: message.senderUsername,
+          conversationId: conversationKey,
+        },
+      });
+
+      console.log(
+        `Admin ${admin.username} envió mensaje a ${recipientConnection.username}`
+      );
+      return;
+    }
+
+    console.log(
+      `Admin ${admin.username} guardó un mensaje para ${recipientId} (destinatario desconectado)`
+    );
   });
   
   // Manejar solicitud de lista de mensajes
@@ -446,34 +615,24 @@ io.on('connection', (socket) => {
     
     for (const [, conn] of activeConnections) {
       // No incluir a uno mismo
-      if (conn.userId === user.userId) continue;
-      
-      // Verificar si se puede comunicar
-      if (canCommunicate(user.role, conn.role)) {
+      if (String(conn.userId) === String(user.userId)) continue;
+
+      /*
+       * Aplica las mismas reglas que el backend: la administración solo
+       * aparece como contacto del comprador/productor cuando ya inició la
+       * conversación (si no, el canal es el ticket de soporte).
+       */
+      const adminInitiated =
+        esAdmin(conn.role) &&
+        adminInitiatedConversation(user.userId, conn.userId);
+
+      if (canCommunicate(user.role, conn.role, adminInitiated)) {
         contacts.push({
           userId: conn.userId,
           username: conn.username,
           role: conn.role,
           online: true
         });
-      }
-    }
-    
-    // Si es admin, puede ver a todos los compradores y vendedores
-    if (user.role?.toUpperCase() === 'ADMIN') {
-      for (const [, conn] of activeConnections) {
-        if (conn.userId === user.userId) continue;
-        if (['COMPRADOR', 'BUYER', 'COMPRADOR_EMPRESA', 'BUYER_COMPANY', 'PRODUCTOR', 'PRODUCER'].includes(conn.role?.toUpperCase())) {
-          // Verificar si ya está en la lista
-          if (!contacts.some(c => c.userId === conn.userId)) {
-            contacts.push({
-              userId: conn.userId,
-              username: conn.username,
-              role: conn.role,
-              online: true
-            });
-          }
-        }
       }
     }
     

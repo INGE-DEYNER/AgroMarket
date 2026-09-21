@@ -22,9 +22,13 @@ import {
 
 /**
  * Hook para manejar la conexión Socket.io
+ *
+ * @param {string} [tokenParam] Token JWT. Si no llega, se usa el token del
+ *   localStorage. Aceptar el parámetro evita el desajuste
+ *   `useSocket(token)` / `useSocket()` que dejaba el socket sin autenticar.
  * @returns {object} - Objeto con estado y funciones del socket
  */
-export function useSocket() {
+export function useSocket(tokenParam) {
   const [isConnected, setIsConnected] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState(null);
@@ -36,13 +40,16 @@ export function useSocket() {
   
   const socketRef = useRef(null);
 
-  // Función para obtener el token actual
+  // Función para obtener el token actual (prop o localStorage)
   const getCurrentToken = useCallback(() => {
+    if (tokenParam) {
+      return tokenParam;
+    }
     if (typeof window !== 'undefined') {
       return localStorage.getItem('token');
     }
     return null;
-  }, []);
+  }, [tokenParam]);
 
   // Inicializar el socket
   useEffect(() => {
