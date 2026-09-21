@@ -12,7 +12,6 @@
   "dependencies": {
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.5.4",
-    "axios": "^1.17.0",
     "i18next": "^26.3.1",
     "i18next-browser-languagedetector": "^8.2.1",
     "postcss": "^8.5.26",
@@ -20,7 +19,6 @@
     "react-dom": "18.2.0",
     "react-i18next": "^17.0.8",
     "react-router-dom": "^7.17.0",
-    "socket.io-client": "^4.7.5",
     "tailwindcss": "^3.4.19",
     "vite": "^5.2.0"
   },
@@ -31,7 +29,6 @@
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.6.0",
-    "typescript": "^5.3.3"
+    "globals": "^17.6.0"
   }
 }
