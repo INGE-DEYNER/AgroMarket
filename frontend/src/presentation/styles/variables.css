@@ -251,10 +251,10 @@ body[data-theme="dark"],
      DARK NEUTRALS
      ========================================================== */
 
-  --am-gray-950: #f3f4f6;
-  --am-gray-700: #d1d5db;
-  --am-gray-500: #9ca3af;
-  --am-gray-300: #4b5563;
+  --am-gray-950: #ffffff;
+  --am-gray-700: #ffffff;
+  --am-gray-500: #ffffff;
+  --am-gray-300: #ffffff;
   --am-gray-100: #263229;
   --am-white: #ffffff;
 
@@ -279,9 +279,9 @@ body[data-theme="dark"],
   --border: #37463c;
   --border-light: #2c3a31;
 
-  --text: #f3f4f6;
-  --text-muted: #d1d5db;
-  --text-dim: #9ca3af;
+  --text: #ffffff;
+  --text-muted: #ffffff;
+  --text-dim: #ffffff;
 
   --primary-dark: #7bcb8a;
   --primary: #52b86a;
@@ -312,9 +312,9 @@ body[data-theme="dark"],
   --color-surface-hover: #1d2a21;
   --color-surface-active: #26352b;
 
-  --color-text-primary: #f3f4f6;
-  --color-text-secondary: #d1d5db;
-  --color-text-muted: #9ca3af;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-muted: #ffffff;
   --color-text-inverse: #111827;
 
   --color-border: #37463c;

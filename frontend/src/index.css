@@ -58,6 +58,26 @@
 }
 
 /* ========================================================================
+   TEMA OSCURO — Fuerza todos los textos a blanco
+   ======================================================================== */
+html.dark,
+body.dark,
+#root.dark,
+html[data-theme="dark"],
+body[data-theme="dark"],
+#root[data-theme="dark"] {
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-muted: #ffffff;
+  --color-text-inverse: #111827;
+
+  /* Sobrescribir grises de texto en toda la app */
+  --text: #ffffff;
+  --text-muted: #ffffff;
+  --text-dim: #ffffff;
+}
+
+/* ========================================================================
    2. ESTILOS GLOBALES
    ======================================================================== */
 

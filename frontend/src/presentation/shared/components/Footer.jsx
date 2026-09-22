@@ -275,7 +275,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label="Facebook"
                 >
-                  f
+                  <Icon name="facebook" size={16} />
                 </a>
 
                 <a
@@ -284,7 +284,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label="Instagram"
                 >
-                  ◎
+                  <Icon name="instagram" size={16} />
                 </a>
 
                 <a
@@ -293,7 +293,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label="WhatsApp"
                 >
-                  ◔
+                  <Icon name="messageCircle" size={16} />
                 </a>
               </div>
             </div>

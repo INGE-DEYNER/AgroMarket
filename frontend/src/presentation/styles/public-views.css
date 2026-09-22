@@ -3574,8 +3574,23 @@ html[data-theme="dark"] .ay-contact {
 
 .hm-product-img {
   width: 100%;
-  height: clamp(160px, 14vw, 200px);
+  height: clamp(150px, 20vw, 200px);
   object-fit: cover;
+  aspect-ratio: 16/9;
+}
+
+@media (max-width: 768px) {
+  .hm-product-img {
+    height: clamp(140px, 45vw, 200px);
+    aspect-ratio: 4/3;
+  }
+}
+
+@media (max-width: 480px) {
+  .hm-product-img {
+    height: 200px;
+    aspect-ratio: 16/9;
+  }
 }
 
 .hm-product-body {
@@ -3687,14 +3702,14 @@ html[data-theme="dark"] .ay-contact {
   transform: translateY(-1px);
 }
 
-/* Newsletter */
+/* Newsletter — compact redesign */
 .hm-newsletter {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 32px;
+  gap: 24px;
   flex-wrap: wrap;
-  padding: clamp(36px, 4.2vw, 60px) clamp(20px, 5.5vw, 80px);
+  padding: clamp(20px, 2.5vw, 32px) clamp(20px, 5.5vw, 80px);
   background: var(--hm-dark);
 }
 
@@ -3704,17 +3719,17 @@ html[data-theme="dark"] .ay-contact {
 }
 
 .hm-newsletter-text h2 {
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
   font-family: var(--font-title, "Outfit", sans-serif);
   font-weight: 800;
-  font-size: clamp(22px, 2.2vw, 28px);
+  font-size: clamp(18px, 1.8vw, 22px);
   color: #ffffff;
 }
 
 .hm-newsletter-text p {
   margin: 0;
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.4;
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -3726,13 +3741,13 @@ html[data-theme="dark"] .ay-contact {
 }
 
 .hm-newsletter-form input {
-  width: min(320px, 100%);
-  padding: 14px 20px;
+  width: min(280px, 100%);
+  padding: 10px 18px;
   background: #ffffff;
   border: none;
   border-radius: 30px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--hm-text);
   outline: none;
 }
@@ -3745,13 +3760,13 @@ html[data-theme="dark"] .ay-contact {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 28px;
+  padding: 10px 22px;
   background: var(--hm-accent);
   border: none;
   border-radius: 30px;
   color: #ffffff;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 13px;
   cursor: pointer;
   transition:
     transform var(--transition, 200ms),
@@ -3812,8 +3827,8 @@ body.dark .hm-page,
 html[data-theme="dark"] .hm-page,
 body[data-theme="dark"] .hm-page,
 #root[data-theme="dark"] .hm-page {
-  --hm-text: #edf3ee;
-  --hm-muted: #9fb0a4;
+  --hm-text: #ffffff;
+  --hm-muted: #ffffff;
   --hm-border: #37463c;
   --hm-bg: #0f1712;
 }
