@@ -1045,7 +1045,7 @@ export default function DashboardComprador() {
                 className="btn-cta"
                 onClick={() => setActiveSection("catalogo")}
               >
-                {t("dashboardComprador.exploreCatalog", "Explorar catálogo →")}
+                {t("dashboardComprador.exploreCatalog", "Explorar catálogo")} <Icon name="arrowRight" size={15} />
               </button>
             </div>
 
@@ -1857,7 +1857,7 @@ export default function DashboardComprador() {
                                 border: "1px solid var(--color-border)",
                               }}
                             >
-                              📅 Fecha estimada de entrega:{" "}
+                              Fecha estimada de entrega:{" "}
                               {new Date(
                                 s.fechaEstimadaEntrega + "T12:00:00",
                               ).toLocaleDateString("es-CO", {
@@ -1893,7 +1893,7 @@ export default function DashboardComprador() {
                                 color: "#475569",
                               }}
                             >
-                              📍 Chigorodó
+                              Chigorodó
                             </div>
                             <div
                               style={{
@@ -1908,7 +1908,7 @@ export default function DashboardComprador() {
                                 whiteSpace: "nowrap",
                               }}
                             >
-                              🏡 {s.direccionDestino || "Destino"}
+                              {s.direccionDestino || "Destino"}
                             </div>
                             {/* Moving Truck Emoji */}
                             <div
@@ -1921,7 +1921,7 @@ export default function DashboardComprador() {
                                 zIndex: 10,
                               }}
                             >
-                              🚚
+                              <Icon name="truck" size={22} />
                             </div>
                             {/* Visual Dashed Route Line */}
                             <div
@@ -1990,7 +1990,7 @@ export default function DashboardComprador() {
                                       boxSizing: "content-box",
                                     }}
                                   >
-                                    {isCompleted ? "✓" : idx + 1}
+                                    {isCompleted ? <Icon name="check" size={14} /> : idx + 1}
                                   </div>
                                   <div>
                                     <h5
@@ -2068,7 +2068,7 @@ export default function DashboardComprador() {
                   <thead>
                     <tr>
                       <th>{t("envios.id", "ID Envío")}</th>
-                      <th>{t("envios.route", "Origen → Destino")}</th>
+                      <th>{t("envios.route", "Origen - Destino")}</th>
                       <th>{t("envios.carrier", "Transportista")}</th>
                       <th>{t("envios.status", "Estado")}</th>
                       <th>Guía</th>
@@ -2079,7 +2079,7 @@ export default function DashboardComprador() {
                       <tr key={e.id}>
                         <td data-label="ID Envío">#{e.id}</td>
                         <td data-label="Ruta">
-                          {e.origen || "Chigorodó"} → {e.direccionDestino}
+                          {e.origen || "Chigorodó"} - {e.direccionDestino}
                         </td>
                         <td data-label="Transportista">
                           {e.transportista || "—"}
@@ -2689,7 +2689,7 @@ export default function DashboardComprador() {
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
-                <h1>📄 Mis Facturas de Compra</h1>
+                <h1>Mis Facturas de Compra</h1>
                 <p>
                   Descarga tus comprobantes electrónicos detallados de ASAFRUT
                 </p>
@@ -3211,7 +3211,7 @@ export default function DashboardComprador() {
                   }
                 }}
               >
-                Proceder a Pagar →
+                Proceder a Pagar
               </button>
             </div>
           </div>
@@ -3835,7 +3835,7 @@ export default function DashboardComprador() {
                   }
                   style={{ display: "flex", alignItems: "center", gap: "6px" }}
                 >
-                  💬 Chat
+                  Chat
                 </button>
               </div>
 
@@ -3863,7 +3863,7 @@ export default function DashboardComprador() {
                   }}
                   disabled={selectedProduct.stock <= 0}
                 >
-                  {t("catalog.addToCart", "🛒 Agregar al carrito")}
+                  {t("catalog.addToCart", "Agregar al carrito")}
                 </button>
               </div>
             </div>

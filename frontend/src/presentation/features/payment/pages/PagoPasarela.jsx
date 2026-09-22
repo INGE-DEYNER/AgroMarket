@@ -178,7 +178,7 @@ export default function PagoPasarela() {
   if (error) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-md mx-4 text-center">
-        <div className="text-red-500 text-6xl mb-4">❌</div>
+        <div className="text-red-500 mb-4"><Icon name="x" size={56} /></div>
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Error de Pago</h3>
         <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
         <button onClick={() => navigate("/dashboard-comprador")} className="btn-primary w-full">
@@ -193,7 +193,7 @@ export default function PagoPasarela() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full text-center">
         <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-green-600 dark:text-green-400 text-3xl">✓</span>
+          <span className="text-green-600 dark:text-green-400"><Icon name="check" size={30} /></span>
         </div>
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">¡Pago Exitoso!</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -233,7 +233,7 @@ export default function PagoPasarela() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full text-center">
         <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-yellow-600 dark:text-yellow-400 text-3xl">⏳</span>
+          <span className="text-yellow-600 dark:text-yellow-400"><Icon name="clock" size={30} /></span>
         </div>
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Pago en Proceso</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-6">

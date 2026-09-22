@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import api from "@/infrastructure/http/api";
+import Icon from "@/presentation/shared/components/Icon";
 
 const GROUPS = {
   Hoy: [["Aguacate Hass","1kg","$8.500 COP","🥑"],["Cacao en grano","500g","$14.900 COP","🫘"],["Café Excelso","500g","$18.500 COP","☕"],["Miel de abejas","500ml","$16.000 COP","🍯"]],

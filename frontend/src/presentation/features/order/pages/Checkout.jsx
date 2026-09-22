@@ -4,6 +4,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import { usePriceDisplay } from "@/app/hooks/usePriceDisplay";
 import api from "@/infrastructure/http/api";
+import Icon from "@/presentation/shared/components/Icon";
 import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 
 export default function Checkout() {
@@ -857,7 +858,7 @@ export default function Checkout() {
                           color: "#1b4332",
                         }}
                       >
-                        📅 <strong>Fecha estimada de entrega:</strong>{" "}
+                        <strong>Fecha estimada de entrega:</strong>{" "}
                         {getEstimatedDate()}
                       </div>
                     )}
@@ -939,7 +940,7 @@ export default function Checkout() {
                               : "none",
                         }}
                       >
-                        {method === "MERCADO_PAGO" ? "💳 Mercado Pago" : method}
+                        {method === "MERCADO_PAGO" ? "Mercado Pago" : method}
                       </button>
                     ))}
                   </div>
@@ -976,7 +977,7 @@ export default function Checkout() {
                               gap: "10px",
                             }}
                           >
-                            <span style={{ fontSize: "1.8rem" }}>💳</span>
+                            <Icon name="card" size={28} />
                             <div>
                               <h3
                                 style={{
@@ -1010,7 +1011,7 @@ export default function Checkout() {
                               letterSpacing: "0.05em",
                             }}
                           >
-                            ✓ Seguro SSL 256-bit
+                            Seguro SSL 256-bit
                           </span>
                         </div>
 
@@ -1041,7 +1042,7 @@ export default function Checkout() {
                             gap: "10px",
                           }}
                         >
-                          <span>🔒</span>
+                          <Icon name="lock" size={18} />
                           <span>
                             Tus datos financieros están encriptados y protegidos
                             de extremo a extremo por Mercado Pago.
