@@ -117,7 +117,7 @@ export function EmptyState({
   return (
     <section className="am-empty-state" role="status" aria-live="polite">
       <div className="am-empty-state__illustration" aria-hidden="true">
-        {typeof icon === "string" && icon.length <= 12 && /^[a-zA-Z]+$/.test(icon) ? <Icon name={typeof icon === "string" && icon.length <= 12 && /^[a-zA-Z]+$/.test(icon) ? <Icon name={icon} size={34} /> : icon} size={34} /> : icon}
+        {typeof icon === "string" && icon.length <= 12 && /^[a-zA-Z]+$/.test(icon) ? <Icon name={icon} size={34} /> : icon}
       </div>
       <h2>{title}</h2>
       <p>{description}</p>

@@ -121,7 +121,7 @@ const PATHS = {
 };
 
 
-export const ICON_NAMES = Object.keys(PATHS);
+const ICON_NAMES = Object.keys(PATHS);
 
 /* Alias: nombres usados por los shells antiguos -> nombre canónico.
    Mantiene compatibilidad sin duplicar geometría SVG. */
@@ -158,7 +158,7 @@ const ALIASES = {
   catalog: "store",
 };
 
-export function resolveIconName(name) {
+function resolveIconName(name) {
   return ALIASES[name] || name;
 }
 
