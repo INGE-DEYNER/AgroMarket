@@ -4609,3 +4609,12 @@ html[data-theme="dark"] .hm-product-card {
     font-size: 0.88rem;
   }
 }
+
+/* ============================================================
+   RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
+   ============================================================ */
+@media (max-width: 768px) {
+  .public-container { padding: 20px 15px; }
+  .public-title { font-size: 2rem; }
+  .public-text { font-size: 1rem; line-height: 1.5; }
+}

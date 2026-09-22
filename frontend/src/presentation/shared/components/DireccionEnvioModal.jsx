@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import api from "@/infrastructure/http/api";
+import Icon from "@/presentation/shared/components/Icon";
 
 /**
  * Modal de dirección de envío del usuario.
@@ -213,7 +214,7 @@ function renderModal({
               color: "var(--color-text-secondary, #475569)",
             }}
           >
-            ✕
+            <Icon name="x" size={20} />
           </button>
         </div>
 

@@ -172,7 +172,7 @@ export default function Catalogo() {
           <div className="catalog-hero">
             <div className="catalog-hero-text">
               <span className="catalog-hero-badge">
-                🌱 {t("catalog.badge", "Directo del campo de Urabá")}
+                <Icon name="leaf" size={16} className="inline mr-1 text-green-600" /> {t("catalog.badge", "Directo del campo de Urabá")}
               </span>
               <h1 className="catalog-hero-title">
                 {t("catalog.title", "Catálogo de productos")}
@@ -355,7 +355,7 @@ export default function Catalogo() {
                 </div>
               ) : visible.length === 0 ? (
                 <div className="catalog-empty-state">
-                  <span style={{ fontSize: "2.5rem" }}>🔍</span>
+                  <Icon name="search" size={48} className="text-gray-400 mx-auto" />
                   <h3>
                     {t(
                       "catalog.noProducts",

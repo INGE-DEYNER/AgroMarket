@@ -806,3 +806,10 @@ body.dark .af-terms-text a,
 html[data-theme="dark"] .af-terms-text a {
   color: #52b86a;
 }
+/* ============================================================
+   RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
+   ============================================================ */
+@media (max-width: 768px) {
+  .auth-container { padding: 20px; }
+  .auth-card { width: 100%; max-width: 100%; box-shadow: none; border-radius: 0; }
+}

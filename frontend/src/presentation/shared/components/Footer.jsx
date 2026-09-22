@@ -523,7 +523,7 @@ export default function Footer() {
 
           <div className="am-footer-bottom-final">
             <span>
-              © {new Date().getFullYear()} AgroMarket · ASAFRUT ·{" "}
+              &copy; {new Date().getFullYear()} AgroMarket · ASAFRUT ·{" "}
               {t("home.footerUi.rights")}
             </span>
 

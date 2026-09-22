@@ -900,3 +900,18 @@
   font-weight: 700;
   color: var(--primary);
 }
+
+/* ============================================================
+   RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
+   ============================================================ */
+@media (max-width: 1024px) {
+  .producer-layout { flex-direction: column; }
+  .producer-sidebar { width: 100%; position: static; height: auto; display: flex; overflow-x: auto; padding: 10px; }
+  .producer-content { padding-left: 0; }
+  .producer-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .producer-stats { grid-template-columns: 1fr; }
+  .producer-table-wrapper { overflow-x: auto; }
+  .producer-table { min-width: 600px; }
+}

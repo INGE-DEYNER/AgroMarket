@@ -5,6 +5,7 @@ import { useTheme } from "@/app/contexts/ThemeContext.js";
 import api from "@/infrastructure/http/api";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import { usePriceDisplay } from "@/app/hooks/usePriceDisplay";
+import Icon from "@/presentation/shared/components/Icon";
 
 /**
  * PagoPasarela - Integración con MercadoPago Checkout Pro
@@ -251,7 +252,7 @@ export default function PagoPasarela() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-xl max-w-md w-full text-center">
         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-red-600 dark:text-red-400 text-3xl">✗</span>
+          <span className="text-red-600 dark:text-red-400 text-3xl"><Icon name="x" size={24} /></span>
         </div>
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Pago No Completado</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-6">

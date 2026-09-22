@@ -181,7 +181,7 @@ export default function Pedidos() {
                 {t("pedidos.invoiceTitle", "Factura de Pedido")}
               </span>
               <button className="modal-close" onClick={closeFactura}>
-                ✕
+                <Icon name="x" size={20} />
               </button>
             </div>
             <div id="facturaBody" style={{ padding: "24px" }}>

@@ -17,6 +17,7 @@ import "@/presentation/styles/catalogo.css";
 import "@/presentation/styles/envios.css";
 import "@/presentation/styles/mensajeria.css";
 import "@/presentation/styles/resenas.css";
+import Icon from "@/presentation/shared/components/Icon";
 
 const CATEGORIES = [
   { label: "Todos", emoji: "", value: "" },
@@ -1020,7 +1021,7 @@ export default function DashboardComprador() {
             onClick={() => setSidebarOpen(true)}
             aria-label="Abrir menú de navegación"
           >
-            ☰ Menú
+            <Icon name="menu" size={16} className="mr-2 inline" /> Menú
           </button>
           <LanguageSwitcher />
         </div>
@@ -2393,7 +2394,7 @@ export default function DashboardComprador() {
                         {r.compradorNombre || "Usuario"}
                       </div>
                       <div style={{ color: "var(--gold)", fontSize: "1.1rem" }}>
-                        {"★".repeat(r.calificacion || 5)}
+                        [...Array(r.calificacion || 5)].map((_, i) => <Icon key={i} name="star" size={14} className="inline text-yellow-500" />)
                       </div>
                     </div>
                     <div style={{ color: "var(--text-secondary)" }}>
@@ -2623,7 +2624,7 @@ export default function DashboardComprador() {
                             : "Show password"
                         }
                       >
-                        {showCurrentPassword ? "👁️" : "🙈"}
+                        {showCurrentPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
                       </button>
                     </div>
                   </div>
@@ -2668,7 +2669,7 @@ export default function DashboardComprador() {
                           showNewPassword ? "Hide password" : "Show password"
                         }
                       >
-                        {showNewPassword ? "👁️" : "🙈"}
+                        {showNewPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
                       </button>
                     </div>
                   </div>
@@ -3474,7 +3475,7 @@ export default function DashboardComprador() {
                           : "var(--border-light)",
                     }}
                   >
-                    ★
+                    <Icon name="star" size={16} />
                   </span>
                 ))}
               </div>
@@ -3630,7 +3631,7 @@ export default function DashboardComprador() {
                 }}
               >
                 <div style={{ color: "var(--gold)", fontSize: "1rem" }}>
-                  ★★★★★
+                  <Icon name="star" size={16} /><Icon name="star" size={16} /><Icon name="star" size={16} /><Icon name="star" size={16} /><Icon name="star" size={16} />
                 </div>
                 <span style={{ fontSize: "0.85rem", color: "var(--text-dim)" }}>
                   (4.8 de calificación)

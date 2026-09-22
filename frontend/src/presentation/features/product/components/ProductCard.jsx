@@ -1,6 +1,7 @@
 import React from "react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useDivisa } from "@/app/hooks/useDivisa";
+import Icon from "@/presentation/shared/components/Icon";
 
 const ProductCard = React.memo(
   ({
@@ -168,7 +169,7 @@ const ProductCard = React.memo(
           >
             {p.calificacion ? (
               <>
-                ★★★★★<span>({p.calificacion})</span>
+                <span className="text-yellow-500 flex"><Icon name="star" size={14}/><Icon name="star" size={14}/><Icon name="star" size={14}/><Icon name="star" size={14}/><Icon name="star" size={14}/></span><span>({p.calificacion})</span>
               </>
             ) : (
               <span style={{ color: "var(--text-dim)", fontSize: "0.8rem" }}>
@@ -214,7 +215,7 @@ const ProductCard = React.memo(
                 disabled={p.stock <= 0}
               >
                 {addedStates[p.id]
-                  ? t("catalog.added", "✓ Agregado")
+                  ? t("catalog.added", <><Icon name="check" size={16} className="inline mr-1" /> Agregado</>)
                   : t("catalog.addToCart", "+ Agregar")}
               </button>
             )}

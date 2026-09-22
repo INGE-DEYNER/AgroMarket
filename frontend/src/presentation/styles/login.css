@@ -567,3 +567,11 @@ html[data-theme="dark"] .login-global-error {
     padding-inline: clamp(120px, 14vw, 280px);
   }
 }
+
+/* ============================================================
+   RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
+   ============================================================ */
+@media (max-width: 768px) {
+  .login-wrapper { padding: 20px 10px; }
+  .login-form { width: 100%; padding: 20px; }
+}

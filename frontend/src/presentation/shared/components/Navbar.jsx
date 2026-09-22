@@ -742,7 +742,7 @@ export default function Navbar() {
             onClick={() => setMenuMovil(false)}
             aria-label={t("nav.closeMenu", "Cerrar menú")}
           >
-            ✕
+            <Icon name="x" size={24} />
           </button>
         </div>
 

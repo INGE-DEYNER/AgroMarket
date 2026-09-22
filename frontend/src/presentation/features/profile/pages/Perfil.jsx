@@ -5,6 +5,7 @@ import { useSecureParams } from "@/presentation/shared/hooks/useSecureParams";
 import api from "@/infrastructure/http/api";
 import Navbar from "@/presentation/shared/components/Navbar";
 import "@/presentation/styles/styles.css";
+import Icon from "@/presentation/shared/components/Icon";
 
 const DIVISAS = [
   { codigo: "COP", nombre: "Peso colombiano", bandera: "🇨🇴" },
@@ -228,12 +229,12 @@ export default function Perfil() {
 
   const detectarTipo = (numero) => {
     const n = numero.replace(/\s/g, "");
-    if (/^4/.test(n)) return { tipo: "VISA", logo: "💳", color: "#1A1F71" };
+    if (/^4/.test(n)) return { tipo: "VISA", logo: "card", color: "#1A1F71" };
     if (/^5[1-5]|^2[2-7]/.test(n))
-      return { tipo: "MASTERCARD", logo: "💳", color: "#EB001B" };
-    if (/^3[47]/.test(n)) return { tipo: "AMEX", logo: "💳", color: "#007BC1" };
+      return { tipo: "MASTERCARD", logo: "card", color: "#EB001B" };
+    if (/^3[47]/.test(n)) return { tipo: "AMEX", logo: "card", color: "#007BC1" };
     if (/^3[068]/.test(n))
-      return { tipo: "DINERS", logo: "💳", color: "#004B87" };
+      return { tipo: "DINERS", logo: "card", color: "#004B87" };
     return null;
   };
 
@@ -944,7 +945,7 @@ export default function Perfil() {
                           fontSize: "1.1rem",
                         }}
                       >
-                        {showCurrentPassword ? "👁️" : "🙈"}
+                        {showCurrentPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
                       </button>
                     </div>
                   </div>
@@ -973,7 +974,7 @@ export default function Perfil() {
                           fontSize: "1.1rem",
                         }}
                       >
-                        {showNewPassword ? "👁️" : "🙈"}
+                        {showNewPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
                       </button>
                     </div>
 
@@ -1025,7 +1026,7 @@ export default function Perfil() {
                           fontSize: "1.1rem",
                         }}
                       >
-                        {showConfirmNew ? "👁️" : "🙈"}
+                        {showConfirmNew ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
                       </button>
                     </div>
                   </div>
@@ -1289,7 +1290,7 @@ export default function Perfil() {
                       marginTop: "4px",
                     }}
                   >
-                    {tarjetaValida ? "✓ Tarjeta válida" : "✗ Número inválido"}
+                    {tarjetaValida ? <><Icon name="check" size={16} className="inline mr-1" /> Tarjeta válida</> : <><Icon name="x" size={16} className="inline mr-1" /> Número inválido</>}
                   </span>
                 )}
               </div>

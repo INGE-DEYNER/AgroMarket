@@ -2,23 +2,23 @@ import { useState, useRef, useEffect } from "react";
 import { useDivisa } from "@/app/hooks/useDivisa";
 
 const DIVISAS = [
-  { codigo: "COP", nombre: "Peso colombiano", bandera: "🇨🇴", simbolo: "$" },
+  { codigo: "COP", nombre: "Peso colombiano", bandera: "CO", simbolo: "$" },
   {
     codigo: "USD",
     nombre: "Dólar estadounidense",
-    bandera: "🇺🇸",
+    bandera: "US",
     simbolo: "US$",
   },
-  { codigo: "EUR", nombre: "Euro", bandera: "🇪🇺", simbolo: "€" },
-  { codigo: "GBP", nombre: "Libra esterlina", bandera: "🇬🇧", simbolo: "£" },
-  { codigo: "BRL", nombre: "Real brasileño", bandera: "🇧🇷", simbolo: "R$" },
-  { codigo: "MXN", nombre: "Peso mexicano", bandera: "🇲🇽", simbolo: "MX$" },
-  { codigo: "CLP", nombre: "Peso chileno", bandera: "🇨🇱", simbolo: "CLP$" },
-  { codigo: "PEN", nombre: "Sol peruano", bandera: "🇵🇪", simbolo: "S/" },
-  { codigo: "ARS", nombre: "Peso argentino", bandera: "🇦🇷", simbolo: "AR$" },
-  { codigo: "CAD", nombre: "Dólar canadiense", bandera: "🇨🇦", simbolo: "CA$" },
-  { codigo: "JPY", nombre: "Yen japonés", bandera: "🇯🇵", simbolo: "¥" },
-  { codigo: "CNY", nombre: "Yuan chino", bandera: "🇨🇳", simbolo: "¥" },
+  { codigo: "EUR", nombre: "Euro", bandera: "EU", simbolo: "€" },
+  { codigo: "GBP", nombre: "Libra esterlina", bandera: "GB", simbolo: "£" },
+  { codigo: "BRL", nombre: "Real brasileño", bandera: "BR", simbolo: "R$" },
+  { codigo: "MXN", nombre: "Peso mexicano", bandera: "MX", simbolo: "MX$" },
+  { codigo: "CLP", nombre: "Peso chileno", bandera: "CL", simbolo: "CLP$" },
+  { codigo: "PEN", nombre: "Sol peruano", bandera: "PE", simbolo: "S/" },
+  { codigo: "ARS", nombre: "Peso argentino", bandera: "AR", simbolo: "AR$" },
+  { codigo: "CAD", nombre: "Dólar canadiense", bandera: "CA", simbolo: "CA$" },
+  { codigo: "JPY", nombre: "Yen japonés", bandera: "JP", simbolo: "¥" },
+  { codigo: "CNY", nombre: "Yuan chino", bandera: "CN", simbolo: "¥" },
 ];
 
 export default function DivisaSwitcher() {
@@ -67,7 +67,7 @@ export default function DivisaSwitcher() {
           backgroundColor: "var(--color-surface)",
         }}
       >
-        <span style={{ fontSize: "1.1rem" }}>{currentDivisa.bandera}</span>
+        <img src={`https://flagcdn.com/w20/${currentDivisa.bandera.toLowerCase()}.png`} srcSet={`https://flagcdn.com/w40/${currentDivisa.bandera.toLowerCase()}.png 2x`} width="20" alt={currentDivisa.codigo} style={{ borderRadius: "2px" }} />
         <span>{currentDivisa.codigo}</span>
         <svg
           width="12"
@@ -135,7 +135,7 @@ export default function DivisaSwitcher() {
                   divisaActual === divisa.codigo ? "var(--color-surface-hover)" : "transparent")
               }
             >
-              <span style={{ fontSize: "1.1rem" }}>{divisa.bandera}</span>
+              <img src={`https://flagcdn.com/w20/${divisa.bandera.toLowerCase()}.png`} srcSet={`https://flagcdn.com/w40/${divisa.bandera.toLowerCase()}.png 2x`} width="20" alt={divisa.codigo} style={{ borderRadius: "2px" }} />
               <span style={{ fontWeight: "bold", width: "35px" }}>
                 {divisa.codigo}
               </span>

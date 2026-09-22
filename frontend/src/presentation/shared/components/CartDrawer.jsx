@@ -109,7 +109,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             onClick={onClose}
             aria-label={t("catalog.closeCart", "Cerrar carrito")}
           >
-            ✕
+            <Icon name="x" size={20} />
           </button>
         </div>
 
@@ -247,7 +247,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       name: item.nombre,
                     })}
                   >
-                    ✕
+                    <Icon name="x" size={20} />
                   </button>
                 </div>
               );

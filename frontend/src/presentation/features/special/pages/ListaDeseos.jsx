@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
 import { useToast } from "@/app/hooks/useToast";
 import api from "@/infrastructure/http/api";
+import Icon from "@/presentation/shared/components/Icon";
 
 export default function ListaDeseos() {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ export default function ListaDeseos() {
               className="wish-remove"
               onClick={() => remove(item.productId)}
             >
-              ♡
+              <Icon name="heart" size={24} />
             </button>
             <h3>{item.name}</h3>
             <strong>{item.price} COP</strong>

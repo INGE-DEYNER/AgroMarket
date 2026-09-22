@@ -6,6 +6,7 @@ import handHeartIcon from "@/assets/icon-hand-heart.svg";
 import mapPinIcon from "@/assets/icon-map-pin.svg";
 import api from "@/infrastructure/http/api";
 import "@/presentation/styles/public-views.css";
+import Icon from "@/presentation/shared/components/Icon";
 
 function extractArray(response) {
   const data = response?.data ?? response;
@@ -56,7 +57,7 @@ export default function Productores() {
         >
           <div className="pr-hero-overlay">
             <span className="pr-hero-badge">
-              👨‍🌾 Nuestras manos trabajadoras
+              <Icon name="users" size={24} className="inline mr-2" /> Nuestras manos trabajadoras
             </span>
             <h1>Conoce a nuestros productores</h1>
             <p>
@@ -106,7 +107,7 @@ export default function Productores() {
                         minHeight: 120,
                       }}
                     >
-                      👨‍🌾
+                      <Icon name="user" size={48} className="mx-auto text-green-600" />
                     </div>
                     <div className="pr-card-body">
                       <div className="pr-card-head">
@@ -123,7 +124,7 @@ export default function Productores() {
                       <div className="pr-rating-row">
                         {rating > 0 ? (
                           <>
-                            <span className="pr-stars" aria-hidden="true">★★★★★</span>
+                            <span className="pr-stars" aria-hidden="true"><span className="flex justify-center text-yellow-500"><Icon name="star" size={16}/><Icon name="star" size={16}/><Icon name="star" size={16}/><Icon name="star" size={16}/><Icon name="star" size={16}/></span></span>
                             <span className="pr-score">{rating.toFixed(1)}</span>
                           </>
                         ) : (

@@ -15,6 +15,7 @@ import {
 import "@/presentation/styles/envios.css";
 import "@/presentation/styles/mensajeria.css";
 import "@/presentation/styles/productor.css";
+import Icon from "@/presentation/shared/components/Icon";
 
 const TIPOS = [
   "Banano",
@@ -675,7 +676,7 @@ export default function DashboardProductor() {
                 </span>
               )}
             </span>
-            <div className="rating">★ {user?.calificacion || "4.9"}</div>
+            <div className="rating"><Icon name="star" size={16} className="inline text-yellow-500 mr-1" /> {user?.calificacion || "4.9"}</div>
           </div>
         </div>
 
@@ -723,7 +724,7 @@ export default function DashboardProductor() {
             setSidebarOpen(false);
           }}
         >
-          <span className="icon">✉</span> Mensajes
+          <span className="icon"><Icon name="mail" size={18} /></span> Mensajes
         </a>
         <a
           href="#"
@@ -734,7 +735,7 @@ export default function DashboardProductor() {
             setSidebarOpen(false);
           }}
         >
-          <span className="icon">★</span> Reseñas
+          <span className="icon"><Icon name="star" size={18} /></span> Reseñas
         </a>
         <a
           href="#"
@@ -767,7 +768,7 @@ export default function DashboardProductor() {
             setSidebarOpen(false);
           }}
         >
-          <span className="icon">⚙</span> Configuración
+          <span className="icon"><Icon name="settings" size={18} /></span> Configuración
         </a>
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">Operación</div>
@@ -882,7 +883,7 @@ export default function DashboardProductor() {
             onClick={() => setSidebarOpen(true)}
             aria-label="Abrir menú de navegación"
           >
-            ☰ Menú
+            <Icon name="menu" size={16} className="inline mr-2" /> Menú
           </button>
           <LanguageSwitcher />
         </div>
@@ -1495,7 +1496,7 @@ export default function DashboardProductor() {
                   Calificación promedio
                 </span>
                 <strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong>
-                <div className="producer-stars">★★★★★</div>
+                <div className="producer-stars"><span className="flex text-yellow-500">{[...Array(5)].map((_,i)=><Icon key={i} name="star" size={16}/>)}</span></div>
                 <small>
                   {resenasProductor.length} reseñas asociadas cargadas
                 </small>
@@ -1606,7 +1607,7 @@ export default function DashboardProductor() {
               <article className="producer-farm-card producer-farm-hero">
                 <div className="producer-farm-image">{iniciales}</div>
                 <span className="producer-verified">
-                  ✓ Productor verificado
+                  <Icon name="check" size={16} className="inline mr-1" /> Productor verificado
                 </span>
                 <h2>{user?.finca || user?.nombre || "Productor AgroMarket"}</h2>
                 <p>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</p>
@@ -1803,14 +1804,14 @@ export default function DashboardProductor() {
                   <span>Protección de cuenta</span>
                 </div>
                 <div className="producer-security-item">
-                  <span className="producer-security-icon">✓</span>
+                  <span className="producer-security-icon"><Icon name="check" size={16} /></span>
                   <div>
                     <strong>Correo registrado</strong>
                     <small>{user?.email || "Sin correo"}</small>
                   </div>
                 </div>
                 <div className="producer-security-item">
-                  <span className="producer-security-icon">✓</span>
+                  <span className="producer-security-icon"><Icon name="check" size={16} /></span>
                   <div>
                     <strong>Estado de cuenta</strong>
                     <small>
@@ -1821,7 +1822,7 @@ export default function DashboardProductor() {
                   </div>
                 </div>
                 <div className="producer-security-item">
-                  <span className="producer-security-icon">🔒</span>
+                  <span className="producer-security-icon"><Icon name="lock" size={16} /></span>
                   <div>
                     <strong>Contraseña</strong>
                     <small>

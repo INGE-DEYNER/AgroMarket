@@ -78,7 +78,7 @@ export default function Resenas() {
     } catch (err) {
       alert(
         t("resenas.errorPublish", "Error al publicar reseÃ±a: ") +
-          (err.message || "IntÃ©ntalo de nuevo."),
+          (err.message || "Inténtalo de nuevo."),
       );
     }
     setRProducto("");
@@ -123,7 +123,7 @@ export default function Resenas() {
               <div>
                 {t(
                   "resenas.emptyReviews",
-                  "No hay reseÃ±as aÃºn. Â¡SÃ© el primero en dejar una!",
+                  "No hay reseñas aún. ¡Sé el primero en dejar una!",
                 )}
               </div>
             </div>

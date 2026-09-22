@@ -6,8 +6,8 @@ import api from "@/infrastructure/http/api";
 import Icon from "@/presentation/shared/components/Icon";
 
 const GROUPS = {
-  Hoy: [["Aguacate Hass","1kg","$8.500 COP","🥑"],["Cacao en grano","500g","$14.900 COP","🫘"],["Café Excelso","500g","$18.500 COP","☕"],["Miel de abejas","500ml","$16.000 COP","🍯"]],
-  Ayer: [["Plátano Dominico","1kg","$2.700 COP","🍌"],["Yuca fresca","1kg","$3.100 COP","🥔"],["Tomate Chonto","1kg","$4.200 COP","🍅"],["Pimentón","1kg","$5.800 COP","🫑"]],
+  Hoy: [["Aguacate Hass","1kg","$8.500 COP","leaf"],["Cacao en grano","500g","$14.900 COP","box"],["Café Excelso","500g","$18.500 COP","coffee"],["Miel de abejas","500ml","$16.000 COP","database"]],
+  Ayer: [["Plátano Dominico","1kg","$2.700 COP","banana"],["Yuca fresca","1kg","$3.100 COP","carrot"],["Tomate Chonto","1kg","$4.200 COP","apple"],["Pimentón","1kg","$5.800 COP","leaf"]],
 };
 
 export default function HistorialNavegacion() {

@@ -2107,3 +2107,16 @@
 .footer-ml-style .am-footer-partners-carousel { gap: 6px; }
 .footer-ml-style .am-footer-partners-arrow { flex: 0 0 24px; width: 24px; height: 24px; font-size: .7rem; }
 .footer-ml-style .am-footer-partners-hint { margin: 6px 0 0 !important; font-size: .54rem; }
+
+/* ============================================================
+   RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
+   ============================================================ */
+@media (max-width: 768px) {
+  .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .footer-bottom { flex-direction: column; text-align: center; gap: 15px; }
+}
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .footer-col { align-items: center; text-align: center; }
+  .footer-socials { justify-content: center; }
+}

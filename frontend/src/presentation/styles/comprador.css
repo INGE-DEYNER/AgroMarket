@@ -818,3 +818,17 @@
   color: #667280;
   font-size: 11px;
 }
+
+/* ============================================================
+   RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
+   ============================================================ */
+@media (max-width: 1024px) {
+  .buyer-layout { flex-direction: column; }
+  .buyer-sidebar { width: 100%; position: static; height: auto; display: flex; overflow-x: auto; padding: 10px; }
+  .buyer-content { padding-left: 0; }
+}
+@media (max-width: 768px) {
+  .buyer-table-wrapper { overflow-x: auto; }
+  .buyer-table { min-width: 600px; }
+  .order-card { flex-direction: column; align-items: flex-start; }
+}

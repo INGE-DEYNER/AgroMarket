@@ -6,6 +6,7 @@ import { useCart } from "@/presentation/features/order/hooks/useCart";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useDivisa } from "@/app/hooks/useDivisa";
 import api from "@/infrastructure/http/api";
+import Icon from "@/presentation/shared/components/Icon";
 
 export default function ProductoDetalle() {
   const { id } = useParams();
@@ -74,7 +75,7 @@ export default function ProductoDetalle() {
     return (
       <PublicLayout>
         <div style={{ padding: "80px 20px", textAlign: "center" }}>
-          <span style={{ fontSize: "3rem" }}>😔</span>
+          <Icon name="alert" size={48} className="text-gray-400 mx-auto" />
           <h2 style={{ marginTop: 16 }}>
             {t("productDetail.notFound", "Producto no encontrado")}
           </h2>
@@ -154,7 +155,7 @@ export default function ProductoDetalle() {
                 color: "var(--text-dim)",
               }}
             >
-              🌿
+              <Icon name="leaf" size={24} className="text-green-600 inline" />
             </div>
           )}
         </div>
@@ -233,7 +234,7 @@ export default function ProductoDetalle() {
               fontSize: "0.9rem",
             }}
           >
-            <span>👨‍🌾</span>
+            <span><Icon name="user" size={20} className="inline text-green-700" /></span>
             <span>
               {t("productDetail.producer", "Productor:")}{" "}
               <strong style={{ color: "var(--primary)" }}>
@@ -248,7 +249,7 @@ export default function ProductoDetalle() {
           {/* Rating */}
           {product.averageRating > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ color: "#f5a623" }}>★★★★★</span>
+              <span style={{ color: "#f5a623" }}><span className="flex gap-1"> <Icon name="star" size={16} /> <Icon name="star" size={16} /> <Icon name="star" size={16} /> <Icon name="star" size={16} /> <Icon name="star" size={16} /> </span></span>
               <strong>{product.averageRating.toFixed(1)}</strong>
               <span style={{ color: "var(--text-dim)", fontSize: "0.85rem" }}>
                 ({product.totalReviews} {t("productDetail.reviews", "reseñas")})
@@ -321,7 +322,7 @@ export default function ProductoDetalle() {
                 }}
               >
                 <strong>
-                  {t("productDetail.wholesale", "🏭 Precio mayorista:")}
+                  {t("productDetail.wholesale", <><Icon name="package" size={18} className="inline mr-1" /> Precio mayorista:</>)}
                 </strong>{" "}
                 {formatPrice(product.wholesalePrice)}
                 {t("catalog.perKg", "/kg")}{" "}
@@ -343,10 +344,10 @@ export default function ProductoDetalle() {
             {product.availableQuantity > 0
               ? t(
                   "productDetail.inStock",
-                  "✓ En stock: {{qty}} kg disponibles",
+                  "En stock: {{qty}} kg disponibles",
                   { qty: product.availableQuantity },
                 )
-              : t("productDetail.outOfStock", "✗ Sin stock disponible")}
+              : t("productDetail.outOfStock", "Sin stock disponible")}
           </div>
 
           {/* Descripción */}
@@ -391,8 +392,8 @@ export default function ProductoDetalle() {
                 }}
               >
                 {added
-                  ? t("productDetail.added", "✓ Agregado al carrito")
-                  : t("productDetail.addToCart", "🛒 Agregar al carrito")}
+                  ? t("productDetail.added", "Agregado al carrito")
+                  : t("productDetail.addToCart", "Agregar al carrito")}
               </button>
             )}
             <button
