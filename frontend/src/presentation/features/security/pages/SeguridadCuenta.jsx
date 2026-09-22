@@ -4,7 +4,11 @@ import Icon from "@/presentation/shared/components/Icon";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/app/hooks/useToast";
 
-const EVENTS=[["Hoy · 14:32","Inicio de sesión exitoso","Chrome · Windows · Colombia","✓"],["Hoy · 13:51","Contraseña actualizada","Chrome · Windows · Colombia","✓"],["Ayer · 20:12","Sesión cerrada","Android · Colombia","✓"]];
+const EVENTS=[
+  ["Hoy · 14:32","Inicio de sesión exitoso","Chrome · Windows · Colombia","check"],
+  ["Hoy · 13:51","Contraseña actualizada","Chrome · Windows · Colombia","check"],
+  ["Ayer · 20:12","Sesión cerrada","Android · Colombia","check"],
+];
 export default function SeguridadCuenta(){
  const navigate=useNavigate(); const toast=useToast();
  const [password,setPassword]=useState(false);
