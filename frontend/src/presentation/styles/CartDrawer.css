@@ -33,9 +33,9 @@ body > .cart-drawer-root .cart-drawer {
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
-  left: auto !important;
+  left: 0 !important;
 
-  width: min(400px, 100%) !important;
+  width: 100% !important;
   height: 100vh !important;
   max-width: none !important;
 
@@ -65,6 +65,7 @@ body > .cart-drawer-root .cart-drawer {
   align-items: center;
   justify-content: space-between;
 
+  width: 100%;
   padding: 18px 24px;
 
   border-bottom: 1px solid var(--color-border, #e2e8f0);
@@ -124,6 +125,7 @@ body > .cart-drawer-root .cart-drawer {
 
 .cart-items {
   flex: 1;
+  width: 100%;
 
   overflow-y: auto;
 
@@ -134,6 +136,7 @@ body > .cart-drawer-root .cart-drawer {
 
 .cart-empty {
   min-height: 100%;
+  width: 100%;
 
   display: flex;
   flex-direction: column;
@@ -178,6 +181,7 @@ body > .cart-drawer-root .cart-drawer {
 .cart-item-row {
   display: flex;
   align-items: center;
+  width: 100%;
 
   gap: 12px;
 
@@ -308,6 +312,7 @@ body > .cart-drawer-root .cart-drawer {
    ============================================================ */
 
 .cart-footer {
+  width: 100%;
   padding: 24px;
 
   border-top: 1px solid var(--color-border, #e2e8f0);
@@ -405,11 +410,57 @@ body > .cart-drawer-root .cart-drawer {
 }
 
 /* ============================================================
-   MÓVIL
+   RESPONSIVE - Diferentes tamaños de dispositivo
    ============================================================ */
 
-@media (max-width: 480px) {
+/* En pantallas grandes (desktop), el drawer ocupa toda la pantalla pero con un ancho máximo razonable */
+@media (min-width: 1025px) {
   body > .cart-drawer-root .cart-drawer {
+    left: auto !important;
+    width: 60% !important;
+    max-width: 800px !important;
+  }
+}
+
+/* En tablets y pantallas medianas, el drawer ocupa más espacio */
+@media (min-width: 769px) and (max-width: 1024px) {
+  body > .cart-drawer-root .cart-drawer {
+    left: auto !important;
+    width: 70% !important;
+    max-width: 600px !important;
+  }
+}
+
+/* En móviles, el drawer ocupa toda la pantalla */
+@media (max-width: 768px) {
+  body > .cart-drawer-root .cart-drawer {
+    left: 0 !important;
     width: 100% !important;
+  }
+  
+  .cart-item-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .cart-item-thumb {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .cart-item-name {
+    font-size: 13px;
+  }
+  
+  .cart-item-info {
+    flex: 1;
+    min-width: calc(100% - 80px);
+  }
+  
+  .cart-header,
+  .cart-items,
+  .cart-footer {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 }
