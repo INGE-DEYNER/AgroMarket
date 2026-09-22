@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "@/infrastructure/http/api";
 import TarjetaPagoBrick from "../components/TarjetaPagoBrick";
 import PSEBrick from "../components/PSEBrick";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import { usePriceDisplay } from "@/app/hooks/usePriceDisplay";
+import Icon from "@/presentation/shared/components/Icon";
+import PaymentLogo from "@/presentation/shared/components/PaymentLogo";
 
 /**
  *SeleccionMetodoPago - Página para seleccionar método de pago (Tarjeta o PSE)
@@ -14,6 +17,7 @@ import { usePriceDisplay } from "@/app/hooks/usePriceDisplay";
  */
 export default function SeleccionMetodoPago() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { clearCart } = useCart();
   const [searchParams] = useSearchParams();
   const { formatPrice, divisaActual } = usePriceDisplay();
@@ -98,7 +102,7 @@ export default function SeleccionMetodoPago() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-md mx-4 text-center">
-          <div className="text-red-500 text-6xl mb-4">❌</div>
+          <div className="mb-4 flex justify-center text-red-500"><Icon name="x" size={56} /></div>
           <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">
             Error
           </h3>
@@ -127,7 +131,7 @@ export default function SeleccionMetodoPago() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-md mx-4 text-center">
-          <div className="text-yellow-500 text-6xl mb-4">⚠️</div>
+          <div className="mb-4 flex justify-center text-yellow-500"><Icon name="alert" size={56} /></div>
           <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">
             Información incompleta
           </h3>
@@ -161,7 +165,7 @@ export default function SeleccionMetodoPago() {
               </p>
             </div>
             <img
-              src="/logo-asafrut.jpg"
+              src="/agromarket/logo.png"
               alt="ASAFRUT"
               className="w-16 h-16 rounded-lg object-cover"
             />
@@ -211,7 +215,7 @@ export default function SeleccionMetodoPago() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center">
-                        <span className="text-white text-xl">💳</span>
+                        <Icon name="card" size={24} className="text-white" />
                       </div>
                       <div>
                         <h3 className="font-bold text-gray-800 dark:text-gray-200">
@@ -224,27 +228,17 @@ export default function SeleccionMetodoPago() {
                     </div>
                     <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
                       <span className="text-gray-600 dark:text-gray-300">
-                        →
+                        <Icon name="arrowRight" size={18} />
                       </span>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <img
-                      src="/payments/visa.png"
-                      alt="Visa"
-                      className="h-8 object-contain"
-                    />
-                    <img
-                      src="/payments/mastercard.png"
-                      alt="Mastercard"
-                      className="h-8 object-contain"
-                    />
-                    <img
-                      src="/payments/amex.png"
-                      alt="American Express"
-                      className="h-8 object-contain"
-                    />
-                    <span className="text-xs text-gray-400">+ más</span>
+                  <div className="flex items-center gap-2">
+                    <PaymentLogo method="visa" className="h-8 object-contain" />
+                    <PaymentLogo method="mastercard" className="h-8 object-contain" />
+                    <PaymentLogo method="amex" altFallback="Amex" />
+                    <span className="text-xs text-gray-400">
+                      {t("payment.moreNetworks", "+ más")}
+                    </span>
                   </div>
                 </div>
               </button>
@@ -259,7 +253,7 @@ export default function SeleccionMetodoPago() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center">
-                        <span className="text-white text-xl">🏛️</span>
+                        <Icon name="bank" size={24} className="text-white" />
                       </div>
                       <div>
                         <h3 className="font-bold text-gray-800 dark:text-gray-200">
@@ -272,27 +266,18 @@ export default function SeleccionMetodoPago() {
                     </div>
                     <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
                       <span className="text-gray-600 dark:text-gray-300">
-                        →
+                        <Icon name="arrowRight" size={18} />
                       </span>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <img
-                      src="/payments/bancolombia.png"
-                      alt="Bancolombia"
-                      className="h-8 object-contain"
-                    />
-                    <img
-                      src="/payments/davivienda.png"
-                      alt="Davivienda"
-                      className="h-8 object-contain"
-                    />
-                    <img
-                      src="/payments/banco_bogota.png"
-                      alt="Banco de Bogotá"
-                      className="h-8 object-contain"
-                    />
-                    <span className="text-xs text-gray-400">+ más</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <PaymentLogo method="pse" className="h-8 object-contain" />
+                    <PaymentLogo method="bancolombia" altFallback="Bancolombia" />
+                    <PaymentLogo method="davivienda" altFallback="Davivienda" />
+                    <PaymentLogo method="banco_bogota" altFallback="Banco de Bogotá" />
+                    <span className="text-xs text-gray-400">
+                      {t("payment.moreBanks", "+ más bancos")}
+                    </span>
                   </div>
                 </div>
               </button>
@@ -318,7 +303,7 @@ export default function SeleccionMetodoPago() {
                   onClick={() => setSelectedMethod(null)}
                   className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
-                  <span className="text-gray-600 dark:text-gray-300">←</span>
+                  <span className="text-gray-600 dark:text-gray-300"><Icon name="arrowLeft" size={18} /></span>
                 </button>
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
                   Pago con Tarjeta
@@ -345,7 +330,7 @@ export default function SeleccionMetodoPago() {
                   onClick={() => setSelectedMethod(null)}
                   className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
-                  <span className="text-gray-600 dark:text-gray-300">←</span>
+                  <span className="text-gray-600 dark:text-gray-300"><Icon name="arrowLeft" size={18} /></span>
                 </button>
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
                   Pago con PSE

@@ -1,13 +1,14 @@
 // src/app/providers/ToastContext.jsx
 import { useCallback, useRef, useState } from "react";
 import ToastContext from "@/app/contexts/ToastContext";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/microinteractions.css";
 
 const ICONS = {
-  success: "✓",
-  error: "!",
-  warning: "⚠",
-  info: "i",
+  success: "check",
+  error: "alert",
+  warning: "alert",
+  info: "info",
 };
 
 const TITLES = {
@@ -84,7 +85,7 @@ function ToastContainer({ toasts, onRemove }) {
           className={`am-toast am-toast--${toast.type}${toast.exiting ? " is-exiting" : ""}`}
           role={toast.type === "error" ? "alert" : "status"}
         >
-          <span aria-hidden="true">{ICONS[toast.type] || ICONS.info}</span>
+          <span aria-hidden="true"><Icon name={ICONS[toast.type] || ICONS.info} size={18} /></span>
           <span>
             <span className="am-toast__title">{toast.title}</span>
             <span className="am-toast__message">{toast.message}</span>

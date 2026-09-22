@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/footer.css";
 
 /* ============================================================
@@ -109,7 +110,7 @@ export default function Footer() {
           <span>{t("home.footerUi.more")}</span>
 
           <span className="footer-more-chevron" aria-hidden="true">
-            {moreInfoOpen ? "⌃" : "⌄"}
+            <Icon name={moreInfoOpen ? "chevronUp" : "chevronDown"} size={18} />
           </span>
         </button>
       </div>
@@ -514,7 +515,7 @@ export default function Footer() {
               onClick={scrollToTop}
               className="am-footer-back-top"
             >
-              {t("home.footerUi.backTop")} ↑
+              {t("home.footerUi.backTop")} <Icon name="arrowUp" size={14} />
             </button>
           </div>
 

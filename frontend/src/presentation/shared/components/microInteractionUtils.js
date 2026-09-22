@@ -7,7 +7,7 @@ export function animateToCart(sourceElement, targetSelector = ".buyer-cart-butto
   const dot = document.createElement("span");
   dot.className = "am-cart-flight";
   dot.setAttribute("aria-hidden", "true");
-  dot.textContent = "✓";
+  dot.textContent = ""; dot.setAttribute("data-icon", "check");
   dot.style.left = `${sourceRect.left + sourceRect.width / 2}px`;
   dot.style.top = `${sourceRect.top + sourceRect.height / 2}px`;
   dot.style.setProperty("--am-flight-x", `${targetRect.left + targetRect.width / 2 - (sourceRect.left + sourceRect.width / 2)}px`);

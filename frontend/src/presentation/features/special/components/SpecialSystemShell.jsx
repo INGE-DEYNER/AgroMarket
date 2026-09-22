@@ -2,95 +2,29 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
+import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import DivisaSwitcher from "@/presentation/shared/components/DivisaSwitcher";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import CartDrawer from "@/presentation/shared/components/CartDrawer";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/special-system.css";
 
+/* Iconos de navegación = nombres canónicos del componente Icon (SVG real). */
 const ITEMS = [
   ["notificaciones", "Notificaciones", "bell"],
-  ["direcciones", "Direcciones", "pin"],
+  ["direcciones", "Direcciones", "mapPin"],
   ["cupones", "Cupones y promociones", "tag"],
   ["deseos", "Lista de deseos", "heart"],
   ["historial", "Historial", "history"],
   ["ayuda-detallada", "Centro de ayuda", "help"],
-  ["devoluciones", "Devoluciones", "return"],
+  ["devoluciones", "Devoluciones", "undo"],
   ["pagos-guardados", "Pagos guardados", "card"],
-  ["modo-oscuro", "Modo oscuro", "theme"],
+  ["modo-oscuro", "Modo oscuro", "moon"],
 ];
 
-function SpecialIcon({ name }) {
-  const common = {
-    width: 18,
-    height: 18,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.8,
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true",
-  };
-
-  const icons = {
-    bell: (
-      <>
-        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-        <path d="M10 21h4" />
-      </>
-    ),
-    pin: (
-      <>
-        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-        <circle cx="12" cy="10" r="2.5" />
-      </>
-    ),
-    tag: (
-      <>
-        <path d="M20 13 13 20 4 11V4h7l9 9Z" />
-        <path d="M8 8h.01" />
-      </>
-    ),
-    heart: (
-      <path d="M20.8 8.9c0 5-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.9A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.7Z" />
-    ),
-    history: (
-      <>
-        <path d="M3 12a9 9 0 1 0 3-6.7" />
-        <path d="M3 4v5h5" />
-        <path d="M12 7v5l3 2" />
-      </>
-    ),
-    help: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M9.7 9a2.4 2.4 0 1 1 4.2 1.6c-.9.9-1.9 1.2-1.9 2.6" />
-        <path d="M12 17h.01" />
-      </>
-    ),
-    return: (
-      <>
-        <path d="M9 7H4v5" />
-        <path d="M4 12a8 8 0 1 0 2-5" />
-      </>
-    ),
-    card: (
-      <>
-        <rect x="3" y="5" width="18" height="14" rx="2" />
-        <path d="M3 10h18" />
-      </>
-    ),
-    theme: (
-      <>
-        <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z" />
-      </>
-    ),
-  };
-  return <svg {...common}>{icons[name] || icons.help}</svg>;
-}
-
 export default function SpecialSystemShell({ activeKey, children }) {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { count } = useCart();
   const navigate = useNavigate();
@@ -132,13 +66,13 @@ export default function SpecialSystemShell({ activeKey, children }) {
           type="button"
           className="special-menu"
           onClick={() => setSidebarOpen(true)}
-          aria-label="Abrir menú"
+          aria-label={t("common.openMenu", "Abrir menú")}
         >
-          ☰
+          <Icon name="menu" size={20} />
         </button>
 
         <Link to="/home" className="special-brand">
-          <img src="/logo-asafrut.jpg" alt="AgroMarket" />
+          <img src="/agromarket/logo.png" alt="AgroMarket" />
           <span>
             <strong>AgroMarket</strong>
             <small>{t("nav.brandTagline", "Del campo de Urabá y Colombia a tu mesa")}</small>
@@ -152,8 +86,8 @@ export default function SpecialSystemShell({ activeKey, children }) {
             placeholder={t("catalog.searchPlaceholder", "Buscar productos…")}
             aria-label={t("catalog.searchAria", "Buscar productos")}
           />
-          <button type="submit" aria-label="Buscar">
-            ⌕
+          <button type="submit" aria-label={t("catalog.searchAria", "Buscar productos")}>
+            <Icon name="search" size={16} />
           </button>
         </form>
 
@@ -161,7 +95,7 @@ export default function SpecialSystemShell({ activeKey, children }) {
           <LanguageSwitcher />
           <DivisaSwitcher />
           <span className="special-location">
-            <SpecialIcon name="pin" />
+            <Icon name="mapPin" size={15} />
             Urabá, Colombia
           </span>
           <ThemeToggle />
@@ -171,7 +105,7 @@ export default function SpecialSystemShell({ activeKey, children }) {
             onClick={() => setCartOpen(true)}
             aria-label={`Abrir carrito. ${count || 0} productos`}
           >
-            <SpecialIcon name="card" /> <b>{count || 0}</b>
+            <Icon name="cart" size={18} /> <b>{count || 0}</b>
           </button>
         </div>
       </header>
@@ -192,7 +126,7 @@ export default function SpecialSystemShell({ activeKey, children }) {
 
           <nav aria-label="Funciones especiales">
             <Link className="special-home-link" to="/dashboard-comprador">
-              ← Volver al panel
+              <Icon name="arrowLeft" size={14} /> Volver al panel
             </Link>
             {ITEMS.map(([key, label, icon]) => (
               <button
@@ -201,8 +135,8 @@ export default function SpecialSystemShell({ activeKey, children }) {
                 className={`special-nav-item${activeKey === key ? " active" : ""}`}
                 onClick={() => go(key)}
               >
-                <span className="special-nav-icon">
-                  <SpecialIcon name={icon} />
+                <span className="special-nav-icon" aria-hidden="true">
+                  <Icon name={icon} size={17} />
                 </span>
                 <span>{label}</span>
               </button>
@@ -214,6 +148,7 @@ export default function SpecialSystemShell({ activeKey, children }) {
             className="special-logout"
             onClick={handleLogout}
           >
+            <Icon name="logout" size={15} />
             Cerrar sesión
           </button>
         </aside>

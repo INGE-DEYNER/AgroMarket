@@ -11,5 +11,5 @@ const DATA={
 };
 export default function SecurityStatePage({code}){
  const location=useLocation(); const key=code || location.pathname.split("/").pop(); const data=DATA[key] || DATA["404"];
- return <main className="standalone-state"><Link to="/home" className="security-brand"><img src="/logo-asafrut.jpg" alt="AgroMarket"/><strong>AgroMarket</strong></Link><div className="standalone-state-card"><div className="state-code">{data[0]}</div><h1>{data[1]}</h1><p>{data[2]}</p><Link to={key==="419"?"/login":"/home"} className="security-primary">{data[3]}</Link></div></main>;
+ return <main className="standalone-state"><Link to="/home" className="security-brand"><img src="/agromarket/logo.png" alt="AgroMarket"/><strong>AgroMarket</strong></Link><div className="standalone-state-card"><div className="state-code">{data[0]}</div><h1>{data[1]}</h1><p>{data[2]}</p><Link to={key==="419"?"/login":"/home"} className="security-primary">{data[3]}</Link></div></main>;
 }

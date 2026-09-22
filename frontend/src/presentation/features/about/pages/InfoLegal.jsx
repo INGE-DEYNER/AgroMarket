@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/public-views.css";
 
 const DOC_KEYS = { terminos: "terms", privacidad: "privacy", cookies: "cookies" };
@@ -30,8 +31,8 @@ export default function InfoLegal() {
             <h1>{t(`legal.${ns}.title`)}</h1>
             <p>{t(`legal.${ns}.intro`)}</p>
             <div className="legal-meta-row">
-              <span className="legal-chip">📅 {t("legal.updated", "Última actualización")}: {t("legal.updateDate", "20 de mayo de 2024")}</span>
-              <span className="legal-chip">🌐 {t("legal.appliesTo", "Aplica a todo AgroMarket")}</span>
+              <span className="legal-chip"><Icon name="calendar" size={14} /> {t("legal.updated", "Última actualización")}: {t("legal.updateDate", "20 de mayo de 2024")}</span>
+              <span className="legal-chip"><Icon name="globe" size={14} /> {t("legal.appliesTo", "Aplica a todo AgroMarket")}</span>
             </div>
           </div>
         </section>
@@ -57,8 +58,8 @@ export default function InfoLegal() {
                   {Array.isArray(section.paragraphs) ? section.paragraphs.map((paragraph, i) => <p key={i}>{paragraph}</p>) : <p>{section.text}</p>}
                 </section>
               ))}
-              {key === "terminos" && <div className="legal-callout"><span className="legal-callout-icon">✓</span><div><strong>{t("legal.terms.acceptanceTitle")}</strong><p style={{ margin: "4px 0 0" }}>{t("legal.terms.acceptance")}</p></div></div>}
-              {key === "privacidad" && <div className="legal-callout"><span className="legal-callout-icon">✉</span><div><strong>{t("legal.privacy.contactTitle")}</strong><p style={{ margin: "4px 0 0" }}>{t("legal.privacy.contact")}</p></div></div>}
+              {key === "terminos" && <div className="legal-callout"><span className="legal-callout-icon"><Icon name="check" size={16} /></span><div><strong>{t("legal.terms.acceptanceTitle")}</strong><p style={{ margin: "4px 0 0" }}>{t("legal.terms.acceptance")}</p></div></div>}
+              {key === "privacidad" && <div className="legal-callout"><span className="legal-callout-icon"><Icon name="mail" size={16} /></span><div><strong>{t("legal.privacy.contactTitle")}</strong><p style={{ margin: "4px 0 0" }}>{t("legal.privacy.contact")}</p></div></div>}
             {key === "cookies" && (consent !== "accepted" && consent !== "configured") && (
               <div className="cookie-actions">
                 <button className="accept" type="button" onClick={acceptCookies}>{t("legal.cookies.acceptAll")}</button>

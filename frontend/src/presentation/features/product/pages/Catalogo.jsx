@@ -6,6 +6,7 @@ import ProductCard from "@/presentation/features/product/components/ProductCard"
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import { useDivisa } from "@/app/hooks/useDivisa";
 import api from "@/infrastructure/http/api";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/catalogo.css";
 
 function extractArray(response) {
@@ -184,7 +185,7 @@ export default function Catalogo() {
               </p>
             </div>
             <span className="catalog-hero-emoji" aria-hidden="true">
-              🥑
+              <Icon name="leaf" size={72} />
             </span>
           </div>
 

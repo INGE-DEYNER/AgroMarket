@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/hooks/useAuth";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/security-system.css";
 
+/* Iconos = componente Icon (SVG real). Prohibido glifos Unicode de fuente. */
 const NAV = [
-  ["roles", "Roles y permisos", "◈"],
-  ["acceso", "Control de acceso", "⌁"],
-  ["2fa", "2FA / TOTP", "⌑"],
-  ["seguridad", "Seguridad de cuenta", "⚿"],
-  ["estados", "Estados especiales", "!"],
-  ["matriz", "Matriz de permisos", "▦"],
-  ["auditoria", "Auditoría y actividad", "◷"],
-  ["privacidad", "Privacidad y datos", "◉"],
-  ["confianza", "Sellos de confianza", "✓"],
+  ["roles", "Roles y permisos", "users"],
+  ["acceso", "Control de acceso", "lock"],
+  ["2fa", "2FA / TOTP", "fingerprint"],
+  ["seguridad", "Seguridad de cuenta", "shieldCheck"],
+  ["estados", "Estados especiales", "alert"],
+  ["matriz", "Matriz de permisos", "grid"],
+  ["auditoria", "Auditoría y actividad", "history"],
+  ["privacidad", "Privacidad y datos", "database"],
+  ["confianza", "Sellos de confianza", "award"],
 ];
 
 export default function SecurityShell({ activeKey, children }) {
@@ -31,17 +33,20 @@ export default function SecurityShell({ activeKey, children }) {
           onClick={() => setOpen(true)}
           aria-label="Abrir menú"
         >
-          ☰
+          <Icon name="menu" size={20} />
         </button>
         <Link to="/home" className="security-brand">
-          <img src="/logo-asafrut.jpg" alt="AgroMarket" />
+          <img src="/agromarket/logo.png" alt="AgroMarket" />
           <span>
             <strong>AgroMarket</strong>
             <small>Seguridad y confianza</small>
           </span>
         </Link>
         <div className="security-top-status">
-          <span className="status-online">●</span> Sistema operativo
+          <span className="status-online" aria-hidden="true">
+            <Icon name="wifi" size={14} />
+          </span>{" "}
+          Sistema operativo
         </div>
         <Link to="/dashboard-comprador" className="security-back">
           Volver al panel
@@ -75,7 +80,9 @@ export default function SecurityShell({ activeKey, children }) {
                 navigate(`/seguridad/${key}`);
               }}
             >
-              <span>{icon}</span>
+              <span aria-hidden="true">
+                <Icon name={icon} size={17} />
+              </span>
               {label}
             </button>
           ))}
@@ -86,12 +93,14 @@ export default function SecurityShell({ activeKey, children }) {
               navigate("/");
             }}
           >
+            <Icon name="logout" size={15} />
             Cerrar sesión
           </button>
         </aside>
         <main className="security-main">
           <div className="security-breadcrumb">
-            Inicio <span>›</span> Seguridad <span>›</span>{" "}
+            Inicio <span aria-hidden="true">›</span> Seguridad{" "}
+            <span aria-hidden="true">›</span>{" "}
             {NAV.find((x) => x[0] === activeKey)?.[1]}
           </div>
           {children}

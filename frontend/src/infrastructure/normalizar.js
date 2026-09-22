@@ -104,11 +104,11 @@ export function normalizarMensaje(m, userId) {
 }
 
 export const TIPO_NOTIFICACION = {
-  NEW_ORDER: { label: "Pedidos", icon: "🚚" },
-  ORDER_UPDATED: { label: "Pedidos", icon: "📦" },
-  PAYMENT_CONFIRMED: { label: "Pagos", icon: "✓" },
-  NEW_MESSAGE: { label: "Mensajes", icon: "💬" },
-  LOW_STOCK: { label: "Inventario", icon: "⚠️" },
+  NEW_ORDER: { label: "Pedidos", icon: "truck" },
+  ORDER_UPDATED: { label: "Pedidos", icon: "package" },
+  PAYMENT_CONFIRMED: { label: "Pagos", icon: "card" },
+  NEW_MESSAGE: { label: "Mensajes", icon: "message" },
+  LOW_STOCK: { label: "Inventario", icon: "alert" },
 };
 
 export function tiempoRelativo(value) {

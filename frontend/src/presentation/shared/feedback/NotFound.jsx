@@ -1,5 +1,6 @@
 // src/pages/NotFound.jsx
 import { Link } from 'react-router-dom';
+import Icon from '@/presentation/shared/components/Icon';
 
 export default function NotFound() {
   return (
@@ -17,15 +18,15 @@ export default function NotFound() {
       overflow: 'hidden'
     }}>
       
-      {/* Decorative falling fruits and growing plants background */}
-      <div className="decorations">
-        <span className="fruit f1">🍌</span>
-        <span className="fruit f2">🍍</span>
-        <span className="fruit f3">🥑</span>
-        <span className="fruit f4">🥭</span>
-        <span className="fruit f5">🍊</span>
-        <span className="plant p1">🌱</span>
-        <span className="plant p2">🌿</span>
+      {/* Decorative floating brand icons */}
+      <div className="decorations" aria-hidden="true">
+        <span className="fruit f1"><Icon name="leaf" size={30} /></span>
+        <span className="fruit f2"><Icon name="package" size={30} /></span>
+        <span className="fruit f3"><Icon name="leaf" size={30} /></span>
+        <span className="fruit f4"><Icon name="heart" size={30} /></span>
+        <span className="fruit f5"><Icon name="star" size={30} /></span>
+        <span className="plant p1"><Icon name="leaf" size={38} /></span>
+        <span className="plant p2"><Icon name="leaf" size={38} /></span>
       </div>
 
       <div style={{ position: 'relative', zIndex: 10, maxWidth: '500px' }}>

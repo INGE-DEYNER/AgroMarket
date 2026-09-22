@@ -6,6 +6,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/admin.css";
 
 export default function Admin() {
@@ -649,7 +650,7 @@ export default function Admin() {
 <h2>4. Ingresos por mes (últimos 6)</h2>
 <table><thead><tr><th>Mes</th><th>Ingresos</th></tr></thead><tbody>${mesFilas}</tbody></table>
 <p style="margin-top:24px;color:#667280;font-size:11px;">Reporte generado desde el panel de administración de AgroMarket.</p>
-<button onclick="window.print()" style="padding:10px 16px;background:#11823b;color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button>
+<button onclick="window.print()" style="padding:10px 16px;background:#11823b;color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer;">Imprimir / Guardar PDF</button>
 </body></html>`);
     win.document.close();
     win.focus();
@@ -833,17 +834,17 @@ export default function Admin() {
           {t("admin.nav.title", "Panel de Control")}
         </div>
         {[
-          ["dashboard", t("admin.nav.dashboard", "Dashboard"), "▦"],
-          ["usuarios", t("admin.nav.users", "Usuarios"), "◉"],
-          ["mensajeria", t("admin.nav.messaging", "Mensajería"), "✉"],
-          ["productos", t("admin.nav.products", "Productos"), "□"],
-          ["pedidos", t("admin.nav.orders", "Pedidos"), "▤"],
-          ["productores", t("admin.nav.producers", "Productores"), "♧"],
-          ["pagos", t("admin.nav.payments", "Pagos"), "◈"],
-          ["reportes", t("admin.nav.reports", "Reportes"), "◫"],
-          ["configuracion", t("admin.nav.settings", "Configuración"), "⚙"],
-          ["soporte", t("admin.nav.support", "Soporte"), "?"],
-          ["auditoria", t("admin.nav.audit", "Auditoría"), "◌"],
+          ["dashboard", t("admin.nav.dashboard", "Dashboard"), "home"],
+          ["usuarios", t("admin.nav.users", "Usuarios"), "users"],
+          ["mensajeria", t("admin.nav.messaging", "Mensajería"), "message"],
+          ["productos", t("admin.nav.products", "Productos"), "package"],
+          ["pedidos", t("admin.nav.orders", "Pedidos"), "box"],
+          ["productores", t("admin.nav.producers", "Productores"), "leaf"],
+          ["pagos", t("admin.nav.payments", "Pagos"), "card"],
+          ["reportes", t("admin.nav.reports", "Reportes"), "calendar"],
+          ["configuracion", t("admin.nav.settings", "Configuración"), "settings"],
+          ["soporte", t("admin.nav.support", "Soporte"), "info"],
+          ["auditoria", t("admin.nav.audit", "Auditoría"), "shield"],
         ].map(([section, label, icon]) => (
           <a
             key={section}
@@ -856,7 +857,7 @@ export default function Admin() {
             }}
           >
             <span className="sidebar-icon" aria-hidden="true">
-              {icon}
+              <Icon name={icon} size={17} />
             </span>
             {label}
           </a>
@@ -1022,7 +1023,7 @@ export default function Admin() {
                   <div className="table-header">
                     <div>
                       <h3 className="card-title">
-                        ¡Bienvenido, Administrador! 👋
+                        ¡Bienvenido, Administrador!
                       </h3>
                       <p className="section-subtitle">
                         Resumen general de la plataforma
@@ -3485,7 +3486,7 @@ export default function Admin() {
                         showCurrentPassword ? "Hide password" : "Show password"
                       }
                     >
-                      {showCurrentPassword ? "👁️" : "🙈"}
+                      {showCurrentPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
                     </button>
                   </div>
                 </div>
@@ -3530,7 +3531,7 @@ export default function Admin() {
                         showNewPassword ? "Hide password" : "Show password"
                       }
                     >
-                      {showNewPassword ? "👁️" : "🙈"}
+                      {showNewPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
                     </button>
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Icon from "@/presentation/shared/components/Icon";
 import { useToast } from "@/app/hooks/useToast";
 
 const LANGUAGES = [
@@ -324,7 +325,7 @@ export default function LanguageSwitcher() {
                       fontWeight: "700",
                     }}
                   >
-                    ✓
+                    <Icon name="check" size={14} />
                   </span>
                 )}
               </button>

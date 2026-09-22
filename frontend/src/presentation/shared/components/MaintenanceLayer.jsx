@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "@/infrastructure/http/api";
 import { useAuth } from "@/app/hooks/useAuth";
+import Icon from "@/presentation/shared/components/Icon";
 
 const BYPASS_KEY = "am_maintenance_bypass";
 const ADMIN_USER = "admin";
@@ -367,8 +368,8 @@ export default function MaintenanceLayer() {
           aria-expanded={showLogin}
           onClick={() => setShowLogin((v) => !v)}
         >
-          <span>🔐 {t("maintenance.adminLogin", "Acceso administrativo")}</span>
-          <span aria-hidden="true">{showLogin ? "▾" : "▸"}</span>
+          <span><Icon name="lock" size={16} /> {t("maintenance.adminLogin", "Acceso administrativo")}</span>
+          <span aria-hidden="true">{showLogin ? <Icon name="chevronDown" size={14} /> : <Icon name="arrowRight" size={14} />}</span>
         </button>
 
         {showLogin && (

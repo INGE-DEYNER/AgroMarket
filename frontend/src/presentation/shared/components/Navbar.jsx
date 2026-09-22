@@ -9,6 +9,7 @@ import DivisaSwitcher from "@/presentation/shared/components/DivisaSwitcher";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import CartDrawer from "@/presentation/shared/components/CartDrawer";
 import DireccionEnvioModal from "@/presentation/shared/components/DireccionEnvioModal";
+import Icon from "@/presentation/shared/components/Icon";
 import api from "@/infrastructure/http/api";
 
 export default function Navbar() {
@@ -204,7 +205,7 @@ export default function Navbar() {
         {/* Pill promocional estilo MercadoLibre */}
         <Link to="/como-funciona" className="nav-promo-pill">
           <span className="nav-promo-icon" aria-hidden="true">
-            🌱
+            <Icon name="leaf" size={16} />
           </span>
           {t("nav.promo", "COMPRA DIRECTA AL PRODUCTOR")}
         </Link>
@@ -725,7 +726,7 @@ export default function Navbar() {
             onClick={() => setMenuMovil(false)}
           >
             <img
-              src="/logo-asafrut.jpg"
+              src="/agromarket/logo.png"
               alt="ASAFRUT Logo"
               style={{
                 height: "36px",

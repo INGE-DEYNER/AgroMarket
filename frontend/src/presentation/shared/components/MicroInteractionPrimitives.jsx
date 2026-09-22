@@ -1,5 +1,6 @@
 // src/presentation/shared/components/MicroInteractionPrimitives.jsx
 import { useState } from "react";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/microinteractions.css";
 
 export function Tooltip({ children, label, className = "" }) {
@@ -30,7 +31,7 @@ export function CheckoutStepper({
               className="am-step__number"
               aria-current={step === currentStep ? "step" : undefined}
             >
-              {step < currentStep ? "✓" : step}
+              {step < currentStep ? <Icon name="check" size={14} /> : step}
             </span>
             <span>{label}</span>
           </div>
@@ -111,12 +112,12 @@ export function EmptyState({
   description = "Prueba con otros filtros o categorías.",
   actionLabel = "Explorar productos",
   onAction,
-  icon = "🌿",
+  icon = "leaf",
 }) {
   return (
     <section className="am-empty-state" role="status" aria-live="polite">
       <div className="am-empty-state__illustration" aria-hidden="true">
-        {icon}
+        {typeof icon === "string" && icon.length <= 12 && /^[a-zA-Z]+$/.test(icon) ? <Icon name={icon} size={34} /> : icon}
       </div>
       <h2>{title}</h2>
       <p>{description}</p>
@@ -175,7 +176,7 @@ export function FieldFeedback({
           className={`am-field__feedback ${hasError ? "am-field__feedback--error" : "am-field__feedback--success"}`}
           role={hasError ? "alert" : "status"}
         >
-          <span aria-hidden="true">{hasError ? "!" : "✓"}</span>
+          <span aria-hidden="true">{hasError ? <Icon name="alert" size={14} /> : <Icon name="check" size={14} />}</span>
           <span>{hasError || success}</span>
         </div>
       )}

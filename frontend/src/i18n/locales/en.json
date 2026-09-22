@@ -6,16 +6,16 @@
     "availableLanguages": "Available languages"
   },
   "home": {
-    "heroBadge": "🌿 ASAFRUT · Chigorodó, Urabá",
+    "heroBadge": " ASAFRUT · Chigorodó, Urabá",
     "heroTitle": "From the fields of Urabá directly to your table.",
     "heroSub": "We connect agricultural producers with buyers, eliminating intermediaries.",
     "bullet1": "More than 50 active producers in Urabá",
     "bullet2": "Secure payments with PSE and credit card",
     "bullet3": "Real-time tracking of your order",
-    "viewCatalog": "View catalog →",
+    "viewCatalog": "View catalog ",
     "iAmProducer": "I am a producer",
     "familiesTrust": "More than 200 families already trust us",
-    "orderOnWay": "🚚 Order on the way",
+    "orderOnWay": " Order on the way",
     "orderExample": "Premium Banana · 50 kg",
     "avgRating": "Average rating",
     "metrics": {
@@ -24,7 +24,7 @@
       "rating": "Average rating",
       "payments": "Secure payments",
       "heroSubExtra": "Fresh fruits, fair prices, complete traceability.",
-      "goToDashboard": "My panel →",
+      "goToDashboard": "My panel ",
       "heroImgAlt": "Fresh fruits",
       "floatCard1": {
         "title": "Order on the way",
@@ -60,7 +60,7 @@
     "featured": {
       "eyebrow": "FEATURED",
       "title": "Seasonal fruits",
-      "viewAll": "View full catalog →",
+      "viewAll": "View full catalog ",
       "available": "Available",
       "orderNow": "Order now"
     },
@@ -73,7 +73,7 @@
       "feature3": "Manage your orders from the panel",
       "feature4": "Communicate with buyers in real-time",
       "cta": "I want to be a producer",
-      "newOrder": "📦 New order received",
+      "newOrder": " New order received",
       "newOrderDetail": "Juan Calle · 50 kg of Banana",
       "pending": "Pending"
     },
@@ -107,12 +107,12 @@
       "heroSub": "Agricultural products marketed directly by producers registered on AgroMarket.",
       "buyNow": "Shop now",
       "categories": "Available categories",
-      "viewAll": "View all →",
+      "viewAll": "View all ",
       "loadingCategories": "Loading categories…",
       "noCategories": "No categories are available at this time.",
       "localTitle": "We support local producers",
       "localText": "Product, producer, and operation information comes from the AgroMarket backend.",
-      "viewProducers": "Meet the producers →"
+      "viewProducers": "Meet the producers "
     },
     "footerUi": {
       "benefits": "AgroMarket benefits",
@@ -171,7 +171,7 @@
       "stakeholders": "Project partners and responsible parties",
       "stakeholderText": "Spaces for ASAFRUT, related entities, institutional partners and those responsible for developing the platform.",
       "rights": "All rights reserved",
-      "backTop": "Back to top ↑",
+      "backTop": "Back to top ",
       "howItWorks": "How it works"
     },
     "categories": {
@@ -186,7 +186,7 @@
       "roots": "Tubers and Roots",
       "subtitle": "Explore the freshest treasures of our Colombian land",
       "title": "Featured Categories",
-      "viewAll": "View all categories →"
+      "viewAll": "View all categories "
     },
     "farmers": {
       "button": "Meet the Producers",
@@ -194,7 +194,7 @@
       "title": "Real support for our Colombian farmers"
     },
     "hero": {
-      "badge": "🌽 STRAIGHT FROM PRODUCER TO YOUR HOME",
+      "badge": " STRAIGHT FROM PRODUCER TO YOUR HOME",
       "buyNow": "Buy now",
       "description": "Support the Colombian countryside by buying fruits, vegetables, tubers and coffee grown with passion by local producers. Fast and guaranteed delivery.",
       "howItWorks": "How it works",
@@ -213,13 +213,13 @@
     "products": {
       "add": "Add",
       "empty": "There are no registered products yet.",
-      "explore": "Explore catalog →",
+      "explore": "Explore catalog ",
       "loading": "Loading products...",
       "presentation": "Presentation: Kg",
       "priceLabel": "Price {{currency}} / kg",
       "subtitle": "The most recent products from our producers",
       "title": "Fresh Harvest of the Week",
-      "viewAll": "View full catalog →"
+      "viewAll": "View full catalog "
     },
     "trust": {
       "expressText": "Straight to your doorstep",
@@ -353,7 +353,7 @@
     "empresa": "Company"
   },
   "catalog": {
-    "heroBadge": "🌿 ASAFRUT · Chigorodó, Antioquia",
+    "heroBadge": " ASAFRUT · Chigorodó, Antioquia",
     "heroTitle": "Tropical fruits",
     "heroTitleSpan": "direct from the field",
     "heroSub": "Fresh products from the farmers of ASAFRUT. No middle-men, fair prices.",
@@ -397,7 +397,7 @@
     "subtotal": "Subtotal",
     "shippingEst": "Estimated shipping",
     "total": "TOTAL",
-    "checkoutBtn": "Proceed to payment →",
+    "checkoutBtn": "Proceed to payment ",
     "keepShopping": "Keep shopping",
     "alertCheckoutError": "Error processing order: ",
     "favorite": "Favorite",
@@ -445,12 +445,12 @@
     "verifiedProducer": "Verified producer · Urabá, Colombia",
     "reviews": "reviews",
     "producer": "Producer:",
-    "wholesale": "🏭 Wholesale price:",
+    "wholesale": " Wholesale price:",
     "wholesaleFor": "for orders ≥",
     "inStock": "✓ In stock: {{qty}} kg available",
     "outOfStock": "✗ Out of stock",
     "description": "Description",
-    "addToCart": "🛒 Add to cart",
+    "addToCart": " Add to cart",
     "added": "✓ Added to cart",
     "viewCatalog": "View catalog"
   },
@@ -461,7 +461,7 @@
     "role": "Role",
     "phone": "Phone",
     "location": "Location",
-    "backToPanel": "← My Panel",
+    "backToPanel": " My Panel",
     "logout": "Logout",
     "notLoggedIn": "You are not logged in.",
     "loginLink": "Login"
@@ -471,7 +471,7 @@
     "pendingTitle": "Almost ready!",
     "successVerifying": "Email verified successfully.",
     "errorVerifying": "Error verifying token.",
-    "pendingProducerDesc": "⏳ As a Producer, your account is now under review by an administrator. We will notify you when you can log in.",
+    "pendingProducerDesc": " As a Producer, your account is now under review by an administrator. We will notify you when you can log in.",
     "loginLinkBtn": "Go to login",
     "sub": "We have sent a 6-digit verification code to your email. Enter it below to activate your account.",
     "codeLabel": "6-digit code",
@@ -484,7 +484,7 @@
     "resendInputError": "Enter your email to resend the code.",
     "inputCodeError": "You must enter the email and the 6-digit code.",
     "incorrectCodeError": "Incorrect or expired code.",
-    "badge": "🌿 Official platform of the Association",
+    "badge": " Official platform of the Association",
     "rightTitle": "Almost there!",
     "rightSub": "Verify your email to start buying or selling on AgroMarket.",
     "formSub": "We have sent a 6-digit verification code to your registered email address to protect your account:",
@@ -504,8 +504,8 @@
     "sendError": "Error sending email.",
     "sendBtn": "Send recovery code",
     "sendingBtn": "Sending...",
-    "backToLogin": "← Back to login",
-    "badge": "🌿 AgroMarket ASAFRUT",
+    "backToLogin": " Back to login",
+    "badge": " AgroMarket ASAFRUT",
     "rightTitle": "Recover your access easily.",
     "rightSub": "Your account is safe. Just follow the instructions and verify with the code.",
     "codeLabel": "Recovery code",
@@ -589,8 +589,8 @@
     "total": "Total",
     "actions": "Actions",
     "statusHeader": "Status",
-    "invoice": "📄 Invoice",
-    "track": "🚚 Track",
+    "invoice": " Invoice",
+    "track": " Track",
     "invoiceTitle": "Order Invoice",
     "invoiceDetailTitle": "Electronic Invoice Details",
     "invoiceDetail": {
@@ -601,20 +601,20 @@
       "total": "Total:",
       "status": "Status:"
     },
-    "sendEmail": "📧 Send by email",
-    "sendPdf": "📧 Send PDF",
+    "sendEmail": " Send by email",
+    "sendPdf": " Send PDF",
     "close": "Close",
     "invoiceSent": "Invoice sent to the registered email successfully.",
-    "successMessage": "✅ Order placed successfully! It is now being processed by the producer."
+    "successMessage": " Order placed successfully! It is now being processed by the producer."
   },
   "envios": {
     "title": "Shipment Tracking",
     "noActive": "No active shipments at this time.",
     "completed": "completed",
-    "historyTitle": "📋 All Shipments History",
+    "historyTitle": " All Shipments History",
     "id": "Shipment ID",
     "product": "Product",
-    "route": "Origin → Destination",
+    "route": "Origin Destination",
     "carrier": "Carrier",
     "status": "Status",
     "date": "Date"
@@ -637,7 +637,7 @@
     "commentLabel": "Comment *",
     "commentPlaceholder": "Describe your experience with the product...",
     "cancel": "Cancel",
-    "publish": "⭐ Publish review",
+    "publish": " Publish review",
     "errors": {
       "product": "Select a product.",
       "rating": "Select a rating.",
@@ -647,9 +647,9 @@
   },
   "dashboardComprador": {
     "premiumClient": "Premium Client",
-    "welcome": "Welcome back, {{name}}! 👋",
+    "welcome": "Welcome back, {{name}}! ",
     "sub": "Urabá",
-    "exploreCatalog": "Explore catalog →",
+    "exploreCatalog": "Explore catalog ",
     "nav": {
       "title": "Navigation",
       "summary": "Summary",
@@ -676,7 +676,7 @@
       "totalInvestment": "Total Investment",
       "reviewsLeft": "Reviews Left",
       "producers": "Producers",
-      "trendOrders": "↑ 12% vs last month",
+      "trendOrders": " 12% vs last month",
       "trendInvestment": "Based on orders",
       "trendReviews": "Opinion level",
       "trendProducers": "Active contacts"
@@ -691,7 +691,7 @@
     "producerRole": "PRODUCER / SELLER",
     "producerSub": "Manage your business, products and sales on AgroMarket",
     "reviewsCount": "120 reviews",
-    "welcome": "Great day, {{name}}! 👨‍🌾",
+    "welcome": "Great day, {{name}}! ",
     "sub": "Your harvest is having great performance this month in Urabá.",
     "publishProduct": "Publish Product +",
     "newProduct": "+ New Product",
@@ -713,7 +713,7 @@
       "totalEarnings": "Total Earnings",
       "rating": "Rating",
       "trendProducts": "On sale now",
-      "trendSales": "↑ 8 new orders",
+      "trendSales": " 8 new orders",
       "trendEarnings": "Confirmed earnings",
       "trendRating": "Based on reviews"
     },
@@ -729,7 +729,7 @@
     "stock": "Stock",
     "actions": "Actions",
     "active": "Active",
-    "edit": "✏️ Edit",
+    "edit": " Edit",
     "confirmDelete": "Delete this product?",
     "errorDelete": "Error deleting: ",
     "searchOrder": "Search order...",
@@ -755,9 +755,9 @@
   "admin": {
     "roleAdmin": "Administrator",
     "supportRole": "AgroMarket Support",
-    "title": "Admin Panel 🛠️",
+    "title": "Admin Panel ",
     "sub": "Global monitoring of the AgroMarket Urabá platform",
-    "generateReport": "Generate Monthly Report 📊",
+    "generateReport": "Generate Monthly Report ",
     "generatingReportAlert": "Generating PDF report...",
     "nav": {
       "dashboard": "Dashboard",
@@ -788,19 +788,19 @@
       "trendEarnings": "Confirmed earnings",
       "trendAlerts": "Action required"
     },
-    "usersManagement": "👥 Users Management",
+    "usersManagement": " Users Management",
     "searchUsers": "Search by name or email...",
     "active": "Active",
     "inactive": "Inactive",
     "deactivate": "Deactivate",
     "activate": "Activate",
-    "globalInventory": "📦 Global Inventory",
-    "delete": "🗑️ Delete",
-    "reviewsModeration": "⭐ Reviews Moderation",
+    "globalInventory": " Global Inventory",
+    "delete": " Delete",
+    "reviewsModeration": " Reviews Moderation",
     "user": "User",
-    "approve": "✅ Approve",
-    "reject": "❌ Reject",
-    "topProducers": "Top Producers 🏆",
+    "approve": " Approve",
+    "reject": " Reject",
+    "topProducers": "Top Producers ",
     "noData": "Not enough data",
     "earningsSixMonths": "6 Months Earnings",
     "noEarningsData": "No data",
@@ -1155,7 +1155,7 @@
     "titulo": "Set up your address"
   },
   "maintenance": {
-    "title": "🛠️ AgroMarket is under maintenance",
+    "title": " AgroMarket is under maintenance",
     "sub": "We are improving the platform to bring you freshness without interruptions. We will be back very soon.",
     "badge": "Maintenance mode active",
     "adminLogin": "Administrative access",

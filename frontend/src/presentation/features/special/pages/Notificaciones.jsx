@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
+import Icon from "@/presentation/shared/components/Icon";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import api from "@/infrastructure/http/api";
@@ -81,7 +82,7 @@ export default function Notificaciones() {
     );
   }, [filter, items]);
 
-  const iconoDe = (n) => TIPO_NOTIFICACION[n.type]?.icon || "🔔";
+  const iconoDe = (n) => TIPO_NOTIFICACION[n.type]?.icon || "bell";
 
   return <SpecialSystemShell activeKey="notificaciones">
     <div className="special-heading">
@@ -115,7 +116,7 @@ export default function Notificaciones() {
     {!user ? (
       <section className="special-list">
         <article className="special-notification">
-          <div className="special-notification-icon">🔐</div>
+          <div className="special-notification-icon"><Icon name="lock" size={22} /></div>
           <div className="special-notification-content">
             <h3>{t("notificationsPage.loginRequired", "Inicia sesión para ver tus notificaciones.")}</h3>
             <p><Link to="/login">{t("nav.login", "Iniciar sesión")}</Link></p>
@@ -125,7 +126,7 @@ export default function Notificaciones() {
     ) : loading ? (
       <section className="special-list">
         <article className="special-notification">
-          <div className="special-notification-icon">⏳</div>
+          <div className="special-notification-icon"><Icon name="clock" size={22} /></div>
           <div className="special-notification-content">
             <h3>{t("notificationsPage.loading", "Cargando notificaciones...")}</h3>
           </div>
@@ -134,7 +135,7 @@ export default function Notificaciones() {
     ) : error ? (
       <section className="special-list">
         <article className="special-notification">
-          <div className="special-notification-icon">⚠️</div>
+          <div className="special-notification-icon"><Icon name="alert" size={22} /></div>
           <div className="special-notification-content">
             <h3>{error}</h3>
             <p>
@@ -152,7 +153,7 @@ export default function Notificaciones() {
     ) : visible.length === 0 ? (
       <section className="special-list">
         <article className="special-notification">
-          <div className="special-notification-icon">🔔</div>
+          <div className="special-notification-icon"><Icon name="bell" size={22} /></div>
           <div className="special-notification-content">
             <h3>{t("notificationsPage.empty", "No tienes notificaciones todavía.")}</h3>
           </div>
@@ -162,7 +163,7 @@ export default function Notificaciones() {
       <section className="special-list">
         {visible.map((n) => (
           <article className="special-notification" key={n.id}>
-            <div className="special-notification-icon">{iconoDe(n)}</div>
+            <div className="special-notification-icon"><Icon name={iconoDe(n)} size={22} /></div>
             <div className="special-notification-content">
               <h3>
                 {(TIPO_NOTIFICACION[n.type]?.label || "Sistema") + " · "}

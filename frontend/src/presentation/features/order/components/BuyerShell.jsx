@@ -204,7 +204,7 @@ export default function BuyerShell({
           className="buyer-brand"
           aria-label="AgroMarket, inicio"
         >
-          <img src="/logo-asafrut.jpg" alt="AgroMarket" />
+          <img src="/agromarket/logo.png" alt="AgroMarket" />
           <span>
             <strong>AgroMarket</strong>
             <small>{t("nav.brandTagline", "Del campo de Urabá y Colombia a tu mesa")}</small>

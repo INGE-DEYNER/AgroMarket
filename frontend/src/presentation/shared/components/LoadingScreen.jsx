@@ -62,7 +62,7 @@ export default function LoadingScreen() {
         }}
       >
         <img
-          src="/logo-asafrut.jpg"
+          src="/agromarket/logo.png"
           alt="ASAFRUT Logo"
           style={{
             width: "100px",

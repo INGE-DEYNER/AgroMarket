@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "@/infrastructure/http/api";
 import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
 import CompletarCuentaModal from "@/presentation/features/auth/components/CompletarCuentaModal";
+import Icon from "@/presentation/shared/components/Icon";
 import { useDivisa } from "@/app/hooks/useDivisa";
 
 import AuthContext from "@/app/contexts/AuthContext";
@@ -356,7 +357,7 @@ export function AuthProvider({ children }) {
     <div className="modal-overlay open" style={{ zIndex: 9999 }}>
       <div className="modal" style={{ maxWidth: "400px", textAlign: "center" }}>
         <h3 style={{ color: "#dc2626", marginBottom: "16px" }}>
-          ⏰ Sesión a punto de expirar
+          <Icon name="clock" size={22} /> Sesión a punto de expirar
         </h3>
         <p style={{ marginBottom: "20px" }}>
           Su sesión expirará en 5 segundos por inactividad.

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Icon from "@/presentation/shared/components/Icon";
 import api from "@/infrastructure/http/api";
 import leafIcon from "@/assets/icon-leaf.svg";
 import shieldCheckIcon from "@/assets/icon-shield-check.svg";
@@ -225,7 +226,7 @@ export default function RecuperarContrasena() {
           </span>
           <hr className="af-divider" />
           <Link to="/login" className="af-back-link">
-            ← {t("forgotPass.backToLogin", "Volver al inicio de sesión")}
+            <Icon name="arrowLeft" size={14} /> {t("forgotPass.backToLogin", "Volver al inicio de sesión")}
           </Link>
         </div>
       </div>

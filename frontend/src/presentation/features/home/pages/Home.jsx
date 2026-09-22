@@ -14,6 +14,7 @@ import handHeartIcon from "@/assets/icon-hand-heart.svg";
 import "@/presentation/styles/public-views.css";
 import { useTranslation } from "react-i18next";
 import { useDivisa } from "@/app/hooks/useDivisa";
+import Icon from "@/presentation/shared/components/Icon";
 
 const getTrustBadges = (t) => [
   {
@@ -304,7 +305,7 @@ export default function Home() {
         >
           <div className="hm-hero-overlay">
             <span className="hm-hero-badge">
-              {t("home.hero.badge", "🌽 DIRECTO DEL PRODUCTOR A TU CASA")}
+              {t("home.hero.badge", "DIRECTO DEL PRODUCTOR A TU CASA")}
             </span>
             <h1>
               {t(
@@ -355,7 +356,7 @@ export default function Home() {
               </p>
             </div>
             <Link to="/catalogo">
-              {t("home.categories.viewAll", "Ver todas las categorías →")}
+              {t("home.categories.viewAll", "Ver todas las categorías")} <Icon name="arrowRight" size={15} />
             </Link>
           </div>
 

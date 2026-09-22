@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SecurityShell from "@/presentation/features/security/components/SecurityShell";
+import Icon from "@/presentation/shared/components/Icon";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/app/hooks/useToast";
 
@@ -10,7 +11,7 @@ export default function SeguridadCuenta(){
  return <SecurityShell activeKey="seguridad">
   <div className="security-heading"><div><h1>Seguridad de cuenta</h1><p>Administra credenciales, sesiones y actividad reciente.</p></div></div>
   <div className="security-grid-two"><section className="security-card"><h2>Contraseña</h2><p>Se recomienda usar una contraseña única y robusta.</p><button onClick={()=>setPassword(true)}>Cambiar contraseña</button></section><section className="security-card"><h2>Sesiones activas</h2><p>1 sesión activa en este dispositivo.</p><button type="button" onClick={()=>toast.success("Las demás sesiones fueron marcadas para cierre.",2500)}>Cerrar otras sesiones</button></section></div>
-  <section className="security-card"><div className="card-heading"><h2>Actividad reciente</h2><button type="button" onClick={()=>navigate("/seguridad/auditoria")}>Ver actividad completa</button></div>{EVENTS.map(e=><div className="activity-row" key={e[0]}><span className="activity-check">{e[3]}</span><div><strong>{e[1]}</strong><small>{e[0]} · {e[2]}</small></div></div>)}</section>
+  <section className="security-card"><div className="card-heading"><h2>Actividad reciente</h2><button type="button" onClick={()=>navigate("/seguridad/auditoria")}>Ver actividad completa</button></div>{EVENTS.map(e=><div className="activity-row" key={e[0]}><span className="activity-check"><Icon name="check" size={16} /></span><div><strong>{e[1]}</strong><small>{e[0]} · {e[2]}</small></div></div>)}</section>
   {password&&<div className="security-modal"><div><h2>Cambiar contraseña</h2><input type="password" placeholder="Contraseña actual"/><input type="password" placeholder="Nueva contraseña"/><input type="password" placeholder="Confirmar nueva contraseña"/><div><button onClick={()=>setPassword(false)}>Cancelar</button><button className="security-primary" onClick={()=>setPassword(false)}>Actualizar</button></div></div></div>}
  </SecurityShell>;
 }

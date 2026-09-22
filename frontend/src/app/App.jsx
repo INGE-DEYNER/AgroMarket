@@ -14,6 +14,7 @@ import ProtectedRoute from "@/app/router/ProtectedRoute";
 
 import NetworkError from "@/presentation/shared/components/NetworkError";
 import MaintenanceLayer from "@/presentation/shared/components/MaintenanceLayer";
+import Icon from "@/presentation/shared/components/Icon";
 
 import Home from "@/presentation/features/home/pages/Home";
 import Login from "@/presentation/features/auth/pages/Login";
@@ -152,11 +153,11 @@ function App() {
       >
         <div
           style={{
-            fontSize: "48px",
+            color: "#dc2626",
             marginBottom: "20px",
           }}
         >
-          ⚠️
+          <Icon name="alert" size={48} />
         </div>
 
         <h1

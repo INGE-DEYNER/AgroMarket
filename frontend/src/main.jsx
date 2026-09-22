@@ -7,6 +7,7 @@ import i18n from "@/i18n/index";
 import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
 import { runFrontendDiagnostic } from "@/infrastructure/config/FrontendDiagnostic";
 import ThemeProvider from "@/app/contexts/ThemeProvider";
+import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/microinteractions.css";
 
 import "@/index.css";
@@ -86,7 +87,7 @@ export default function MainApp() {
         background: "var(--surface-1, #0b1b12)",
         color: "var(--text-1, #e5e7eb)"
       }}>
-        <div style={{ fontSize: "48px", marginBottom: "20px" }}>⚠️</div>
+        <div style={{ marginBottom: "20px", color: "#dc2626" }}><Icon name="alert" size={48} /></div>
         <h1 style={{ color: "#dc2626", marginBottom: "10px" }}>Error al cargar</h1>
         <p style={{ color: "#64748b", marginBottom: "20px", maxWidth: "400px" }}>
           {initError}
