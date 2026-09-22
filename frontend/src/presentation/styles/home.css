@@ -517,7 +517,7 @@ ul {
 }
 .metric-label {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #fff; 0.7);
 }
 @media (max-width: 768px) {
   .metrics-grid {
@@ -784,7 +784,7 @@ ul {
 }
 .fp-sub {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: #fff; 0.8);
   margin-bottom: 32px;
 }
 .fp-list {
@@ -1022,7 +1022,7 @@ ul {
   margin-bottom: 20px;
 }
 .footer-desc {
-  color: rgba(255, 255, 255, 0.7);
+  color: #fff; 0.7);
   font-size: 0.9rem;
   line-height: 1.6;
   margin-bottom: 20px;
@@ -1047,7 +1047,7 @@ ul {
   gap: 12px;
 }
 .footer-links a {
-  color: rgba(255, 255, 255, 0.7);
+  color: #fff; 0.7);
   font-size: 0.9rem;
   transition: color var(--transition);
 }
@@ -1058,14 +1058,14 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #fff; 0.7);
   font-size: 0.9rem;
 }
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 24px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: #fff; 0.5);
   font-size: 0.85rem;
   max-width: 1200px;
   margin: 0 auto;

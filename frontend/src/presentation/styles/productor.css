@@ -44,7 +44,7 @@
 }
 
 .producer-dashboard .sidebar-user-info .role {
-  color: rgba(255, 255, 255, 0.72);
+  color: #fff; 0.72);
 }
 
 .producer-dashboard .sidebar-user-info .rating {
@@ -52,12 +52,12 @@
 }
 
 .producer-dashboard .sidebar-label {
-  color: rgba(255, 255, 255, 0.55);
+  color: #fff; 0.55);
   padding: 12px 12px 7px;
 }
 
 .producer-dashboard .sidebar-link {
-  color: rgba(255, 255, 255, 0.82);
+  color: #fff; 0.82);
   border-radius: 9px;
   margin-bottom: 3px;
   padding: 10px 12px;
@@ -595,7 +595,7 @@
 
 .producer-farm-hero p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.75);
+  color: #fff; 0.75);
 }
 
 .producer-verified {

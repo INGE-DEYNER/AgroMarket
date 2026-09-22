@@ -81,7 +81,7 @@ body {
   border-radius: 99px;
   padding: 8px 20px;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: #fff; 0.85);
   letter-spacing: 0.06em;
   margin-bottom: 28px;
   font-family: "Inter", sans-serif;
@@ -96,7 +96,7 @@ body {
 }
 .right-sub {
   font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.82);
+  color: #fff; 0.82);
   line-height: 1.7;
   max-width: 360px;
 }
@@ -504,7 +504,7 @@ body {
 }
 
 .feat-text {
-  color: rgba(255, 255, 255, 0.8);
+  color: #fff; 0.8);
   font-size: 0.82rem;
   line-height: 1.45;
 }

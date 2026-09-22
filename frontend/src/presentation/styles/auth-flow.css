@@ -543,14 +543,14 @@ html[data-theme="dark"] .af-logo-name--light {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.9);
+  color: #fff; 0.9);
 }
 
 .af-modal-privacy {
   margin: 8px 0 0 0;
   font-size: 12px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.6);
+  color: #fff; 0.6);
 }
 
 .af-modal-right {
