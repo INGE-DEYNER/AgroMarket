@@ -1019,6 +1019,41 @@
   gap: 16px;
 }
 
+/* ============================================================
+   BARRA INFERIOR - DISTRIBUCIÓN HORIZONTAL POR DEFECTO
+   ============================================================ */
+
+.am-footer-bottom-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+}
+
+.am-footer-ecosystem-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.am-footer-ecosystem-mini span {
+  display: block;
+  color: #67bb82;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.am-footer-ecosystem-mini strong {
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
 /* Lado izquierdo */
 
 .am-footer-ecosystem-content > div {
@@ -1058,11 +1093,14 @@
   font-size: 0.75rem;
   text-decoration: none;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .am-footer-legal a:hover {
   color: #ffffff;
 }
+
+
 
 /* Derechos y Volver arriba */
 .am-footer-bottom-final {
@@ -1218,14 +1256,20 @@
 
   /* Ecosistema Mini Tablet */
   .am-footer-bottom-flex {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 16px;
-    text-align: center;
+    justify-content: space-between;
+    gap: 12px;
   }
   .am-footer-ecosystem-mini {
-    flex-direction: column;
-    gap: 4px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .am-footer-legal {
+    flex-wrap: wrap;
   }
 }
 
@@ -1269,15 +1313,20 @@
 
   /* Ecosistema Tablet Pequeña */
   .am-footer-bottom-flex {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    text-align: left;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
   .am-footer-ecosystem-mini {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .am-footer-legal {
+    flex-wrap: wrap;
   }
 }
 
@@ -1475,33 +1524,34 @@
      BARRA INFERIOR / LEGAL MÓVIL
   ---------------------------------------------------------- */
   .am-footer-bottom-flex {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 24px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     padding-top: 10px;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
   }
 
   .am-footer-ecosystem-mini {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .am-footer-legal {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
   }
 
   .am-footer-bottom-final {
     justify-content: flex-start;
-
     gap: 8px;
-
-    padding-top: 17px;
-
-    padding-bottom: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
 }
 
