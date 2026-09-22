@@ -17,47 +17,44 @@
    1. ESTILOS BASE - TEMAS
    ======================================================================== */
 
-/* Tema claro (por defecto) */
+/* Tema claro (por defecto) — TOKENS ALINEADOS AL BRAND AGROMARKET */
 :root {
   /* Colores de fondo */
-  --color-background: #f8fafc;
+  --color-background: #f8faf8;
   --color-surface: #ffffff;
-  --color-surface-hover: #f1f5f9;
-  --color-surface-active: #e2e8f0;
+  --color-surface-hover: #f3f7f4;
+  --color-surface-active: #e8f5e9;
 
   /* Colores de texto */
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
+  --color-text-primary: #14221a;
+  --color-text-secondary: #374151;
+  --color-text-muted: #626c66;
   --color-text-inverse: #ffffff;
 
   /* Colores de borde */
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
+  --color-border: #d1ddd7;
+  --color-border-strong: rgba(17, 130, 59, 0.28);
 
-  /* Colores primarios */
-  --color-primary: #10b981;
-  --color-primary-hover: #059669;
-  --color-primary-light: #d1fae5;
-  --color-primary-dark: #065f46;
+  /* Colores primarios ASAFRUT — verde oscuro del campo colombiano */
+  --color-primary: #1a5c2a;
+  --color-primary-hover: #14532d;
+  --color-primary-light: #e8f5e9;
+  --color-primary-dark: #0e3b1a;
 
   /* Colores secundarios */
   --color-secondary: #22c55e;
   --color-secondary-hover: #16a34a;
 
   /* Sombras */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(17, 24, 39, 0.08);
+  --shadow-md: 0 6px 18px rgba(17, 24, 39, 0.1);
+  --shadow-lg: 0 14px 38px rgba(17, 24, 39, 0.14);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
   /* Gradientes */
-  --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-primary: linear-gradient(135deg, #1a5c2a 0%, #14532d 100%);
   --gradient-secondary: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f8faf8 100%);
 }
 
 /* ========================================================================
