@@ -69,7 +69,7 @@ body[data-theme="dark"],
   --color-text-primary: #ffffff;
   --color-text-secondary: #ffffff;
   --color-text-muted: #ffffff;
-  --color-text-inverse: #111827;
+  --color-text-inverse: #ffffff;
 
   /* Sobrescribir grises de texto en toda la app */
   --text: #ffffff;

@@ -386,6 +386,12 @@
   align-items: start;
 }
 
+@media (max-width: 768px) {
+  .legal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /*
  * Contenedor principal de documentos legales.
  */

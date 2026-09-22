@@ -470,64 +470,39 @@ export default function Footer() {
       </section>
 
       {/* ======================================================
-          AGROMARKET ECOSYSTEM
-      ====================================================== */}
-
-      <section className="am-footer-ecosystem">
-        <div className="am-footer-container">
-          <div className="am-footer-ecosystem-content">
-            <div>
-              <span>AGROMARKET ECOSYSTEM</span>
-
-              <h2>Nuestro ecosistema</h2>
-            </div>
-
-            <p>
-              Espacios para ASAFRUT, entidades relacionadas, socios
-              institucionales y los responsables del desarrollo de la
-              plataforma.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ======================================================
-          BARRA LEGAL
+          BARRA INFERIOR / LEGAL (Todo en una línea en desktop)
       ====================================================== */}
 
       <section className="am-footer-bottom">
         <div className="am-footer-container">
-          {/* ENLACES */}
+          <div className="am-footer-bottom-flex">
+            {/* ECOSISTEMA MINI */}
+            <div className="am-footer-ecosystem-mini">
+              <span>AGROMARKET ECOSYSTEM</span>
+              <strong>Nuestro ecosistema</strong>
+            </div>
 
-          <div className="am-footer-bottom-top">
+            {/* ENLACES LEGALES */}
             <nav className="am-footer-legal" aria-label="Enlaces legales">
               <Link to="/terminos">{t("home.footerUi.terms")}</Link>
-
               <Link to="/privacidad">{t("home.footerUi.privacy")}</Link>
-
               <Link to="/cookies">{t("home.footerUi.cookies")}</Link>
-
               <Link to="/ayuda">{t("home.footerUi.help")}</Link>
             </nav>
 
-            <button
-              type="button"
-              onClick={scrollToTop}
-              className="am-footer-back-top"
-            >
-              {t("home.footerUi.backTop")} <Icon name="arrowUp" size={14} />
-            </button>
-          </div>
-
-          {/* COPYRIGHT */}
-
-          <div className="am-footer-bottom-final">
-            <span>
-              &copy; {new Date().getFullYear()} AgroMarket · ASAFRUT ·{" "}
-              {t("home.footerUi.rights")}
-            </span>
-
-            <span>Hecho en Colombia · Chigorodó, Antioquia</span>
+            {/* DERECHOS & VOLVER ARRIBA */}
+            <div className="am-footer-bottom-final">
+              <span>
+                &copy; {new Date().getFullYear()} AgroMarket · ASAFRUT
+              </span>
+              <button
+                type="button"
+                onClick={scrollToTop}
+                className="am-footer-back-top"
+              >
+                {t("home.footerUi.backTop")} <Icon name="arrowUp" size={14} />
+              </button>
+            </div>
           </div>
         </div>
       </section>
