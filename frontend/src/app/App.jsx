@@ -116,6 +116,22 @@ const SobreAsafrut = lazy(
 
 const Ayuda = lazy(() => import("@/presentation/features/help/pages/Ayuda"));
 
+const Devoluciones = lazy(
+  () => import("@/presentation/features/help/pages/Devoluciones"),
+);
+
+const EnvioEntregas = lazy(
+  () => import("@/presentation/features/help/pages/EnvioEntregas"),
+);
+
+const MetodosPagos = lazy(
+  () => import("@/presentation/features/help/pages/MetodosPagos"),
+);
+
+const ReportarProblema = lazy(
+  () => import("@/presentation/features/help/pages/ReportarProblema"),
+);
+
 const NotFound = lazy(() => import("@/presentation/shared/feedback/NotFound"));
 
 const Checkout = lazy(
@@ -287,6 +303,17 @@ function App() {
                       <Route path="/sobre-asafrut" element={<SobreAsafrut />} />
 
                       <Route path="/ayuda" element={<Ayuda />} />
+
+                      <Route path="/devoluciones" element={<Devoluciones />} />
+
+                      <Route path="/envioEntregas" element={<EnvioEntregas />} />
+
+                      <Route path="/metodosPagos" element={<MetodosPagos />} />
+
+                      <Route
+                        path="/reportarProblema"
+                        element={<ReportarProblema />}
+                      />
 
                       {/* ==================================================
                           RUTAS PRIVADAS

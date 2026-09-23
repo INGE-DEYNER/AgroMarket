@@ -883,8 +883,64 @@ html.dark svg[fill="#9ca3af"] {
 html.dark [style*="color: #6b7280"],
 html.dark [style*="color: #9ca3af"],
 html.dark [style*="color: #64748b"],
+html.dark [style*="color: #4b5563"],
 html.dark [style*="color:#6b7280"],
 html.dark [style*="color:#9ca3af"],
-html.dark [style*="color:#64748b"] {
+html.dark [style*="color:#64748b"],
+html.dark [style*="color:#4b5563"] {
   color: #ffffff !important;
+}
+
+/* Divisas + Comprar ahora en dark: todo blanco */
+html.dark .hm-btn-primary,
+html.dark .hm-btn-outline,
+html.dark .hm-hero h1,
+html.dark .hm-hero p,
+html.dark .hm-hero-badge,
+body.dark .hm-btn-primary,
+body.dark .hm-btn-outline,
+body.dark .hm-hero h1,
+body.dark .hm-hero p,
+body.dark .hm-hero-badge,
+html[data-theme="dark"] .hm-btn-primary,
+html[data-theme="dark"] .hm-btn-outline,
+html[data-theme="dark"] .hm-hero h1,
+html[data-theme="dark"] .hm-hero p {
+  color: #ffffff !important;
+}
+
+/* Comprar ahora: fondo verde #2ecc71 -> blanco en dark para contraste */
+html.dark .hm-btn-primary,
+body.dark .hm-btn-primary,
+html[data-theme="dark"] .hm-btn-primary,
+html.dark .hm-hero .hm-btn-primary,
+body.dark .hm-hero .hm-btn-primary {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f1712 !important;
+  border-color: #ffffff !important;
+}
+
+html.dark .hm-btn-primary:hover,
+body.dark .hm-btn-primary:hover,
+html[data-theme="dark"] .hm-btn-primary:hover {
+  background: #f3f4f6 !important;
+  background-color: #f3f4f6 !important;
+  color: #0f1712 !important;
+}
+
+html.dark .hm-btn-outline,
+body.dark .hm-btn-outline,
+html[data-theme="dark"] .hm-btn-outline {
+  background: transparent !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+html.dark .hm-hero-badge,
+body.dark .hm-hero-badge,
+html[data-theme="dark"] .hm-hero-badge {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f1712 !important;
 }

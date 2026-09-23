@@ -4639,3 +4639,65 @@ html[data-theme="dark"] .hm-product-card {
   .public-title { font-size: 2rem; }
   .public-text { font-size: 1rem; line-height: 1.5; }
 }
+
+/* ============================================================
+   INFO PAGES — DEVOLUCIONES / ENVÍOS / MÉTODOS DE PAGO
+   Reutiliza tokens .legal-* + dark mode existente
+   ============================================================ */
+.info-page {
+  width: min(100%, var(--public-content-width));
+  margin-inline: auto;
+}
+
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: clamp(14px, 2.4vw, 22px);
+  margin: clamp(18px, 3vw, 28px) 0;
+}
+
+.info-method-card {
+  border: 1px solid var(--public-border);
+  border-radius: var(--public-radius-xl);
+  background: var(--public-surface);
+  color: var(--public-text);
+  padding: clamp(18px, 2.6vw, 26px);
+  box-shadow: var(--public-shadow-sm);
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  transition: transform var(--public-transition), box-shadow var(--public-transition);
+}
+
+.info-method-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--public-shadow-md);
+}
+
+.info-method-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.info-method-card h2 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--public-text);
+}
+
+.info-method-card p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--public-text-muted);
+}
+
+.info-note {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .info-cards {
+    grid-template-columns: 1fr;
+  }
+}

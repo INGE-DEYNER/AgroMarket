@@ -56,7 +56,7 @@ export default function DivisaSwitcher() {
           alignItems: "center",
           gap: "6px",
           background: "transparent",
-          color: "var(--text-main, #333)",
+          color: "var(--color-text-primary, #fff)",
           border: "1px solid var(--border-light, #e5e7eb)",
           borderRadius: "8px",
           padding: "6px 10px",
@@ -122,8 +122,8 @@ export default function DivisaSwitcher() {
                 fontSize: "0.85rem",
                 color:
                   divisaActual === divisa.codigo
-                    ? "var(--primary, #2d6a4f)"
-                    : "#4b5563",
+                    ? "var(--color-text-primary, #fff)"
+                    : "var(--color-text-secondary, #fff)",
                 fontWeight: divisaActual === divisa.codigo ? "600" : "400",
                 transition: "background 0.2s",
               }}
