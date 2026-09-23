@@ -1,0 +1,91 @@
+/* Resenas Page Styles */
+.review-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  animation: fadeUp 0.3s ease;
+}
+.review-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+.review-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.review-meta {
+  flex: 1;
+}
+.review-user {
+  font-weight: 700;
+  font-family: var(--font-title);
+  font-size: 1rem;
+  color: var(--green-dark);
+}
+.review-time {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.review-stars {
+  color: var(--gold);
+  font-size: 1.15rem;
+  margin: 8px 0;
+  letter-spacing: 2px;
+}
+.review-comment {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.review-product-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-bg);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  color: var(--green);
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+/* Star input */
+.star-input-row {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 6px;
+}
+.star-inp {
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--border);
+  transition: color 0.15s, transform 0.15s;
+  user-select: none;
+  line-height: 1;
+}
+.star-inp:hover,
+.star-inp.hover,
+.star-inp.active {
+  color: var(--gold);
+  transform: scale(1.15);
+}
+
+/* ─── RESPONSIVE: MÓVIL ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .review-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .review-header {
+    gap: 10px;
+  }
+}

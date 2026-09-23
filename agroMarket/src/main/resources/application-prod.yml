@@ -1,0 +1,58 @@
+spring:
+  datasource:
+    url: jdbc:mysql://agromarket-mysql:3306/agromarket?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+    username: ${SPRING_DATASOURCE_USERNAME:agromarket}
+    password: ${SPRING_DATASOURCE_PASSWORD:agromarket}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        "[format_sql]": false
+
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://agromarket-mongo:27017/agromarket}
+      auto-index-creation: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH2_CLIENT_ID}
+            client-secret: ${GOOGLE_OAUTH2_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: ${GOOGLE_OAUTH2_REDIRECT_URI:https://api.agro-market.app/login/oauth2/code/google}
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+
+  # Sin migraciones: el esquema lo genera Hibernate (ddl-auto: update)
+
+logging:
+  level:
+    "[com.agromarket]": INFO
+    "[org.springframework.security]": INFO
+    "[org.springframework.web]": INFO
+    "[org.hibernate.SQL]": WARN
+    "[org.hibernate.orm.jdbc.bind]": WARN
+
+server:
+  forward-headers-strategy: framework
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,info,metrics

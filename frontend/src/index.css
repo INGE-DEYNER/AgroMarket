@@ -1,0 +1,737 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================================================
+   AgroMarket - Estilos Globales
+   
+   Este archivo contiene:
+   1. Directivas Tailwind CSS
+   2. Estilos personalizados para tema claro/oscuro
+   3. Clases utilitarias adicionales
+   
+   Origen: Implementación de tema oscuro/claro (Requisito nuevo)
+   ======================================================================== */
+
+/* ========================================================================
+   1. ESTILOS BASE - TEMAS
+   ======================================================================== */
+
+/* Tema claro (por defecto) — TOKENS ALINEADOS AL BRAND AGROMARKET */
+:root {
+  /* Colores de fondo */
+  --color-background: #f8faf8;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f3f7f4;
+  --color-surface-active: #e8f5e9;
+
+  /* Colores de texto */
+  --color-text-primary: #14221a;
+  --color-text-secondary: #374151;
+  --color-text-muted: #626c66;
+  --color-text-inverse: #ffffff;
+
+  /* Colores de borde */
+  --color-border: #d1ddd7;
+  --color-border-strong: rgba(17, 130, 59, 0.28);
+
+  /* Colores primarios ASAFRUT — verde oscuro del campo colombiano */
+  --color-primary: #1a5c2a;
+  --color-primary-hover: #14532d;
+  --color-primary-light: #e8f5e9;
+  --color-primary-dark: #0e3b1a;
+
+  /* Colores secundarios */
+  --color-secondary: #22c55e;
+  --color-secondary-hover: #16a34a;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 3px rgba(17, 24, 39, 0.08);
+  --shadow-md: 0 6px 18px rgba(17, 24, 39, 0.1);
+  --shadow-lg: 0 14px 38px rgba(17, 24, 39, 0.14);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, #1a5c2a 0%, #14532d 100%);
+  --gradient-secondary: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f8faf8 100%);
+}
+
+/* ========================================================================
+   TEMA OSCURO — Fuerza todos los textos a blanco
+   ======================================================================== */
+html.dark,
+body.dark,
+#root.dark,
+html[data-theme="dark"],
+body[data-theme="dark"],
+#root[data-theme="dark"] {
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-muted: #ffffff;
+  --color-text-inverse: #ffffff;
+
+  /* Sobrescribir grises de texto en toda la app */
+  --text: #ffffff;
+  --text-muted: #ffffff;
+  --text-dim: #ffffff;
+}
+
+/* ========================================================================
+   2. ESTILOS GLOBALES
+   ======================================================================== */
+
+/* Reset básico */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* HTML y Body */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  font-family: var(--am-font-body, "Inter", sans-serif);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  background-color: var(--color-background);
+  background-image: var(--gradient-surface);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* ========================================================================
+   3. TIPOGRAFÍA
+   ======================================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--am-font-heading, "Poppins", sans-serif);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+h1 {
+  font-size: 32px;
+  line-height: 40px;
+}
+
+h2 {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+h4 {
+  font-size: 18px;
+  line-height: 26px;
+}
+
+h5 {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+h6 {
+  font-size: 14px;
+  line-height: 20px;
+}
+/* Texto con estilo "display" para títulos hero */
+.display-text {
+  font-family: var(--font-display, "Playfair Display", serif);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* enlaces */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* Seleccion de texto */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* ========================================================================
+   4. FORMULARIOS
+   ======================================================================== */
+
+/* Inputs */
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+/* Estilos para inputs personalizados */
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.input-field::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* En modo oscuro, los inputs pueden tener un borde más visible */
+html.dark .input-field {
+  border-color: var(--color-border);
+}
+
+html.dark .input-field:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+}
+
+/* ========================================================================
+   5. BOTONES
+   ======================================================================== */
+
+/* Botón primario */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--gradient-primary);
+  color: var(--color-text-inverse);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Botón secundario */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--color-primary);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+/* Botón de outline */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+/* Botón ghost (solo texto) */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+  border-radius: 0.5rem;
+}
+
+.btn-ghost:hover {
+  color: var(--color-primary);
+  background-color: var(--color-surface-hover);
+}
+
+/* ========================================================================
+   6. TARJETAS (Cards)
+   ======================================================================== */
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Card interactiva */
+.card-interactive {
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ========================================================================
+   7. NAVBAR Y FOOTER
+   ======================================================================== */
+
+.navbar {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.footer {
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ========================================================================
+   8. ESTADOS Y BADGES
+   ======================================================================== */
+
+/* Badge de estado */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.badge-error {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.badge-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-neutral {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* En modo oscuro */
+html.dark .badge-success {
+  background-color: #166534;
+  color: #dcfce7;
+}
+
+html.dark .badge-warning {
+  background-color: #d97706;
+  color: #fef3c7;
+}
+
+html.dark .badge-error {
+  background-color: #dc2626;
+  color: #fee2e2;
+}
+
+html.dark .badge-info {
+  background-color: #1e40af;
+  color: #dbeafe;
+}
+
+html.dark .badge-neutral {
+  background-color: #374151;
+  color: #f3f4f6;
+}
+
+/* ========================================================================
+   9. ANIMACIONES Y TRANSICIONES
+   ======================================================================== */
+
+/* Animación de fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animación de slide up */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación de slide down */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación de scale in */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animación de pulse suave */
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Clases de animación */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulseSoft 2s ease-in-out infinite;
+}
+
+/* ========================================================================
+   10. CLASSES UTILITARIAS ADICIONALES
+   ======================================================================== */
+
+/* Clase para ocultar scrollbar pero mantener funcionalidad */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Texto truncado con elipsis */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Gradiente de texto */
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Estilos para imágenes lazy loading */
+.lazy-image {
+  background-color: var(--color-surface);
+  background-image: linear-gradient(
+    90deg,
+    var(--color-border) 0%,
+    var(--color-surface-hover) 50%,
+    var(--color-border) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ========================================================================
+   11. ESTILOS ESPECÍFICOS PARA AGROMARKET
+   ======================================================================== */
+
+/* Contenedor principal */
+.main-container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .main-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Sección hero */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tarjeta de producto */
+.product-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.product-image-container {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+/* Precio del producto */
+.product-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Descuento */
+.product-discount {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+/* Estilos para touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .card-interactive {
+    transition:
+      transform 0.1s ease,
+      box-shadow 0.1s ease;
+  }
+
+  .btn-primary:active,
+  .btn-secondary:active,
+  .btn-outline:active {
+    transform: scale(0.98);
+  }
+}
+
+/* ========================================================================
+   FIN DEL ARCHIVO
+   ======================================================================== */
