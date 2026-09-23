@@ -44,7 +44,7 @@
 }
 
 .producer-dashboard .sidebar-user-info .role {
-  color: #fff; 0.72);
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .producer-dashboard .sidebar-user-info .rating {
@@ -52,12 +52,12 @@
 }
 
 .producer-dashboard .sidebar-label {
-  color: #fff; 0.55);
+  color: rgba(255, 255, 255, 0.55);
   padding: 12px 12px 7px;
 }
 
 .producer-dashboard .sidebar-link {
-  color: #fff; 0.82);
+  color: rgba(255, 255, 255, 0.82);
   border-radius: 9px;
   margin-bottom: 3px;
   padding: 10px 12px;
@@ -595,7 +595,7 @@
 
 .producer-farm-hero p {
   margin: 0;
-  color: #fff; 0.75);
+  color: #fff;
 }
 
 .producer-verified {
@@ -839,6 +839,75 @@
     animation: none;
     transition: none;
   }
+}
+
+/* ============================================================
+   DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
+   ============================================================ */
+
+/* Ocultar sidebar de navegación interna */
+.producer-dashboard .sidebar {
+  display: none !important;
+}
+
+/* Ocultar mobile nav */
+.producer-dashboard .mobile-nav {
+  display: none !important;
+}
+
+/* Ocultar sidebar overlay */
+.producer-dashboard .sidebar-overlay {
+  display: none !important;
+}
+
+/* Mostrar TODAS las secciones .section (no solo la activa) */
+.producer-dashboard .section {
+  display: block !important;
+}
+
+/* Eliminar botones de navegación entre secciones */
+.producer-dashboard .section a[href="#"] {
+  display: none !important;
+}
+
+/* Layout compacto: todo en columna */
+.producer-dashboard .producer-page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Secciones con fondo y separadas */
+.producer-dashboard .section.active {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  border: 1px solid #d9e5dc;
+}
+
+/* Grid para las tarjetas de estadísticas */
+.producer-dashboard .stats-grid,
+.producer-dashboard .producer-finance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Ajustar content para que ocupe todo el ancho */
+.producer-dashboard .main-content {
+  width: 100%;
+  padding-left: 0 !important;
+}
+
+/* Eliminar botones que redirigen a secciones */
+.producer-dashboard .btn-cta[onclick*="setActiveSection"] {
+  display: none !important;
+}
+
+.producer-dashboard a[onclick*="showSection"] {
+  display: none !important;
 }
 
 /* ============================================================

@@ -13,13 +13,10 @@ export default function Admin() {
   const { t } = useTranslation();
   const { user, setUser, logout, formatPrice } = useAuth();
   const navigate = useNavigate();
-  const getInitialSection = () => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("section") || "dashboard";
-  };
-
-  const [activeSection, setActiveSection] = useState(getInitialSection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // DASHBOARD COMPACTO: variable para evitar errores de referencia (OCULTADO POR CSS)
+  const [activeSection, setActiveSection] = useState("dashboard");
 
   // Profile forms state
   const [perfilForm, setPerfilForm] = useState({ nombre: "", telefono: "" });
@@ -32,10 +29,9 @@ export default function Admin() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
 
+  // DASHBOARD COMPACTO: cargar perfil siempre
   useEffect(() => {
-    if (!user || activeSection !== "perfil") {
-      return;
-    }
+    if (!user) return;
 
     const timer = setTimeout(() => {
       setPerfilForm({
@@ -55,7 +51,7 @@ export default function Admin() {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [user, activeSection]);
+  }, [user]);
 
   const handleUpdatePerfil = async (e) => {
     e.preventDefault();
@@ -1015,7 +1011,7 @@ export default function Admin() {
           >
             <div className="card-table">
               {/* DASHBOARD */}
-              {activeSection === "dashboard" && (
+              {dashboard" && (
                 <div
                   className="section active admin-dashboard-section"
                   id="sec-dashboard"
@@ -1177,7 +1173,7 @@ export default function Admin() {
               )}
 
               {/* USUARIOS */}
-              {activeSection === "usuarios" && (
+              {usuarios" && (
                 <div className="section active" id="sec-usuarios">
                   <div className="table-header">
                     <h3 className="card-title">
@@ -1395,7 +1391,7 @@ export default function Admin() {
               )}
 
               {/* MENSAJERÍA ADMIN */}
-              {activeSection === "mensajeria" && (
+              {mensajeria" && (
                 <div className="section active" id="sec-mensajeria">
                   <div className="table-header">
                     <div>
@@ -1674,7 +1670,7 @@ export default function Admin() {
               )}
 
               {/* PEDIDOS */}
-              {activeSection === "pedidos" && (
+              {pedidos" && (
                 <div className="section active" id="sec-pedidos">
                   <div className="table-header">
                     <div>
@@ -1774,7 +1770,7 @@ export default function Admin() {
               )}
 
               {/* PRODUCTORES */}
-              {activeSection === "productores" && (
+              {productores" && (
                 <div className="section active" id="sec-productores">
                   <div className="table-header">
                     <div>
@@ -1841,7 +1837,7 @@ export default function Admin() {
               )}
 
               {/* PRODUCTOS */}
-              {activeSection === "productos" && (
+              {productos" && (
                 <div className="section active" id="sec-productos">
                   <div
                     className="table-header"
@@ -1975,7 +1971,7 @@ export default function Admin() {
               )}
 
               {/* RESEÑAS */}
-              {activeSection === "resenas" && (
+              {resenas" && (
                 <div className="section active" id="sec-resenas">
                   <div className="table-header">
                     <h3 className="card-title">
@@ -2063,7 +2059,7 @@ export default function Admin() {
               )}
 
               {/* FIDEICOMISO (ESCROW) */}
-              {activeSection === "pagos" && (
+              {pagos" && (
                 <div className="section active" id="sec-pagos">
                   <div className="table-header">
                     <h3 className="card-title">Transacciones en Fideicomiso</h3>
@@ -2134,7 +2130,7 @@ export default function Admin() {
               )}
 
               {/* FINANZAS */}
-              {activeSection === "reportes" && (
+              {reportes" && (
                 <div
                   className="section active"
                   id="sec-finanzas"
@@ -2403,7 +2399,7 @@ export default function Admin() {
               )}
 
               {/* LOGISTICA */}
-              {activeSection === "reportes-logistica" && (
+              {reportes-logistica" && (
                 <div
                   className="section active"
                   id="sec-logistica"
@@ -2673,7 +2669,7 @@ export default function Admin() {
               )}
 
               {/* CUPONES */}
-              {activeSection === "cupones" && (
+              {cupones" && (
                 <div className="section active">
                   <div className="table-header">
                     <h3 className="card-title">
@@ -2959,7 +2955,7 @@ export default function Admin() {
               )}
 
               {/* SOPORTE */}
-              {activeSection === "soporte" && (
+              {soporte" && (
                 <div className="section active" id="sec-soporte">
                   <div className="table-header">
                     <div>
@@ -3032,7 +3028,7 @@ export default function Admin() {
               )}
 
               {/* AUDITORIA */}
-              {activeSection === "auditoria" && (
+              {auditoria" && (
                 <div className="section active" id="sec-auditoria">
                   <div className="table-header">
                     <div>
@@ -3074,7 +3070,7 @@ export default function Admin() {
               )}
 
               {/* CONFIGURACION */}
-              {activeSection === "configuracion" && (
+              {configuracion" && (
                 <div className="section active">
                   <div className="table-header">
                     <h3 className="card-title">Configuración del Sistema</h3>

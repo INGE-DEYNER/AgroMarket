@@ -57,9 +57,11 @@ export default function DashboardComprador() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Navigation state
-  const [activeSection, setActiveSection] = useState("resumen");
+  // Navigation state - DASHBOARD COMPACTO: todo visible
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // DASHBOARD COMPACTO: variable para evitar errores de referencia (OCULTADO POR CSS)
+  const [activeSection, setActiveSection] = useState("resumen");
 
   // Chat/Mensajeria state
   const [contactos, setContactos] = useState([]);
@@ -68,18 +70,7 @@ export default function DashboardComprador() {
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const sec = params.get("section");
 
-    if (!sec) return;
-
-    const timer = setTimeout(() => {
-      setActiveSection(sec);
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [location.search]);
 
   // Pedidos & Catalog state
   const [pedidos, setPedidos] = useState([]);
@@ -569,20 +560,17 @@ export default function DashboardComprador() {
     }, 50);
   };
 
-  // Section Loading Triggers
+  // Section Loading Triggers - CARGAR TODO para dashboard compacto
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (activeSection === "catalogo") {
-        void loadCatalogProducts();
-      } else if (activeSection === "seguimiento") {
-        void loadEnvios();
-      } else if (activeSection === "mensajeria") {
-        void loadContactos();
-      } else if (activeSection === "misFacturas") {
-        void loadFacturas();
-      } else if (activeSection === "rfq") {
-        void loadRfqs();
-      } else if (activeSection === "perfil" && user) {
+      // Cargar todos los datos necesarios para todas las secciones
+      void loadCatalogProducts();
+      void loadEnvios();
+      void loadContactos();
+      void loadFacturas();
+      void loadRfqs();
+      
+      if (user) {
         setPerfilForm({
           nombre: user.nombre || "",
           telefono: user.telefono || "",
@@ -594,7 +582,6 @@ export default function DashboardComprador() {
 
     return () => clearTimeout(timer);
   }, [
-    activeSection,
     user,
     loadCatalogProducts,
     loadEnvios,
@@ -649,7 +636,7 @@ export default function DashboardComprador() {
 
   const contactProductor = async (productorNombre) => {
     if (!productorNombre) return;
-    setActiveSection("mensajeria");
+    // Dashboard compacto: no cambiar sección, solo buscar contacto
 
     // Attempt to locate real user ID of this producer in the lookup list
     try {
@@ -729,7 +716,7 @@ export default function DashboardComprador() {
   };
 
   // Filters & helpers
-  const showSection = (s) => setActiveSection(s);
+
 
   const pedidosFiltrados = filtroEstado
     ? pedidos.filter(
@@ -1027,8 +1014,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── RESUMEN ─── */}
-        {activeSection === "resumen" && (
-          <div className="section active" id="sec-resumen">
+        <div className="section active" id="sec-resumen">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1>
@@ -1042,12 +1028,7 @@ export default function DashboardComprador() {
                   {currentDate} • 28°C {t("dashboardComprador.sub", "Urabá")}
                 </p>
               </div>
-              <button
-                className="btn-cta"
-                onClick={() => setActiveSection("catalogo")}
-              >
-                {t("dashboardComprador.exploreCatalog", "Explorar catálogo")} <Icon name="arrowRight" size={15} />
-              </button>
+
             </div>
 
             {!user?.telefono && (
@@ -1140,19 +1121,9 @@ export default function DashboardComprador() {
                   {" "}
                   {t("dashboardComprador.recentOrders", "Pedidos Recientes")}
                 </h3>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    showSection("misPedidos");
-                  }}
-                  style={{ fontSize: "0.8rem", fontWeight: "600" }}
-                >
-                  {t(
-                    "dashboardComprador.viewAllOrders",
-                    "Ver todos los pedidos",
-                  )}
-                </a>
+                <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666" }}>
+                  {t("dashboardComprador.viewAllOrders", "Ver todos los pedidos")}
+                </span>
               </div>
               <div className="table-wrap">
                 <table className="table-responsive">
@@ -1206,8 +1177,9 @@ export default function DashboardComprador() {
                               </button>
                             )}
                             <button
-                              onClick={() => setActiveSection("seguimiento")}
                               className="btn btn-secondary btn-sm"
+                              disabled
+                              title="Ver en la sección de seguimiento abajo"
                             >
                               {t("pedidos.track", "Rastrear")}
                             </button>
@@ -1219,11 +1191,10 @@ export default function DashboardComprador() {
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         {/* ─── EXPLORAR CATALOGO ─── */}
-        {activeSection === "catalogo" && (
-          <div className="section active">
+        <div className="section active">
             <div
               className="catalog-hero"
               style={{
@@ -1525,8 +1496,7 @@ export default function DashboardComprador() {
         )}
 
         {/* ─── MIS PEDIDOS ─── */}
-        {activeSection === "misPedidos" && (
-          <div className="section active" id="sec-misPedidos">
+        <div className="section active" id="sec-misPedidos">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1>
@@ -1639,8 +1609,7 @@ export default function DashboardComprador() {
         )}
 
         {/* ─── SEGUIMIENTO DE ENVIOS ─── */}
-        {activeSection === "seguimiento" && (
-          <div className="section active">
+        <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1> {t("envios.title", "Seguimiento de Envíos")}</h1>
@@ -2106,8 +2075,7 @@ export default function DashboardComprador() {
         )}
 
         {/* ─── MENSAJERIA ─── */}
-        {activeSection === "mensajeria" && (
-          <div className="section active">
+        <div className="section active">
             <div
               className="chat-layout"
               style={{
@@ -2329,8 +2297,7 @@ export default function DashboardComprador() {
         )}
 
         {/* ─── RESEÑAS ─── */}
-        {activeSection === "resenas" && (
-          <div className="section active">
+        <div className="section active">
             <div
               className="section-header"
               style={{
@@ -2417,8 +2384,7 @@ export default function DashboardComprador() {
         )}
 
         {/* ─── MI PERFIL & AJUSTES ─── */}
-        {activeSection === "perfil" && (
-          <div className="section active">
+        <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1> Ajustes de Mi Perfil</h1>
@@ -2686,8 +2652,7 @@ export default function DashboardComprador() {
           </div>
         )}
         {/* ─── MIS FACTURAS ─── */}
-        {activeSection === "misFacturas" && (
-          <div className="section active">
+        <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1>Mis Facturas de Compra</h1>
@@ -2766,8 +2731,7 @@ export default function DashboardComprador() {
         )}
 
         {/* ─── LICITACIONES B2B (RFQ) ─── */}
-        {activeSection === "rfq" && (
-          <div className="section active">
+        <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
                 <h1> Licitaciones B2B (RFQ)</h1>
@@ -3094,7 +3058,6 @@ export default function DashboardComprador() {
                 onClick={() => {
                   setPagoModalOpen(false);
                   loadPedidos();
-                  setActiveSection("misPedidos");
                 }}
               >
                 ✕

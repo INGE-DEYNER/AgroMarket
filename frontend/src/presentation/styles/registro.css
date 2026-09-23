@@ -81,7 +81,7 @@ body {
   border-radius: 99px;
   padding: 8px 20px;
   font-size: 0.8rem;
-  color: #fff; 0.85);
+  color: rgba(255, 255, 255, 0.85);
   letter-spacing: 0.06em;
   margin-bottom: 28px;
   font-family: "Inter", sans-serif;

@@ -832,3 +832,79 @@
   .buyer-table { min-width: 600px; }
   .order-card { flex-direction: column; align-items: flex-start; }
 }
+
+/* ============================================================
+   DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
+   ============================================================ */
+
+/* Ocultar sidebar de navegación interna */
+.buyer-shell .sidebar {
+  display: none !important;
+}
+
+/* Ocultar mobile nav */
+.buyer-shell .mobile-nav {
+  display: none !important;
+}
+
+/* Ocultar sidebar overlay */
+.buyer-shell .sidebar-overlay {
+  display: none !important;
+}
+
+/* Mostrar TODAS las secciones .section (no solo la activa) */
+.buyer-shell .section {
+  display: block !important;
+}
+
+/* Eliminar botones de navegación entre secciones */
+.buyer-shell .section a[href="#"] {
+  display: none !important;
+}
+
+/* Layout compacto: todo en columna */
+.buyer-page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Secciones con fondo y separadas */
+.buyer-shell .section.active {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 24px;
+  border: 1px solid var(--buyer-border);
+}
+
+/* Ocultar títulos duplicados de secciones */
+.buyer-shell .section-header,
+.buyer-shell .card-title {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--buyer-border);
+}
+
+/* Grid para las tarjetas de estadísticas */
+.buyer-shell .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Ajustar content para que ocupe todo el ancho */
+.buyer-page-content .buyer-content {
+  width: 100%;
+  padding-left: 0 !important;
+}
+
+/* Eliminar botones que redirigen a secciones */
+.buyer-shell .btn-cta[onclick*="setActiveSection"] {
+  display: none !important;
+}
+
+.buyer-shell a[onclick*="showSection"] {
+  display: none !important;
+}

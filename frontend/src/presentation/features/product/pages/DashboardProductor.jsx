@@ -45,17 +45,9 @@ export default function DashboardProductor() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Navigation state
+  // Navigation state - DASHBOARD COMPACTO: todas las secciones activas (OCULTADO POR CSS)
   const [activeSection, setActiveSection] = useState("resumen");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const sec = params.get("section");
-    if (sec) {
-      setActiveSection(sec);
-    }
-  }, [location.search]);
 
   // Product and sales state
   const [productos, setProductos] = useState([]);
@@ -284,16 +276,14 @@ export default function DashboardProductor() {
   }, [extractArray, user]);
 
   // Section Loading triggers
+  // CARGAR TODO para dashboard compacto
   useEffect(() => {
-    if (activeSection === "seguimiento") {
-      void loadEnvios();
-    } else if (activeSection === "mensajeria") {
-      void loadContactos();
-    } else if (activeSection === "rfq") {
-      void loadActiveRfqs();
-    } else if (activeSection === "resenas") {
-      void loadResenasProductor();
-    } else if (activeSection === "perfil" && user) {
+    void loadEnvios();
+    void loadContactos();
+    void loadActiveRfqs();
+    void loadResenasProductor();
+    
+    if (user) {
       setPerfilForm({
         nombre: user.nombre || "",
         telefono: user.telefono || "",
@@ -302,7 +292,6 @@ export default function DashboardProductor() {
       setPwMsg({ type: "", text: "" });
     }
   }, [
-    activeSection,
     user,
     loadEnvios,
     loadContactos,
@@ -329,15 +318,14 @@ export default function DashboardProductor() {
   };
 
   // TIEMPO REAL: sondea contactos y conversación activa mientras la
-  // sección de mensajería está visible (sin recargar la página).
+  // sección de mensajería - Dashboard compacto: siempre cargar
   useEffect(() => {
-    if (activeSection !== "mensajeria") return undefined;
     const contactosTimer = setInterval(() => void loadContactos(), 10000);
     return () => clearInterval(contactosTimer);
-  }, [activeSection, loadContactos]);
+  }, [loadContactos]);
 
   useEffect(() => {
-    if (activeSection !== "mensajeria" || !selectedContact) return undefined;
+    if (!selectedContact) return undefined;
     const conversacionTimer = setInterval(async () => {
       try {
         const data = await api.get(
@@ -683,7 +671,7 @@ export default function DashboardProductor() {
         <div className="sidebar-label">Gestión del negocio</div>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "resumen" ? " active" : ""}`}
+          className={`sidebar-link${resumen" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("resumen");
@@ -694,7 +682,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "misProductos" ? " active" : ""}`}
+          className={`sidebar-link${misProductos" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("misProductos");
@@ -705,7 +693,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "pedidosRec" ? " active" : ""}`}
+          className={`sidebar-link${pedidosRec" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("pedidosRec");
@@ -717,7 +705,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "mensajeria" ? " active" : ""}`}
+          className={`sidebar-link${mensajeria" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("mensajeria");
@@ -728,7 +716,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "resenas" ? " active" : ""}`}
+          className={`sidebar-link${resenas" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("resenas");
@@ -739,7 +727,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "finca" ? " active" : ""}`}
+          className={`sidebar-link${finca" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("finca");
@@ -750,7 +738,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "finanzas" ? " active" : ""}`}
+          className={`sidebar-link${finanzas" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("finanzas");
@@ -761,7 +749,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "configuracion" ? " active" : ""}`}
+          className={`sidebar-link${configuracion" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("configuracion");
@@ -774,7 +762,7 @@ export default function DashboardProductor() {
         <div className="sidebar-label">Operación</div>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "seguimiento" ? " active" : ""}`}
+          className={`sidebar-link${seguimiento" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("seguimiento");
@@ -785,7 +773,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "rfq" ? " active" : ""}`}
+          className={`sidebar-link${rfq" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("rfq");
@@ -796,7 +784,7 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`}
+          className={`sidebar-link${perfil" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
             setActiveSection("perfil");
@@ -889,7 +877,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* â”€â”€â”€ RESUMEN â”€â”€â”€ */}
-        {activeSection === "resumen" && (
+        
           <div className="section active" id="sec-resumen">
             <div className="dash-header">
               <div className="dash-welcome">
@@ -1052,7 +1040,7 @@ export default function DashboardProductor() {
         )}
 
         {/* â”€â”€â”€ INVENTARIO â”€â”€â”€ */}
-        {activeSection === "misProductos" && (
+        
           <div className="section active" id="sec-misProductos">
             <div className="dash-header">
               <h1>{t("dashboardProductor.nav.inventory", "Mi Inventario")}</h1>
@@ -1111,7 +1099,7 @@ export default function DashboardProductor() {
         )}
 
         {/* â”€â”€â”€ VENTAS â”€â”€â”€ */}
-        {activeSection === "pedidosRec" && (
+        
           <div className="section active" id="sec-pedidosRec">
             <div className="dash-header">
               <h1>{t("dashboardProductor.nav.sales", "Gestión de Ventas")}</h1>
@@ -1191,7 +1179,7 @@ export default function DashboardProductor() {
         )}
 
         {/* â”€â”€â”€ DESPACHOS (PRODUCTOR ENVIOS) â”€â”€â”€ */}
-        {activeSection === "seguimiento" && (
+        {seguimiento" && (
           <div className="section active">
             <div className="dash-header">
               <h1>Gestión de Despachos</h1>
@@ -1254,7 +1242,7 @@ export default function DashboardProductor() {
         )}
 
         {/* â”€â”€â”€ MENSAJERIA â”€â”€â”€ */}
-        {activeSection === "mensajeria" && (
+        {mensajeria" && (
           <div className="section active">
             <div
               className="chat-layout"
@@ -1478,7 +1466,7 @@ export default function DashboardProductor() {
 
         {/* â”€â”€â”€ MI PERFIL & AJUSTES â”€â”€â”€ */}
         {/* RESEÑAS Y CALIFICACIONES */}
-        {activeSection === "resenas" && (
+        {resenas" && (
           <div className="section active producer-section">
             <div className="producer-section-head">
               <div>
@@ -1585,7 +1573,7 @@ export default function DashboardProductor() {
         )}
 
         {/* INFORMACIÓN DE LA FINCA / PRODUCTOR */}
-        {activeSection === "finca" && (
+        {finca" && (
           <div className="section active producer-section">
             <div className="producer-section-head">
               <div>
@@ -1669,7 +1657,7 @@ export default function DashboardProductor() {
         )}
 
         {/* FINANZAS / PAGOS */}
-        {activeSection === "finanzas" && (
+        {finanzas" && (
           <div className="section active producer-section">
             <div className="producer-section-head">
               <div>
@@ -1754,7 +1742,7 @@ export default function DashboardProductor() {
         )}
 
         {/* CONFIGURACIÓN */}
-        {activeSection === "configuracion" && (
+        {configuracion" && (
           <div className="section active producer-section">
             <div className="producer-section-head">
               <div>
@@ -1842,7 +1830,7 @@ export default function DashboardProductor() {
           </div>
         )}
 
-        {activeSection === "perfil" && (
+        {perfil" && (
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">
@@ -2153,7 +2141,7 @@ export default function DashboardProductor() {
         )}
 
         {/* â”€â”€â”€ RFQ OPPORTUNITIES (LICITACIONES) â”€â”€â”€ */}
-        {activeSection === "rfq" && (
+        {rfq" && (
           <div className="section active">
             <div className="dash-header">
               <div className="dash-welcome">

@@ -391,3 +391,62 @@
     padding: 10px 14px;
   }
 }
+
+/* ============================================================
+   DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
+   ============================================================ */
+
+/* Ocultar sidebar de navegación interna */
+.app-layout .sidebar {
+  display: none !important;
+}
+
+/* Ocultar mobile nav si existe */
+.app-layout .mobile-nav {
+  display: none !important;
+}
+
+/* Ocultar sidebar overlay */
+.app-layout .sidebar-overlay {
+  display: none !important;
+}
+
+/* Mostrar TODAS las secciones */
+.app-layout .section-content {
+  display: block !important;
+}
+
+/* Eliminar botones de navegación entre secciones */
+.app-layout a[onclick*="setActiveSection"] {
+  display: none !important;
+}
+
+.app-layout a[onclick*="showSection"] {
+  display: none !important;
+}
+
+/* Layout compacto */
+.app-layout .main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  padding: 20px;
+}
+
+/* Tarjetas de estadísticas en grid responsive */
+.app-layout .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Secciones con estilo consistente */
+.app-layout .section-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  border: 1px solid var(--admin-border);
+}
