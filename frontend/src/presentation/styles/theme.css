@@ -854,3 +854,37 @@ html.dark .footer-stakeholder-card:focus-visible {
     color: var(--color-text-primary) !important;
   }
 }
+
+/* ============================================================
+   GRISES -> BLANCO EN DARK MODE
+   Cualquier texto gris (tokens, Tailwind o hex fijo) se fuerza
+   a blanco puro cuando el tema oscuro está activo.
+   ============================================================ */
+html.dark .dark\:text-gray-200,
+html.dark .dark\:text-gray-300,
+html.dark .dark\:text-gray-400,
+html.dark .dark\:text-gray-500,
+html.dark .text-gray-200,
+html.dark .text-gray-300,
+html.dark .text-gray-400,
+html.dark .text-gray-500,
+html.dark .text-gray-600 {
+  color: #ffffff !important;
+}
+
+html.dark .text-gray-400 svg,
+html.dark svg.text-gray-400,
+html.dark svg[fill="#6b7280"],
+html.dark svg[fill="#9ca3af"] {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+html.dark [style*="color: #6b7280"],
+html.dark [style*="color: #9ca3af"],
+html.dark [style*="color: #64748b"],
+html.dark [style*="color:#6b7280"],
+html.dark [style*="color:#9ca3af"],
+html.dark [style*="color:#64748b"] {
+  color: #ffffff !important;
+}
