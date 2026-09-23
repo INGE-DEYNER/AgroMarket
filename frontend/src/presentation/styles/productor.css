@@ -845,29 +845,14 @@
    DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
    ============================================================ */
 
-/* Ocultar sidebar de navegación interna */
-.producer-dashboard .sidebar {
-  display: none !important;
-}
-
-/* Ocultar mobile nav */
-.producer-dashboard .mobile-nav {
-  display: none !important;
-}
-
-/* Ocultar sidebar overlay */
-.producer-dashboard .sidebar-overlay {
-  display: none !important;
-}
+/* El render ya no condiciona las secciones a activeSection: todas se muestran a
+   la vez y cada una expone id="sec-<clave>". El sidebar deja por tanto de ser
+   "navegación entre secciones" y pasa a ser navegación de la misma página
+   (showSection -> scrollIntoView + resaltado de la sección activa). */
 
 /* Mostrar TODAS las secciones .section (no solo la activa) */
 .producer-dashboard .section {
   display: block !important;
-}
-
-/* Eliminar botones de navegación entre secciones */
-.producer-dashboard .section a[href="#"] {
-  display: none !important;
 }
 
 /* Layout compacto: todo en columna */
@@ -901,14 +886,20 @@
   padding-left: 0 !important;
 }
 
-/* Eliminar botones que redirigen a secciones */
-.producer-dashboard .btn-cta[onclick*="setActiveSection"] {
-  display: none !important;
-}
+/* Los botones que llaman a showSection ya no quedan inertes: cada uno desplaza
+   la vista hasta su sección (antes se intentaba ocultarlos con selectores
+   [onclick*=...] que nunca coincidían con ningún elemento de React). */
 
-.producer-dashboard a[onclick*="showSection"] {
+/* OPCIONAL: dashboard sin sidebar (secciones a todo el ancho).
+   Se deja desactivado porque el sidebar conserva "Cerrar sesión";
+   descomentar para ocultarlo por completo.
+.producer-dashboard .sidebar,
+.producer-dashboard .mobile-nav,
+.producer-dashboard .sidebar-overlay,
+.producer-dashboard .sidebar-toggle-btn {
   display: none !important;
 }
+*/
 
 /* ============================================================
    ALINEACIÓN FIGMA — productor-dashboard (10:3140) y secciones

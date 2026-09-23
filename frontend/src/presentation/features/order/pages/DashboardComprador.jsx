@@ -57,11 +57,27 @@ export default function DashboardComprador() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Navigation state - DASHBOARD COMPACTO: todo visible
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // DASHBOARD COMPACTO: variable para evitar errores de referencia (OCULTADO POR CSS)
+  // Navigation state
   const [activeSection, setActiveSection] = useState("resumen");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // DASHBOARD COMPACTO: todas las secciones se renderizan a la vez, así que
+  // "navegar entre secciones" es desplazarse hasta la sección pedida. Cada
+  // sección expone id="sec-<clave>", por lo que también funcionan los enlaces
+  // profundos (?section=<clave>) que llegan desde otras páginas.
+  const scrollToSection = useCallback((key) => {
+    if (!key || typeof document === "undefined") return;
+    const target = document.getElementById(`sec-${key}`);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const showSection = useCallback(
+    (key) => {
+      setActiveSection(key);
+      scrollToSection(key);
+    },
+    [scrollToSection],
+  );
 
   // Chat/Mensajeria state
   const [contactos, setContactos] = useState([]);
@@ -70,7 +86,21 @@ export default function DashboardComprador() {
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
 
+  // Enlace profundo (p. ej. /dashboard-comprador?section=mensajeria): todas las
+  // secciones viven en la misma página, así que además de marcarla activa hay
+  // que desplazar la vista hasta ella.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sec = params.get("section");
 
+    if (!sec) return undefined;
+
+    const timer = setTimeout(() => {
+      showSection(sec);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [location.search, showSection]);
 
   // Pedidos & Catalog state
   const [pedidos, setPedidos] = useState([]);
@@ -315,16 +345,16 @@ export default function DashboardComprador() {
     }
   }, [extractArray, setContactos]);
 
-  // TIEMPO REAL: sondea contactos y conversación activa mientras la
-  // sección de mensajería está visible (sin recargar la página).
+  // TIEMPO REAL: sondea contactos y conversación activa.
+  // DASHBOARD COMPACTO: la sección de mensajería está siempre visible, así que
+  // el sondeo no se condiciona a activeSection (que ya no cambia desde la UI).
   useEffect(() => {
-    if (activeSection !== "mensajeria") return undefined;
     const contactosTimer = setInterval(() => void loadContactos(), 10000);
     return () => clearInterval(contactosTimer);
-  }, [activeSection, loadContactos]);
+  }, [loadContactos]);
 
   useEffect(() => {
-    if (activeSection !== "mensajeria" || !selectedContact) return undefined;
+    if (!selectedContact) return undefined;
     const conversacionTimer = setInterval(async () => {
       try {
         const data = await api.get(
@@ -338,7 +368,7 @@ export default function DashboardComprador() {
       }
     }, 3500);
     return () => clearInterval(conversacionTimer);
-  }, [activeSection, selectedContact, user, extractArray]);
+  }, [selectedContact, user, extractArray]);
 
   /*
    * TIEMPO REAL (SSE): el backend empuja el mensaje y se agrega al instante a
@@ -373,7 +403,7 @@ export default function DashboardComprador() {
   );
 
   useMensajeriaStream({
-    enabled: Boolean(user) && activeSection === "mensajeria",
+    enabled: Boolean(user),
     onEvent: handleMensajeTiempoReal,
   });
 
@@ -560,35 +590,37 @@ export default function DashboardComprador() {
     }, 50);
   };
 
-  // Section Loading Triggers - CARGAR TODO para dashboard compacto
+  // Section Loading Triggers
+  // DASHBOARD COMPACTO: todas las secciones están visibles a la vez, así que
+  // cada una carga sus datos al montar (ya no se espera a que activeSection
+  // coincida con su clave).
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Cargar todos los datos necesarios para todas las secciones
       void loadCatalogProducts();
       void loadEnvios();
       void loadContactos();
       void loadFacturas();
       void loadRfqs();
-      
-      if (user) {
-        setPerfilForm({
-          nombre: user.nombre || "",
-          telefono: user.telefono || "",
-        });
-        setPerfilMsg({ type: "", text: "" });
-        setPwMsg({ type: "", text: "" });
-      }
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [
-    user,
-    loadCatalogProducts,
-    loadEnvios,
-    loadContactos,
-    loadFacturas,
-    loadRfqs,
-  ]);
+  }, [loadCatalogProducts, loadEnvios, loadContactos, loadFacturas, loadRfqs]);
+
+  // Datos del formulario de perfil (la sección está siempre visible).
+  useEffect(() => {
+    if (!user) return undefined;
+
+    const timer = setTimeout(() => {
+      setPerfilForm({
+        nombre: user.nombre || "",
+        telefono: user.telefono || "",
+      });
+      setPerfilMsg({ type: "", text: "" });
+      setPwMsg({ type: "", text: "" });
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [user]);
 
   const publicarResena = async () => {
     const errs = {};
@@ -636,7 +668,7 @@ export default function DashboardComprador() {
 
   const contactProductor = async (productorNombre) => {
     if (!productorNombre) return;
-    // Dashboard compacto: no cambiar sección, solo buscar contacto
+    showSection("mensajeria");
 
     // Attempt to locate real user ID of this producer in the lookup list
     try {
@@ -716,7 +748,6 @@ export default function DashboardComprador() {
   };
 
   // Filters & helpers
-
 
   const pedidosFiltrados = filtroEstado
     ? pedidos.filter(
@@ -1015,540 +1046,146 @@ export default function DashboardComprador() {
 
         {/* ─── RESUMEN ─── */}
         <div className="section active" id="sec-resumen">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1>
-                  {t(
-                    "dashboardComprador.welcome",
-                    "¡Hola de nuevo, {{name}}!",
-                    { name: nombreUsuario },
-                  )}
-                </h1>
-                <p>
-                  {currentDate} • 28°C {t("dashboardComprador.sub", "Urabá")}
-                </p>
-              </div>
-
-            </div>
-
-            {!user?.telefono && (
-              <div
-                style={{
-                  background:
-                    "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
-                  border: "1px solid #7dd3fc",
-                  borderRadius: "12px",
-                  padding: "16px 20px",
-                  marginBottom: "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
-                  <span style={{ fontSize: "1.5rem" }}></span>
-                  <div>
-                    <strong style={{ color: "#0369a1", display: "block" }}>
-                      ¡Mejora la seguridad de tu cuenta!
-                    </strong>
-                    <span style={{ color: "#0369a1", fontSize: "0.85rem" }}>
-                      Agrega tu número de teléfono y verifica tu perfil para
-                      facilitar el contacto con los productores.
-                    </span>
-                  </div>
-                </div>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigate("/perfil")}
-                  style={{
-                    background: "#0369a1",
-                    color: "#fff",
-                    border: "none",
-                    padding: "8px 16px",
-                  }}
-                >
-                  Configurar Perfil
-                </button>
-              </div>
-            )}
-
-            <div className="stats-grid">
-              <div className="stat-card color-1">
-                <span className="stat-icon-lg"></span>
-                <div className="stat-label">
-                  {t(
-                    "dashboardComprador.stats.ordersPlaced",
-                    "Pedidos Realizados",
-                  )}
-                </div>
-                <div className="stat-value">
-                  {String(pedidos.length).padStart(2, "0")}
-                </div>
-              </div>
-              <div className="stat-card color-2">
-                <span className="stat-icon-lg"></span>
-                <div className="stat-label">
-                  {t(
-                    "dashboardComprador.stats.totalInvestment",
-                    "Inversión Total",
-                  )}
-                </div>
-                <div className="stat-value">{formatPrice(totalInvestment)}</div>
-              </div>
-              <div className="stat-card color-3">
-                <span className="stat-icon-lg"></span>
-                <div className="stat-label">
-                  {t("dashboardComprador.stats.reviewsLeft", "Reseñas Dejadas")}
-                </div>
-                <div className="stat-value">{reviewsDejadasCount}</div>
-              </div>
-              <div className="stat-card color-4">
-                <span className="stat-icon-lg"></span>
-                <div className="stat-label">
-                  {t("dashboardComprador.stats.producers", "Productores")}
-                </div>
-                <div className="stat-value">{uniqueProducersCount}</div>
-              </div>
-            </div>
-
-            {/* TABLA RECIENTES */}
-            <div className="card-table" style={{ marginBottom: "32px" }}>
-              <div className="table-header">
-                <h3 className="card-title">
-                  {" "}
-                  {t("dashboardComprador.recentOrders", "Pedidos Recientes")}
-                </h3>
-                <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666" }}>
-                  {t("dashboardComprador.viewAllOrders", "Ver todos los pedidos")}
-                </span>
-              </div>
-              <div className="table-wrap">
-                <table className="table-responsive">
-                  <thead>
-                    <tr>
-                      <th>{t("pedidos.id", "ID")}</th>
-                      <th>{t("pedidos.product", "Producto")}</th>
-                      <th>{t("pedidos.total", "Total")}</th>
-                      <th>{t("pedidos.statusHeader", "Estado")}</th>
-                      <th>{t("pedidos.actions", "Acciones")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {getGroupedPedidos(pedidos)
-                      .slice(0, 5)
-                      .map((p) => (
-                        <tr key={p.checkoutId || p.id}>
-                          <td data-label={t("pedidos.id", "ID")}>
-                            {p.checkoutId || `#${p.id}`}
-                          </td>
-                          <td data-label={t("pedidos.product", "Producto")}>
-                            {p.items.map((item, idx) => (
-                              <div key={item.id || idx}>
-                                • {item.productoNombre || item.producto} (
-                                {item.cantidad} kg)
-                              </div>
-                            ))}
-                          </td>
-                          <td data-label={t("pedidos.total", "Total")}>
-                            {formatPrice(p.total)}
-                          </td>
-                          <td data-label={t("pedidos.statusHeader", "Estado")}>
-                            <span className={badgeClass(p.estado)}>
-                              {t(
-                                "pedidos.status." + p.estado?.toLowerCase(),
-                                p.estado,
-                              )}
-                            </span>
-                          </td>
-                          <td data-label={t("pedidos.actions", "Acciones")}>
-                            {p.estado?.toLowerCase() === "pendiente" && (
-                              <button
-                                onClick={() => {
-                                  setCheckoutPedido(p);
-                                  setPagoModalOpen(true);
-                                }}
-                                className="btn btn-primary btn-sm"
-                                style={{ marginRight: "6px" }}
-                              >
-                                Pagar
-                              </button>
-                            )}
-                            <button
-                              className="btn btn-secondary btn-sm"
-                              disabled
-                              title="Ver en la sección de seguimiento abajo"
-                            >
-                              {t("pedidos.track", "Rastrear")}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── EXPLORAR CATALOGO ─── */}
-        <div className="section active">
-            <div
-              className="catalog-hero"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--primary) 0%, #1f4d2a 100%)",
-                borderRadius: "16px",
-                padding: "32px",
-                color: "#fff",
-                marginBottom: "24px",
-              }}
-            >
-              <h1
-                style={{ color: "#fff", fontSize: "2rem", marginBottom: "8px" }}
-              >
-                {t("catalog.heroTitle", "Frutas tropicales")}
-              </h1>
-              <p style={{ opacity: 0.9 }}>
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1>
                 {t(
-                  "catalog.heroSub",
-                  "Productos frescos de los agricultores de ASAFRUT. Sin intermediarios, precios justos.",
+                  "dashboardComprador.welcome",
+                  "¡Hola de nuevo, {{name}}!",
+                  { name: nombreUsuario },
                 )}
+              </h1>
+              <p>
+                {currentDate} • 28°C {t("dashboardComprador.sub", "Urabá")}
               </p>
             </div>
+            <button
+              className="btn-cta"
+              onClick={() => showSection("catalogo")}
+            >
+              {t("dashboardComprador.exploreCatalog", "Explorar catálogo")} <Icon name="arrowRight" size={15} />
+            </button>
+          </div>
 
+          {!user?.telefono && (
             <div
-              className="catalog-controls"
               style={{
+                background:
+                  "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
+                border: "1px solid #7dd3fc",
+                borderRadius: "12px",
+                padding: "16px 20px",
+                marginBottom: "24px",
                 display: "flex",
-                gap: "16px",
-                flexWrap: "wrap",
-                marginBottom: "20px",
+                alignItems: "center",
+                justifyContent: "space-between",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
               }}
             >
               <div
-                className="search-wrapper"
-                style={{ flex: 1, position: "relative" }}
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <input
-                  className="search-input"
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px 12px 40px",
-                    borderRadius: "8px",
-                    border: "1px solid var(--border-light)",
-                  }}
-                  type="text"
-                  placeholder={t(
-                    "catalog.searchPlaceholder",
-                    "Buscar productos...",
-                  )}
-                  value={catalogSearch}
-                  onChange={(e) => setCatalogSearch(e.target.value)}
-                />
-                <span
-                  style={{
-                    position: "absolute",
-                    left: "14px",
-                    top: "12px",
-                    color: "var(--text-muted)",
-                  }}
-                ></span>
+                <span style={{ fontSize: "1.5rem" }}></span>
+                <div>
+                  <strong style={{ color: "#0369a1", display: "block" }}>
+                    ¡Mejora la seguridad de tu cuenta!
+                  </strong>
+                  <span style={{ color: "#0369a1", fontSize: "0.85rem" }}>
+                    Agrega tu número de teléfono y verifica tu perfil para
+                    facilitar el contacto con los productores.
+                  </span>
+                </div>
               </div>
-              {count > 0 && (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setCartOpen(true)}
-                >
-                  {t("catalog.cartButton", "Carrito")} ({count})
-                </button>
-              )}
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate("/perfil")}
+                style={{
+                  background: "#0369a1",
+                  color: "#fff",
+                  border: "none",
+                  padding: "8px 16px",
+                }}
+              >
+                Configurar Perfil
+              </button>
             </div>
+          )}
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 280px",
-                gap: "24px",
-                alignItems: "flex-start",
-              }}
-              className="catalog-layout-grid"
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "16px",
-                }}
-              >
-                <div
-                  className="catalog-controls"
-                  style={{
-                    display: "flex",
-                    gap: "16px",
-                    flexWrap: "wrap",
-                    marginBottom: "20px",
-                  }}
-                >
-                  <div
-                    className="search-wrapper"
-                    style={{ flex: 1, position: "relative" }}
-                  >
-                    <input
-                      className="search-input"
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px 12px 40px",
-                        borderRadius: "8px",
-                        border: "1px solid var(--border-light)",
-                      }}
-                      type="text"
-                      placeholder={t(
-                        "catalog.searchPlaceholder",
-                        "Buscar productos...",
-                      )}
-                      value={catalogSearchQuery}
-                      onChange={(e) => setCatalogSearchQuery(e.target.value)}
-                    />
-                    <span
-                      style={{
-                        position: "absolute",
-                        left: "14px",
-                        top: "12px",
-                        color: "var(--text-muted)",
-                      }}
-                    ></span>
-                  </div>
-                  {count > 0 && (
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => setCartOpen(true)}
-                    >
-                      {t("catalog.cartButton", "Carrito")} ({count})
-                    </button>
-                  )}
-                </div>
-
-                {/* CATEGORY CHIPS */}
-                <div
-                  className="category-chips"
-                  style={{
-                    display: "flex",
-                    gap: "8px",
-                    flexWrap: "wrap",
-                    marginBottom: "24px",
-                  }}
-                >
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.value}
-                      className={`chip${filtroTipoCatalog === cat.value ? " active" : ""}`}
-                      onClick={() => setFiltroTipoCatalog(cat.value)}
-                    >
-                      <span>{cat.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* SIDE FILTER CONTROLS */}
-              <div
-                className="card-table"
-                style={{
-                  padding: "20px",
-                  borderRadius: "var(--radius)",
-                  background: "var(--surface)",
-                }}
-              >
-                <h4
-                  style={{
-                    fontSize: "0.9rem",
-                    fontWeight: "bold",
-                    marginBottom: "16px",
-                    borderBottom: "1px solid var(--border-light)",
-                    paddingBottom: "8px",
-                  }}
-                >
-                  Filtros
-                </h4>
-                <div className="form-group" style={{ marginBottom: "12px" }}>
-                  <label className="form-label" style={{ fontSize: "0.75rem" }}>
-                    Precio Mínimo (COP)
-                  </label>
-                  <input
-                    className="form-input"
-                    type="number"
-                    placeholder="$ Mín"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                  />
-                </div>
-                <div className="form-group" style={{ marginBottom: "12px" }}>
-                  <label className="form-label" style={{ fontSize: "0.75rem" }}>
-                    Precio Máximo (COP)
-                  </label>
-                  <input
-                    className="form-input"
-                    type="number"
-                    placeholder="$ Máx"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                  />
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    marginTop: "12px",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    id="promoToggleCatalog"
-                    checked={soloPromo}
-                    onChange={(e) => setSoloPromo(e.target.checked)}
-                    style={{ width: "16px", height: "16px" }}
-                  />
-                  <label
-                    htmlFor="promoToggleCatalog"
-                    style={{
-                      fontSize: "0.8rem",
-                      fontWeight: "500",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {" "}
-                    Sólo Promociones
-                  </label>
-                </div>
-                {(minPrice || maxPrice || soloPromo || filtroTipoCatalog) && (
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    style={{ width: "100%", marginTop: "16px" }}
-                    onClick={() => {
-                      setMinPrice("");
-                      setMaxPrice("");
-                      setSoloPromo(false);
-                      setFiltroTipoCatalog("");
-                      setCatalogSearchQuery("");
-                    }}
-                  >
-                    Limpiar
-                  </button>
+          <div className="stats-grid">
+            <div className="stat-card color-1">
+              <span className="stat-icon-lg"></span>
+              <div className="stat-label">
+                {t(
+                  "dashboardComprador.stats.ordersPlaced",
+                  "Pedidos Realizados",
                 )}
               </div>
+              <div className="stat-value">
+                {String(pedidos.length).padStart(2, "0")}
+              </div>
             </div>
-
-            {/* PRODUCT GRID */}
-            <div className="catalog-grid">
-              {catalogLoading ? (
-                <div
-                  style={{
-                    padding: "48px",
-                    textAlign: "center",
-                    gridColumn: "1 / -1",
-                  }}
-                >
-                  {t("catalog.loading", "Cargando catálogo...")}
-                </div>
-              ) : catalogFiltered.length === 0 ? (
-                <div
-                  className="catalog-empty"
-                  style={{
-                    gridColumn: "1 / -1",
-                    padding: "60px",
-                    textAlign: "center",
-                  }}
-                >
-                  <div style={{ fontSize: "2.5rem" }}></div>
-                  <h3>
-                    {t("catalog.noProducts", "No se encontraron productos")}
-                  </h3>
-                </div>
-              ) : (
-                catalogFiltered.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    p={{
-                      ...p,
-                      tipoFruta: p.tipoFruta || p.tipo,
-                      calificacion: p.calificacion || "4.8",
-                    }}
-                    t={t}
-                    addedStates={{}}
-                    handlePedirAhora={addToCart}
-                    onViewDetails={setSelectedProduct}
-                    onContactProducer={(prod) =>
-                      contactProductor(
-                        prod.productorNombre ||
-                          prod.productor ||
-                          prod.nombreProductor,
-                      )
-                    }
-                  />
-                ))
-              )}
+            <div className="stat-card color-2">
+              <span className="stat-icon-lg"></span>
+              <div className="stat-label">
+                {t(
+                  "dashboardComprador.stats.totalInvestment",
+                  "Inversión Total",
+                )}
+              </div>
+              <div className="stat-value">{formatPrice(totalInvestment)}</div>
+            </div>
+            <div className="stat-card color-3">
+              <span className="stat-icon-lg"></span>
+              <div className="stat-label">
+                {t("dashboardComprador.stats.reviewsLeft", "Reseñas Dejadas")}
+              </div>
+              <div className="stat-value">{reviewsDejadasCount}</div>
+            </div>
+            <div className="stat-card color-4">
+              <span className="stat-icon-lg"></span>
+              <div className="stat-label">
+                {t("dashboardComprador.stats.producers", "Productores")}
+              </div>
+              <div className="stat-value">{uniqueProducersCount}</div>
             </div>
           </div>
-        )}
 
-        {/* ─── MIS PEDIDOS ─── */}
-        <div className="section active" id="sec-misPedidos">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1>
-                  {t("dashboardComprador.nav.myOrders", "Historial de Pedidos")}
-                </h1>
-                <p>
-                  {t(
-                    "dashboardComprador.ordersSub",
-                    "Gestiona y revisa tus compras anteriores",
-                  )}
-                </p>
-              </div>
-            </div>
-            <div className="card-table">
-              <div
-                className="table-filters"
-                style={{ display: "flex", gap: "12px", marginBottom: "20px" }}
+          {/* TABLA RECIENTES */}
+          <div className="card-table" style={{ marginBottom: "32px" }}>
+            <div className="table-header">
+              <h3 className="card-title">
+                {" "}
+                {t("dashboardComprador.recentOrders", "Pedidos Recientes")}
+              </h3>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  showSection("misPedidos");
+                }}
+                style={{ fontSize: "0.8rem", fontWeight: "600" }}
               >
-                <select
-                  className="form-select"
-                  style={{ width: "180px" }}
-                  value={filtroEstado}
-                  onChange={(e) => setFiltroEstado(e.target.value)}
-                >
-                  <option value="">
-                    {t("pedidos.allStates", "Todos los estados")}
-                  </option>
-                  <option value="Pendiente">
-                    {t("pedidos.status.pendiente", "Pendiente")}
-                  </option>
-                  <option value="Enviado">
-                    {t("pedidos.status.enviado", "Enviado")}
-                  </option>
-                  <option value="Entregado">
-                    {t("pedidos.status.entregado", "Entregado")}
-                  </option>
-                </select>
-              </div>
-              <div className="table-wrap">
-                <table className="table-responsive">
-                  <thead>
-                    <tr>
-                      <th>{t("pedidos.id", "ID")}</th>
-                      <th>{t("pedidos.product", "Producto")}</th>
-                      <th>{t("pedidos.quantity", "Cantidad")}</th>
-                      <th>{t("pedidos.total", "Total")}</th>
-                      <th>{t("pedidos.statusHeader", "Estado")}</th>
-                      <th>{t("pedidos.actions", "Acciones")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {getGroupedPedidos(pedidosFiltrados).map((p) => (
+                {t(
+                  "dashboardComprador.viewAllOrders",
+                  "Ver todos los pedidos",
+                )}
+              </a>
+            </div>
+            <div className="table-wrap">
+              <table className="table-responsive">
+                <thead>
+                  <tr>
+                    <th>{t("pedidos.id", "ID")}</th>
+                    <th>{t("pedidos.product", "Producto")}</th>
+                    <th>{t("pedidos.total", "Total")}</th>
+                    <th>{t("pedidos.statusHeader", "Estado")}</th>
+                    <th>{t("pedidos.actions", "Acciones")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {getGroupedPedidos(pedidos)
+                    .slice(0, 5)
+                    .map((p) => (
                       <tr key={p.checkoutId || p.id}>
                         <td data-label={t("pedidos.id", "ID")}>
                           {p.checkoutId || `#${p.id}`}
@@ -1560,13 +1197,6 @@ export default function DashboardComprador() {
                               {item.cantidad} kg)
                             </div>
                           ))}
-                        </td>
-                        <td data-label={t("pedidos.quantity", "Cantidad")}>
-                          {p.items.reduce(
-                            (sum, item) => sum + Number(item.cantidad || 0),
-                            0,
-                          )}{" "}
-                          kg
                         </td>
                         <td data-label={t("pedidos.total", "Total")}>
                           {formatPrice(p.total)}
@@ -1593,1458 +1223,1871 @@ export default function DashboardComprador() {
                             </button>
                           )}
                           <button
+                            onClick={() => showSection("seguimiento")}
                             className="btn btn-secondary btn-sm"
-                            onClick={() => openFactura(p)}
                           >
-                            {t("pedidos.invoice", "Factura")}
+                            {t("pedidos.track", "Rastrear")}
                           </button>
                         </td>
                       </tr>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                </tbody>
+              </table>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* ─── SEGUIMIENTO DE ENVIOS ─── */}
-        <div className="section active">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1> {t("envios.title", "Seguimiento de Envíos")}</h1>
-                <p>Monitorea tus pedidos en ruta en tiempo real</p>
-              </div>
-            </div>
-
-            <div id="shipmentsContainer" style={{ marginTop: "20px" }}>
-              {shipments.length === 0 ? (
-                <div
-                  className="empty-state"
-                  style={{
-                    padding: "40px",
-                    textAlign: "center",
-                    background: "var(--card-bg)",
-                    border: "1px solid var(--border-light)",
-                    borderRadius: "12px",
-                  }}
-                >
-                  <div style={{ fontSize: "2rem" }}></div>
-                  <div style={{ marginTop: "8px" }}>
-                    {t(
-                      "envios.noActive",
-                      "No hay envíos activos en este momento.",
-                    )}
-                  </div>
-                </div>
-              ) : (
-                shipments.map((s) => {
-                  const isExpanded = expandedShipmentId === s.id;
-
-                  // Map state to active step (0-4)
-                  const getActiveStep = (estado) => {
-                    const est = estado?.toUpperCase();
-                    if (est === "ENTREGADO" || est === "DELIVERED") return 4;
-                    if (est === "EN_REPARTO") return 3;
-                    if (
-                      est === "EN_CAMINO" ||
-                      est === "EN_TRANSITO" ||
-                      est === "EN TRÁNSITO"
-                    )
-                      return 2;
-                    if (est === "PREPARANDO") return 1;
-                    return 0; // PEDIDO_CONFIRMADO
-                  };
-
-                  const activeStep = getActiveStep(s.estado);
-                  const progressPct = (activeStep + 1) * 20;
-
-                  const steps = [
-                    {
-                      label: "Pago Confirmado",
-                      desc: "Pago procesado y verificado.",
-                    },
-                    {
-                      label: "Preparando Envío",
-                      desc: "El productor está alistando los productos frescamente.",
-                    },
-                    {
-                      label: "En Camino",
-                      desc: "El paquete está en tránsito con la transportadora.",
-                    },
-                    {
-                      label: "En Reparto",
-                      desc: "El transportista está en ruta a tu ubicación de entrega.",
-                    },
-                    {
-                      label: "Entregado",
-                      desc: "El pedido ha sido entregado en la dirección indicada.",
-                    },
-                  ];
-
-                  const matchOrder = pedidos.find((p) => p.id === s.pedidoId);
-                  const productorNombre = matchOrder
-                    ? matchOrder.productorNombre || matchOrder.productor
-                    : null;
-
-                  return (
-                    <div
-                      key={s.id}
-                      className="shipment-card"
-                      style={{
-                        background: "var(--card-bg)",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "12px",
-                        padding: "24px",
-                        marginBottom: "20px",
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                          marginBottom: "16px",
-                        }}
-                      >
-                        <div>
-                          <div
-                            style={{
-                              fontWeight: "700",
-                              fontSize: "1.05rem",
-                              color: "var(--text-dark)",
-                            }}
-                          >
-                            {s.producto || "Producto ASAFRUT"}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: "0.85rem",
-                              color: "var(--text-muted)",
-                              marginTop: "4px",
-                            }}
-                          >
-                            {s.origen || "Chigorodó, Antioquia"} &rarr;{" "}
-                            {s.direccionDestino || "Destino"}
-                          </div>
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "8px",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span
-                            className="badge-status status-shipped"
-                            style={{ textTransform: "capitalize" }}
-                          >
-                            {t(
-                              "pedidos.status." + s.estado?.toLowerCase(),
-                              s.estado,
-                            )}
-                          </span>
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            onClick={() =>
-                              setExpandedShipmentId(isExpanded ? null : s.id)
-                            }
-                          >
-                            {isExpanded ? "Ocultar" : "Rastrear"}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          background: "var(--border-light)",
-                          borderRadius: "4px",
-                          height: "8px",
-                          overflow: "hidden",
-                          cursor: "pointer",
-                        }}
-                        onClick={() =>
-                          setExpandedShipmentId(isExpanded ? null : s.id)
-                        }
-                      >
-                        <div
-                          style={{
-                            height: "100%",
-                            width: `${progressPct}%`,
-                            background: progressColor(s.estado),
-                            borderRadius: "4px",
-                            transition: "width 0.5s ease",
-                          }}
-                        ></div>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          fontSize: "0.75rem",
-                          color: "var(--text-muted)",
-                          marginTop: "8px",
-                        }}
-                      >
-                        <span>Guía: {s.guia || "No asignada"}</span>
-                        <span>
-                          Transportista: {s.transportista || "Por asignar"}
-                        </span>
-                      </div>
-
-                      {isExpanded && (
-                        <div
-                          style={{
-                            marginTop: "24px",
-                            borderTop: "1px solid var(--border-light)",
-                            paddingTop: "20px",
-                            animation: "fadeIn 0.4s ease",
-                          }}
-                        >
-                          <h4
-                            style={{
-                              fontSize: "0.95rem",
-                              fontWeight: "bold",
-                              marginBottom: "16px",
-                              color: "var(--text-dark)",
-                            }}
-                          >
-                            Detalles de Trazabilidad
-                          </h4>
-
-                          {/* ESTIMATED DATE */}
-                          {s.fechaEstimadaEntrega && (
-                            <div
-                              style={{
-                                background: "var(--color-surface-2)",
-                                color: "var(--color-primary-dark)",
-                                padding: "10px 14px",
-                                borderRadius: "8px",
-                                fontSize: "0.85rem",
-                                fontWeight: "600",
-                                marginBottom: "20px",
-                                border: "1px solid var(--color-border)",
-                              }}
-                            >
-                              Fecha estimada de entrega:{" "}
-                              {new Date(
-                                s.fechaEstimadaEntrega + "T12:00:00",
-                              ).toLocaleDateString("es-CO", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </div>
-                          )}
-
-                          {/* ROUTE ILLUSTRATION */}
-                          <div
-                            style={{
-                              position: "relative",
-                              height: "54px",
-                              background: "#f8fafc",
-                              borderRadius: "10px",
-                              margin: "20px 0",
-                              overflow: "hidden",
-                              display: "flex",
-                              alignItems: "center",
-                              padding: "0 20px",
-                              border: "1px solid #cbd5e1",
-                            }}
-                          >
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: "16px",
-                                fontSize: "0.75rem",
-                                fontWeight: "bold",
-                                color: "#475569",
-                              }}
-                            >
-                              Chigorodó
-                            </div>
-                            <div
-                              style={{
-                                position: "absolute",
-                                right: "16px",
-                                fontSize: "0.75rem",
-                                fontWeight: "bold",
-                                color: "#475569",
-                                maxWidth: "180px",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {s.direccionDestino || "Destino"}
-                            </div>
-                            {/* Moving Truck Emoji */}
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: `${20 + activeStep * 15}%`, // Move truck based on step
-                                transition:
-                                  "left 1s cubic-bezier(0.25, 0.8, 0.25, 1)",
-                                fontSize: "1.6rem",
-                                zIndex: 10,
-                              }}
-                            >
-                              <Icon name="truck" size={22} />
-                            </div>
-                            {/* Visual Dashed Route Line */}
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: "10%",
-                                right: "10%",
-                                borderBottom: "2px dashed #cbd5e1",
-                                zIndex: 1,
-                              }}
-                            ></div>
-                          </div>
-
-                          {/* VERTICAL TIMELINE */}
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "20px",
-                              paddingLeft: "8px",
-                              position: "relative",
-                            }}
-                          >
-                            {/* Vertical Line Connector */}
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: "18px",
-                                top: "10px",
-                                bottom: "10px",
-                                width: "2px",
-                                background: "#e2e8f0",
-                              }}
-                            ></div>
-
-                            {steps.map((step, idx) => {
-                              const isCompleted = idx <= activeStep;
-                              const isActive = idx === activeStep;
-                              return (
-                                <div
-                                  key={idx}
-                                  style={{
-                                    display: "flex",
-                                    gap: "16px",
-                                    position: "relative",
-                                    zIndex: 2,
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      width: "22px",
-                                      height: "22px",
-                                      borderRadius: "50%",
-                                      background: isCompleted
-                                        ? "#2d6a4f"
-                                        : "#cbd5e1",
-                                      color: "#fff",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      fontSize: "0.7rem",
-                                      fontWeight: "bold",
-                                      border: isActive
-                                        ? "4px solid #b7e4c7"
-                                        : "none",
-                                      boxSizing: "content-box",
-                                    }}
-                                  >
-                                    {isCompleted ? <Icon name="check" size={14} /> : idx + 1}
-                                  </div>
-                                  <div>
-                                    <h5
-                                      style={{
-                                        fontSize: "0.88rem",
-                                        fontWeight: isActive ? "700" : "600",
-                                        color: isActive ? "#2d6a4f" : "#1e293b",
-                                        margin: 0,
-                                      }}
-                                    >
-                                      {step.label}
-                                    </h5>
-                                    <p
-                                      style={{
-                                        fontSize: "0.75rem",
-                                        color: "#64748b",
-                                        margin: "4px 0 0 0",
-                                      }}
-                                    >
-                                      {step.desc}
-                                    </p>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          {/* CONTACT PRODUCER BUTTON */}
-                          {productorNombre && (
-                            <div
-                              style={{
-                                marginTop: "24px",
-                                display: "flex",
-                                justifyContent: "flex-end",
-                              }}
-                            >
-                              <button
-                                className="btn btn-primary"
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                }}
-                                onClick={() =>
-                                  contactProductor(productorNombre)
-                                }
-                              >
-                                <svg
-                                  viewBox="0 0 24 24"
-                                  width="16"
-                                  height="16"
-                                  fill="currentColor"
-                                >
-                                  <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
-                                </svg>
-                                Contactar Productor ({productorNombre})
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
+        {/* ─── EXPLORAR CATALOGO ─── */}
+        <div className="section active" id="sec-catalogo">
+          <div
+            className="catalog-hero"
+            style={{
+              background:
+                "linear-gradient(135deg, var(--primary) 0%, #1f4d2a 100%)",
+              borderRadius: "16px",
+              padding: "32px",
+              color: "#fff",
+              marginBottom: "24px",
+            }}
+          >
+            <h1
+              style={{ color: "#fff", fontSize: "2rem", marginBottom: "8px" }}
+            >
+              {t("catalog.heroTitle", "Frutas tropicales")}
+            </h1>
+            <p style={{ opacity: 0.9 }}>
+              {t(
+                "catalog.heroSub",
+                "Productos frescos de los agricultores de ASAFRUT. Sin intermediarios, precios justos.",
               )}
-            </div>
-
-            <div style={{ marginTop: "32px" }}>
-              <h3 style={{ fontSize: "1.1rem", marginBottom: "16px" }}>
-                {" "}
-                {t("envios.historyTitle", "Historial de todos los envíos")}
-              </h3>
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>{t("envios.id", "ID Envío")}</th>
-                      <th>{t("envios.route", "Origen - Destino")}</th>
-                      <th>{t("envios.carrier", "Transportista")}</th>
-                      <th>{t("envios.status", "Estado")}</th>
-                      <th>Guía</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {historialEnvios.map((e) => (
-                      <tr key={e.id}>
-                        <td data-label="ID Envío">#{e.id}</td>
-                        <td data-label="Ruta">
-                          {e.origen || "Chigorodó"} - {e.direccionDestino}
-                        </td>
-                        <td data-label="Transportista">
-                          {e.transportista || "—"}
-                        </td>
-                        <td data-label="Estado">
-                          <span
-                            className={`badge-status ${e.estado === "Entregado" ? "status-delivered" : "status-pending"}`}
-                          >
-                            {t(
-                              "pedidos.status." + e.estado?.toLowerCase(),
-                              e.estado,
-                            )}
-                          </span>
-                        </td>
-                        <td data-label="Guía">{e.guia || "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            </p>
           </div>
-        )}
 
-        {/* ─── MENSAJERIA ─── */}
-        <div className="section active">
+          <div
+            className="catalog-controls"
+            style={{
+              display: "flex",
+              gap: "16px",
+              flexWrap: "wrap",
+              marginBottom: "20px",
+            }}
+          >
             <div
-              className="chat-layout"
+              className="search-wrapper"
+              style={{ flex: 1, position: "relative" }}
+            >
+              <input
+                className="search-input"
+                style={{
+                  width: "100%",
+                  padding: "12px 16px 12px 40px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border-light)",
+                }}
+                type="text"
+                placeholder={t(
+                  "catalog.searchPlaceholder",
+                  "Buscar productos...",
+                )}
+                value={catalogSearch}
+                onChange={(e) => setCatalogSearch(e.target.value)}
+              />
+              <span
+                style={{
+                  position: "absolute",
+                  left: "14px",
+                  top: "12px",
+                  color: "var(--text-muted)",
+                }}
+              ></span>
+            </div>
+            {count > 0 && (
+              <button
+                className="btn btn-primary"
+                onClick={() => setCartOpen(true)}
+              >
+                {t("catalog.cartButton", "Carrito")} ({count})
+              </button>
+            )}
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 280px",
+              gap: "24px",
+              alignItems: "flex-start",
+            }}
+            className="catalog-layout-grid"
+          >
+            <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 2fr",
-                background: "var(--card-bg)",
-                border: "1px solid var(--border-light)",
-                borderRadius: "12px",
-                overflow: "hidden",
-                height: "600px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
               }}
             >
-              {/* CONTACTS */}
               <div
-                className="chat-contacts"
-                style={{
-                  borderRight: "1px solid var(--border-light)",
-                  overflowY: "auto",
-                }}
-              >
-                {contactos.length === 0 ? (
-                  <div
-                    style={{
-                      padding: "24px",
-                      textAlign: "center",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    No tienes contactos activos.
-                  </div>
-                ) : (
-                  contactos.map((c) => (
-                    <div
-                      key={c.id}
-                      className={`contact-item${selectedContact?.id === c.id ? " active" : ""}`}
-                      onClick={() => selectContact(c)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        padding: "14px 16px",
-                        cursor: "pointer",
-                        borderBottom: "1px solid var(--border-light)",
-                        background:
-                          selectedContact?.id === c.id
-                            ? "var(--primary-bg)"
-                            : "transparent",
-                      }}
-                    >
-                      <div className="avatar avatar-blue">
-                        {c.nombre?.charAt(0).toUpperCase() || "C"}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: "600", fontSize: "0.9rem" }}>
-                          {c.nombre}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "0.75rem",
-                            color: "var(--text-muted)",
-                          }}
-                        >
-                          {t("auth." + c.rol?.toLowerCase(), c.rol)}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* WINDOW */}
-              <div
-                className="chat-window"
+                className="catalog-controls"
                 style={{
                   display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
+                  gap: "16px",
+                  flexWrap: "wrap",
+                  marginBottom: "20px",
                 }}
               >
                 <div
-                  className="chat-header"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    padding: "16px 20px",
-                    borderBottom: "1px solid var(--border-light)",
-                  }}
-                >
-                  <div className="avatar avatar-blue">
-                    {selectedContact?.nombre?.charAt(0).toUpperCase() || "--"}
-                  </div>
-                  <div>
-                    <div className="chat-name" style={{ fontWeight: "700" }}>
-                      {selectedContact?.nombre || "Selecciona un contacto"}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      {selectedContact?.rol || ""}
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="chat-messages"
-                  ref={chatRef}
-                  style={{
-                    flex: 1,
-                    padding: "20px",
-                    overflowY: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px",
-                  }}
-                >
-                  {!selectedContact ? (
-                    <div
-                      style={{
-                        margin: "auto",
-                        textAlign: "center",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      <div style={{ fontSize: "2.5rem" }}></div>
-                      <div>
-                        Selecciona un contacto para iniciar la conversación.
-                      </div>
-                    </div>
-                  ) : messages.length === 0 ? (
-                    <div style={{ margin: "auto", color: "var(--text-muted)" }}>
-                      No hay mensajes aún. ¡Sé el primero en escribir!
-                    </div>
-                  ) : (
-                    messages.map((m) => {
-                      const esMio = m.mio || m.remitenteId === user?.id;
-                      return (
-                        <div
-                          key={m.id}
-                          style={{
-                            display: "flex",
-                            justifyContent: esMio ? "flex-end" : "flex-start",
-                          }}
-                        >
-                          <div
-                            style={{
-                              maxWidth: "70%",
-                              background: esMio
-                                ? "var(--primary)"
-                                : "var(--card-bg)",
-                              color: esMio ? "#fff" : "inherit",
-                              padding: "10px 14px",
-                              borderRadius: esMio
-                                ? "16px 16px 4px 16px"
-                                : "16px 16px 16px 4px",
-                              border: esMio
-                                ? "none"
-                                : "1px solid var(--border-light)",
-                            }}
-                          >
-                            <div>{m.texto || m.contenido}</div>
-                            <div
-                              style={{
-                                fontSize: "0.65rem",
-                                opacity: 0.7,
-                                marginTop: "4px",
-                                textAlign: "right",
-                              }}
-                            >
-                              {m.hora ||
-                                formatearHora(m.fechaEnvio ?? m.sentAt)}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                <div
-                  className="chat-input-bar"
-                  style={{
-                    padding: "16px",
-                    borderTop: "1px solid var(--border-light)",
-                    display: "flex",
-                    gap: "12px",
-                  }}
+                  className="search-wrapper"
+                  style={{ flex: 1, position: "relative" }}
                 >
                   <input
-                    className="chat-input"
+                    className="search-input"
                     style={{
-                      flex: 1,
-                      padding: "12px 16px",
+                      width: "100%",
+                      padding: "12px 16px 12px 40px",
                       borderRadius: "8px",
                       border: "1px solid var(--border-light)",
                     }}
-                    placeholder="Escribe un mensaje..."
-                    value={msgInput}
-                    onChange={(e) => setMsgInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") sendMessage();
-                    }}
-                    disabled={!selectedContact}
+                    type="text"
+                    placeholder={t(
+                      "catalog.searchPlaceholder",
+                      "Buscar productos...",
+                    )}
+                    value={catalogSearchQuery}
+                    onChange={(e) => setCatalogSearchQuery(e.target.value)}
                   />
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: "14px",
+                      top: "12px",
+                      color: "var(--text-muted)",
+                    }}
+                  ></span>
+                </div>
+                {count > 0 && (
                   <button
                     className="btn btn-primary"
-                    onClick={sendMessage}
-                    disabled={!selectedContact}
+                    onClick={() => setCartOpen(true)}
                   >
-                    Enviar
+                    {t("catalog.cartButton", "Carrito")} ({count})
                   </button>
-                </div>
+                )}
+              </div>
+
+              {/* CATEGORY CHIPS */}
+              <div
+                className="category-chips"
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  flexWrap: "wrap",
+                  marginBottom: "24px",
+                }}
+              >
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.value}
+                    className={`chip${filtroTipoCatalog === cat.value ? " active" : ""}`}
+                    onClick={() => setFiltroTipoCatalog(cat.value)}
+                  >
+                    <span>{cat.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ─── RESEÑAS ─── */}
-        <div className="section active">
+            {/* SIDE FILTER CONTROLS */}
             <div
-              className="section-header"
+              className="card-table"
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "24px",
+                padding: "20px",
+                borderRadius: "var(--radius)",
+                background: "var(--surface)",
               }}
             >
-              <span
-                className="section-title"
-                style={{ fontSize: "1.25rem", fontWeight: "700" }}
+              <h4
+                style={{
+                  fontSize: "0.9rem",
+                  fontWeight: "bold",
+                  marginBottom: "16px",
+                  borderBottom: "1px solid var(--border-light)",
+                  paddingBottom: "8px",
+                }}
               >
-                {" "}
-                Mis Reseñas de Productos
-              </span>
-              <button
-                className="btn btn-primary"
-                onClick={() => setReviewModalOpen(true)}
+                Filtros
+              </h4>
+              <div className="form-group" style={{ marginBottom: "12px" }}>
+                <label className="form-label" style={{ fontSize: "0.75rem" }}>
+                  Precio Mínimo (COP)
+                </label>
+                <input
+                  className="form-input"
+                  type="number"
+                  placeholder="$ Mín"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: "12px" }}>
+                <label className="form-label" style={{ fontSize: "0.75rem" }}>
+                  Precio Máximo (COP)
+                </label>
+                <input
+                  className="form-input"
+                  type="number"
+                  placeholder="$ Máx"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginTop: "12px",
+                }}
               >
-                + Nueva reseña
-              </button>
-            </div>
-
-            <div id="reviewsList">
-              {reviews.length === 0 ? (
-                <div
-                  className="empty-state"
+                <input
+                  type="checkbox"
+                  id="promoToggleCatalog"
+                  checked={soloPromo}
+                  onChange={(e) => setSoloPromo(e.target.checked)}
+                  style={{ width: "16px", height: "16px" }}
+                />
+                <label
+                  htmlFor="promoToggleCatalog"
                   style={{
-                    padding: "60px",
-                    textAlign: "center",
-                    background: "var(--card-bg)",
-                    border: "1px solid var(--border-light)",
-                    borderRadius: "12px",
+                    fontSize: "0.8rem",
+                    fontWeight: "500",
+                    cursor: "pointer",
                   }}
                 >
-                  <div style={{ fontSize: "2rem" }}></div>
-                  <div>No hay reseñas registradas aún.</div>
+                  {" "}
+                  Sólo Promociones
+                </label>
+              </div>
+              {(minPrice || maxPrice || soloPromo || filtroTipoCatalog) && (
+                <button
+                  className="btn btn-secondary btn-sm"
+                  style={{ width: "100%", marginTop: "16px" }}
+                  onClick={() => {
+                    setMinPrice("");
+                    setMaxPrice("");
+                    setSoloPromo(false);
+                    setFiltroTipoCatalog("");
+                    setCatalogSearchQuery("");
+                  }}
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* PRODUCT GRID */}
+          <div className="catalog-grid">
+            {catalogLoading ? (
+              <div
+                style={{
+                  padding: "48px",
+                  textAlign: "center",
+                  gridColumn: "1 / -1",
+                }}
+              >
+                {t("catalog.loading", "Cargando catálogo...")}
+              </div>
+            ) : catalogFiltered.length === 0 ? (
+              <div
+                className="catalog-empty"
+                style={{
+                  gridColumn: "1 / -1",
+                  padding: "60px",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "2.5rem" }}></div>
+                <h3>
+                  {t("catalog.noProducts", "No se encontraron productos")}
+                </h3>
+              </div>
+            ) : (
+              catalogFiltered.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  p={{
+                    ...p,
+                    tipoFruta: p.tipoFruta || p.tipo,
+                    calificacion: p.calificacion || "4.8",
+                  }}
+                  t={t}
+                  addedStates={{}}
+                  handlePedirAhora={addToCart}
+                  onViewDetails={setSelectedProduct}
+                  onContactProducer={(prod) =>
+                    contactProductor(
+                      prod.productorNombre ||
+                        prod.productor ||
+                        prod.nombreProductor,
+                    )
+                  }
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* ─── MIS PEDIDOS ─── */}
+        <div className="section active" id="sec-misPedidos">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1>
+                {t("dashboardComprador.nav.myOrders", "Historial de Pedidos")}
+              </h1>
+              <p>
+                {t(
+                  "dashboardComprador.ordersSub",
+                  "Gestiona y revisa tus compras anteriores",
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="card-table">
+            <div
+              className="table-filters"
+              style={{ display: "flex", gap: "12px", marginBottom: "20px" }}
+            >
+              <select
+                className="form-select"
+                style={{ width: "180px" }}
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value)}
+              >
+                <option value="">
+                  {t("pedidos.allStates", "Todos los estados")}
+                </option>
+                <option value="Pendiente">
+                  {t("pedidos.status.pendiente", "Pendiente")}
+                </option>
+                <option value="Enviado">
+                  {t("pedidos.status.enviado", "Enviado")}
+                </option>
+                <option value="Entregado">
+                  {t("pedidos.status.entregado", "Entregado")}
+                </option>
+              </select>
+            </div>
+            <div className="table-wrap">
+              <table className="table-responsive">
+                <thead>
+                  <tr>
+                    <th>{t("pedidos.id", "ID")}</th>
+                    <th>{t("pedidos.product", "Producto")}</th>
+                    <th>{t("pedidos.quantity", "Cantidad")}</th>
+                    <th>{t("pedidos.total", "Total")}</th>
+                    <th>{t("pedidos.statusHeader", "Estado")}</th>
+                    <th>{t("pedidos.actions", "Acciones")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {getGroupedPedidos(pedidosFiltrados).map((p) => (
+                    <tr key={p.checkoutId || p.id}>
+                      <td data-label={t("pedidos.id", "ID")}>
+                        {p.checkoutId || `#${p.id}`}
+                      </td>
+                      <td data-label={t("pedidos.product", "Producto")}>
+                        {p.items.map((item, idx) => (
+                          <div key={item.id || idx}>
+                            • {item.productoNombre || item.producto} (
+                            {item.cantidad} kg)
+                          </div>
+                        ))}
+                      </td>
+                      <td data-label={t("pedidos.quantity", "Cantidad")}>
+                        {p.items.reduce(
+                          (sum, item) => sum + Number(item.cantidad || 0),
+                          0,
+                        )}{" "}
+                        kg
+                      </td>
+                      <td data-label={t("pedidos.total", "Total")}>
+                        {formatPrice(p.total)}
+                      </td>
+                      <td data-label={t("pedidos.statusHeader", "Estado")}>
+                        <span className={badgeClass(p.estado)}>
+                          {t(
+                            "pedidos.status." + p.estado?.toLowerCase(),
+                            p.estado,
+                          )}
+                        </span>
+                      </td>
+                      <td data-label={t("pedidos.actions", "Acciones")}>
+                        {p.estado?.toLowerCase() === "pendiente" && (
+                          <button
+                            onClick={() => {
+                              setCheckoutPedido(p);
+                              setPagoModalOpen(true);
+                            }}
+                            className="btn btn-primary btn-sm"
+                            style={{ marginRight: "6px" }}
+                          >
+                            Pagar
+                          </button>
+                        )}
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => openFactura(p)}
+                        >
+                          {t("pedidos.invoice", "Factura")}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── SEGUIMIENTO DE ENVIOS ─── */}
+        <div className="section active" id="sec-seguimiento">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1> {t("envios.title", "Seguimiento de Envíos")}</h1>
+              <p>Monitorea tus pedidos en ruta en tiempo real</p>
+            </div>
+          </div>
+
+          <div id="shipmentsContainer" style={{ marginTop: "20px" }}>
+            {shipments.length === 0 ? (
+              <div
+                className="empty-state"
+                style={{
+                  padding: "40px",
+                  textAlign: "center",
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--border-light)",
+                  borderRadius: "12px",
+                }}
+              >
+                <div style={{ fontSize: "2rem" }}></div>
+                <div style={{ marginTop: "8px" }}>
+                  {t(
+                    "envios.noActive",
+                    "No hay envíos activos en este momento.",
+                  )}
                 </div>
-              ) : (
-                reviews.map((r) => (
+              </div>
+            ) : (
+              shipments.map((s) => {
+                const isExpanded = expandedShipmentId === s.id;
+
+                // Map state to active step (0-4)
+                const getActiveStep = (estado) => {
+                  const est = estado?.toUpperCase();
+                  if (est === "ENTREGADO" || est === "DELIVERED") return 4;
+                  if (est === "EN_REPARTO") return 3;
+                  if (
+                    est === "EN_CAMINO" ||
+                    est === "EN_TRANSITO" ||
+                    est === "EN TRÁNSITO"
+                  )
+                    return 2;
+                  if (est === "PREPARANDO") return 1;
+                  return 0; // PEDIDO_CONFIRMADO
+                };
+
+                const activeStep = getActiveStep(s.estado);
+                const progressPct = (activeStep + 1) * 20;
+
+                const steps = [
+                  {
+                    label: "Pago Confirmado",
+                    desc: "Pago procesado y verificado.",
+                  },
+                  {
+                    label: "Preparando Envío",
+                    desc: "El productor está alistando los productos frescamente.",
+                  },
+                  {
+                    label: "En Camino",
+                    desc: "El paquete está en tránsito con la transportadora.",
+                  },
+                  {
+                    label: "En Reparto",
+                    desc: "El transportista está en ruta a tu ubicación de entrega.",
+                  },
+                  {
+                    label: "Entregado",
+                    desc: "El pedido ha sido entregado en la dirección indicada.",
+                  },
+                ];
+
+                const matchOrder = pedidos.find((p) => p.id === s.pedidoId);
+                const productorNombre = matchOrder
+                  ? matchOrder.productorNombre || matchOrder.productor
+                  : null;
+
+                return (
                   <div
-                    key={r.id}
-                    className="review-card"
+                    key={s.id}
+                    className="shipment-card"
                     style={{
                       background: "var(--card-bg)",
                       border: "1px solid var(--border-light)",
                       borderRadius: "12px",
-                      padding: "20px 24px",
-                      marginBottom: "16px",
+                      padding: "24px",
+                      marginBottom: "20px",
+                      transition: "all 0.3s ease",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        marginBottom: "8px",
+                        alignItems: "flex-start",
+                        marginBottom: "16px",
                       }}
                     >
-                      <div style={{ fontWeight: "700" }}>
-                        {r.compradorNombre || "Usuario"}
+                      <div>
+                        <div
+                          style={{
+                            fontWeight: "700",
+                            fontSize: "1.05rem",
+                            color: "var(--text-dark)",
+                          }}
+                        >
+                          {s.producto || "Producto ASAFRUT"}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "0.85rem",
+                            color: "var(--text-muted)",
+                            marginTop: "4px",
+                          }}
+                        >
+                          {s.origen || "Chigorodó, Antioquia"} &rarr;{" "}
+                          {s.direccionDestino || "Destino"}
+                        </div>
                       </div>
-                      <div style={{ color: "var(--gold)", fontSize: "1.1rem" }}>
-                        [...Array(r.calificacion || 5)].map((_, i) => <Icon key={i} name="star" size={14} className="inline text-yellow-500" />)
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          className="badge-status status-shipped"
+                          style={{ textTransform: "capitalize" }}
+                        >
+                          {t(
+                            "pedidos.status." + s.estado?.toLowerCase(),
+                            s.estado,
+                          )}
+                        </span>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() =>
+                            setExpandedShipmentId(isExpanded ? null : s.id)
+                          }
+                        >
+                          {isExpanded ? "Ocultar" : "Rastrear"}
+                        </button>
                       </div>
                     </div>
-                    <div style={{ color: "var(--text-secondary)" }}>
-                      {r.comentario}
+
+                    <div
+                      style={{
+                        background: "var(--border-light)",
+                        borderRadius: "4px",
+                        height: "8px",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        setExpandedShipmentId(isExpanded ? null : s.id)
+                      }
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${progressPct}%`,
+                          background: progressColor(s.estado),
+                          borderRadius: "4px",
+                          transition: "width 0.5s ease",
+                        }}
+                      ></div>
                     </div>
                     <div
                       style={{
+                        display: "flex",
+                        justifyContent: "space-between",
                         fontSize: "0.75rem",
                         color: "var(--text-muted)",
                         marginTop: "8px",
                       }}
                     >
-                      {new Date(r.fecha).toLocaleDateString()}
+                      <span>Guía: {s.guia || "No asignada"}</span>
+                      <span>
+                        Transportista: {s.transportista || "Por asignar"}
+                      </span>
+                    </div>
+
+                    {isExpanded && (
+                      <div
+                        style={{
+                          marginTop: "24px",
+                          borderTop: "1px solid var(--border-light)",
+                          paddingTop: "20px",
+                          animation: "fadeIn 0.4s ease",
+                        }}
+                      >
+                        <h4
+                          style={{
+                            fontSize: "0.95rem",
+                            fontWeight: "bold",
+                            marginBottom: "16px",
+                            color: "var(--text-dark)",
+                          }}
+                        >
+                          Detalles de Trazabilidad
+                        </h4>
+
+                        {/* ESTIMATED DATE */}
+                        {s.fechaEstimadaEntrega && (
+                          <div
+                            style={{
+                              background: "var(--color-surface-2)",
+                              color: "var(--color-primary-dark)",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                              marginBottom: "20px",
+                              border: "1px solid var(--color-border)",
+                            }}
+                          >
+                            Fecha estimada de entrega:{" "}
+                            {new Date(
+                              s.fechaEstimadaEntrega + "T12:00:00",
+                            ).toLocaleDateString("es-CO", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </div>
+                        )}
+
+                        {/* ROUTE ILLUSTRATION */}
+                        <div
+                          style={{
+                            position: "relative",
+                            height: "54px",
+                            background: "#f8fafc",
+                            borderRadius: "10px",
+                            margin: "20px 0",
+                            overflow: "hidden",
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "0 20px",
+                            border: "1px solid #cbd5e1",
+                          }}
+                        >
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: "16px",
+                              fontSize: "0.75rem",
+                              fontWeight: "bold",
+                              color: "#475569",
+                            }}
+                          >
+                            Chigorodó
+                          </div>
+                          <div
+                            style={{
+                              position: "absolute",
+                              right: "16px",
+                              fontSize: "0.75rem",
+                              fontWeight: "bold",
+                              color: "#475569",
+                              maxWidth: "180px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {s.direccionDestino || "Destino"}
+                          </div>
+                          {/* Moving Truck Emoji */}
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: `${20 + activeStep * 15}%`, // Move truck based on step
+                              transition:
+                                "left 1s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                              fontSize: "1.6rem",
+                              zIndex: 10,
+                            }}
+                          >
+                            <Icon name="truck" size={22} />
+                          </div>
+                          {/* Visual Dashed Route Line */}
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: "10%",
+                              right: "10%",
+                              borderBottom: "2px dashed #cbd5e1",
+                              zIndex: 1,
+                            }}
+                          ></div>
+                        </div>
+
+                        {/* VERTICAL TIMELINE */}
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "20px",
+                            paddingLeft: "8px",
+                            position: "relative",
+                          }}
+                        >
+                          {/* Vertical Line Connector */}
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: "18px",
+                              top: "10px",
+                              bottom: "10px",
+                              width: "2px",
+                              background: "#e2e8f0",
+                            }}
+                          ></div>
+
+                          {steps.map((step, idx) => {
+                            const isCompleted = idx <= activeStep;
+                            const isActive = idx === activeStep;
+                            return (
+                              <div
+                                key={idx}
+                                style={{
+                                  display: "flex",
+                                  gap: "16px",
+                                  position: "relative",
+                                  zIndex: 2,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: "22px",
+                                    height: "22px",
+                                    borderRadius: "50%",
+                                    background: isCompleted
+                                      ? "#2d6a4f"
+                                      : "#cbd5e1",
+                                    color: "#fff",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: "0.7rem",
+                                    fontWeight: "bold",
+                                    border: isActive
+                                      ? "4px solid #b7e4c7"
+                                      : "none",
+                                    boxSizing: "content-box",
+                                  }}
+                                >
+                                  {isCompleted ? <Icon name="check" size={14} /> : idx + 1}
+                                </div>
+                                <div>
+                                  <h5
+                                    style={{
+                                      fontSize: "0.88rem",
+                                      fontWeight: isActive ? "700" : "600",
+                                      color: isActive ? "#2d6a4f" : "#1e293b",
+                                      margin: 0,
+                                    }}
+                                  >
+                                    {step.label}
+                                  </h5>
+                                  <p
+                                    style={{
+                                      fontSize: "0.75rem",
+                                      color: "#64748b",
+                                      margin: "4px 0 0 0",
+                                    }}
+                                  >
+                                    {step.desc}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* CONTACT PRODUCER BUTTON */}
+                        {productorNombre && (
+                          <div
+                            style={{
+                              marginTop: "24px",
+                              display: "flex",
+                              justifyContent: "flex-end",
+                            }}
+                          >
+                            <button
+                              className="btn btn-primary"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                              onClick={() =>
+                                contactProductor(productorNombre)
+                              }
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                              >
+                                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                              </svg>
+                              Contactar Productor ({productorNombre})
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <div style={{ marginTop: "32px" }}>
+            <h3 style={{ fontSize: "1.1rem", marginBottom: "16px" }}>
+              {" "}
+              {t("envios.historyTitle", "Historial de todos los envíos")}
+            </h3>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t("envios.id", "ID Envío")}</th>
+                    <th>{t("envios.route", "Origen - Destino")}</th>
+                    <th>{t("envios.carrier", "Transportista")}</th>
+                    <th>{t("envios.status", "Estado")}</th>
+                    <th>Guía</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historialEnvios.map((e) => (
+                    <tr key={e.id}>
+                      <td data-label="ID Envío">#{e.id}</td>
+                      <td data-label="Ruta">
+                        {e.origen || "Chigorodó"} - {e.direccionDestino}
+                      </td>
+                      <td data-label="Transportista">
+                        {e.transportista || "—"}
+                      </td>
+                      <td data-label="Estado">
+                        <span
+                          className={`badge-status ${e.estado === "Entregado" ? "status-delivered" : "status-pending"}`}
+                        >
+                          {t(
+                            "pedidos.status." + e.estado?.toLowerCase(),
+                            e.estado,
+                          )}
+                        </span>
+                      </td>
+                      <td data-label="Guía">{e.guia || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── MENSAJERIA ─── */}
+        <div className="section active" id="sec-mensajeria">
+          <div
+            className="chat-layout"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 2fr",
+              background: "var(--card-bg)",
+              border: "1px solid var(--border-light)",
+              borderRadius: "12px",
+              overflow: "hidden",
+              height: "600px",
+            }}
+          >
+            {/* CONTACTS */}
+            <div
+              className="chat-contacts"
+              style={{
+                borderRight: "1px solid var(--border-light)",
+                overflowY: "auto",
+              }}
+            >
+              {contactos.length === 0 ? (
+                <div
+                  style={{
+                    padding: "24px",
+                    textAlign: "center",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  No tienes contactos activos.
+                </div>
+              ) : (
+                contactos.map((c) => (
+                  <div
+                    key={c.id}
+                    className={`contact-item${selectedContact?.id === c.id ? " active" : ""}`}
+                    onClick={() => selectContact(c)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      padding: "14px 16px",
+                      cursor: "pointer",
+                      borderBottom: "1px solid var(--border-light)",
+                      background:
+                        selectedContact?.id === c.id
+                          ? "var(--primary-bg)"
+                          : "transparent",
+                    }}
+                  >
+                    <div className="avatar avatar-blue">
+                      {c.nombre?.charAt(0).toUpperCase() || "C"}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: "600", fontSize: "0.9rem" }}>
+                        {c.nombre}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "var(--text-muted)",
+                        }}
+                      >
+                        {t("auth." + c.rol?.toLowerCase(), c.rol)}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* WINDOW */}
+            <div
+              className="chat-window"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              }}
+            >
+              <div
+                className="chat-header"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  padding: "16px 20px",
+                  borderBottom: "1px solid var(--border-light)",
+                }}
+              >
+                <div className="avatar avatar-blue">
+                  {selectedContact?.nombre?.charAt(0).toUpperCase() || "--"}
+                </div>
+                <div>
+                  <div className="chat-name" style={{ fontWeight: "700" }}>
+                    {selectedContact?.nombre || "Selecciona un contacto"}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.75rem",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    {selectedContact?.rol || ""}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="chat-messages"
+                ref={chatRef}
+                style={{
+                  flex: 1,
+                  padding: "20px",
+                  overflowY: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
+                {!selectedContact ? (
+                  <div
+                    style={{
+                      margin: "auto",
+                      textAlign: "center",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    <div style={{ fontSize: "2.5rem" }}></div>
+                    <div>
+                      Selecciona un contacto para iniciar la conversación.
+                    </div>
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div style={{ margin: "auto", color: "var(--text-muted)" }}>
+                    No hay mensajes aún. ¡Sé el primero en escribir!
+                  </div>
+                ) : (
+                  messages.map((m) => {
+                    const esMio = m.mio || m.remitenteId === user?.id;
+                    return (
+                      <div
+                        key={m.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: esMio ? "flex-end" : "flex-start",
+                        }}
+                      >
+                        <div
+                          style={{
+                            maxWidth: "70%",
+                            background: esMio
+                              ? "var(--primary)"
+                              : "var(--card-bg)",
+                            color: esMio ? "#fff" : "inherit",
+                            padding: "10px 14px",
+                            borderRadius: esMio
+                              ? "16px 16px 4px 16px"
+                              : "16px 16px 16px 4px",
+                            border: esMio
+                              ? "none"
+                              : "1px solid var(--border-light)",
+                          }}
+                        >
+                          <div>{m.texto || m.contenido}</div>
+                          <div
+                            style={{
+                              fontSize: "0.65rem",
+                              opacity: 0.7,
+                              marginTop: "4px",
+                              textAlign: "right",
+                            }}
+                          >
+                            {m.hora ||
+                              formatearHora(m.fechaEnvio ?? m.sentAt)}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div
+                className="chat-input-bar"
+                style={{
+                  padding: "16px",
+                  borderTop: "1px solid var(--border-light)",
+                  display: "flex",
+                  gap: "12px",
+                }}
+              >
+                <input
+                  className="chat-input"
+                  style={{
+                    flex: 1,
+                    padding: "12px 16px",
+                    borderRadius: "8px",
+                    border: "1px solid var(--border-light)",
+                  }}
+                  placeholder="Escribe un mensaje..."
+                  value={msgInput}
+                  onChange={(e) => setMsgInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") sendMessage();
+                  }}
+                  disabled={!selectedContact}
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={sendMessage}
+                  disabled={!selectedContact}
+                >
+                  Enviar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── RESEÑAS ─── */}
+        <div className="section active" id="sec-resenas">
+          <div
+            className="section-header"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "24px",
+            }}
+          >
+            <span
+              className="section-title"
+              style={{ fontSize: "1.25rem", fontWeight: "700" }}
+            >
+              {" "}
+              Mis Reseñas de Productos
+            </span>
+            <button
+              className="btn btn-primary"
+              onClick={() => setReviewModalOpen(true)}
+            >
+              + Nueva reseña
+            </button>
+          </div>
+
+          <div id="reviewsList">
+            {reviews.length === 0 ? (
+              <div
+                className="empty-state"
+                style={{
+                  padding: "60px",
+                  textAlign: "center",
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--border-light)",
+                  borderRadius: "12px",
+                }}
+              >
+                <div style={{ fontSize: "2rem" }}></div>
+                <div>No hay reseñas registradas aún.</div>
+              </div>
+            ) : (
+              reviews.map((r) => (
+                <div
+                  key={r.id}
+                  className="review-card"
+                  style={{
+                    background: "var(--card-bg)",
+                    border: "1px solid var(--border-light)",
+                    borderRadius: "12px",
+                    padding: "20px 24px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div style={{ fontWeight: "700" }}>
+                      {r.compradorNombre || "Usuario"}
+                    </div>
+                    <div style={{ color: "var(--gold)", fontSize: "1.1rem" }}>
+                      {[...Array(r.calificacion || 5)].map((_, i) => (
+                        <Icon
+                          key={i}
+                          name="star"
+                          size={14}
+                          className="inline text-yellow-500"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ color: "var(--text-secondary)" }}>
+                    {r.comentario}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.75rem",
+                      color: "var(--text-muted)",
+                      marginTop: "8px",
+                    }}
+                  >
+                    {new Date(r.fecha).toLocaleDateString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* ─── MI PERFIL & AJUSTES ─── */}
+        <div className="section active" id="sec-perfil">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1> Ajustes de Mi Perfil</h1>
+              <p>
+                Administra tu información personal y la seguridad de tu cuenta
+              </p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "24px",
+              marginTop: "24px",
+            }}
+          >
+            {/* Profile Details Form */}
+            <div
+              className="card-table"
+              style={{
+                padding: "24px",
+                borderRadius: "12px",
+                background: "var(--card-bg)",
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: "16px",
+                  fontSize: "1.1rem",
+                  borderBottom: "1px solid var(--border-light)",
+                  paddingBottom: "8px",
+                }}
+              >
+                Datos Personales
+              </h3>
+              {perfilMsg.text && (
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: "6px",
+                    marginBottom: "16px",
+                    fontSize: "0.85rem",
+                    background:
+                      perfilMsg.type === "success"
+                        ? "var(--green-bg)"
+                        : "var(--red-bg)",
+                    color:
+                      perfilMsg.type === "success"
+                        ? "var(--primary)"
+                        : "var(--red)",
+                  }}
+                >
+                  {perfilMsg.text}
+                </div>
+              )}
+              <form onSubmit={handleUpdatePerfil}>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">Nombre Completo</label>
+                  <input
+                    className="form-input"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                    }}
+                    value={perfilForm.nombre}
+                    onChange={(e) =>
+                      setPerfilForm({ ...perfilForm, nombre: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">Teléfono Móvil</label>
+                  <input
+                    className="form-input"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                    }}
+                    value={perfilForm.telefono}
+                    onChange={(e) =>
+                      setPerfilForm({
+                        ...perfilForm,
+                        telefono: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: "20px" }}>
+                  <label className="form-label">
+                    Correo Electrónico (No editable)
+                  </label>
+                  <input
+                    className="form-input"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                      background: "var(--border-light)",
+                      cursor: "not-allowed",
+                    }}
+                    value={user?.email || ""}
+                    readOnly
+                  />
+                </div>
+                <button
+                  className="btn btn-primary"
+                  type="submit"
+                  style={{ width: "100%" }}
+                >
+                  Guardar Cambios
+                </button>
+              </form>
+            </div>
+
+            {/* Password Change Form */}
+            <div
+              className="card-table"
+              style={{
+                padding: "24px",
+                borderRadius: "12px",
+                background: "var(--card-bg)",
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: "16px",
+                  fontSize: "1.1rem",
+                  borderBottom: "1px solid var(--border-light)",
+                  paddingBottom: "8px",
+                }}
+              >
+                Seguridad de la Cuenta
+              </h3>
+              {pwMsg.text && (
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: "6px",
+                    marginBottom: "16px",
+                    fontSize: "0.85rem",
+                    background:
+                      pwMsg.type === "success"
+                        ? "var(--green-bg)"
+                        : "var(--red-bg)",
+                    color:
+                      pwMsg.type === "success"
+                        ? "var(--primary)"
+                        : "var(--red)",
+                  }}
+                >
+                  {pwMsg.text}
+                </div>
+              )}
+              <form onSubmit={handleUpdatePassword}>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">Contraseña Actual</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      className="form-input"
+                      type={showCurrentPassword ? "text" : "password"}
+                      style={{
+                        width: "100%",
+                        padding: "10px 40px 10px 12px",
+                        border: "1px solid var(--border-light)",
+                        borderRadius: "6px",
+                      }}
+                      value={pwForm.contrasenaActual}
+                      onChange={(e) =>
+                        setPwForm({
+                          ...pwForm,
+                          contrasenaActual: e.target.value,
+                        })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowCurrentPassword(!showCurrentPassword)
+                      }
+                      style={{
+                        position: "absolute",
+                        right: "10px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "1.2rem",
+                        padding: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      aria-label={
+                        showCurrentPassword
+                          ? "Hide password"
+                          : "Show password"
+                      }
+                    >
+                      {showCurrentPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
+                    </button>
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginBottom: "20px" }}>
+                  <label className="form-label">Nueva Contraseña</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      className="form-input"
+                      type={showNewPassword ? "text" : "password"}
+                      style={{
+                        width: "100%",
+                        padding: "10px 40px 10px 12px",
+                        border: "1px solid var(--border-light)",
+                        borderRadius: "6px",
+                      }}
+                      value={pwForm.nuevaContrasena}
+                      onChange={(e) =>
+                        setPwForm({
+                          ...pwForm,
+                          nuevaContrasena: e.target.value,
+                        })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      style={{
+                        position: "absolute",
+                        right: "10px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "1.2rem",
+                        padding: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      aria-label={
+                        showNewPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showNewPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  className="btn btn-primary"
+                  type="submit"
+                  style={{ width: "100%" }}
+                >
+                  Cambiar Contraseña
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {/* ─── MIS FACTURAS ─── */}
+        <div className="section active" id="sec-misFacturas">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1>Mis Facturas de Compra</h1>
+              <p>
+                Descarga tus comprobantes electrónicos detallados de ASAFRUT
+              </p>
+            </div>
+          </div>
+          <div className="card-table">
+            <div className="table-wrap">
+              <table className="table-responsive">
+                <thead>
+                  <tr>
+                    <th>Factura N°</th>
+                    <th>Pedido ID</th>
+                    <th>Subtotal</th>
+                    <th>IVA (19%)</th>
+                    <th>Total</th>
+                    <th>Fecha Emisión</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {facturas.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="7"
+                        style={{
+                          textAlign: "center",
+                          padding: "24px",
+                          color: "var(--text-muted)",
+                        }}
+                      >
+                        No tienes facturas emitidas en este momento.
+                      </td>
+                    </tr>
+                  ) : (
+                    getGroupedFacturas(facturas).map((f) => (
+                      <tr key={f.checkoutId || f.id}>
+                        <td data-label="Factura N°">{f.numeroFactura}</td>
+                        <td data-label="Pedido ID">
+                          {f.checkoutId || `#${f.pedidoId}`}
+                        </td>
+                        <td data-label="Subtotal">
+                          {formatPrice(f.subtotal)}
+                        </td>
+                        <td data-label="IVA">{formatPrice(f.impuesto)}</td>
+                        <td
+                          data-label="Total"
+                          style={{
+                            fontWeight: "600",
+                            color: "var(--primary)",
+                          }}
+                        >
+                          {formatPrice(f.total)}
+                        </td>
+                        <td data-label="Fecha">
+                          {new Date(f.fechaEmision).toLocaleDateString()}
+                        </td>
+                        <td data-label="Acciones">
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => descargarPdfGroup(f)}
+                          >
+                            Descargar PDF
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── LICITACIONES B2B (RFQ) ─── */}
+        <div className="section active" id="sec-rfq">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1> Licitaciones B2B (RFQ)</h1>
+              <p>
+                Publica solicitudes de cotización al por mayor para recibir
+                ofertas competitivas de productores verificados
+              </p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 2fr",
+              gap: "24px",
+              marginTop: "24px",
+            }}
+          >
+            {/* Publicar Solicitud */}
+            <div
+              className="card-table"
+              style={{
+                padding: "24px",
+                borderRadius: "12px",
+                background: "var(--card-bg)",
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: "16px",
+                  fontSize: "1.1rem",
+                  borderBottom: "1px solid var(--border-light)",
+                  paddingBottom: "8px",
+                }}
+              >
+                Nueva Solicitud (RFQ)
+              </h3>
+              {rfqMsg.text && (
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: "6px",
+                    marginBottom: "16px",
+                    fontSize: "0.85rem",
+                    background:
+                      rfqMsg.type === "success"
+                        ? "var(--green-bg)"
+                        : "var(--red-bg)",
+                    color:
+                      rfqMsg.type === "success"
+                        ? "var(--primary)"
+                        : "var(--red)",
+                  }}
+                >
+                  {rfqMsg.text}
+                </div>
+              )}
+              <form onSubmit={crearRfq}>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">Tipo de Fruta *</label>
+                  <select
+                    className="form-select"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                    }}
+                    value={rfqForm.tipoFruta}
+                    onChange={(e) =>
+                      setRfqForm({ ...rfqForm, tipoFruta: e.target.value })
+                    }
+                  >
+                    <option value="PASSION_FRUIT"> Maracuyá</option>
+                  </select>
+                </div>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">
+                    Cantidad Requerida (kg) *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="form-input"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                    }}
+                    value={rfqForm.cantidadRequerida}
+                    onChange={(e) =>
+                      setRfqForm({
+                        ...rfqForm,
+                        cantidadRequerida: e.target.value,
+                      })
+                    }
+                    placeholder="Ej: 500"
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">
+                    Fecha Límite para Ofertar *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="form-input"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                    }}
+                    value={rfqForm.fechaLimite}
+                    onChange={(e) =>
+                      setRfqForm({ ...rfqForm, fechaLimite: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: "20px" }}>
+                  <label className="form-label">
+                    Instrucciones / Especificaciones
+                  </label>
+                  <textarea
+                    rows="3"
+                    className="form-textarea"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                    }}
+                    value={rfqForm.descripcion}
+                    onChange={(e) =>
+                      setRfqForm({ ...rfqForm, descripcion: e.target.value })
+                    }
+                    placeholder="Ej: Busco piña manzana de calibre grande, despacho a bodega en Medellín."
+                  ></textarea>
+                </div>
+                <button
+                  className="btn btn-primary"
+                  type="submit"
+                  style={{ width: "100%" }}
+                >
+                  Publicar Licitación
+                </button>
+              </form>
+            </div>
+
+            {/* Mis Solicitudes y sus Ofertas */}
+            <div
+              className="card-table"
+              style={{
+                padding: "24px",
+                borderRadius: "12px",
+                background: "var(--card-bg)",
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: "16px",
+                  fontSize: "1.1rem",
+                  borderBottom: "1px solid var(--border-light)",
+                  paddingBottom: "8px",
+                }}
+              >
+                Mis Licitaciones Publicadas
+              </h3>
+              {rfqs.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "48px 0",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  No has publicado ninguna licitación.
+                </div>
+              ) : (
+                rfqs.map((rfq) => (
+                  <div
+                    key={rfq.id}
+                    style={{
+                      background: "#f8fafc",
+                      padding: "16px",
+                      borderRadius: "10px",
+                      marginBottom: "16px",
+                      border: "1px solid var(--border-light)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: "700",
+                          fontSize: "1rem",
+                          color: "var(--primary)",
+                        }}
+                      >
+                        {rfq.tipoFruta} - {rfq.cantidadRequerida} kg
+                      </span>
+                      <span
+                        className={`badge-status ${rfq.activo ? "status-shipped" : "status-pending"}`}
+                        style={{ fontSize: "0.75rem" }}
+                      >
+                        {rfq.activo ? "Activa" : "Cerrada"}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: "0.85rem", margin: "4px 0" }}>
+                      {rfq.descripcion || "Sin descripción."}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "var(--text-muted)",
+                      }}
+                    >
+                      Vence: {new Date(rfq.fechaLimite).toLocaleString()}
+                    </p>
+
+                    <div
+                      style={{
+                        marginTop: "14px",
+                        borderTop: "1px dashed #cbd5e1",
+                        paddingTop: "10px",
+                      }}
+                    >
+                      <strong
+                        style={{
+                          fontSize: "0.8rem",
+                          display: "block",
+                          marginBottom: "6px",
+                        }}
+                      >
+                        Cotizaciones Recibidas ({rfq.ofertas?.length || 0}):
+                      </strong>
+                      {!rfq.ofertas || rfq.ofertas.length === 0 ? (
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            color: "var(--text-muted)",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          Esperando ofertas de productores...
+                        </span>
+                      ) : (
+                        rfq.ofertas.map((of) => (
+                          <div
+                            key={of.id}
+                            style={{
+                              background: "var(--surface)",
+                              padding: "10px 12px",
+                              borderRadius: "6px",
+                              border: "1px solid var(--border-light)",
+                              fontSize: "0.8rem",
+                              marginBottom: "8px",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div>
+                              <strong>{of.productorNombre}</strong>:{" "}
+                              <span
+                                style={{
+                                  color: "var(--primary)",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                {formatPrice(of.precioPropuesto)}/kg
+                              </span>
+                              <div
+                                style={{
+                                  fontSize: "0.7rem",
+                                  color: "var(--text-muted)",
+                                  marginTop: "2px",
+                                }}
+                              >
+                                "{of.comentarios}"
+                              </div>
+                            </div>
+                            {rfq.activo && (
+                              <button
+                                className="btn btn-primary btn-sm"
+                                style={{
+                                  padding: "4px 8px",
+                                  fontSize: "0.7rem",
+                                }}
+                                onClick={() =>
+                                  aceptarOfertaRfq(rfq.id, of.id)
+                                }
+                              >
+                                Aceptar
+                              </button>
+                            )}
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 ))
               )}
             </div>
           </div>
-        )}
-
-        {/* ─── MI PERFIL & AJUSTES ─── */}
-        <div className="section active">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1> Ajustes de Mi Perfil</h1>
-                <p>
-                  Administra tu información personal y la seguridad de tu cuenta
-                </p>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "24px",
-                marginTop: "24px",
-              }}
-            >
-              {/* Profile Details Form */}
-              <div
-                className="card-table"
-                style={{
-                  padding: "24px",
-                  borderRadius: "12px",
-                  background: "var(--card-bg)",
-                }}
-              >
-                <h3
-                  style={{
-                    marginBottom: "16px",
-                    fontSize: "1.1rem",
-                    borderBottom: "1px solid var(--border-light)",
-                    paddingBottom: "8px",
-                  }}
-                >
-                  Datos Personales
-                </h3>
-                {perfilMsg.text && (
-                  <div
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: "6px",
-                      marginBottom: "16px",
-                      fontSize: "0.85rem",
-                      background:
-                        perfilMsg.type === "success"
-                          ? "var(--green-bg)"
-                          : "var(--red-bg)",
-                      color:
-                        perfilMsg.type === "success"
-                          ? "var(--primary)"
-                          : "var(--red)",
-                    }}
-                  >
-                    {perfilMsg.text}
-                  </div>
-                )}
-                <form onSubmit={handleUpdatePerfil}>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">Nombre Completo</label>
-                    <input
-                      className="form-input"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
-                      value={perfilForm.nombre}
-                      onChange={(e) =>
-                        setPerfilForm({ ...perfilForm, nombre: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">Teléfono Móvil</label>
-                    <input
-                      className="form-input"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
-                      value={perfilForm.telefono}
-                      onChange={(e) =>
-                        setPerfilForm({
-                          ...perfilForm,
-                          telefono: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "20px" }}>
-                    <label className="form-label">
-                      Correo Electrónico (No editable)
-                    </label>
-                    <input
-                      className="form-input"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                        background: "var(--border-light)",
-                        cursor: "not-allowed",
-                      }}
-                      value={user?.email || ""}
-                      readOnly
-                    />
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    type="submit"
-                    style={{ width: "100%" }}
-                  >
-                    Guardar Cambios
-                  </button>
-                </form>
-              </div>
-
-              {/* Password Change Form */}
-              <div
-                className="card-table"
-                style={{
-                  padding: "24px",
-                  borderRadius: "12px",
-                  background: "var(--card-bg)",
-                }}
-              >
-                <h3
-                  style={{
-                    marginBottom: "16px",
-                    fontSize: "1.1rem",
-                    borderBottom: "1px solid var(--border-light)",
-                    paddingBottom: "8px",
-                  }}
-                >
-                  Seguridad de la Cuenta
-                </h3>
-                {pwMsg.text && (
-                  <div
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: "6px",
-                      marginBottom: "16px",
-                      fontSize: "0.85rem",
-                      background:
-                        pwMsg.type === "success"
-                          ? "var(--green-bg)"
-                          : "var(--red-bg)",
-                      color:
-                        pwMsg.type === "success"
-                          ? "var(--primary)"
-                          : "var(--red)",
-                    }}
-                  >
-                    {pwMsg.text}
-                  </div>
-                )}
-                <form onSubmit={handleUpdatePassword}>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">Contraseña Actual</label>
-                    <div style={{ position: "relative" }}>
-                      <input
-                        className="form-input"
-                        type={showCurrentPassword ? "text" : "password"}
-                        style={{
-                          width: "100%",
-                          padding: "10px 40px 10px 12px",
-                          border: "1px solid var(--border-light)",
-                          borderRadius: "6px",
-                        }}
-                        value={pwForm.contrasenaActual}
-                        onChange={(e) =>
-                          setPwForm({
-                            ...pwForm,
-                            contrasenaActual: e.target.value,
-                          })
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowCurrentPassword(!showCurrentPassword)
-                        }
-                        style={{
-                          position: "absolute",
-                          right: "10px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: "1.2rem",
-                          padding: "4px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        aria-label={
-                          showCurrentPassword
-                            ? "Hide password"
-                            : "Show password"
-                        }
-                      >
-                        {showCurrentPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "20px" }}>
-                    <label className="form-label">Nueva Contraseña</label>
-                    <div style={{ position: "relative" }}>
-                      <input
-                        className="form-input"
-                        type={showNewPassword ? "text" : "password"}
-                        style={{
-                          width: "100%",
-                          padding: "10px 40px 10px 12px",
-                          border: "1px solid var(--border-light)",
-                          borderRadius: "6px",
-                        }}
-                        value={pwForm.nuevaContrasena}
-                        onChange={(e) =>
-                          setPwForm({
-                            ...pwForm,
-                            nuevaContrasena: e.target.value,
-                          })
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        style={{
-                          position: "absolute",
-                          right: "10px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: "1.2rem",
-                          padding: "4px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        aria-label={
-                          showNewPassword ? "Hide password" : "Show password"
-                        }
-                      >
-                        {showNewPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
-                      </button>
-                    </div>
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    type="submit"
-                    style={{ width: "100%" }}
-                  >
-                    Cambiar Contraseña
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
-        {/* ─── MIS FACTURAS ─── */}
-        <div className="section active">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1>Mis Facturas de Compra</h1>
-                <p>
-                  Descarga tus comprobantes electrónicos detallados de ASAFRUT
-                </p>
-              </div>
-            </div>
-            <div className="card-table">
-              <div className="table-wrap">
-                <table className="table-responsive">
-                  <thead>
-                    <tr>
-                      <th>Factura N°</th>
-                      <th>Pedido ID</th>
-                      <th>Subtotal</th>
-                      <th>IVA (19%)</th>
-                      <th>Total</th>
-                      <th>Fecha Emisión</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {facturas.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan="7"
-                          style={{
-                            textAlign: "center",
-                            padding: "24px",
-                            color: "var(--text-muted)",
-                          }}
-                        >
-                          No tienes facturas emitidas en este momento.
-                        </td>
-                      </tr>
-                    ) : (
-                      getGroupedFacturas(facturas).map((f) => (
-                        <tr key={f.checkoutId || f.id}>
-                          <td data-label="Factura N°">{f.numeroFactura}</td>
-                          <td data-label="Pedido ID">
-                            {f.checkoutId || `#${f.pedidoId}`}
-                          </td>
-                          <td data-label="Subtotal">
-                            {formatPrice(f.subtotal)}
-                          </td>
-                          <td data-label="IVA">{formatPrice(f.impuesto)}</td>
-                          <td
-                            data-label="Total"
-                            style={{
-                              fontWeight: "600",
-                              color: "var(--primary)",
-                            }}
-                          >
-                            {formatPrice(f.total)}
-                          </td>
-                          <td data-label="Fecha">
-                            {new Date(f.fechaEmision).toLocaleDateString()}
-                          </td>
-                          <td data-label="Acciones">
-                            <button
-                              className="btn btn-secondary btn-sm"
-                              onClick={() => descargarPdfGroup(f)}
-                            >
-                              Descargar PDF
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ─── LICITACIONES B2B (RFQ) ─── */}
-        <div className="section active">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1> Licitaciones B2B (RFQ)</h1>
-                <p>
-                  Publica solicitudes de cotización al por mayor para recibir
-                  ofertas competitivas de productores verificados
-                </p>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 2fr",
-                gap: "24px",
-                marginTop: "24px",
-              }}
-            >
-              {/* Publicar Solicitud */}
-              <div
-                className="card-table"
-                style={{
-                  padding: "24px",
-                  borderRadius: "12px",
-                  background: "var(--card-bg)",
-                }}
-              >
-                <h3
-                  style={{
-                    marginBottom: "16px",
-                    fontSize: "1.1rem",
-                    borderBottom: "1px solid var(--border-light)",
-                    paddingBottom: "8px",
-                  }}
-                >
-                  Nueva Solicitud (RFQ)
-                </h3>
-                {rfqMsg.text && (
-                  <div
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: "6px",
-                      marginBottom: "16px",
-                      fontSize: "0.85rem",
-                      background:
-                        rfqMsg.type === "success"
-                          ? "var(--green-bg)"
-                          : "var(--red-bg)",
-                      color:
-                        rfqMsg.type === "success"
-                          ? "var(--primary)"
-                          : "var(--red)",
-                    }}
-                  >
-                    {rfqMsg.text}
-                  </div>
-                )}
-                <form onSubmit={crearRfq}>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">Tipo de Fruta *</label>
-                    <select
-                      className="form-select"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
-                      value={rfqForm.tipoFruta}
-                      onChange={(e) =>
-                        setRfqForm({ ...rfqForm, tipoFruta: e.target.value })
-                      }
-                    >
-                      <option value="PASSION_FRUIT"> Maracuyá</option>
-                    </select>
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">
-                      Cantidad Requerida (kg) *
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      className="form-input"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
-                      value={rfqForm.cantidadRequerida}
-                      onChange={(e) =>
-                        setRfqForm({
-                          ...rfqForm,
-                          cantidadRequerida: e.target.value,
-                        })
-                      }
-                      placeholder="Ej: 500"
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">
-                      Fecha Límite para Ofertar *
-                    </label>
-                    <input
-                      type="datetime-local"
-                      className="form-input"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
-                      value={rfqForm.fechaLimite}
-                      onChange={(e) =>
-                        setRfqForm({ ...rfqForm, fechaLimite: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "20px" }}>
-                    <label className="form-label">
-                      Instrucciones / Especificaciones
-                    </label>
-                    <textarea
-                      rows="3"
-                      className="form-textarea"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
-                      value={rfqForm.descripcion}
-                      onChange={(e) =>
-                        setRfqForm({ ...rfqForm, descripcion: e.target.value })
-                      }
-                      placeholder="Ej: Busco piña manzana de calibre grande, despacho a bodega en Medellín."
-                    ></textarea>
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    type="submit"
-                    style={{ width: "100%" }}
-                  >
-                    Publicar Licitación
-                  </button>
-                </form>
-              </div>
-
-              {/* Mis Solicitudes y sus Ofertas */}
-              <div
-                className="card-table"
-                style={{
-                  padding: "24px",
-                  borderRadius: "12px",
-                  background: "var(--card-bg)",
-                }}
-              >
-                <h3
-                  style={{
-                    marginBottom: "16px",
-                    fontSize: "1.1rem",
-                    borderBottom: "1px solid var(--border-light)",
-                    paddingBottom: "8px",
-                  }}
-                >
-                  Mis Licitaciones Publicadas
-                </h3>
-                {rfqs.length === 0 ? (
-                  <div
-                    style={{
-                      textAlign: "center",
-                      padding: "48px 0",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    No has publicado ninguna licitación.
-                  </div>
-                ) : (
-                  rfqs.map((rfq) => (
-                    <div
-                      key={rfq.id}
-                      style={{
-                        background: "#f8fafc",
-                        padding: "16px",
-                        borderRadius: "10px",
-                        marginBottom: "16px",
-                        border: "1px solid var(--border-light)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontWeight: "700",
-                            fontSize: "1rem",
-                            color: "var(--primary)",
-                          }}
-                        >
-                          {rfq.tipoFruta} - {rfq.cantidadRequerida} kg
-                        </span>
-                        <span
-                          className={`badge-status ${rfq.activo ? "status-shipped" : "status-pending"}`}
-                          style={{ fontSize: "0.75rem" }}
-                        >
-                          {rfq.activo ? "Activa" : "Cerrada"}
-                        </span>
-                      </div>
-                      <p style={{ fontSize: "0.85rem", margin: "4px 0" }}>
-                        {rfq.descripcion || "Sin descripción."}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "0.75rem",
-                          color: "var(--text-muted)",
-                        }}
-                      >
-                        Vence: {new Date(rfq.fechaLimite).toLocaleString()}
-                      </p>
-
-                      <div
-                        style={{
-                          marginTop: "14px",
-                          borderTop: "1px dashed #cbd5e1",
-                          paddingTop: "10px",
-                        }}
-                      >
-                        <strong
-                          style={{
-                            fontSize: "0.8rem",
-                            display: "block",
-                            marginBottom: "6px",
-                          }}
-                        >
-                          Cotizaciones Recibidas ({rfq.ofertas?.length || 0}):
-                        </strong>
-                        {!rfq.ofertas || rfq.ofertas.length === 0 ? (
-                          <span
-                            style={{
-                              fontSize: "0.75rem",
-                              color: "var(--text-muted)",
-                              fontStyle: "italic",
-                            }}
-                          >
-                            Esperando ofertas de productores...
-                          </span>
-                        ) : (
-                          rfq.ofertas.map((of) => (
-                            <div
-                              key={of.id}
-                              style={{
-                                background: "var(--surface)",
-                                padding: "10px 12px",
-                                borderRadius: "6px",
-                                border: "1px solid var(--border-light)",
-                                fontSize: "0.8rem",
-                                marginBottom: "8px",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                              }}
-                            >
-                              <div>
-                                <strong>{of.productorNombre}</strong>:{" "}
-                                <span
-                                  style={{
-                                    color: "var(--primary)",
-                                    fontWeight: "600",
-                                  }}
-                                >
-                                  {formatPrice(of.precioPropuesto)}/kg
-                                </span>
-                                <div
-                                  style={{
-                                    fontSize: "0.7rem",
-                                    color: "var(--text-muted)",
-                                    marginTop: "2px",
-                                  }}
-                                >
-                                  "{of.comentarios}"
-                                </div>
-                              </div>
-                              {rfq.activo && (
-                                <button
-                                  className="btn btn-primary btn-sm"
-                                  style={{
-                                    padding: "4px 8px",
-                                    fontSize: "0.7rem",
-                                  }}
-                                  onClick={() =>
-                                    aceptarOfertaRfq(rfq.id, of.id)
-                                  }
-                                >
-                                  Aceptar
-                                </button>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </main>
 
       {/* MODAL PROCESAR PAGO (PSE/TARJETA/EFECTIVO) */}
@@ -3058,6 +3101,7 @@ export default function DashboardComprador() {
                 onClick={() => {
                   setPagoModalOpen(false);
                   loadPedidos();
+                  showSection("misPedidos");
                 }}
               >
                 ✕

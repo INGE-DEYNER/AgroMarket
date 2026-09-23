@@ -9,14 +9,53 @@ import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/admin.css";
 
+// DASHBOARD COMPACTO: ids reales de las secciones de reportes (no coinciden con
+// la clave de navegación que usa el sidebar).
+const SECTION_ELEMENT_ID = {
+  reportes: "sec-finanzas",
+  "reportes-logistica": "sec-logistica",
+};
+
 export default function Admin() {
   const { t } = useTranslation();
   const { user, setUser, logout, formatPrice } = useAuth();
   const navigate = useNavigate();
+  const getInitialSection = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("section") || "dashboard";
+  };
+
+  const [activeSection, setActiveSection] = useState(getInitialSection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // DASHBOARD COMPACTO: variable para evitar errores de referencia (OCULTADO POR CSS)
-  const [activeSection, setActiveSection] = useState("dashboard");
+
+  // DASHBOARD COMPACTO: todas las secciones se renderizan a la vez, así que
+  // "navegar entre secciones" es desplazarse hasta la sección pedida. Cada
+  // sección expone id="sec-<clave>", por lo que también funcionan los enlaces
+  // profundos (?section=<clave>).
+  const scrollToSection = useCallback((key) => {
+    if (!key || typeof document === "undefined") return;
+    const target = document.getElementById(
+      SECTION_ELEMENT_ID[key] || `sec-${key}`,
+    );
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const showSection = useCallback(
+    (key) => {
+      setActiveSection(key);
+      scrollToSection(key);
+    },
+    [scrollToSection],
+  );
+
+  // Enlace profundo (?section=...): al montar, baja hasta la sección pedida.
+  useEffect(() => {
+    const sec = new URLSearchParams(window.location.search).get("section");
+    if (!sec) return undefined;
+
+    const timer = setTimeout(() => scrollToSection(sec), 0);
+    return () => clearTimeout(timer);
+  }, [scrollToSection]);
 
   // Profile forms state
   const [perfilForm, setPerfilForm] = useState({ nombre: "", telefono: "" });
@@ -29,9 +68,12 @@ export default function Admin() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
 
-  // DASHBOARD COMPACTO: cargar perfil siempre
+  // DASHBOARD COMPACTO: la sección de perfil está siempre visible, así que los
+  // formularios se sincronizan con el usuario en cuanto hay sesión.
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     const timer = setTimeout(() => {
       setPerfilForm({
@@ -308,19 +350,17 @@ export default function Admin() {
     return () => clearTimeout(handler);
   }, [searchProductosInput]);
 
-  // Load users when page/search changes
+  // DASHBOARD COMPACTO: todas las secciones están visibles a la vez, así que
+  // los datos de cada una se cargan siempre (ya no se condiciona a activeSection,
+  // que dejó de cambiar porque el sidebar ya no es navegación entre secciones).
   useEffect(() => {
-    if (activeSection === "usuarios") {
-      void loadUsuarios();
-    }
-  }, [pageUsuarios, searchUsuarios, activeSection, loadUsuarios]);
+    void loadUsuarios();
+  }, [pageUsuarios, searchUsuarios, loadUsuarios]);
 
   // Load products when page/search changes
   useEffect(() => {
-    if (activeSection === "productos") {
-      void loadProductos();
-    }
-  }, [pageProductos, searchProductos, activeSection, loadProductos]);
+    void loadProductos();
+  }, [pageProductos, searchProductos, loadProductos]);
 
   useEffect(() => {
     void loadAll();
@@ -329,10 +369,8 @@ export default function Admin() {
   }, [loadAll, loadUsuarios, loadProductos]);
 
   useEffect(() => {
-    if (activeSection === "pagos") {
-      void loadPagosFideicomiso();
-    }
-  }, [activeSection, loadPagosFideicomiso]);
+    void loadPagosFideicomiso();
+  }, [loadPagosFideicomiso]);
 
   const loadTodosCupones = useCallback(async () => {
     try {
@@ -351,9 +389,8 @@ export default function Admin() {
     return () => clearTimeout(handler);
   }, [searchMensajeInput]);
 
-  // Load users for messaging when section changes
+  // Load users for messaging (sección siempre visible en el dashboard compacto)
   useEffect(() => {
-    if (activeSection !== "mensajeria") return;
     let mounted = true;
     const loadMensajeUsuarios = async () => {
       try {
@@ -372,7 +409,7 @@ export default function Admin() {
     return () => {
       mounted = false;
     };
-  }, [activeSection, searchMensajeUsuarios]);
+  }, [searchMensajeUsuarios]);
 
   // Send message to user
   const handleEnviarMensaje = async (e) => {
@@ -512,15 +549,12 @@ export default function Admin() {
     }
   }, []);
 
+  // DASHBOARD COMPACTO: finanzas, logística y cupones están visibles a la vez.
   useEffect(() => {
-    if (activeSection === "reportes") {
-      void loadFinanzas();
-    } else if (activeSection === "reportes-logistica") {
-      void loadLogistica();
-    } else if (activeSection === "cupones") {
-      loadTodosCupones();
-    }
-  }, [activeSection, loadFinanzas, loadLogistica, loadTodosCupones]);
+    void loadFinanzas();
+    void loadLogistica();
+    loadTodosCupones();
+  }, [loadFinanzas, loadLogistica, loadTodosCupones]);
 
   const liberarPago = async (pagoId) => {
     if (
@@ -800,7 +834,7 @@ export default function Admin() {
     adminTickets.length;
 
   return (
-    <div className="app-layout">
+    <div className="app-layout admin-dashboard">
       {/* Overlay para sidebar móvil */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
@@ -848,7 +882,7 @@ export default function Admin() {
             className={`sidebar-link${activeSection === section ? " active" : ""}`}
             onClick={(e) => {
               e.preventDefault();
-              setActiveSection(section);
+              showSection(section);
               setSidebarOpen(false);
             }}
           >
@@ -1000,7 +1034,6 @@ export default function Admin() {
           </div>
         </div>
 
-        {activeSection !== "perfil" ? (
           <div
             className="grid-columns"
             style={{
@@ -1011,1033 +1044,1090 @@ export default function Admin() {
           >
             <div className="card-table">
               {/* DASHBOARD */}
-              {dashboard" && (
-                <div
-                  className="section active admin-dashboard-section"
-                  id="sec-dashboard"
-                >
-                  <div className="table-header">
-                    <div>
-                      <h3 className="card-title">
-                        ¡Bienvenido, Administrador!
-                      </h3>
-                      <p className="section-subtitle">
-                        Resumen general de la plataforma
-                      </p>
-                    </div>
-                    <span className="date-chip">
-                      {new Date().toLocaleDateString("es-CO", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
+              <div
+                className="section active admin-dashboard-section"
+                id="sec-dashboard"
+              >
+                <div className="table-header">
+                  <div>
+                    <h3 className="card-title">
+                      ¡Bienvenido, Administrador!
+                    </h3>
+                    <p className="section-subtitle">
+                      Resumen general de la plataforma
+                    </p>
                   </div>
-                  <div className="admin-kpi-grid">
-                    <div className="admin-kpi">
-                      <span>Usuarios totales</span>
-                      <strong>
-                        {Number(dashboardUsuarios).toLocaleString("es-CO")}
-                      </strong>
-                      <small>Usuarios registrados</small>
-                    </div>
-                    <div className="admin-kpi">
-                      <span>Productores</span>
-                      <strong>
-                        {Number(dashboardProductores).toLocaleString("es-CO")}
-                      </strong>
-                      <small>Productores registrados</small>
-                    </div>
-                    <div className="admin-kpi">
-                      <span>Productos publicados</span>
-                      <strong>
-                        {Number(dashboardProductos).toLocaleString("es-CO")}
-                      </strong>
-                      <small>Inventario global</small>
-                    </div>
-                    <div className="admin-kpi">
-                      <span>Pedidos totales</span>
-                      <strong>
-                        {Number(dashboardPedidos).toLocaleString("es-CO")}
-                      </strong>
-                      <small>Pedidos registrados</small>
-                    </div>
+                  <span className="date-chip">
+                    {new Date().toLocaleDateString("es-CO", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <div className="admin-kpi-grid">
+                  <div className="admin-kpi">
+                    <span>Usuarios totales</span>
+                    <strong>
+                      {Number(dashboardUsuarios).toLocaleString("es-CO")}
+                    </strong>
+                    <small>Usuarios registrados</small>
                   </div>
-                  <div className="admin-dashboard-grid">
-                    <div className="admin-panel">
-                      <div className="admin-panel-heading">
-                        <h4>Ventas totales</h4>
-                        <span>Resumen</span>
-                      </div>
-                      <div className="admin-big-number">
-                        {dashboardData?.ingresos != null
-                          ? formatPrice(dashboardData.ingresos)
-                          : "—"}
-                      </div>
-                      <div className="admin-chart-placeholder">
-                        {dashboardData?.ingresosPorMes &&
-                        dashboardData.ingresosPorMes.length > 0
-                          ? // Usar datos reales de ingresos por mes
-                            dashboardData.ingresosPorMes.map((mes, index) => {
-                              const amount = Number(mes.monto) || 0;
-                              // Calcular porcentaje relativo (max 100%)
-                              const maxAmount =
-                                Math.max(
-                                  ...dashboardData.ingresosPorMes.map(
-                                    (m) => Number(m.monto) || 0,
-                                  ),
-                                ) || 1;
-                              const percentage = Math.min(
-                                (amount / maxAmount) * 100,
-                                100,
-                              );
-                              return (
-                                <span
-                                  key={index}
-                                  style={{ height: `${percentage}%` }}
-                                  title={`${mes.mes}: ${formatPrice(amount)}`}
-                                />
-                              );
-                            })
-                          : // Fallback a datos de ejemplo si no hay datos reales
-                            [38, 52, 46, 61, 56, 72, 68, 84, 78, 91].map(
-                              (height, index) => (
-                                <span
-                                  key={index}
-                                  style={{ height: `${height}%` }}
-                                />
-                              ),
-                            )}
-                      </div>
+                  <div className="admin-kpi">
+                    <span>Productores</span>
+                    <strong>
+                      {Number(dashboardProductores).toLocaleString("es-CO")}
+                    </strong>
+                    <small>Productores registrados</small>
+                  </div>
+                  <div className="admin-kpi">
+                    <span>Productos publicados</span>
+                    <strong>
+                      {Number(dashboardProductos).toLocaleString("es-CO")}
+                    </strong>
+                    <small>Inventario global</small>
+                  </div>
+                  <div className="admin-kpi">
+                    <span>Pedidos totales</span>
+                    <strong>
+                      {Number(dashboardPedidos).toLocaleString("es-CO")}
+                    </strong>
+                    <small>Pedidos registrados</small>
+                  </div>
+                </div>
+                <div className="admin-dashboard-grid">
+                  <div className="admin-panel">
+                    <div className="admin-panel-heading">
+                      <h4>Ventas totales</h4>
+                      <span>Resumen</span>
                     </div>
-                    <div className="admin-panel">
-                      <div className="admin-panel-heading">
-                        <h4>Pedidos por estado</h4>
-                        <span>{dashboardPedidos} total</span>
-                      </div>
-                      <div className="status-list">
-                        <div>
-                          <span className="dot dot-green" />
-                          Entregados{" "}
-                          <strong>
-                            {dashboardData?.pedidosEntregados ?? "—"}
-                          </strong>
-                        </div>
-                        <div>
-                          <span className="dot dot-blue" />
-                          En camino{" "}
-                          <strong>
-                            {dashboardData?.pedidosEnCamino ?? "—"}
-                          </strong>
-                        </div>
-                        <div>
-                          <span className="dot dot-yellow" />
-                          Pendientes{" "}
-                          <strong>
-                            {dashboardData?.pedidosPendientes ?? "—"}
-                          </strong>
-                        </div>
-                        <div>
-                          <span className="dot dot-red" />
-                          Cancelados{" "}
-                          <strong>
-                            {dashboardData?.pedidosCancelados ?? "—"}
-                          </strong>
-                        </div>
-                      </div>
+                    <div className="admin-big-number">
+                      {dashboardData?.ingresos != null
+                        ? formatPrice(dashboardData.ingresos)
+                        : "—"}
+                    </div>
+                    <div className="admin-chart-placeholder">
+                      {dashboardData?.ingresosPorMes &&
+                      dashboardData.ingresosPorMes.length > 0
+                        ? // Usar datos reales de ingresos por mes
+                          dashboardData.ingresosPorMes.map((mes, index) => {
+                            const amount = Number(mes.monto) || 0;
+                            // Calcular porcentaje relativo (max 100%)
+                            const maxAmount =
+                              Math.max(
+                                ...dashboardData.ingresosPorMes.map(
+                                  (m) => Number(m.monto) || 0,
+                                ),
+                              ) || 1;
+                            const percentage = Math.min(
+                              (amount / maxAmount) * 100,
+                              100,
+                            );
+                            return (
+                              <span
+                                key={index}
+                                style={{ height: `${percentage}%` }}
+                                title={`${mes.mes}: ${formatPrice(amount)}`}
+                              />
+                            );
+                          })
+                        : // Fallback a datos de ejemplo si no hay datos reales
+                          [38, 52, 46, 61, 56, 72, 68, 84, 78, 91].map(
+                            (height, index) => (
+                              <span
+                                key={index}
+                                style={{ height: `${height}%` }}
+                              />
+                            ),
+                          )}
                     </div>
                   </div>
-                  <div className="admin-mini-grid">
-                    <div className="admin-mini">
-                      <span>Ventas hoy</span>
-                      <strong>
-                        {dashboardVentasHoy != null
-                          ? formatPrice(dashboardVentasHoy)
-                          : "—"}
-                      </strong>
+                  <div className="admin-panel">
+                    <div className="admin-panel-heading">
+                      <h4>Pedidos por estado</h4>
+                      <span>{dashboardPedidos} total</span>
                     </div>
-                    <div className="admin-mini">
-                      <span>Nuevos usuarios</span>
-                      <strong>{dashboardNuevosUsuarios ?? "—"}</strong>
-                    </div>
-                    <div className="admin-mini">
-                      <span>Nuevos productores</span>
-                      <strong>{dashboardNuevosProductores ?? "—"}</strong>
-                    </div>
-                    <div className="admin-mini">
-                      <span>Tickets de soporte</span>
-                      <strong>{dashboardTickets}</strong>
+                    <div className="status-list">
+                      <div>
+                        <span className="dot dot-green" />
+                        Entregados{" "}
+                        <strong>
+                          {dashboardData?.pedidosEntregados ?? "—"}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="dot dot-blue" />
+                        En camino{" "}
+                        <strong>
+                          {dashboardData?.pedidosEnCamino ?? "—"}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="dot dot-yellow" />
+                        Pendientes{" "}
+                        <strong>
+                          {dashboardData?.pedidosPendientes ?? "—"}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="dot dot-red" />
+                        Cancelados{" "}
+                        <strong>
+                          {dashboardData?.pedidosCancelados ?? "—"}
+                        </strong>
+                      </div>
                     </div>
                   </div>
                 </div>
-              )}
+                <div className="admin-mini-grid">
+                  <div className="admin-mini">
+                    <span>Ventas hoy</span>
+                    <strong>
+                      {dashboardVentasHoy != null
+                        ? formatPrice(dashboardVentasHoy)
+                        : "—"}
+                    </strong>
+                  </div>
+                  <div className="admin-mini">
+                    <span>Nuevos usuarios</span>
+                    <strong>{dashboardNuevosUsuarios ?? "—"}</strong>
+                  </div>
+                  <div className="admin-mini">
+                    <span>Nuevos productores</span>
+                    <strong>{dashboardNuevosProductores ?? "—"}</strong>
+                  </div>
+                  <div className="admin-mini">
+                    <span>Tickets de soporte</span>
+                    <strong>{dashboardTickets}</strong>
+                  </div>
+                </div>
+              </div>
 
               {/* USUARIOS */}
-              {usuarios" && (
-                <div className="section active" id="sec-usuarios">
-                  <div className="table-header">
-                    <h3 className="card-title">
-                      {t("admin.usersManagement", "Gestión de Usuarios")}
-                    </h3>
-                  </div>
+              <div className="section active" id="sec-usuarios">
+                <div className="table-header">
+                  <h3 className="card-title">
+                    {t("admin.usersManagement", "Gestión de Usuarios")}
+                  </h3>
+                </div>
 
-                  {/* PENDING APPROVALS */}
+                {/* PENDING APPROVALS */}
+                <div
+                  style={{
+                    padding: "20px 24px",
+                    borderBottom: "1px dashed var(--border)",
+                  }}
+                >
+                  <h4
+                    style={{
+                      color: "var(--gold)",
+                      marginBottom: "12px",
+                      fontSize: "0.95rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Cuentas de Productores Pendientes de Aprobación
+                  </h4>
+                  {usuariosPendientes.length === 0 ? (
+                    <p
+                      style={{
+                        color: "var(--text-dim)",
+                        fontStyle: "italic",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      No hay solicitudes de aprobación pendientes.
+                    </p>
+                  ) : (
+                    <div
+                      className="table-wrap"
+                      style={{ marginBottom: "10px" }}
+                    >
+                      <table
+                        className="table-responsive"
+                        style={{
+                          border: "1px solid var(--gold-border)",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ background: "var(--gold-bg)" }}>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Ubicación</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {usuariosPendientes.map((u) => (
+                            <tr key={u.id}>
+                              <td data-label="Nombre">
+                                {u.nombre} {u.apellido}
+                              </td>
+                              <td data-label="Correo">{u.email}</td>
+                              <td data-label="Ubicación">
+                                {u.ubicacion || "—"}
+                              </td>
+                              <td data-label="Acciones">
+                                <button
+                                  className="btn btn-primary btn-sm"
+                                  onClick={() => handleAprobarUsuario(u.id)}
+                                >
+                                  Aprobar
+                                </button>
+                                <button
+                                  className="btn btn-danger btn-sm"
+                                  style={{ marginLeft: "6px" }}
+                                  onClick={() => handleRechazarUsuario(u.id)}
+                                >
+                                  Rechazar
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                <div className="table-filters">
+                  <div className="search-box">
+                    <input
+                      type="text"
+                      id="searchUsuarios"
+                      placeholder={t(
+                        "admin.searchUsers",
+                        "Buscar por nombre o correo...",
+                      )}
+                      value={searchUsuariosInput}
+                      onChange={(e) => setSearchUsuariosInput(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="table-wrap">
+                  <table className="table-responsive">
+                    <thead>
+                      <tr>
+                        <th>{t("auth.firstName", "Nombre")}</th>
+                        <th>{t("auth.email", "Correo")}</th>
+                        <th>{t("profile.role", "Rol")}</th>
+                        <th>{t("pedidos.statusHeader", "Estado")}</th>
+                        <th>{t("pedidos.actions", "Acciones")}</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbUsuarios">
+                      {usuariosFiltrados.map((u) => (
+                        <tr key={u.id}>
+                          <td data-label={t("auth.firstName", "Nombre")}>
+                            {u.nombre} {u.apellido}
+                          </td>
+                          <td data-label={t("auth.email", "Correo")}>
+                            {u.email}
+                          </td>
+                          <td data-label={t("profile.role", "Rol")}>
+                            <span className="badge-status">
+                              {t(
+                                "auth." + (u.role || u.rol)?.toLowerCase(),
+                                u.role || u.rol,
+                              )}
+                            </span>
+                          </td>
+                          <td
+                            data-label={t("pedidos.statusHeader", "Estado")}
+                          >
+                            <span
+                              className={`badge-status ${u.activo !== false ? "status-shipped" : "status-pending"}`}
+                            >
+                              {u.activo !== false
+                                ? t("admin.active", "Activo")
+                                : t("admin.inactive", "Inactivo")}
+                            </span>
+                          </td>
+                          <td data-label={t("pedidos.actions", "Acciones")}>
+                            <button
+                              className="btn btn-secondary btn-sm"
+                              onClick={() => toggleUsuarioActivo(u)}
+                            >
+                              {u.activo !== false
+                                ? t("admin.deactivate", "Desactivar")
+                                : t("admin.activate", "Activar")}
+                            </button>
+                            {(u.role || u.rol)?.toUpperCase() ===
+                              "PRODUCTOR" && (
+                              <button
+                                className="btn btn-secondary btn-sm"
+                                style={{
+                                  marginLeft: "6px",
+                                  background: u.verificado
+                                    ? "#385723"
+                                    : "#6b7280",
+                                  color: "#fff",
+                                }}
+                                onClick={() => toggleVerificarProductor(u)}
+                              >
+                                {u.verificado ? "Verificado" : "Verificar"}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination Controls for Users */}
+                {totalPagesUsuarios > 1 && (
                   <div
                     style={{
-                      padding: "20px 24px",
-                      borderBottom: "1px dashed var(--border)",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: "12px",
+                      padding: "16px 24px",
+                      borderTop: "1px solid var(--border-light)",
+                    }}
+                  >
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      disabled={pageUsuarios === 0}
+                      onClick={() =>
+                        setPageUsuarios((p) => Math.max(0, p - 1))
+                      }
+                    >
+                      Anterior
+                    </button>
+                    <span
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "var(--text-dim)",
+                      }}
+                    >
+                      Página <strong>{pageUsuarios + 1}</strong> de{" "}
+                      <strong>{totalPagesUsuarios}</strong> (
+                      {totalElementsUsuarios} usuarios)
+                    </span>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      disabled={pageUsuarios >= totalPagesUsuarios - 1}
+                      onClick={() => setPageUsuarios((p) => p + 1)}
+                    >
+                      Siguiente
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* MENSAJERÍA ADMIN */}
+              <div className="section active" id="sec-mensajeria">
+                <div className="table-header">
+                  <div>
+                    <h3 className="card-title">Enviar Mensaje a Usuarios</h3>
+                    <p className="section-subtitle">
+                      Envía notificaciones y mensajes directos a cualquier
+                      usuario.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "24px",
+                  }}
+                >
+                  {/* Columna izquierda - Formulario */}
+                  <div
+                    style={{
+                      background: "#fff",
+                      padding: "24px",
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
                     }}
                   >
                     <h4
                       style={{
-                        color: "var(--gold)",
-                        marginBottom: "12px",
-                        fontSize: "0.95rem",
+                        margin: "0 0 16px 0",
+                        fontSize: "1rem",
                         fontWeight: "bold",
                       }}
                     >
-                      Cuentas de Productores Pendientes de Aprobación
+                      Componer Mensaje
                     </h4>
-                    {usuariosPendientes.length === 0 ? (
-                      <p
-                        style={{
-                          color: "var(--text-dim)",
-                          fontStyle: "italic",
-                          fontSize: "0.85rem",
-                        }}
-                      >
-                        No hay solicitudes de aprobación pendientes.
-                      </p>
-                    ) : (
-                      <div
-                        className="table-wrap"
-                        style={{ marginBottom: "10px" }}
-                      >
-                        <table
-                          className="table-responsive"
+                    <form onSubmit={handleEnviarMensaje}>
+                      <div style={{ marginBottom: "16px" }}>
+                        <label
                           style={{
-                            border: "1px solid var(--gold-border)",
-                            borderRadius: "8px",
-                            overflow: "hidden",
+                            display: "block",
+                            marginBottom: "6px",
+                            fontWeight: "600",
+                            fontSize: "0.85rem",
                           }}
                         >
-                          <thead>
-                            <tr style={{ background: "var(--gold-bg)" }}>
-                              <th>Nombre</th>
-                              <th>Correo</th>
-                              <th>Ubicación</th>
-                              <th>Acciones</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {usuariosPendientes.map((u) => (
-                              <tr key={u.id}>
-                                <td data-label="Nombre">
-                                  {u.nombre} {u.apellido}
-                                </td>
-                                <td data-label="Correo">{u.email}</td>
-                                <td data-label="Ubicación">
-                                  {u.ubicacion || "—"}
-                                </td>
-                                <td data-label="Acciones">
-                                  <button
-                                    className="btn btn-primary btn-sm"
-                                    onClick={() => handleAprobarUsuario(u.id)}
-                                  >
-                                    Aprobar
-                                  </button>
-                                  <button
-                                    className="btn btn-danger btn-sm"
-                                    style={{ marginLeft: "6px" }}
-                                    onClick={() => handleRechazarUsuario(u.id)}
-                                  >
-                                    Rechazar
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="table-filters">
-                    <div className="search-box">
-                      <input
-                        type="text"
-                        id="searchUsuarios"
-                        placeholder={t(
-                          "admin.searchUsers",
-                          "Buscar por nombre o correo...",
-                        )}
-                        value={searchUsuariosInput}
-                        onChange={(e) => setSearchUsuariosInput(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="table-wrap">
-                    <table className="table-responsive">
-                      <thead>
-                        <tr>
-                          <th>{t("auth.firstName", "Nombre")}</th>
-                          <th>{t("auth.email", "Correo")}</th>
-                          <th>{t("profile.role", "Rol")}</th>
-                          <th>{t("pedidos.statusHeader", "Estado")}</th>
-                          <th>{t("pedidos.actions", "Acciones")}</th>
-                        </tr>
-                      </thead>
-                      <tbody id="tbUsuarios">
-                        {usuariosFiltrados.map((u) => (
-                          <tr key={u.id}>
-                            <td data-label={t("auth.firstName", "Nombre")}>
-                              {u.nombre} {u.apellido}
-                            </td>
-                            <td data-label={t("auth.email", "Correo")}>
-                              {u.email}
-                            </td>
-                            <td data-label={t("profile.role", "Rol")}>
-                              <span className="badge-status">
-                                {t(
-                                  "auth." + (u.role || u.rol)?.toLowerCase(),
-                                  u.role || u.rol,
-                                )}
-                              </span>
-                            </td>
-                            <td
-                              data-label={t("pedidos.statusHeader", "Estado")}
-                            >
-                              <span
-                                className={`badge-status ${u.activo !== false ? "status-shipped" : "status-pending"}`}
-                              >
-                                {u.activo !== false
-                                  ? t("admin.active", "Activo")
-                                  : t("admin.inactive", "Inactivo")}
-                              </span>
-                            </td>
-                            <td data-label={t("pedidos.actions", "Acciones")}>
-                              <button
-                                className="btn btn-secondary btn-sm"
-                                onClick={() => toggleUsuarioActivo(u)}
-                              >
-                                {u.activo !== false
-                                  ? t("admin.deactivate", "Desactivar")
-                                  : t("admin.activate", "Activar")}
-                              </button>
-                              {(u.role || u.rol)?.toUpperCase() ===
-                                "PRODUCTOR" && (
-                                <button
-                                  className="btn btn-secondary btn-sm"
-                                  style={{
-                                    marginLeft: "6px",
-                                    background: u.verificado
-                                      ? "#385723"
-                                      : "#6b7280",
-                                    color: "#fff",
-                                  }}
-                                  onClick={() => toggleVerificarProductor(u)}
-                                >
-                                  {u.verificado ? "Verificado" : "Verificar"}
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Pagination Controls for Users */}
-                  {totalPagesUsuarios > 1 && (
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "12px",
-                        padding: "16px 24px",
-                        borderTop: "1px solid var(--border-light)",
-                      }}
-                    >
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        disabled={pageUsuarios === 0}
-                        onClick={() =>
-                          setPageUsuarios((p) => Math.max(0, p - 1))
-                        }
-                      >
-                        Anterior
-                      </button>
-                      <span
-                        style={{
-                          fontSize: "0.85rem",
-                          color: "var(--text-dim)",
-                        }}
-                      >
-                        Página <strong>{pageUsuarios + 1}</strong> de{" "}
-                        <strong>{totalPagesUsuarios}</strong> (
-                        {totalElementsUsuarios} usuarios)
-                      </span>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        disabled={pageUsuarios >= totalPagesUsuarios - 1}
-                        onClick={() => setPageUsuarios((p) => p + 1)}
-                      >
-                        Siguiente
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* MENSAJERÍA ADMIN */}
-              {mensajeria" && (
-                <div className="section active" id="sec-mensajeria">
-                  <div className="table-header">
-                    <div>
-                      <h3 className="card-title">Enviar Mensaje a Usuarios</h3>
-                      <p className="section-subtitle">
-                        Envía notificaciones y mensajes directos a cualquier
-                        usuario.
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: "24px",
-                    }}
-                  >
-                    {/* Columna izquierda - Formulario */}
-                    <div
-                      style={{
-                        background: "#fff",
-                        padding: "24px",
-                        borderRadius: "12px",
-                        border: "1px solid #e2e8f0",
-                      }}
-                    >
-                      <h4
-                        style={{
-                          margin: "0 0 16px 0",
-                          fontSize: "1rem",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Componer Mensaje
-                      </h4>
-                      <form onSubmit={handleEnviarMensaje}>
-                        <div style={{ marginBottom: "16px" }}>
-                          <label
-                            style={{
-                              display: "block",
-                              marginBottom: "6px",
-                              fontWeight: "600",
-                              fontSize: "0.85rem",
-                            }}
-                          >
-                            Usuario Destinatario *
-                          </label>
-                          <select
-                            value={mensajeForm.usuarioId}
-                            onChange={(e) =>
-                              setMensajeForm({
-                                ...mensajeForm,
-                                usuarioId: e.target.value,
-                              })
-                            }
-                            style={{
-                              width: "100%",
-                              padding: "10px 12px",
-                              borderRadius: "8px",
-                              border: "1px solid #cfd9d1",
-                              fontSize: "0.9rem",
-                            }}
-                          >
-                            <option value="">-- Seleccionar usuario --</option>
-                            {mensajeUsuarios.map((u) => (
-                              <option key={u.id} value={u.id}>
-                                {u.nombre} {u.apellido} ({u.email})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div style={{ marginBottom: "16px" }}>
-                          <label
-                            style={{
-                              display: "block",
-                              marginBottom: "6px",
-                              fontWeight: "600",
-                              fontSize: "0.85rem",
-                            }}
-                          >
-                            Tipo de Mensaje *
-                          </label>
-                          <select
-                            value={mensajeForm.tipo}
-                            onChange={(e) =>
-                              setMensajeForm({
-                                ...mensajeForm,
-                                tipo: e.target.value,
-                              })
-                            }
-                            style={{
-                              width: "100%",
-                              padding: "10px 12px",
-                              borderRadius: "8px",
-                              border: "1px solid #cfd9d1",
-                              fontSize: "0.9rem",
-                            }}
-                          >
-                            <option value="NEW_MESSAGE">Mensaje Directo</option>
-                            <option value="NEW_ORDER">Nuevo Pedido</option>
-                            <option value="ORDER_UPDATED">
-                              Pedido Actualizado
-                            </option>
-                            <option value="PAYMENT_CONFIRMED">
-                              Pago Confirmado
-                            </option>
-                            <option value="LOW_STOCK">Stock Bajo</option>
-                          </select>
-                        </div>
-                        <div style={{ marginBottom: "16px" }}>
-                          <label
-                            style={{
-                              display: "block",
-                              marginBottom: "6px",
-                              fontWeight: "600",
-                              fontSize: "0.85rem",
-                            }}
-                          >
-                            Contenido del Mensaje *
-                          </label>
-                          <textarea
-                            value={mensajeForm.contenido}
-                            onChange={(e) =>
-                              setMensajeForm({
-                                ...mensajeForm,
-                                contenido: e.target.value,
-                              })
-                            }
-                            rows={5}
-                            placeholder="Escribe aqui el mensaje que deseas enviar al usuario..."
-                            style={{
-                              width: "100%",
-                              padding: "10px 12px",
-                              borderRadius: "8px",
-                              border: "1px solid #cfd9d1",
-                              fontSize: "0.9rem",
-                              resize: "vertical",
-                              minHeight: "120px",
-                            }}
-                          />
-                        </div>
-                        {mensajeMsg.text && (
-                          <div
-                            style={{
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              marginBottom: "16px",
-                              background:
-                                mensajeMsg.type === "success"
-                                  ? "#e8f5e9"
-                                  : "#fef2f2",
-                              color:
-                                mensajeMsg.type === "success"
-                                  ? "#11823b"
-                                  : "#dc2626",
-                              fontSize: "0.85rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            {mensajeMsg.text}
-                          </div>
-                        )}
-                        <button
-                          type="submit"
-                          disabled={enviandoMensaje}
-                          className="btn btn-primary"
-                          style={{ width: "100%" }}
-                        >
-                          {enviandoMensaje ? "Enviando..." : "Enviar Mensaje"}
-                        </button>
-                      </form>
-                    </div>
-                    {/* Columna derecha - Lista de usuarios */}
-                    <div
-                      style={{
-                        background: "#fff",
-                        padding: "24px",
-                        borderRadius: "12px",
-                        border: "1px solid #e2e8f0",
-                      }}
-                    >
-                      <h4
-                        style={{
-                          margin: "0 0 16px 0",
-                          fontSize: "1rem",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Usuarios Disponibles
-                      </h4>
-                      <div style={{ marginBottom: "16px" }}>
-                        <input
-                          type="text"
-                          placeholder="Buscar usuario..."
-                          value={searchMensajeInput}
+                          Usuario Destinatario *
+                        </label>
+                        <select
+                          value={mensajeForm.usuarioId}
                           onChange={(e) =>
-                            setSearchMensajeInput(e.target.value)
+                            setMensajeForm({
+                              ...mensajeForm,
+                              usuarioId: e.target.value,
+                            })
                           }
                           style={{
                             width: "100%",
                             padding: "10px 12px",
                             borderRadius: "8px",
                             border: "1px solid #cfd9d1",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          <option value="">-- Seleccionar usuario --</option>
+                          {mensajeUsuarios.map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.nombre} {u.apellido} ({u.email})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div style={{ marginBottom: "16px" }}>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "6px",
+                            fontWeight: "600",
                             fontSize: "0.85rem",
+                          }}
+                        >
+                          Tipo de Mensaje *
+                        </label>
+                        <select
+                          value={mensajeForm.tipo}
+                          onChange={(e) =>
+                            setMensajeForm({
+                              ...mensajeForm,
+                              tipo: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "10px 12px",
+                            borderRadius: "8px",
+                            border: "1px solid #cfd9d1",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          <option value="NEW_MESSAGE">Mensaje Directo</option>
+                          <option value="NEW_ORDER">Nuevo Pedido</option>
+                          <option value="ORDER_UPDATED">
+                            Pedido Actualizado
+                          </option>
+                          <option value="PAYMENT_CONFIRMED">
+                            Pago Confirmado
+                          </option>
+                          <option value="LOW_STOCK">Stock Bajo</option>
+                        </select>
+                      </div>
+                      <div style={{ marginBottom: "16px" }}>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "6px",
+                            fontWeight: "600",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          Contenido del Mensaje *
+                        </label>
+                        <textarea
+                          value={mensajeForm.contenido}
+                          onChange={(e) =>
+                            setMensajeForm({
+                              ...mensajeForm,
+                              contenido: e.target.value,
+                            })
+                          }
+                          rows={5}
+                          placeholder="Escribe aqui el mensaje que deseas enviar al usuario..."
+                          style={{
+                            width: "100%",
+                            padding: "10px 12px",
+                            borderRadius: "8px",
+                            border: "1px solid #cfd9d1",
+                            fontSize: "0.9rem",
+                            resize: "vertical",
+                            minHeight: "120px",
                           }}
                         />
                       </div>
-                      <div
-                        style={{
-                          maxHeight: "400px",
-                          overflowY: "auto",
-                          border: "1px solid #e2e8f0",
-                          borderRadius: "8px",
-                        }}
+                      {mensajeMsg.text && (
+                        <div
+                          style={{
+                            padding: "10px 14px",
+                            borderRadius: "8px",
+                            marginBottom: "16px",
+                            background:
+                              mensajeMsg.type === "success"
+                                ? "#e8f5e9"
+                                : "#fef2f2",
+                            color:
+                              mensajeMsg.type === "success"
+                                ? "#11823b"
+                                : "#dc2626",
+                            fontSize: "0.85rem",
+                            fontWeight: "500",
+                          }}
+                        >
+                          {mensajeMsg.text}
+                        </div>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={enviandoMensaje}
+                        className="btn btn-primary"
+                        style={{ width: "100%" }}
                       >
-                        {mensajeUsuarios.length === 0 ? (
-                          <p
-                            style={{
-                              padding: "20px",
-                              textAlign: "center",
-                              color: "#64748b",
-                              fontSize: "0.85rem",
-                            }}
-                          >
-                            No hay usuarios disponibles.
-                          </p>
-                        ) : (
-                          <table className="table-responsive">
-                            <thead>
-                              <tr>
-                                <th>Usuario</th>
-                                <th>Rol</th>
-                                <th>Acción</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {mensajeUsuarios.map((u) => (
-                                <tr key={u.id}>
-                                  <td data-label="Usuario">
-                                    <strong>
-                                      {u.nombre} {u.apellido}
-                                    </strong>
-                                    <br />
-                                    <small style={{ color: "#64748b" }}>
-                                      {u.email}
-                                    </small>
-                                  </td>
-                                  <td data-label="Rol">
-                                    <span className="badge-status">
-                                      {(u.role || u.rol)?.toUpperCase() ||
-                                        "USER"}
-                                    </span>
-                                  </td>
-                                  <td data-label="Acción">
-                                    <button
-                                      className="btn btn-primary btn-sm"
-                                      onClick={() =>
-                                        setMensajeForm({
-                                          ...mensajeForm,
-                                          usuarioId: u.id.toString(),
-                                        })
-                                      }
-                                    >
-                                      Seleccionar
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        )}
-                      </div>
-                    </div>
+                        {enviandoMensaje ? "Enviando..." : "Enviar Mensaje"}
+                      </button>
+                    </form>
                   </div>
-                </div>
-              )}
-
-              {/* PEDIDOS */}
-              {pedidos" && (
-                <div className="section active" id="sec-pedidos">
-                  <div className="table-header">
-                    <div>
-                      <h3 className="card-title">Gestión de pedidos</h3>
-                      <p className="section-subtitle">
-                        Seguimiento global de pedidos registrados en el
-                        dashboard administrativo.
-                      </p>
-                    </div>
-                    <button className="table-action">Exportar</button>
-                  </div>
-                  <div className="table-wrap">
-                    <table className="table-responsive">
-                      <thead>
-                        <tr>
-                          <th>Pedido</th>
-                          <th>Cliente</th>
-                          <th>Total</th>
-                          <th>Estado</th>
-                          <th>Fecha</th>
-                          <th>Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {adminPedidos.length === 0 ? (
-                          <tr>
-                            <td colSpan="6" className="empty-cell">
-                              El endpoint administrativo actual no expone un
-                              listado global de pedidos. Se muestran pedidos
-                              aquí cuando /admin/dashboard devuelve una
-                              colección de pedidos.
-                            </td>
-                          </tr>
-                        ) : (
-                          adminPedidos.map((p, i) => (
-                            <tr key={p.id || p.codigo || i}>
-                              <td data-label="Pedido">
-                                {p.codigo ||
-                                  p.numeroPedido ||
-                                  p.id ||
-                                  `#${i + 1}`}
-                              </td>
-                              <td data-label="Cliente">
-                                {p.cliente ||
-                                  p.compradorNombre ||
-                                  p.nombreCliente ||
-                                  "—"}
-                              </td>
-                              <td data-label="Total">
-                                {p.total != null ? formatPrice(p.total) : "—"}
-                              </td>
-                              <td data-label="Estado">
-                                <span
-                                  className={`badge-status ${p.estado === "ENTREGADO" || p.estado === "Entregado" ? "status-delivered" : p.estado === "ENVIADO" || p.estado === "Enviado" ? "status-shipped" : p.estado === "CANCELADO" || p.estado === "Cancelado" ? "status-cancelled" : "status-pending"}`}
-                                >
-                                  {p.estado || "—"}
-                                </span>
-                              </td>
-                              <td data-label="Fecha">
-                                {p.fecha || p.fechaCreacion || "—"}
-                              </td>
-                              <td data-label="Acciones">
-                                <select
-                                  className="form-select"
-                                  style={{ width: "140px", fontSize: "0.8rem" }}
-                                  defaultValue=""
-                                  onChange={async (e) => {
-                                    if (!e.target.value) return;
-                                    try {
-                                      await api.put(
-                                        `/admin/pedidos/${p.id}/estado`,
-                                        {
-                                          estado: e.target.value,
-                                        },
-                                      );
-                                      void loadAll();
-                                      void loadPedidos();
-                                    } catch (err) {
-                                      alert("Error: " + err.message);
-                                    }
-                                  }}
-                                >
-                                  <option value="">Cambiar...</option>
-                                  <option value="ACEPTADO">Aceptar</option>
-                                  <option value="ENVIADO">Enviado</option>
-                                  <option value="ENTREGADO">Entregado</option>
-                                  <option value="CANCELADO">Cancelar</option>
-                                </select>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* PRODUCTORES */}
-              {productores" && (
-                <div className="section active" id="sec-productores">
-                  <div className="table-header">
-                    <div>
-                      <h3 className="card-title">Gestión de productores</h3>
-                      <p className="section-subtitle">
-                        Productores obtenidos desde el listado administrativo de
-                        usuarios.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="table-wrap">
-                    <table className="table-responsive">
-                      <thead>
-                        <tr>
-                          <th>Productor</th>
-                          <th>Correo</th>
-                          <th>Ubicación</th>
-                          <th>Estado</th>
-                          <th>Verificación</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {productores.length === 0 ? (
-                          <tr>
-                            <td colSpan="5" className="empty-cell">
-                              No hay productores disponibles en el listado
-                              administrativo.
-                            </td>
-                          </tr>
-                        ) : (
-                          productores.map((u) => (
-                            <tr key={u.id}>
-                              <td data-label="Productor">
-                                {u.nombre} {u.apellido || ""}
-                              </td>
-                              <td data-label="Correo">
-                                {u.email || u.correo || "—"}
-                              </td>
-                              <td data-label="Ubicación">
-                                {u.ubicacion || "—"}
-                              </td>
-                              <td data-label="Estado">
-                                <span
-                                  className={`badge-status ${u.activo !== false ? "status-shipped" : "status-pending"}`}
-                                >
-                                  {u.activo !== false ? "Activo" : "Inactivo"}
-                                </span>
-                              </td>
-                              <td data-label="Verificación">
-                                <button
-                                  className={`btn btn-sm ${u.verificado ? "btn-secondary" : "btn-primary"}`}
-                                  onClick={() => toggleVerificarProductor(u)}
-                                >
-                                  {u.verificado ? "Verificado" : "Verificar"}
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* PRODUCTOS */}
-              {productos" && (
-                <div className="section active" id="sec-productos">
+                  {/* Columna derecha - Lista de usuarios */}
                   <div
-                    className="table-header"
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                      gap: "12px",
+                      background: "#fff",
+                      padding: "24px",
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
                     }}
                   >
-                    <h3 className="card-title">
-                      {t("admin.globalInventory", "Inventario Global")}
-                    </h3>
-                    <div
-                      className="search-box"
-                      style={{ maxWidth: "280px", width: "100%", margin: 0 }}
+                    <h4
+                      style={{
+                        margin: "0 0 16px 0",
+                        fontSize: "1rem",
+                        fontWeight: "bold",
+                      }}
                     >
+                      Usuarios Disponibles
+                    </h4>
+                    <div style={{ marginBottom: "16px" }}>
                       <input
                         type="text"
-                        placeholder={t(
-                          "admin.searchProducts",
-                          "Buscar productos...",
-                        )}
-                        value={searchProductosInput}
+                        placeholder="Buscar usuario..."
+                        value={searchMensajeInput}
                         onChange={(e) =>
-                          setSearchProductosInput(e.target.value)
+                          setSearchMensajeInput(e.target.value)
                         }
+                        style={{
+                          width: "100%",
+                          padding: "10px 12px",
+                          borderRadius: "8px",
+                          border: "1px solid #cfd9d1",
+                          fontSize: "0.85rem",
+                        }}
                       />
                     </div>
+                    <div
+                      style={{
+                        maxHeight: "400px",
+                        overflowY: "auto",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      {mensajeUsuarios.length === 0 ? (
+                        <p
+                          style={{
+                            padding: "20px",
+                            textAlign: "center",
+                            color: "#64748b",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          No hay usuarios disponibles.
+                        </p>
+                      ) : (
+                        <table className="table-responsive">
+                          <thead>
+                            <tr>
+                              <th>Usuario</th>
+                              <th>Rol</th>
+                              <th>Acción</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {mensajeUsuarios.map((u) => (
+                              <tr key={u.id}>
+                                <td data-label="Usuario">
+                                  <strong>
+                                    {u.nombre} {u.apellido}
+                                  </strong>
+                                  <br />
+                                  <small style={{ color: "#64748b" }}>
+                                    {u.email}
+                                  </small>
+                                </td>
+                                <td data-label="Rol">
+                                  <span className="badge-status">
+                                    {(u.role || u.rol)?.toUpperCase() ||
+                                      "USER"}
+                                  </span>
+                                </td>
+                                <td data-label="Acción">
+                                  <button
+                                    className="btn btn-primary btn-sm"
+                                    onClick={() =>
+                                      setMensajeForm({
+                                        ...mensajeForm,
+                                        usuarioId: u.id.toString(),
+                                      })
+                                    }
+                                  >
+                                    Seleccionar
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
                   </div>
-                  <div className="table-wrap">
-                    <table className="table-responsive">
-                      <thead>
+                </div>
+              </div>
+
+              {/* PEDIDOS */}
+              <div className="section active" id="sec-pedidos">
+                <div className="table-header">
+                  <div>
+                    <h3 className="card-title">Gestión de pedidos</h3>
+                    <p className="section-subtitle">
+                      Seguimiento global de pedidos registrados en el
+                      dashboard administrativo.
+                    </p>
+                  </div>
+                  <button className="table-action">Exportar</button>
+                </div>
+                <div className="table-wrap">
+                  <table className="table-responsive">
+                    <thead>
+                      <tr>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminPedidos.length === 0 ? (
                         <tr>
-                          <th>{t("dashboardProductor.product", "Producto")}</th>
-                          <th>{t("pedidos.producer", "Productor")}</th>
-                          <th>
-                            {t("dashboardProductor.pricePerKg", "Precio/kg")}
-                          </th>
-                          <th>{t("dashboardProductor.stock", "Stock")}</th>
-                          <th>{t("pedidos.actions", "Acciones")}</th>
+                          <td colSpan="6" className="empty-cell">
+                            El endpoint administrativo actual no expone un
+                            listado global de pedidos. Se muestran pedidos
+                            aquí cuando /admin/dashboard devuelve una
+                            colección de pedidos.
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody id="tbProductos">
-                        {productos.map((p) => (
-                          <tr key={p.id}>
-                            <td
-                              data-label={t(
-                                "dashboardProductor.product",
-                                "Producto",
-                              )}
-                            >
-                              {p.nombre}
+                      ) : (
+                        adminPedidos.map((p, i) => (
+                          <tr key={p.id || p.codigo || i}>
+                            <td data-label="Pedido">
+                              {p.codigo ||
+                                p.numeroPedido ||
+                                p.id ||
+                                `#${i + 1}`}
                             </td>
-                            <td data-label={t("pedidos.producer", "Productor")}>
-                              {p.productor || p.nombreProductor || "—"}
+                            <td data-label="Cliente">
+                              {p.cliente ||
+                                p.compradorNombre ||
+                                p.nombreCliente ||
+                                "—"}
                             </td>
-                            <td
-                              data-label={t(
-                                "dashboardProductor.pricePerKg",
-                                "Precio/kg",
-                              )}
-                            >
-                              {formatPrice(p.precio)}
+                            <td data-label="Total">
+                              {p.total != null ? formatPrice(p.total) : "—"}
                             </td>
-                            <td
-                              data-label={t(
-                                "dashboardProductor.stock",
-                                "Stock",
-                              )}
-                            >
-                              {p.stock} kg
-                            </td>
-                            <td data-label={t("pedidos.actions", "Acciones")}>
-                              <button
-                                className="btn btn-secondary btn-sm"
-                                style={{ color: "var(--red)" }}
-                                onClick={() => eliminarProducto(p.id)}
+                            <td data-label="Estado">
+                              <span
+                                className={`badge-status ${p.estado === "ENTREGADO" || p.estado === "Entregado" ? "status-delivered" : p.estado === "ENVIADO" || p.estado === "Enviado" ? "status-shipped" : p.estado === "CANCELADO" || p.estado === "Cancelado" ? "status-cancelled" : "status-pending"}`}
                               >
-                                {t("admin.delete", "Eliminar")}
+                                {p.estado || "—"}
+                              </span>
+                            </td>
+                            <td data-label="Fecha">
+                              {p.fecha || p.fechaCreacion || "—"}
+                            </td>
+                            <td data-label="Acciones">
+                              <select
+                                className="form-select"
+                                style={{ width: "140px", fontSize: "0.8rem" }}
+                                defaultValue=""
+                                onChange={async (e) => {
+                                  if (!e.target.value) return;
+                                  try {
+                                    await api.put(
+                                      `/admin/pedidos/${p.id}/estado`,
+                                      {
+                                        estado: e.target.value,
+                                      },
+                                    );
+                                    // loadAll() ya refresca el dashboard (y con
+                                    // él la lista de pedidos): no existe un
+                                    // loadPedidos separado.
+                                    void loadAll();
+                                  } catch (err) {
+                                    alert("Error: " + err.message);
+                                  }
+                                }}
+                              >
+                                <option value="">Cambiar...</option>
+                                <option value="ACEPTADO">Aceptar</option>
+                                <option value="ENVIADO">Enviado</option>
+                                <option value="ENTREGADO">Entregado</option>
+                                <option value="CANCELADO">Cancelar</option>
+                              </select>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* PRODUCTORES */}
+              <div className="section active" id="sec-productores">
+                <div className="table-header">
+                  <div>
+                    <h3 className="card-title">Gestión de productores</h3>
+                    <p className="section-subtitle">
+                      Productores obtenidos desde el listado administrativo de
+                      usuarios.
+                    </p>
+                  </div>
+                </div>
+                <div className="table-wrap">
+                  <table className="table-responsive">
+                    <thead>
+                      <tr>
+                        <th>Productor</th>
+                        <th>Correo</th>
+                        <th>Ubicación</th>
+                        <th>Estado</th>
+                        <th>Verificación</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productores.length === 0 ? (
+                        <tr>
+                          <td colSpan="5" className="empty-cell">
+                            No hay productores disponibles en el listado
+                            administrativo.
+                          </td>
+                        </tr>
+                      ) : (
+                        productores.map((u) => (
+                          <tr key={u.id}>
+                            <td data-label="Productor">
+                              {u.nombre} {u.apellido || ""}
+                            </td>
+                            <td data-label="Correo">
+                              {u.email || u.correo || "—"}
+                            </td>
+                            <td data-label="Ubicación">
+                              {u.ubicacion || "—"}
+                            </td>
+                            <td data-label="Estado">
+                              <span
+                                className={`badge-status ${u.activo !== false ? "status-shipped" : "status-pending"}`}
+                              >
+                                {u.activo !== false ? "Activo" : "Inactivo"}
+                              </span>
+                            </td>
+                            <td data-label="Verificación">
+                              <button
+                                className={`btn btn-sm ${u.verificado ? "btn-secondary" : "btn-primary"}`}
+                                onClick={() => toggleVerificarProductor(u)}
+                              >
+                                {u.verificado ? "Verificado" : "Verificar"}
                               </button>
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                  {/* Pagination Controls for Products */}
-                  {totalPagesProductos > 1 && (
-                    <div
+              {/* PRODUCTOS */}
+              <div className="section active" id="sec-productos">
+                <div
+                  className="table-header"
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: "12px",
+                  }}
+                >
+                  <h3 className="card-title">
+                    {t("admin.globalInventory", "Inventario Global")}
+                  </h3>
+                  <div
+                    className="search-box"
+                    style={{ maxWidth: "280px", width: "100%", margin: 0 }}
+                  >
+                    <input
+                      type="text"
+                      placeholder={t(
+                        "admin.searchProducts",
+                        "Buscar productos...",
+                      )}
+                      value={searchProductosInput}
+                      onChange={(e) =>
+                        setSearchProductosInput(e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="table-wrap">
+                  <table className="table-responsive">
+                    <thead>
+                      <tr>
+                        <th>{t("dashboardProductor.product", "Producto")}</th>
+                        <th>{t("pedidos.producer", "Productor")}</th>
+                        <th>
+                          {t("dashboardProductor.pricePerKg", "Precio/kg")}
+                        </th>
+                        <th>{t("dashboardProductor.stock", "Stock")}</th>
+                        <th>{t("pedidos.actions", "Acciones")}</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbProductos">
+                      {productos.map((p) => (
+                        <tr key={p.id}>
+                          <td
+                            data-label={t(
+                              "dashboardProductor.product",
+                              "Producto",
+                            )}
+                          >
+                            {p.nombre}
+                          </td>
+                          <td data-label={t("pedidos.producer", "Productor")}>
+                            {p.productor || p.nombreProductor || "—"}
+                          </td>
+                          <td
+                            data-label={t(
+                              "dashboardProductor.pricePerKg",
+                              "Precio/kg",
+                            )}
+                          >
+                            {formatPrice(p.precio)}
+                          </td>
+                          <td
+                            data-label={t(
+                              "dashboardProductor.stock",
+                              "Stock",
+                            )}
+                          >
+                            {p.stock} kg
+                          </td>
+                          <td data-label={t("pedidos.actions", "Acciones")}>
+                            <button
+                              className="btn btn-secondary btn-sm"
+                              style={{ color: "var(--red)" }}
+                              onClick={() => eliminarProducto(p.id)}
+                            >
+                              {t("admin.delete", "Eliminar")}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination Controls for Products */}
+                {totalPagesProductos > 1 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: "12px",
+                      padding: "16px 24px",
+                      borderTop: "1px solid var(--border-light)",
+                    }}
+                  >
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      disabled={pageProductos === 0}
+                      onClick={() =>
+                        setPageProductos((p) => Math.max(0, p - 1))
+                      }
+                    >
+                      Anterior
+                    </button>
+                    <span
                       style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "12px",
-                        padding: "16px 24px",
-                        borderTop: "1px solid var(--border-light)",
+                        fontSize: "0.85rem",
+                        color: "var(--text-dim)",
                       }}
                     >
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        disabled={pageProductos === 0}
-                        onClick={() =>
-                          setPageProductos((p) => Math.max(0, p - 1))
-                        }
-                      >
-                        Anterior
-                      </button>
-                      <span
-                        style={{
-                          fontSize: "0.85rem",
-                          color: "var(--text-dim)",
-                        }}
-                      >
-                        Página <strong>{pageProductos + 1}</strong> de{" "}
-                        <strong>{totalPagesProductos}</strong> (
-                        {totalElementsProductos} productos)
-                      </span>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        disabled={pageProductos >= totalPagesProductos - 1}
-                        onClick={() => setPageProductos((p) => p + 1)}
-                      >
-                        Siguiente
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+                      Página <strong>{pageProductos + 1}</strong> de{" "}
+                      <strong>{totalPagesProductos}</strong> (
+                      {totalElementsProductos} productos)
+                    </span>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      disabled={pageProductos >= totalPagesProductos - 1}
+                      onClick={() => setPageProductos((p) => p + 1)}
+                    >
+                      Siguiente
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* RESEÑAS */}
-              {resenas" && (
-                <div className="section active" id="sec-resenas">
-                  <div className="table-header">
-                    <h3 className="card-title">
-                      {t("admin.reviewsModeration", "Moderación de Reseñas")}
-                    </h3>
-                  </div>
-                  <div className="table-wrap">
-                    <table className="table-responsive">
-                      <thead>
-                        <tr>
-                          <th>{t("admin.user", "Usuario")}</th>
-                          <th>
-                            {t(
+              <div className="section active" id="sec-resenas">
+                <div className="table-header">
+                  <h3 className="card-title">
+                    {t("admin.reviewsModeration", "Moderación de Reseñas")}
+                  </h3>
+                </div>
+                <div className="table-wrap">
+                  <table className="table-responsive">
+                    <thead>
+                      <tr>
+                        <th>{t("admin.user", "Usuario")}</th>
+                        <th>
+                          {t(
+                            "dashboardProductor.stats.rating",
+                            "Calificación",
+                          )}
+                        </th>
+                        <th>
+                          {t("dashboardProductor.description", "Comentario")}
+                        </th>
+                        <th>{t("pedidos.statusHeader", "Estado")}</th>
+                        <th>{t("pedidos.actions", "Acciones")}</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbResenas">
+                      {resenas.map((r) => (
+                        <tr key={r.id}>
+                          <td data-label={t("admin.user", "Usuario")}>
+                            {r.compradorNombre ||
+                              r.usuario ||
+                              r.nombreUsuario ||
+                              "—"}
+                          </td>
+                          <td
+                            data-label={t(
                               "dashboardProductor.stats.rating",
                               "Calificación",
                             )}
-                          </th>
-                          <th>
-                            {t("dashboardProductor.description", "Comentario")}
-                          </th>
-                          <th>{t("pedidos.statusHeader", "Estado")}</th>
-                          <th>{t("pedidos.actions", "Acciones")}</th>
+                          >
+                            {"★".repeat(r.calificacion || 5)}
+                          </td>
+                          <td
+                            data-label={t(
+                              "dashboardProductor.description",
+                              "Comentario",
+                            )}
+                          >
+                            {r.comentario}
+                          </td>
+                          <td
+                            data-label={t("pedidos.statusHeader", "Estado")}
+                          >
+                            <span
+                              className={`badge-status ${r.aprobada ? "status-shipped" : "status-pending"}`}
+                            >
+                              {r.aprobada
+                                ? t("pedidos.status.aprobada", "Aprobada")
+                                : t("pedidos.status.pendiente", "Pendiente")}
+                            </span>
+                          </td>
+                          <td data-label={t("pedidos.actions", "Acciones")}>
+                            <button
+                              className="btn btn-secondary btn-sm"
+                              onClick={() => moderarResena(r.id, true)}
+                            >
+                              {t("admin.approve", "Aprobar")}
+                            </button>
+                            <button
+                              className="btn btn-secondary btn-sm"
+                              style={{
+                                color: "var(--red)",
+                                marginLeft: "6px",
+                              }}
+                              onClick={() => moderarResena(r.id, false)}
+                            >
+                              {t("admin.reject", "Rechazar")}
+                            </button>
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody id="tbResenas">
-                        {resenas.map((r) => (
-                          <tr key={r.id}>
-                            <td data-label={t("admin.user", "Usuario")}>
-                              {r.compradorNombre ||
-                                r.usuario ||
-                                r.nombreUsuario ||
-                                "—"}
-                            </td>
-                            <td
-                              data-label={t(
-                                "dashboardProductor.stats.rating",
-                                "Calificación",
-                              )}
-                            >
-                              {"★".repeat(r.calificacion || 5)}
-                            </td>
-                            <td
-                              data-label={t(
-                                "dashboardProductor.description",
-                                "Comentario",
-                              )}
-                            >
-                              {r.comentario}
-                            </td>
-                            <td
-                              data-label={t("pedidos.statusHeader", "Estado")}
-                            >
-                              <span
-                                className={`badge-status ${r.aprobada ? "status-shipped" : "status-pending"}`}
-                              >
-                                {r.aprobada
-                                  ? t("pedidos.status.aprobada", "Aprobada")
-                                  : t("pedidos.status.pendiente", "Pendiente")}
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* FIDEICOMISO (ESCROW) */}
+              <div className="section active" id="sec-pagos">
+                <div className="table-header">
+                  <h3 className="card-title">Transacciones en Fideicomiso</h3>
+                </div>
+                <div className="table-wrap">
+                  <table className="table-responsive">
+                    <thead>
+                      <tr>
+                        <th>Pago ID</th>
+                        <th>Pedido ID</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pagosFideicomiso.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan="6"
+                            style={{
+                              textAlign: "center",
+                              padding: "24px",
+                              color: "var(--text-muted)",
+                            }}
+                          >
+                            No hay transacciones retenidas en fideicomiso.
+                          </td>
+                        </tr>
+                      ) : (
+                        pagosFideicomiso.map((p) => (
+                          <tr key={p.id}>
+                            <td data-label="Pago ID">#{p.id}</td>
+                            <td data-label="Pedido ID">#{p.pedidoId}</td>
+                            <td data-label="Monto">{formatPrice(p.monto)}</td>
+                            <td data-label="Método">{p.metodoPago}</td>
+                            <td data-label="Estado">
+                              <span className="badge-status status-pending">
+                                {p.estado}
                               </span>
                             </td>
-                            <td data-label={t("pedidos.actions", "Acciones")}>
+                            <td data-label="Acciones">
                               <button
-                                className="btn btn-secondary btn-sm"
-                                onClick={() => moderarResena(r.id, true)}
+                                className="btn btn-primary btn-sm"
+                                onClick={() => liberarPago(p.id)}
                               >
-                                {t("admin.approve", "Aprobar")}
+                                Liberar Fondos
                               </button>
                               <button
                                 className="btn btn-secondary btn-sm"
@@ -2045,1125 +2135,1042 @@ export default function Admin() {
                                   color: "var(--red)",
                                   marginLeft: "6px",
                                 }}
-                                onClick={() => moderarResena(r.id, false)}
+                                onClick={() => reembolsarPago(p.id)}
                               >
-                                {t("admin.reject", "Rechazar")}
+                                Reembolsar
                               </button>
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
-              )}
-
-              {/* FIDEICOMISO (ESCROW) */}
-              {pagos" && (
-                <div className="section active" id="sec-pagos">
-                  <div className="table-header">
-                    <h3 className="card-title">Transacciones en Fideicomiso</h3>
-                  </div>
-                  <div className="table-wrap">
-                    <table className="table-responsive">
-                      <thead>
-                        <tr>
-                          <th>Pago ID</th>
-                          <th>Pedido ID</th>
-                          <th>Monto</th>
-                          <th>Método</th>
-                          <th>Estado</th>
-                          <th>Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {pagosFideicomiso.length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan="6"
-                              style={{
-                                textAlign: "center",
-                                padding: "24px",
-                                color: "var(--text-muted)",
-                              }}
-                            >
-                              No hay transacciones retenidas en fideicomiso.
-                            </td>
-                          </tr>
-                        ) : (
-                          pagosFideicomiso.map((p) => (
-                            <tr key={p.id}>
-                              <td data-label="Pago ID">#{p.id}</td>
-                              <td data-label="Pedido ID">#{p.pedidoId}</td>
-                              <td data-label="Monto">{formatPrice(p.monto)}</td>
-                              <td data-label="Método">{p.metodoPago}</td>
-                              <td data-label="Estado">
-                                <span className="badge-status status-pending">
-                                  {p.estado}
-                                </span>
-                              </td>
-                              <td data-label="Acciones">
-                                <button
-                                  className="btn btn-primary btn-sm"
-                                  onClick={() => liberarPago(p.id)}
-                                >
-                                  Liberar Fondos
-                                </button>
-                                <button
-                                  className="btn btn-secondary btn-sm"
-                                  style={{
-                                    color: "var(--red)",
-                                    marginLeft: "6px",
-                                  }}
-                                  onClick={() => reembolsarPago(p.id)}
-                                >
-                                  Reembolsar
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
+              </div>
 
               {/* FINANZAS */}
-              {reportes" && (
+              <div
+                className="section active"
+                id="sec-finanzas"
+                style={{ padding: "24px" }}
+              >
                 <div
-                  className="section active"
-                  id="sec-finanzas"
-                  style={{ padding: "24px" }}
+                  className="table-header"
+                  style={{ marginBottom: "20px" }}
                 >
-                  <div
-                    className="table-header"
-                    style={{ marginBottom: "20px" }}
+                  <h3
+                    className="card-title"
+                    style={{
+                      fontSize: "1.25rem",
+                      color: "var(--primary-dark)",
+                    }}
                   >
-                    <h3
-                      className="card-title"
-                      style={{
-                        fontSize: "1.25rem",
-                        color: "var(--primary-dark)",
-                      }}
-                    >
-                      Reportes y estadísticas Global
-                    </h3>
-                  </div>
+                    Reportes y estadísticas Global
+                  </h3>
+                </div>
 
-                  {loadingFinanzas ? (
+                {loadingFinanzas ? (
+                  <div
+                    style={{
+                      padding: "40px",
+                      textAlign: "center",
+                      color: "var(--text-dim)",
+                    }}
+                  >
+                    Cargando datos financieros...
+                  </div>
+                ) : errorFinanzas ? (
+                  <div style={{ color: "var(--red)", padding: "20px" }}>
+                    {errorFinanzas}
+                  </div>
+                ) : finanzasData ? (
+                  <div>
+                    {/* Financial KPI Cards */}
                     <div
                       style={{
-                        padding: "40px",
-                        textAlign: "center",
-                        color: "var(--text-dim)",
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "16px",
+                        marginBottom: "24px",
                       }}
                     >
-                      Cargando datos financieros...
-                    </div>
-                  ) : errorFinanzas ? (
-                    <div style={{ color: "var(--red)", padding: "20px" }}>
-                      {errorFinanzas}
-                    </div>
-                  ) : finanzasData ? (
-                    <div>
-                      {/* Financial KPI Cards */}
                       <div
                         style={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr",
-                          gap: "16px",
-                          marginBottom: "24px",
+                          background: "var(--green-bg)",
+                          padding: "16px",
+                          borderRadius: "8px",
+                          border: "1px solid var(--primary-light)",
                         }}
                       >
-                        <div
+                        <span
                           style={{
-                            background: "var(--green-bg)",
-                            padding: "16px",
-                            borderRadius: "8px",
-                            border: "1px solid var(--primary-light)",
+                            fontSize: "0.75rem",
+                            fontWeight: "bold",
+                            color: "var(--primary-dark)",
+                            textTransform: "uppercase",
                           }}
                         >
-                          <span
-                            style={{
-                              fontSize: "0.75rem",
-                              fontWeight: "bold",
-                              color: "var(--primary-dark)",
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            Ingresos Confirmados
-                          </span>
-                          <h2
-                            style={{
-                              fontSize: "1.8rem",
-                              color: "var(--primary)",
-                              margin: "8px 0 0 0",
-                            }}
-                          >
-                            {formatPrice(finanzasData.totalIngresos || 0)}
-                          </h2>
-                        </div>
-                        <div
+                          Ingresos Confirmados
+                        </span>
+                        <h2
                           style={{
-                            background: "#fef3c7",
-                            padding: "16px",
-                            borderRadius: "8px",
-                            border: "1px solid #f59e0b",
+                            fontSize: "1.8rem",
+                            color: "var(--primary)",
+                            margin: "8px 0 0 0",
                           }}
                         >
-                          <span
-                            style={{
-                              fontSize: "0.75rem",
-                              fontWeight: "bold",
-                              color: "#b45309",
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            Fondos en Fideicomiso
-                          </span>
-                          <h2
-                            style={{
-                              fontSize: "1.8rem",
-                              color: "#d97706",
-                              margin: "8px 0 0 0",
-                            }}
-                          >
-                            {formatPrice(finanzasData.totalFideicomiso || 0)}
-                          </h2>
-                        </div>
+                          {formatPrice(finanzasData.totalIngresos || 0)}
+                        </h2>
                       </div>
-
                       <div
                         style={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr",
-                          gap: "20px",
+                          background: "#fef3c7",
+                          padding: "16px",
+                          borderRadius: "8px",
+                          border: "1px solid #f59e0b",
                         }}
                       >
-                        {/* Payments by Method */}
-                        <div>
-                          <h4
-                            style={{
-                              marginBottom: "12px",
-                              fontSize: "0.95rem",
-                              fontWeight: "bold",
-                              color: "var(--text)",
-                            }}
-                          >
-                            Por Método de Pago
-                          </h4>
-                          <div className="table-wrap">
-                            <table
-                              className="table-responsive"
-                              style={{ fontSize: "0.85rem" }}
-                            >
-                              <thead>
-                                <tr>
-                                  <th>Método</th>
-                                  <th>Transacciones</th>
-                                  <th>Monto Total</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {Object.keys(
-                                  finanzasData.transaccionesPorMetodo || {},
-                                ).length === 0 ? (
-                                  <tr>
-                                    <td
-                                      colSpan="3"
-                                      style={{ textAlign: "center" }}
-                                    >
-                                      No hay transacciones
-                                    </td>
-                                  </tr>
-                                ) : (
-                                  Object.keys(
-                                    finanzasData.transaccionesPorMetodo,
-                                  ).map((metodo) => (
-                                    <tr key={metodo}>
-                                      <td
-                                        data-label="Método"
-                                        style={{ fontWeight: "bold" }}
-                                      >
-                                        {metodo.replace("_", " ")}
-                                      </td>
-                                      <td data-label="Transacciones">
-                                        {
-                                          finanzasData.transaccionesPorMetodo[
-                                            metodo
-                                          ]
-                                        }
-                                      </td>
-                                      <td data-label="Monto Total">
-                                        {formatPrice(
-                                          finanzasData.montoPorMetodo[metodo] ||
-                                            0,
-                                        )}
-                                      </td>
-                                    </tr>
-                                  ))
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            fontWeight: "bold",
+                            color: "#b45309",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Fondos en Fideicomiso
+                        </span>
+                        <h2
+                          style={{
+                            fontSize: "1.8rem",
+                            color: "#d97706",
+                            margin: "8px 0 0 0",
+                          }}
+                        >
+                          {formatPrice(finanzasData.totalFideicomiso || 0)}
+                        </h2>
+                      </div>
+                    </div>
 
-                        {/* Payments by Status */}
-                        <div>
-                          <h4
-                            style={{
-                              marginBottom: "12px",
-                              fontSize: "0.95rem",
-                              fontWeight: "bold",
-                              color: "var(--text)",
-                            }}
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "20px",
+                      }}
+                    >
+                      {/* Payments by Method */}
+                      <div>
+                        <h4
+                          style={{
+                            marginBottom: "12px",
+                            fontSize: "0.95rem",
+                            fontWeight: "bold",
+                            color: "var(--text)",
+                          }}
+                        >
+                          Por Método de Pago
+                        </h4>
+                        <div className="table-wrap">
+                          <table
+                            className="table-responsive"
+                            style={{ fontSize: "0.85rem" }}
                           >
-                            Por Estado de Transacción
-                          </h4>
-                          <div className="table-wrap">
-                            <table
-                              className="table-responsive"
-                              style={{ fontSize: "0.85rem" }}
-                            >
-                              <thead>
+                            <thead>
+                              <tr>
+                                <th>Método</th>
+                                <th>Transacciones</th>
+                                <th>Monto Total</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.keys(
+                                finanzasData.transaccionesPorMetodo || {},
+                              ).length === 0 ? (
                                 <tr>
-                                  <th>Estado</th>
-                                  <th>Transacciones</th>
-                                  <th>Monto Total</th>
+                                  <td
+                                    colSpan="3"
+                                    style={{ textAlign: "center" }}
+                                  >
+                                    No hay transacciones
+                                  </td>
                                 </tr>
-                              </thead>
-                              <tbody>
-                                {Object.keys(
-                                  finanzasData.transaccionesPorEstado || {},
-                                ).length === 0 ? (
-                                  <tr>
+                              ) : (
+                                Object.keys(
+                                  finanzasData.transaccionesPorMetodo,
+                                ).map((metodo) => (
+                                  <tr key={metodo}>
                                     <td
-                                      colSpan="3"
-                                      style={{ textAlign: "center" }}
+                                      data-label="Método"
+                                      style={{ fontWeight: "bold" }}
                                     >
-                                      No hay transacciones
+                                      {metodo.replace("_", " ")}
+                                    </td>
+                                    <td data-label="Transacciones">
+                                      {
+                                        finanzasData.transaccionesPorMetodo[
+                                          metodo
+                                        ]
+                                      }
+                                    </td>
+                                    <td data-label="Monto Total">
+                                      {formatPrice(
+                                        finanzasData.montoPorMetodo[metodo] ||
+                                          0,
+                                      )}
                                     </td>
                                   </tr>
-                                ) : (
-                                  Object.keys(
-                                    finanzasData.transaccionesPorEstado,
-                                  ).map((estado) => (
-                                    <tr key={estado}>
-                                      <td
-                                        data-label="Estado"
-                                        style={{ fontWeight: "bold" }}
-                                      >
-                                        {estado.replace("_", " ")}
-                                      </td>
-                                      <td data-label="Transacciones">
-                                        {
-                                          finanzasData.transaccionesPorEstado[
-                                            estado
-                                          ]
-                                        }
-                                      </td>
-                                      <td data-label="Monto Total">
-                                        {formatPrice(
-                                          finanzasData.montoPorEstado[estado] ||
-                                            0,
-                                        )}
-                                      </td>
-                                    </tr>
-                                  ))
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
 
-                      <div
-                        style={{
-                          marginTop: "20px",
-                          fontSize: "0.85rem",
-                          color: "var(--text-dim)",
-                          textAlign: "right",
-                        }}
-                      >
-                        Total transacciones registradas:{" "}
-                        <strong>{finanzasData.totalTransacciones}</strong>
+                      {/* Payments by Status */}
+                      <div>
+                        <h4
+                          style={{
+                            marginBottom: "12px",
+                            fontSize: "0.95rem",
+                            fontWeight: "bold",
+                            color: "var(--text)",
+                          }}
+                        >
+                          Por Estado de Transacción
+                        </h4>
+                        <div className="table-wrap">
+                          <table
+                            className="table-responsive"
+                            style={{ fontSize: "0.85rem" }}
+                          >
+                            <thead>
+                              <tr>
+                                <th>Estado</th>
+                                <th>Transacciones</th>
+                                <th>Monto Total</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.keys(
+                                finanzasData.transaccionesPorEstado || {},
+                              ).length === 0 ? (
+                                <tr>
+                                  <td
+                                    colSpan="3"
+                                    style={{ textAlign: "center" }}
+                                  >
+                                    No hay transacciones
+                                  </td>
+                                </tr>
+                              ) : (
+                                Object.keys(
+                                  finanzasData.transaccionesPorEstado,
+                                ).map((estado) => (
+                                  <tr key={estado}>
+                                    <td
+                                      data-label="Estado"
+                                      style={{ fontWeight: "bold" }}
+                                    >
+                                      {estado.replace("_", " ")}
+                                    </td>
+                                    <td data-label="Transacciones">
+                                      {
+                                        finanzasData.transaccionesPorEstado[
+                                          estado
+                                        ]
+                                      }
+                                    </td>
+                                    <td data-label="Monto Total">
+                                      {formatPrice(
+                                        finanzasData.montoPorEstado[estado] ||
+                                          0,
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
-                  ) : (
-                    <div style={{ padding: "20px", textAlign: "center" }}>
-                      Sin datos disponibles.
+
+                    <div
+                      style={{
+                        marginTop: "20px",
+                        fontSize: "0.85rem",
+                        color: "var(--text-dim)",
+                        textAlign: "right",
+                      }}
+                    >
+                      Total transacciones registradas:{" "}
+                      <strong>{finanzasData.totalTransacciones}</strong>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                ) : (
+                  <div style={{ padding: "20px", textAlign: "center" }}>
+                    Sin datos disponibles.
+                  </div>
+                )}
+              </div>
 
               {/* LOGISTICA */}
-              {reportes-logistica" && (
+              <div
+                className="section active"
+                id="sec-logistica"
+                style={{ padding: "24px" }}
+              >
                 <div
-                  className="section active"
-                  id="sec-logistica"
-                  style={{ padding: "24px" }}
+                  className="table-header"
+                  style={{ marginBottom: "20px" }}
                 >
-                  <div
-                    className="table-header"
-                    style={{ marginBottom: "20px" }}
+                  <h3
+                    className="card-title"
+                    style={{
+                      fontSize: "1.25rem",
+                      color: "var(--primary-dark)",
+                    }}
                   >
-                    <h3
-                      className="card-title"
-                      style={{
-                        fontSize: "1.25rem",
-                        color: "var(--primary-dark)",
-                      }}
-                    >
-                      Reporte de Logística y Envíos
-                    </h3>
-                  </div>
+                    Reporte de Logística y Envíos
+                  </h3>
+                </div>
 
-                  {loadingLogistica ? (
+                {loadingLogistica ? (
+                  <div
+                    style={{
+                      padding: "40px",
+                      textAlign: "center",
+                      color: "var(--text-dim)",
+                    }}
+                  >
+                    Cargando datos logísticos...
+                  </div>
+                ) : errorLogistica ? (
+                  <div style={{ color: "var(--red)", padding: "20px" }}>
+                    {errorLogistica}
+                  </div>
+                ) : logisticaData ? (
+                  <div>
+                    {/* Logistics KPI Cards */}
                     <div
                       style={{
-                        padding: "40px",
-                        textAlign: "center",
-                        color: "var(--text-dim)",
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                        gap: "12px",
+                        marginBottom: "24px",
                       }}
                     >
-                      Cargando datos logísticos...
-                    </div>
-                  ) : errorLogistica ? (
-                    <div style={{ color: "var(--red)", padding: "20px" }}>
-                      {errorLogistica}
-                    </div>
-                  ) : logisticaData ? (
-                    <div>
-                      {/* Logistics KPI Cards */}
                       <div
                         style={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr 1fr",
-                          gap: "12px",
-                          marginBottom: "24px",
+                          background: "var(--green-bg)",
+                          padding: "12px",
+                          borderRadius: "8px",
+                          border: "1px solid var(--primary-light)",
+                          textAlign: "center",
                         }}
                       >
-                        <div
+                        <span
                           style={{
-                            background: "var(--green-bg)",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            border: "1px solid var(--primary-light)",
-                            textAlign: "center",
+                            fontSize: "0.7rem",
+                            fontWeight: "bold",
+                            color: "var(--primary-dark)",
+                            textTransform: "uppercase",
                           }}
                         >
-                          <span
-                            style={{
-                              fontSize: "0.7rem",
-                              fontWeight: "bold",
-                              color: "var(--primary-dark)",
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            Total Envíos
-                          </span>
-                          <h2
-                            style={{
-                              fontSize: "1.6rem",
-                              color: "var(--primary)",
-                              margin: "4px 0 0 0",
-                            }}
-                          >
-                            {logisticaData.totalEnvios}
-                          </h2>
-                        </div>
-                        <div
+                          Total Envíos
+                        </span>
+                        <h2
                           style={{
-                            background: "#e0f2fe",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            border: "1px solid #38bdf8",
-                            textAlign: "center",
+                            fontSize: "1.6rem",
+                            color: "var(--primary)",
+                            margin: "4px 0 0 0",
                           }}
                         >
-                          <span
-                            style={{
-                              fontSize: "0.7rem",
-                              fontWeight: "bold",
-                              color: "#0369a1",
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            En Camino
-                          </span>
-                          <h2
-                            style={{
-                              fontSize: "1.6rem",
-                              color: "#0284c7",
-                              margin: "4px 0 0 0",
-                            }}
-                          >
-                            {logisticaData.enviosPorEstado?.["EN_CAMINO"] || 0}
-                          </h2>
-                        </div>
-                        <div
+                          {logisticaData.totalEnvios}
+                        </h2>
+                      </div>
+                      <div
+                        style={{
+                          background: "#e0f2fe",
+                          padding: "12px",
+                          borderRadius: "8px",
+                          border: "1px solid #38bdf8",
+                          textAlign: "center",
+                        }}
+                      >
+                        <span
                           style={{
-                            background: "#dcfce7",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            border: "1px solid #4ade80",
-                            textAlign: "center",
+                            fontSize: "0.7rem",
+                            fontWeight: "bold",
+                            color: "#0369a1",
+                            textTransform: "uppercase",
                           }}
                         >
-                          <span
-                            style={{
-                              fontSize: "0.7rem",
-                              fontWeight: "bold",
-                              color: "#15803d",
-                              textTransform: "uppercase",
-                            }}
+                          En Camino
+                        </span>
+                        <h2
+                          style={{
+                            fontSize: "1.6rem",
+                            color: "#0284c7",
+                            margin: "4px 0 0 0",
+                          }}
+                        >
+                          {logisticaData.enviosPorEstado?.["EN_CAMINO"] || 0}
+                        </h2>
+                      </div>
+                      <div
+                        style={{
+                          background: "#dcfce7",
+                          padding: "12px",
+                          borderRadius: "8px",
+                          border: "1px solid #4ade80",
+                          textAlign: "center",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "0.7rem",
+                            fontWeight: "bold",
+                            color: "#15803d",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Entregados
+                        </span>
+                        <h2
+                          style={{
+                            fontSize: "1.6rem",
+                            color: "#16a34a",
+                            margin: "4px 0 0 0",
+                          }}
+                        >
+                          {logisticaData.enviosPorEstado?.["ENTREGADO"] || 0}
+                        </h2>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "20px",
+                      }}
+                    >
+                      {/* Shipments by Status */}
+                      <div>
+                        <h4
+                          style={{
+                            marginBottom: "12px",
+                            fontSize: "0.95rem",
+                            fontWeight: "bold",
+                            color: "var(--text)",
+                          }}
+                        >
+                          Por Estado del Envío
+                        </h4>
+                        <div className="table-wrap">
+                          <table
+                            className="table-responsive"
+                            style={{ fontSize: "0.85rem" }}
                           >
-                            Entregados
-                          </span>
-                          <h2
-                            style={{
-                              fontSize: "1.6rem",
-                              color: "#16a34a",
-                              margin: "4px 0 0 0",
-                            }}
-                          >
-                            {logisticaData.enviosPorEstado?.["ENTREGADO"] || 0}
-                          </h2>
+                            <thead>
+                              <tr>
+                                <th>Estado</th>
+                                <th>Envíos</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.keys(
+                                logisticaData.enviosPorEstado || {},
+                              ).length === 0 ? (
+                                <tr>
+                                  <td
+                                    colSpan="2"
+                                    style={{ textAlign: "center" }}
+                                  >
+                                    No hay envíos registrados
+                                  </td>
+                                </tr>
+                              ) : (
+                                Object.keys(
+                                  logisticaData.enviosPorEstado,
+                                ).map((estado) => (
+                                  <tr key={estado}>
+                                    <td
+                                      data-label="Estado"
+                                      style={{ fontWeight: "bold" }}
+                                    >
+                                      {estado.replace("_", " ")}
+                                    </td>
+                                    <td data-label="Envíos">
+                                      {logisticaData.enviosPorEstado[estado]}
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
 
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr",
-                          gap: "20px",
-                        }}
-                      >
-                        {/* Shipments by Status */}
-                        <div>
-                          <h4
-                            style={{
-                              marginBottom: "12px",
-                              fontSize: "0.95rem",
-                              fontWeight: "bold",
-                              color: "var(--text)",
-                            }}
+                      {/* Shipments by Carrier */}
+                      <div>
+                        <h4
+                          style={{
+                            marginBottom: "12px",
+                            fontSize: "0.95rem",
+                            fontWeight: "bold",
+                            color: "var(--text)",
+                          }}
+                        >
+                          Distribución por Transportista
+                        </h4>
+                        <div className="table-wrap">
+                          <table
+                            className="table-responsive"
+                            style={{ fontSize: "0.85rem" }}
                           >
-                            Por Estado del Envío
-                          </h4>
-                          <div className="table-wrap">
-                            <table
-                              className="table-responsive"
-                              style={{ fontSize: "0.85rem" }}
-                            >
-                              <thead>
+                            <thead>
+                              <tr>
+                                <th>Transportista</th>
+                                <th>Envíos</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.keys(
+                                logisticaData.enviosPorTransportista || {},
+                              ).length === 0 ? (
                                 <tr>
-                                  <th>Estado</th>
-                                  <th>Envíos</th>
+                                  <td
+                                    colSpan="2"
+                                    style={{ textAlign: "center" }}
+                                  >
+                                    No hay envíos registrados
+                                  </td>
                                 </tr>
-                              </thead>
-                              <tbody>
-                                {Object.keys(
-                                  logisticaData.enviosPorEstado || {},
-                                ).length === 0 ? (
-                                  <tr>
+                              ) : (
+                                Object.keys(
+                                  logisticaData.enviosPorTransportista,
+                                ).map((transportista) => (
+                                  <tr key={transportista}>
                                     <td
-                                      colSpan="2"
-                                      style={{ textAlign: "center" }}
+                                      data-label="Transportista"
+                                      style={{ fontWeight: "bold" }}
                                     >
-                                      No hay envíos registrados
+                                      {transportista}
+                                    </td>
+                                    <td data-label="Envíos">
+                                      {
+                                        logisticaData.enviosPorTransportista[
+                                          transportista
+                                        ]
+                                      }
                                     </td>
                                   </tr>
-                                ) : (
-                                  Object.keys(
-                                    logisticaData.enviosPorEstado,
-                                  ).map((estado) => (
-                                    <tr key={estado}>
-                                      <td
-                                        data-label="Estado"
-                                        style={{ fontWeight: "bold" }}
-                                      >
-                                        {estado.replace("_", " ")}
-                                      </td>
-                                      <td data-label="Envíos">
-                                        {logisticaData.enviosPorEstado[estado]}
-                                      </td>
-                                    </tr>
-                                  ))
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-
-                        {/* Shipments by Carrier */}
-                        <div>
-                          <h4
-                            style={{
-                              marginBottom: "12px",
-                              fontSize: "0.95rem",
-                              fontWeight: "bold",
-                              color: "var(--text)",
-                            }}
-                          >
-                            Distribución por Transportista
-                          </h4>
-                          <div className="table-wrap">
-                            <table
-                              className="table-responsive"
-                              style={{ fontSize: "0.85rem" }}
-                            >
-                              <thead>
-                                <tr>
-                                  <th>Transportista</th>
-                                  <th>Envíos</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {Object.keys(
-                                  logisticaData.enviosPorTransportista || {},
-                                ).length === 0 ? (
-                                  <tr>
-                                    <td
-                                      colSpan="2"
-                                      style={{ textAlign: "center" }}
-                                    >
-                                      No hay envíos registrados
-                                    </td>
-                                  </tr>
-                                ) : (
-                                  Object.keys(
-                                    logisticaData.enviosPorTransportista,
-                                  ).map((transportista) => (
-                                    <tr key={transportista}>
-                                      <td
-                                        data-label="Transportista"
-                                        style={{ fontWeight: "bold" }}
-                                      >
-                                        {transportista}
-                                      </td>
-                                      <td data-label="Envíos">
-                                        {
-                                          logisticaData.enviosPorTransportista[
-                                            transportista
-                                          ]
-                                        }
-                                      </td>
-                                    </tr>
-                                  ))
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div style={{ padding: "20px", textAlign: "center" }}>
-                      Sin datos disponibles.
-                    </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                ) : (
+                  <div style={{ padding: "20px", textAlign: "center" }}>
+                    Sin datos disponibles.
+                  </div>
+                )}
+              </div>
 
               {/* CUPONES */}
-              {cupones" && (
-                <div className="section active">
-                  <div className="table-header">
-                    <h3 className="card-title">
-                      Gestión de Cupones de Descuento
-                    </h3>
+              <div className="section active" id="sec-cupones">
+                <div className="table-header">
+                  <h3 className="card-title">
+                    Gestión de Cupones de Descuento
+                  </h3>
+                </div>
+
+                <form
+                  onSubmit={handleCrearCupon}
+                  style={{
+                    background: "#f8fafc",
+                    padding: "20px",
+                    borderRadius: "8px",
+                    border: "1px solid #e2e8f0",
+                    marginBottom: "24px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                  }}
+                >
+                  <h4
+                    style={{
+                      margin: 0,
+                      color: "var(--primary-dark)",
+                      fontSize: "0.95rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Crear Nuevo Cupón
+                  </h4>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "12px",
+                    }}
+                    className="form-row"
+                  >
+                    <div className="form-group">
+                      <label
+                        className="form-label"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Código *
+                      </label>
+                      <input
+                        className="form-input"
+                        style={{
+                          width: "100%",
+                          padding: "6px 10px",
+                          fontSize: "0.85rem",
+                        }}
+                        placeholder="DESCUENTO10"
+                        value={nuevoCupon.codigo}
+                        onChange={(e) =>
+                          setNuevoCupon({
+                            ...nuevoCupon,
+                            codigo: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label
+                        className="form-label"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Tipo *
+                      </label>
+                      <select
+                        className="form-input"
+                        style={{
+                          width: "100%",
+                          padding: "6px 10px",
+                          fontSize: "0.85rem",
+                        }}
+                        value={nuevoCupon.tipo}
+                        onChange={(e) =>
+                          setNuevoCupon({
+                            ...nuevoCupon,
+                            tipo: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="ENVIO_GRATIS">Envío Gratis</option>
+                        <option value="PORCENTAJE">
+                          Porcentaje de Descuento
+                        </option>
+                        <option value="MONTO_FIJO">Monto Fijo</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <form
-                    onSubmit={handleCrearCupon}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "12px",
+                    }}
+                    className="form-row"
+                  >
+                    <div className="form-group">
+                      <label
+                        className="form-label"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Valor Descuento / Porcentaje
+                      </label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        style={{
+                          width: "100%",
+                          padding: "6px 10px",
+                          fontSize: "0.85rem",
+                        }}
+                        value={nuevoCupon.valor}
+                        onChange={(e) =>
+                          setNuevoCupon({
+                            ...nuevoCupon,
+                            valor: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label
+                        className="form-label"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Monto Mínimo Compra
+                      </label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        style={{
+                          width: "100%",
+                          padding: "6px 10px",
+                          fontSize: "0.85rem",
+                        }}
+                        value={nuevoCupon.montoMinimo}
+                        onChange={(e) =>
+                          setNuevoCupon({
+                            ...nuevoCupon,
+                            montoMinimo: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "12px",
+                    }}
+                    className="form-row"
+                  >
+                    <div className="form-group">
+                      <label
+                        className="form-label"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        ID Usuario (Opcional, vacío para global)
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        style={{
+                          width: "100%",
+                          padding: "6px 10px",
+                          fontSize: "0.85rem",
+                        }}
+                        placeholder="Opcional"
+                        value={nuevoCupon.usuarioId}
+                        onChange={(e) =>
+                          setNuevoCupon({
+                            ...nuevoCupon,
+                            usuarioId: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label
+                        className="form-label"
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        Fecha Expiración (Opcional)
+                      </label>
+                      <input
+                        type="date"
+                        className="form-input"
+                        style={{
+                          width: "100%",
+                          padding: "6px 10px",
+                          fontSize: "0.85rem",
+                        }}
+                        value={nuevoCupon.fechaExpiracion}
+                        onChange={(e) =>
+                          setNuevoCupon({
+                            ...nuevoCupon,
+                            fechaExpiracion: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    className="btn btn-primary btn-sm"
+                    type="submit"
+                    style={{ alignSelf: "flex-start", marginTop: "6px" }}
+                  >
+                    Crear Cupón
+                  </button>
+                </form>
+
+                <div className="table-wrap">
+                  <table className="table-responsive">
+                    <thead>
+                      <tr>
+                        <th>Código</th>
+                        <th>Tipo</th>
+                        <th>Valor</th>
+                        <th>Monto Min.</th>
+                        <th>Usuario ID</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {todosCupones.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan="6"
+                            style={{
+                              textAlign: "center",
+                              padding: "16px",
+                              color: "var(--text-muted)",
+                            }}
+                          >
+                            No hay cupones registrados.
+                          </td>
+                        </tr>
+                      ) : (
+                        todosCupones.map((c) => (
+                          <tr key={c.id}>
+                            <td
+                              data-label="Código"
+                              style={{ fontWeight: "bold" }}
+                            >
+                              {c.codigo}
+                            </td>
+                            <td data-label="Tipo">{c.tipo}</td>
+                            <td data-label="Valor">
+                              {c.tipo === "PORCENTAJE"
+                                ? `${c.valor}%`
+                                : formatPrice(c.valor)}
+                            </td>
+                            <td data-label="Monto Min.">
+                              {formatPrice(c.montoMinimo || 0)}
+                            </td>
+                            <td data-label="Usuario ID">
+                              {c.usuarioId || "Global"}
+                            </td>
+                            <td data-label="Acciones">
+                              <button
+                                className="btn btn-danger btn-sm"
+                                onClick={() => handleEliminarCupon(c.id)}
+                              >
+                                Eliminar
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* SOPORTE */}
+              <div className="section active" id="sec-soporte">
+                <div className="table-header">
+                  <div>
+                    <h3 className="card-title">Tickets de soporte</h3>
+                    <p className="section-subtitle">
+                      Centro de atención y seguimiento de incidencias.
+                    </p>
+                  </div>
+                  <button className="table-action" type="button">
+                    + Nuevo ticket
+                  </button>
+                </div>
+                <div className="table-wrap">
+                  <table className="table-responsive">
+                    <thead>
+                      <tr>
+                        <th>Ticket</th>
+                        <th>Asunto</th>
+                        <th>Usuario</th>
+                        <th>Estado</th>
+                        <th>Prioridad</th>
+                        <th>Fecha</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminTickets.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" className="empty-cell">
+                            El frontend actual no tiene un endpoint de tickets
+                            de soporte. Cuando /admin/dashboard devuelva
+                            tickets, se renderizarán automáticamente en esta
+                            tabla.
+                          </td>
+                        </tr>
+                      ) : (
+                        adminTickets.map((ticket, i) => (
+                          <tr key={ticket.id || i}>
+                            <td data-label="Ticket">
+                              {ticket.codigo ||
+                                ticket.numero ||
+                                ticket.id ||
+                                `#T-${i + 1}`}
+                            </td>
+                            <td data-label="Asunto">
+                              {ticket.asunto || ticket.titulo || "—"}
+                            </td>
+                            <td data-label="Usuario">
+                              {ticket.usuario || ticket.nombreUsuario || "—"}
+                            </td>
+                            <td data-label="Estado">
+                              <span className="badge-status status-pending">
+                                {ticket.estado || "—"}
+                              </span>
+                            </td>
+                            <td data-label="Prioridad">
+                              <span className="priority-badge">
+                                {ticket.prioridad || "Media"}
+                              </span>
+                            </td>
+                            <td data-label="Fecha">
+                              {ticket.fecha || ticket.fechaCreacion || "—"}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* AUDITORIA */}
+              <div className="section active" id="sec-auditoria">
+                <div className="table-header">
+                  <div>
+                    <h3 className="card-title">Auditoría y actividad</h3>
+                    <p className="section-subtitle">
+                      Vista preparada para eventos administrativos expuestos
+                      por el backend.
+                    </p>
+                  </div>
+                </div>
+                <div className="audit-grid">
+                  <div className="audit-card">
+                    <span>Usuarios</span>
+                    <strong>{dashboardUsuarios}</strong>
+                    <small>registros administrativos</small>
+                  </div>
+                  <div className="audit-card">
+                    <span>Productos</span>
+                    <strong>{dashboardProductos}</strong>
+                    <small>registros del catálogo</small>
+                  </div>
+                  <div className="audit-card">
+                    <span>Pedidos</span>
+                    <strong>{dashboardPedidos}</strong>
+                    <small>registros conocidos</small>
+                  </div>
+                  <div className="audit-card">
+                    <span>Tickets</span>
+                    <strong>{dashboardTickets}</strong>
+                    <small>incidencias conocidas</small>
+                  </div>
+                </div>
+                <div className="empty-audit">
+                  No se inventa un endpoint de auditoría. Esta vista queda
+                  preparada para conectar el contrato real cuando el backend
+                  lo exponga.
+                </div>
+              </div>
+
+              {/* CONFIGURACION */}
+              <div className="section active" id="sec-configuracion">
+                <div className="table-header">
+                  <h3 className="card-title">Configuración del Sistema</h3>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "20px",
+                  }}
+                >
+                  {/* Costo envío */}
+                  {/* Mantenimiento mode */}
+                  <div
                     style={{
                       background: "#f8fafc",
                       padding: "20px",
                       borderRadius: "8px",
                       border: "1px solid #e2e8f0",
-                      marginBottom: "24px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "12px",
                     }}
                   >
                     <h4
                       style={{
                         margin: 0,
+                        marginBottom: "12px",
                         color: "var(--primary-dark)",
                         fontSize: "0.95rem",
                         fontWeight: "bold",
                       }}
                     >
-                      Crear Nuevo Cupón
+                      Modo Mantenimiento
                     </h4>
-                    <div
+                    <p
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: "12px",
-                      }}
-                      className="form-row"
-                    >
-                      <div className="form-group">
-                        <label
-                          className="form-label"
-                          style={{ fontSize: "0.85rem" }}
-                        >
-                          Código *
-                        </label>
-                        <input
-                          className="form-input"
-                          style={{
-                            width: "100%",
-                            padding: "6px 10px",
-                            fontSize: "0.85rem",
-                          }}
-                          placeholder="DESCUENTO10"
-                          value={nuevoCupon.codigo}
-                          onChange={(e) =>
-                            setNuevoCupon({
-                              ...nuevoCupon,
-                              codigo: e.target.value,
-                            })
-                          }
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label
-                          className="form-label"
-                          style={{ fontSize: "0.85rem" }}
-                        >
-                          Tipo *
-                        </label>
-                        <select
-                          className="form-input"
-                          style={{
-                            width: "100%",
-                            padding: "6px 10px",
-                            fontSize: "0.85rem",
-                          }}
-                          value={nuevoCupon.tipo}
-                          onChange={(e) =>
-                            setNuevoCupon({
-                              ...nuevoCupon,
-                              tipo: e.target.value,
-                            })
-                          }
-                        >
-                          <option value="ENVIO_GRATIS">Envío Gratis</option>
-                          <option value="PORCENTAJE">
-                            Porcentaje de Descuento
-                          </option>
-                          <option value="MONTO_FIJO">Monto Fijo</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: "12px",
-                      }}
-                      className="form-row"
-                    >
-                      <div className="form-group">
-                        <label
-                          className="form-label"
-                          style={{ fontSize: "0.85rem" }}
-                        >
-                          Valor Descuento / Porcentaje
-                        </label>
-                        <input
-                          type="number"
-                          className="form-input"
-                          style={{
-                            width: "100%",
-                            padding: "6px 10px",
-                            fontSize: "0.85rem",
-                          }}
-                          value={nuevoCupon.valor}
-                          onChange={(e) =>
-                            setNuevoCupon({
-                              ...nuevoCupon,
-                              valor: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label
-                          className="form-label"
-                          style={{ fontSize: "0.85rem" }}
-                        >
-                          Monto Mínimo Compra
-                        </label>
-                        <input
-                          type="number"
-                          className="form-input"
-                          style={{
-                            width: "100%",
-                            padding: "6px 10px",
-                            fontSize: "0.85rem",
-                          }}
-                          value={nuevoCupon.montoMinimo}
-                          onChange={(e) =>
-                            setNuevoCupon({
-                              ...nuevoCupon,
-                              montoMinimo: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: "12px",
-                      }}
-                      className="form-row"
-                    >
-                      <div className="form-group">
-                        <label
-                          className="form-label"
-                          style={{ fontSize: "0.85rem" }}
-                        >
-                          ID Usuario (Opcional, vacío para global)
-                        </label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          style={{
-                            width: "100%",
-                            padding: "6px 10px",
-                            fontSize: "0.85rem",
-                          }}
-                          placeholder="Opcional"
-                          value={nuevoCupon.usuarioId}
-                          onChange={(e) =>
-                            setNuevoCupon({
-                              ...nuevoCupon,
-                              usuarioId: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label
-                          className="form-label"
-                          style={{ fontSize: "0.85rem" }}
-                        >
-                          Fecha Expiración (Opcional)
-                        </label>
-                        <input
-                          type="date"
-                          className="form-input"
-                          style={{
-                            width: "100%",
-                            padding: "6px 10px",
-                            fontSize: "0.85rem",
-                          }}
-                          value={nuevoCupon.fechaExpiracion}
-                          onChange={(e) =>
-                            setNuevoCupon({
-                              ...nuevoCupon,
-                              fechaExpiracion: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      className="btn btn-primary btn-sm"
-                      type="submit"
-                      style={{ alignSelf: "flex-start", marginTop: "6px" }}
-                    >
-                      Crear Cupón
-                    </button>
-                  </form>
-
-                  <div className="table-wrap">
-                    <table className="table-responsive">
-                      <thead>
-                        <tr>
-                          <th>Código</th>
-                          <th>Tipo</th>
-                          <th>Valor</th>
-                          <th>Monto Min.</th>
-                          <th>Usuario ID</th>
-                          <th>Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {todosCupones.length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan="6"
-                              style={{
-                                textAlign: "center",
-                                padding: "16px",
-                                color: "var(--text-muted)",
-                              }}
-                            >
-                              No hay cupones registrados.
-                            </td>
-                          </tr>
-                        ) : (
-                          todosCupones.map((c) => (
-                            <tr key={c.id}>
-                              <td
-                                data-label="Código"
-                                style={{ fontWeight: "bold" }}
-                              >
-                                {c.codigo}
-                              </td>
-                              <td data-label="Tipo">{c.tipo}</td>
-                              <td data-label="Valor">
-                                {c.tipo === "PORCENTAJE"
-                                  ? `${c.valor}%`
-                                  : formatPrice(c.valor)}
-                              </td>
-                              <td data-label="Monto Min.">
-                                {formatPrice(c.montoMinimo || 0)}
-                              </td>
-                              <td data-label="Usuario ID">
-                                {c.usuarioId || "Global"}
-                              </td>
-                              <td data-label="Acciones">
-                                <button
-                                  className="btn btn-danger btn-sm"
-                                  onClick={() => handleEliminarCupon(c.id)}
-                                >
-                                  Eliminar
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* SOPORTE */}
-              {soporte" && (
-                <div className="section active" id="sec-soporte">
-                  <div className="table-header">
-                    <div>
-                      <h3 className="card-title">Tickets de soporte</h3>
-                      <p className="section-subtitle">
-                        Centro de atención y seguimiento de incidencias.
-                      </p>
-                    </div>
-                    <button className="table-action" type="button">
-                      + Nuevo ticket
-                    </button>
-                  </div>
-                  <div className="table-wrap">
-                    <table className="table-responsive">
-                      <thead>
-                        <tr>
-                          <th>Ticket</th>
-                          <th>Asunto</th>
-                          <th>Usuario</th>
-                          <th>Estado</th>
-                          <th>Prioridad</th>
-                          <th>Fecha</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {adminTickets.length === 0 ? (
-                          <tr>
-                            <td colSpan="6" className="empty-cell">
-                              El frontend actual no tiene un endpoint de tickets
-                              de soporte. Cuando /admin/dashboard devuelva
-                              tickets, se renderizarán automáticamente en esta
-                              tabla.
-                            </td>
-                          </tr>
-                        ) : (
-                          adminTickets.map((ticket, i) => (
-                            <tr key={ticket.id || i}>
-                              <td data-label="Ticket">
-                                {ticket.codigo ||
-                                  ticket.numero ||
-                                  ticket.id ||
-                                  `#T-${i + 1}`}
-                              </td>
-                              <td data-label="Asunto">
-                                {ticket.asunto || ticket.titulo || "—"}
-                              </td>
-                              <td data-label="Usuario">
-                                {ticket.usuario || ticket.nombreUsuario || "—"}
-                              </td>
-                              <td data-label="Estado">
-                                <span className="badge-status status-pending">
-                                  {ticket.estado || "—"}
-                                </span>
-                              </td>
-                              <td data-label="Prioridad">
-                                <span className="priority-badge">
-                                  {ticket.prioridad || "Media"}
-                                </span>
-                              </td>
-                              <td data-label="Fecha">
-                                {ticket.fecha || ticket.fechaCreacion || "—"}
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* AUDITORIA */}
-              {auditoria" && (
-                <div className="section active" id="sec-auditoria">
-                  <div className="table-header">
-                    <div>
-                      <h3 className="card-title">Auditoría y actividad</h3>
-                      <p className="section-subtitle">
-                        Vista preparada para eventos administrativos expuestos
-                        por el backend.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="audit-grid">
-                    <div className="audit-card">
-                      <span>Usuarios</span>
-                      <strong>{dashboardUsuarios}</strong>
-                      <small>registros administrativos</small>
-                    </div>
-                    <div className="audit-card">
-                      <span>Productos</span>
-                      <strong>{dashboardProductos}</strong>
-                      <small>registros del catálogo</small>
-                    </div>
-                    <div className="audit-card">
-                      <span>Pedidos</span>
-                      <strong>{dashboardPedidos}</strong>
-                      <small>registros conocidos</small>
-                    </div>
-                    <div className="audit-card">
-                      <span>Tickets</span>
-                      <strong>{dashboardTickets}</strong>
-                      <small>incidencias conocidas</small>
-                    </div>
-                  </div>
-                  <div className="empty-audit">
-                    No se inventa un endpoint de auditoría. Esta vista queda
-                    preparada para conectar el contrato real cuando el backend
-                    lo exponga.
-                  </div>
-                </div>
-              )}
-
-              {/* CONFIGURACION */}
-              {configuracion" && (
-                <div className="section active">
-                  <div className="table-header">
-                    <h3 className="card-title">Configuración del Sistema</h3>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "20px",
-                    }}
-                  >
-                    {/* Costo envío */}
-                    {/* Mantenimiento mode */}
-                    <div
-                      style={{
-                        background: "#f8fafc",
-                        padding: "20px",
-                        borderRadius: "8px",
-                        border: "1px solid #e2e8f0",
+                        fontSize: "0.85rem",
+                        color: "#64748b",
+                        marginBottom: "12px",
                       }}
                     >
-                      <h4
-                        style={{
-                          margin: 0,
-                          marginBottom: "12px",
-                          color: "var(--primary-dark)",
-                          fontSize: "0.95rem",
-                          fontWeight: "bold",
+                      Activar el modo de mantenimiento bloquea el acceso de
+                      clientes a la tienda, permitiendo únicamente el acceso
+                      de administradores.
+                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={mantenimientoMode}
+                        onChange={async (e) => {
+                          const activo = e.target.checked;
+                          try {
+                            await api.put("/config/system/mantenimiento", {
+                              activo,
+                            });
+                            setMantenimientoMode(activo);
+                            // Avisa a MaintenanceLayer para refrescar ya.
+                            window.dispatchEvent(
+                              new Event("agromarket:maintenance-changed"),
+                            );
+                            alert(
+                              `Modo mantenimiento ${activo ? "ACTIVADO" : "DESACTIVADO"}. Todos los usuarios verán el aviso automáticamente.`,
+                            );
+                          } catch (err) {
+                            alert(
+                              "No se pudo cambiar el modo mantenimiento: " +
+                                (err.message || "intenta de nuevo."),
+                            );
+                          }
                         }}
-                      >
-                        Modo Mantenimiento
-                      </h4>
-                      <p
+                        id="chkMantenimiento"
                         style={{
-                          fontSize: "0.85rem",
-                          color: "#64748b",
-                          marginBottom: "12px",
+                          width: "20px",
+                          height: "20px",
+                          cursor: "pointer",
                         }}
+                      />
+                      <label
+                        htmlFor="chkMantenimiento"
+                        style={{ fontWeight: "bold", cursor: "pointer" }}
                       >
-                        Activar el modo de mantenimiento bloquea el acceso de
-                        clientes a la tienda, permitiendo únicamente el acceso
-                        de administradores.
-                      </p>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={mantenimientoMode}
-                          onChange={async (e) => {
-                            const activo = e.target.checked;
-                            try {
-                              await api.put("/config/system/mantenimiento", {
-                                activo,
-                              });
-                              setMantenimientoMode(activo);
-                              // Avisa a MaintenanceLayer para refrescar ya.
-                              window.dispatchEvent(
-                                new Event("agromarket:maintenance-changed"),
-                              );
-                              alert(
-                                `Modo mantenimiento ${activo ? "ACTIVADO" : "DESACTIVADO"}. Todos los usuarios verán el aviso automáticamente.`,
-                              );
-                            } catch (err) {
-                              alert(
-                                "No se pudo cambiar el modo mantenimiento: " +
-                                  (err.message || "intenta de nuevo."),
-                              );
-                            }
-                          }}
-                          id="chkMantenimiento"
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            cursor: "pointer",
-                          }}
-                        />
-                        <label
-                          htmlFor="chkMantenimiento"
-                          style={{ fontWeight: "bold", cursor: "pointer" }}
-                        >
-                          Activar Modo Mantenimiento
-                        </label>
-                      </div>
+                        Activar Modo Mantenimiento
+                      </label>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* SIDEBAR INFO ADMIN */}
@@ -3290,7 +3297,6 @@ export default function Admin() {
               </div>
             </div>
           </div>
-        ) : (
           <div
             style={{
               display: "grid",
@@ -3541,7 +3547,6 @@ export default function Admin() {
               </form>
             </div>
           </div>
-        )}
         {/* FIX: El footer NO debe mostrarse dentro del dashboard de Admin.
             El pie global de la app ya se oculta en /admin (AppFooter) y el
             layout del panel no debe renderizar su propio footer. */}

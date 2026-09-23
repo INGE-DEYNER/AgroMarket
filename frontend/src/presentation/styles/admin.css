@@ -394,39 +394,27 @@
 
 /* ============================================================
    DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
-   ============================================================ */
+   ============================================================
+   El render ya no condiciona las secciones a activeSection: todas se muestran
+   a la vez y cada una expone id="sec-<clave>". El sidebar deja por tanto de ser
+   "navegación entre secciones" y pasa a ser navegación de la misma página
+   (showSection -> scrollIntoView + resaltado de la sección activa).
 
-/* Ocultar sidebar de navegación interna */
-.app-layout .sidebar {
-  display: none !important;
-}
+   Nota: las reglas con [onclick*="setActiveSection"] y [onclick*="showSection"]
+   que había aquí nunca aplicaban: React no serializa los manejadores onClick
+   como atributo HTML `onclick`, así que ese selector no coincide con ningún
+   elemento y no ocultaba nada.
 
-/* Ocultar mobile nav si existe */
-.app-layout .mobile-nav {
-  display: none !important;
-}
-
-/* Ocultar sidebar overlay */
-.app-layout .sidebar-overlay {
-  display: none !important;
-}
+   OPCIONAL: para el dashboard SIN sidebar (secciones a todo el ancho),
+   descomentar el bloque marcado al final de esta sección. */
 
 /* Mostrar TODAS las secciones */
-.app-layout .section-content {
+.admin-dashboard .section {
   display: block !important;
 }
 
-/* Eliminar botones de navegación entre secciones */
-.app-layout a[onclick*="setActiveSection"] {
-  display: none !important;
-}
-
-.app-layout a[onclick*="showSection"] {
-  display: none !important;
-}
-
 /* Layout compacto */
-.app-layout .main-content {
+.admin-dashboard .main-content {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -435,14 +423,14 @@
 }
 
 /* Tarjetas de estadísticas en grid responsive */
-.app-layout .stats-grid {
+.admin-dashboard .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
 /* Secciones con estilo consistente */
-.app-layout .section-content {
+.admin-dashboard .section {
   background: #fff;
   border-radius: 12px;
   padding: 20px;
@@ -450,3 +438,15 @@
   margin-bottom: 20px;
   border: 1px solid var(--admin-border);
 }
+
+/* OPCIONAL: dashboard sin sidebar (secciones a todo el ancho).
+   Se deja desactivado porque el sidebar se conserva visible: además de la
+   navegación de la página contiene "Mi Perfil" y "Cerrar sesión".
+   Descomentar para ocultarlo por completo.
+.admin-dashboard .sidebar,
+.admin-dashboard .mobile-nav,
+.admin-dashboard .sidebar-overlay,
+.admin-dashboard .sidebar-toggle-btn {
+  display: none !important;
+}
+*/

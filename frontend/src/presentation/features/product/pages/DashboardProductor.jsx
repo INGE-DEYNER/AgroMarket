@@ -45,9 +45,42 @@ export default function DashboardProductor() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Navigation state - DASHBOARD COMPACTO: todas las secciones activas (OCULTADO POR CSS)
+  // Navigation state
   const [activeSection, setActiveSection] = useState("resumen");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // DASHBOARD COMPACTO: todas las secciones se renderizan a la vez, así que
+  // "navegar entre secciones" es desplazarse hasta la sección pedida. Cada
+  // sección expone id="sec-<clave>", por lo que también funcionan los enlaces
+  // profundos (?section=<clave>) que llegan desde otras páginas.
+  const scrollToSection = useCallback((key) => {
+    if (!key || typeof document === "undefined") return;
+    const target = document.getElementById(`sec-${key}`);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const showSection = useCallback(
+    (key) => {
+      setActiveSection(key);
+      scrollToSection(key);
+    },
+    [scrollToSection],
+  );
+
+  // Enlace profundo (p. ej. /dashboard-productor?section=pedidosRec): todas las
+  // secciones viven en la misma página, así que además de marcarla activa hay
+  // que desplazar la vista hasta ella.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sec = params.get("section");
+    if (!sec) return undefined;
+
+    const timer = setTimeout(() => {
+      showSection(sec);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [location.search, showSection]);
 
   // Product and sales state
   const [productos, setProductos] = useState([]);
@@ -276,28 +309,34 @@ export default function DashboardProductor() {
   }, [extractArray, user]);
 
   // Section Loading triggers
-  // CARGAR TODO para dashboard compacto
+  // DASHBOARD COMPACTO: todas las secciones están visibles a la vez, así que
+  // cada una carga sus datos al montar (ya no se espera a activeSection).
   useEffect(() => {
-    void loadEnvios();
-    void loadContactos();
-    void loadActiveRfqs();
-    void loadResenasProductor();
-    
-    if (user) {
+    const timer = setTimeout(() => {
+      void loadEnvios();
+      void loadContactos();
+      void loadActiveRfqs();
+      void loadResenasProductor();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [loadEnvios, loadContactos, loadActiveRfqs, loadResenasProductor]);
+
+  // Datos del formulario de perfil (la sección está siempre visible).
+  useEffect(() => {
+    if (!user) return undefined;
+
+    const timer = setTimeout(() => {
       setPerfilForm({
         nombre: user.nombre || "",
         telefono: user.telefono || "",
       });
       setPerfilMsg({ type: "", text: "" });
       setPwMsg({ type: "", text: "" });
-    }
-  }, [
-    user,
-    loadEnvios,
-    loadContactos,
-    loadActiveRfqs,
-    loadResenasProductor,
-  ]);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [user]);
 
   const selectContact = async (contacto) => {
     setSelectedContact(contacto);
@@ -317,8 +356,9 @@ export default function DashboardProductor() {
     }, 100);
   };
 
-  // TIEMPO REAL: sondea contactos y conversación activa mientras la
-  // sección de mensajería - Dashboard compacto: siempre cargar
+  // TIEMPO REAL: sondea contactos y conversación activa.
+  // DASHBOARD COMPACTO: la sección de mensajería está siempre visible, así que
+  // el sondeo no se condiciona a activeSection (que ya no cambia desde la UI).
   useEffect(() => {
     const contactosTimer = setInterval(() => void loadContactos(), 10000);
     return () => clearInterval(contactosTimer);
@@ -339,7 +379,7 @@ export default function DashboardProductor() {
       }
     }, 3500);
     return () => clearInterval(conversacionTimer);
-  }, [activeSection, selectedContact, user, extractArray]);
+  }, [selectedContact, user, extractArray]);
 
   /*
    * TIEMPO REAL (SSE): el backend empuja el mensaje y se agrega al instante a
@@ -374,7 +414,7 @@ export default function DashboardProductor() {
   );
 
   useMensajeriaStream({
-    enabled: Boolean(user) && activeSection === "mensajeria",
+    enabled: Boolean(user),
     onEvent: handleMensajeTiempoReal,
   });
 
@@ -671,10 +711,10 @@ export default function DashboardProductor() {
         <div className="sidebar-label">Gestión del negocio</div>
         <a
           href="#"
-          className={`sidebar-link${resumen" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "resumen" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("resumen");
+            showSection("resumen");
             setSidebarOpen(false);
           }}
         >
@@ -682,10 +722,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${misProductos" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "misProductos" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("misProductos");
+            showSection("misProductos");
             setSidebarOpen(false);
           }}
         >
@@ -693,10 +733,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${pedidosRec" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "pedidosRec" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("pedidosRec");
+            showSection("pedidosRec");
             setSidebarOpen(false);
           }}
         >
@@ -705,10 +745,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${mensajeria" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "mensajeria" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("mensajeria");
+            showSection("mensajeria");
             setSidebarOpen(false);
           }}
         >
@@ -716,10 +756,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${resenas" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "resenas" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("resenas");
+            showSection("resenas");
             setSidebarOpen(false);
           }}
         >
@@ -727,10 +767,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${finca" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "finca" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("finca");
+            showSection("finca");
             setSidebarOpen(false);
           }}
         >
@@ -738,10 +778,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${finanzas" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "finanzas" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("finanzas");
+            showSection("finanzas");
             setSidebarOpen(false);
           }}
         >
@@ -749,10 +789,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${configuracion" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "configuracion" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("configuracion");
+            showSection("configuracion");
             setSidebarOpen(false);
           }}
         >
@@ -762,10 +802,10 @@ export default function DashboardProductor() {
         <div className="sidebar-label">Operación</div>
         <a
           href="#"
-          className={`sidebar-link${seguimiento" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "seguimiento" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("seguimiento");
+            showSection("seguimiento");
             setSidebarOpen(false);
           }}
         >
@@ -773,10 +813,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${rfq" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "rfq" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("rfq");
+            showSection("rfq");
             setSidebarOpen(false);
           }}
         >
@@ -784,10 +824,10 @@ export default function DashboardProductor() {
         </a>
         <a
           href="#"
-          className={`sidebar-link${perfil" ? " active" : ""}`}
+          className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            setActiveSection("perfil");
+            showSection("perfil");
             setSidebarOpen(false);
           }}
         >
@@ -836,7 +876,7 @@ export default function DashboardProductor() {
             <button
               type="button"
               className="producer-icon-btn"
-              onClick={() => setActiveSection("mensajeria")}
+              onClick={() => showSection("mensajeria")}
               aria-label="Mensajes"
             >
               ✉
@@ -844,7 +884,7 @@ export default function DashboardProductor() {
             <button
               type="button"
               className="producer-icon-btn"
-              onClick={() => setActiveSection("configuracion")}
+              onClick={() => showSection("configuracion")}
               aria-label="Configuración"
             >
               ⚙
@@ -852,7 +892,7 @@ export default function DashboardProductor() {
             <button
               type="button"
               className="producer-account"
-              onClick={() => setActiveSection("perfil")}
+              onClick={() => showSection("perfil")}
             >
               <span className="producer-avatar">{iniciales}</span>
               <span>
@@ -877,261 +917,148 @@ export default function DashboardProductor() {
         </div>
 
         {/* â”€â”€â”€ RESUMEN â”€â”€â”€ */}
-        
-          <div className="section active" id="sec-resumen">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1>
-                  {t(
-                    "dashboardProductor.welcome",
-                    "¡Excelente día, {{name}}!",
-                    { name: user?.nombre || "Luis" },
-                  )}
-                </h1>
-                <p>
-                  {t(
-                    "dashboardProductor.sub",
-                    "Tu cosecha está teniendo un gran rendimiento este mes en Urabá.",
-                  )}
-                </p>
-              </div>
-              <button className="btn-cta" onClick={() => openProductoModal()}>
-                {t("dashboardProductor.publishProduct", "Publicar Producto +")}
-              </button>
+        <div className="section active" id="sec-resumen">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1>
+                {t(
+                  "dashboardProductor.welcome",
+                  "¡Excelente día, {{name}}!",
+                  { name: user?.nombre || "Luis" },
+                )}
+              </h1>
+              <p>
+                {t(
+                  "dashboardProductor.sub",
+                  "Tu cosecha está teniendo un gran rendimiento este mes en Urabá.",
+                )}
+              </p>
             </div>
+            <button className="btn-cta" onClick={() => openProductoModal()}>
+              {t("dashboardProductor.publishProduct", "Publicar Producto +")}
+            </button>
+          </div>
 
-            {!user?.verificado && (
-              <div
-                style={{
-                  background:
-                    "linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%)",
-                  border: "1px solid #ffe8a1",
-                  borderRadius: "12px",
-                  padding: "16px 20px",
-                  marginBottom: "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
-                  <span style={{ fontSize: "1.5rem" }}></span>
-                  <div>
-                    <strong style={{ color: "#856404", display: "block" }}>
-                      Tu cuenta de productor aún no está verificada
-                    </strong>
-                    <span style={{ color: "#856404", fontSize: "0.85rem" }}>
-                      Completa tu información personal y cuenta bancaria para
-                      ser aprobado por el administrador.
-                    </span>
-                  </div>
-                </div>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigate("/perfil")}
-                  style={{
-                    background: "#856404",
-                    color: "#fff",
-                    border: "none",
-                    padding: "8px 16px",
-                  }}
-                >
-                  Verificar Perfil
-                </button>
-              </div>
-            )}
-
-            <div className="stats-grid">
-              <div className="stat-card color-1">
-                <span className="stat-icon-lg"></span>
-                <div className="stat-label">
-                  {t(
-                    "dashboardProductor.stats.activeProducts",
-                    "Productos Activos",
-                  )}
-                </div>
-                <div className="stat-value">
-                  {String(productos.length).padStart(2, "0")}
-                </div>
-              </div>
-              <div className="stat-card color-2">
-                <span className="stat-icon-lg"></span>
-                <div className="stat-label">
-                  {t("dashboardProductor.stats.monthlySales", "Ventas del Mes")}
-                </div>
-                <div className="stat-value">
-                  {String(pedidos.length).padStart(2, "0")}
-                </div>
-              </div>
-              <div className="stat-card color-3">
-                <span className="stat-icon-lg"></span>
-                <div className="stat-label">
-                  {t(
-                    "dashboardProductor.stats.totalEarnings",
-                    "Ingresos Totales",
-                  )}
-                </div>
-                <div className="stat-value">
-                  {formatPrice(
-                    pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0),
-                  )}
-                </div>
-              </div>
-              <div className="stat-card color-4">
-                <span className="stat-icon-lg"></span>
-                <div className="stat-label">
-                  {t("dashboardProductor.stats.rating", "Calificación")}
-                </div>
-                <div className="stat-value">{user?.calificacion || "4.9"}</div>
-              </div>
-            </div>
-
+          {!user?.verificado && (
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "1fr",
-                gap: "24px",
+                background:
+                  "linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%)",
+                border: "1px solid #ffe8a1",
+                borderRadius: "12px",
+                padding: "16px 20px",
+                marginBottom: "24px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
               }}
             >
-              <div className="card-table">
-                <div className="table-header">
-                  <h3 className="card-title">
-                    {" "}
-                    {t("dashboardProductor.recentSales", "Últimas ventas")}
-                  </h3>
-                </div>
-                <div className="table-wrap">
-                  <table className="table-responsive">
-                    <thead>
-                      <tr>
-                        <th>{t("dashboardProductor.order", "Pedido")}</th>
-                        <th>{t("dashboardProductor.buyer", "Comprador")}</th>
-                        <th>{t("dashboardProductor.total", "Total")}</th>
-                        <th>{t("dashboardProductor.status", "Estado")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pedidos.slice(0, 5).map((p) => (
-                        <tr key={p.id}>
-                          <td data-label="Pedido">#{p.id}</td>
-                          <td data-label="Comprador">
-                            {p.comprador || p.nombreComprador || "—"}
-                          </td>
-                          <td data-label="Total">{formatPrice(p.total)}</td>
-                          <td data-label="Estado">
-                            <span className={badgeClass(p.estado)}>
-                              {t(
-                                "pedidos.status." + p.estado?.toLowerCase(),
-                                p.estado,
-                              )}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
+                <span style={{ fontSize: "1.5rem" }}></span>
+                <div>
+                  <strong style={{ color: "#856404", display: "block" }}>
+                    Tu cuenta de productor aún no está verificada
+                  </strong>
+                  <span style={{ color: "#856404", fontSize: "0.85rem" }}>
+                    Completa tu información personal y cuenta bancaria para
+                    ser aprobado por el administrador.
+                  </span>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* â”€â”€â”€ INVENTARIO â”€â”€â”€ */}
-        
-          <div className="section active" id="sec-misProductos">
-            <div className="dash-header">
-              <h1>{t("dashboardProductor.nav.inventory", "Mi Inventario")}</h1>
-              <button className="btn-cta" onClick={() => openProductoModal()}>
-                {t("dashboardProductor.newProduct", "+ Nuevo Producto")}
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate("/perfil")}
+                style={{
+                  background: "#856404",
+                  color: "#fff",
+                  border: "none",
+                  padding: "8px 16px",
+                }}
+              >
+                Verificar Perfil
               </button>
             </div>
-            <div className="card-table">
-              <div className="table-wrap">
-                <table className="table-responsive">
-                  <thead>
-                    <tr>
-                      <th>{t("dashboardProductor.product", "Producto")}</th>
-                      <th>{t("dashboardProductor.type", "Tipo")}</th>
-                      <th>{t("dashboardProductor.pricePerKg", "Precio/kg")}</th>
-                      <th>{t("dashboardProductor.stock", "Stock")}</th>
-                      <th>{t("dashboardProductor.status", "Estado")}</th>
-                      <th>{t("dashboardProductor.actions", "Acciones")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {productos.map((p) => (
-                      <tr key={p.id}>
-                        <td data-label="Producto">{p.nombre}</td>
-                        <td data-label="Tipo">{p.tipo}</td>
-                        <td data-label="Precio/kg">{formatPrice(p.precio)}</td>
-                        <td data-label="Stock">{p.stock} kg</td>
-                        <td data-label="Estado">
-                          <span className="badge-status status-shipped">
-                            {t("dashboardProductor.active", "Activo")}
-                          </span>
-                        </td>
-                        <td data-label="Acciones">
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            onClick={() => openProductoModal(p)}
-                          >
-                            {t("dashboardProductor.edit", "Editar")}
-                          </button>
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            style={{ color: "var(--red)", marginLeft: "6px" }}
-                            onClick={() => eliminarProducto(p.id)}
-                            aria-label={`Eliminar ${p.nombre || "producto"}`}
-                          >
-                            Eliminar
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          )}
+
+          <div className="stats-grid">
+            <div className="stat-card color-1">
+              <span className="stat-icon-lg"></span>
+              <div className="stat-label">
+                {t(
+                  "dashboardProductor.stats.activeProducts",
+                  "Productos Activos",
+                )}
+              </div>
+              <div className="stat-value">
+                {String(productos.length).padStart(2, "0")}
               </div>
             </div>
-          </div>
-        )}
-
-        {/* â”€â”€â”€ VENTAS â”€â”€â”€ */}
-        
-          <div className="section active" id="sec-pedidosRec">
-            <div className="dash-header">
-              <h1>{t("dashboardProductor.nav.sales", "Gestión de Ventas")}</h1>
+            <div className="stat-card color-2">
+              <span className="stat-icon-lg"></span>
+              <div className="stat-label">
+                {t("dashboardProductor.stats.monthlySales", "Ventas del Mes")}
+              </div>
+              <div className="stat-value">
+                {String(pedidos.length).padStart(2, "0")}
+              </div>
             </div>
+            <div className="stat-card color-3">
+              <span className="stat-icon-lg"></span>
+              <div className="stat-label">
+                {t(
+                  "dashboardProductor.stats.totalEarnings",
+                  "Ingresos Totales",
+                )}
+              </div>
+              <div className="stat-value">
+                {formatPrice(
+                  pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0),
+                )}
+              </div>
+            </div>
+            <div className="stat-card color-4">
+              <span className="stat-icon-lg"></span>
+              <div className="stat-label">
+                {t("dashboardProductor.stats.rating", "Calificación")}
+              </div>
+              <div className="stat-value">{user?.calificacion || "4.9"}</div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "24px",
+            }}
+          >
             <div className="card-table">
+              <div className="table-header">
+                <h3 className="card-title">
+                  {" "}
+                  {t("dashboardProductor.recentSales", "Últimas ventas")}
+                </h3>
+              </div>
               <div className="table-wrap">
                 <table className="table-responsive">
                   <thead>
                     <tr>
-                      <th>{t("pedidos.id", "ID")}</th>
-                      <th>{t("pedidos.product", "Producto")}</th>
+                      <th>{t("dashboardProductor.order", "Pedido")}</th>
                       <th>{t("dashboardProductor.buyer", "Comprador")}</th>
-                      <th>{t("dashboardProductor.quantityHeader", "Cant.")}</th>
-                      <th>{t("pedidos.total", "Total")}</th>
-                      <th>{t("pedidos.statusHeader", "Estado")}</th>
-                      <th>{t("pedidos.actions", "Acciones")}</th>
+                      <th>{t("dashboardProductor.total", "Total")}</th>
+                      <th>{t("dashboardProductor.status", "Estado")}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {pedidos.map((p) => (
+                    {pedidos.slice(0, 5).map((p) => (
                       <tr key={p.id}>
-                        <td data-label="ID">#{p.id}</td>
-                        <td data-label="Producto">
-                          {p.productoNombre ||
-                            p.producto ||
-                            p.nombreProducto ||
-                            "—"}
-                        </td>
+                        <td data-label="Pedido">#{p.id}</td>
                         <td data-label="Comprador">
                           {p.comprador || p.nombreComprador || "—"}
                         </td>
-                        <td data-label="Cant.">{p.cantidad} kg</td>
                         <td data-label="Total">{formatPrice(p.total)}</td>
                         <td data-label="Estado">
                           <span className={badgeClass(p.estado)}>
@@ -1141,34 +1068,6 @@ export default function DashboardProductor() {
                             )}
                           </span>
                         </td>
-                        <td data-label="Acciones">
-                          <select
-                            className="form-select"
-                            style={{ width: "150px" }}
-                            value=""
-                            onChange={async (e) => {
-                              if (!e.target.value) return;
-                              try {
-                                await api.put(`/pedidos/${p.id}/estado`, {
-                                  estado: e.target.value,
-                                });
-                                loadPedidos();
-                              } catch (err) {
-                                alert(err.message);
-                              }
-                            }}
-                          >
-                            <option value="">
-                              {t(
-                                "dashboardProductor.changeState",
-                                "Cambiar estado",
-                              )}
-                            </option>
-                            <option value="Enviado">Marcar Enviado</option>
-                            <option value="Entregado">Marcar Entregado</option>
-                            <option value="Cancelar">Cancelar pedido</option>
-                          </select>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -1176,1284 +1075,1403 @@ export default function DashboardProductor() {
               </div>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* â”€â”€â”€ INVENTARIO â”€â”€â”€ */}
+        <div className="section active" id="sec-misProductos">
+          <div className="dash-header">
+            <h1>{t("dashboardProductor.nav.inventory", "Mi Inventario")}</h1>
+            <button className="btn-cta" onClick={() => openProductoModal()}>
+              {t("dashboardProductor.newProduct", "+ Nuevo Producto")}
+            </button>
+          </div>
+          <div className="card-table">
+            <div className="table-wrap">
+              <table className="table-responsive">
+                <thead>
+                  <tr>
+                    <th>{t("dashboardProductor.product", "Producto")}</th>
+                    <th>{t("dashboardProductor.type", "Tipo")}</th>
+                    <th>{t("dashboardProductor.pricePerKg", "Precio/kg")}</th>
+                    <th>{t("dashboardProductor.stock", "Stock")}</th>
+                    <th>{t("dashboardProductor.status", "Estado")}</th>
+                    <th>{t("dashboardProductor.actions", "Acciones")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productos.map((p) => (
+                    <tr key={p.id}>
+                      <td data-label="Producto">{p.nombre}</td>
+                      <td data-label="Tipo">{p.tipo}</td>
+                      <td data-label="Precio/kg">{formatPrice(p.precio)}</td>
+                      <td data-label="Stock">{p.stock} kg</td>
+                      <td data-label="Estado">
+                        <span className="badge-status status-shipped">
+                          {t("dashboardProductor.active", "Activo")}
+                        </span>
+                      </td>
+                      <td data-label="Acciones">
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => openProductoModal(p)}
+                        >
+                          {t("dashboardProductor.edit", "Editar")}
+                        </button>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          style={{ color: "var(--red)", marginLeft: "6px" }}
+                          onClick={() => eliminarProducto(p.id)}
+                          aria-label={`Eliminar ${p.nombre || "producto"}`}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* â”€â”€â”€ VENTAS â”€â”€â”€ */}
+        <div className="section active" id="sec-pedidosRec">
+          <div className="dash-header">
+            <h1>{t("dashboardProductor.nav.sales", "Gestión de Ventas")}</h1>
+          </div>
+          <div className="card-table">
+            <div className="table-wrap">
+              <table className="table-responsive">
+                <thead>
+                  <tr>
+                    <th>{t("pedidos.id", "ID")}</th>
+                    <th>{t("pedidos.product", "Producto")}</th>
+                    <th>{t("dashboardProductor.buyer", "Comprador")}</th>
+                    <th>{t("dashboardProductor.quantityHeader", "Cant.")}</th>
+                    <th>{t("pedidos.total", "Total")}</th>
+                    <th>{t("pedidos.statusHeader", "Estado")}</th>
+                    <th>{t("pedidos.actions", "Acciones")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pedidos.map((p) => (
+                    <tr key={p.id}>
+                      <td data-label="ID">#{p.id}</td>
+                      <td data-label="Producto">
+                        {p.productoNombre ||
+                          p.producto ||
+                          p.nombreProducto ||
+                          "—"}
+                      </td>
+                      <td data-label="Comprador">
+                        {p.comprador || p.nombreComprador || "—"}
+                      </td>
+                      <td data-label="Cant.">{p.cantidad} kg</td>
+                      <td data-label="Total">{formatPrice(p.total)}</td>
+                      <td data-label="Estado">
+                        <span className={badgeClass(p.estado)}>
+                          {t(
+                            "pedidos.status." + p.estado?.toLowerCase(),
+                            p.estado,
+                          )}
+                        </span>
+                      </td>
+                      <td data-label="Acciones">
+                        <select
+                          className="form-select"
+                          style={{ width: "150px" }}
+                          value=""
+                          onChange={async (e) => {
+                            if (!e.target.value) return;
+                            try {
+                              await api.put(`/pedidos/${p.id}/estado`, {
+                                estado: e.target.value,
+                              });
+                              loadPedidos();
+                            } catch (err) {
+                              alert(err.message);
+                            }
+                          }}
+                        >
+                          <option value="">
+                            {t(
+                              "dashboardProductor.changeState",
+                              "Cambiar estado",
+                            )}
+                          </option>
+                          <option value="Enviado">Marcar Enviado</option>
+                          <option value="Entregado">Marcar Entregado</option>
+                          <option value="Cancelar">Cancelar pedido</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         {/* â”€â”€â”€ DESPACHOS (PRODUCTOR ENVIOS) â”€â”€â”€ */}
-        {seguimiento" && (
-          <div className="section active">
-            <div className="dash-header">
-              <h1>Gestión de Despachos</h1>
-              <p>
-                Monitorea y actualiza la información de entrega de tus productos
-                vendidos
-              </p>
-            </div>
+        <div className="section active" id="sec-seguimiento">
+          <div className="dash-header">
+            <h1>Gestión de Despachos</h1>
+            <p>
+              Monitorea y actualiza la información de entrega de tus productos
+              vendidos
+            </p>
+          </div>
 
-            <div className="card-table" style={{ marginTop: "20px" }}>
-              <div className="table-wrap">
-                <table className="table-responsive">
-                  <thead>
-                    <tr>
-                      <th>Pedido ID</th>
-                      <th>Producto</th>
-                      <th>Destino</th>
-                      <th>Transportista</th>
-                      <th>Guía de Envío</th>
-                      <th>Fecha Estimada</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
+          <div className="card-table" style={{ marginTop: "20px" }}>
+            <div className="table-wrap">
+              <table className="table-responsive">
+                <thead>
+                  <tr>
+                    <th>Pedido ID</th>
+                    <th>Producto</th>
+                    <th>Destino</th>
+                    <th>Transportista</th>
+                    <th>Guía de Envío</th>
+                    <th>Fecha Estimada</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shipments.map((s) => (
+                    <tr key={s.id}>
+                      <td data-label="Pedido ID">#{s.pedidoId || s.id}</td>
+                      <td data-label="Producto">{s.producto || "—"}</td>
+                      <td data-label="Destino">
+                        {s.direccionDestino || "—"}
+                      </td>
+                      <td data-label="Transportista">
+                        {s.transportista || "—"}
+                      </td>
+                      <td data-label="Guía">{s.guia || "—"}</td>
+                      <td data-label="Fecha Estimada">
+                        {s.fechaEstimadaEntrega || "—"}
+                      </td>
+                      <td data-label="Estado">
+                        <span className={badgeClass(s.estado)}>
+                          {s.estado}
+                        </span>
+                      </td>
+                      <td data-label="Acciones">
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => openUpdateShipment(s)}
+                        >
+                          Actualizar
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {shipments.map((s) => (
-                      <tr key={s.id}>
-                        <td data-label="Pedido ID">#{s.pedidoId || s.id}</td>
-                        <td data-label="Producto">{s.producto || "—"}</td>
-                        <td data-label="Destino">
-                          {s.direccionDestino || "—"}
-                        </td>
-                        <td data-label="Transportista">
-                          {s.transportista || "—"}
-                        </td>
-                        <td data-label="Guía">{s.guia || "—"}</td>
-                        <td data-label="Fecha Estimada">
-                          {s.fechaEstimadaEntrega || "—"}
-                        </td>
-                        <td data-label="Estado">
-                          <span className={badgeClass(s.estado)}>
-                            {s.estado}
-                          </span>
-                        </td>
-                        <td data-label="Acciones">
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            onClick={() => openUpdateShipment(s)}
-                          >
-                            Actualizar
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        )}
+        </div>
 
         {/* â”€â”€â”€ MENSAJERIA â”€â”€â”€ */}
-        {mensajeria" && (
-          <div className="section active">
+        <div className="section active" id="sec-mensajeria">
+          <div
+            className="chat-layout"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 2fr",
+              background: "var(--card-bg)",
+              border: "1px solid var(--border-light)",
+              borderRadius: "12px",
+              overflow: "hidden",
+              height: "600px",
+            }}
+          >
+            {/* CONTACTS */}
             <div
-              className="chat-layout"
+              className="chat-contacts"
               style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 2fr",
-                background: "var(--card-bg)",
-                border: "1px solid var(--border-light)",
-                borderRadius: "12px",
-                overflow: "hidden",
-                height: "600px",
+                borderRight: "1px solid var(--border-light)",
+                overflowY: "auto",
               }}
             >
-              {/* CONTACTS */}
+              {contactos.length === 0 ? (
+                <div
+                  style={{
+                    padding: "24px",
+                    textAlign: "center",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  No tienes contactos activos.
+                </div>
+              ) : (
+                contactos.map((c) => (
+                  <div
+                    key={c.id}
+                    className={`contact-item${selectedContact?.id === c.id ? " active" : ""}`}
+                    onClick={() => selectContact(c)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      padding: "14px 16px",
+                      cursor: "pointer",
+                      borderBottom: "1px solid var(--border-light)",
+                      background:
+                        selectedContact?.id === c.id
+                          ? "var(--primary-bg)"
+                          : "transparent",
+                    }}
+                  >
+                    <div className="avatar avatar-blue">
+                      {c.nombre?.charAt(0).toUpperCase() || "C"}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: "600", fontSize: "0.9rem" }}>
+                        {c.nombre}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "var(--text-muted)",
+                        }}
+                      >
+                        {t("auth." + c.rol?.toLowerCase(), c.rol)}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* WINDOW */}
+            <div
+              className="chat-window"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              }}
+            >
               <div
-                className="chat-contacts"
+                className="chat-header"
                 style={{
-                  borderRight: "1px solid var(--border-light)",
-                  overflowY: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  padding: "16px 20px",
+                  borderBottom: "1px solid var(--border-light)",
                 }}
               >
-                {contactos.length === 0 ? (
+                <div className="avatar avatar-blue">
+                  {selectedContact?.nombre?.charAt(0).toUpperCase() || "--"}
+                </div>
+                <div>
+                  <div className="chat-name" style={{ fontWeight: "700" }}>
+                    {selectedContact?.nombre || "Selecciona un contacto"}
+                  </div>
                   <div
                     style={{
-                      padding: "24px",
+                      fontSize: "0.75rem",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    {selectedContact?.rol || ""}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="chat-messages"
+                ref={chatRef}
+                style={{
+                  flex: 1,
+                  padding: "20px",
+                  overflowY: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
+                {!selectedContact ? (
+                  <div
+                    style={{
+                      margin: "auto",
                       textAlign: "center",
                       color: "var(--text-muted)",
                     }}
                   >
-                    No tienes contactos activos.
+                    <div style={{ fontSize: "2.5rem" }}></div>
+                    <div>
+                      Selecciona un contacto para iniciar la conversación.
+                    </div>
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div style={{ margin: "auto", color: "var(--text-muted)" }}>
+                    No hay mensajes aún. ¡Sé el primero en escribir!
                   </div>
                 ) : (
-                  contactos.map((c) => (
-                    <div
-                      key={c.id}
-                      className={`contact-item${selectedContact?.id === c.id ? " active" : ""}`}
-                      onClick={() => selectContact(c)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        padding: "14px 16px",
-                        cursor: "pointer",
-                        borderBottom: "1px solid var(--border-light)",
-                        background:
-                          selectedContact?.id === c.id
-                            ? "var(--primary-bg)"
-                            : "transparent",
-                      }}
-                    >
-                      <div className="avatar avatar-blue">
-                        {c.nombre?.charAt(0).toUpperCase() || "C"}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: "600", fontSize: "0.9rem" }}>
-                          {c.nombre}
-                        </div>
+                  messages.map((m) => {
+                    const esMio = m.mio || m.remitenteId === user?.id;
+                    return (
+                      <div
+                        key={m.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: esMio ? "flex-end" : "flex-start",
+                        }}
+                      >
                         <div
                           style={{
-                            fontSize: "0.75rem",
-                            color: "var(--text-muted)",
+                            maxWidth: "70%",
+                            background: esMio
+                              ? "var(--primary)"
+                              : "var(--card-bg)",
+                            color: esMio ? "#fff" : "inherit",
+                            padding: "10px 14px",
+                            borderRadius: esMio
+                              ? "16px 16px 4px 16px"
+                              : "16px 16px 16px 4px",
+                            border: esMio
+                              ? "none"
+                              : "1px solid var(--border-light)",
                           }}
                         >
-                          {t("auth." + c.rol?.toLowerCase(), c.rol)}
+                          <div>{m.texto || m.contenido}</div>
+                          <div
+                            style={{
+                              fontSize: "0.65rem",
+                              opacity: 0.7,
+                              marginTop: "4px",
+                              textAlign: "right",
+                            }}
+                          >
+                            {m.hora ||
+                              formatearHora(m.fechaEnvio ?? m.sentAt)}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
 
-              {/* WINDOW */}
               <div
-                className="chat-window"
+                className="chat-input-bar"
                 style={{
+                  padding: "16px",
+                  borderTop: "1px solid var(--border-light)",
                   display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
+                  gap: "12px",
                 }}
               >
-                <div
-                  className="chat-header"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    padding: "16px 20px",
-                    borderBottom: "1px solid var(--border-light)",
-                  }}
-                >
-                  <div className="avatar avatar-blue">
-                    {selectedContact?.nombre?.charAt(0).toUpperCase() || "--"}
-                  </div>
-                  <div>
-                    <div className="chat-name" style={{ fontWeight: "700" }}>
-                      {selectedContact?.nombre || "Selecciona un contacto"}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      {selectedContact?.rol || ""}
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="chat-messages"
-                  ref={chatRef}
+                <input
+                  className="chat-input"
                   style={{
                     flex: 1,
-                    padding: "20px",
-                    overflowY: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px",
+                    padding: "12px 16px",
+                    borderRadius: "8px",
+                    border: "1px solid var(--border-light)",
                   }}
-                >
-                  {!selectedContact ? (
-                    <div
-                      style={{
-                        margin: "auto",
-                        textAlign: "center",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      <div style={{ fontSize: "2.5rem" }}></div>
-                      <div>
-                        Selecciona un contacto para iniciar la conversación.
-                      </div>
-                    </div>
-                  ) : messages.length === 0 ? (
-                    <div style={{ margin: "auto", color: "var(--text-muted)" }}>
-                      No hay mensajes aún. ¡Sé el primero en escribir!
-                    </div>
-                  ) : (
-                    messages.map((m) => {
-                      const esMio = m.mio || m.remitenteId === user?.id;
-                      return (
-                        <div
-                          key={m.id}
-                          style={{
-                            display: "flex",
-                            justifyContent: esMio ? "flex-end" : "flex-start",
-                          }}
-                        >
-                          <div
-                            style={{
-                              maxWidth: "70%",
-                              background: esMio
-                                ? "var(--primary)"
-                                : "var(--card-bg)",
-                              color: esMio ? "#fff" : "inherit",
-                              padding: "10px 14px",
-                              borderRadius: esMio
-                                ? "16px 16px 4px 16px"
-                                : "16px 16px 16px 4px",
-                              border: esMio
-                                ? "none"
-                                : "1px solid var(--border-light)",
-                            }}
-                          >
-                            <div>{m.texto || m.contenido}</div>
-                            <div
-                              style={{
-                                fontSize: "0.65rem",
-                                opacity: 0.7,
-                                marginTop: "4px",
-                                textAlign: "right",
-                              }}
-                            >
-                              {m.hora ||
-                                formatearHora(m.fechaEnvio ?? m.sentAt)}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                <div
-                  className="chat-input-bar"
-                  style={{
-                    padding: "16px",
-                    borderTop: "1px solid var(--border-light)",
-                    display: "flex",
-                    gap: "12px",
+                  placeholder="Escribe un mensaje..."
+                  value={msgInput}
+                  onChange={(e) => setMsgInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") sendMessage();
                   }}
+                  disabled={!selectedContact}
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={sendMessage}
+                  disabled={!selectedContact}
                 >
-                  <input
-                    className="chat-input"
-                    style={{
-                      flex: 1,
-                      padding: "12px 16px",
-                      borderRadius: "8px",
-                      border: "1px solid var(--border-light)",
-                    }}
-                    placeholder="Escribe un mensaje..."
-                    value={msgInput}
-                    onChange={(e) => setMsgInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") sendMessage();
-                    }}
-                    disabled={!selectedContact}
-                  />
-                  <button
-                    className="btn btn-primary"
-                    onClick={sendMessage}
-                    disabled={!selectedContact}
-                  >
-                    Enviar
-                  </button>
-                </div>
+                  Enviar
+                </button>
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         {/* â”€â”€â”€ MI PERFIL & AJUSTES â”€â”€â”€ */}
         {/* RESEÑAS Y CALIFICACIONES */}
-        {resenas" && (
-          <div className="section active producer-section">
-            <div className="producer-section-head">
-              <div>
-                <span className="producer-eyebrow">Reputación</span>
-                <h1>Reseñas y calificaciones</h1>
-                <p>
-                  Conoce la percepción de tus compradores y la valoración de tu
-                  negocio.
-                </p>
-              </div>
+        <div className="section active producer-section" id="sec-resenas">
+          <div className="producer-section-head">
+            <div>
+              <span className="producer-eyebrow">Reputación</span>
+              <h1>Reseñas y calificaciones</h1>
+              <p>
+                Conoce la percepción de tus compradores y la valoración de tu
+                negocio.
+              </p>
             </div>
-            <div className="producer-rating-grid">
-              <article className="producer-panel producer-rating-main">
-                <span className="producer-panel-kicker">
-                  Calificación promedio
-                </span>
-                <strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong>
-                <div className="producer-stars"><span className="flex text-yellow-500">{[...Array(5)].map((_,i)=><Icon key={i} name="star" size={16}/>)}</span></div>
-                <small>
-                  {resenasProductor.length} reseñas asociadas cargadas
-                </small>
-              </article>
-              <article className="producer-panel producer-recommendation">
-                <span className="producer-panel-kicker">Recomendación</span>
-                <strong>
-                  {resenasProductor.length
-                    ? "Compradores activos"
-                    : "Sin datos suficientes"}
-                </strong>
-                <p>
-                  La API actual no expone en el frontend un porcentaje
-                  específico de recomendación del productor.
-                </p>
-              </article>
+          </div>
+          <div className="producer-rating-grid">
+            <article className="producer-panel producer-rating-main">
+              <span className="producer-panel-kicker">
+                Calificación promedio
+              </span>
+              <strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong>
+              <div className="producer-stars"><span className="flex text-yellow-500">{[...Array(5)].map((_,i)=><Icon key={i} name="star" size={16}/>)}</span></div>
+              <small>
+                {resenasProductor.length} reseñas asociadas cargadas
+              </small>
+            </article>
+            <article className="producer-panel producer-recommendation">
+              <span className="producer-panel-kicker">Recomendación</span>
+              <strong>
+                {resenasProductor.length
+                  ? "Compradores activos"
+                  : "Sin datos suficientes"}
+              </strong>
+              <p>
+                La API actual no expone en el frontend un porcentaje
+                específico de recomendación del productor.
+              </p>
+            </article>
+          </div>
+          <div className="producer-panel producer-table-panel">
+            <div className="producer-panel-title">
+              <h2>Últimas reseñas</h2>
+              <span>{resenasProductor.length} registros</span>
             </div>
-            <div className="producer-panel producer-table-panel">
-              <div className="producer-panel-title">
-                <h2>Últimas reseñas</h2>
-                <span>{resenasProductor.length} registros</span>
+            {resenasProductor.length === 0 ? (
+              <div className="producer-empty">
+                No hay reseñas del productor disponibles con el identificador
+                de productor expuesto por la respuesta actual.
               </div>
-              {resenasProductor.length === 0 ? (
-                <div className="producer-empty">
-                  No hay reseñas del productor disponibles con el identificador
-                  de productor expuesto por la respuesta actual.
-                </div>
-              ) : (
-                <div className="producer-review-list">
-                  {resenasProductor.map((r, index) => (
-                    <article className="producer-review" key={r.id || index}>
-                      <div className="producer-review-avatar">
-                        {(
-                          r.usuarioNombre ||
-                          r.clienteNombre ||
-                          r.nombreUsuario ||
-                          "C"
-                        )
-                          .charAt(0)
-                          .toUpperCase()}
+            ) : (
+              <div className="producer-review-list">
+                {resenasProductor.map((r, index) => (
+                  <article className="producer-review" key={r.id || index}>
+                    <div className="producer-review-avatar">
+                      {(
+                        r.usuarioNombre ||
+                        r.clienteNombre ||
+                        r.nombreUsuario ||
+                        "C"
+                      )
+                        .charAt(0)
+                        .toUpperCase()}
+                    </div>
+                    <div className="producer-review-body">
+                      <div className="producer-review-top">
+                        <strong>
+                          {r.usuarioNombre ||
+                            r.clienteNombre ||
+                            r.nombreUsuario ||
+                            "Comprador"}
+                        </strong>
+                        <span>{r.fecha || r.createdAt || ""}</span>
                       </div>
-                      <div className="producer-review-body">
-                        <div className="producer-review-top">
-                          <strong>
-                            {r.usuarioNombre ||
-                              r.clienteNombre ||
-                              r.nombreUsuario ||
-                              "Comprador"}
-                          </strong>
-                          <span>{r.fecha || r.createdAt || ""}</span>
-                        </div>
-                        <div className="producer-stars">
-                          {"★".repeat(
-                            Math.max(
-                              0,
+                      <div className="producer-stars">
+                        {"★".repeat(
+                          Math.max(
+                            0,
+                            Math.min(
+                              5,
+                              Number(r.calificacion || r.rating || 5),
+                            ),
+                          ),
+                        )}
+                        {"☆".repeat(
+                          Math.max(
+                            0,
+                            5 -
                               Math.min(
                                 5,
                                 Number(r.calificacion || r.rating || 5),
                               ),
-                            ),
-                          )}
-                          {"☆".repeat(
-                            Math.max(
-                              0,
-                              5 -
-                                Math.min(
-                                  5,
-                                  Number(r.calificacion || r.rating || 5),
-                                ),
-                            ),
-                          )}
-                        </div>
-                        <p>
-                          {r.comentario ||
-                            r.descripcion ||
-                            r.texto ||
-                            "Sin comentario."}
-                        </p>
+                          ),
+                        )}
                       </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </div>
+                      <p>
+                        {r.comentario ||
+                          r.descripcion ||
+                          r.texto ||
+                          "Sin comentario."}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* INFORMACIÓN DE LA FINCA / PRODUCTOR */}
-        {finca" && (
-          <div className="section active producer-section">
-            <div className="producer-section-head">
-              <div>
-                <span className="producer-eyebrow">Perfil comercial</span>
-                <h1>Información de la finca / productor</h1>
-                <p>
-                  Información que identifica tu negocio dentro de AgroMarket.
-                </p>
+        <div className="section active producer-section" id="sec-finca">
+          <div className="producer-section-head">
+            <div>
+              <span className="producer-eyebrow">Perfil comercial</span>
+              <h1>Información de la finca / productor</h1>
+              <p>
+                Información que identifica tu negocio dentro de AgroMarket.
+              </p>
+            </div>
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={() => showSection("perfil")}
+            >
+              Editar información
+            </button>
+          </div>
+          <div className="producer-farm-grid">
+            <article className="producer-farm-card producer-farm-hero">
+              <div className="producer-farm-image">{iniciales}</div>
+              <span className="producer-verified">
+                <Icon name="check" size={16} className="inline mr-1" /> Productor verificado
+              </span>
+              <h2>{user?.finca || user?.nombre || "Productor AgroMarket"}</h2>
+              <p>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</p>
+              <div className="producer-farm-stats">
+                <span>
+                  <strong>{productos.length}</strong> productos
+                </span>
+                <span>
+                  <strong>{pedidos.length}</strong> pedidos
+                </span>
+                <span>
+                  <strong>
+                    {Number(user?.calificacion || 4.9).toFixed(1)}
+                  </strong>{" "}
+                  rating
+                </span>
+              </div>
+            </article>
+            <article className="producer-panel producer-info-list">
+              <div className="producer-panel-title">
+                <h2>Información general</h2>
+              </div>
+              <div className="producer-info-row">
+                <span>Nombre del productor</span>
+                <strong>
+                  {user?.nombre || "—"} {user?.apellido || ""}
+                </strong>
+              </div>
+              <div className="producer-info-row">
+                <span>Correo electrónico</span>
+                <strong>{user?.email || "—"}</strong>
+              </div>
+              <div className="producer-info-row">
+                <span>Teléfono</span>
+                <strong>{user?.telefono || "—"}</strong>
+              </div>
+              <div className="producer-info-row">
+                <span>Ubicación</span>
+                <strong>
+                  {user?.ubicacion || "Urabá, Antioquia, Colombia"}
+                </strong>
+              </div>
+              <div className="producer-info-row">
+                <span>Tipo de productor</span>
+                <strong>{user?.tipoProductor || "Productor agrícola"}</strong>
+              </div>
+              <div className="producer-info-row">
+                <span>Productos principales</span>
+                <strong>
+                  {productos
+                    .slice(0, 4)
+                    .map((p) => p.nombre)
+                    .join(", ") || "Sin productos publicados"}
+                </strong>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        {/* FINANZAS / PAGOS */}
+        <div className="section active producer-section" id="sec-finanzas">
+          <div className="producer-section-head">
+            <div>
+              <span className="producer-eyebrow">Rendimiento comercial</span>
+              <h1>Finanzas / pagos</h1>
+              <p>
+                Resumen calculado con los pedidos que devuelve la API del
+                productor.
+              </p>
+            </div>
+          </div>
+          <div className="producer-finance-grid">
+            <article className="producer-finance-card">
+              <span>Ventas registradas</span>
+              <strong>
+                {formatPrice(
+                  pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0),
+                )}
+              </strong>
+              <small>Acumulado disponible en esta sesión</small>
+            </article>
+            <article className="producer-finance-card">
+              <span>Pedidos gestionados</span>
+              <strong>{pedidos.length}</strong>
+              <small>Pedidos devueltos por /pedidos/mis-pedidos</small>
+            </article>
+            <article className="producer-finance-card">
+              <span>Ticket promedio</span>
+              <strong>
+                {formatPrice(
+                  pedidos.length
+                    ? pedidos.reduce(
+                        (sum, p) => sum + Number(p.total || 0),
+                        0,
+                      ) / pedidos.length
+                    : 0,
+                )}
+              </strong>
+              <small>Promedio sobre pedidos cargados</small>
+            </article>
+            <article className="producer-finance-card">
+              <span>Productos activos</span>
+              <strong>{productos.length}</strong>
+              <small>Inventario devuelto por /productos/mis-productos</small>
+            </article>
+          </div>
+          <div className="producer-panel producer-table-panel">
+            <div className="producer-panel-title">
+              <h2>Movimientos comerciales</h2>
+              <span>{pedidos.length} pedidos</span>
+            </div>
+            <div className="table-wrap">
+              <table className="producer-table">
+                <thead>
+                  <tr>
+                    <th>Pedido</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pedidos.map((p) => (
+                    <tr key={p.id}>
+                      <td>#{p.id}</td>
+                      <td>{p.fecha || p.fechaCreacion || "—"}</td>
+                      <td>{p.comprador || p.nombreComprador || "—"}</td>
+                      <td>{formatPrice(p.total)}</td>
+                      <td>
+                        <span className={badgeClass(p.estado)}>
+                          {p.estado || "Pendiente"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* CONFIGURACIÓN */}
+        <div className="section active producer-section" id="sec-configuracion">
+          <div className="producer-section-head">
+            <div>
+              <span className="producer-eyebrow">Preferencias</span>
+              <h1>Configuración</h1>
+              <p>
+                Administra los datos básicos y la seguridad de tu cuenta de
+                productor.
+              </p>
+            </div>
+          </div>
+          <div className="producer-config-grid">
+            <article className="producer-panel producer-config-card">
+              <div className="producer-panel-title">
+                <h2>Perfil de la finca</h2>
+                <span>Datos de cuenta</span>
+              </div>
+              <div className="producer-config-row">
+                <span>Nombre</span>
+                <strong>{user?.nombre || "—"}</strong>
+              </div>
+              <div className="producer-config-row">
+                <span>Correo</span>
+                <strong>{user?.email || "—"}</strong>
+              </div>
+              <div className="producer-config-row">
+                <span>Teléfono</span>
+                <strong>{user?.telefono || "—"}</strong>
+              </div>
+              <div className="producer-config-row">
+                <span>Ubicación</span>
+                <strong>
+                  {user?.ubicacion || "Urabá, Antioquia, Colombia"}
+                </strong>
               </div>
               <button
                 className="btn btn-primary"
                 type="button"
-                onClick={() => setActiveSection("perfil")}
+                onClick={() => showSection("perfil")}
               >
-                Editar información
+                Editar datos personales
               </button>
-            </div>
-            <div className="producer-farm-grid">
-              <article className="producer-farm-card producer-farm-hero">
-                <div className="producer-farm-image">{iniciales}</div>
-                <span className="producer-verified">
-                  <Icon name="check" size={16} className="inline mr-1" /> Productor verificado
-                </span>
-                <h2>{user?.finca || user?.nombre || "Productor AgroMarket"}</h2>
-                <p>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</p>
-                <div className="producer-farm-stats">
-                  <span>
-                    <strong>{productos.length}</strong> productos
-                  </span>
-                  <span>
-                    <strong>{pedidos.length}</strong> pedidos
-                  </span>
-                  <span>
-                    <strong>
-                      {Number(user?.calificacion || 4.9).toFixed(1)}
-                    </strong>{" "}
-                    rating
-                  </span>
-                </div>
-              </article>
-              <article className="producer-panel producer-info-list">
-                <div className="producer-panel-title">
-                  <h2>Información general</h2>
-                </div>
-                <div className="producer-info-row">
-                  <span>Nombre del productor</span>
-                  <strong>
-                    {user?.nombre || "—"} {user?.apellido || ""}
-                  </strong>
-                </div>
-                <div className="producer-info-row">
-                  <span>Correo electrónico</span>
-                  <strong>{user?.email || "—"}</strong>
-                </div>
-                <div className="producer-info-row">
-                  <span>Teléfono</span>
-                  <strong>{user?.telefono || "—"}</strong>
-                </div>
-                <div className="producer-info-row">
-                  <span>Ubicación</span>
-                  <strong>
-                    {user?.ubicacion || "Urabá, Antioquia, Colombia"}
-                  </strong>
-                </div>
-                <div className="producer-info-row">
-                  <span>Tipo de productor</span>
-                  <strong>{user?.tipoProductor || "Productor agrícola"}</strong>
-                </div>
-                <div className="producer-info-row">
-                  <span>Productos principales</span>
-                  <strong>
-                    {productos
-                      .slice(0, 4)
-                      .map((p) => p.nombre)
-                      .join(", ") || "Sin productos publicados"}
-                  </strong>
-                </div>
-              </article>
-            </div>
-          </div>
-        )}
-
-        {/* FINANZAS / PAGOS */}
-        {finanzas" && (
-          <div className="section active producer-section">
-            <div className="producer-section-head">
-              <div>
-                <span className="producer-eyebrow">Rendimiento comercial</span>
-                <h1>Finanzas / pagos</h1>
-                <p>
-                  Resumen calculado con los pedidos que devuelve la API del
-                  productor.
-                </p>
-              </div>
-            </div>
-            <div className="producer-finance-grid">
-              <article className="producer-finance-card">
-                <span>Ventas registradas</span>
-                <strong>
-                  {formatPrice(
-                    pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0),
-                  )}
-                </strong>
-                <small>Acumulado disponible en esta sesión</small>
-              </article>
-              <article className="producer-finance-card">
-                <span>Pedidos gestionados</span>
-                <strong>{pedidos.length}</strong>
-                <small>Pedidos devueltos por /pedidos/mis-pedidos</small>
-              </article>
-              <article className="producer-finance-card">
-                <span>Ticket promedio</span>
-                <strong>
-                  {formatPrice(
-                    pedidos.length
-                      ? pedidos.reduce(
-                          (sum, p) => sum + Number(p.total || 0),
-                          0,
-                        ) / pedidos.length
-                      : 0,
-                  )}
-                </strong>
-                <small>Promedio sobre pedidos cargados</small>
-              </article>
-              <article className="producer-finance-card">
-                <span>Productos activos</span>
-                <strong>{productos.length}</strong>
-                <small>Inventario devuelto por /productos/mis-productos</small>
-              </article>
-            </div>
-            <div className="producer-panel producer-table-panel">
+            </article>
+            <article className="producer-panel producer-config-card">
               <div className="producer-panel-title">
-                <h2>Movimientos comerciales</h2>
-                <span>{pedidos.length} pedidos</span>
+                <h2>Seguridad</h2>
+                <span>Protección de cuenta</span>
               </div>
-              <div className="table-wrap">
-                <table className="producer-table">
-                  <thead>
-                    <tr>
-                      <th>Pedido</th>
-                      <th>Fecha</th>
-                      <th>Cliente</th>
-                      <th>Total</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pedidos.map((p) => (
-                      <tr key={p.id}>
-                        <td>#{p.id}</td>
-                        <td>{p.fecha || p.fechaCreacion || "—"}</td>
-                        <td>{p.comprador || p.nombreComprador || "—"}</td>
-                        <td>{formatPrice(p.total)}</td>
-                        <td>
-                          <span className={badgeClass(p.estado)}>
-                            {p.estado || "Pendiente"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="producer-security-item">
+                <span className="producer-security-icon"><Icon name="check" size={16} /></span>
+                <div>
+                  <strong>Correo registrado</strong>
+                  <small>{user?.email || "Sin correo"}</small>
+                </div>
               </div>
+              <div className="producer-security-item">
+                <span className="producer-security-icon"><Icon name="check" size={16} /></span>
+                <div>
+                  <strong>Estado de cuenta</strong>
+                  <small>
+                    {user?.verificado
+                      ? "Verificado"
+                      : "Pendiente de verificación"}
+                  </small>
+                </div>
+              </div>
+              <div className="producer-security-item">
+                <span className="producer-security-icon"><Icon name="lock" size={16} /></span>
+                <div>
+                  <strong>Contraseña</strong>
+                  <small>
+                    Gestionada mediante el formulario seguro de cuenta.
+                  </small>
+                </div>
+              </div>
+              <button
+                className="btn btn-secondary"
+                type="button"
+                onClick={() => showSection("perfil")}
+              >
+                Gestionar contraseña
+              </button>
+            </article>
+          </div>
+        </div>
+
+        <div className="section active" id="sec-perfil">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1>Ajustes de Mi Perfil</h1>
+              <p>
+                Administra tu información de agricultor y credenciales de
+                acceso
+              </p>
             </div>
           </div>
-        )}
 
-        {/* CONFIGURACIÓN */}
-        {configuracion" && (
-          <div className="section active producer-section">
-            <div className="producer-section-head">
-              <div>
-                <span className="producer-eyebrow">Preferencias</span>
-                <h1>Configuración</h1>
-                <p>
-                  Administra los datos básicos y la seguridad de tu cuenta de
-                  productor.
-                </p>
-              </div>
-            </div>
-            <div className="producer-config-grid">
-              <article className="producer-panel producer-config-card">
-                <div className="producer-panel-title">
-                  <h2>Perfil de la finca</h2>
-                  <span>Datos de cuenta</span>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "24px",
+              marginTop: "24px",
+            }}
+          >
+            {/* Profile Details Form */}
+            <div
+              className="card-table"
+              style={{
+                padding: "24px",
+                borderRadius: "12px",
+                background: "var(--card-bg)",
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: "16px",
+                  fontSize: "1.1rem",
+                  borderBottom: "1px solid var(--border-light)",
+                  paddingBottom: "8px",
+                }}
+              >
+                Datos Personales
+              </h3>
+              {perfilMsg.text && (
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: "6px",
+                    marginBottom: "16px",
+                    fontSize: "0.85rem",
+                    background:
+                      perfilMsg.type === "success"
+                        ? "var(--green-bg)"
+                        : "var(--red-bg)",
+                    color:
+                      perfilMsg.type === "success"
+                        ? "var(--primary)"
+                        : "var(--red)",
+                  }}
+                >
+                  {perfilMsg.text}
                 </div>
-                <div className="producer-config-row">
-                  <span>Nombre</span>
-                  <strong>{user?.nombre || "—"}</strong>
+              )}
+              <form onSubmit={handleUpdatePerfil}>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">Nombre del Productor</label>
+                  <input
+                    className="form-input"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                    }}
+                    value={perfilForm.nombre}
+                    onChange={(e) =>
+                      setPerfilForm({ ...perfilForm, nombre: e.target.value })
+                    }
+                  />
                 </div>
-                <div className="producer-config-row">
-                  <span>Correo</span>
-                  <strong>{user?.email || "—"}</strong>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">Teléfono de Contacto</label>
+                  <input
+                    className="form-input"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                    }}
+                    value={perfilForm.telefono}
+                    onChange={(e) =>
+                      setPerfilForm({
+                        ...perfilForm,
+                        telefono: e.target.value,
+                      })
+                    }
+                  />
                 </div>
-                <div className="producer-config-row">
-                  <span>Teléfono</span>
-                  <strong>{user?.telefono || "—"}</strong>
-                </div>
-                <div className="producer-config-row">
-                  <span>Ubicación</span>
-                  <strong>
-                    {user?.ubicacion || "Urabá, Antioquia, Colombia"}
-                  </strong>
+                <div className="form-group" style={{ marginBottom: "20px" }}>
+                  <label className="form-label">
+                    Correo ASAFRUT (No editable)
+                  </label>
+                  <input
+                    className="form-input"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "6px",
+                      background: "var(--border-light)",
+                      cursor: "not-allowed",
+                    }}
+                    value={user?.email || ""}
+                    readOnly
+                  />
                 </div>
                 <button
                   className="btn btn-primary"
-                  type="button"
-                  onClick={() => setActiveSection("perfil")}
+                  type="submit"
+                  style={{ width: "100%" }}
                 >
-                  Editar datos personales
+                  Guardar Cambios
                 </button>
-              </article>
-              <article className="producer-panel producer-config-card">
-                <div className="producer-panel-title">
-                  <h2>Seguridad</h2>
-                  <span>Protección de cuenta</span>
-                </div>
-                <div className="producer-security-item">
-                  <span className="producer-security-icon"><Icon name="check" size={16} /></span>
-                  <div>
-                    <strong>Correo registrado</strong>
-                    <small>{user?.email || "Sin correo"}</small>
-                  </div>
-                </div>
-                <div className="producer-security-item">
-                  <span className="producer-security-icon"><Icon name="check" size={16} /></span>
-                  <div>
-                    <strong>Estado de cuenta</strong>
-                    <small>
-                      {user?.verificado
-                        ? "Verificado"
-                        : "Pendiente de verificación"}
-                    </small>
-                  </div>
-                </div>
-                <div className="producer-security-item">
-                  <span className="producer-security-icon"><Icon name="lock" size={16} /></span>
-                  <div>
-                    <strong>Contraseña</strong>
-                    <small>
-                      Gestionada mediante el formulario seguro de cuenta.
-                    </small>
-                  </div>
-                </div>
-                <button
-                  className="btn btn-secondary"
-                  type="button"
-                  onClick={() => setActiveSection("perfil")}
-                >
-                  Gestionar contraseña
-                </button>
-              </article>
-            </div>
-          </div>
-        )}
-
-        {perfil" && (
-          <div className="section active">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1>Ajustes de Mi Perfil</h1>
-                <p>
-                  Administra tu información de agricultor y credenciales de
-                  acceso
-                </p>
-              </div>
+              </form>
             </div>
 
+            {/* Password Change Form */}
             <div
+              className="card-table"
               style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "24px",
-                marginTop: "24px",
+                padding: "24px",
+                borderRadius: "12px",
+                background: "var(--card-bg)",
               }}
             >
-              {/* Profile Details Form */}
-              <div
-                className="card-table"
+              <h3
                 style={{
-                  padding: "24px",
-                  borderRadius: "12px",
-                  background: "var(--card-bg)",
+                  marginBottom: "16px",
+                  fontSize: "1.1rem",
+                  borderBottom: "1px solid var(--border-light)",
+                  paddingBottom: "8px",
                 }}
               >
-                <h3
+                Seguridad de la Cuenta
+              </h3>
+              {pwMsg.text && (
+                <div
                   style={{
+                    padding: "10px 14px",
+                    borderRadius: "6px",
                     marginBottom: "16px",
-                    fontSize: "1.1rem",
-                    borderBottom: "1px solid var(--border-light)",
-                    paddingBottom: "8px",
+                    fontSize: "0.85rem",
+                    background:
+                      pwMsg.type === "success"
+                        ? "var(--green-bg)"
+                        : "var(--red-bg)",
+                    color:
+                      pwMsg.type === "success"
+                        ? "var(--primary)"
+                        : "var(--red)",
                   }}
                 >
-                  Datos Personales
-                </h3>
-                {perfilMsg.text && (
-                  <div
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: "6px",
-                      marginBottom: "16px",
-                      fontSize: "0.85rem",
-                      background:
-                        perfilMsg.type === "success"
-                          ? "var(--green-bg)"
-                          : "var(--red-bg)",
-                      color:
-                        perfilMsg.type === "success"
-                          ? "var(--primary)"
-                          : "var(--red)",
-                    }}
-                  >
-                    {perfilMsg.text}
-                  </div>
-                )}
-                <form onSubmit={handleUpdatePerfil}>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">Nombre del Productor</label>
+                  {pwMsg.text}
+                </div>
+              )}
+              <form onSubmit={handleUpdatePassword}>
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">Contraseña Actual</label>
+                  <div style={{ position: "relative" }}>
                     <input
                       className="form-input"
+                      type={showCurrentPassword ? "text" : "password"}
                       style={{
                         width: "100%",
-                        padding: "10px 12px",
+                        padding: "10px 40px 10px 12px",
                         border: "1px solid var(--border-light)",
                         borderRadius: "6px",
                       }}
-                      value={perfilForm.nombre}
+                      value={pwForm.contrasenaActual}
                       onChange={(e) =>
-                        setPerfilForm({ ...perfilForm, nombre: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">Teléfono de Contacto</label>
-                    <input
-                      className="form-input"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
-                      value={perfilForm.telefono}
-                      onChange={(e) =>
-                        setPerfilForm({
-                          ...perfilForm,
-                          telefono: e.target.value,
+                        setPwForm({
+                          ...pwForm,
+                          contrasenaActual: e.target.value,
                         })
                       }
                     />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "20px" }}>
-                    <label className="form-label">
-                      Correo ASAFRUT (No editable)
-                    </label>
-                    <input
-                      className="form-input"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                        background: "var(--border-light)",
-                        cursor: "not-allowed",
-                      }}
-                      value={user?.email || ""}
-                      readOnly
-                    />
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    type="submit"
-                    style={{ width: "100%" }}
-                  >
-                    Guardar Cambios
-                  </button>
-                </form>
-              </div>
-
-              {/* Password Change Form */}
-              <div
-                className="card-table"
-                style={{
-                  padding: "24px",
-                  borderRadius: "12px",
-                  background: "var(--card-bg)",
-                }}
-              >
-                <h3
-                  style={{
-                    marginBottom: "16px",
-                    fontSize: "1.1rem",
-                    borderBottom: "1px solid var(--border-light)",
-                    paddingBottom: "8px",
-                  }}
-                >
-                  Seguridad de la Cuenta
-                </h3>
-                {pwMsg.text && (
-                  <div
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: "6px",
-                      marginBottom: "16px",
-                      fontSize: "0.85rem",
-                      background:
-                        pwMsg.type === "success"
-                          ? "var(--green-bg)"
-                          : "var(--red-bg)",
-                      color:
-                        pwMsg.type === "success"
-                          ? "var(--primary)"
-                          : "var(--red)",
-                    }}
-                  >
-                    {pwMsg.text}
-                  </div>
-                )}
-                <form onSubmit={handleUpdatePassword}>
-                  <div className="form-group" style={{ marginBottom: "16px" }}>
-                    <label className="form-label">Contraseña Actual</label>
-                    <div style={{ position: "relative" }}>
-                      <input
-                        className="form-input"
-                        type={showCurrentPassword ? "text" : "password"}
-                        style={{
-                          width: "100%",
-                          padding: "10px 40px 10px 12px",
-                          border: "1px solid var(--border-light)",
-                          borderRadius: "6px",
-                        }}
-                        value={pwForm.contrasenaActual}
-                        onChange={(e) =>
-                          setPwForm({
-                            ...pwForm,
-                            contrasenaActual: e.target.value,
-                          })
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowCurrentPassword(!showCurrentPassword)
-                        }
-                        style={{
-                          position: "absolute",
-                          right: "10px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: "1.2rem",
-                          padding: "4px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        aria-label={
-                          showCurrentPassword
-                            ? "Hide password"
-                            : "Show password"
-                        }
-                      >
-                        {showCurrentPassword ? (
-                          // Eye-off SVG
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                            fill="#6b7280"
-                          >
-                            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
-                          </svg>
-                        ) : (
-                          // Eye SVG
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                            fill="#6b7280"
-                          >
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "20px" }}>
-                    <label className="form-label">Nueva Contraseña</label>
-                    <div style={{ position: "relative" }}>
-                      <input
-                        className="form-input"
-                        type={showNewPassword ? "text" : "password"}
-                        style={{
-                          width: "100%",
-                          padding: "10px 40px 10px 12px",
-                          border: "1px solid var(--border-light)",
-                          borderRadius: "6px",
-                        }}
-                        value={pwForm.nuevaContrasena}
-                        onChange={(e) =>
-                          setPwForm({
-                            ...pwForm,
-                            nuevaContrasena: e.target.value,
-                          })
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        style={{
-                          position: "absolute",
-                          right: "10px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: "1.2rem",
-                          padding: "4px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        aria-label={
-                          showNewPassword ? "Hide password" : "Show password"
-                        }
-                      >
-                        {showNewPassword ? (
-                          // Eye-off SVG
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                            fill="#6b7280"
-                          >
-                            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
-                          </svg>
-                        ) : (
-                          // Eye SVG
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                            fill="#6b7280"
-                          >
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    type="submit"
-                    style={{ width: "100%" }}
-                  >
-                    Cambiar Contraseña
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* â”€â”€â”€ RFQ OPPORTUNITIES (LICITACIONES) â”€â”€â”€ */}
-        {rfq" && (
-          <div className="section active">
-            <div className="dash-header">
-              <div className="dash-welcome">
-                <h1>Licitaciones / Oportunidades Comerciales</h1>
-                <p>
-                  Encuentra solicitudes de compra al por mayor y envía tus
-                  cotizaciones de forma segura
-                </p>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: biddingRfq ? "1fr 1fr" : "1fr",
-                gap: "24px",
-                marginTop: "24px",
-              }}
-            >
-              {/* Active RFQ List */}
-              <div
-                className="card-table"
-                style={{
-                  padding: "24px",
-                  borderRadius: "12px",
-                  background: "var(--card-bg)",
-                }}
-              >
-                <h3
-                  style={{
-                    marginBottom: "16px",
-                    fontSize: "1.1rem",
-                    borderBottom: "1px solid var(--border-light)",
-                    paddingBottom: "8px",
-                  }}
-                >
-                  Licitaciones Disponibles
-                </h3>
-                {activeRfqs.length === 0 ? (
-                  <div
-                    style={{
-                      textAlign: "center",
-                      padding: "48px 0",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    No hay licitaciones activas en este momento.
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "16px",
-                    }}
-                  >
-                    {activeRfqs.map((rfq) => {
-                      const yaOferto = rfq.ofertas?.find(
-                        (of) => of.productorId === user?.id,
-                      );
-                      return (
-                        <div
-                          key={rfq.id}
-                          style={{
-                            background: "#f8fafc",
-                            padding: "16px",
-                            borderRadius: "10px",
-                            border: "1px solid var(--border-light)",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <div>
-                            <span
-                              style={{
-                                fontWeight: "700",
-                                fontSize: "1rem",
-                                color: "var(--primary)",
-                              }}
-                            >
-                              {rfq.tipoFruta} - {rfq.cantidadRequerida} kg
-                            </span>
-                            <div
-                              style={{ fontSize: "0.8rem", margin: "4px 0" }}
-                            >
-                              Comprador: <strong>{rfq.compradorNombre}</strong>
-                            </div>
-                            <p
-                              style={{
-                                fontSize: "0.8rem",
-                                color: "var(--text-secondary)",
-                                margin: "4px 0",
-                              }}
-                            >
-                              {rfq.descripcion}
-                            </p>
-                            <span
-                              style={{
-                                fontSize: "0.7rem",
-                                color: "var(--text-muted)",
-                              }}
-                            >
-                              Vence:{" "}
-                              {new Date(rfq.fechaLimite).toLocaleString()}
-                            </span>
-                          </div>
-                          <div>
-                            {yaOferto ? (
-                              <div
-                                style={{
-                                  color: "var(--primary)",
-                                  fontWeight: "600",
-                                  fontSize: "0.85rem",
-                                  textAlign: "right",
-                                }}
-                              >
-                                Ofertado:{" "}
-                                {formatPrice(yaOferto.precioPropuesto)}/kg
-                              </div>
-                            ) : (
-                              <button
-                                className="btn btn-primary"
-                                onClick={() => {
-                                  setBiddingRfq(rfq);
-                                  setBidMsg({ type: "", text: "" });
-                                }}
-                              >
-                                Cotizar
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Bidding Panel */}
-              {biddingRfq && (
-                <div
-                  className="card-table"
-                  style={{
-                    padding: "24px",
-                    borderRadius: "12px",
-                    background: "var(--card-bg)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: "16px",
-                      borderBottom: "1px solid var(--border-light)",
-                      paddingBottom: "8px",
-                    }}
-                  >
-                    <h3 style={{ fontSize: "1.1rem" }}>
-                      Enviar Cotización para RFQ #{biddingRfq.id}
-                    </h3>
                     <button
+                      type="button"
+                      onClick={() =>
+                        setShowCurrentPassword(!showCurrentPassword)
+                      }
                       style={{
+                        position: "absolute",
+                        right: "10px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
                         background: "none",
                         border: "none",
                         cursor: "pointer",
                         fontSize: "1.2rem",
+                        padding: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
-                      onClick={() => setBiddingRfq(null)}
+                      aria-label={
+                        showCurrentPassword
+                          ? "Hide password"
+                          : "Show password"
+                      }
                     >
-                      ✕
+                      {showCurrentPassword ? (
+                        // Eye-off SVG
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="20"
+                          height="20"
+                          fill="#6b7280"
+                        >
+                          <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                        </svg>
+                      ) : (
+                        // Eye SVG
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="20"
+                          height="20"
+                          fill="#6b7280"
+                        >
+                          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                        </svg>
+                      )}
                     </button>
                   </div>
-                  {bidMsg.text && (
-                    <div
+                </div>
+                <div className="form-group" style={{ marginBottom: "20px" }}>
+                  <label className="form-label">Nueva Contraseña</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      className="form-input"
+                      type={showNewPassword ? "text" : "password"}
                       style={{
-                        padding: "10px 14px",
+                        width: "100%",
+                        padding: "10px 40px 10px 12px",
+                        border: "1px solid var(--border-light)",
                         borderRadius: "6px",
-                        marginBottom: "16px",
-                        fontSize: "0.85rem",
-                        background:
-                          bidMsg.type === "success"
-                            ? "var(--green-bg)"
-                            : "var(--red-bg)",
-                        color:
-                          bidMsg.type === "success"
-                            ? "var(--primary)"
-                            : "var(--red)",
                       }}
+                      value={pwForm.nuevaContrasena}
+                      onChange={(e) =>
+                        setPwForm({
+                          ...pwForm,
+                          nuevaContrasena: e.target.value,
+                        })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      style={{
+                        position: "absolute",
+                        right: "10px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "1.2rem",
+                        padding: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      aria-label={
+                        showNewPassword ? "Hide password" : "Show password"
+                      }
                     >
-                      {bidMsg.text}
-                    </div>
-                  )}
-                  <form onSubmit={enviarBid}>
-                    <div
-                      className="form-group"
-                      style={{ marginBottom: "16px" }}
-                    >
-                      <label className="form-label">
-                        Detalles de la Solicitud
-                      </label>
+                      {showNewPassword ? (
+                        // Eye-off SVG
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="20"
+                          height="20"
+                          fill="#6b7280"
+                        >
+                          <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                        </svg>
+                      ) : (
+                        // Eye SVG
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="20"
+                          height="20"
+                          fill="#6b7280"
+                        >
+                          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  className="btn btn-primary"
+                  type="submit"
+                  style={{ width: "100%" }}
+                >
+                  Cambiar Contraseña
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        {/* â”€â”€â”€ RFQ OPPORTUNITIES (LICITACIONES) â”€â”€â”€ */}
+        <div className="section active" id="sec-rfq">
+          <div className="dash-header">
+            <div className="dash-welcome">
+              <h1>Licitaciones / Oportunidades Comerciales</h1>
+              <p>
+                Encuentra solicitudes de compra al por mayor y envía tus
+                cotizaciones de forma segura
+              </p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: biddingRfq ? "1fr 1fr" : "1fr",
+              gap: "24px",
+              marginTop: "24px",
+            }}
+          >
+            {/* Active RFQ List */}
+            <div
+              className="card-table"
+              style={{
+                padding: "24px",
+                borderRadius: "12px",
+                background: "var(--card-bg)",
+              }}
+            >
+              <h3
+                style={{
+                  marginBottom: "16px",
+                  fontSize: "1.1rem",
+                  borderBottom: "1px solid var(--border-light)",
+                  paddingBottom: "8px",
+                }}
+              >
+                Licitaciones Disponibles
+              </h3>
+              {activeRfqs.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "48px 0",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  No hay licitaciones activas en este momento.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "16px",
+                  }}
+                >
+                  {activeRfqs.map((rfq) => {
+                    const yaOferto = rfq.ofertas?.find(
+                      (of) => of.productorId === user?.id,
+                    );
+                    return (
                       <div
+                        key={rfq.id}
                         style={{
                           background: "#f8fafc",
-                          padding: "12px",
-                          borderRadius: "6px",
-                          fontSize: "0.8rem",
+                          padding: "16px",
+                          borderRadius: "10px",
+                          border: "1px solid var(--border-light)",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
                         }}
                       >
-                        <p>
-                          <strong>Fruta solicitada:</strong>{" "}
-                          {biddingRfq.tipoFruta}
-                        </p>
-                        <p>
-                          <strong>Cantidad requerida:</strong>{" "}
-                          {biddingRfq.cantidadRequerida} kg
-                        </p>
+                        <div>
+                          <span
+                            style={{
+                              fontWeight: "700",
+                              fontSize: "1rem",
+                              color: "var(--primary)",
+                            }}
+                          >
+                            {rfq.tipoFruta} - {rfq.cantidadRequerida} kg
+                          </span>
+                          <div
+                            style={{ fontSize: "0.8rem", margin: "4px 0" }}
+                          >
+                            Comprador: <strong>{rfq.compradorNombre}</strong>
+                          </div>
+                          <p
+                            style={{
+                              fontSize: "0.8rem",
+                              color: "var(--text-secondary)",
+                              margin: "4px 0",
+                            }}
+                          >
+                            {rfq.descripcion}
+                          </p>
+                          <span
+                            style={{
+                              fontSize: "0.7rem",
+                              color: "var(--text-muted)",
+                            }}
+                          >
+                            Vence:{" "}
+                            {new Date(rfq.fechaLimite).toLocaleString()}
+                          </span>
+                        </div>
+                        <div>
+                          {yaOferto ? (
+                            <div
+                              style={{
+                                color: "var(--primary)",
+                                fontWeight: "600",
+                                fontSize: "0.85rem",
+                                textAlign: "right",
+                              }}
+                            >
+                              Ofertado:{" "}
+                              {formatPrice(yaOferto.precioPropuesto)}/kg
+                            </div>
+                          ) : (
+                            <button
+                              className="btn btn-primary"
+                              onClick={() => {
+                                setBiddingRfq(rfq);
+                                setBidMsg({ type: "", text: "" });
+                              }}
+                            >
+                              Cotizar
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div
-                      className="form-group"
-                      style={{ marginBottom: "16px" }}
-                    >
-                      <label className="form-label">Producto ofrecido *</label>
-                      <select
-                        className="form-input"
-                        style={{
-                          width: "100%",
-                          padding: "10px 12px",
-                          border: "1px solid var(--border-light)",
-                          borderRadius: "6px",
-                          marginBottom: "16px",
-                        }}
-                        value={bidForm.productId}
-                        onChange={(e) =>
-                          setBidForm({
-                            ...bidForm,
-                            productId: e.target.value,
-                          })
-                        }
-                        required
-                      >
-                        <option value="">Selecciona un producto</option>
-                        {productos.map((producto) => (
-                          <option key={producto.id} value={producto.id}>
-                            {producto.nombre}
-                          </option>
-                        ))}
-                      </select>
-                      <label className="form-label">
-                        Precio Propuesto por kg (COP) *
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        className="form-input"
-                        style={{
-                          width: "100%",
-                          padding: "10px 12px",
-                          border: "1px solid var(--border-light)",
-                          borderRadius: "6px",
-                        }}
-                        value={bidForm.precioPropuesto}
-                        onChange={(e) =>
-                          setBidForm({
-                            ...bidForm,
-                            precioPropuesto: e.target.value,
-                          })
-                        }
-                        placeholder="Ej: 2200"
-                      />
-                    </div>
-                    <div
-                      className="form-group"
-                      style={{ marginBottom: "20px" }}
-                    >
-                      <label className="form-label">
-                        Comentarios / Condiciones de Entrega
-                      </label>
-                      <textarea
-                        rows="3"
-                        className="form-textarea"
-                        style={{
-                          width: "100%",
-                          padding: "10px 12px",
-                          border: "1px solid var(--border-light)",
-                          borderRadius: "6px",
-                        }}
-                        value={bidForm.comentarios}
-                        onChange={(e) =>
-                          setBidForm({
-                            ...bidForm,
-                            comentarios: e.target.value,
-                          })
-                        }
-                        placeholder="Ej: Despacho inmediato, calidad premium certificada."
-                      ></textarea>
-                    </div>
-                    <button
-                      className="btn btn-primary"
-                      type="submit"
-                      style={{ width: "100%" }}
-                    >
-                      Enviar Cotización
-                    </button>
-                  </form>
+                    );
+                  })}
                 </div>
               )}
             </div>
+
+            {/* Bidding Panel */}
+            {biddingRfq && (
+              <div
+                className="card-table"
+                style={{
+                  padding: "24px",
+                  borderRadius: "12px",
+                  background: "var(--card-bg)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "16px",
+                    borderBottom: "1px solid var(--border-light)",
+                    paddingBottom: "8px",
+                  }}
+                >
+                  <h3 style={{ fontSize: "1.1rem" }}>
+                    Enviar Cotización para RFQ #{biddingRfq.id}
+                  </h3>
+                  <button
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "1.2rem",
+                    }}
+                    onClick={() => setBiddingRfq(null)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                {bidMsg.text && (
+                  <div
+                    style={{
+                      padding: "10px 14px",
+                      borderRadius: "6px",
+                      marginBottom: "16px",
+                      fontSize: "0.85rem",
+                      background:
+                        bidMsg.type === "success"
+                          ? "var(--green-bg)"
+                          : "var(--red-bg)",
+                      color:
+                        bidMsg.type === "success"
+                          ? "var(--primary)"
+                          : "var(--red)",
+                    }}
+                  >
+                    {bidMsg.text}
+                  </div>
+                )}
+                <form onSubmit={enviarBid}>
+                  <div
+                    className="form-group"
+                    style={{ marginBottom: "16px" }}
+                  >
+                    <label className="form-label">
+                      Detalles de la Solicitud
+                    </label>
+                    <div
+                      style={{
+                        background: "#f8fafc",
+                        padding: "12px",
+                        borderRadius: "6px",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      <p>
+                        <strong>Fruta solicitada:</strong>{" "}
+                        {biddingRfq.tipoFruta}
+                      </p>
+                      <p>
+                        <strong>Cantidad requerida:</strong>{" "}
+                        {biddingRfq.cantidadRequerida} kg
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className="form-group"
+                    style={{ marginBottom: "16px" }}
+                  >
+                    <label className="form-label">Producto ofrecido *</label>
+                    <select
+                      className="form-input"
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: "1px solid var(--border-light)",
+                        borderRadius: "6px",
+                        marginBottom: "16px",
+                      }}
+                      value={bidForm.productId}
+                      onChange={(e) =>
+                        setBidForm({
+                          ...bidForm,
+                          productId: e.target.value,
+                        })
+                      }
+                      required
+                    >
+                      <option value="">Selecciona un producto</option>
+                      {productos.map((producto) => (
+                        <option key={producto.id} value={producto.id}>
+                          {producto.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    <label className="form-label">
+                      Precio Propuesto por kg (COP) *
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      className="form-input"
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: "1px solid var(--border-light)",
+                        borderRadius: "6px",
+                      }}
+                      value={bidForm.precioPropuesto}
+                      onChange={(e) =>
+                        setBidForm({
+                          ...bidForm,
+                          precioPropuesto: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: 2200"
+                    />
+                  </div>
+                  <div
+                    className="form-group"
+                    style={{ marginBottom: "20px" }}
+                  >
+                    <label className="form-label">
+                      Comentarios / Condiciones de Entrega
+                    </label>
+                    <textarea
+                      rows="3"
+                      className="form-textarea"
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: "1px solid var(--border-light)",
+                        borderRadius: "6px",
+                      }}
+                      value={bidForm.comentarios}
+                      onChange={(e) =>
+                        setBidForm({
+                          ...bidForm,
+                          comentarios: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: Despacho inmediato, calidad premium certificada."
+                    ></textarea>
+                  </div>
+                  <button
+                    className="btn btn-primary"
+                    type="submit"
+                    style={{ width: "100%" }}
+                  >
+                    Enviar Cotización
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </main>
 
       {/* MODAL PRODUCTO */}

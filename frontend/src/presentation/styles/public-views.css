@@ -166,7 +166,7 @@
 
   margin: 0 0 26px;
 
-  color: #fff; 0.94);
+  color: rgba(255, 255, 255, 0.94);
 
   font-size: clamp(14px, 1.5vw, 16px);
 
@@ -1513,7 +1513,7 @@
 .local-banner p {
   margin: 6px 0 0;
 
-  color: #fff; 0.84);
+    color: rgba(255, 255, 255, 0.84);
 
   font-size: 13px;
 
@@ -2248,7 +2248,7 @@ html.dark .hero-public {
   max-width: 640px;
   font-size: clamp(15px, 1.3vw, 18px);
   line-height: 1.6;
-  color: #fff; 0.9);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* Directorio */
@@ -2494,7 +2494,7 @@ html.dark .hero-public {
   margin: 0;
   font-size: 16px;
   line-height: 1.55;
-  color: #fff; 0.8);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .pr-cta-btn {
@@ -3292,7 +3292,7 @@ html[data-theme="dark"] .ay-contact {
   max-width: 640px;
   font-size: clamp(15px, 1.3vw, 18px);
   line-height: 1.6;
-  color: #fff; 0.9);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .hm-hero-btns {
@@ -3530,7 +3530,7 @@ html[data-theme="dark"] .ay-contact {
   margin: 0;
   font-size: 16px;
   line-height: 1.55;
-  color: #fff; 0.8);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .hm-farmers-btn {
@@ -3736,7 +3736,7 @@ html[data-theme="dark"] .ay-contact {
   margin: 0;
   font-size: 14px;
   line-height: 1.4;
-  color: #fff; 0.8);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .hm-newsletter-form {

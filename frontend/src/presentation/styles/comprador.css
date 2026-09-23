@@ -837,20 +837,12 @@
    DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
    ============================================================ */
 
-/* Ocultar sidebar de navegación interna */
-.buyer-shell .sidebar {
-  display: none !important;
-}
-
-/* Ocultar mobile nav */
-.buyer-shell .mobile-nav {
-  display: none !important;
-}
-
-/* Ocultar sidebar overlay */
-.buyer-shell .sidebar-overlay {
-  display: none !important;
-}
+/* Nota: estas reglas apuntaban a .sidebar / .mobile-nav / .sidebar-overlay, pero
+   BuyerShell usa .buyer-sidebar / .buyer-mobile-nav / .buyer-sidebar-overlay y el
+   dashboard del comprador usa .app-layout, así que no ocultaban nada.
+   El dashboard compacto del comprador mantiene todas las secciones visibles a la
+   vez y su sidebar es navegación de la misma página
+   (showSection -> scrollIntoView sobre #sec-<clave>). */
 
 /* Mostrar TODAS las secciones .section (no solo la activa) */
 .buyer-shell .section {
@@ -900,11 +892,6 @@
   padding-left: 0 !important;
 }
 
-/* Eliminar botones que redirigen a secciones */
-.buyer-shell .btn-cta[onclick*="setActiveSection"] {
-  display: none !important;
-}
-
-.buyer-shell a[onclick*="showSection"] {
-  display: none !important;
-}
+/* Los botones que llaman a showSection ahora desplazan la vista hasta su sección
+   en lugar de quedar inertes (los selectores [onclick*=...] que había aquí nunca
+   coincidían con ningún elemento de React). */
