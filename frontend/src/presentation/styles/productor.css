@@ -899,8 +899,55 @@
 .producer-dashboard .stats-grid,
 .producer-dashboard .producer-finance-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+/* Tarjetas de métrica compactas. Mismo criterio que admin.css y comprador.css:
+   se elimina el ::after circular que se desbordaba como un cuarto de círculo,
+   se reduce el padding heredado de styles.css (24px) y se sustituye el fondo
+   #fff por token, que en tema oscuro dejaba tarjetas blancas ilegibles. */
+.producer-dashboard .stat-card {
+  min-height: 0;
+  padding: 11px 13px;
+  border: 1px solid var(--am-border, var(--color-border));
+  border-radius: 10px;
+  background: var(--am-surface);
+  box-shadow: none;
+}
+
+.producer-dashboard .stat-card::after {
+  content: none;
+}
+
+.producer-dashboard .stat-label {
+  color: var(--am-text-muted, var(--color-text-muted));
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.producer-dashboard .stat-value {
+  margin: 5px 0 2px;
+  color: var(--am-text, var(--color-text-primary));
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.producer-dashboard .stat-trend {
+  color: var(--am-text-muted, var(--color-text-muted));
+  font-size: .64rem;
+}
+
+.producer-dashboard .stat-icon-lg {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--am-surface-2);
 }
 
 /* Ajustar content para que ocupe todo el ancho */

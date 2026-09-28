@@ -884,10 +884,65 @@
 }
 
 /* Grid para las tarjetas de estadísticas */
-.buyer-shell .stats-grid {
+.buyer-shell .stats-grid,
+.buyer-dashboard .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+/* Tarjetas de métrica compactas. Se replican aquí lo que ya hace admin.css:
+   antes heredaban de styles.css un padding de 24px y un pseudo-elemento
+   ::after circular que, al desbordarse, se veía como un cuarto de círculo
+   suelto en la esquina. Además el fondo venía hardcodeado (#fff), lo que en
+   tema oscuro dejaba tarjetas blancas con texto claro encima. */
+.buyer-shell .stat-card,
+.buyer-dashboard .stat-card {
+  min-height: 0;
+  padding: 11px 13px;
+  border: 1px solid var(--buyer-border, var(--color-border));
+  border-radius: 10px;
+  background: var(--buyer-surface, var(--am-surface));
+  box-shadow: none;
+}
+
+.buyer-shell .stat-card::after,
+.buyer-dashboard .stat-card::after {
+  content: none;
+}
+
+.buyer-shell .stat-label,
+.buyer-dashboard .stat-label {
+  color: var(--buyer-muted, var(--color-text-muted));
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.buyer-shell .stat-value,
+.buyer-dashboard .stat-value {
+  margin: 5px 0 2px;
+  color: var(--buyer-text, var(--color-text-primary));
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.buyer-shell .stat-trend,
+.buyer-dashboard .stat-trend {
+  color: var(--buyer-muted, var(--color-text-muted));
+  font-size: .64rem;
+}
+
+.buyer-shell .stat-icon-lg,
+.buyer-dashboard .stat-icon-lg {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--buyer-surface-alt, var(--am-surface-2));
 }
 
 /* Ajustar content para que ocupe todo el ancho */

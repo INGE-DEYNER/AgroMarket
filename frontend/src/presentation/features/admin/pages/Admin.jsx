@@ -1162,6 +1162,16 @@ export default function Admin() {
           </div>
         </div>
 
+        {/*
+         * El encabezado y las tarjetas de métricas SOLO existen en el
+         * Dashboard. Antes vivían sueltos en el <main>, fuera de cualquier
+         * .section, por lo que se renderizaban siempre y aparecían también
+         * en Mensajería, Usuarios o Mi Perfil: el contenido de una sección se
+         * colaba en las demás.
+         */}
+        {activeSection === "dashboard" && (
+          <>
+
         <div className="dash-header">
           <div className="dash-welcome">
             <h1>ADMINISTRACIÓN</h1>
@@ -1228,7 +1238,9 @@ export default function Admin() {
               {t("admin.stats.trendAlerts", "Acción requerida")}
             </div>
           </div>
-        </div>
+          </div>
+          </>
+        )}
 
           {/*
            * Solo el resumen (Dashboard) usa dos columnas: "Top Productores" e
@@ -3796,9 +3808,10 @@ export default function Admin() {
               </div>
               </div>
               {/* fin sec-perfil */}
-        {/* FIX: El footer NO debe mostrarse dentro del dashboard de Admin.
-            El pie global de la app ya se oculta en /admin (AppFooter) y el
-            layout del panel no debe renderizar su propio footer. */}
+        {/*
+          FIX: el pie global de la app ya se oculta en /admin (AppFooter) y el
+          layout del panel no debe renderizar su propio footer.
+        */}
       </main>
     </div>
   );

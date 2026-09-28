@@ -44,7 +44,7 @@ html.dark {
 
 .app-layout {
   min-height: 100vh;
-  background: #f5f8f6;
+  background: var(--admin-page, #f5f8f6);
 }
 
 .sidebar {
@@ -160,22 +160,26 @@ html.dark {
 .btn-cta { border: 0; border-radius: 8px; padding: 10px 16px; color: #fff; font-weight: 700; cursor: pointer; background: var(--admin-dark); }
 .btn-cta:hover { background: var(--admin-green); }
 
-.stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-bottom: 20px; }
-.stat-card { position: relative; min-height: 108px; padding: 16px; border: 1px solid var(--admin-border); border-radius: var(--admin-radius); background: #fff; box-shadow: var(--admin-shadow); overflow: hidden; }
-.stat-card::after { content: ""; position: absolute; right: -24px; bottom: -28px; width: 90px; height: 90px; border-radius: 50%; background: var(--admin-light); opacity: .7; }
-.stat-label { color: var(--admin-muted); font-size: .72rem; font-weight: 700; }
-.stat-value { margin: 8px 0 3px; color: var(--admin-deep); font-size: 1.45rem; font-weight: 800; }
-.stat-trend { color: var(--admin-muted); font-size: .66rem; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 14px; }
+/* El círculo decorativo (::after) se eliminaba: como la tarjeta no fija
+   min-height al contenido, el círculo se desbordaba y se veía como un cuarto
+   de círculo suelto en la esquina. Ahora la tarjeta usa un borde superior de
+   color, que es lo que yaDave el aire de "tarjeta de métrica". */
+.stat-card { position: relative; min-height: 84px; padding: 11px 13px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-surface); box-shadow: var(--admin-shadow); }
+.stat-label { color: var(--admin-muted); font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.stat-value { margin: 5px 0 2px; color: var(--admin-text); font-size: 1.3rem; font-weight: 800; }
+.stat-trend { color: var(--admin-muted); font-size: .64rem; }
 .stat-trend.up { color: var(--admin-green); }
 .stat-trend.down { color: var(--admin-red); }
-.stat-icon-lg { display: block; width: 26px; height: 26px; margin-bottom: 6px; border-radius: 8px; background: var(--admin-light); }
-.color-1 { border-top: 3px solid var(--admin-green); }
-.color-2 { border-top: 3px solid #3b82f6; }
-.color-3 { border-top: 3px solid #f59e0b; }
-.color-4 { border-top: 3px solid #ef4444; }
+/* Icono decorativo: cuadrado compacto alineado a la derecha. */
+.stat-icon-lg { position: absolute; top: 11px; right: 11px; width: 20px; height: 20px; border-radius: 6px; background: var(--admin-surface-alt); }
+.color-1 { border-top: 2px solid var(--admin-green); }
+.color-2 { border-top: 2px solid #3b82f6; }
+.color-3 { border-top: 2px solid #f59e0b; }
+.color-4 { border-top: 2px solid #ef4444; }
 
 .grid-columns { align-items: start; }
-.card-table { min-width: 0; border: 1px solid var(--admin-border); border-radius: var(--admin-radius); background: #fff; box-shadow: var(--admin-shadow); overflow: hidden; }
+.card-table { min-width: 0; border: 1px solid var(--admin-border); border-radius: var(--admin-radius); background: var(--admin-surface); box-shadow: var(--admin-shadow); overflow: hidden; }
 .table-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #edf2ee; }
 .card-title { margin: 0; color: var(--admin-deep); font-size: 1rem; font-weight: 800; }
 .section-subtitle { margin: 4px 0 0; color: var(--admin-muted); font-size: .72rem; }
@@ -282,6 +286,104 @@ html.dark {
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+
+/* ============================================================
+   CORRECCIONES DE TEMA OSCURO Y PROPORCIÓN
+   ------------------------------------------------------------
+   Estas reglas existían con colores claros literales (#fff, #f7faf8,
+   #edf2ee...) que en modo oscuro producían tarjetas blancas con
+   texto claro encima: ilegibles. Aquí se sustituyen por los
+   tokens var(--admin-*), que ya se redefinen en html.dark.
+   ============================================================ */
+
+.admin-dashboard .admin-search,
+.admin-dashboard .table-action,
+.admin-dashboard .admin-kpi,
+.admin-dashboard .admin-panel,
+.admin-dashboard .chart-container,
+.admin-dashboard .stat-card {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.admin-dashboard .admin-kpi,
+.admin-dashboard .admin-panel,
+.admin-dashboard .chart-container,
+.admin-dashboard .audit-card,
+.admin-dashboard .empty-audit {
+  background: var(--admin-surface-alt);
+}
+
+.admin-dashboard .table-header,
+.admin-dashboard .table-filters,
+.admin-dashboard .table-responsive th,
+.admin-dashboard .table-responsive td,
+.admin-dashboard .admin-chart-placeholder,
+.admin-dashboard .table-responsive tr,
+.admin-dashboard .admin-footer {
+  border-color: var(--admin-border);
+}
+
+.admin-dashboard .table-responsive th,
+.admin-dashboard .chart-container {
+  background: var(--admin-surface-alt);
+  color: var(--admin-muted);
+}
+
+.admin-dashboard .table-responsive td {
+  color: var(--admin-text);
+  border-top-color: var(--admin-border);
+}
+
+.admin-dashboard .table-responsive tbody tr:hover {
+  background: var(--admin-surface-alt);
+}
+
+.admin-dashboard .card-title,
+.admin-dashboard .dash-welcome h1,
+.admin-dashboard .stat-value,
+.admin-dashboard .admin-kpi strong,
+.admin-dashboard .admin-big-number,
+.admin-dashboard .admin-bell,
+.admin-dashboard .table-action,
+.admin-dashboard .audit-card strong {
+  color: var(--admin-text);
+}
+
+.admin-dashboard .empty-audit,
+.admin-dashboard .empty-cell {
+  background: var(--admin-surface-alt);
+  color: var(--admin-muted);
+}
+
+.admin-dashboard .admin-search {
+  color: var(--admin-muted);
+}
+
+.admin-dashboard .admin-user-avatar,
+.admin-dashboard .avatar-red {
+  background: var(--admin-surface-alt);
+  color: var(--admin-text);
+}
+
+.admin-dashboard .btn-secondary,
+.admin-dashboard .status-shipped,
+.admin-dashboard .status-pending,
+.admin-dashboard .priority-badge {
+  color: var(--admin-text);
+}
+
+.admin-dashboard .admin-chart-placeholder {
+  background: var(--admin-surface-alt);
+}
+
+/* Legibilidad de las barras de "Ingresos 6 meses": con el ancho completo
+   las barras ocupaban 1500 px y quedaban como líneas de 1 px. */
+.admin-dashboard .admin-chart-placeholder span {
+  max-width: 34px;
+  border-radius: 4px 4px 0 0;
+}
+
 /* ============================================================
    ALINEACIÓN FIGMA — admin-productores (10:5702) y secciones
    Tabs píldora · badges de estado exactos · tabla radius 16 ·
