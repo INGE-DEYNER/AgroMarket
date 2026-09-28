@@ -9,6 +9,7 @@ import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher"
 import api, { API_BASE } from "@/infrastructure/http/api";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import Icon from "@/presentation/shared/components/Icon";
+import PanelNotificaciones from "@/presentation/shared/components/PanelNotificaciones";
 import { rutaDeSeccion, seccionDesdeRuta } from "@/application/security/rutasAdmin";
 import "@/presentation/styles/admin.css";
 
@@ -192,7 +193,6 @@ export default function Admin() {
     fechaExpiracion: "",
   });
   const [mantenimientoMode, setMantenimientoMode] = useState(false);
-  const [notificacionesNoLeidas, setNotificacionesNoLeidas] = useState(0);
 
   // Admin messaging state - para enviar mensajes a usuarios
   const [mensajeUsuarios, setMensajeUsuarios] = useState([]);
@@ -223,28 +223,9 @@ export default function Admin() {
     };
   }, []);
 
-  // Campana del topbar: contador REAL de notificaciones sin leer.
-  useEffect(() => {
-    if (!user?.id) return undefined;
-    let mounted = true;
-    const load = async () => {
-      try {
-        const data = await api.get(`/notifications/user/${user.id}`);
-        const list = Array.isArray(data) ? data : data?.content || [];
-        if (mounted) {
-          setNotificacionesNoLeidas(list.filter((n) => !n.read).length);
-        }
-      } catch {
-        /* silencioso */
-      }
-    };
-    void load();
-    const interval = setInterval(load, 30000);
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, [user?.id]);
+  // El contador de la campana lo lleva ahora PanelNotificaciones, que
+  // consulta el endpoint al abrirse. Aquí ya no hace falta sondear cada
+  // 30 s: el componente carga bajo demanda y marca al leer.
 
   // States for Finanzas and Logística Reports
   const [finanzasData, setFinanzasData] = useState(null);
@@ -1141,15 +1122,7 @@ export default function Admin() {
             <span>⌕</span>
           </div>
           <div className="admin-top-actions">
-            <button
-              type="button"
-              className="admin-bell"
-              onClick={() => navigate("/especial/notificaciones")}
-              title={t("special.notifications", "Notificaciones")}
-              style={{ background: "none", border: "none", cursor: "pointer" }}
-            >
-              ♧{notificacionesNoLeidas > 0 && <b>{notificacionesNoLeidas}</b>}
-            </button>
+            <PanelNotificaciones userId={user?.id} />
             <span className="admin-user-avatar">
               {(user?.nombre || "A").slice(0, 1).toUpperCase()}
             </span>

@@ -3,6 +3,83 @@
   --special-border:#dce6df; --special-text:#17301f; --special-muted:#6a7770;
   --special-bg:#f7faf8; --special-card:#fff; --special-shadow:0 8px 24px rgba(16,56,30,.08);
 }
+
+/*
+ * Tema oscuro del "sistema especial".
+ *
+ * Este archivo solo declaraba los tokens en :root (modo claro) y no tenía
+ * bloque para html.dark. Como los valores eran literales (#fff en topbar,
+ * tarjetas, inputs y sidebar), en modo oscuro las superficies se quedaban
+ * blancas con texto claro encima: por eso la lista de notificaciones
+ * aparecía como un bloque blanco vacío. Aquí se redefinen los mismos
+ * nombres, de modo que las reglas existentes se adaptan solas.
+ */
+html.dark {
+  --special-bg:#0e1711;
+  --special-card:#16211a;
+  --special-text:#eef7f0;
+  --special-muted:#94a89a;
+  --special-border:#2c3b31;
+  --special-soft:#1d2a21;
+  --special-shadow:0 8px 24px rgba(0,0,0,.4);
+  --special-green:#3fbf6a;
+  --special-green-2:#2f9c54;
+  --special-topbar:#16211a;
+  --special-input:#1d2a21;
+  --special-on-accent:#06180d;
+}
+
+html.dark .special-shell,
+html.dark .special-shell * { border-color: var(--special-border); }
+
+html.dark .special-topbar,
+html.dark .special-cart {
+  background: var(--special-topbar);
+  color: var(--special-text);
+}
+
+html.dark .special-search input,
+html.dark .special-secondary-action {
+  background: var(--special-input);
+  color: var(--special-text);
+  border-color: var(--special-border);
+}
+
+html.dark .special-search button,
+html.dark .special-primary-action {
+  color: var(--special-on-accent);
+}
+
+html.dark .special-avatar {
+  background: var(--special-soft);
+  color: var(--special-green);
+}
+
+html.dark .special-notification,
+html.dark .special-address-card,
+html.dark .return-card,
+html.dark .payment-card,
+html.dark .coupon-card,
+html.dark .special-address-list > *,
+html.dark .coupon-list > *,
+html.dark .return-list > *,
+html.dark .payment-list > * {
+  background: var(--special-card);
+  border-color: var(--special-border);
+  box-shadow: var(--special-shadow);
+  color: var(--special-text);
+}
+
+html.dark .special-tabs button { color: var(--special-muted); }
+html.dark .special-tabs button.active { color: var(--special-green); }
+
+html.dark .special-link-button,
+html.dark .special-card-actions button { color: var(--special-green); }
+
+html.dark .special-badge.success { background:#12351f; color:#7ee2a6; }
+html.dark .special-badge.warning { background:#3a2c0c; color:#f5c877; }
+
+html.dark .special-dot { background: var(--special-green); }
 .special-shell{min-height:100vh;background:var(--special-bg);color:var(--special-text)}
 .special-topbar{height:74px;background:#fff;border-bottom:1px solid var(--special-border);display:flex;align-items:center;gap:20px;padding:0 28px;position:sticky;top:0;z-index:30}
 .special-brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:inherit;min-width:220px}.special-brand img{width:42px;height:42px;border-radius:50%;object-fit:cover}.special-brand strong{display:block;font-size:18px;color:var(--special-green)}.special-brand small{display:block;color:var(--special-muted);font-size:9px}
