@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
@@ -3615,6 +3615,7 @@ export default function Admin() {
                 </button>
               </form>
                 </div>
+              </div>
               </div>
               {/* fin sec-perfil */}
         {/* FIX: El footer NO debe mostrarse dentro del dashboard de Admin.
