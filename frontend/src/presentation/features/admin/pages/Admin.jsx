@@ -932,16 +932,24 @@ export default function Admin() {
         ))}
 
         <div className="sidebar-divider"></div>
-        <Link
-          to="/perfil"
-          className="sidebar-link"
-          onClick={() => setSidebarOpen(false)}
+        {/*
+         * "Mi Perfil" se abre DENTRO del panel (sección sec-perfil) en vez de
+         * navegar a /perfil y dejar el dashboard. Antes era un <Link>, así que
+         * salía del panel y el usuario perdía el contexto.
+         */}
+        <button
+          type="button"
+          className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`}
+          onClick={() => {
+            showSection("perfil");
+            setSidebarOpen(false);
+          }}
         >
           <span className="sidebar-icon" aria-hidden="true">
             ◎
           </span>
           {t("profile.title", "Mi Perfil")}
-        </Link>
+        </button>
 
         <a
           href="#"
@@ -1072,11 +1080,19 @@ export default function Admin() {
           </div>
         </div>
 
+          {/*
+           * Solo el resumen (Dashboard) usa dos columnas: "Top Productores" e
+           * "Ingresos 6 Meses" van en la lateral. El resto de secciones
+           * (Usuarios, Mensajería, Pedidos...) necesitan TODO el ancho; con la
+           * rejilla 2fr/1fr quedaban encerradas en la columna estrecha y sus
+           * formularios salían recortados.
+           */}
           <div
             className="grid-columns"
             style={{
               display: "grid",
-              gridTemplateColumns: "2fr 1fr",
+              gridTemplateColumns:
+                activeSection === "dashboard" ? "2fr 1fr" : "1fr",
               gap: "24px",
             }}
           >
@@ -3335,14 +3351,29 @@ export default function Admin() {
               </div>
             </div>
           </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "24px",
-              marginTop: "24px",
-            }}
-          >
+              {/* MI PERFIL — dentro del panel, sin salir a otra página */}
+              <div
+                className={`section${activeSection === "perfil" ? " active" : ""}`}
+                id="sec-perfil"
+              >
+                <div className="table-header">
+                  <div>
+                    <h3 className="card-title">
+                      {t("profile.title", "Mi Perfil")}
+                    </h3>
+                    <p className="section-subtitle">
+                      Datos personales y seguridad de tu cuenta
+                    </p>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                    gap: "24px",
+                    padding: "24px",
+                  }}
+                >
             {/* Profile Details Form */}
             <div
               className="card-table"
@@ -3583,8 +3614,9 @@ export default function Admin() {
                   Cambiar Contraseña
                 </button>
               </form>
-            </div>
-          </div>
+                </div>
+              </div>
+              {/* fin sec-perfil */}
         {/* FIX: El footer NO debe mostrarse dentro del dashboard de Admin.
             El pie global de la app ya se oculta en /admin (AppFooter) y el
             layout del panel no debe renderizar su propio footer. */}
