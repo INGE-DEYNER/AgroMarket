@@ -299,7 +299,20 @@ export default function DashboardProductor() {
   // Messaging contacts and messages
   const loadContactos = useCallback(async () => {
     try {
-      const data = await api.get("/mensajes/contactos");
+      /*
+       * `mis-conversaciones` y no `contactos`: este último devuelve el
+       * catálogo completo de usuarios del rol contrario, así que el productor
+       * veía en su bandeja a compradores con los que nunca había escrito.
+       * La bandeja debe mostrar solo conversaciones reales.
+       *
+       * Si el usuario no tiene ninguna, se recurre a `contactos` para que un
+       * productor recién registrado pueda iniciar la primera conversación con
+       * un comprador.
+       */
+      let data = await api.get("/mensajes/mis-conversaciones");
+      if (!extractArray(data).length) {
+        data = await api.get("/mensajes/contactos");
+      }
       const list = extractArray(data).map((c) => ({
         ...c,
         id: c.id || c.usuarioId,

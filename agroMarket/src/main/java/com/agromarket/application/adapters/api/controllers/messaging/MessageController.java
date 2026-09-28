@@ -1,7 +1,9 @@
 package com.agromarket.application.adapters.api.controllers.messaging;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -269,6 +271,63 @@ public class MessageController {
                                 && admin.getId()
                                         .equals(message.getSender().getId())))
                 .toList();
+    }
+
+    /**
+     * GET /api/v1/messages/mis-conversaciones
+     * (alias frontend: /mensajes/mis-conversaciones).
+     *
+     * <p>Devuelve únicamente los usuarios con los que YA existe conversación,
+     * ordenados por el mensaje más reciente. Es lo que la bandeja del
+     * comprador y del productor debe mostrar.</p>
+     *
+     * <p>Se diferencia de {@code /contactos} a propósito: ese endpoint sigue
+     * devolviendo el catálogo de usuarios del rol contrario y lo usa la
+     * administración, que sí necesita poder iniciar conversación con
+     * cualquiera. Un comprador o productor no debe ver el catálogo de
+     * usuarios disponibles: solo con quién se ha hablado.</p>
+     */
+    @GetMapping("/mis-conversaciones")
+    public ResponseEntity<List<Map<String, Object>>> misConversaciones(
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        Long yo = principal.getUserId();
+
+        Map<Long, LocalDateTime> ultimoMensaje = new HashMap<>();
+        for (Long partnerId : messagingPort.getConversationPartnerIds(yo)) {
+            for (Message message : messagingPort.getConversation(yo, partnerId)) {
+                if (message == null || message.getSentAt() == null) {
+                    continue;
+                }
+                ultimoMensaje.merge(partnerId, message.getSentAt(),
+                        (a, b) -> a.isAfter(b) ? a : b);
+            }
+        }
+
+        // Sin conversación no hay nada que mostrar: se evita un N+1 sobre todos
+        // los usuarios del sistema.
+        if (ultimoMensaje.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        List<Long> ordenados = ultimoMensaje.entrySet().stream()
+                .sorted(Map.Entry.<Long, LocalDateTime> comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .toList();
+
+        List<Map<String, Object>> resultado = new ArrayList<>();
+        for (Long partnerId : ordenados) {
+            userPort.findById(partnerId)
+                    .filter(partner -> partner != null && partner.getId() != null)
+                    .ifPresent(partner -> {
+                        Map<String, Object> contacto = toContact(partner);
+                        contacto.put("ultimoMensajeEn",
+                                ultimoMensaje.get(partnerId));
+                        resultado.add(contacto);
+                    });
+        }
+
+        return ResponseEntity.ok(resultado);
     }
 
     private Map<String, Object> toContact(User u) {

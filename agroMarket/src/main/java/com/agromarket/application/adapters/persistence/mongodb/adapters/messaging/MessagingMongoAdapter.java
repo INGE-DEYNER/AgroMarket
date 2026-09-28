@@ -36,6 +36,26 @@ public class MessagingMongoAdapter implements MessagingPort {
     }
 
     @Override
+    public List<Long> findConversationPartnerIds(Long userId) {
+        if (userId == null) {
+            return List.of();
+        }
+        /*
+         * Cada documento aporta dos posibles interlocutores: quien envía y quien
+         * recibe. Se descartan los nulos y el propio usuario, y se deduplican
+         * con un LinkedHashSet para conservar el orden de aparición.
+         */
+        return messageRepository.findConversationPartners(userId).stream()
+                .flatMap(document -> java.util.stream.Stream.of(
+                        document.getSenderId(), document.getRecipientId()))
+                .filter(partnerId -> partnerId != null && !partnerId.equals(userId))
+                .collect(java.util.stream.Collectors.toCollection(
+                        java.util.LinkedHashSet::new))
+                .stream()
+                .toList();
+    }
+
+    @Override
     public Notification saveNotification(Notification notification) {
         return notificationRepository.save(
                 NotificationDocument.fromDomain(notification)).toDomain();

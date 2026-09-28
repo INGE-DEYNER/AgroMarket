@@ -13,4 +13,15 @@ public interface MessageMongoRepository extends MongoRepository<MessageDocument,
             "{ 'senderId': ?1, 'recipientId': ?0 } " +
             "] }")
     List<MessageDocument> findConversation(Long userA, Long userB);
+
+    /**
+     * Identificadores de los interlocutores de este usuario (quien le escribió
+     * o a quien le escribió), sin repetir y sin incluirse a sí mismo.
+     */
+    @Query(value = "{ $or: [ " +
+            "{ 'senderId': ?0 }, " +
+            "{ 'recipientId': ?0 } " +
+            "] }",
+            fields = "{ 'senderId': 1, 'recipientId': 1 }")
+    List<MessageDocument> findConversationPartners(Long userId);
 }

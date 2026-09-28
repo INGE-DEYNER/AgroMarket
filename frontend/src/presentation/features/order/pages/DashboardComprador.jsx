@@ -37,16 +37,13 @@ const CATEGORIES = [
   { label: "Otros", emoji: "", value: "Otros" },
 ];
 
-const REVIEW_PRODUCTOS = [
-  "Banano Urabá",
-  "Piña Manzana",
-  "Mango Tommy",
-  "Maracuyá",
-  "Guanábana",
-  "Naranja Valencia",
-  "Coco Fresco",
-  "Limón Tahití",
-];
+/*
+ * NO hay lista fija de productos para reseñar. Antes se usaba una constante
+ * `REVIEW_PRODUCTOS` con nombres inventados ("Banano Urabá", "Piña Manzana"…)
+ * que además rompía el envío: el backend exige `productId` numérico y recibía
+ * un texto, así que la reseña nunca se guardaba. Ahora el selector usa el
+ * catálogo real que ya carga el dashboard.
+ */
 
 export default function DashboardComprador() {
   const { t, i18n } = useTranslation();
@@ -360,7 +357,20 @@ export default function DashboardComprador() {
   // (TDZ) y el dashboard del comprador no montaba nunca.
   const loadContactos = useCallback(async () => {
     try {
-      const data = await api.get("/mensajes/contactos");
+      /*
+       * `mis-conversaciones` y no `contactos`: este último devuelve el
+       * catálogo completo de usuarios del rol contrario, así que el usuario
+       * veía en su bandeja a productores y compradores con los que nunca
+       * había escrito. La bandeja debe mostrar solo conversaciones reales.
+       *
+       * Si el usuario no tiene ninguna, se recurre a `contactos` para que un
+       * comprador nuevo pueda iniciar la primera conversación escribiendo a un
+       * productor (o al revés).
+       */
+      let data = await api.get("/mensajes/mis-conversaciones");
+      if (!extractArray(data).length) {
+        data = await api.get("/mensajes/contactos");
+      }
       const list = extractArray(data).map((c) => ({
         ...c,
         id: c.id || c.usuarioId,
@@ -581,11 +591,17 @@ export default function DashboardComprador() {
     setSelectedContact(contacto);
     try {
       const data = await api.get(`/mensajes/conversacion/${contacto.id}`);
-      const list = extractArray(data).map((m) => ({
-        ...m,
-        mio: m.remitenteId === user?.id,
-      }));
-      setMessages(list);
+      /*
+       * ANTES: `{ ...m, mio: m.remitenteId === user?.id }`.
+       *
+       * El backend devuelve `content` y `senderId` (MessageResponse), no
+       * `remitenteId`. Como `m.texto` y `m.contenido` quedaban undefined, la
+       * burbuja pintaba solo la hora y el texto del mensaje era invisible.
+       * `normalizarMensaje` traduce los tres nombres y calcula `mio`.
+       */
+      setMessages(
+        extractArray(data).map((m) => normalizarMensaje(m, user?.id)),
+      );
     } catch (err) {
       console.error("Error loadMessages:", err);
       setMessages([]);
@@ -3418,8 +3434,10 @@ export default function DashboardComprador() {
                 onChange={(e) => setRProducto(e.target.value)}
               >
                 <option value="">Selecciona un producto...</option>
-                {REVIEW_PRODUCTOS.map((p) => (
-                  <option key={p}>{p}</option>
+                {catalogProducts.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nombre}
+                  </option>
                 ))}
               </select>
               {reviewErrors.producto && (

@@ -76,6 +76,17 @@ public class MessagingUseCase implements MessagingPort {
                 .toList();
     }
 
+    /**
+     * Interlocutores reales del usuario. El controlador lo usa para la bandeja
+     * de mensajería, que debe mostrar solo conversaciones existentes y no el
+     * catálogo de usuarios del rol contrario.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getConversationPartnerIds(Long userId) {
+        return messagingPersistencePort.findConversationPartnerIds(userId);
+    }
+
     @Override
     @Transactional
     public Notification createNotification(Notification notification) {

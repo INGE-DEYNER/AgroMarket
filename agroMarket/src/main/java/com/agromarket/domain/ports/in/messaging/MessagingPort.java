@@ -31,6 +31,16 @@ public interface MessagingPort {
     );
 
     /**
+     * Identificadores de los usuarios con los que este usuario tiene al menos
+     * un mensaje, en ambas direcciones.
+     *
+     * <p>Permite listar conversaciones reales: el usuario solo debe ver con
+     * quién se ha escrito, no el catálogo completo de usuarios del rol
+     * contrario.</p>
+     */
+    List<Long> getConversationPartnerIds(Long userId);
+
+    /**
      * Crea una notificación.
      */
     Notification createNotification(
