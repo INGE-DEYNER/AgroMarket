@@ -201,7 +201,6 @@ public class UserUseCase implements UserPort {
                 .photoUrl(u.getPhotoUrl())
                 .createdAt(u.getCreatedAt())
                 .updatedAt(u.getUpdatedAt())
-                .lastLogin(u.getLastLogin())
                 .preferredCurrency(u.getPreferredCurrency())
                 .build();
     }

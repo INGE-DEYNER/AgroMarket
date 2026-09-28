@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.agromarket.application.adapters.api.request.shipping.CreateShippingRequest;
+import com.agromarket.application.adapters.api.request.shipping.UpdateShippingRequest;
 import com.agromarket.application.adapters.api.response.shipping.ShippingResponse;
 import com.agromarket.domain.ports.in.shipping.ShippingPort;
 
@@ -81,6 +83,27 @@ public class ShippingController {
                 return ResponseEntity.ok(
                                 ShippingResponse.fromResult(
                                                 shippingPort.getByOrderId(orderId)));
+        }
+
+        /**
+         * PUT /api/v1/shipments/{id} — actualiza los datos de seguimiento.
+         *
+         * <p>Lo consume el modal "Actualizar envío" del panel del productor
+         * ({@code PUT /envios/{id}}). Antes devolvía 405 porque este endpoint no
+         * existía y el formulario de seguimiento no se podía guardar.</p>
+         */
+        @PutMapping("/{id}")
+        public ResponseEntity<ShippingResponse> updateTracking(
+                        @PathVariable Long id,
+                        @RequestBody UpdateShippingRequest request) {
+
+                return ResponseEntity.ok(
+                                ShippingResponse.fromResult(
+                                                shippingPort.updateTracking(
+                                                                id,
+                                                                request.getCarrier(),
+                                                                request.getTrackingNumber(),
+                                                                request.getEstimatedDeliveryDate())));
         }
 
         @PatchMapping("/{id}/advance")

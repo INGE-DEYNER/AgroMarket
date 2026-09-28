@@ -31,6 +31,17 @@ public interface CouponPort {
     List<Coupon> getActive();
 
     /**
+     * Obtiene TODOS los cupones (usados y vencidos incluidos).
+     * Lo consume el panel de administración.
+     */
+    List<Coupon> getAll();
+
+    /**
+     * Elimina un cupón por ID.
+     */
+    void delete(Long id);
+
+    /**
      * Desactiva un cupón.
      */
     void deactivate(Long id);

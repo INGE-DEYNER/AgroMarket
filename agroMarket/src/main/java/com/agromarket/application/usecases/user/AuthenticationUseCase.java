@@ -156,7 +156,6 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                         .build();
                 }
 
-                user.setLastLogin(LocalDateTime.now());
                 user.setUpdatedAt(LocalDateTime.now());
 
                 userPort.save(user);
@@ -211,7 +210,6 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                         "Código 2FA inválido");
                 }
 
-                user.setLastLogin(LocalDateTime.now());
                 user.setUpdatedAt(LocalDateTime.now());
 
                 userPort.save(user);
@@ -537,7 +535,6 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                         .active(true)
                                         .emailVerified(true)
                                         .provider("google")
-                                        .providerId(info.getGoogleId())
                                         .photoUrl(info.getPicture())
                                         // Google ya valida el correo, así que
                                         // el productor entra con la misma
@@ -550,7 +547,6 @@ public class AuthenticationUseCase implements AuthenticationPort {
                 } else {
 
                         user.setProvider("google");
-                        user.setProviderId(info.getGoogleId());
                         user.setPhotoUrl(info.getPicture());
                         user.setEmailVerified(true);
                         user.setUpdatedAt(LocalDateTime.now());

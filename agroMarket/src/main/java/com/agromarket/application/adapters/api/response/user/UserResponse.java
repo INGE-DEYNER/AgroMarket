@@ -42,7 +42,6 @@ public record UserResponse(
         String photoUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        LocalDateTime lastLogin,
         String preferredCurrency) {
 
     public static UserResponse from(UserResult r) {
@@ -72,7 +71,6 @@ public record UserResponse(
                 r.getPhotoUrl(),
                 r.getCreatedAt(),
                 r.getUpdatedAt(),
-                r.getLastLogin(),
                 r.getPreferredCurrency());
     }
 }

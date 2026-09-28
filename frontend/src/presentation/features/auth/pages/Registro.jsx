@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api, { API_BASE } from "@/infrastructure/http/api";
+import { PAISES } from "@/application/support/geoCatalog";
+import SelectorResidencia from "@/presentation/shared/components/SelectorResidencia";
 import bgCampo from "@/assets/register-bg-campo.png";
 import leafIcon from "@/assets/icon-leaf.svg";
 import mapPinIcon from "@/assets/icon-map-pin.svg";
@@ -11,16 +13,8 @@ import { ThemeToggle } from "@/presentation/shared/components/ThemeToggle";
 import "@/presentation/styles/login.css";
 import "@/presentation/styles/auth-flow.css";
 
-const COUNTRY_CODES = [
-  { code: "+57", name: "Colombia (🇨🇴)" },
-  { code: "+1", name: "USA (🇺🇸)" },
-  { code: "+34", name: "España (🇪🇸)" },
-  { code: "+52", name: "México (🇲🇽)" },
-  { code: "+54", name: "Argentina (🇦🇷)" },
-  { code: "+56", name: "Chile (🇨🇱)" },
-  { code: "+51", name: "Perú (🇵🇪)" },
-  { code: "+58", name: "Venezuela (🇻🇪)" },
-];
+// Los países ahora vienen del banco de ciudades (geoCatalog), de modo que el
+// selector de teléfono y el de residencia no pueden quedar desincronizados.
 
 export default function Registro() {
   const { t } = useTranslation();
@@ -35,9 +29,10 @@ export default function Registro() {
   const [telefono, setTelefono] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  // La ubicación se captura como departamento + ciudad, que son las columnas
-  // reales de `users`. Antes había un campo libre "ubicacion" (columna
-  // `location`) que duplicaba esta información.
+  // La ubicación se captura con el banco de ciudades: país -> departamento ->
+  // ciudad. Antes había dos inputs de texto libre ("ubicacion"/departamento y
+  // ciudad) que podían guardar combinaciones imposibles.
+  const [paisResidencia, setPaisResidencia] = useState(codigoPais);
   const [departamento, setDepartamento] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [nombreEmpresa, setNombreEmpresa] = useState("");
@@ -504,9 +499,9 @@ export default function Registro() {
                       value={codigoPais}
                       onChange={(e) => setCodigoPais(e.target.value)}
                     >
-                      {COUNTRY_CODES.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.code}
+                      {PAISES.map((c) => (
+                        <option key={c.codigo} value={c.codigo}>
+                          {c.bandera} {c.codigo}
                         </option>
                       ))}
                     </select>
@@ -533,50 +528,38 @@ export default function Registro() {
                 </div>
 
                 {rol === "productor" && (
-                  <div className="af-form-grid">
-                    <div className="af-field">
-                      <label htmlFor="departamento">
-                        {t("direccion.departamento", "Departamento")}
-                      </label>
-                      <input
-                        id="departamento"
-                        type="text"
-                        className={`af-input${errors.departamento ? " has-error" : ""}`}
-                        placeholder="Ej. Antioquia"
-                        value={departamento}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "departamento",
-                            e.target.value,
-                            setDepartamento,
-                          )
-                        }
-                      />
-                      {errors.departamento && (
-                        <span className="af-error-text">
-                          {errors.departamento}
-                        </span>
-                      )}
-                    </div>
-                    <div className="af-field">
-                      <label htmlFor="ciudad">
-                        {t("direccion.ciudad", "Ciudad / Municipio")}
-                      </label>
-                      <input
-                        id="ciudad"
-                        type="text"
-                        className={`af-input${errors.ciudad ? " has-error" : ""}`}
-                        placeholder="Ej. Chigorodó"
-                        value={ciudad}
-                        onChange={(e) =>
-                          handleFieldChange("ciudad", e.target.value, setCiudad)
-                        }
-                      />
-                      {errors.ciudad && (
-                        <span className="af-error-text">{errors.ciudad}</span>
-                      )}
-                    </div>
-                  </div>
+                  <SelectorResidencia
+                    className="af-form-grid"
+                    inputClass="af-input"
+                    pais={paisResidencia}
+                    departamento={departamento}
+                    ciudad={ciudad}
+                    onPais={(nuevoPais) => {
+                      setPaisResidencia(nuevoPais);
+                      setCodigoPais(nuevoPais);
+                      // Cambiar el país invalida el departamento y la ciudad.
+                      setDepartamento("");
+                      setCiudad("");
+                      setErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.departamento;
+                        delete next.ciudad;
+                        return next;
+                      });
+                    }}
+                    onDepartamento={(nuevoDepartamento) => {
+                      setDepartamento(nuevoDepartamento);
+                      setCiudad("");
+                      handleFieldChange(
+                        "departamento",
+                        nuevoDepartamento,
+                        setDepartamento,
+                      );
+                    }}
+                    onCiudad={(nuevaCiudad) =>
+                      handleFieldChange("ciudad", nuevaCiudad, setCiudad)
+                    }
+                  />
                 )}
 
                 {rol === "comprador_empresa" && (

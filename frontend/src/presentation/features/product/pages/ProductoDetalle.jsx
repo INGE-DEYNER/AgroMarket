@@ -6,6 +6,7 @@ import { useCart } from "@/presentation/features/order/hooks/useCart";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useDivisa } from "@/app/hooks/useDivisa";
 import api from "@/infrastructure/http/api";
+import { registrarVisita } from "@/application/support/navigationHistory";
 import Icon from "@/presentation/shared/components/Icon";
 
 export default function ProductoDetalle() {
@@ -32,7 +33,12 @@ export default function ProductoDetalle() {
     api
       .get(`/productos/${id}`)
       .then((res) => {
-        setProduct(res?.data ?? res);
+        const datos = res?.data ?? res;
+        setProduct(datos);
+        // Registra la visita para el historial de navegacion. Se hace al
+        // cargar el producto (no al montar) para no contar visitas a IDs
+        // invalidos que respondieron 404.
+        registrarVisita(datos);
       })
       .catch((err) => {
         console.error("Error cargando producto:", err);
@@ -41,7 +47,7 @@ export default function ProductoDetalle() {
         );
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, t]);
 
   const handleAddToCart = () => {
     if (!product) return;

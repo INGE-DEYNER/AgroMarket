@@ -6,6 +6,8 @@ import api from "@/infrastructure/http/api";
 import Navbar from "@/presentation/shared/components/Navbar";
 import "@/presentation/styles/styles.css";
 import Icon from "@/presentation/shared/components/Icon";
+import SelectorResidencia from "@/presentation/shared/components/SelectorResidencia";
+import { PAISES } from "@/application/support/geoCatalog";
 
 const DIVISAS = [
   { codigo: "COP", nombre: "Peso colombiano", bandera: "🇨🇴" },
@@ -36,7 +38,17 @@ export default function Perfil() {
   const [nombre, setNombre] = useState(user?.nombre || "");
   const [apellido, setApellido] = useState(user?.apellido || "");
   const [telefono, setTelefono] = useState(user?.telefono || "");
-  const [codigoPais] = useState(user?.codigoPais || "+57");
+  const [codigoPais, setCodigoPais] = useState(user?.codigoPais || "+57");
+  // El selector de residencia controla su propio país y lo sincroniza con
+  // `codigoPais`, que es el valor que se persiste en users.country_code.
+  const [paisResidencia, setPaisResidencia] = useState(
+    user?.codigoPais || "+57",
+  );
+  // `telefono` guarda el número con prefijo (ej. "+573001234567"), pero el
+  // input editable muestra solo el número local.
+  const soloNumero = String(telefono || "").startsWith(codigoPais)
+    ? String(telefono).slice(codigoPais.length)
+    : telefono || "";
   const [nombreEmpresa, setNombreEmpresa] = useState(user?.nombreEmpresa || "");
   const [nit, setNit] = useState(user?.nit || "");
 
@@ -129,16 +141,18 @@ export default function Perfil() {
     setLoading(true);
     try {
       const payload = {
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
-        telefono: codigoPais + telefono.trim(),
-        codigoPais,
-        departamento: departamento.trim(),
-        ciudad: ciudad.trim(),
-        direccionCompleta: direccionCompleta.trim(),
-        referencia: referencia.trim(),
-        codigoPostal: codigoPostal.trim(),
-        nombreEmpresa:
+        // El backend (`UpdateProfileRequest`) espera los nombres en inglés;
+        // enviar claves en español hacía que el perfil se guardara vacío.
+        firstName: nombre.trim(),
+        lastName: apellido.trim(),
+        phone: telefono.trim(),
+        countryCode: codigoPais,
+        department: departamento.trim(),
+        city: ciudad.trim(),
+        fullAddress: direccionCompleta.trim(),
+        addressReference: referencia.trim(),
+        postalCode: codigoPostal.trim(),
+        companyName:
           user?.esEmpresa || user?.role === "comprador_empresa"
             ? nombreEmpresa.trim()
             : undefined,
@@ -149,20 +163,22 @@ export default function Perfil() {
       };
 
       const res = await api.put("/usuarios/mi-perfil", payload);
-      const updatedUser = res.data || res;
+      // La respuesta llega en inglés; se normaliza igual que en AuthContext.
+      const actualizado = res.data || res;
 
       setUser({
         ...user,
-        nombre: updatedUser.nombre || nombre,
-        apellido: updatedUser.apellido || apellido,
-        telefono: updatedUser.telefono || telefono,
-        codigoPais: updatedUser.codigoPais || codigoPais,
-        departamento: updatedUser.departamento || departamento,
-        ciudad: updatedUser.ciudad || ciudad,
-        direccionCompleta:
-          updatedUser.direccionCompleta || direccionCompleta,
-        nombreEmpresa: updatedUser.nombreEmpresa || nombreEmpresa,
-        nit: updatedUser.nit || nit,
+        nombre: actualizado.firstName ?? nombre,
+        apellido: actualizado.lastName ?? apellido,
+        telefono: actualizado.phone ?? telefono,
+        codigoPais: actualizado.countryCode ?? codigoPais,
+        departamento: actualizado.department ?? departamento,
+        ciudad: actualizado.city ?? ciudad,
+        direccionCompleta: actualizado.fullAddress ?? direccionCompleta,
+        referencia: actualizado.addressReference ?? referencia,
+        codigoPostal: actualizado.postalCode ?? codigoPostal,
+        nombreEmpresa: actualizado.companyName ?? nombreEmpresa,
+        nit: actualizado.nit ?? nit,
       });
 
       setPersonalMsg({
@@ -202,9 +218,12 @@ export default function Perfil() {
 
     setLoading(true);
     try {
+      // `ChangePasswordRequest` espera `currentPassword` / `newPassword`;
+      // mandar las claves en español hacía que el backend respondiera 400
+      // por campos obligatorios ausentes.
       await api.put("/usuarios/me/contrasena", {
-        contrasenaActual,
-        nuevaContrasena,
+        currentPassword: contrasenaActual,
+        newPassword: nuevaContrasena,
       });
       setSecurityMsg({
         type: "success",
@@ -313,15 +332,19 @@ export default function Perfil() {
     setPrefMsg({ type: "", text: "" });
     setLoading(true);
     try {
+      // `preferredCurrency` es el nombre del campo en `UpdateProfileRequest`;
+      // mandar `divisaPreferida` lo descartaba en silencio.
       const res = await api.put("/usuarios/mi-perfil", {
-        divisaPreferida,
+        preferredCurrency: divisaPreferida,
       });
-      const updatedUser = res.data || res;
+      const actualizado = res.data || res;
+      const moneda = actualizado.preferredCurrency || divisaPreferida;
+
       setUser({
         ...user,
-        divisaPreferida: updatedUser.divisaPreferida || divisaPreferida,
+        divisaPreferida: moneda,
       });
-      setDivisaActual(updatedUser.divisaPreferida || divisaPreferida);
+      setDivisaActual(moneda);
       setPrefMsg({
         type: "success",
         text: "Preferencias actualizadas correctamente.",
@@ -546,21 +569,32 @@ export default function Perfil() {
                     <div className="form-group">
                       <label className="form-label">Teléfono</label>
                       <div style={{ display: "flex", gap: "8px" }}>
-                        <input
+                        <select
                           className="form-input"
                           value={codigoPais}
-                          style={{
-                            maxWidth: "70px",
-                            background: "#f3f4f6",
-                            cursor: "not-allowed",
-                            textAlign: "center",
+                          aria-label="Código de país"
+                          onChange={(e) => {
+                            setCodigoPais(e.target.value);
+                            setPaisResidencia(e.target.value);
+                            setDepartamento("");
+                            setCiudad("");
                           }}
-                          readOnly
-                        />
+                          style={{ maxWidth: "110px", textAlign: "center" }}
+                        >
+                          {PAISES.map((p) => (
+                            <option key={p.codigo} value={p.codigo}>
+                              {p.bandera} {p.codigo}
+                            </option>
+                          ))}
+                        </select>
                         <input
                           className="form-input"
-                          value={telefono}
-                          onChange={(e) => setTelefono(e.target.value)}
+                          value={soloNumero}
+                          onChange={(e) =>
+                            setTelefono(
+                              `${codigoPais}${e.target.value.replace(/\D/g, "")}`,
+                            )
+                          }
                           required
                         />
                       </div>
@@ -613,69 +647,22 @@ export default function Perfil() {
                       >
                         Dirección de Envío
                       </h4>
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label className="form-label">Departamento</label>
-                          <select
-                            className="form-input"
-                            value={departamento}
-                            onChange={(e) => setDepartamento(e.target.value)}
-                            style={{ height: "42px", background: "white" }}
-                          >
-                            <option value="">Selecciona departamento</option>
-                            {[
-                              "Amazonas",
-                              "Antioquia",
-                              "Arauca",
-                              "Atlántico",
-                              "Bolívar",
-                              "Boyacá",
-                              "Caldas",
-                              "Caquetá",
-                              "Casanare",
-                              "Cauca",
-                              "Cesar",
-                              "Chocó",
-                              "Córdoba",
-                              "Cundinamarca",
-                              "Guainía",
-                              "Guaviare",
-                              "Huila",
-                              "La Guajira",
-                              "Magdalena",
-                              "Meta",
-                              "Nariño",
-                              "Norte de Santander",
-                              "Putumayo",
-                              "Quindío",
-                              "Risaralda",
-                              "San Andrés y Providencia",
-                              "Santander",
-                              "Sucre",
-                              "Tolima",
-                              "Valle del Cauca",
-                              "Vaupés",
-                              "Vichada",
-                              "Bogotá D.C.",
-                            ]
-                              .sort()
-                              .map((dept) => (
-                                <option key={dept} value={dept}>
-                                  {dept}
-                                </option>
-                              ))}
-                          </select>
-                        </div>
-                        <div className="form-group">
-                          <label className="form-label">Ciudad</label>
-                          <input
-                            className="form-input"
-                            value={ciudad}
-                            onChange={(e) => setCiudad(e.target.value)}
-                            placeholder="Ej. Medellín"
-                          />
-                        </div>
-                      </div>
+                      <SelectorResidencia
+                        pais={paisResidencia}
+                        departamento={departamento}
+                        ciudad={ciudad}
+                        onPais={(nuevoPais) => {
+                          setPaisResidencia(nuevoPais);
+                          setCodigoPais(nuevoPais);
+                          setDepartamento("");
+                          setCiudad("");
+                        }}
+                        onDepartamento={(nuevoDepartamento) => {
+                          setDepartamento(nuevoDepartamento);
+                          setCiudad("");
+                        }}
+                        onCiudad={setCiudad}
+                      />
                       <div className="form-group" style={{ marginTop: "16px" }}>
                         <label className="form-label">Dirección Completa</label>
                         <input

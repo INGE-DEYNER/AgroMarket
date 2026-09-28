@@ -35,6 +35,12 @@ public interface ReviewPort {
     List<Review> getByReviewerId(Long reviewerId);
 
     /**
+     * Listado global de reseñas, del más reciente al más antiguo.
+     * Lo consume el panel de administración para moderar.
+     */
+    List<Review> getAll();
+
+    /**
      * Elimina una reseña.
      */
     void delete(Long id);

@@ -106,12 +106,17 @@ export default function Admin() {
       return;
     }
     try {
-      const res = await api.put("/usuarios/me", perfilForm);
-      const updatedUser = res.data || res;
+      // El backend espera los nombres en inglés (`UpdateProfileRequest`);
+      // mandar `{nombre, telefono}` lo descartaba en silencio.
+      const res = await api.put("/usuarios/me", {
+        firstName: perfilForm.nombre.trim(),
+        phone: perfilForm.telefono.trim(),
+      });
+      const actualizado = res.data || res;
       setUser({
         ...user,
-        nombre: updatedUser.nombre || perfilForm.nombre,
-        telefono: updatedUser.telefono || perfilForm.telefono,
+        nombre: actualizado.firstName || perfilForm.nombre,
+        telefono: actualizado.phone || perfilForm.telefono,
       });
       setPerfilMsg({
         type: "success",
@@ -133,7 +138,11 @@ export default function Admin() {
       return;
     }
     try {
-      await api.put("/usuarios/me/contrasena", pwForm);
+      // `ChangePasswordRequest` espera `currentPassword` / `newPassword`.
+      await api.put("/usuarios/me/contrasena", {
+        currentPassword: pwForm.contrasenaActual,
+        newPassword: pwForm.nuevaContrasena,
+      });
       setPwMsg({
         type: "success",
         text: "Contraseña actualizada correctamente.",

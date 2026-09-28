@@ -1,23 +1,99 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SpecialSystemShell from "@/presentation/features/special/components/SpecialSystemShell";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import api from "@/infrastructure/http/api";
+import {
+  leerHistorial,
+  limpiarHistorial,
+  agruparPorDia,
+} from "@/application/support/navigationHistory";
 import Icon from "@/presentation/shared/components/Icon";
-
-const GROUPS = {
-  Hoy: [["Aguacate Hass","1kg","$8.500 COP","leaf"],["Cacao en grano","500g","$14.900 COP","box"],["Café Excelso","500g","$18.500 COP","coffee"],["Miel de abejas","500ml","$16.000 COP","database"]],
-  Ayer: [["Plátano Dominico","1kg","$2.700 COP","banana"],["Yuca fresca","1kg","$3.100 COP","carrot"],["Tomate Chonto","1kg","$4.200 COP","apple"],["Pimentón","1kg","$5.800 COP","leaf"]],
-};
 
 export default function HistorialNavegacion() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [groups,setGroups]=useState(GROUPS);
-  return <SpecialSystemShell activeKey="historial">
-    <div className="special-heading"><div><h1>{t("special.navigationHistory", "Historial de navegación")}</h1><p>{t("special.navigationHistorySub", "Revisa los productos que has visitado recientemente.")}</p></div><button className="special-link-button" onClick={()=>setGroups({})}>{t("special.clearHistory", "Limpiar historial")}</button></div>
-    {Object.entries(groups).map(([day,items])=><section className="history-section" key={day}><h2>{day}</h2><div className="history-grid">{items.map(p=><article className="history-card" key={p[0]}><div aria-hidden="true"><Icon name="package" size={26} /></div><strong>{p[0]}</strong><span>{p[1]}</span><b>{p[2]}</b></article>)}</div></section>)}
-    {!Object.keys(groups).length && <div className="special-empty">{t("special.emptyHistory", "Tu historial está vacío.")}</div>}
-    <button type="button" className="special-secondary-action" onClick={()=>navigate("/catalogo")}>{t("special.viewFullHistory", "Ver historial completo")}</button>
-  </SpecialSystemShell>;
+  const [grupos, setGrupos] = useState(() =>
+    agruparPorDia(leerHistorial()),
+  );
+
+  // Refresca al volver a la pestaña: otro flujo pudo registrar visitas.
+  useEffect(() => {
+    const alVolver = () => setGrupos(agruparPorDia(leerHistorial()));
+    window.addEventListener("focus", alVolver);
+    return () => window.removeEventListener("focus", alVolver);
+  }, []);
+
+  const vaciar = useCallback(() => {
+    limpiarHistorial();
+    setGrupos(agruparPorDia([]));
+  }, []);
+
+  const total = Array.from(grupos.values()).reduce(
+    (suma, items) => suma + items.length,
+    0,
+  );
+
+  return (
+    <SpecialSystemShell activeKey="historial">
+      <div className="special-heading">
+        <div>
+          <h1>{t("special.navigationHistory", "Historial de navegación")}</h1>
+          <p>
+            {t(
+              "special.navigationHistorySub",
+              "Revisa los productos que has visitado recientemente.",
+            )}
+          </p>
+        </div>
+        {total > 0 && (
+          <button type="button" className="special-link-button" onClick={vaciar}>
+            {t("special.clearHistory", "Limpiar historial")}
+          </button>
+        )}
+      </div>
+
+      {total === 0 ? (
+        <div className="special-empty">
+          <p>{t("special.emptyHistory", "Tu historial está vacío.")}</p>
+          <button
+            type="button"
+            className="special-secondary-action"
+            onClick={() => navigate("/catalogo")}
+          >
+            {t("special.viewFullHistory", "Ver catálogo")}
+          </button>
+        </div>
+      ) : (
+        Array.from(grupos.entries()).map(([dia, items]) => (
+          <section className="history-section" key={dia}>
+            <h2>{dia}</h2>
+            <div className="history-grid">
+              {items.map((p) => (
+                <article
+                  className="history-card"
+                  key={p.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/producto/${p.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate(`/producto/${p.id}`);
+                    }
+                  }}
+                >
+                  <div aria-hidden="true">
+                    <Icon name="package" size={26} />
+                  </div>
+                  <strong>{p.nombre}</strong>
+                  {p.unidad && <span>{p.unidad}</span>}
+                  <b>{`$${p.precio.toLocaleString("es-CO")} COP`}</b>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))
+      )}
+    </SpecialSystemShell>
+  );
 }

@@ -1,6 +1,7 @@
 // application/usecases/shipping/ShippingUseCase.java
 package com.agromarket.application.usecases.shipping;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +89,42 @@ public class ShippingUseCase implements ShippingPort {
                 if (valor != null && !valor.isBlank()) {
                         partes.add(valor.trim());
                 }
+        }
+
+        /**
+         * Actualiza los datos de seguimiento del envío. Lo consume el modal
+         * "Actualizar envío" del panel del productor
+         * ({@code PUT /envios/{id}}), que antes fallaba con 405 porque el
+         * endpoint no existía.
+         */
+        @Override
+        @Transactional
+        public ShippingResult updateTracking(
+                        Long shippingId,
+                        String carrier,
+                        String trackingNumber,
+                        LocalDate estimatedDeliveryDate) {
+
+                Shipping shipping = findShipping(shippingId);
+
+                if (shipping.getState() == ShippingState.CANCELLED) {
+                        throw new InvalidShippingStateException(
+                                        "No se puede actualizar un envío cancelado");
+                }
+
+                if (carrier != null && !carrier.isBlank()) {
+                        shipping.setCarrier(carrier.trim());
+                }
+
+                if (trackingNumber != null && !trackingNumber.isBlank()) {
+                        shipping.setTrackingNumber(trackingNumber.trim());
+                }
+
+                if (estimatedDeliveryDate != null) {
+                        shipping.setEstimatedDeliveryDate(estimatedDeliveryDate);
+                }
+
+                return toResult(shippingRepository.save(shipping));
         }
 
         @Override

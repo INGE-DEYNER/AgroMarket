@@ -256,6 +256,67 @@ public class AuthenticationController {
 
         return AuthResponse.from(result);
     }
+    // =========================================================
+    // CIERRE DE SESIÓN
+    // =========================================================
+
+    /**
+     * POST /api/v1/auth/logout — cierre de sesión.
+     *
+     * <p>El frontend lo invoca desde {@code AuthContext.logout()}. El JWT es
+     * sin estado, así que no hay lista de revocación que consultar: lo que
+     * queda por invalidar es la cookie de sesión httpOnly que emite el
+     * flujo OAuth2 de Google. Limpiarla aquí es lo que realmente cierra la
+     * sesión en el servidor; el {@code localStorage} lo borra el frontend.</p>
+     *
+     * <p>Siempre responde 200, incluso sin cookie, para que cerrar sesión
+     * nunca falle por un error de red.</p>
+     */
+    @PostMapping({ "/logout", "/salir" })
+    public ResponseEntity<OperationResponse> logout(
+            jakarta.servlet.http.HttpServletResponse response) {
+
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie(
+                "AGROMARKET_SESSION",
+                "");
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(
+                OperationResponse.success("Sesión cerrada correctamente"));
+    }
+
+    // =========================================================
+    // INTERCAMBIO DE TOKEN (OAuth2)
+    // =========================================================
+
+    /**
+     * GET /api/v1/auth/token-exchange — entrega el JWT tras el login social.
+     *
+     * <p>Flujo de Google: el backend recibe el código, lo canjea y deja el JWT
+     * únicamente en una cookie httpOnly (nunca en la URL, para que no quede
+     * en el historial ni en los logs). El frontend vuelve a esta ruta para
+     * recuperar el token y guardarlo en memoria.</p>
+     *
+     * <p>Si no hay cookie, responde 401: el frontend lo interpreta como
+     * "el login social no se completó" y cae al formulario normal.</p>
+     */
+    @GetMapping("/token-exchange")
+    public ResponseEntity<AuthResponse> tokenExchange(
+            @CookieValue(
+                    name = "AGROMARKET_SESSION",
+                    required = false) String sessionToken) {
+
+        if (sessionToken == null || sessionToken.isBlank()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        return ResponseEntity.ok(
+                AuthResponse.fromToken(sessionToken));
+    }
+
 
     private TwoFactorSetupResponse toResponse(
             TwoFactorSetupResult result) {

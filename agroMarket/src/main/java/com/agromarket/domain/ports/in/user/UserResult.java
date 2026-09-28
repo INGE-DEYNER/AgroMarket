@@ -82,7 +82,5 @@ public class UserResult {
 
     private LocalDateTime updatedAt;
 
-    private LocalDateTime lastLogin;
-
     private String preferredCurrency;
 }

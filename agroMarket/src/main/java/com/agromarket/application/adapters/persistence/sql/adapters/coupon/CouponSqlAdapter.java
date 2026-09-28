@@ -68,6 +68,14 @@ public class CouponSqlAdapter implements CouponPort {
     }
 
     @Override
+    public List<Coupon> findAll() {
+        return repository.findAllByOrderByIdDesc()
+                .stream()
+                .map(entity -> entity.toDomain())
+                .toList();
+    }
+
+    @Override
     public void delete(Coupon coupon) {
         if (coupon != null && coupon.getId() != null) {
             repository.deleteById(coupon.getId());

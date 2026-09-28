@@ -48,7 +48,6 @@ public class UserEntity {
     private String totpSecret;
 
     private String provider;
-    private String providerId;
     private boolean emailVerified;
 
     private String countryCode;
@@ -86,7 +85,6 @@ public class UserEntity {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime lastLogin;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<PasswordHistoryEntity> passwordHistory = new ArrayList<>();
@@ -107,7 +105,6 @@ public class UserEntity {
                 .totpEnabled(totpEnabled)
                 .totpSecret(totpSecret)
                 .provider(provider)
-                .providerId(providerId)
                 .emailVerified(emailVerified)
                 .countryCode(countryCode)
                 .idNumber(idNumber)
@@ -129,7 +126,6 @@ public class UserEntity {
                 .photoUrl(photoUrl)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
-                .lastLogin(lastLogin)
                 .build();
     }
 
@@ -146,7 +142,6 @@ public class UserEntity {
         entity.totpEnabled = user.isTotpEnabled();
         entity.totpSecret = user.getTotpSecret();
         entity.provider = user.getProvider();
-        entity.providerId = user.getProviderId();
         entity.emailVerified = user.isEmailVerified();
         entity.countryCode = user.getCountryCode();
         entity.idNumber = user.getIdNumber();
@@ -168,7 +163,6 @@ public class UserEntity {
         entity.photoUrl = user.getPhotoUrl();
         entity.createdAt = user.getCreatedAt();
         entity.updatedAt = user.getUpdatedAt();
-        entity.lastLogin = user.getLastLogin();
         return entity;
     }
 }

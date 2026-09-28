@@ -1,0 +1,161 @@
+/* ============================================================
+   AGROMARKET — PANTALLA DE CARGA INICIAL
+   Estilos del splash de arranque.
+
+   Se separan del componente porque el componente usaba anchos
+   fijos (halo de 400px, barra de 200px) que se desbordaban en
+   moviles. Con min() y clamp() el layout se adapta al viewport
+   sin necesidad de media queries por breakpoint.
+   ============================================================ */
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 5vw, 28px);
+  background: linear-gradient(160deg, #0d2b16 0%, #1a3d1f 50%, #12341a 100%);
+  padding: 20px;
+  overflow: hidden;
+}
+
+.loading-screen__glow {
+  position: absolute;
+  width: min(400px, 90vw);
+  height: min(400px, 90vw);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(82, 183, 136, 0.15) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.loading-screen__logo {
+  animation: pulseSoft 2s ease-in-out infinite;
+  position: relative;
+  line-height: 0;
+}
+
+.loading-screen__logo img,
+.loading-screen__logo svg {
+  width: clamp(64px, 22vw, 100px);
+  height: clamp(64px, 22vw, 100px);
+  object-fit: contain;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.loading-screen__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+.loading-screen__brand--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loading-screen__title {
+  color: #fff;
+  font-size: clamp(19px, 7vw, 28px);
+  font-weight: 800;
+  letter-spacing: clamp(1.5px, 1vw, 3px);
+  font-family: "Outfit", sans-serif;
+  text-transform: uppercase;
+}
+
+.loading-screen__subtitle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: clamp(9px, 3.2vw, 12px);
+  letter-spacing: clamp(2px, 1.2vw, 4px);
+  text-transform: uppercase;
+  font-family: "Inter", sans-serif;
+}
+
+.loading-screen__progress {
+  width: min(200px, 70vw);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.loading-screen__track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.loading-screen__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #52b788, #95d5b2);
+  border-radius: 99px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px rgba(82, 183, 136, 0.8);
+}
+
+.loading-screen__dots {
+  display: flex;
+  gap: 6px;
+}
+
+.loading-screen__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(82, 183, 136, 0.7);
+  animation: dotBounce 1.2s ease-in-out infinite;
+}
+
+@keyframes pulseSoft {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.95;
+  }
+}
+
+@keyframes dotBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
+/* Accesibilidad: respeta la preferencia de movimiento reducido del sistema. */
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen__logo,
+  .loading-screen__dot {
+    animation: none;
+  }
+
+  .loading-screen__brand {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -67,6 +68,34 @@ public class CouponController {
                         .stream()
                         .map(this::toResponse)
                         .toList());
+    }
+
+    /**
+     * GET /api/v1/coupons/todos (alias frontend: /cupones/todos).
+     *
+     * Lo consume el panel de administración, que necesita ver también los
+     * cupones ya usados o vencidos; antes esta ruta no existía y el listado
+     * administrativo devolvía 404 (panel de cupones vacío).
+     */
+    @GetMapping({ "/todos", "/all" })
+    public ResponseEntity<List<CouponResponse>> getAll() {
+        return ResponseEntity.ok(
+                couponPort.getAll()
+                        .stream()
+                        .map(this::toResponse)
+                        .toList());
+    }
+
+    /**
+     * DELETE /api/v1/coupons/{id} (alias frontend: /cupones/{id}).
+     *
+     * Antes el frontend llamaba a esta ruta y el backend solo exponía
+     * PATCH /{id}/deactivate, por lo que el borrado devolvía 405/404.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        couponPort.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/deactivate")

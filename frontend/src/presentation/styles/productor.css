@@ -628,6 +628,23 @@
   margin-bottom: 2px;
 }
 
+/*
+ * Sin estas reglas, los tres contadores se mantenían en 3 columnas
+ * también en un móvil de 360px y quedaban ilegibles. Se degradan a una
+ * sola columna en pantallas estrechas.
+ */
+@media (max-width: 620px) {
+  .producer-farm-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 621px) and (max-width: 900px) {
+  .producer-farm-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .producer-info-row,
 .producer-config-row {
   display: flex;

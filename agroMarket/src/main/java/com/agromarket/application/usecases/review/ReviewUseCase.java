@@ -82,6 +82,17 @@ public class ReviewUseCase implements ReviewPort {
         return reviewPersistencePort.findByReviewerId(reviewerId);
     }
 
+    /**
+     * Listado global de reseñas para el panel de administración.
+     * Este método no existía y el listado del admin devolvía 404.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Review> getAll() {
+        return reviewPersistencePort.findAll();
+    }
+
+
     @Override
     @Transactional
     public void delete(Long id) {

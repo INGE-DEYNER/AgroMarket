@@ -60,8 +60,16 @@ public class InvoiceController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping({ "/order/{orderId}", "/pedido/{pedidoId}" })
-    public ResponseEntity<InvoiceResult> getInvoiceByOrder(@PathVariable Long orderId) {
+    /**
+     * BUG ARREGLADO: el alias español declaraba {@code {pedidoId}} mientras
+     * el parámetro se llamaba {@code orderId}. Spring no encuentra una
+     * variable de ruta llamada "pedidoId" y lanzaba MissingPathVariableException
+     * (500) en cada llamada a /facturas/pedido/{id}. Se explicita el nombre en
+     * @PathVariable para que ambas rutas resuelvan al mismo parámetro.
+     */
+    @GetMapping({ "/order/{orderId}", "/pedido/{orderId}" })
+    public ResponseEntity<InvoiceResult> getInvoiceByOrder(
+            @PathVariable("orderId") Long orderId) {
         return invoicePort.findByOrderId(orderId)
                 .map(this::toResult)
                 .map(ResponseEntity::ok)

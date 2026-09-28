@@ -13,4 +13,7 @@ public interface CouponJpaRepository
     Optional<CouponEntity> findByCode(String code);
 
     List<CouponEntity> findByUsedFalse();
+
+    /** Listado completo para el panel de administración (incluye usados). */
+    List<CouponEntity> findAllByOrderByIdDesc();
 }

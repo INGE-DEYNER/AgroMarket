@@ -731,7 +731,11 @@ export default function DashboardComprador() {
       return;
     }
     try {
-      await api.put("/usuarios/me/contrasena", pwForm);
+      // `ChangePasswordRequest` espera `currentPassword` / `newPassword`.
+      await api.put("/usuarios/me/contrasena", {
+        currentPassword: pwForm.contrasenaActual,
+        newPassword: pwForm.nuevaContrasena,
+      });
       setPwMsg({
         type: "success",
         text: "Contraseña actualizada correctamente.",

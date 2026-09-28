@@ -11,6 +11,13 @@ public interface ReviewJpaRepository
 
     List<ReviewEntity> findByProduct_Id(Long productId);
 
+    /**
+     * Listado global para el panel de administracion (alias
+     * {@code GET /api/v1/reviews}). Sin este metodo el listado de resenas del
+     * admin devolvia 404.
+     */
+    List<ReviewEntity> findAllByOrderByDateDesc();
+
     List<ReviewEntity> findByBuyer_Id(Long buyerId);
 
     boolean existsByProduct_IdAndBuyer_Id(

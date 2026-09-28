@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useDivisa } from "@/app/hooks/useDivisa";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
-import api from "@/infrastructure/http/api";
 import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/CartDrawer.css";
 

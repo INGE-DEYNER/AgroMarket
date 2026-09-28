@@ -89,12 +89,7 @@ public class User {
      * Provedor de autenticación (ej: "local", "google").
      */
     private String provider;
-    
-    /**
-     * ID del usuario en el proveedor externo (ej: Google ID).
-     */
-    private String providerId;
-    
+
     /**
      * Indica si el correo electrónico ha sido verificado.
      */
@@ -237,12 +232,8 @@ public class User {
      */
     private LocalDateTime updatedAt;
     
-    /**
-     * Fecha del último inicio de sesión.
-     */
-    private LocalDateTime lastLogin;
     
-    
+
     // ==================== MÉTODOS DE NEGOCIO ====================
     
     /**

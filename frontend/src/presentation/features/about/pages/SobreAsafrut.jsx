@@ -114,6 +114,12 @@ export default function SobreAsafrut() {
         </section>
 
         {/* =====================================================
+            ALIADOS E INSTITUCIONES
+            Carrusel infinito con ASAFRUT y las entidades de apoyo.
+        ====================================================== */}
+        <StakeholderCarousel />
+
+        {/* =====================================================
             VIDEOS INSTITUCIONALES
             ESTA SECCIÓN QUEDA AL FINAL DE TODO
         ====================================================== */}

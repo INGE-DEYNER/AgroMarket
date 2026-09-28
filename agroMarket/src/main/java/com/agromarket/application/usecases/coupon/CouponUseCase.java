@@ -50,6 +50,18 @@ public class CouponUseCase implements CouponPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Coupon> getAll() {
+        return couponRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        couponRepository.delete(findById(id));
+    }
+
+    @Override
     @Transactional
     public void deactivate(Long id) {
         Coupon coupon = findById(id);

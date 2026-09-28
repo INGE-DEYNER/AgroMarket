@@ -75,6 +75,21 @@ public class ReviewJpaAdapter implements ReviewPort {
                 .map(ReviewEntity::toDomain)
                 .toList();
     }
+    /**
+     * Listado global de reseñas (panel de administración), del más reciente al
+     * más antiguo.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Review> findAll() {
+
+        return repository.findAllByOrderByDateDesc()
+                .stream()
+                .map(ReviewEntity::toDomain)
+                .toList();
+    }
+
+
 
     @Override
     @Transactional(readOnly = true)

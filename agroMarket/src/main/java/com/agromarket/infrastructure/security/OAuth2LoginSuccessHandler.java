@@ -2,6 +2,8 @@ package com.agromarket.infrastructure.security;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,6 +22,12 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class OAuth2LoginSuccessHandler
                 implements AuthenticationSuccessHandler {
+
+        /**
+         * Cookie httpOnly donde se deposita el JWT tras un login social.
+         * La consume {@code GET /api/v1/auth/token-exchange}.
+         */
+        public static final String SESSION_COOKIE_NAME = "AGROMARKET_SESSION";
 
         private final AuthenticationPort authenticationPort;
         private final AuthenticationTokenPort tokenPort;
@@ -102,14 +110,28 @@ public class OAuth2LoginSuccessHandler
                                                         .getSuccessRedirect());
 
                         /*
-                         * Se usa query parameter por simplicidad de integración con
-                         * el frontend actual. En producción se recomienda reemplazar
-                         * esto por una cookie HttpOnly/Secure/SameSite o un código
-                         * one-time para evitar que el JWT quede en el historial.
+                         * El JWT se entrega en una cookie HttpOnly y NO en la
+                         * URL. Ponerlo en la query lo exponía en el historial del
+                         * navegador, en el referer y en los logs de acceso; el
+                         * frontend lo recupera con GET /auth/token-exchange,
+                         * que lee esta cookie. Así el token nunca sale del
+                         * servidor hacia una URL.
                          */
-                        String location = appendToken(
-                                        redirect,
-                                        jwt);
+                        ResponseCookie sessionCookie = ResponseCookie
+                                        .from(SESSION_COOKIE_NAME, jwt)
+                                        .httpOnly(true)
+                                        .secure(request.isSecure())
+                                        .path("/")
+                                        .maxAge(java.time.Duration.ofHours(8))
+                                        .sameSite("Lax")
+                                        .build();
+
+                        response.addHeader(
+                                        HttpHeaders.SET_COOKIE,
+                                        sessionCookie.toString());
+
+                        // La URL solo lleva la señal de éxito, nunca el token.
+                        String location = appendOAuth2Success(redirect);
 
                         response.sendRedirect(location);
 
@@ -119,6 +141,21 @@ public class OAuth2LoginSuccessHandler
                                         HttpServletResponse.SC_UNAUTHORIZED,
                                         "No fue posible completar el login con Google");
                 }
+        }
+
+        /**
+         * Añade la marca {@code oauth2=success} a la redirección, que es lo
+         * que dispara el intercambio de token en el frontend.
+         */
+        private String appendOAuth2Success(String redirect) {
+
+                String separator = redirect.contains("?")
+                                ? "&"
+                                : "?";
+
+                return redirect
+                                + separator
+                                + "oauth2=success";
         }
 
         private String resolveRequestedRole(
@@ -153,21 +190,5 @@ public class OAuth2LoginSuccessHandler
                 return properties
                                 .getOauth2()
                                 .getDefaultRole();
-        }
-
-        private String appendToken(
-                        String redirect,
-                        String token) {
-
-                String separator = redirect.contains("?")
-                                ? "&"
-                                : "?";
-
-                return redirect
-                                + separator
-                                + "token="
-                                + java.net.URLEncoder.encode(
-                                                token,
-                                                java.nio.charset.StandardCharsets.UTF_8);
         }
 }
