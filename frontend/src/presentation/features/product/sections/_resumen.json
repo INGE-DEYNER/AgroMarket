@@ -1,0 +1,158 @@
+[
+  {
+    "id": "Configuracion",
+    "archivo": "SeccionConfiguracion.jsx",
+    "delContexto": [
+      "showSection"
+    ],
+    "deHooks": [
+      "useAuth:user"
+    ]
+  },
+  {
+    "id": "Finanzas",
+    "archivo": "SeccionFinanzas.jsx",
+    "delContexto": [
+      "badgeClass",
+      "pedidos",
+      "productos"
+    ],
+    "deHooks": [
+      "useAuth:formatPrice"
+    ]
+  },
+  {
+    "id": "Finca",
+    "archivo": "SeccionFinca.jsx",
+    "delContexto": [
+      "calificacionProductor",
+      "iniciales",
+      "pedidos",
+      "productos",
+      "showSection"
+    ],
+    "deHooks": [
+      "useAuth:user"
+    ]
+  },
+  {
+    "id": "Mensajeria",
+    "archivo": "SeccionMensajeria.jsx",
+    "delContexto": [
+      "chatRef",
+      "contactos",
+      "messages",
+      "msgInput",
+      "selectContact",
+      "selectedContact",
+      "sendMessage",
+      "setMsgInput"
+    ],
+    "deHooks": [
+      "useTranslation:t",
+      "useAuth:user"
+    ]
+  },
+  {
+    "id": "MisProductos",
+    "archivo": "SeccionMisProductos.jsx",
+    "delContexto": [
+      "eliminarProducto",
+      "openProductoModal",
+      "productos"
+    ],
+    "deHooks": [
+      "useTranslation:t",
+      "useAuth:formatPrice"
+    ]
+  },
+  {
+    "id": "PedidosRec",
+    "archivo": "SeccionPedidosRec.jsx",
+    "delContexto": [
+      "badgeClass",
+      "loadPedidos",
+      "pedidos"
+    ],
+    "deHooks": [
+      "useTranslation:t",
+      "useAuth:formatPrice"
+    ]
+  },
+  {
+    "id": "Perfil",
+    "archivo": "SeccionPerfil.jsx",
+    "delContexto": [
+      "handleUpdatePassword",
+      "handleUpdatePerfil",
+      "perfilForm",
+      "perfilMsg",
+      "pwForm",
+      "pwMsg",
+      "setPerfilForm",
+      "setPwForm",
+      "setShowCurrentPassword",
+      "setShowNewPassword",
+      "showCurrentPassword",
+      "showNewPassword"
+    ],
+    "deHooks": [
+      "useAuth:user"
+    ]
+  },
+  {
+    "id": "Resenas",
+    "archivo": "SeccionResenas.jsx",
+    "delContexto": [
+      "calificacionProductor",
+      "reputacion",
+      "resenasProductor"
+    ],
+    "deHooks": []
+  },
+  {
+    "id": "Resumen",
+    "archivo": "SeccionResumen.jsx",
+    "delContexto": [
+      "badgeClass",
+      "calificacionProductor",
+      "openProductoModal",
+      "pedidos",
+      "productos",
+      "reputacion"
+    ],
+    "deHooks": [
+      "useTranslation:t",
+      "useAuth:formatPrice+user",
+      "useNavigate:navigate"
+    ]
+  },
+  {
+    "id": "Rfq",
+    "archivo": "SeccionRfq.jsx",
+    "delContexto": [
+      "activeRfqs",
+      "bidForm",
+      "bidMsg",
+      "biddingRfq",
+      "enviarBid",
+      "productos",
+      "setBidForm",
+      "setBidMsg",
+      "setBiddingRfq"
+    ],
+    "deHooks": [
+      "useAuth:formatPrice+user"
+    ]
+  },
+  {
+    "id": "Seguimiento",
+    "archivo": "SeccionSeguimiento.jsx",
+    "delContexto": [
+      "badgeClass",
+      "openUpdateShipment",
+      "shipments"
+    ],
+    "deHooks": []
+  }
+]

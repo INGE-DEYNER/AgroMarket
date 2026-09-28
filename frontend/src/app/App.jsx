@@ -3,10 +3,13 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
+  Outlet,
   useLocation,
 } from "react-router-dom";
 
 import { AuthProvider } from "@/app/providers/AuthContext";
+import LegacyRedirect from "@/presentation/shared/components/LegacyRedirect";
 import { ToastProvider } from "@/app/providers/ToastContext";
 import { CartProvider } from "@/app/providers/CartContext";
 import { DivisaProvider } from "@/app/providers/DivisaContext";
@@ -399,6 +402,13 @@ function App() {
                           DASHBOARD COMPRADOR
                          ================================================== */}
 
+                      {/*
+                        DASHBOARD DEL COMPRADOR.
+                        Cada seccion es una ruta hija, asi que al pulsar el menu
+                        cambia la URL y solo se monta la vista pedida. El shell
+                        no se re-monta: React Router mantiene esta instancia
+                        viva y lo unico que cambia es el Outlet.
+                      */}
                       <Route
                         path="/dashboard-comprador"
                         element={
@@ -414,12 +424,23 @@ function App() {
                             <DashboardComprador />
                           </ProtectedRoute>
                         }
-                      />
+                      >
+                        <Outlet />
+                      </Route>
+
+                      <Route path="/dashboard-comprador/:seccion" element={null} />
 
                       {/* ==================================================
                           DASHBOARD PRODUCTOR
                          ================================================== */}
 
+                      {/*
+                        Antes la seccion activa vivia en un estado local del
+                        componente y TODAS las secciones quedaban montadas en el
+                        DOM, condicionadas por `activeSection === "x"`. Eso era
+                        lo que hacia que el layout se viese desproporcionado al
+                        navegar y que la navegacion no fuera por ruta.
+                      */}
                       <Route
                         path="/dashboard-productor"
                         element={
@@ -429,7 +450,11 @@ function App() {
                             <DashboardProductor />
                           </ProtectedRoute>
                         }
-                      />
+                      >
+                        <Outlet />
+                      </Route>
+
+                      <Route path="/dashboard-productor/:seccion" element={null} />
 
                       {/* ==================================================
                           ADMIN
@@ -444,6 +469,29 @@ function App() {
                        * la protección es la misma en todos los casos:
                        * ProtectedRoute exige rol ADMIN.
                        */}
+                      {/*
+                        REDIRECCIONES DE LAS URL ANTIGUAS.
+                        Se monta antes que /especial/* para que "/especial/
+                        notificaciones" acabe en Configuración en lugar de
+                        abrir la página suelta. ProtectedRoute sigue
+                        protegiendo: el redirect decide a dónde ir, no quién
+                        entra.
+                      */}
+                      <Route
+                        path="/especial/:seccion"
+                        element={
+                          <ProtectedRoute>
+                            <LegacyRedirect soloEspecial />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      {/*
+                        El panel sin sección abría el resumen. Con rutas
+                        anidadas, "/admin" tiene que redirigir explícitamente:
+                        si no, el Outlet no recibe ":seccion" y ninguna vista
+                        se monta.
+                      */}
                       <Route
                         path="/admin"
                         element={
@@ -451,7 +499,9 @@ function App() {
                             <Admin />
                           </ProtectedRoute>
                         }
-                      />
+                      >
+                        <Outlet />
+                      </Route>
 
                       <Route
                         path="/admin/:seccion"
