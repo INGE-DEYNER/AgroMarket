@@ -44,12 +44,14 @@ management:
 
 app:
   cors:
-    allowed-origins:
-      - ${APP_CORS_ALLOWED_ORIGIN:http://localhost:3000}
-      - http://localhost:5173
-      - http://localhost:5174
-      - https://agro-market.app
-      - https://www.agro-market.app
+    # CAUSA RAÍZ del "No 'Access-Control-Allow-Origin' header is present":
+    # el placeholder estaba como UN único elemento de la lista YAML. Al
+    # bindear sobre List<String>, Spring tomaba toda la cadena con comas
+    # como un solo origen literal, y los Origins del YAML de abajo
+    # quedaban desplazados/invalidos. Ahora la variable sustituye la lista
+    # COMPLETA y el YAML se queda solo con los valores por defecto de
+    # desarrollo, que se aplican unicamente si la variable no existe.
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:3000,http://localhost:5173,http://localhost:5174,https://agro-market.app,https://www.agro-market.app}
 
   security:
     id-encryption-key: ${APP_SECURITY_ID_ENCRYPTION_KEY:YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY}

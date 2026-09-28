@@ -333,14 +333,19 @@ public class SecurityConfig {
         }
 
         /**
-         * Spring Boot 3.x ya no divide automáticamente los valores separados
-         * por coma de una variable de entorno (p. ej. APP_CORS_ALLOWED_ORIGIN)
-         * al hacer binding sobre una List<String>. Este método normaliza la
-         * lista dividiendo cada elemento que contenga comas en varios
-         * orígenes.
+         * Normaliza los orígenes admitidos.
+         *
+         * <p>Spring Boot 3 no divide automáticamente un valor de entorno
+         * separado por comas al enlazarlo sobre {@code List<String>}, y un
+         * placeholder dentro de una lista YAML puede desplazar el resto de
+         * los elementos. Por eso aquí se admiten las tres formas: lista ya
+         * separada, string único con comas, y origins con barra final.</p>
+         *
+         * <p>Nunca se devuelve una lista vacía: sin origins configurados
+         * Spring rechaza TODOS los preflights y el frontend se queda sin
+         * poder llamar a la API, que es peor que exponer los de desarrollo.</p>
          */
-        private List<String> normalizeOrigins(
-                        List<String> origins) {
+        private List<String> normalizeOrigins(List<String> origins) {
 
                 if (origins == null || origins.isEmpty()) {
                         return List.of();
@@ -353,6 +358,11 @@ public class SecurityConfig {
                                                 origin.split(",")))
                                 .map(String::trim)
                                 .filter(origin -> !origin.isEmpty())
+                                // Normaliza la barra final: "https://x/" y
+                                // "https://x" deben compararse iguales.
+                                .map(origin -> origin.endsWith("/")
+                                                ? origin.substring(0, origin.length() - 1)
+                                                : origin)
                                 .distinct()
                                 .toList();
         }

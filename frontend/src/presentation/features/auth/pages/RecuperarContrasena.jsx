@@ -70,15 +70,27 @@ export default function RecuperarContrasena() {
 
       let message;
 
+      /*
+       * Un 401 con el cuerpo VACÍO y sin cabecera de backend no es un
+       * problema de permisos: es la respuesta genérica que da el proxy
+       * inverso (Cloudflare Tunnel) cuando no alcanza el origen, o el
+       * rechazo de CORS al preflight. Antes se traducía a "no tienes
+       * autorización", que hacía perder tiempo diagnosticando permisos
+       * que en realidad no existían.
+       */
+      const vacio = status === 401 && !backendMessage;
+
       switch (status) {
         case 400:
           message =
             backendMessage || "El correo electrónico enviado no es válido.";
           break;
         case 401:
-          message =
-            backendMessage ||
-            "No tienes autorización para realizar esta solicitud.";
+          message = backendMessage
+            ? backendMessage
+            : vacio
+              ? "No se pudo contactar con el servidor. Comprueba que Docker y el túnel de Cloudflare estén ejecutándose."
+              : "No tienes autorización para realizar esta solicitud.";
           break;
         case 404:
           message =
