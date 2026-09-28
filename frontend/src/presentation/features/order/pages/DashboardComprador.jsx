@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
@@ -65,12 +65,26 @@ export default function DashboardComprador() {
    * NAVEGACIÓN POR SECCIONES (SPA).
    *
    * Cada clave del menú muestra SOLO su propia vista: el contenido cambia en
-   * el sitio, sin recargar la página ni abrir pestaña, y cada sección
-   * conserva su propio estado y sus propios datos.
+   * el sitio, sin recargar la página ni abrir pestaña.
+   *
+   * Además sincroniza con la URL (?section=mensajeria). Antes solo se leía al
+   * montar pero nunca se escribía, así que el enlace no era compartible y el
+   * botón "atrás" del navegador no funcionaba entre secciones.
    */
-  const showSection = useCallback((key) => {
-    setActiveSection(key);
-  }, []);
+  const showSection = useCallback(
+    (key) => {
+      setActiveSection(key);
+      const params = new URLSearchParams(location.search);
+      if (key === "resumen") params.delete("section");
+      else params.set("section", key);
+      const query = params.toString();
+      navigate(
+        { pathname: location.pathname, search: query ? `?${query}` : "" },
+        { replace: false },
+      );
+    },
+    [location.pathname, location.search, navigate],
+  );
 
   // Chat/Mensajeria state
   const [contactos, setContactos] = useState([]);
@@ -79,20 +93,32 @@ export default function DashboardComprador() {
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
 
+  /*
+   * Claves válidas del menú. Se validan también al leer la URL: antes,
+   * cualquier texto en ?section= se aceptaba y activaba una sección que no
+   * existe, dejando el panel en blanco.
+   */
+  const SECCIONES = [
+    "resumen",
+    "catalogo",
+    "misPedidos",
+    "misFacturas",
+    "rfq",
+    "seguimiento",
+    "mensajeria",
+    "resenas",
+    "perfil",
+  ];
+
   // Enlace profundo (p. ej. /dashboard-comprador?section=mensajeria): marca la
-  // sección correspondiente como activa al montar.
+  // sección correspondiente como activa al montar. Con `replace` para no
+  // ensuciar el historial con la normalización de la URL.
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sec = params.get("section");
-
-    if (!sec) return undefined;
-
-    const timer = setTimeout(() => {
-      showSection(sec);
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [location.search, showSection]);
+    if (!sec) return;
+    if (SECCIONES.includes(sec)) setActiveSection(sec);
+  }, [location.search]);
 
   // Pedidos & Catalog state
   const [pedidos, setPedidos] = useState([]);
@@ -865,7 +891,10 @@ export default function DashboardComprador() {
         <div
           className="sidebar-user"
           style={{ cursor: "pointer" }}
-          onClick={() => navigate("/perfil")}
+          onClick={() => {
+            showSection("perfil");
+            setSidebarOpen(false);
+          }}
         >
           <div
             className="avatar avatar-blue"
@@ -986,13 +1015,22 @@ export default function DashboardComprador() {
           <span className="icon"></span>{" "}
           {t("dashboardComprador.services.reviews", "Mis Reseñas")}
         </a>
-        <Link
-          to="/perfil"
-          className="sidebar-link"
-          onClick={() => setSidebarOpen(false)}
+        {/*
+          "Mi Perfil" abre la sección interna del panel. Antes era un
+          <Link to="/perfil"> que sacaba del dashboard, justo lo contrario de
+          lo que hace el resto del menú.
+        */}
+        <a
+          href="#"
+          className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            showSection("perfil");
+            setSidebarOpen(false);
+          }}
         >
           <span className="icon"></span> {t("profile.title", "Mi Perfil")}
-        </Link>
+        </a>
 
         <a
           href="#"
@@ -1055,23 +1093,28 @@ export default function DashboardComprador() {
           <span className="icon"></span>
           <span>{t("dashboardComprador.mobileNav.chat", "Chat")}</span>
         </a>
-        <Link to="/perfil" className="mobile-nav-item">
+        {/*
+          "Perfil" abre la sección interna, como el resto del menú. Antes era
+          un <Link to="/perfil"> que sacaba del dashboard, incoherente con el
+          sidebar que sí lo tenía como sección.
+        */}
+        <a
+          href="#"
+          className={`mobile-nav-item${activeSection === "perfil" ? " active" : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            showSection("perfil");
+          }}
+        >
           <span className="icon"></span>
           <span>{t("dashboardComprador.mobileNav.profile", "Perfil")}</span>
-        </Link>
+        </a>
       </nav>
 
       {/* MAIN CONTAINER */}
       <main className="main-content">
         {/* Top bar with toggle button */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "16px",
-          }}
-        >
+        <div className="buyer-topbar">
           <button
             type="button"
             className="sidebar-toggle-btn"
@@ -1107,43 +1150,17 @@ export default function DashboardComprador() {
           </div>
 
           {!user?.telefono && (
-            <div
-              style={{
-                background:
-                  "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
-                border: "1px solid #7dd3fc",
-                borderRadius: "12px",
-                padding: "16px 20px",
-                marginBottom: "24px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-              }}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "12px" }}
-              >
-                <span style={{ fontSize: "1.5rem" }}></span>
-                <div>
-                  <strong style={{ color: "#0369a1", display: "block" }}>
-                    ¡Mejora la seguridad de tu cuenta!
-                  </strong>
-                  <span style={{ color: "#0369a1", fontSize: "0.85rem" }}>
-                    Agrega tu número de teléfono y verifica tu perfil para
-                    facilitar el contacto con los productores.
-                  </span>
-                </div>
+            <div className="buyer-alert">
+              <div>
+                <strong>¡Mejora la seguridad de tu cuenta!</strong>
+                <span>
+                  Agrega tu número de teléfono y verifica tu perfil para
+                  facilitar el contacto con los productores.
+                </span>
               </div>
               <button
                 className="btn btn-primary"
-                onClick={() => navigate("/perfil")}
-                style={{
-                  background: "#0369a1",
-                  color: "#fff",
-                  border: "none",
-                  padding: "8px 16px",
-                }}
+                onClick={() => showSection("perfil")}
               >
                 Configurar Perfil
               </button>
@@ -1282,7 +1299,7 @@ export default function DashboardComprador() {
             className="catalog-hero"
             style={{
               background:
-                "linear-gradient(135deg, var(--primary) 0%, #1f4d2a 100%)",
+                "linear-gradient(135deg, var(--primary) 0%, var(--am-green) 100%)",
               borderRadius: "16px",
               padding: "32px",
               color: "#fff",
@@ -1922,17 +1939,17 @@ export default function DashboardComprador() {
 
                         {/* ROUTE ILLUSTRATION */}
                         <div
+                          className="cell-soft"
                           style={{
                             position: "relative",
                             height: "54px",
-                            background: "#f8fafc",
                             borderRadius: "10px",
                             margin: "20px 0",
                             overflow: "hidden",
                             display: "flex",
                             alignItems: "center",
                             padding: "0 20px",
-                            border: "1px solid #cbd5e1",
+                            border: "1px solid var(--am-border, #cbd5e1)",
                           }}
                         >
                           <div
@@ -1941,7 +1958,7 @@ export default function DashboardComprador() {
                               left: "16px",
                               fontSize: "0.75rem",
                               fontWeight: "bold",
-                              color: "#475569",
+                              color: "var(--am-text, #475569)",
                             }}
                           >
                             Chigorodó
@@ -1952,7 +1969,7 @@ export default function DashboardComprador() {
                               right: "16px",
                               fontSize: "0.75rem",
                               fontWeight: "bold",
-                              color: "#475569",
+                              color: "var(--am-text, #475569)",
                               maxWidth: "180px",
                               overflow: "hidden",
                               textOverflow: "ellipsis",
@@ -1980,7 +1997,7 @@ export default function DashboardComprador() {
                               position: "absolute",
                               left: "10%",
                               right: "10%",
-                              borderBottom: "2px dashed #cbd5e1",
+                              borderBottom: "2px dashed var(--am-border, #cbd5e1)",
                               zIndex: 1,
                             }}
                           ></div>
@@ -2004,7 +2021,7 @@ export default function DashboardComprador() {
                               top: "10px",
                               bottom: "10px",
                               width: "2px",
-                              background: "#e2e8f0",
+                              background: "var(--am-surface-2, #e2e8f0)",
                             }}
                           ></div>
 
@@ -2027,8 +2044,8 @@ export default function DashboardComprador() {
                                     height: "22px",
                                     borderRadius: "50%",
                                     background: isCompleted
-                                      ? "#2d6a4f"
-                                      : "#cbd5e1",
+                                      ? "var(--am-green)"
+                                      : "var(--am-border, #cbd5e1)",
                                     color: "#fff",
                                     display: "flex",
                                     alignItems: "center",
@@ -2036,7 +2053,7 @@ export default function DashboardComprador() {
                                     fontSize: "0.7rem",
                                     fontWeight: "bold",
                                     border: isActive
-                                      ? "4px solid #b7e4c7"
+                                      ? "4px solid var(--am-green)"
                                       : "none",
                                     boxSizing: "content-box",
                                   }}
@@ -2048,7 +2065,9 @@ export default function DashboardComprador() {
                                     style={{
                                       fontSize: "0.88rem",
                                       fontWeight: isActive ? "700" : "600",
-                                      color: isActive ? "#2d6a4f" : "#1e293b",
+                                      color: isActive
+                                        ? "var(--am-green)"
+                                        : "var(--am-text, #1e293b)",
                                       margin: 0,
                                     }}
                                   >
@@ -2057,7 +2076,7 @@ export default function DashboardComprador() {
                                   <p
                                     style={{
                                       fontSize: "0.75rem",
-                                      color: "#64748b",
+                                      color: "var(--am-text-muted, #64748b)",
                                       margin: "4px 0 0 0",
                                     }}
                                   >
@@ -2898,8 +2917,8 @@ export default function DashboardComprador() {
                 rfqs.map((rfq) => (
                   <div
                     key={rfq.id}
+                    className="cell-soft"
                     style={{
-                      background: "#f8fafc",
                       padding: "16px",
                       borderRadius: "10px",
                       marginBottom: "16px",
@@ -2945,7 +2964,7 @@ export default function DashboardComprador() {
                     <div
                       style={{
                         marginTop: "14px",
-                        borderTop: "1px dashed #cbd5e1",
+                        borderTop: "1px dashed var(--am-border, #cbd5e1)",
                         paddingTop: "10px",
                       }}
                     >
@@ -3058,8 +3077,8 @@ export default function DashboardComprador() {
                 Resumen del Pedido
               </h4>
               <div
+                className="cell-soft"
                 style={{
-                  background: "#f8fafc",
                   padding: "14px",
                   borderRadius: "8px",
                   marginBottom: "20px",
@@ -3194,8 +3213,8 @@ export default function DashboardComprador() {
                   <div
                     style={{
                       margin: "12px 0",
-                      borderTop: "1px solid #e2e8f0",
-                      borderBottom: "1px solid #e2e8f0",
+                      borderTop: "1px solid var(--am-border, #e2e8f0)",
+                      borderBottom: "1px solid var(--am-border, #e2e8f0)",
                       padding: "10px 0",
                     }}
                   >
@@ -3619,9 +3638,9 @@ export default function DashboardComprador() {
 
               {/* PRICES */}
               <div
+                className="cell-soft"
                 style={{
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--am-border)",
                   borderRadius: "12px",
                   padding: "16px",
                   marginBottom: "20px",
@@ -3635,13 +3654,13 @@ export default function DashboardComprador() {
                     marginBottom: "8px",
                   }}
                 >
-                  <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--am-text-muted, #64748b)" }}>
                     Precio por menor:
                   </span>
                   <span
                     style={{
                       fontWeight: "700",
-                      color: "#1e293b",
+                      color: "var(--am-text, #1e293b)",
                       fontSize: "1.1rem",
                     }}
                   >
@@ -3651,7 +3670,7 @@ export default function DashboardComprador() {
                         <span
                           style={{
                             textDecoration: "line-through",
-                            color: "#94a3b8",
+                            color: "var(--am-text-muted, #94a3b8)",
                             fontSize: "0.9rem",
                             marginRight: "8px",
                           }}
@@ -3669,7 +3688,7 @@ export default function DashboardComprador() {
                       style={{
                         fontWeight: "400",
                         fontSize: "0.8rem",
-                        color: "#64748b",
+                        color: "var(--am-text-muted, #64748b)",
                       }}
                     >
                       {" "}
@@ -3685,12 +3704,12 @@ export default function DashboardComprador() {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        borderTop: "1px dashed #cbd5e1",
+                        borderTop: "1px dashed var(--am-border, #cbd5e1)",
                         paddingTop: "8px",
                         marginTop: "8px",
                       }}
                     >
-                      <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                      <span style={{ fontSize: "0.85rem", color: "var(--am-text-muted, #64748b)" }}>
                         Precio por mayor (≥
                         {selectedProduct.cantidadMinimaMayorista}kg):
                       </span>
@@ -3706,7 +3725,7 @@ export default function DashboardComprador() {
                           style={{
                             fontWeight: "400",
                             fontSize: "0.8rem",
-                            color: "#64748b",
+                            color: "var(--am-text-muted, #64748b)",
                           }}
                         >
                           {" "}
@@ -3758,13 +3777,11 @@ export default function DashboardComprador() {
                     {selectedProduct.productorVerificado && (
                       <span
                         style={{
-                          background: "#e2f0d9",
-                          color: "#385723",
                           padding: "1px 5px",
                           borderRadius: "4px",
                           fontSize: "0.6rem",
                           fontWeight: "700",
-                          border: "1px solid #385723",
+                          border: "1px solid var(--am-green)",
                         }}
                       >
                         Gold Supplier

@@ -865,14 +865,74 @@
   gap: 24px;
 }
 
-/* Secciones con fondo y separadas */
-.buyer-shell .section.active {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  margin-bottom: 24px;
-  border: 1px solid var(--buyer-border);
+/* Secciones con fondo y separadas.
+   Antes esta regla solo alcanzaba a .buyer-shell, que BuyerShell envuelve
+   (Pedidos, Envíos, Reseñas, Mensajería) pero NO este dashboard. Por eso las
+   9 secciones del comprador se veían como bloques crudos sobre el fondo de
+   la página: sin borde, sin radio y sin padding propio. */
+.buyer-shell .section.active,
+.buyer-dashboard .section.active {
+  background: var(--am-surface, #ffffff);
+  border: 1px solid var(--am-border, var(--color-border));
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+/* La cabecera interna repite el título de la sección con un h1 gigante y
+   mucho margen: en un panel compacto empuja el contenido fuera de pantalla.
+   Se reduce a un encabezado de sección. */
+.buyer-dashboard .section.active .dash-header {
+  margin-bottom: 12px;
+  gap: 10px;
+}
+.buyer-dashboard .section.active .dash-header h1 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+.buyer-dashboard .section.active .dash-header p {
+  margin: 2px 0 0;
+  font-size: .74rem;
+}
+
+/* El bloque de "mejora tu seguridad" usaba colores claros fijos (#e0f2fe,
+   #7dd3fc, #0369a1), ilegibles en tema oscuro. */
+.buyer-dashboard .buyer-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--am-border, var(--color-border));
+  border-left: 3px solid var(--am-green, #3fbf6a);
+  border-radius: 9px;
+  background: var(--am-surface-2, #1d2a21);
+}
+.buyer-dashboard .buyer-alert strong {
+  display: block;
+  color: var(--am-text, var(--color-text-primary));
+  font-size: .82rem;
+}
+/* Celdas y zonas con fondo claro. Se usaba #f8fafc literal, que en tema
+   oscuro dejaba parches blancos dentro de las tablas. */
+.buyer-dashboard .cell-soft,
+.buyer-shell .cell-soft {
+  background: var(--am-surface-2, #f8fafc);
+}
+
+.buyer-dashboard .buyer-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  margin-bottom: 12px;
+}
+
+.buyer-dashboard .buyer-alert span {
+  color: var(--am-text-muted, var(--color-text-muted));
+  font-size: .72rem;
 }
 
 /* Ocultar títulos duplicados de secciones */
