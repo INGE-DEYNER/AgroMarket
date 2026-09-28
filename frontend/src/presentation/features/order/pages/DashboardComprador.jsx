@@ -14,6 +14,15 @@ import {
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import ProductCard from "@/presentation/features/product/components/ProductCard";
 import "@/presentation/styles/catalogo.css";
+/*
+ * Sin este import, TODAS las reglas de .buyer-dashboard de comprador.css
+ * (ocultar secciones, tarjeta activa, cabeceras compactas, .perfil-*) nunca
+ * se aplicaban a este componente: solo se cargaban cuando BuyerShell los
+ * importaba. Por eso las 9 secciones quedaban apiladas (sin SPA) y con las
+ * fuentes por defecto. Debe ir DESPUÉS de styles.css, que se carga en
+ * main.jsx.
+ */
+import "@/presentation/styles/comprador.css";
 import "@/presentation/styles/envios.css";
 import "@/presentation/styles/mensajeria.css";
 import "@/presentation/styles/resenas.css";

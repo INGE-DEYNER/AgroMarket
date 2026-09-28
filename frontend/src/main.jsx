@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
 import App from "@/app/App";
 import i18n from "@/i18n/index";
 
-import LoadingScreen from "@/presentation/shared/components/LoadingScreen";
+// LoadingScreen no se usa aquí: la pantalla de carga la pintan App.jsx
+// (fallback del Suspense) y AuthContext.jsx. El import sobraba.
 import { runFrontendDiagnostic } from "@/infrastructure/config/FrontendDiagnostic";
 import ThemeProvider from "@/app/contexts/ThemeProvider";
 import Icon from "@/presentation/shared/components/Icon";
@@ -15,6 +16,15 @@ import "@/presentation/styles/styles.css";
 import "@/presentation/styles/theme.css";
 import "@/presentation/styles/navbar.css";
 import "@/presentation/styles/footer.css";
+/*
+ * Escala tipográfica común de los dashboards.
+ *
+ * Los tres paneles se cargan con React.lazy(), de modo que sus propias
+ * hojas de estilo entran en el documento después de este punto. Por eso la
+ * escala se apoya en !important para imponerse igual en los tres; el
+ * detalle está en la cabecera de dashboards-tipografia.css.
+ */
+import "@/presentation/styles/dashboards-tipografia.css";
 window.MERCADOPAGO_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || "";
 
 export default function MainApp() {
