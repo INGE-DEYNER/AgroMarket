@@ -22,6 +22,35 @@
   color: var(--producer-text);
 }
 
+/*
+   Variantes oscuras de los tokens del productor.
+
+   Sin este bloque, --producer-bg, --producer-surface y --producer-text se
+   quedaban en sus valores claros: en modo oscuro el fondo del panel y el
+   topbar salían blancos dentro de un sidebar ya oscuro.
+*/
+html.dark .producer-dashboard {
+  /* Sin esto el texto seguia en #0a5a27 (verde muy oscuro) sobre superficie
+     oscura: el nombre del usuario, el valor de las metricas y los titulos de
+     las tarjetas quedaban ilegibles. */
+  --producer-green-dark: #7ee2a4;
+  --producer-text: #e8f0e9;
+  --producer-muted: #9db0a2;
+  --producer-border: rgba(148, 168, 154, 0.22);
+  --producer-surface: #16211a;
+  --producer-surface-2: #1d2a21;
+  --producer-bg: #0e1711;
+  --producer-green-soft: #14301f;
+  --producer-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  --producer-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+
+/* Cabecera de tabla: en claro era #f7faf8, apenas distinguible del blanco. */
+html.dark .producer-dashboard th {
+  background: #1d2a21;
+  color: #b9c9bd;
+}
+
 .producer-dashboard .sidebar {
   width: 248px;
   background: #063d1b;
@@ -125,7 +154,7 @@
   min-height: 76px;
   margin: 0 -28px 28px;
   padding: 12px 28px;
-  background: #fff;
+  background: var(--producer-surface);
   border-bottom: 1px solid var(--producer-border);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -211,7 +240,7 @@
 .producer-icon-btn,
 .producer-account {
   border: 1px solid var(--producer-border);
-  background: #fff;
+  background: var(--producer-surface);
   color: var(--producer-green-dark);
   cursor: pointer;
 }
@@ -316,7 +345,7 @@
 }
 
 .producer-dashboard .btn-secondary {
-  background: #fff;
+  background: var(--producer-surface);
   color: var(--producer-green-dark);
   border: 1px solid #b8d4bf;
 }
@@ -331,7 +360,7 @@
   min-height: 132px;
   padding: 18px;
   border-radius: 12px;
-  background: #fff;
+  background: var(--producer-surface);
   box-shadow: var(--producer-shadow);
   border: 1px solid var(--producer-border);
 }
@@ -340,7 +369,7 @@
 .producer-dashboard .stat-card.color-2,
 .producer-dashboard .stat-card.color-3,
 .producer-dashboard .stat-card.color-4 {
-  background: #fff;
+  background: var(--producer-surface);
 }
 
 .producer-dashboard .stat-label {
@@ -363,7 +392,7 @@
 .producer-dashboard .card-table,
 .producer-panel,
 .producer-farm-card {
-  background: #fff;
+  background: var(--producer-surface);
   border: 1px solid var(--producer-border);
   box-shadow: var(--producer-shadow);
   border-radius: 12px;
@@ -674,7 +703,7 @@
 
 .producer-finance-card {
   padding: 18px;
-  background: #fff;
+  background: var(--producer-surface);
   border: 1px solid var(--producer-border);
   border-radius: 12px;
   box-shadow: var(--producer-shadow);

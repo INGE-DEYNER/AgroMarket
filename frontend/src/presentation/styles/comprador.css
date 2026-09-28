@@ -26,6 +26,28 @@
   box-sizing: border-box;
 }
 
+/*
+   Tokens del dashboard del comprador en modo oscuro.
+
+   `.buyer-dashboard` (el contenedor real del panel) NO tiene bloque propio, y
+   `.buyer-shell` solo lo envuelve en Pedidos/Envios/Resenas/Mensajeria. Sin
+   estas variantes, --buyer-text, --buyer-bg y --buyer-border se quedaban en
+   sus valores claros y el panel salia blanco dentro de un tema oscuro.
+*/
+html.dark .buyer-shell,
+html.dark .buyer-dashboard {
+  /* El texto iba en #0a5a27 sobre superficie oscura: ilegible. */
+  --buyer-green-dark: #7ee2a4;
+  --buyer-text: #e8f0e9;
+  --buyer-muted: #9db0a2;
+  --buyer-border: rgba(148, 168, 154, 0.22);
+  --buyer-bg: #0e1711;
+  --buyer-surface: #16211a;
+  --buyer-surface-2: #1d2a21;
+  --buyer-green-soft: #14301f;
+  --buyer-green-pale: #17251c;
+}
+
 .buyer-topbar {
   position: sticky;
   top: 0;
@@ -36,7 +58,7 @@
   align-items: center;
   gap: 18px;
   padding: 10px 22px;
-  background: #fff;
+  background: var(--buyer-surface);
   border-bottom: 1px solid var(--buyer-border);
   box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
 }
@@ -94,7 +116,7 @@
   border: 1px solid var(--buyer-border);
   border-radius: 9px;
   overflow: hidden;
-  background: #fff;
+  background: var(--buyer-surface);
 }
 
 .buyer-search input {
@@ -150,7 +172,7 @@
   height: 36px;
   border: 1px solid var(--buyer-border);
   border-radius: 50%;
-  background: #fff;
+  background: var(--buyer-surface);
   color: var(--buyer-green-dark);
   display: grid;
   place-items: center;
@@ -198,7 +220,7 @@
   display: flex;
   flex-direction: column;
   padding: 18px 12px;
-  background: #fff;
+  background: var(--buyer-surface);
   border-right: 1px solid var(--buyer-border);
   z-index: 1050;
 }
@@ -342,7 +364,7 @@
 .buyer-page-content .card-table,
 .buyer-page-content .shipment-card,
 .buyer-page-content .review-card {
-  background: #fff !important;
+  background: var(--buyer-surface) !important;
   border: 1px solid var(--buyer-border) !important;
   border-radius: 12px !important;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.035);
@@ -390,7 +412,7 @@
 
 .buyer-metric {
   padding: 15px 16px;
-  background: #fff;
+  background: var(--buyer-surface);
   border: 1px solid var(--buyer-border);
   border-radius: 12px;
 }
@@ -418,7 +440,7 @@
 }
 
 .buyer-dashboard-card {
-  background: #fff;
+  background: var(--buyer-surface);
   border: 1px solid var(--buyer-border);
   border-radius: 12px;
   overflow: hidden;
@@ -539,7 +561,7 @@
 .buyer-page-content table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
+  background: var(--buyer-surface);
 }
 
 .buyer-page-content th {
@@ -569,7 +591,7 @@
 .buyer-page-content .form-in {
   border-color: #d8dde3 !important;
   border-radius: 8px !important;
-  background: #fff !important;
+  background: var(--buyer-surface) !important;
   color: var(--buyer-text) !important;
 }
 
@@ -593,7 +615,7 @@
 
 .buyer-page-content .profile-grid > div:first-child {
   padding: 8px;
-  background: #fff;
+  background: var(--buyer-surface);
   border: 1px solid var(--buyer-border);
   border-radius: 12px;
   height: fit-content;
@@ -614,7 +636,7 @@
   border: 1px solid var(--buyer-border);
   border-radius: 12px;
   overflow: hidden;
-  background: #fff;
+  background: var(--buyer-surface);
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.035);
 }
 

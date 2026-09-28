@@ -50,6 +50,43 @@
   --z-sticky: 1100;
 }
 
+/*
+   TEMA OSCURO PARA LOS TOKENS DE ESTE ARCHIVO.
+
+   Antes no existía: styles.css se carga en main.jsx y sus :root ganaban al
+   resto, así que cualquier regla que usara var(--surface), var(--bg) o
+   var(--text) se quedaba BLANCA en modo oscuro. Por eso el topbar del
+   productor y el fondo del área de contenido salían blancos con el sidebar
+   ya en verde oscuro.
+
+   Estos tokens se redefinen aquí (no en variables.css) porque styles.css se
+   inyecta más tarde y su :root sobrescribía el bloque oscuro de variables.css.
+   Se mantiene el mismo orden de cascada: styles.css gana, y ahora también
+   gana su equivalente oscuro.
+   */
+html.dark {
+  --bg: #0e1711;
+  --surface: #16211a;
+  --surface2: #1d2a21;
+  --surface3: #243328;
+  --border: rgba(148, 168, 154, 0.22);
+  --border-light: rgba(148, 168, 154, 0.14);
+
+  --text: #e8f0e9;
+  --text-muted: #b9c9bd;
+  --text-dim: #8fa394;
+
+  --green-bg: #14301f;
+  --gold-bg: #332a0d;
+  --red-bg: #3a1717;
+  --blue-bg: #14263f;
+  --gray-bg: #1d2a21;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 14px 38px rgba(0, 0, 0, 0.55);
+}
+
 /* ─── RESET & BASE ─── */
 *,
 *::before,

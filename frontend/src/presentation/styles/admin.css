@@ -73,7 +73,7 @@ html.dark {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #fff;
+  background: var(--admin-surface);
   color: var(--admin-dark);
   font-weight: 800;
   flex: 0 0 auto;
@@ -126,7 +126,7 @@ html.dark {
   padding: 10px 14px;
   border: 1px solid var(--admin-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--admin-surface);
   color: #8a9590;
   font-size: .76rem;
 }
@@ -134,7 +134,7 @@ html.dark {
 .admin-top-actions { display: flex; align-items: center; gap: 10px; }
 .admin-bell { position: relative; font-size: 1.1rem; color: var(--admin-dark); }
 .admin-bell b { position: absolute; top: -7px; right: -8px; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #dc2626; color: #fff; font-size: .58rem; }
-.admin-user-avatar { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--admin-border); border-radius: 50%; background: #fff; color: var(--admin-dark); font-weight: 800; }
+.admin-user-avatar { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--admin-border); border-radius: 50%; background: var(--admin-surface); color: var(--admin-dark); font-weight: 800; }
 .admin-user-name { display: flex; flex-direction: column; font-size: .76rem; font-weight: 800; color: var(--admin-text); }
 .admin-user-name small { margin-top: 2px; color: var(--admin-muted); font-weight: 500; font-size: .62rem; }
 
@@ -188,11 +188,11 @@ html.dark {
 .search-box input:focus { border-color: var(--admin-green); box-shadow: 0 0 0 3px rgba(17,130,59,.1); }
 .table-wrap { width: 100%; overflow-x: auto; }
 .table-responsive { width: 100%; border-collapse: collapse; }
-.table-responsive th { background: #f7faf8; color: #4b5a52; font-size: .65rem; text-transform: uppercase; letter-spacing: .03em; text-align: left; padding: 11px 12px; white-space: nowrap; }
+.table-responsive th { background: var(--admin-frame); color: #4b5a52; font-size: .65rem; text-transform: uppercase; letter-spacing: .03em; text-align: left; padding: 11px 12px; white-space: nowrap; }
 .table-responsive td { color: #25312b; font-size: .72rem; padding: 11px 12px; border-top: 1px solid #edf2ee; vertical-align: middle; }
-.table-responsive tbody tr:hover { background: #fbfdfb; }
+.table-responsive tbody tr:hover { background: var(--admin-frame); }
 .empty-cell { padding: 28px !important; text-align: center; color: var(--admin-muted); line-height: 1.6; }
-.table-action { border: 1px solid var(--admin-green); border-radius: 7px; background: #fff; color: var(--admin-dark); padding: 8px 12px; font-size: .7rem; font-weight: 700; cursor: pointer; }
+.table-action { border: 1px solid var(--admin-green); border-radius: 7px; background: var(--admin-surface); color: var(--admin-dark); padding: 8px 12px; font-size: .7rem; font-weight: 700; cursor: pointer; }
 
 .btn { border: 0; border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: .7rem; font-weight: 700; }
 .btn-primary { background: var(--admin-green); color: #fff; }
@@ -207,11 +207,11 @@ html.dark {
 
 .admin-dashboard-section { padding: 0 0 20px; }
 .admin-kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; padding: 18px 20px; }
-.admin-kpi { border: 1px solid var(--admin-border); border-radius: 10px; padding: 13px; background: #fff; }
+.admin-kpi { border: 1px solid var(--admin-border); border-radius: 10px; padding: 13px; background: var(--admin-surface); }
 .admin-kpi span, .admin-kpi small { display: block; color: var(--admin-muted); font-size: .67rem; }
 .admin-kpi strong { display: block; margin: 7px 0 3px; color: var(--admin-deep); font-size: 1.22rem; }
 .admin-dashboard-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 14px; padding: 0 20px; }
-.admin-panel { min-width: 0; border: 1px solid var(--admin-border); border-radius: 10px; padding: 16px; background: #fff; }
+.admin-panel { min-width: 0; border: 1px solid var(--admin-border); border-radius: 10px; padding: 16px; background: var(--admin-surface); }
 .admin-panel-heading { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
 .admin-panel-heading h4 { margin: 0; color: var(--admin-text); font-size: .82rem; }
 .admin-panel-heading span { color: var(--admin-muted); font-size: .65rem; }
@@ -224,13 +224,13 @@ html.dark {
 .dot { width: 8px; height: 8px; border-radius: 50%; }
 .dot-green { background: #22c55e; }.dot-blue { background: #3b82f6; }.dot-yellow { background: #f59e0b; }.dot-red { background: #ef4444; }
 .admin-mini-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; padding: 14px 20px 0; }
-.admin-mini { padding: 13px; border: 1px solid var(--admin-border); border-radius: 10px; background: #fff; }
+.admin-mini { padding: 13px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-surface); }
 .admin-mini span, .admin-mini strong { display: block; }.admin-mini span { color: var(--admin-muted); font-size: .65rem; }.admin-mini strong { margin-top: 5px; color: var(--admin-deep); font-size: 1rem; }
-.date-chip { padding: 7px 10px; border: 1px solid var(--admin-border); border-radius: 7px; color: var(--admin-muted); background: #fff; font-size: .65rem; }
+.date-chip { padding: 7px 10px; border: 1px solid var(--admin-border); border-radius: 7px; color: var(--admin-muted); background: var(--admin-surface); font-size: .65rem; }
 
 .audit-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 20px; }
 .audit-card { padding: 16px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-lighter); }
-.audit-card span, .audit-card small { display: block; color: var(--admin-muted); font-size: .66rem; }.audit-card strong { display: block; margin: 7px 0; color: var(--admin-deep); font-size: 1.25rem; }.empty-audit { margin: 0 20px 20px; padding: 20px; border: 1px dashed var(--admin-border); border-radius: 9px; color: var(--admin-muted); font-size: .72rem; text-align: center; background: #fbfdfb; }
+.audit-card span, .audit-card small { display: block; color: var(--admin-muted); font-size: .66rem; }.audit-card strong { display: block; margin: 7px 0; color: var(--admin-deep); font-size: 1.25rem; }.empty-audit { margin: 0 20px 20px; padding: 20px; border: 1px dashed var(--admin-border); border-radius: 9px; color: var(--admin-muted); font-size: .72rem; text-align: center; background: var(--admin-frame); }
 
 .side-info { min-width: 0; }
 .chart-container { border-radius: 8px; background: #f7faf8; }
