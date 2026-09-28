@@ -18,8 +18,16 @@ import {
  * Los datos vienen del mismo endpoint que la página completa
  * (GET /notifications/user/{id}), así que el panel y la página nunca se
  * contradicen. Al marcar una como leída se refresca la lista en el sitio.
+ *
+ * `rutaVerTodas` permite que cada rol apunte a su propia sección de
+ * Configuración. Antes el enlace iba siempre a /especial/notificaciones, que
+ * además sacaba al usuario de los dashboards.
  */
-export default function PanelNotificaciones({ userId, limite = 6 }) {
+export default function PanelNotificaciones({
+  userId,
+  limite = 6,
+  rutaVerTodas = "/especial/notificaciones",
+}) {
   const navegar = useNavigate();
   const [abierto, setAbierto] = useState(false);
   const [items, setItems] = useState([]);
@@ -157,11 +165,11 @@ export default function PanelNotificaciones({ userId, limite = 6 }) {
 
           <div className="notif-pop__foot">
             <a
-              href="/especial/notificaciones"
+              href={rutaVerTodas}
               onClick={(e) => {
                 e.preventDefault();
                 setAbierto(false);
-                navegar("/especial/notificaciones");
+                navegar(rutaVerTodas);
               }}
             >
               Ver todas las notificaciones

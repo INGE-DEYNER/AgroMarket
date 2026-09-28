@@ -1,0 +1,598 @@
+/* ============================================================
+   AGROMARKET — TOKENS DEL DASHBOARD
+   Fuente única de verdad para los tres paneles (admin,
+   productor y comprador). Cualquier tamaño suelto en px o un
+   font-size inline debe acabar aquí.
+
+   `--font-scale` lo escribe FontScaleProvider en <html>; vale 1
+   por defecto. Todas las medidas de texto se multiplican por él,
+   de modo que el control A− / A+ redimensiona menús, tarjetas y
+   tablas de forma proporcional sin romper el layout: las medidas
+   que dependen del texto (alto de fila de menú, alto del topbar)
+   se derivan del mismo token.
+   ============================================================ */
+
+:root {
+  --font-scale: 1;
+
+  /* Escala tipográfica. El 1rem del documento también escala, así que
+     rem ya es proporcional a --font-scale. */
+  --fs-xs: 0.7rem;
+  --fs-sm: 0.8rem;
+  --fs-base: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.15rem;
+  --fs-xl: 1.4rem;
+  --fs-2xl: 1.75rem;
+
+  /* Espaciado. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+
+  /* Medidas del shell. */
+  --sidebar-w: 248px;
+  --topbar-h: 64px;
+  --nav-item-h: 2rem;
+  --nav-icon-size: 18px;
+
+  /* Radios. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* Ancho de contenido. Un solo valor para todas las secciones: el
+     grid de 2 columnas va dentro de la vista Dashboard del admin,
+     nunca en el contenedor del shell. */
+  --content-max-w: 1400px;
+}
+
+/* Si el sistema pide menos movimiento, el shell deja de animar. */
+@media (prefers-reduced-motion: reduce) {
+  .ds-shell *,
+  .ds-shell *::before,
+  .ds-shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   DASHBOARD SHELL
+   ============================================================ */
+
+.ds-shell {
+  /* grid-template-rows: auto 1fr + overflow hidden es la regla de oro:
+     la raíz nunca hace scroll, así el topbar nunca se va por arriba
+     y el sidebar nunca se estira más allá de la ventana. */
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  background: var(--ds-bg, #0e1711);
+  color: var(--ds-text, #e8f0e9);
+  font-size: var(--fs-base);
+}
+
+html:not(.dark) .ds-shell {
+  --ds-bg: #f6faf7;
+  --ds-surface: #ffffff;
+  --ds-surface-2: #f1f6f2;
+  --ds-border: #d9e5dc;
+  --ds-text: #111827;
+  --ds-text-muted: #667280;
+  --ds-brand: #11823b;
+  --ds-brand-strong: #0a5a27;
+  --ds-brand-soft: #e8f5e9;
+  --ds-sidebar: #063d1b;
+  --ds-sidebar-text: #e8f5e9;
+}
+
+html.dark .ds-shell {
+  --ds-bg: #0e1711;
+  --ds-surface: #16211a;
+  --ds-surface-2: #1d2a21;
+  --ds-border: rgba(148, 168, 154, 0.22);
+  --ds-text: #e8f0e9;
+  --ds-text-muted: #9db0a2;
+  --ds-brand: #2ecc71;
+  --ds-brand-strong: #7ee2a4;
+  --ds-brand-soft: #14301f;
+  --ds-sidebar: #063d1b;
+  --ds-sidebar-text: #e8f5e9;
+}
+
+/* ---- Topbar ---- */
+
+.ds-topbar {
+  /* Altura por token y NINGÚN margen negativo: antes los tres paneles
+     usaban `margin: 0 -28px 28px` / `-18px -22px 18px`, lo que sacaba la
+     barra del flujo y recortaba la fila de arriba. */
+  min-height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--ds-surface);
+  border-bottom: 1px solid var(--ds-border);
+}
+
+.ds-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ds-topbar__brand img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.ds-topbar__brand span {
+  display: block;
+  min-width: 0;
+}
+
+.ds-topbar__brand strong {
+  display: block;
+  font-size: var(--fs-md);
+  font-weight: 800;
+  color: var(--ds-brand-strong);
+  line-height: 1.1;
+}
+
+.ds-topbar__brand small {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--ds-text-muted);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-topbar__search {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 420px;
+}
+
+.ds-topbar__search input {
+  flex: 1;
+  min-width: 0;
+  height: 2.25rem;
+  padding: 0 var(--space-3);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+  color: var(--ds-text);
+  background: var(--ds-surface-2);
+  border: 1px solid var(--ds-border);
+  border-right: 0;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.ds-topbar__search button {
+  width: 2.5rem;
+  border: 0;
+  background: var(--ds-brand);
+  color: #fff;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  cursor: pointer;
+}
+
+.ds-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+/* Control de tamaño de fuente: A− / A+ / reset. */
+.ds-font-scale {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: var(--ds-surface-2);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--radius-md);
+}
+
+.ds-font-scale button {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ds-text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ds-font-scale button:hover:not(:disabled) {
+  background: var(--ds-brand-soft);
+}
+
+.ds-font-scale button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ds-font-scale output {
+  min-width: 2.75rem;
+  text-align: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--ds-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-topbar__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ds-topbar__user-avatar {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ds-brand-soft);
+  color: var(--ds-brand-strong);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+}
+
+.ds-topbar__user-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.ds-topbar__user-text strong {
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-topbar__user-text small {
+  font-size: var(--fs-xs);
+  color: var(--ds-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Cuerpo: sidebar + main ---- */
+
+.ds-body {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ds-sidebar {
+  /* Columna flex para que la zona de pie quede siempre visible, por
+     muchos ítems que tenga la navegación. */
+  width: var(--sidebar-w);
+  flex: 0 0 var(--sidebar-w);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--ds-sidebar);
+  color: var(--ds-sidebar-text);
+}
+
+.ds-sidebar__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  flex: 0 0 auto;
+}
+
+.ds-sidebar__avatar {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #fff;
+  color: #0a5a27;
+  font-size: var(--fs-sm);
+  font-weight: 800;
+}
+
+.ds-sidebar__profile-text {
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.ds-sidebar__profile-text strong {
+  display: block;
+  font-size: var(--fs-base);
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-sidebar__profile-text small {
+  display: block;
+  font-size: var(--fs-xs);
+  color: rgba(232, 245, 233, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Navegación: único elemento con scroll interno. */
+.ds-nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-2);
+}
+
+.ds-nav__label {
+  padding: var(--space-3) var(--space-2) var(--space-1);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(232, 245, 233, 0.55);
+}
+
+.ds-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--nav-item-h);
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: #d8eee0;
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.ds-nav__item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.ds-nav__item[aria-current="page"] {
+  background: var(--ds-brand);
+  color: #fff;
+  font-weight: 800;
+}
+
+.ds-nav__icon {
+  display: grid;
+  place-items: center;
+  width: var(--nav-icon-size);
+  height: var(--nav-icon-size);
+  flex: 0 0 auto;
+}
+
+.ds-nav__item-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-nav__badge {
+  flex: 0 0 auto;
+  min-width: 1.25rem;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.25rem;
+}
+
+.ds-nav__item[aria-current="page"] .ds-nav__badge {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* Zona fija al pie: nunca se corta ni entra en el scroll del nav. */
+.ds-sidebar__footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ds-nav__item--danger {
+  color: #ffb4ab;
+}
+
+.ds-nav__item--danger:hover {
+  background: rgba(220, 38, 38, 0.22);
+  color: #fff;
+}
+
+/* ---- Contenido ---- */
+
+.ds-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* min-height:0 + overflow-y:auto: el scroll ocurre aquí, no en el body. */
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-4);
+}
+
+/* Contenedor estándar de página: mismas medidas en las tres secciones y
+   en los tres roles, para que cambiar de vista no altere proporciones. */
+.ds-page {
+  max-width: var(--content-max-w);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.ds-page__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.ds-page__head h1 {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ds-page__head p {
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--ds-text-muted);
+}
+
+/* Altura mínima común para estados de carga y vacío: evita el salto de
+   layout al pasar de "cargando" a "sin datos". */
+.ds-placeholder {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--ds-text-muted);
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--radius-lg);
+}
+
+.ds-overlay {
+  display: none;
+}
+
+.ds-sidebar-toggle {
+  display: none;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 1024px) {
+  .ds-topbar__brand small {
+    display: none;
+  }
+
+  .ds-topbar__search {
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 860px) {
+  :root {
+    --topbar-h: 56px;
+  }
+
+  .ds-topbar {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .ds-sidebar-toggle {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    border: 1px solid var(--ds-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--ds-text);
+    cursor: pointer;
+  }
+
+  .ds-topbar__search,
+  .ds-topbar__user-text {
+    display: none;
+  }
+
+  .ds-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 70;
+    transform: translateX(-100%);
+    transition: transform 180ms ease;
+  }
+
+  .ds-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .ds-overlay.is-open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(0, 0, 0, 0.45);
+    border: 0;
+  }
+
+  .ds-main {
+    padding: var(--space-3);
+  }
+}
+
+@media (max-width: 560px) {
+  .ds-font-scale output {
+    display: none;
+  }
+
+  .ds-page__head h1 {
+    font-size: var(--fs-lg);
+  }
+}
+

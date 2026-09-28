@@ -8,6 +8,7 @@ import i18n from "@/i18n/index";
 // (fallback del Suspense) y AuthContext.jsx. El import sobraba.
 import { runFrontendDiagnostic } from "@/infrastructure/config/FrontendDiagnostic";
 import ThemeProvider from "@/app/contexts/ThemeProvider";
+import FontScaleProvider from "@/app/contexts/FontScaleProvider";
 import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/microinteractions.css";
 
@@ -16,6 +17,14 @@ import "@/presentation/styles/styles.css";
 import "@/presentation/styles/theme.css";
 import "@/presentation/styles/navbar.css";
 import "@/presentation/styles/footer.css";
+/*
+ * Tokens y shell de los tres dashboards (admin, productor, comprador).
+ * Se carga en main.jsx, y por eso ANTES que las hojas por panel
+ * (admin.css, productor.css, comprador.css), que se inyectan después con
+ * React.lazy(). Así el shell impone la escala compartida y las reglas
+ * antiguas solo aportan detalles de cada vista.
+ */
+import "@/presentation/styles/dashboard-shell.css";
 /*
  * Escala tipográfica común de los dashboards.
  *
@@ -123,7 +132,9 @@ export default function MainApp() {
 
   return (
     <ThemeProvider>
-      <App />
+      <FontScaleProvider>
+        <App />
+      </FontScaleProvider>
     </ThemeProvider>
   );
 }
