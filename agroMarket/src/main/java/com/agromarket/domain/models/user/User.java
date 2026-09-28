@@ -2,12 +2,8 @@ package com.agromarket.domain.models.user;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
 
 import com.agromarket.domain.models.enums.user.Role;
-import com.agromarket.domain.models.order.Order;
-import com.agromarket.domain.models.product.Product;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -72,16 +68,11 @@ public class User {
     // ==================== AUTENTICACIÓN Y SEGURIDAD ====================
     
     /**
-     * Indica si el usuario está activo en el sistema.
+     * Indica si el usuario está activo en el sistema. Un usuario desactivado
+     * no puede iniciar sesión ni operar; lo controla el panel de administración.
      */
     @Builder.Default
     private boolean active = true;
-    
-    /**
-     * Indica si el usuario ha sido aprobado por un administrador.
-     */
-    @Builder.Default
-    private boolean approved = true;
     
     /**
      * Indica si el usuario tiene autenticación de dos factores (2FA) habilitada.
@@ -95,12 +86,7 @@ public class User {
     private String totpSecret;
     
     /**
-     * Fecha y hora en que se registró el usuario.
-     */
-    private LocalDateTime registrationDate;
-    
-    /**
-     * Provedor de autenticación (ej: "local", "google", "facebook").
+     * Provedor de autenticación (ej: "local", "google").
      */
     private String provider;
     
@@ -122,11 +108,6 @@ public class User {
      * Código del país del usuario (ej: "+57" para Colombia).
      */
     private String countryCode;
-    
-    /**
-     * Ubicación general del usuario.
-     */
-    private String location;
     
     /**
      * Número de cédula o identificación del usuario.
@@ -154,37 +135,24 @@ public class User {
     private String nit;
     
     /**
-     * Indica si el usuario es una empresa.
+     * Indica si el usuario es una empresa. Es un valor DERIVADO de la
+     * existencia de {@code companyName}; no se persiste como columna propia.
      */
     @Builder.Default
     private Boolean isCompany = false;
     
     
     // ==================== VERIFICACIÓN Y ESTADO ====================
-    
+
     /**
-     * Indica si el teléfono ha sido verificado.
-     */
-    @Builder.Default
-    private Boolean phoneVerified = false;
-    
-    /**
-     * Indica si la cuenta ha sido aprobada por un administrador.
+     * Indica si la cuenta ha sido aprobada por un administrador. Para el rol
+     * PRODUCER es la validación que autoriza operar en el marketplace
+     * (lo alterna el panel de administración). Para BUYER/ADMIN no aporta
+     * información adicional a {@link #active}, por eso queda en {@code true}
+     * al registrarse.
      */
     @Builder.Default
     private Boolean accountApproved = false;
-    
-    /**
-     * Indica si la cuenta está completa (todos los datos requeridos están proporcionados).
-     */
-    @Builder.Default
-    private Boolean accountComplete = false;
-    
-    /**
-     * Estado actual de la cuenta (ej: "PENDING_EMAIL", "ACTIVE", "SUSPENDED").
-     */
-    @Builder.Default
-    private String accountStatus = "PENDING_EMAIL";
     
     
     // ==================== TOKENS DE VERIFICACIÓN ====================
@@ -200,16 +168,6 @@ public class User {
     private LocalDateTime emailTokenExpiry;
     
     /**
-     * Token para verificación de teléfono.
-     */
-    private String phoneVerificationToken;
-    
-    /**
-     * Fecha de expiración del token de verificación de teléfono.
-     */
-    private LocalDateTime phoneTokenExpiry;
-    
-    /**
      * Token para recuperación de contraseña.
      */
     private String passwordResetToken;
@@ -218,20 +176,6 @@ public class User {
      * Fecha de expiración del token de recuperación de contraseña.
      */
     private LocalDateTime passwordResetTokenExpiry;
-    
-    
-    // ==================== INFORMACIÓN FINANCIERA ====================
-    
-    /**
-     * Información de la cuenta bancaria del usuario (para productores).
-     */
-    private String bankAccount;
-    
-    /**
-     * Indica si el usuario ha utilizado el cupón de primer envío gratis.
-     */
-    @Builder.Default
-    private Boolean firstShippingCouponUsed = false;
     
     
     // ==================== PREFERENCIAS ====================
@@ -279,25 +223,12 @@ public class User {
     private String photoUrl;
     
     
-    // ==================== REPUTACIÓN (para productores) ====================
-    
-    /**
-     * Calificación promedio del usuario como productor.
-     */
-    @Builder.Default
-    private Double averageRating = 0.0;
-    
-    /**
-     * Número total de reseñas recibidas.
-     */
-    @Builder.Default
-    private Integer totalReviews = 0;
-    
-    
     // ==================== FECHAS DE AUDITORÍA ====================
     
     /**
-     * Fecha de creación del registro.
+     * Fecha de creación del registro. Es también la fecha de registro del
+     * usuario: antes existían {@code registrationDate} y {@code createdAt}
+     * con el mismo valor, por lo que se unificaron en esta sola columna.
      */
     private LocalDateTime createdAt;
     
@@ -310,30 +241,6 @@ public class User {
      * Fecha del último inicio de sesión.
      */
     private LocalDateTime lastLogin;
-    
-    
-    // ==================== DATOS ESPECÍFICOS POR ROL ====================
-    
-    /**
-     * Indica si el productor ha sido verificado por el sistema.
-     * Aplicable solo para usuarios con rol PRODUCER.
-     */
-    @Builder.Default
-    private Boolean verifiedProducer = false;
-    
-    /**
-     * Lista de pedidos realizados por el usuario (como comprador).
-     * Aplicable principalmente para usuarios con rol BUYER.
-     */
-    @Builder.Default
-    private List<Order> orderHistory = new ArrayList<>();
-    
-    /**
-     * Lista de productos publicados por el usuario (como productor).
-     * Aplicable principalmente para usuarios con rol PRODUCER.
-     */
-    @Builder.Default
-    private List<Product> publishedProducts = new ArrayList<>();
     
     
     // ==================== MÉTODOS DE NEGOCIO ====================
@@ -372,5 +279,39 @@ public class User {
      */
     public boolean isAdmin() {
         return role == Role.ADMIN;
+    }
+    
+    /**
+     * Indica si la cuenta tiene completos los datos de identidad (KYC).
+     *
+     * <p>Este valor es DERIVADO: antes se persistía la columna
+     * {@code account_complete}, que podía quedar desincronizada de los datos
+     * reales y provocaba que el modal "Completar cuenta" reapareciera al
+     * recargar. Ahora la fuente de verdad son los propios campos KYC.</p>
+     *
+     * @return true si tiene tipo de documento, número de documento y fecha
+     *         de nacimiento
+     */
+    public boolean isAccountComplete() {
+        return tieneDato(this.idType)
+                && tieneDato(this.idNumber)
+                && this.birthDate != null;
+    }
+    
+    /**
+     * Indica si el usuario representa a una empresa.
+     *
+     * <p>Es DERIVADO de {@code companyName}: si no hay razón social, no es
+     * empresa. Antes existía la columna {@code is_company} que podía
+     * contradecir a la razón social almacenada.</p>
+     *
+     * @return true si tiene razón social registrada
+     */
+    public boolean isCompanyUser() {
+        return tieneDato(this.companyName);
+    }
+    
+    private static boolean tieneDato(String valor) {
+        return valor != null && !valor.isBlank();
     }
 }

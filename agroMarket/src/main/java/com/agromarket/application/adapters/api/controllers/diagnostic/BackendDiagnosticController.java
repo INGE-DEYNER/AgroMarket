@@ -113,20 +113,6 @@ public class BackendDiagnosticController {
     }
 
     /**
-     * Lista de productores públicos.
-     * Usado por Productores.jsx y DashboardComprador.jsx sin autenticación.
-     */
-    @GetMapping("/productores")
-    public List<Map<String, Object>> getPublicProductores() {
-        return jdbcTemplate.queryForList(
-            "SELECT u.id, u.first_name as firstName, u.last_name as lastName, " +
-            "u.company_name as companyName, u.average_rating as averageRating " +
-            "FROM users u WHERE u.role = 'PRODUCTOR' AND u.enabled = true " +
-            "ORDER BY u.average_rating DESC NULLS LAST, u.created_at ASC"
-        );
-    }
-
-    /**
      * Chatbot público para soporte.
      * Usado por ChatbotSoporte.jsx sin autenticación.
      *

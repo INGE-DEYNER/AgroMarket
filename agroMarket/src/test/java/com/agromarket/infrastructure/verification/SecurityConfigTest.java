@@ -47,11 +47,8 @@ class SecurityConfigTest extends AbstractTestcontainersIntegrationTest {
                         .phone("3000000000")
                         .role(Role.BUYER)
                         .active(true)
-                        .approved(true)
                         .emailVerified(true)
                         .accountApproved(true)
-                        .accountComplete(true)
-                        .accountStatus("ACTIVE")
                         .build()));
     }
 

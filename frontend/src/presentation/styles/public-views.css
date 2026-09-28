@@ -2412,12 +2412,6 @@ html.dark .hero-public {
   font-size: 14px;
 }
 
-.pr-score {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--pr-text);
-}
-
 .pr-reviews {
   font-size: 13px;
   color: var(--pr-muted);

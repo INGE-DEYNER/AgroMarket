@@ -35,7 +35,11 @@ export default function Registro() {
   const [telefono, setTelefono] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const [ubicacion, setUbicacion] = useState("");
+  // La ubicación se captura como departamento + ciudad, que son las columnas
+  // reales de `users`. Antes había un campo libre "ubicacion" (columna
+  // `location`) que duplicaba esta información.
+  const [departamento, setDepartamento] = useState("");
+  const [ciudad, setCiudad] = useState("");
   const [nombreEmpresa, setNombreEmpresa] = useState("");
   const [nit, setNit] = useState("");
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
@@ -113,10 +117,15 @@ export default function Registro() {
               );
             else delete errs.confirmPass;
             break;
-          case "ubicacion":
+          case "ciudad":
             if (rol === "productor" && !val.trim())
-              errs.ubicacion = "Campo requerido para productores.";
-            else delete errs.ubicacion;
+              errs.ciudad = "Campo requerido para productores.";
+            else delete errs.ciudad;
+            break;
+          case "departamento":
+            if (rol === "productor" && !val.trim())
+              errs.departamento = "Campo requerido para productores.";
+            else delete errs.departamento;
             break;
           case "nombreEmpresa":
             if (rol === "comprador_empresa" && !val.trim())
@@ -191,8 +200,10 @@ export default function Registro() {
         "errors.passwordMismatch",
         "Las contraseñas no coinciden.",
       );
-    if (rol === "productor" && !ubicacion.trim())
-      errs.ubicacion = "Campo requerido para productores.";
+    if (rol === "productor" && !departamento.trim())
+      errs.departamento = "Campo requerido para productores.";
+    if (rol === "productor" && !ciudad.trim())
+      errs.ciudad = "Campo requerido para productores.";
     if (rol === "comprador_empresa" && !nombreEmpresa.trim())
       errs.nombreEmpresa = "Nombre de empresa requerido.";
     if (rol === "comprador_empresa" && !nit.trim()) errs.nit = "NIT requerido.";
@@ -217,10 +228,12 @@ export default function Registro() {
         phone: `${codigoPais}${telefono.trim()}`,
         role: rol === "productor" ? "PRODUCER" : "BUYER",
         countryCode: codigoPais,
-        location: rol === "productor" ? ubicacion.trim() : null,
+        // La ubicación se envía como departamento + ciudad; ya no existe el
+        // campo libre `location` en el backend.
+        department: departamento.trim() || null,
+        city: ciudad.trim() || null,
         companyName: rol === "comprador_empresa" ? nombreEmpresa.trim() : null,
         nit: rol === "comprador_empresa" ? nit.trim() : null,
-        isCompany: rol === "comprador_empresa",
       };
 
       await api.post("/auth/registro", payload);
@@ -233,7 +246,8 @@ export default function Registro() {
           lastName: "apellido",
           phone: "telefono",
           countryCode: "codigoPais",
-          location: "ubicacion",
+          department: "departamento",
+          city: "ciudad",
           companyName: "nombreEmpresa",
           confirmPassword: "confirmPass",
         };
@@ -519,30 +533,49 @@ export default function Registro() {
                 </div>
 
                 {rol === "productor" && (
-                  <div className="af-field">
-                    <label htmlFor="ubicacion">
-                      {t("auth.location", "Ubicación / Vereda")}
-                    </label>
-                    <input
-                      id="ubicacion"
-                      type="text"
-                      className={`af-input${errors.ubicacion ? " has-error" : ""}`}
-                      placeholder={t(
-                        "auth.locationPlaceholder",
-                        "Ej. Vereda Las Margaritas, Chigorodó",
+                  <div className="af-form-grid">
+                    <div className="af-field">
+                      <label htmlFor="departamento">
+                        {t("direccion.departamento", "Departamento")}
+                      </label>
+                      <input
+                        id="departamento"
+                        type="text"
+                        className={`af-input${errors.departamento ? " has-error" : ""}`}
+                        placeholder="Ej. Antioquia"
+                        value={departamento}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            "departamento",
+                            e.target.value,
+                            setDepartamento,
+                          )
+                        }
+                      />
+                      {errors.departamento && (
+                        <span className="af-error-text">
+                          {errors.departamento}
+                        </span>
                       )}
-                      value={ubicacion}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          "ubicacion",
-                          e.target.value,
-                          setUbicacion,
-                        )
-                      }
-                    />
-                    {errors.ubicacion && (
-                      <span className="af-error-text">{errors.ubicacion}</span>
-                    )}
+                    </div>
+                    <div className="af-field">
+                      <label htmlFor="ciudad">
+                        {t("direccion.ciudad", "Ciudad / Municipio")}
+                      </label>
+                      <input
+                        id="ciudad"
+                        type="text"
+                        className={`af-input${errors.ciudad ? " has-error" : ""}`}
+                        placeholder="Ej. Chigorodó"
+                        value={ciudad}
+                        onChange={(e) =>
+                          handleFieldChange("ciudad", e.target.value, setCiudad)
+                        }
+                      />
+                      {errors.ciudad && (
+                        <span className="af-error-text">{errors.ciudad}</span>
+                      )}
+                    </div>
                   </div>
                 )}
 

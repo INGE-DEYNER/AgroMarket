@@ -2,6 +2,7 @@
 package com.agromarket.application.usecases.shipping;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import com.agromarket.domain.exceptions.shipping.ShippingNotFoundException;
 import com.agromarket.domain.models.enums.shipping.ShippingState;
 import com.agromarket.domain.models.order.Order;
 import com.agromarket.domain.models.shipping.Shipping;
+import com.agromarket.domain.models.user.User;
 import com.agromarket.domain.ports.in.shipping.ShippingPort;
 import com.agromarket.domain.ports.in.shipping.ShippingResult;
 import com.agromarket.domain.ports.out.order.OrderPort;
@@ -54,14 +56,38 @@ public class ShippingUseCase implements ShippingPort {
 
                 Shipping shipping = Shipping.builder()
                                 .order(order)
-                                .destinationAddress(
-                                                order.getBuyer().getLocation())
+                                // La dirección de destino se compone con la
+                                // dirección estructurada del comprador
+                                // (`location` se eliminó al unificarse en
+                                // department/city/full_address).
+                                .destinationAddress(componerDireccion(order))
                                 .state(ShippingState.ORDER_CONFIRMED)
                                 .createdAt(LocalDateTime.now())
                                 .build();
 
                 return toResult(
                                 shippingRepository.save(shipping));
+        }
+
+        private String componerDireccion(Order order) {
+                User comprador = order.getBuyer();
+                if (comprador == null) {
+                        return null;
+                }
+
+                List<String> partes = new ArrayList<>();
+                addSiNoEstaVacio(partes, comprador.getFullAddress());
+                addSiNoEstaVacio(partes, comprador.getCity());
+                addSiNoEstaVacio(partes, comprador.getDepartment());
+                addSiNoEstaVacio(partes, comprador.getPostalCode());
+
+                return partes.isEmpty() ? null : String.join(", ", partes);
+        }
+
+        private void addSiNoEstaVacio(List<String> partes, String valor) {
+                if (valor != null && !valor.isBlank()) {
+                        partes.add(valor.trim());
+                }
         }
 
         @Override

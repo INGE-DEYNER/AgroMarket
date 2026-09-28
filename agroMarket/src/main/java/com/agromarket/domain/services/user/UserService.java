@@ -38,12 +38,12 @@ public class UserService {
      * Verifica si el usuario puede publicar productos.
      *
      * @param user usuario
-     * @return true si es productor activo y aprobado
+     * @return true si es productor activo y aprobado por el administrador
      */
     public boolean canPublishProducts(User user) {
         return user != null
                 && user.isActive()
-                && user.isApproved()
+                && Boolean.TRUE.equals(user.getAccountApproved())
                 && user.isProducer();
     }
 
@@ -56,7 +56,6 @@ public class UserService {
     public boolean canCreateOrders(User user) {
         return user != null
                 && user.isActive()
-                && user.isApproved()
                 && user.isBuyer();
     }
 }

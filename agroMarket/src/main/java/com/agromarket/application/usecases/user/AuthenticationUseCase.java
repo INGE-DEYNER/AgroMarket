@@ -294,24 +294,18 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                 .phone(command.getPhone())
                                 .role(command.getRole())
                                 .countryCode(command.getCountryCode())
-                                .location(command.getLocation())
                                 .idNumber(command.getIdNumber())
                                 .birthDate(command.getBirthDate())
                                 .idType(command.getIdType())
                                 .companyName(command.getCompanyName())
                                 .nit(command.getNit())
-                                .isCompany(
-                                                command.getIsCompany() == null
-                                                                ? false
-                                                                : command.getIsCompany())
                                 .active(true)
-                                .approved(true)
                                 .emailVerified(false)
                                 .provider("local")
-                                .accountStatus("PENDING_EMAIL")
-                                .accountApproved(false)
-                                .accountComplete(false)
-                                .registrationDate(now)
+                                // Solo el productor requiere validación del
+                                // administrador; comprador y admin arrancan
+                                // habilitados con el mismo indicador unificado.
+                                .accountApproved(command.getRole() != Role.PRODUCER)
                                 .createdAt(now)
                                 .updatedAt(now)
                                 .emailVerificationToken(
@@ -541,15 +535,14 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                         .email(email)
                                         .role(role)
                                         .active(true)
-                                        .approved(true)
                                         .emailVerified(true)
                                         .provider("google")
                                         .providerId(info.getGoogleId())
                                         .photoUrl(info.getPicture())
+                                        // Google ya valida el correo, así que
+                                        // el productor entra con la misma
+                                        // aprobación que el resto de usuarios.
                                         .accountApproved(true)
-                                        .accountComplete(false)
-                                        .accountStatus("ACTIVE")
-                                        .registrationDate(LocalDateTime.now())
                                         .createdAt(LocalDateTime.now())
                                         .updatedAt(LocalDateTime.now())
                                         .build();
@@ -560,7 +553,6 @@ public class AuthenticationUseCase implements AuthenticationPort {
                         user.setProviderId(info.getGoogleId());
                         user.setPhotoUrl(info.getPicture());
                         user.setEmailVerified(true);
-                        user.setAccountStatus("ACTIVE");
                         user.setUpdatedAt(LocalDateTime.now());
                 }
 

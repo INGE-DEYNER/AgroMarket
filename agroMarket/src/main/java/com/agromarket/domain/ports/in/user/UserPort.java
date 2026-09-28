@@ -110,17 +110,17 @@ public interface UserPort {
   void disable(Long id);
 
   /**
-   * Productores (rol PRODUCER) cuya cuenta aún no ha sido aprobada
-   * (accountApproved != true). Alimenta la sección "Productores por
-   * validar" del panel de administración.
+   * Productores (rol PRODUCER) cuya cuenta aun no ha sido aprobada
+   * (accountApproved != true). Alimenta la seccion "Productores por
+   * validar" del panel de administracion.
    *
-   * @return lista de productores pendientes de aprobación
+   * @return lista de productores pendientes de aprobacion
    */
   List<UserResult> getPendientesAprobacion();
 
   /**
    * Aprueba la cuenta de un usuario (accountApproved = true).
-   * Usado por el panel de administración al aceptar un productor.
+   * Usado por el panel de administracion al aceptar un productor.
    *
    * @param id ID del usuario a aprobar
    * @return resultado con los datos actualizados del usuario
@@ -128,8 +128,8 @@ public interface UserPort {
   UserResult aprobarUsuario(Long id);
 
   /**
-   * Rechaza la solicitud de aprobación de un usuario
-   * (accountApproved = false, accountStatus = REJECTED).
+   * Rechaza la solicitud de aprobacion de un usuario
+   * (accountApproved = false).
    *
    * @param id ID del usuario a rechazar
    * @return resultado con los datos actualizados del usuario
@@ -137,8 +137,10 @@ public interface UserPort {
   UserResult rechazarUsuario(Long id);
 
   /**
-   * Alterna el flag verifiedProducer de un productor
-   * (verificado / no verificado).
+   * Alterna el indicador accountApproved de un productor
+   * (aprobado / no aprobado). Es el mismo flag que usan
+   * aprobarUsuario/rechazarUsuario: antes existian dos columnas
+   * (accountApproved y verifiedProducer) con ese mismo significado.
    *
    * @param id ID del productor
    * @return resultado con los datos actualizados del usuario

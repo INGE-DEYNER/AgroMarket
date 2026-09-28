@@ -37,16 +37,15 @@ export default function Perfil() {
   const [apellido, setApellido] = useState(user?.apellido || "");
   const [telefono, setTelefono] = useState(user?.telefono || "");
   const [codigoPais] = useState(user?.codigoPais || "+57");
-  const [ubicacion, setUbicacion] = useState(user?.ubicacion || "");
   const [nombreEmpresa, setNombreEmpresa] = useState(user?.nombreEmpresa || "");
   const [nit, setNit] = useState(user?.nit || "");
-  const [cuentaBancaria, setCuentaBancaria] = useState(
-    user?.cuentaBancaria || "",
-  );
 
-  // Shipping Address Form
+  // Departamento y ciudad son la ubicación estructurada y ÚNICA del usuario:
+  // antes existía además un campo libre `ubicacion` (columna `location`) que
+  // duplicaba esta información y podía contradecirla.
   const [departamento, setDepartamento] = useState(user?.departamento || "");
   const [ciudad, setCiudad] = useState(user?.ciudad || "");
+
   const [direccionCompleta, setDireccionCompleta] = useState(
     user?.direccionCompleta || "",
   );
@@ -139,7 +138,6 @@ export default function Perfil() {
         direccionCompleta: direccionCompleta.trim(),
         referencia: referencia.trim(),
         codigoPostal: codigoPostal.trim(),
-        ubicacion: user?.role === "productor" ? ubicacion.trim() : undefined,
         nombreEmpresa:
           user?.esEmpresa || user?.role === "comprador_empresa"
             ? nombreEmpresa.trim()
@@ -148,8 +146,6 @@ export default function Perfil() {
           user?.esEmpresa || user?.role === "comprador_empresa"
             ? nit.trim()
             : undefined,
-        cuentaBancaria:
-          user?.role === "productor" ? cuentaBancaria.trim() : undefined,
       };
 
       const res = await api.put("/usuarios/mi-perfil", payload);
@@ -161,10 +157,12 @@ export default function Perfil() {
         apellido: updatedUser.apellido || apellido,
         telefono: updatedUser.telefono || telefono,
         codigoPais: updatedUser.codigoPais || codigoPais,
-        ubicacion: updatedUser.ubicacion || ubicacion,
+        departamento: updatedUser.departamento || departamento,
+        ciudad: updatedUser.ciudad || ciudad,
+        direccionCompleta:
+          updatedUser.direccionCompleta || direccionCompleta,
         nombreEmpresa: updatedUser.nombreEmpresa || nombreEmpresa,
         nit: updatedUser.nit || nit,
-        cuentaBancaria: updatedUser.cuentaBancaria || cuentaBancaria,
       });
 
       setPersonalMsg({
@@ -569,32 +567,6 @@ export default function Perfil() {
                     </div>
                   </div>
 
-                  {/* Producer fields */}
-                  {user?.role === "productor" && (
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label className="form-label">Ubicación / Vereda</label>
-                        <input
-                          className="form-input"
-                          value={ubicacion}
-                          onChange={(e) => setUbicacion(e.target.value)}
-                          placeholder="Ej. Vereda Las Margaritas, Chigorodó"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">
-                          Cuenta Bancaria para Recibir Pagos
-                        </label>
-                        <input
-                          className="form-input"
-                          value={cuentaBancaria}
-                          onChange={(e) => setCuentaBancaria(e.target.value)}
-                          placeholder="Ej. Ahorros Bancolombia N° 12345..."
-                        />
-                      </div>
-                    </div>
-                  )}
-
                   {/* Company fields */}
                   {(user?.esEmpresa || user?.role === "comprador_empresa") && (
                     <div className="form-row">
@@ -619,18 +591,20 @@ export default function Perfil() {
                     </div>
                   )}
 
-                  {/* Dirección de Envío para Compradores y Empresas */}
-                  {user?.role !== "productor" && (
-                    <div
-                      style={{
-                        background: "#fcfdfc",
-                        border: "1px solid #eef2ee",
-                        borderRadius: "12px",
-                        padding: "20px",
-                        marginTop: "16px",
-                      }}
-                    >
-                      <h4
+                  {/* Ubicación y dirección. Aplica a TODOS los roles: la
+                      ubicación estructurada (departamento/ciudad) reemplaza
+                      al campo libre "ubicación" que solo veían los
+                      productores. */}
+                  <div
+                    style={{
+                      background: "#fcfdfc",
+                      border: "1px solid #eef2ee",
+                      borderRadius: "12px",
+                      padding: "20px",
+                      marginTop: "16px",
+                    }}
+                  >
+                    <h4
                         style={{
                           color: "#1b4332",
                           marginBottom: "16px",
@@ -734,7 +708,6 @@ export default function Perfil() {
                         </div>
                       </div>
                     </div>
-                  )}
 
                   <button
                     className="btn btn-primary"

@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 
 import com.agromarket.application.adapters.api.request.user.ChangePasswordRequest;
 import com.agromarket.application.adapters.api.request.user.UpdateProfileRequest;
-import com.agromarket.application.adapters.api.request.user.UpdateUserRequest;
 import com.agromarket.application.adapters.api.response.user.OperationResponse;
 import com.agromarket.application.adapters.api.response.user.UserResponse;
 import com.agromarket.domain.ports.in.user.UpdateProfileCommand;
@@ -135,7 +134,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> update(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateUserRequest request) {
+            @Valid @RequestBody UpdateProfileRequest request) {
         return ResponseEntity.ok(
                 toResponse(userPort.update(id, toCommand(request))));
     }
@@ -170,23 +169,12 @@ public class UserController {
         return ResponseEntity.ok(OperationResponse.success("Usuario deshabilitado"));
     }
 
-    private UpdateProfileCommand toCommand(UpdateUserRequest r) {
-        return UpdateProfileCommand.builder()
-                .firstName(r.firstName()).lastName(r.lastName()).phone(r.phone())
-                .countryCode(r.countryCode()).location(r.location()).idNumber(r.idNumber())
-                .birthDate(r.birthDate()).idType(r.idType()).companyName(r.companyName())
-                .nit(r.nit()).isCompany(r.isCompany()).department(r.department())
-                .city(r.city()).fullAddress(r.fullAddress()).addressReference(r.addressReference())
-                .postalCode(r.postalCode()).photoUrl(r.photoUrl())
-                .preferredCurrency(r.preferredCurrency()).build();
-    }
-
     private UpdateProfileCommand toCommand(UpdateProfileRequest r) {
         return UpdateProfileCommand.builder()
                 .firstName(r.firstName()).lastName(r.lastName()).phone(r.phone())
-                .countryCode(r.countryCode()).location(r.location()).idNumber(r.idNumber())
+                .countryCode(r.countryCode()).idNumber(r.idNumber())
                 .birthDate(r.birthDate()).idType(r.idType()).companyName(r.companyName())
-                .nit(r.nit()).isCompany(r.isCompany()).department(r.department())
+                .nit(r.nit()).department(r.department())
                 .city(r.city()).fullAddress(r.fullAddress()).addressReference(r.addressReference())
                 .postalCode(r.postalCode()).photoUrl(r.photoUrl())
                 .preferredCurrency(r.preferredCurrency()).build();

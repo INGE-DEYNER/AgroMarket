@@ -243,13 +243,11 @@ public class AuthenticationController {
                 .phone(request.phone())
                 .role(request.role())
                 .countryCode(request.countryCode())
-                .location(request.location())
                 .idNumber(request.idNumber())
                 .birthDate(request.birthDate())
                 .idType(request.idType())
                 .companyName(request.companyName())
                 .nit(request.nit())
-                .isCompany(request.isCompany())
                 .build();
     }
 

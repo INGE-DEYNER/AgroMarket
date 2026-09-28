@@ -514,7 +514,7 @@ export default function DashboardComprador() {
             p.productor ||
             p.nombreProductor ||
             null,
-          productorVerificado: p.producer?.verifiedProducer ?? false,
+          productorVerificado: p.producer?.verified ?? p.productorVerificado ?? false,
           precioMayorista: wholesalePrice,
           cantidadMinimaMayorista: minWholesale,
         };

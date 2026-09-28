@@ -73,7 +73,6 @@ function normalizeUser(userData) {
     nit: userData.nit || userData.nit,
     esEmpresa: userData.isCompany ?? userData.esEmpresa ?? false,
     // Ubicación
-    ubicacion: userData.location || userData.ubicacion,
     departamento: userData.department || userData.departamento,
     ciudad: userData.city || userData.ciudad,
     direccionCompleta: userData.fullAddress || userData.direccionCompleta,
@@ -81,15 +80,9 @@ function normalizeUser(userData) {
     codigoPostal: userData.postalCode || userData.codigoPostal,
     codigoPais: userData.countryCode || userData.codigoPais,
     fotoUrl: userData.photoUrl || userData.fotoUrl,
-    // Verificaciones y ratings
-    calificacion: userData.averageRating || userData.calificacion,
-    verificado:
-      userData.accountApproved ??
-      userData.verifiedProducer ??
-      userData.verificado ??
-      false,
-    cuentaBancaria: userData.bankAccount || userData.cuentaBancaria,
-    fechaRegistro: userData.registrationDate || userData.fechaRegistro,
+    // Verificaciones
+    verificado: userData.accountApproved ?? userData.verificado ?? false,
+    fechaRegistro: userData.createdAt || userData.fechaRegistro,
   };
 }
 

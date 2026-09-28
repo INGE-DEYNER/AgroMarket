@@ -41,8 +41,7 @@ export default function DireccionEnvioModal({ isOpen, onClose }) {
     }
 
     setForm({
-      direccionCompleta:
-        user?.direccionCompleta || user?.direccion || user?.ubicacion || "",
+      direccionCompleta: user?.direccionCompleta || user?.direccion || "",
       ciudad: user?.ciudad || "",
       departamento: user?.departamento || "",
       referencia: user?.referencia || "",

@@ -42,44 +42,36 @@ public class UserEntity {
     private Role role;
 
     private boolean active;
-    private boolean approved;
     private boolean totpEnabled;
 
     @Column(length = 512)
     private String totpSecret;
 
-    private LocalDateTime registrationDate;
     private String provider;
     private String providerId;
     private boolean emailVerified;
 
     private String countryCode;
-    private String location;
     private String idNumber;
     private LocalDate birthDate;
     private String idType;
     private String companyName;
     private String nit;
-    private Boolean isCompany;
 
-    private Boolean phoneVerified;
+    // `accountApproved` es el único indicador de aprobación: antes coexistían
+    // `approved`, `account_approved` y `verified_producer` con el mismo
+    // significado. `account_complete` e `is_company` se derivan de los campos
+    // KYC y de la razón social (ver User#isAccountComplete / isCompanyUser).
     private Boolean accountApproved;
-    private Boolean accountComplete;
-    private String accountStatus;
 
     @Column(length = 512)
     private String emailVerificationToken;
     private LocalDateTime emailTokenExpiry;
 
-    private String phoneVerificationToken;
-    private LocalDateTime phoneTokenExpiry;
-
     @Column(length = 512)
     private String passwordResetToken;
     private LocalDateTime passwordResetTokenExpiry;
 
-    private String bankAccount;
-    private Boolean firstShippingCouponUsed;
     private String preferredCurrency;
 
     private String department;
@@ -92,12 +84,9 @@ public class UserEntity {
     private String postalCode;
     private String photoUrl;
 
-    private Double averageRating;
-    private Integer totalReviews;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
-    private Boolean verifiedProducer;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<PasswordHistoryEntity> passwordHistory = new ArrayList<>();
@@ -115,33 +104,22 @@ public class UserEntity {
                 .phone(phone)
                 .role(role)
                 .active(active)
-                .approved(approved)
                 .totpEnabled(totpEnabled)
                 .totpSecret(totpSecret)
-                .registrationDate(registrationDate)
                 .provider(provider)
                 .providerId(providerId)
                 .emailVerified(emailVerified)
                 .countryCode(countryCode)
-                .location(location)
                 .idNumber(idNumber)
                 .birthDate(birthDate)
                 .idType(idType)
                 .companyName(companyName)
                 .nit(nit)
-                .isCompany(isCompany)
-                .phoneVerified(phoneVerified)
                 .accountApproved(accountApproved)
-                .accountComplete(accountComplete)
-                .accountStatus(accountStatus)
                 .emailVerificationToken(emailVerificationToken)
                 .emailTokenExpiry(emailTokenExpiry)
-                .phoneVerificationToken(phoneVerificationToken)
-                .phoneTokenExpiry(phoneTokenExpiry)
                 .passwordResetToken(passwordResetToken)
                 .passwordResetTokenExpiry(passwordResetTokenExpiry)
-                .bankAccount(bankAccount)
-                .firstShippingCouponUsed(firstShippingCouponUsed)
                 .preferredCurrency(preferredCurrency)
                 .department(department)
                 .city(city)
@@ -149,12 +127,9 @@ public class UserEntity {
                 .addressReference(addressReference)
                 .postalCode(postalCode)
                 .photoUrl(photoUrl)
-                .averageRating(averageRating)
-                .totalReviews(totalReviews)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .lastLogin(lastLogin)
-                .verifiedProducer(verifiedProducer)
                 .build();
     }
 
@@ -168,33 +143,22 @@ public class UserEntity {
         entity.phone = user.getPhone();
         entity.role = user.getRole();
         entity.active = user.isActive();
-        entity.approved = user.isApproved();
         entity.totpEnabled = user.isTotpEnabled();
         entity.totpSecret = user.getTotpSecret();
-        entity.registrationDate = user.getRegistrationDate();
         entity.provider = user.getProvider();
         entity.providerId = user.getProviderId();
         entity.emailVerified = user.isEmailVerified();
         entity.countryCode = user.getCountryCode();
-        entity.location = user.getLocation();
         entity.idNumber = user.getIdNumber();
         entity.birthDate = user.getBirthDate();
         entity.idType = user.getIdType();
         entity.companyName = user.getCompanyName();
         entity.nit = user.getNit();
-        entity.isCompany = user.getIsCompany();
-        entity.phoneVerified = user.getPhoneVerified();
         entity.accountApproved = user.getAccountApproved();
-        entity.accountComplete = user.getAccountComplete();
-        entity.accountStatus = user.getAccountStatus();
         entity.emailVerificationToken = user.getEmailVerificationToken();
         entity.emailTokenExpiry = user.getEmailTokenExpiry();
-        entity.phoneVerificationToken = user.getPhoneVerificationToken();
-        entity.phoneTokenExpiry = user.getPhoneTokenExpiry();
         entity.passwordResetToken = user.getPasswordResetToken();
         entity.passwordResetTokenExpiry = user.getPasswordResetTokenExpiry();
-        entity.bankAccount = user.getBankAccount();
-        entity.firstShippingCouponUsed = user.getFirstShippingCouponUsed();
         entity.preferredCurrency = user.getPreferredCurrency();
         entity.department = user.getDepartment();
         entity.city = user.getCity();
@@ -202,12 +166,9 @@ public class UserEntity {
         entity.addressReference = user.getAddressReference();
         entity.postalCode = user.getPostalCode();
         entity.photoUrl = user.getPhotoUrl();
-        entity.averageRating = user.getAverageRating();
-        entity.totalReviews = user.getTotalReviews();
         entity.createdAt = user.getCreatedAt();
         entity.updatedAt = user.getUpdatedAt();
         entity.lastLogin = user.getLastLogin();
-        entity.verifiedProducer = user.getVerifiedProducer();
         return entity;
     }
 }

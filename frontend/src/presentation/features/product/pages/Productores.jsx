@@ -93,7 +93,7 @@ export default function Productores() {
             <div className="pr-grid">
               {filtered.map((p) => {
                 const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() || "Productor";
-                const rating = p.averageRating ?? 0;
+                const lugar = [p.city, p.department].filter(Boolean).join(", ");
                 return (
                   <article className="pr-card" key={p.id ?? p.domainId}>
                     <div
@@ -112,27 +112,15 @@ export default function Productores() {
                     <div className="pr-card-body">
                       <div className="pr-card-head">
                         <h3>{p.companyName || name}</h3>
-                        {p.location && (
+                        {lugar && (
                           <span className="pr-place">
                             <img src={mapPinIcon} alt="" width="12" height="12" />
-                            {p.location}
+                            {lugar}
                           </span>
                         )}
                       </div>
                       {p.companyName && <p className="pr-family">{name}</p>}
                       <hr className="pr-divider" />
-                      <div className="pr-rating-row">
-                        {rating > 0 ? (
-                          <>
-                            <span className="pr-stars" aria-hidden="true"><span className="flex justify-center text-yellow-500"><Icon name="star" size={16}/><Icon name="star" size={16}/><Icon name="star" size={16}/><Icon name="star" size={16}/><Icon name="star" size={16}/></span></span>
-                            <span className="pr-score">{rating.toFixed(1)}</span>
-                          </>
-                        ) : (
-                          <span style={{ color: "var(--text-dim)", fontSize: "0.85rem" }}>
-                            Sin calificaciones aún
-                          </span>
-                        )}
-                      </div>
                       <Link
                         className="pr-btn"
                         to={`/catalogo?productor=${encodeURIComponent(name)}`}

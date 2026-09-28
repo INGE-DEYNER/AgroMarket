@@ -29,7 +29,13 @@ function producerName(p) {
   );
 }
 function producerLocation(p) {
-  return p.ubicacion ?? p.ciudad ?? p.productor?.ubicacion ?? "";
+  return (
+    p.ciudad ??
+    p.ciudadProductor ??
+    p.productor?.ciudad ??
+    p.productor?.city ??
+    ""
+  );
 }
 
 const SORT_OPTIONS = [

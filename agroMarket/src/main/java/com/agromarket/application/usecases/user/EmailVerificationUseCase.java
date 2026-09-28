@@ -50,8 +50,8 @@ public class EmailVerificationUseCase implements EmailVerificationPort {
         user.setEmailVerified(true);
         user.setEmailVerificationToken(null);
         user.setEmailTokenExpiry(null);
-        user.setAccountStatus("ACTIVE");
-        user.setAccountApproved(true);
+        // Verificar el correo habilita la cuenta, salvo que el administrador
+        // la haya bloqueado (active = false).
         user.setUpdatedAt(LocalDateTime.now());
 
         userPort.save(user);

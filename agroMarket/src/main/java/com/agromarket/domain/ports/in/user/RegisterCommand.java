@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 
 /**
  * Comando de dominio para registrar un usuario.
+ *
+ * <p>No incluye `location` (se unificó en `department` + `city`) ni
+ * `isCompany` (se deriva de `companyName`).</p>
  */
 @Getter
 @Builder
@@ -32,8 +35,6 @@ public class RegisterCommand {
 
     private String countryCode;
 
-    private String location;
-
     private String idNumber;
 
     private LocalDate birthDate;
@@ -43,6 +44,4 @@ public class RegisterCommand {
     private String companyName;
 
     private String nit;
-
-    private Boolean isCompany;
 }

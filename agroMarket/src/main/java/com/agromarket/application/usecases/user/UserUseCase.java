@@ -46,41 +46,8 @@ public class UserUseCase implements UserPort {
     public UserResult update(Long id, UpdateProfileCommand command) {
         User user = findUser(id);
         apply(command, user);
-        markAccountCompleteIfKycDone(user);
         user.setUpdatedAt(LocalDateTime.now());
         return toResult(userPersistencePort.save(user));
-    }
-
-    /**
-     * CAUSA RAÍZ del bug "Completar cuenta vuelve a aparecer al
-     * refrescar la página (F5)":
-     *
-     * El frontend completa el KYC (tipo de documento, número de documento
-     * y fecha de nacimiento) mediante PUT /usuarios/mi-perfil, pero el
-     * campo accountComplete NUNCA se marcaba en la base de datos: solo
-     * existía en el estado de React (marcado optimista en el cliente).
-     * Al recargar, GET /usuarios/me devolvía accountComplete=false y el
-     * modal volvía a aparecer.
-     *
-     * Regla: si el usuario ya registró los datos obligatorios de
-     * identidad, la cuenta se considera completa y se PERSISTE así.
-     */
-    private void markAccountCompleteIfKycDone(User user) {
-        boolean tieneTipoDocumento = user.getIdType() != null
-                && !user.getIdType().isBlank();
-        boolean tieneNumeroDocumento = user.getIdNumber() != null
-                && !user.getIdNumber().isBlank();
-        boolean tieneFechaNacimiento = user.getBirthDate() != null;
-
-        if (tieneTipoDocumento && tieneNumeroDocumento && tieneFechaNacimiento) {
-            user.setAccountComplete(true);
-
-            String estado = user.getAccountStatus();
-            if (estado == null || estado.isBlank()
-                    || "PENDING_EMAIL".equals(estado)) {
-                user.setAccountStatus("ACTIVE");
-            }
-        }
     }
 
     @Override
@@ -144,7 +111,6 @@ public class UserUseCase implements UserPort {
     public UserResult aprobarUsuario(Long id) {
         User user = findUser(id);
         user.setAccountApproved(true);
-        user.setAccountStatus("ACTIVE");
         user.setActive(true);
         user.setUpdatedAt(LocalDateTime.now());
         return toResult(userPersistencePort.save(user));
@@ -154,7 +120,6 @@ public class UserUseCase implements UserPort {
     public UserResult rechazarUsuario(Long id) {
         User user = findUser(id);
         user.setAccountApproved(false);
-        user.setAccountStatus("REJECTED");
         user.setUpdatedAt(LocalDateTime.now());
         return toResult(userPersistencePort.save(user));
     }
@@ -162,7 +127,7 @@ public class UserUseCase implements UserPort {
     @Override
     public UserResult toggleVerificadoProductor(Long id) {
         User user = findUser(id);
-        user.setVerifiedProducer(!Boolean.TRUE.equals(user.getVerifiedProducer()));
+        user.setAccountApproved(!Boolean.TRUE.equals(user.getAccountApproved()));
         user.setUpdatedAt(LocalDateTime.now());
         return toResult(userPersistencePort.save(user));
     }
@@ -181,8 +146,6 @@ public class UserUseCase implements UserPort {
             u.setPhone(c.getPhone());
         if (c.getCountryCode() != null)
             u.setCountryCode(c.getCountryCode());
-        if (c.getLocation() != null)
-            u.setLocation(c.getLocation());
         if (c.getIdNumber() != null)
             u.setIdNumber(c.getIdNumber());
         if (c.getBirthDate() != null)
@@ -193,8 +156,6 @@ public class UserUseCase implements UserPort {
             u.setCompanyName(c.getCompanyName());
         if (c.getNit() != null)
             u.setNit(c.getNit());
-        if (c.getIsCompany() != null)
-            u.setIsCompany(c.getIsCompany());
         if (c.getDepartment() != null)
             u.setDepartment(c.getDepartment());
         if (c.getCity() != null)
@@ -211,22 +172,6 @@ public class UserUseCase implements UserPort {
             u.setPreferredCurrency(c.getPreferredCurrency());
     }
 
-    /**
-     * Una cuenta se considera completada cuando el usuario ya registró los
-     * tres datos obligatorios de identidad. Esta derivación hace que GET
-     * /usuarios/me devuelva accountComplete=true aunque el campo persistido
-     * quedara en false por datos creados ANTES del fix de KYC (al refrescar,
-     * el modal "Completar cuenta" no debe volver a aparecer).
-     */
-    private boolean tieneDatosKyc(User u) {
-        boolean tieneTipoDocumento = u.getIdType() != null
-                && !u.getIdType().isBlank();
-        boolean tieneNumeroDocumento = u.getIdNumber() != null
-                && !u.getIdNumber().isBlank();
-        return tieneTipoDocumento && tieneNumeroDocumento
-                && u.getBirthDate() != null;
-    }
-
     private UserResult toResult(User u) {
         return UserResult.builder()
                 .id(u.getId())
@@ -236,35 +181,27 @@ public class UserUseCase implements UserPort {
                 .phone(u.getPhone())
                 .role(u.getRole())
                 .active(u.isActive())
-                .approved(u.isApproved())
                 .totpEnabled(u.isTotpEnabled())
-                .registrationDate(u.getRegistrationDate())
                 .provider(u.getProvider())
                 .emailVerified(u.isEmailVerified())
                 .countryCode(u.getCountryCode())
-                .location(u.getLocation())
                 .idNumber(u.getIdNumber())
                 .birthDate(u.getBirthDate())
                 .idType(u.getIdType())
                 .companyName(u.getCompanyName())
                 .nit(u.getNit())
-                .isCompany(u.getIsCompany())
-                .phoneVerified(u.getPhoneVerified())
+                .isCompany(u.isCompanyUser())
                 .accountApproved(u.getAccountApproved())
-                .accountComplete(u.getAccountComplete() || tieneDatosKyc(u))
-                .accountStatus(u.getAccountStatus())
+                .accountComplete(u.isAccountComplete())
                 .department(u.getDepartment())
                 .city(u.getCity())
                 .fullAddress(u.getFullAddress())
                 .addressReference(u.getAddressReference())
                 .postalCode(u.getPostalCode())
                 .photoUrl(u.getPhotoUrl())
-                .averageRating(u.getAverageRating())
-                .totalReviews(u.getTotalReviews())
                 .createdAt(u.getCreatedAt())
                 .updatedAt(u.getUpdatedAt())
                 .lastLogin(u.getLastLogin())
-                .verifiedProducer(u.getVerifiedProducer())
                 .preferredCurrency(u.getPreferredCurrency())
                 .build();
     }

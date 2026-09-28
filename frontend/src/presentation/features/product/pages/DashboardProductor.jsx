@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -145,6 +145,41 @@ export default function DashboardProductor() {
   const iniciales =
     (user?.nombre || "LP").charAt(0).toUpperCase() +
     (user?.apellido || "P").charAt(0).toUpperCase();
+
+  /**
+   * Calificación real del productor, derivada de sus productos.
+   *
+   * La columna `users.average_rating` se eliminó porque nunca se escribía
+   * (quedaba siempre en 0). El promedio y el total de reseñas de cada
+   * producto SÍ los calcula el backend desde la tabla `reviews`
+   * (`ProductUseCase#toResult`), así que aquí se agregan ponderando cada
+   * producto por su número de reseñas.
+   *
+   * Devuelve `null` cuando el productor aún no tiene reseñas, para que la
+   * interfaz muestre "Sin reseñas" en vez de un número inventado.
+   */
+  const reputacion = useMemo(() => {
+    let sumaPonderada = 0;
+    let totalReseñas = 0;
+
+    for (const p of productos) {
+      const promedio = Number(p?.averageRating);
+      const reseñas = Number(p?.totalReviews);
+
+      if (!Number.isFinite(promedio) || promedio <= 0) continue;
+      if (!Number.isFinite(reseas) || reseñas <= 0) continue;
+
+      sumaPonderada += promedio * reseñas;
+      totalReseñas += reseñas;
+    }
+
+    if (totalReseñas === 0) return null;
+    return { promedio: sumaPonderada / totalReseñas, total: totalReseñas };
+  }, [productos]);
+
+  const calificacionProductor = reputacion
+    ? reputacion.promedio.toFixed(1)
+    : "—";
 
   const loadProductos = useCallback(async () => {
     try {
@@ -704,7 +739,21 @@ export default function DashboardProductor() {
                 </span>
               )}
             </span>
-            <div className="rating"><Icon name="star" size={16} className="inline text-yellow-500 mr-1" /> {user?.calificacion || "4.9"}</div>
+            <div className="rating">
+              <Icon
+                name="star"
+                size={16}
+                className="inline text-yellow-500 mr-1"
+              />{" "}
+              {calificacionProductor}
+              {reputacion && (
+                <small style={{ color: "var(--text-dim)" }}>
+                  {" "}
+                  ({reputacion.total}{" "}
+                  {reputacion.total === 1 ? "reseña" : "reseñas"})
+                </small>
+              )}
+            </div>
           </div>
         </div>
 
@@ -963,7 +1012,7 @@ export default function DashboardProductor() {
                     Tu cuenta de productor aún no está verificada
                   </strong>
                   <span style={{ color: "#856404", fontSize: "0.85rem" }}>
-                    Completa tu información personal y cuenta bancaria para
+                    Completa tu información personal y de ubicación para
                     ser aprobado por el administrador.
                   </span>
                 </div>
@@ -1024,7 +1073,15 @@ export default function DashboardProductor() {
               <div className="stat-label">
                 {t("dashboardProductor.stats.rating", "Calificación")}
               </div>
-              <div className="stat-value">{user?.calificacion || "4.9"}</div>
+              <div className="stat-value">
+                {calificacionProductor}
+                {reputacion && (
+                  <small style={{ color: "var(--text-dim)" }}>
+                    {" "}
+                    ({reputacion.total})
+                  </small>
+                )}
+              </div>
             </div>
           </div>
 
@@ -1512,10 +1569,26 @@ export default function DashboardProductor() {
               <span className="producer-panel-kicker">
                 Calificación promedio
               </span>
-              <strong>{Number(user?.calificacion || 4.9).toFixed(1)}</strong>
-              <div className="producer-stars"><span className="flex text-yellow-500">{[...Array(5)].map((_,i)=><Icon key={i} name="star" size={16}/>)}</span></div>
+              <strong>{calificacionProductor}</strong>
+              <div className="producer-stars">
+                {reputacion ? (
+                  <span className="flex text-yellow-500">
+                    {[...Array(Math.round(reputacion.promedio))].map(
+                      (_, i) => (
+                        <Icon key={i} name="star" size={16} />
+                      ),
+                    )}
+                  </span>
+                ) : (
+                  <small style={{ color: "var(--text-dim)" }}>
+                    Aún no tienes reseñas publicadas.
+                  </small>
+                )}
+              </div>
               <small>
-                {resenasProductor.length} reseñas asociadas cargadas
+                {reputacion
+                  ? `${reputacion.total} reseñas de tus productos`
+                  : "Las reseñas de tus clientes aparecerán aquí"}
               </small>
             </article>
             <article className="producer-panel producer-recommendation">
@@ -1624,8 +1697,15 @@ export default function DashboardProductor() {
               <span className="producer-verified">
                 <Icon name="check" size={16} className="inline mr-1" /> Productor verificado
               </span>
-              <h2>{user?.finca || user?.nombre || "Productor AgroMarket"}</h2>
-              <p>{user?.ubicacion || "Urabá, Antioquia, Colombia"}</p>
+              <h2>{user?.nombreEmpresa || user?.nombre || "Productor AgroMarket"}</h2>
+              <p>
+                {[
+                  user?.ciudad,
+                  user?.departamento,
+                ]
+                  .filter(Boolean)
+                  .join(", ") || "Urabá, Antioquia, Colombia"}
+              </p>
               <div className="producer-farm-stats">
                 <span>
                   <strong>{productos.length}</strong> productos
@@ -1634,10 +1714,7 @@ export default function DashboardProductor() {
                   <strong>{pedidos.length}</strong> pedidos
                 </span>
                 <span>
-                  <strong>
-                    {Number(user?.calificacion || 4.9).toFixed(1)}
-                  </strong>{" "}
-                  rating
+                  <strong>{calificacionProductor}</strong> rating
                 </span>
               </div>
             </article>
@@ -1662,12 +1739,18 @@ export default function DashboardProductor() {
               <div className="producer-info-row">
                 <span>Ubicación</span>
                 <strong>
-                  {user?.ubicacion || "Urabá, Antioquia, Colombia"}
+                  {[user?.ciudad, user?.departamento]
+                    .filter(Boolean)
+                    .join(", ") || "Urabá, Antioquia, Colombia"}
                 </strong>
               </div>
               <div className="producer-info-row">
                 <span>Tipo de productor</span>
-                <strong>{user?.tipoProductor || "Productor agrícola"}</strong>
+                <strong>
+                  {user?.nombreEmpresa
+                    ? "Empresa / asociación"
+                    : "Productor agrícola"}
+                </strong>
               </div>
               <div className="producer-info-row">
                 <span>Productos principales</span>
@@ -1798,7 +1881,9 @@ export default function DashboardProductor() {
               <div className="producer-config-row">
                 <span>Ubicación</span>
                 <strong>
-                  {user?.ubicacion || "Urabá, Antioquia, Colombia"}
+                  {[user?.ciudad, user?.departamento]
+                    .filter(Boolean)
+                    .join(", ") || "Urabá, Antioquia, Colombia"}
                 </strong>
               </div>
               <button

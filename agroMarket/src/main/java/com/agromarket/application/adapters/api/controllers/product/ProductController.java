@@ -146,6 +146,6 @@ public class ProductController {
                         .name(((u.getFirstName() == null ? "" : u.getFirstName()) + " "
                                 + (u.getLastName() == null ? "" : u.getLastName())).trim())
                         .companyName(u.getCompanyName())
-                        .averageRating(u.getAverageRating() == null ? 0 : u.getAverageRating()).build();
+                        .build();
     }
 }

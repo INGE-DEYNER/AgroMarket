@@ -16,8 +16,7 @@ public class AdminService {
 
         return user != null
                 && user.isAdmin()
-                && user.isActive()
-                && user.isApproved();
+                && user.isActive();
     }
 
     /**

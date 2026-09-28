@@ -66,14 +66,14 @@ public class AdminDashboardUseCase {
                                 .count();
 
                 long nuevosUsuarios = usuarios.stream()
-                                .filter(u -> u.getRegistrationDate() != null
-                                                && u.getRegistrationDate().isAfter(hace30Dias))
+                                .filter(u -> u.getCreatedAt() != null
+                                                && u.getCreatedAt().isAfter(hace30Dias))
                                 .count();
 
                 long nuevosProductores = usuarios.stream()
                                 .filter(u -> u.getRole() == Role.PRODUCER)
-                                .filter(u -> u.getRegistrationDate() != null
-                                                && u.getRegistrationDate().isAfter(hace30Dias))
+                                .filter(u -> u.getCreatedAt() != null
+                                                && u.getCreatedAt().isAfter(hace30Dias))
                                 .count();
 
                 // Solo cuentan para ingresos los pedidos no cancelados.

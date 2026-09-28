@@ -185,17 +185,13 @@ export default function Navbar() {
           </svg>
           <span>
             <small>
-              {user?.direccionCompleta ||
-              user?.direccion ||
-              user?.ubicacion ||
-              user?.ciudad
+              {user?.direccionCompleta || user?.direccion || user?.ciudad
                 ? t("nav.sendTo", "Enviar a")
                 : t("nav.configurarDireccion", "Configura tu dirección")}
             </small>
             <strong>
               {user?.direccionCompleta ||
                 user?.direccion ||
-                user?.ubicacion ||
                 user?.ciudad ||
                 t("nav.enviarA", "Enviar a tu dirección")}
             </strong>

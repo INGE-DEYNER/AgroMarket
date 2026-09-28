@@ -15,6 +15,10 @@ import lombok.NoArgsConstructor;
  *
  * <p>No expone password, tokens, secreto TOTP ni otros datos
  * de autenticación.</p>
+ *
+ * <p>Los valores derivados (datos KYC completos, si es empresa) se calculan
+ * en el caso de uso a partir del dominio; no se leen de columnas propias
+ * porque esas columnas fueron eliminadas al unificar el modelo.</p>
  */
 @Getter
 @Builder
@@ -36,19 +40,13 @@ public class UserResult {
 
     private boolean active;
 
-    private boolean approved;
-
     private boolean totpEnabled;
-
-    private LocalDateTime registrationDate;
 
     private String provider;
 
     private boolean emailVerified;
 
     private String countryCode;
-
-    private String location;
 
     private String idNumber;
 
@@ -60,15 +58,13 @@ public class UserResult {
 
     private String nit;
 
+    /** Derivado: true si el usuario tiene razón social registrada. */
     private Boolean isCompany;
-
-    private Boolean phoneVerified;
 
     private Boolean accountApproved;
 
+    /** Derivado: true si tiene tipo+número de documento y fecha de nacimiento. */
     private Boolean accountComplete;
-
-    private String accountStatus;
 
     private String department;
 
@@ -82,17 +78,11 @@ public class UserResult {
 
     private String photoUrl;
 
-    private Double averageRating;
-
-    private Integer totalReviews;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
     private LocalDateTime lastLogin;
-
-    private Boolean verifiedProducer;
 
     private String preferredCurrency;
 }

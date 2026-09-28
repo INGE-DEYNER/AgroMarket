@@ -4,6 +4,12 @@ import java.time.LocalDate;
 import com.agromarket.domain.models.enums.user.Role;
 import jakarta.validation.constraints.*;
 
+/**
+ * Petición de registro.
+ *
+ * <p>No acepta `location` (se unificó en `department` + `city`) ni
+ * `isCompany` (se deriva de `companyName`).</p>
+ */
 public record RegisterRequest(
         @NotBlank @Size(max=100) String firstName,
         @NotBlank @Size(max=100) String lastName,
@@ -12,10 +18,8 @@ public record RegisterRequest(
         @NotBlank @Size(max=30) String phone,
         @NotNull Role role,
         @Size(max=10) String countryCode,
-        @Size(max=255) String location,
         @Size(max=50) String idNumber,
         @Past LocalDate birthDate,
         @Size(max=20) String idType,
         @Size(max=255) String companyName,
-        @Size(max=50) String nit,
-        Boolean isCompany) {}
+        @Size(max=50) String nit) {}
