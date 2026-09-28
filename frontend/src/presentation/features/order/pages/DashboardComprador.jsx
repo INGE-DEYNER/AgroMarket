@@ -841,7 +841,7 @@ export default function DashboardComprador() {
   ).size;
 
   return (
-    <div className="app-layout">
+    <div className="app-layout buyer-dashboard">
       {/* Overlay para sidebar móvil */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}

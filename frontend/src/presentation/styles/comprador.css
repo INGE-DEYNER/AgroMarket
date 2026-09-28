@@ -837,17 +837,18 @@
    NAVEGACIÓN POR SECCIONES (SPA)
    ============================================================ */
 
-/* Nota: antes estas reglas apuntaban a .sidebar / .mobile-nav / .sidebar-overlay,
-   pero BuyerShell usa .buyer-sidebar / .buyer-mobile-nav / .buyer-sidebar-overlay
-   y el dashboard del comprador usa .app-layout, así que no ocultaban nada.
-
-   El render ya no apila todas las secciones: cada una recibe la clase "active"
-   solo cuando es la vista seleccionada. Esta es la regla base que oculta las
-   demás. */
+/* Dos envoltorios posibles, a propósito:
+   - .buyer-dashboard  → DashboardComprador (este dashboard)
+   - .buyer-shell      → BuyerShell, que envuelve Pedidos, Envios,
+                         Reseñas y Mensajería.
+   Antes la regla solo contemplaba .buyer-shell, que este dashboard NO usa,
+   así que sus secciones nunca se ocultaban y quedaban todas apiladas. */
+.buyer-dashboard .section,
 .buyer-shell .section {
   display: none;
 }
 
+.buyer-dashboard .section.active,
 .buyer-shell .section.active {
   display: block !important;
 }
