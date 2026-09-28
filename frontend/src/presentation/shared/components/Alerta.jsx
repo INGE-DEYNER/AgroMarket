@@ -1,0 +1,1 @@
+const ICONO_POR_TIPO = {
