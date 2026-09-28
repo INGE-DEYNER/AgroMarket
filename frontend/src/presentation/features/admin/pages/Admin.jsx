@@ -349,44 +349,6 @@ export default function Admin() {
     return () => clearTimeout(handler);
   }, [searchProductosInput]);
 
-  /*
-   * CARGA DINÁMICA POR SECCIÓN.
-   *
-   * El dashboard muestra una sola vista a la vez, así que se pide únicamente
-   * lo que esa vista necesita, y solo la primera vez que se abre. Antes se
-   * disparaban las seis peticiones nada más montar.
-   */
-  const seccionesCargadas = useRef(new Set());
-
-  useEffect(() => {
-    const marca = activeSection;
-    if (seccionesCargadas.current.has(marca)) return undefined;
-    seccionesCargadas.current.add(marca);
-
-    const timer = setTimeout(() => {
-      switch (marca) {
-        case "finanzas":
-          void loadFinanzas();
-          break;
-        case "logistica":
-          void loadLogistica();
-          break;
-        case "cupones":
-          loadTodosCupones();
-          break;
-        default:
-          break;
-      }
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [activeSection, loadFinanzas, loadLogistica, loadTodosCupones]);
-
-  // Los totales del encabezado se necesitan desde el inicio.
-  useEffect(() => {
-    void loadAll();
-  }, [loadAll]);
-
   useEffect(() => {
     void loadPagosFideicomiso();
   }, [loadPagosFideicomiso]);
@@ -586,6 +548,49 @@ export default function Admin() {
     void loadProductos();
     return undefined;
   }, [activeSection, pageProductos, searchProductos, loadProductos]);
+
+  /*
+   * CARGA DINÁMICA POR SECCIÓN.
+   *
+   * El dashboard muestra una sola vista a la vez, así que se pide únicamente
+   * lo que esa vista necesita, y solo la primera vez que se abre. Antes se
+   * disparaban las seis peticiones nada más montar.
+   *
+   * Este bloque va DESPUÉS de las declaraciones de loadFinanzas,
+   * loadLogistica y loadTodosCupones: referenciarlas antes de su
+   * declaración `const` las deja en zona muerta temporal y React lanza
+   * "Cannot access before initialization", dejando la página en blanco.
+   */
+  const seccionesCargadas = useRef(new Set());
+
+  useEffect(() => {
+    const marca = activeSection;
+    if (seccionesCargadas.current.has(marca)) return undefined;
+    seccionesCargadas.current.add(marca);
+
+    const timer = setTimeout(() => {
+      switch (marca) {
+        case "finanzas":
+          void loadFinanzas();
+          break;
+        case "logistica":
+          void loadLogistica();
+          break;
+        case "cupones":
+          void loadTodosCupones();
+          break;
+        default:
+          break;
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [activeSection, loadFinanzas, loadLogistica, loadTodosCupones]);
+
+  // Los totales del encabezado se necesitan desde el inicio.
+  useEffect(() => {
+    void loadAll();
+  }, [loadAll]);
 
   const liberarPago = async (pagoId) => {
     if (
