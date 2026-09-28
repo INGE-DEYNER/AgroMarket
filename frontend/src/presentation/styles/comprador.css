@@ -883,6 +883,129 @@
   border-bottom: 1px solid var(--buyer-border);
 }
 
+/* ============================================================
+   SECCIÓN MI PERFIL
+   ------------------------------------------------------------
+   La maquetación estaba entera en atributos style, lo que impedía
+   cualquier ajuste responsive y usaba variables que solo existen en
+   tema claro (--card-bg, --border-light): en oscuro las tarjetas
+   quedaban blancas y los avisos de éxito/error salían con colores
+   claros ilegibles. Aquí se usa solo token y media query.
+   ============================================================ */
+
+.buyer-dashboard .perfil-grid,
+.buyer-shell .perfil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.buyer-dashboard .perfil-card,
+.buyer-shell .perfil-card {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--am-surface);
+  border: 1px solid var(--am-border, var(--color-border));
+}
+
+.buyer-dashboard .perfil-card__title,
+.buyer-shell .perfil-card__title {
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--am-border, var(--color-border));
+  color: var(--am-text, var(--color-text-primary));
+  font-size: .95rem;
+  font-weight: 800;
+}
+
+.buyer-dashboard .perfil-card .form-group,
+.buyer-shell .perfil-card .form-group {
+  margin-bottom: 12px;
+}
+
+.buyer-dashboard .perfil-card .form-input,
+.buyer-shell .perfil-card .form-input {
+  width: 100%;
+  background: var(--am-surface-2, var(--color-surface-2));
+  color: var(--am-text, var(--color-text-primary));
+  border: 1px solid var(--am-border, var(--color-border));
+}
+
+.buyer-dashboard .perfil-card .form-input:focus,
+.buyer-shell .perfil-card .form-input:focus {
+  border-color: var(--am-green, #3fbf6a);
+  outline: none;
+}
+
+.buyer-dashboard .perfil-card .is-readonly,
+.buyer-shell .perfil-card .is-readonly {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+.buyer-dashboard .perfil-submit,
+.buyer-shell .perfil-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.buyer-dashboard .perfil-secret,
+.buyer-shell .perfil-secret {
+  position: relative;
+}
+
+.buyer-dashboard .perfil-secret .form-input,
+.buyer-shell .perfil-secret .form-input {
+  padding-right: 42px;
+}
+
+.buyer-dashboard .perfil-secret__toggle,
+.buyer-shell .perfil-secret__toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 0;
+  background: none;
+  color: var(--am-text-muted, var(--color-text-muted));
+  cursor: pointer;
+  border-radius: 6px;
+}
+.buyer-dashboard .perfil-secret__toggle:hover,
+.buyer-shell .perfil-secret__toggle:hover {
+  background: var(--am-surface, #17221a);
+}
+
+/* Avisos de resultado. Los dos casos llevan fondo y texto propios para que
+   en tema oscuro no se lean texto claro sobre verde/rojo claros. */
+.buyer-dashboard .perfil-alert,
+.buyer-shell .perfil-alert {
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  font-size: .76rem;
+  line-height: 1.45;
+}
+.buyer-dashboard .perfil-alert--success,
+.buyer-shell .perfil-alert--success {
+  background: var(--am-surface-2, #1d2a21);
+  border-color: var(--am-green, #3fbf6a);
+  color: #7ee2a6;
+}
+.buyer-dashboard .perfil-alert--error,
+.buyer-shell .perfil-alert--error {
+  background: #2a1618;
+  border-color: #d9534f;
+  color: #ff9a94;
+}
+
+
 /* Grid para las tarjetas de estadísticas */
 .buyer-shell .stats-grid,
 .buyer-dashboard .stats-grid {

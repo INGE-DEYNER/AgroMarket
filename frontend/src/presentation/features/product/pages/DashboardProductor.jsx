@@ -523,12 +523,18 @@ export default function DashboardProductor() {
       return;
     }
     try {
-      const res = await api.put("/usuarios/me", perfilForm);
+      // El backend espera los nombres en inglés (`UpdateProfileRequest`).
+      // Mandar `{nombre, telefono}` lo descartaba en silencio: el perfil
+      // aparecía guardado pero nada cambiaba en la base de datos.
+      const res = await api.put("/usuarios/me", {
+        firstName: perfilForm.nombre.trim(),
+        phone: perfilForm.telefono.trim(),
+      });
       const updatedUser = res.data || res;
       setUser({
         ...user,
-        nombre: updatedUser.nombre || perfilForm.nombre,
-        telefono: updatedUser.telefono || perfilForm.telefono,
+        nombre: updatedUser.firstName || perfilForm.nombre,
+        telefono: updatedUser.phone || perfilForm.telefono,
       });
       setPerfilMsg({
         type: "success",

@@ -526,7 +526,13 @@ export default function DashboardComprador() {
     try {
       const data = await api.get("/envios");
       const list = extractArray(data);
-      setShipments(list.filter((e) => e.estado !== "Entregado"));
+      // El backend devuelve el enum `ShippingState` en inglés ("DELIVERED"),
+      // no "Entregado". Comparar contra la etiqueta en español hacía que el
+      // filtro no descartara nada: los envíos entregados seguían apareciendo
+      // como activos.
+      const entregado = (e) =>
+        String(e.estado || e.status || "").toUpperCase() === "DELIVERED";
+      setShipments(list.filter((e) => !entregado(e)));
       setHistorialEnvios(list);
     } catch (err) {
       console.error("Error loadEnvios:", err);
@@ -727,12 +733,18 @@ export default function DashboardComprador() {
       return;
     }
     try {
-      const res = await api.put("/usuarios/me", perfilForm);
+      // El backend espera los nombres en inglés (`UpdateProfileRequest`).
+      // Mandar `{nombre, telefono}` lo descartaba en silencio: el formulario
+      // mostraba "guardado" pero nada cambiaba en la base de datos.
+      const res = await api.put("/usuarios/me", {
+        firstName: perfilForm.nombre.trim(),
+        phone: perfilForm.telefono.trim(),
+      });
       const updatedUser = res.data || res;
       setUser({
         ...user,
-        nombre: updatedUser.nombre || perfilForm.nombre,
-        telefono: updatedUser.telefono || perfilForm.telefono,
+        nombre: updatedUser.firstName || perfilForm.nombre,
+        telefono: updatedUser.phone || perfilForm.telefono,
       });
       setPerfilMsg({
         type: "success",
@@ -2456,7 +2468,12 @@ export default function DashboardComprador() {
           </div>
         </div>
 
-        {/* ─── MI PERFIL & AJUSTES ─── */}
+        {/* ─── MI PERFIL & AJUSTES ───
+            Los estilos vivían en atributos style (padding, bordes, fondos),
+            lo que impedía cualquier ajuste responsive y dejaba tarjetas con
+            variables que solo existen en tema claro (--card-bg,
+            --border-light). Ahora la maquetación vive en .perfil-* dentro de
+            comprador.css. */}
         <div className={`section${activeSection === "perfil" ? " active" : ""}`} id="sec-perfil">
           <div className="dash-header">
             <div className="dash-welcome">
@@ -2467,80 +2484,38 @@ export default function DashboardComprador() {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "24px",
-              marginTop: "24px",
-            }}
-          >
+          <div className="perfil-grid">
             {/* Profile Details Form */}
-            <div
-              className="card-table"
-              style={{
-                padding: "24px",
-                borderRadius: "12px",
-                background: "var(--card-bg)",
-              }}
-            >
-              <h3
-                style={{
-                  marginBottom: "16px",
-                  fontSize: "1.1rem",
-                  borderBottom: "1px solid var(--border-light)",
-                  paddingBottom: "8px",
-                }}
-              >
-                Datos Personales
-              </h3>
+            <div className="card-table perfil-card">
+              <h3 className="perfil-card__title">Datos Personales</h3>
               {perfilMsg.text && (
-                <div
-                  style={{
-                    padding: "10px 14px",
-                    borderRadius: "6px",
-                    marginBottom: "16px",
-                    fontSize: "0.85rem",
-                    background:
-                      perfilMsg.type === "success"
-                        ? "var(--green-bg)"
-                        : "var(--red-bg)",
-                    color:
-                      perfilMsg.type === "success"
-                        ? "var(--primary)"
-                        : "var(--red)",
-                  }}
-                >
+                <div className={`perfil-alert perfil-alert--${perfilMsg.type}`}>
                   {perfilMsg.text}
                 </div>
               )}
               <form onSubmit={handleUpdatePerfil}>
-                <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">Nombre Completo</label>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="comprador-nombre">
+                    Nombre Completo
+                  </label>
                   <input
+                    id="comprador-nombre"
                     className="form-input"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "6px",
-                    }}
                     value={perfilForm.nombre}
                     onChange={(e) =>
                       setPerfilForm({ ...perfilForm, nombre: e.target.value })
                     }
                   />
                 </div>
-                <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">Teléfono Móvil</label>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="comprador-telefono">
+                    Teléfono Móvil
+                  </label>
                   <input
+                    id="comprador-telefono"
                     className="form-input"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "6px",
-                    }}
+                    type="tel"
+                    inputMode="numeric"
                     value={perfilForm.telefono}
                     onChange={(e) =>
                       setPerfilForm({
@@ -2550,28 +2525,20 @@ export default function DashboardComprador() {
                     }
                   />
                 </div>
-                <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <label className="form-label">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="comprador-email">
                     Correo Electrónico (No editable)
                   </label>
                   <input
-                    className="form-input"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "6px",
-                      background: "var(--border-light)",
-                      cursor: "not-allowed",
-                    }}
+                    id="comprador-email"
+                    className="form-input is-readonly"
                     value={user?.email || ""}
                     readOnly
                   />
                 </div>
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary perfil-submit"
                   type="submit"
-                  style={{ width: "100%" }}
                 >
                   Guardar Cambios
                 </button>
@@ -2579,57 +2546,23 @@ export default function DashboardComprador() {
             </div>
 
             {/* Password Change Form */}
-            <div
-              className="card-table"
-              style={{
-                padding: "24px",
-                borderRadius: "12px",
-                background: "var(--card-bg)",
-              }}
-            >
-              <h3
-                style={{
-                  marginBottom: "16px",
-                  fontSize: "1.1rem",
-                  borderBottom: "1px solid var(--border-light)",
-                  paddingBottom: "8px",
-                }}
-              >
-                Seguridad de la Cuenta
-              </h3>
+            <div className="card-table perfil-card">
+              <h3 className="perfil-card__title">Seguridad de la Cuenta</h3>
               {pwMsg.text && (
-                <div
-                  style={{
-                    padding: "10px 14px",
-                    borderRadius: "6px",
-                    marginBottom: "16px",
-                    fontSize: "0.85rem",
-                    background:
-                      pwMsg.type === "success"
-                        ? "var(--green-bg)"
-                        : "var(--red-bg)",
-                    color:
-                      pwMsg.type === "success"
-                        ? "var(--primary)"
-                        : "var(--red)",
-                  }}
-                >
+                <div className={`perfil-alert perfil-alert--${pwMsg.type}`}>
                   {pwMsg.text}
                 </div>
               )}
               <form onSubmit={handleUpdatePassword}>
-                <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">Contraseña Actual</label>
-                  <div style={{ position: "relative" }}>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="comprador-pw-actual">
+                    Contraseña Actual
+                  </label>
+                  <div className="perfil-secret">
                     <input
+                      id="comprador-pw-actual"
                       className="form-input"
                       type={showCurrentPassword ? "text" : "password"}
-                      style={{
-                        width: "100%",
-                        padding: "10px 40px 10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
                       value={pwForm.contrasenaActual}
                       onChange={(e) =>
                         setPwForm({
@@ -2640,45 +2573,33 @@ export default function DashboardComprador() {
                     />
                     <button
                       type="button"
+                      className="perfil-secret__toggle"
                       onClick={() =>
                         setShowCurrentPassword(!showCurrentPassword)
                       }
-                      style={{
-                        position: "absolute",
-                        right: "10px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "1.2rem",
-                        padding: "4px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
                       aria-label={
                         showCurrentPassword
-                          ? "Hide password"
-                          : "Show password"
+                          ? "Ocultar contraseña"
+                          : "Mostrar contraseña"
                       }
                     >
-                      {showCurrentPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
+                      {showCurrentPassword ? (
+                        <Icon name="eyeOff" size={17} />
+                      ) : (
+                        <Icon name="eye" size={17} />
+                      )}
                     </button>
                   </div>
                 </div>
-                <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <label className="form-label">Nueva Contraseña</label>
-                  <div style={{ position: "relative" }}>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="comprador-pw-nueva">
+                    Nueva Contraseña
+                  </label>
+                  <div className="perfil-secret">
                     <input
+                      id="comprador-pw-nueva"
                       className="form-input"
                       type={showNewPassword ? "text" : "password"}
-                      style={{
-                        width: "100%",
-                        padding: "10px 40px 10px 12px",
-                        border: "1px solid var(--border-light)",
-                        borderRadius: "6px",
-                      }}
                       value={pwForm.nuevaContrasena}
                       onChange={(e) =>
                         setPwForm({
@@ -2689,33 +2610,25 @@ export default function DashboardComprador() {
                     />
                     <button
                       type="button"
+                      className="perfil-secret__toggle"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      style={{
-                        position: "absolute",
-                        right: "10px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "1.2rem",
-                        padding: "4px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
                       aria-label={
-                        showNewPassword ? "Hide password" : "Show password"
+                        showNewPassword
+                          ? "Ocultar contraseña"
+                          : "Mostrar contraseña"
                       }
                     >
-                      {showNewPassword ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
+                      {showNewPassword ? (
+                        <Icon name="eyeOff" size={17} />
+                      ) : (
+                        <Icon name="eye" size={17} />
+                      )}
                     </button>
                   </div>
                 </div>
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary perfil-submit"
                   type="submit"
-                  style={{ width: "100%" }}
                 >
                   Cambiar Contraseña
                 </button>
