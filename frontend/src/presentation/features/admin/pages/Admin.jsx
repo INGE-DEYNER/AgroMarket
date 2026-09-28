@@ -1,28 +1,37 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import Icon from "@/presentation/shared/components/Icon";
+import { rutaDeSeccion, seccionDesdeRuta } from "@/application/security/rutasAdmin";
 import "@/presentation/styles/admin.css";
 
 /*
  * La navegación por secciones ya no necesita resolver ids del DOM: cada
  * <section> recibe la clase "active" según `activeSection`, así que la clave
  * del menú y la clave del render son la misma.
+ *
+ * Además, las secciones sensibles se direccionan con un identificador
+ * ofuscado (/admin/f2589683424e1c60 en vez de /admin/usuarios). Ver
+ * src/application/security/rutasAdmin.js para el alcance real de esto.
  */
 
 export default function Admin() {
   const { t } = useTranslation();
   const { user, setUser, logout, formatPrice } = useAuth();
   const navigate = useNavigate();
-  const getInitialSection = () => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("section") || "dashboard";
-  };
+  const location = useLocation();
+
+  // La URL manda: si viene /admin/<id>, se resuelve a su sección. Si no hay
+  // identificador se muestra el resumen.
+  const getInitialSection = () =>
+    seccionDesdeRuta(location.pathname) ||
+    new URLSearchParams(location.search).get("section") ||
+    "dashboard";
 
   const [activeSection, setActiveSection] = useState(getInitialSection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,23 +39,37 @@ export default function Admin() {
   /*
    * NAVEGACIÓN POR SECCIONES (SPA).
    *
-   * Cada clave del menú muestra SOLO su propia vista. Antes se renderizaban
-   * todas apiladas y el menú solo desplazaba la página; ahora el contenido
-   * cambia en el sitio, sin recargar ni abrir pestaña, conservando el layout
-   * compacto y el estado propio de cada sección.
+   * El contenido cambia en el sitio, sin recargar ni abrir pestaña, pero la
+   * URL se actualiza: así la vista es compartible y el botón "atrás" del
+   * navegador funciona. React Router lo resuelve en cliente, así que sigue
+   * siendo SPA.
    */
-  const showSection = useCallback((key) => {
-    setActiveSection(key);
-  }, []);
+  const showSection = useCallback(
+    (key) => {
+      setActiveSection(key);
+      const destino = rutaDeSeccion(key);
+      if (destino !== location.pathname) {
+        navigate(destino, { replace: true });
+      }
+    },
+    [navigate, location.pathname],
+  );
 
-  // Enlace profundo (?section=...): marca la sección pedida como activa.
+  /*
+   * Sincroniza el estado con la URL. Necesario para que el botón "atrás"
+   * del navegador y los enlaces pegados directamente en la barra de
+   * direcciones funcionen: en ambos casos cambia la URL sin pasar por
+   * showSection.
+   */
   useEffect(() => {
-    const sec = new URLSearchParams(window.location.search).get("section");
-    if (!sec) return undefined;
+    const desdeUrl =
+      seccionDesdeRuta(location.pathname) ||
+      new URLSearchParams(location.search).get("section");
+    if (desdeUrl && desdeUrl !== activeSection) {
+      setActiveSection(desdeUrl);
+    }
+  }, [location.pathname, location.search, activeSection]);
 
-    const timer = setTimeout(() => showSection(sec), 0);
-    return () => clearTimeout(timer);
-  }, [showSection]);
 
   // Profile forms state
   const [perfilForm, setPerfilForm] = useState({ nombre: "", telefono: "" });

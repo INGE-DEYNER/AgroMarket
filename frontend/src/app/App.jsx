@@ -435,8 +435,26 @@ function App() {
                           ADMIN
                          ================================================== */}
 
+                      {/*
+                       * PANEL DE ADMINISTRACIÓN
+                       *
+                       * "/admin" abre el resumen y "/admin/:seccion" abre una
+                       * vista concreta. Las sensibles usan un identificador
+                       * ofuscado (ver application/security/rutasAdmin.js), pero
+                       * la protección es la misma en todos los casos:
+                       * ProtectedRoute exige rol ADMIN.
+                       */}
                       <Route
                         path="/admin"
+                        element={
+                          <ProtectedRoute roles={["ADMIN"]}>
+                            <Admin />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/admin/:seccion"
                         element={
                           <ProtectedRoute roles={["ADMIN"]}>
                             <Admin />
