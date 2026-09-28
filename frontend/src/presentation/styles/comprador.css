@@ -834,18 +834,21 @@
 }
 
 /* ============================================================
-   DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
+   NAVEGACIÓN POR SECCIONES (SPA)
    ============================================================ */
 
-/* Nota: estas reglas apuntaban a .sidebar / .mobile-nav / .sidebar-overlay, pero
-   BuyerShell usa .buyer-sidebar / .buyer-mobile-nav / .buyer-sidebar-overlay y el
-   dashboard del comprador usa .app-layout, así que no ocultaban nada.
-   El dashboard compacto del comprador mantiene todas las secciones visibles a la
-   vez y su sidebar es navegación de la misma página
-   (showSection -> scrollIntoView sobre #sec-<clave>). */
+/* Nota: antes estas reglas apuntaban a .sidebar / .mobile-nav / .sidebar-overlay,
+   pero BuyerShell usa .buyer-sidebar / .buyer-mobile-nav / .buyer-sidebar-overlay
+   y el dashboard del comprador usa .app-layout, así que no ocultaban nada.
 
-/* Mostrar TODAS las secciones .section (no solo la activa) */
+   El render ya no apila todas las secciones: cada una recibe la clase "active"
+   solo cuando es la vista seleccionada. Esta es la regla base que oculta las
+   demás. */
 .buyer-shell .section {
+  display: none;
+}
+
+.buyer-shell .section.active {
   display: block !important;
 }
 

@@ -859,16 +859,20 @@
 }
 
 /* ============================================================
-   DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
+   NAVEGACIÓN POR SECCIONES (SPA)
    ============================================================ */
 
-/* El render ya no condiciona las secciones a activeSection: todas se muestran a
-   la vez y cada una expone id="sec-<clave>". El sidebar deja por tanto de ser
-   "navegación entre secciones" y pasa a ser navegación de la misma página
-   (showSection -> scrollIntoView + resaltado de la sección activa). */
+/* El render ya no apila todas las secciones: cada una recibe la clase "active"
+   solo cuando es la vista seleccionada. Esta es la regla base que oculta las
+   demás; el bloque siguiente solo asegura que la activa se vea.
 
-/* Mostrar TODAS las secciones .section (no solo la activa) */
+   La sidebar navega entre vistas sin recargar ni abrir pestaña, conservando
+   el layout compacto. */
 .producer-dashboard .section {
+  display: none;
+}
+
+.producer-dashboard .section.active {
   display: block !important;
 }
 
@@ -879,14 +883,16 @@
   gap: 20px;
 }
 
-/* Secciones con fondo y separadas */
+/* Secciones con fondo y separadas.
+   Variables en vez de literales para que el modo oscuro las repinte. */
 .producer-dashboard .section.active {
-  background: #fff;
+  background: var(--am-surface, #ffffff);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 20px;
-  border: 1px solid #d9e5dc;
+  border: 1px solid var(--am-border, #d9e5dc);
+  color: var(--am-text, #1b4332);
 }
 
 /* Grid para las tarjetas de estadísticas */

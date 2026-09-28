@@ -9,12 +9,11 @@ import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import Icon from "@/presentation/shared/components/Icon";
 import "@/presentation/styles/admin.css";
 
-// DASHBOARD COMPACTO: ids reales de las secciones de reportes (no coinciden con
-// la clave de navegación que usa el sidebar).
-const SECTION_ELEMENT_ID = {
-  reportes: "sec-finanzas",
-  "reportes-logistica": "sec-logistica",
-};
+/*
+ * La navegación por secciones ya no necesita resolver ids del DOM: cada
+ * <section> recibe la clase "active" según `activeSection`, así que la clave
+ * del menú y la clave del render son la misma.
+ */
 
 export default function Admin() {
   const { t } = useTranslation();
@@ -28,34 +27,26 @@ export default function Admin() {
   const [activeSection, setActiveSection] = useState(getInitialSection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // DASHBOARD COMPACTO: todas las secciones se renderizan a la vez, así que
-  // "navegar entre secciones" es desplazarse hasta la sección pedida. Cada
-  // sección expone id="sec-<clave>", por lo que también funcionan los enlaces
-  // profundos (?section=<clave>).
-  const scrollToSection = useCallback((key) => {
-    if (!key || typeof document === "undefined") return;
-    const target = document.getElementById(
-      SECTION_ELEMENT_ID[key] || `sec-${key}`,
-    );
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  /*
+   * NAVEGACIÓN POR SECCIONES (SPA).
+   *
+   * Cada clave del menú muestra SOLO su propia vista. Antes se renderizaban
+   * todas apiladas y el menú solo desplazaba la página; ahora el contenido
+   * cambia en el sitio, sin recargar ni abrir pestaña, conservando el layout
+   * compacto y el estado propio de cada sección.
+   */
+  const showSection = useCallback((key) => {
+    setActiveSection(key);
   }, []);
 
-  const showSection = useCallback(
-    (key) => {
-      setActiveSection(key);
-      scrollToSection(key);
-    },
-    [scrollToSection],
-  );
-
-  // Enlace profundo (?section=...): al montar, baja hasta la sección pedida.
+  // Enlace profundo (?section=...): marca la sección pedida como activa.
   useEffect(() => {
     const sec = new URLSearchParams(window.location.search).get("section");
     if (!sec) return undefined;
 
-    const timer = setTimeout(() => scrollToSection(sec), 0);
+    const timer = setTimeout(() => showSection(sec), 0);
     return () => clearTimeout(timer);
-  }, [scrollToSection]);
+  }, [showSection]);
 
   // Profile forms state
   const [perfilForm, setPerfilForm] = useState({ nombre: "", telefono: "" });
@@ -68,8 +59,7 @@ export default function Admin() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
 
-  // DASHBOARD COMPACTO: la sección de perfil está siempre visible, así que los
-  // formularios se sincronizan con el usuario en cuanto hay sesión.
+  // Perfil: los formularios se sincronizan con el usuario en cuanto hay sesión.
   useEffect(() => {
     if (!user) {
       return;
@@ -359,23 +349,43 @@ export default function Admin() {
     return () => clearTimeout(handler);
   }, [searchProductosInput]);
 
-  // DASHBOARD COMPACTO: todas las secciones están visibles a la vez, así que
-  // los datos de cada una se cargan siempre (ya no se condiciona a activeSection,
-  // que dejó de cambiar porque el sidebar ya no es navegación entre secciones).
-  useEffect(() => {
-    void loadUsuarios();
-  }, [pageUsuarios, searchUsuarios, loadUsuarios]);
+  /*
+   * CARGA DINÁMICA POR SECCIÓN.
+   *
+   * El dashboard muestra una sola vista a la vez, así que se pide únicamente
+   * lo que esa vista necesita, y solo la primera vez que se abre. Antes se
+   * disparaban las seis peticiones nada más montar.
+   */
+  const seccionesCargadas = useRef(new Set());
 
-  // Load products when page/search changes
   useEffect(() => {
-    void loadProductos();
-  }, [pageProductos, searchProductos, loadProductos]);
+    const marca = activeSection;
+    if (seccionesCargadas.current.has(marca)) return undefined;
+    seccionesCargadas.current.add(marca);
 
+    const timer = setTimeout(() => {
+      switch (marca) {
+        case "finanzas":
+          void loadFinanzas();
+          break;
+        case "logistica":
+          void loadLogistica();
+          break;
+        case "cupones":
+          loadTodosCupones();
+          break;
+        default:
+          break;
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [activeSection, loadFinanzas, loadLogistica, loadTodosCupones]);
+
+  // Los totales del encabezado se necesitan desde el inicio.
   useEffect(() => {
     void loadAll();
-    void loadUsuarios();
-    void loadProductos();
-  }, [loadAll, loadUsuarios, loadProductos]);
+  }, [loadAll]);
 
   useEffect(() => {
     void loadPagosFideicomiso();
@@ -398,7 +408,7 @@ export default function Admin() {
     return () => clearTimeout(handler);
   }, [searchMensajeInput]);
 
-  // Load users for messaging (sección siempre visible en el dashboard compacto)
+  // Contactos del chat de mensajería (solo cuando esa vista está abierta).
   useEffect(() => {
     let mounted = true;
     const loadMensajeUsuarios = async () => {
@@ -558,12 +568,24 @@ export default function Admin() {
     }
   }, []);
 
-  // DASHBOARD COMPACTO: finanzas, logística y cupones están visibles a la vez.
+  // Paginación y búsqueda de usuarios: solo aplican a su propia sección.
   useEffect(() => {
-    void loadFinanzas();
-    void loadLogistica();
-    loadTodosCupones();
-  }, [loadFinanzas, loadLogistica, loadTodosCupones]);
+    if (activeSection !== "usuarios") return undefined;
+    void loadUsuarios();
+    return undefined;
+  }, [
+    activeSection,
+    pageUsuarios,
+    searchUsuarios,
+    loadUsuarios,
+  ]);
+
+  // Paginación y búsqueda de productos: solo aplican a su propia sección.
+  useEffect(() => {
+    if (activeSection !== "productos") return undefined;
+    void loadProductos();
+    return undefined;
+  }, [activeSection, pageProductos, searchProductos, loadProductos]);
 
   const liberarPago = async (pagoId) => {
     if (
@@ -880,17 +902,19 @@ export default function Admin() {
           ["pedidos", t("admin.nav.orders", "Pedidos"), "box"],
           ["productores", t("admin.nav.producers", "Productores"), "leaf"],
           ["pagos", t("admin.nav.payments", "Pagos"), "card"],
-          ["reportes", t("admin.nav.reports", "Reportes"), "calendar"],
+          ["finanzas", t("admin.nav.reports", "Reportes"), "calendar"],
+          ["logistica", t("admin.nav.logistics", "Logística"), "truck"],
+          ["cupones", t("admin.nav.coupons", "Cupones"), "ticket"],
+          ["resenas", t("admin.nav.reviews", "Reseñas"), "star"],
           ["configuracion", t("admin.nav.settings", "Configuración"), "settings"],
           ["soporte", t("admin.nav.support", "Soporte"), "info"],
           ["auditoria", t("admin.nav.audit", "Auditoría"), "shield"],
         ].map(([section, label, icon]) => (
-          <a
+          <button
             key={section}
-            href={`#${section}`}
+            type="button"
             className={`sidebar-link${activeSection === section ? " active" : ""}`}
-            onClick={(e) => {
-              e.preventDefault();
+            onClick={() => {
               showSection(section);
               setSidebarOpen(false);
             }}
@@ -899,7 +923,7 @@ export default function Admin() {
               <Icon name={icon} size={17} />
             </span>
             {label}
-          </a>
+          </button>
         ))}
 
         <div className="sidebar-divider"></div>
@@ -1054,7 +1078,7 @@ export default function Admin() {
             <div className="card-table">
               {/* DASHBOARD */}
               <div
-                className="section active admin-dashboard-section"
+                className={`section${activeSection === "dashboard" ? " active" : ""} admin-dashboard-section`}
                 id="sec-dashboard"
               >
                 <div className="table-header">
@@ -1213,7 +1237,7 @@ export default function Admin() {
               </div>
 
               {/* USUARIOS */}
-              <div className="section active" id="sec-usuarios">
+              <div className={`section${activeSection === "usuarios" ? " active" : ""}`} id="sec-usuarios">
                 <div className="table-header">
                   <h3 className="card-title">
                     {t("admin.usersManagement", "Gestión de Usuarios")}
@@ -1429,7 +1453,7 @@ export default function Admin() {
               </div>
 
               {/* MENSAJERÍA ADMIN */}
-              <div className="section active" id="sec-mensajeria">
+              <div className={`section${activeSection === "mensajeria" ? " active" : ""}`} id="sec-mensajeria">
                 <div className="table-header">
                   <div>
                     <h3 className="card-title">Enviar Mensaje a Usuarios</h3>
@@ -1706,7 +1730,7 @@ export default function Admin() {
               </div>
 
               {/* PEDIDOS */}
-              <div className="section active" id="sec-pedidos">
+              <div className={`section${activeSection === "pedidos" ? " active" : ""}`} id="sec-pedidos">
                 <div className="table-header">
                   <div>
                     <h3 className="card-title">Gestión de pedidos</h3>
@@ -1806,7 +1830,7 @@ export default function Admin() {
               </div>
 
               {/* PRODUCTORES */}
-              <div className="section active" id="sec-productores">
+              <div className={`section${activeSection === "productores" ? " active" : ""}`} id="sec-productores">
                 <div className="table-header">
                   <div>
                     <h3 className="card-title">Gestión de productores</h3>
@@ -1871,7 +1895,7 @@ export default function Admin() {
               </div>
 
               {/* PRODUCTOS */}
-              <div className="section active" id="sec-productos">
+              <div className={`section${activeSection === "productos" ? " active" : ""}`} id="sec-productos">
                 <div
                   className="table-header"
                   style={{
@@ -2003,7 +2027,7 @@ export default function Admin() {
               </div>
 
               {/* RESEÑAS */}
-              <div className="section active" id="sec-resenas">
+              <div className={`section${activeSection === "resenas" ? " active" : ""}`} id="sec-resenas">
                 <div className="table-header">
                   <h3 className="card-title">
                     {t("admin.reviewsModeration", "Moderación de Reseñas")}
@@ -2089,7 +2113,7 @@ export default function Admin() {
               </div>
 
               {/* FIDEICOMISO (ESCROW) */}
-              <div className="section active" id="sec-pagos">
+              <div className={`section${activeSection === "pagos" ? " active" : ""}`} id="sec-pagos">
                 <div className="table-header">
                   <h3 className="card-title">Transacciones en Fideicomiso</h3>
                 </div>
@@ -2159,7 +2183,7 @@ export default function Admin() {
 
               {/* FINANZAS */}
               <div
-                className="section active"
+                className={`section${activeSection === "finanzas" ? " active" : ""}`}
                 id="sec-finanzas"
                 style={{ padding: "24px" }}
               >
@@ -2426,7 +2450,7 @@ export default function Admin() {
 
               {/* LOGISTICA */}
               <div
-                className="section active"
+                className={`section${activeSection === "logistica" ? " active" : ""}`}
                 id="sec-logistica"
                 style={{ padding: "24px" }}
               >
@@ -2693,7 +2717,7 @@ export default function Admin() {
               </div>
 
               {/* CUPONES */}
-              <div className="section active" id="sec-cupones">
+              <div className={`section${activeSection === "cupones" ? " active" : ""}`} id="sec-cupones">
                 <div className="table-header">
                   <h3 className="card-title">
                     Gestión de Cupones de Descuento
@@ -2977,7 +3001,7 @@ export default function Admin() {
               </div>
 
               {/* SOPORTE */}
-              <div className="section active" id="sec-soporte">
+              <div className={`section${activeSection === "soporte" ? " active" : ""}`} id="sec-soporte">
                 <div className="table-header">
                   <div>
                     <h3 className="card-title">Tickets de soporte</h3>
@@ -3048,7 +3072,7 @@ export default function Admin() {
               </div>
 
               {/* AUDITORIA */}
-              <div className="section active" id="sec-auditoria">
+              <div className={`section${activeSection === "auditoria" ? " active" : ""}`} id="sec-auditoria">
                 <div className="table-header">
                   <div>
                     <h3 className="card-title">Auditoría y actividad</h3>
@@ -3088,7 +3112,7 @@ export default function Admin() {
               </div>
 
               {/* CONFIGURACION */}
-              <div className="section active" id="sec-configuracion">
+              <div className={`section${activeSection === "configuracion" ? " active" : ""}`} id="sec-configuracion">
                 <div className="table-header">
                   <h3 className="card-title">Configuración del Sistema</h3>
                 </div>

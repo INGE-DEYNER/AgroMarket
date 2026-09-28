@@ -49,27 +49,20 @@ export default function DashboardProductor() {
   const [activeSection, setActiveSection] = useState("resumen");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // DASHBOARD COMPACTO: todas las secciones se renderizan a la vez, así que
-  // "navegar entre secciones" es desplazarse hasta la sección pedida. Cada
-  // sección expone id="sec-<clave>", por lo que también funcionan los enlaces
-  // profundos (?section=<clave>) que llegan desde otras páginas.
-  const scrollToSection = useCallback((key) => {
-    if (!key || typeof document === "undefined") return;
-    const target = document.getElementById(`sec-${key}`);
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  /*
+   * NAVEGACIÓN POR SECCIONES (SPA).
+   *
+   * Cada clave del menú muestra SOLO su propia vista. Antes esta pantalla
+   * renderizaba todas las secciones apiladas y el menú solo desplazaba la
+   * página; ahora el contenido cambia en el sitio, sin recargar ni abrir
+   * pestaña, y cada sección conserva su propio estado y sus propios datos.
+   */
+  const showSection = useCallback((key) => {
+    setActiveSection(key);
   }, []);
 
-  const showSection = useCallback(
-    (key) => {
-      setActiveSection(key);
-      scrollToSection(key);
-    },
-    [scrollToSection],
-  );
-
-  // Enlace profundo (p. ej. /dashboard-productor?section=pedidosRec): todas las
-  // secciones viven en la misma página, así que además de marcarla activa hay
-  // que desplazar la vista hasta ella.
+  // Enlace profundo (p. ej. /dashboard-productor?section=pedidosRec): marca la
+  // sección correspondiente como activa al montar.
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sec = params.get("section");
@@ -167,7 +160,7 @@ export default function DashboardProductor() {
       const reseñas = Number(p?.totalReviews);
 
       if (!Number.isFinite(promedio) || promedio <= 0) continue;
-      if (!Number.isFinite(reseas) || reseñas <= 0) continue;
+      if (!Number.isFinite(reseñas) || reseñas <= 0) continue;
 
       sumaPonderada += promedio * reseñas;
       totalReseñas += reseñas;
@@ -343,19 +336,54 @@ export default function DashboardProductor() {
     }
   }, [extractArray, user]);
 
-  // Section Loading triggers
-  // DASHBOARD COMPACTO: todas las secciones están visibles a la vez, así que
-  // cada una carga sus datos al montar (ya no se espera a activeSection).
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void loadEnvios();
-      void loadContactos();
-      void loadActiveRfqs();
-      void loadResenasProductor();
-    }, 0);
+  /*
+   * CARGA DINÁMICA POR SECCIÓN.
+   *
+   * Antes se cargaba todo al montar el dashboard, así que abrir "Mensajería"
+   * disparaba también las peticiones de envíos, RFQ y reseñas. Ahora cada
+   * sección pide solo lo que necesita, y la primera vez que se abre.
+   */
+  const seccionesCargadas = useRef(new Set());
 
+  useEffect(() => {
+    const cargar = async () => {
+      switch (activeSection) {
+        case "resumen":
+        case "misProductos":
+          await loadProductos();
+          break;
+        case "pedidosRec":
+          await loadActiveRfqs();
+          break;
+        case "seguimiento":
+          await loadEnvios();
+          break;
+        case "mensajeria":
+          await loadContactos();
+          break;
+        case "resenas":
+          await loadResenasProductor();
+          break;
+        default:
+          break;
+      }
+    };
+
+    // Se evita repetir la petición si ya se cargó en esta sesión de navegación.
+    const marca = activeSection;
+    if (seccionesCargadas.current.has(marca)) return undefined;
+    seccionesCargadas.current.add(marca);
+
+    const timer = setTimeout(() => void cargar(), 0);
     return () => clearTimeout(timer);
-  }, [loadEnvios, loadContactos, loadActiveRfqs, loadResenasProductor]);
+  }, [
+    activeSection,
+    loadProductos,
+    loadActiveRfqs,
+    loadEnvios,
+    loadContactos,
+    loadResenasProductor,
+  ]);
 
   // Datos del formulario de perfil (la sección está siempre visible).
   useEffect(() => {
@@ -392,14 +420,16 @@ export default function DashboardProductor() {
   };
 
   // TIEMPO REAL: sondea contactos y conversación activa.
-  // DASHBOARD COMPACTO: la sección de mensajería está siempre visible, así que
-  // el sondeo no se condiciona a activeSection (que ya no cambia desde la UI).
+  // Solo mientras la sección de mensajería está visible: si no, el polling
+  // seguiría gastando batería y peticiones en segundo plano.
   useEffect(() => {
+    if (activeSection !== "mensajeria") return undefined;
     const contactosTimer = setInterval(() => void loadContactos(), 10000);
     return () => clearInterval(contactosTimer);
-  }, [loadContactos]);
+  }, [loadContactos, activeSection]);
 
   useEffect(() => {
+    if (activeSection !== "mensajeria") return undefined;
     if (!selectedContact) return undefined;
     const conversacionTimer = setInterval(async () => {
       try {
@@ -970,7 +1000,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* â”€â”€â”€ RESUMEN â”€â”€â”€ */}
-        <div className="section active" id="sec-resumen">
+        <div className={`section${activeSection === "resumen" ? " active" : ""}`} id="sec-resumen">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1>
@@ -1139,7 +1169,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* â”€â”€â”€ INVENTARIO â”€â”€â”€ */}
-        <div className="section active" id="sec-misProductos">
+        <div className={`section${activeSection === "misProductos" ? " active" : ""}`} id="sec-misProductos">
           <div className="dash-header">
             <h1>{t("dashboardProductor.nav.inventory", "Mi Inventario")}</h1>
             <button className="btn-cta" onClick={() => openProductoModal()}>
@@ -1196,7 +1226,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* â”€â”€â”€ VENTAS â”€â”€â”€ */}
-        <div className="section active" id="sec-pedidosRec">
+        <div className={`section${activeSection === "pedidosRec" ? " active" : ""}`} id="sec-pedidosRec">
           <div className="dash-header">
             <h1>{t("dashboardProductor.nav.sales", "Gestión de Ventas")}</h1>
           </div>
@@ -1274,7 +1304,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* â”€â”€â”€ DESPACHOS (PRODUCTOR ENVIOS) â”€â”€â”€ */}
-        <div className="section active" id="sec-seguimiento">
+        <div className={`section${activeSection === "seguimiento" ? " active" : ""}`} id="sec-seguimiento">
           <div className="dash-header">
             <h1>Gestión de Despachos</h1>
             <p>
@@ -1335,7 +1365,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* â”€â”€â”€ MENSAJERIA â”€â”€â”€ */}
-        <div className="section active" id="sec-mensajeria">
+        <div className={`section${activeSection === "mensajeria" ? " active" : ""}`} id="sec-mensajeria">
           <div
             className="chat-layout"
             style={{
@@ -1557,7 +1587,7 @@ export default function DashboardProductor() {
 
         {/* â”€â”€â”€ MI PERFIL & AJUSTES â”€â”€â”€ */}
         {/* RESEÑAS Y CALIFICACIONES */}
-        <div className="section active producer-section" id="sec-resenas">
+        <div className={`section${activeSection === "resenas" ? " active" : ""} producer-section`} id="sec-resenas">
           <div className="producer-section-head">
             <div>
               <span className="producer-eyebrow">Reputación</span>
@@ -1678,7 +1708,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* INFORMACIÓN DE LA FINCA / PRODUCTOR */}
-        <div className="section active producer-section" id="sec-finca">
+        <div className={`section${activeSection === "finca" ? " active" : ""} producer-section`} id="sec-finca">
           <div className="producer-section-head">
             <div>
               <span className="producer-eyebrow">Perfil comercial</span>
@@ -1770,7 +1800,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* FINANZAS / PAGOS */}
-        <div className="section active producer-section" id="sec-finanzas">
+        <div className={`section${activeSection === "finanzas" ? " active" : ""} producer-section`} id="sec-finanzas">
           <div className="producer-section-head">
             <div>
               <span className="producer-eyebrow">Rendimiento comercial</span>
@@ -1853,7 +1883,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* CONFIGURACIÓN */}
-        <div className="section active producer-section" id="sec-configuracion">
+        <div className={`section${activeSection === "configuracion" ? " active" : ""} producer-section`} id="sec-configuracion">
           <div className="producer-section-head">
             <div>
               <span className="producer-eyebrow">Preferencias</span>
@@ -1941,7 +1971,7 @@ export default function DashboardProductor() {
           </div>
         </div>
 
-        <div className="section active" id="sec-perfil">
+        <div className={`section${activeSection === "perfil" ? " active" : ""}`} id="sec-perfil">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1>Ajustes de Mi Perfil</h1>
@@ -2250,7 +2280,7 @@ export default function DashboardProductor() {
         </div>
 
         {/* â”€â”€â”€ RFQ OPPORTUNITIES (LICITACIONES) â”€â”€â”€ */}
-        <div className="section active" id="sec-rfq">
+        <div className={`section${activeSection === "rfq" ? " active" : ""}`} id="sec-rfq">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1>Licitaciones / Oportunidades Comerciales</h1>

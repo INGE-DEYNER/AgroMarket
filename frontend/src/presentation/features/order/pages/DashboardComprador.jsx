@@ -61,23 +61,16 @@ export default function DashboardComprador() {
   const [activeSection, setActiveSection] = useState("resumen");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // DASHBOARD COMPACTO: todas las secciones se renderizan a la vez, así que
-  // "navegar entre secciones" es desplazarse hasta la sección pedida. Cada
-  // sección expone id="sec-<clave>", por lo que también funcionan los enlaces
-  // profundos (?section=<clave>) que llegan desde otras páginas.
-  const scrollToSection = useCallback((key) => {
-    if (!key || typeof document === "undefined") return;
-    const target = document.getElementById(`sec-${key}`);
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  /*
+   * NAVEGACIÓN POR SECCIONES (SPA).
+   *
+   * Cada clave del menú muestra SOLO su propia vista: el contenido cambia en
+   * el sitio, sin recargar la página ni abrir pestaña, y cada sección
+   * conserva su propio estado y sus propios datos.
+   */
+  const showSection = useCallback((key) => {
+    setActiveSection(key);
   }, []);
-
-  const showSection = useCallback(
-    (key) => {
-      setActiveSection(key);
-      scrollToSection(key);
-    },
-    [scrollToSection],
-  );
 
   // Chat/Mensajeria state
   const [contactos, setContactos] = useState([]);
@@ -86,9 +79,8 @@ export default function DashboardComprador() {
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
 
-  // Enlace profundo (p. ej. /dashboard-comprador?section=mensajeria): todas las
-  // secciones viven en la misma página, así que además de marcarla activa hay
-  // que desplazar la vista hasta ella.
+  // Enlace profundo (p. ej. /dashboard-comprador?section=mensajeria): marca la
+  // sección correspondiente como activa al montar.
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sec = params.get("section");
@@ -346,14 +338,15 @@ export default function DashboardComprador() {
   }, [extractArray, setContactos]);
 
   // TIEMPO REAL: sondea contactos y conversación activa.
-  // DASHBOARD COMPACTO: la sección de mensajería está siempre visible, así que
-  // el sondeo no se condiciona a activeSection (que ya no cambia desde la UI).
+  // Solo mientras la sección de mensajería está visible.
   useEffect(() => {
+    if (activeSection !== "mensajeria") return undefined;
     const contactosTimer = setInterval(() => void loadContactos(), 10000);
     return () => clearInterval(contactosTimer);
-  }, [loadContactos]);
+  }, [loadContactos, activeSection]);
 
   useEffect(() => {
+    if (activeSection !== "mensajeria") return undefined;
     if (!selectedContact) return undefined;
     const conversacionTimer = setInterval(async () => {
       try {
@@ -590,21 +583,51 @@ export default function DashboardComprador() {
     }, 50);
   };
 
-  // Section Loading Triggers
-  // DASHBOARD COMPACTO: todas las secciones están visibles a la vez, así que
-  // cada una carga sus datos al montar (ya no se espera a que activeSection
-  // coincida con su clave).
+  /*
+   * CARGA DINÁMICA POR SECCIÓN.
+   *
+   * Antes se cargaba todo al montar el dashboard. Ahora cada sección pide
+   * únicamente lo que necesita, y solo la primera vez que se abre.
+   */
+  const seccionesCargadas = useRef(new Set());
+
   useEffect(() => {
+    const marca = activeSection;
+    if (seccionesCargadas.current.has(marca)) return undefined;
+    seccionesCargadas.current.add(marca);
+
     const timer = setTimeout(() => {
-      void loadCatalogProducts();
-      void loadEnvios();
-      void loadContactos();
-      void loadFacturas();
-      void loadRfqs();
+      switch (marca) {
+        case "resumen":
+        case "catalogo":
+          void loadCatalogProducts();
+          break;
+        case "seguimiento":
+          void loadEnvios();
+          break;
+        case "mensajeria":
+          void loadContactos();
+          break;
+        case "misFacturas":
+          void loadFacturas();
+          break;
+        case "rfq":
+          void loadRfqs();
+          break;
+        default:
+          break;
+      }
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [loadCatalogProducts, loadEnvios, loadContactos, loadFacturas, loadRfqs]);
+  }, [
+    activeSection,
+    loadCatalogProducts,
+    loadEnvios,
+    loadContactos,
+    loadFacturas,
+    loadRfqs,
+  ]);
 
   // Datos del formulario de perfil (la sección está siempre visible).
   useEffect(() => {
@@ -1049,7 +1072,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── RESUMEN ─── */}
-        <div className="section active" id="sec-resumen">
+        <div className={`section${activeSection === "resumen" ? " active" : ""}`} id="sec-resumen">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1>
@@ -1242,7 +1265,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── EXPLORAR CATALOGO ─── */}
-        <div className="section active" id="sec-catalogo">
+        <div className={`section${activeSection === "catalogo" ? " active" : ""}`} id="sec-catalogo">
           <div
             className="catalog-hero"
             style={{
@@ -1543,7 +1566,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── MIS PEDIDOS ─── */}
-        <div className="section active" id="sec-misPedidos">
+        <div className={`section${activeSection === "misPedidos" ? " active" : ""}`} id="sec-misPedidos">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1>
@@ -1655,7 +1678,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── SEGUIMIENTO DE ENVIOS ─── */}
-        <div className="section active" id="sec-seguimiento">
+        <div className={`section${activeSection === "seguimiento" ? " active" : ""}`} id="sec-seguimiento">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1> {t("envios.title", "Seguimiento de Envíos")}</h1>
@@ -2120,7 +2143,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── MENSAJERIA ─── */}
-        <div className="section active" id="sec-mensajeria">
+        <div className={`section${activeSection === "mensajeria" ? " active" : ""}`} id="sec-mensajeria">
           <div
             className="chat-layout"
             style={{
@@ -2341,7 +2364,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── RESEÑAS ─── */}
-        <div className="section active" id="sec-resenas">
+        <div className={`section${activeSection === "resenas" ? " active" : ""}`} id="sec-resenas">
           <div
             className="section-header"
             style={{
@@ -2434,7 +2457,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── MI PERFIL & AJUSTES ─── */}
-        <div className="section active" id="sec-perfil">
+        <div className={`section${activeSection === "perfil" ? " active" : ""}`} id="sec-perfil">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1> Ajustes de Mi Perfil</h1>
@@ -2701,7 +2724,7 @@ export default function DashboardComprador() {
           </div>
         </div>
         {/* ─── MIS FACTURAS ─── */}
-        <div className="section active" id="sec-misFacturas">
+        <div className={`section${activeSection === "misFacturas" ? " active" : ""}`} id="sec-misFacturas">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1>Mis Facturas de Compra</h1>
@@ -2779,7 +2802,7 @@ export default function DashboardComprador() {
         </div>
 
         {/* ─── LICITACIONES B2B (RFQ) ─── */}
-        <div className="section active" id="sec-rfq">
+        <div className={`section${activeSection === "rfq" ? " active" : ""}`} id="sec-rfq">
           <div className="dash-header">
             <div className="dash-welcome">
               <h1> Licitaciones B2B (RFQ)</h1>

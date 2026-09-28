@@ -58,28 +58,82 @@
 }
 
 /* ========================================================================
-   TEMA OSCURO — Fuerza todos los textos a blanco
+   TEMA OSCURO
+   ========================================================================
+   Antes este bloque solo forzaba los textos a blanco y dejaba el fondo
+   claro. Eso producía dos fallos visibles: surfaces blancas con texto
+   blanco (ilegible) y pérdida total de jerarquía visual, porque "muted",
+   "secondary" y "primary" acababan siendo el mismo blanco.
+
+   Aquí se define una paleta oscura completa y se mantienen los tonos
+   apagados en grises (no en blanco) para conservar la jerarquía.
+
+   Se expone en :root y en html.dark para que las hojas de estilo de cada
+   módulo (que usan var(--am-*)) reaccionen al tema sin duplicar reglas.
    ======================================================================== */
+
+/* Tokens de los dashboards, disponibles en ambos temas. */
+:root {
+  --am-surface: #ffffff;
+  --am-surface-muted: #f1f6f2;
+  --am-border: #d9e5dc;
+  --am-text: #1b4332;
+  --am-text-muted: #5b6b61;
+  --am-sidebar: #14301f;
+  --am-sidebar-text: #d9eee0;
+}
+
 html.dark,
 body.dark,
 #root.dark,
 html[data-theme="dark"],
 body[data-theme="dark"],
 #root[data-theme="dark"] {
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #ffffff;
-  --color-text-muted: #ffffff;
-  --color-text-inverse: #ffffff;
+  /* Fondos: superficies oscuras en lugar de blanca. */
+  --color-background: #0e1711;
+  --color-surface: #16211a;
+  --color-surface-hover: #1d2a21;
+  --color-surface-active: #24352a;
 
-  /* Sobrescribir grises de texto en toda la app */
-  --text: #ffffff;
-  --text-muted: #ffffff;
-  --text-dim: #ffffff;
+  /* Texto: blanco solo para el primario. Los secundarios y apagados
+     bajan a grises para que la jerarquía siga siendo legible. */
+  --color-text-primary: #eef7f0;
+  --color-text-secondary: #c2d3c7;
+  --color-text-muted: #94a89a;
+  --color-text-inverse: #14221a;
+
+  --color-border: #2c3b31;
+  --color-border-strong: rgba(52, 211, 153, 0.32);
+
+  /* Alias heredados por módulos que los usan directamente. */
+  --text: #eef7f0;
+  --text-muted: #94a89a;
+  --text-dim: #7d9084;
+
+  /* Tokens de los dashboards. */
+  --am-surface: #16211a;
+  --am-surface-muted: #1d2a21;
+  --am-border: #2c3b31;
+  --am-text: #eef7f0;
+  --am-text-muted: #94a89a;
+  --am-sidebar: #0b140e;
+  --am-sidebar-text: #d9eee0;
+
+  color-scheme: dark;
 }
 
 /* ========================================================================
    2. ESTILOS GLOBALES
    ======================================================================== */
+
+/* El fondo del documento debe seguir al tema. Sin esto el body se queda
+   blanco y las superficies oscuras quedan recortadas sobre él. */
+html,
+body {
+  background: var(--color-background, #f8faf8);
+  color: var(--color-text-primary, #14221a);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
 
 /* Reset básico */
 *,

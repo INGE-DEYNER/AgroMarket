@@ -393,23 +393,20 @@
 }
 
 /* ============================================================
-   DASHBOARD COMPACTO - TODO EN UNA SOLA PÁGINA
+   NAVEGACIÓN POR SECCIONES (SPA)
    ============================================================
-   El render ya no condiciona las secciones a activeSection: todas se muestran
-   a la vez y cada una expone id="sec-<clave>". El sidebar deja por tanto de ser
-   "navegación entre secciones" y pasa a ser navegación de la misma página
-   (showSection -> scrollIntoView + resaltado de la sección activa).
+   El render ya no apila todas las secciones: cada <section> recibe la clase
+   "active" solo cuando es la vista seleccionada. Esta es la regla base que
+   oculta las demás; el bloque siguiente solo asegura que la activa se vea.
 
-   Nota: las reglas con [onclick*="setActiveSection"] y [onclick*="showSection"]
-   que había aquí nunca aplicaban: React no serializa los manejadores onClick
-   como atributo HTML `onclick`, así que ese selector no coincide con ningún
-   elemento y no ocultaba nada.
+   El layout sigue siendo compacto: la sidebar navega entre vistas sin
+   recargar la página ni abrir pestaña. */
 
-   OPCIONAL: para el dashboard SIN sidebar (secciones a todo el ancho),
-   descomentar el bloque marcado al final de esta sección. */
-
-/* Mostrar TODAS las secciones */
 .admin-dashboard .section {
+  display: none;
+}
+
+.admin-dashboard .section.active {
   display: block !important;
 }
 
@@ -429,14 +426,17 @@
   gap: 16px;
 }
 
-/* Secciones con estilo consistente */
+/* Secciones con estilo consistente.
+   Se usan variables en vez de colores literales para que el modo oscuro
+   (html.dark) repinte las tarjetas sin necesidad de duplicar reglas. */
 .admin-dashboard .section {
-  background: #fff;
+  background: var(--am-surface, #ffffff);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 20px;
-  border: 1px solid var(--admin-border);
+  border: 1px solid var(--admin-border, #d9e5dc);
+  color: var(--am-text, #1b4332);
 }
 
 /* OPCIONAL: dashboard sin sidebar (secciones a todo el ancho).
