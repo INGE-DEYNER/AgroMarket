@@ -6,35 +6,36 @@ import { useAuth } from "@/app/hooks/useAuth";
 import api from "@/infrastructure/http/api";
 import "@/presentation/styles/resenas.css";
 
-const PRODUCTOS = [
-  "Banano UrabÃ¡",
-  "PiÃ±a Manzana",
-  "Mango Tommy",
-  "MaracuyÃ¡",
-  "GuanÃ¡bana",
-  "Naranja Valencia",
-  "Coco Fresco",
-  "LimÃ³n TahitÃ­",
-];
-
+/*
+ * El backend expone ReviewController con CreateReviewRequest, que exige
+ * { productId: Long, reviewerId: Long, rating: 1..5, comment: String }.
+ *
+ * Esta pagina antes mandaba { producto, calificacion, comentario } con un
+ * producto inventado de una lista fija. Como el nombre y el tipo no
+ * coincidian, Jackson descartaba el cuerpo y la validacion @NotNull
+ * fallaba: publicar una reseña SIEMPRE devolvia 400. Ahora el producto se
+ * elige del catalogo real y se manda el contrato del backend.
+ */
 export default function Resenas() {
   const { t } = useTranslation();
   const { user } = useAuth();
 
-
   const [reviews, setReviews] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [cargandoProductos, setCargandoProductos] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [rProducto, setRProducto] = useState("");
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comentario, setComentario] = useState("");
   const [errors, setErrors] = useState({});
+  const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
         const data = await api.get("/resenas");
-        setReviews(Array.isArray(data) ? data : data.content || []);
+        setReviews(Array.isArray(data) ? data : (data?.content ?? []));
       } catch (err) {
         console.error("Error loadResenas:", err);
         setReviews([]);
@@ -42,24 +43,35 @@ export default function Resenas() {
     })();
   }, []);
 
-  const openModal = () => {
-    setModalOpen(true);
-    setErrors({});
-  };
-  const closeModal = () => setModalOpen(false);
+  // El selector de producto se alimenta del catalogo real: una reseña siempre
+  // referencia un producto existente, con su ID.
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.get("/productos?size=100&active=true");
+        const lista = Array.isArray(data) ? data : (data?.content ?? []);
+        setProductos(
+          lista.map((p) => ({
+            id: p.id,
+            nombre: p.name ?? p.nombre ?? "Producto",
+          })),
+        );
+      } catch (err) {
+        console.error("Error loadProductos:", err);
+        setProductos([]);
+      } finally {
+        setCargandoProductos(false);
+      }
+    })();
+  }, []);
 
-  const setRatingVal = (v) => setRating(v);
-  const hoverStar = (v) => setHoverRating(v);
-  const resetHover = () => setHoverRating(0);
+  const closeModal = () => setModalOpen(false);
 
   const validate = () => {
     const errs = {};
-    if (!rProducto)
-      errs.producto = t("resenas.errors.product", "Selecciona un producto.");
-    if (!rating)
-      errs.rating = t("resenas.errors.rating", "Selecciona una calificaciÃ³n.");
-    if (!comentario.trim())
-      errs.comentario = t("resenas.errors.comment", "Escribe un comentario.");
+    if (!rProducto) errs.producto = t("resenas.errors.product", "Selecciona un producto.");
+    if (!rating) errs.rating = t("resenas.errors.rating", "Selecciona una calificación.");
+    if (!comentario.trim()) errs.comentario = t("resenas.errors.comment", "Escribe un comentario.");
     return errs;
   };
 
@@ -67,23 +79,29 @@ export default function Resenas() {
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
+
+    setEnviando(true);
     try {
       const nueva = await api.post("/resenas", {
-        producto: rProducto,
-        calificacion: rating,
-        comentario,
+        productId: Number(rProducto),
+        reviewerId: user?.id,
+        rating,
+        comment: comentario.trim(),
       });
-      setReviews((prev) => [nueva, ...prev]);
+      setReviews((prev) => [nueva?.data ?? nueva, ...prev]);
+      setRProducto("");
+      setRating(0);
+      setComentario("");
       closeModal();
     } catch (err) {
-      alert(
-        t("resenas.errorPublish", "Error al publicar reseÃ±a: ") +
-          (err.message || "Inténtalo de nuevo."),
-      );
+      setErrors({
+        formulario:
+          err?.message ||
+          t("resenas.errorPublish", "No se pudo publicar la reseña."),
+      });
+    } finally {
+      setEnviando(false);
     }
-    setRProducto("");
-    setRating(0);
-    setComentario("");
   };
 
   const activeStars = hoverRating || rating;
@@ -100,16 +118,19 @@ export default function Resenas() {
   }
   return (
     <BuyerShell activeKey="resenas">
-      <main className="buyer-page-content"
-        style={{ padding: "28px 32px", maxWidth: "860px", margin: "0 auto" }}
-      >
+      <main className="buyer-page-content resenas-page">
         <div className="section-header">
           <span className="section-title">
-            {" "}
-            {t("resenas.title", "ReseÃ±as de Productos")}
+            {t("resenas.title", "Reseñas de Productos")}
           </span>
-          <button className="btn btn-primary" onClick={openModal}>
-            {t("resenas.newReview", "+ Nueva reseÃ±a")}
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setModalOpen(true);
+              setErrors({});
+            }}
+          >
+            {t("resenas.newReview", "+ Nueva reseña")}
           </button>
         </div>
 
@@ -129,87 +150,78 @@ export default function Resenas() {
             </div>
           ) : (
             reviews.map((r) => (
-              <div
-                key={r.id}
-                className="review-card"
-                style={{
-                  background: "var(--card-bg)",
-                  border: "1px solid var(--border-light)",
-                  borderRadius: "var(--radius)",
-                  padding: "20px 24px",
-                  marginBottom: "16px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <div style={{ fontWeight: "700" }}>
-                    {r.usuario || r.nombreUsuario || "Usuario"}
-                  </div>
-                  <div style={{ color: "var(--gold)", fontSize: "1.1rem" }}>
-                    {"â˜…".repeat(r.calificacion || 5)}
-                  </div>
+              <article className="review-card" key={r.id}>
+                <div className="review-card-head">
+                  <strong>{r.buyerName || t("resenas.anonymous", "Usuario")}</strong>
+                  <span className="review-stars" aria-label={`${r.rating} de 5`}>
+                    {"★".repeat(Math.max(0, Math.min(5, r.rating ?? 0)))}
+                    <span className="review-stars-empty">
+                      {"★".repeat(Math.max(0, 5 - (r.rating ?? 0)))}
+                    </span>
+                  </span>
                 </div>
-                <div
-                  style={{
-                    fontSize: "0.85rem",
-                    color: "var(--primary)",
-                    fontWeight: "600",
-                    marginBottom: "8px",
-                  }}
-                >
-                  {r.producto || r.nombreProducto}
+                <div className="review-product">
+                  {r.productId != null &&
+                    t("resenas.productRef", "Producto") + " #" + r.productId}
                 </div>
-                <div style={{ color: "var(--text-secondary)" }}>
-                  {r.comentario}
+                <div className="review-comment">{r.comment}</div>
+                <div className="review-date">
+                  {r.date
+                    ? new Date(r.date).toLocaleDateString("es-CO")
+                    : ""}
                 </div>
-                <div
-                  style={{
-                    fontSize: "0.75rem",
-                    color: "var(--text-muted)",
-                    marginTop: "8px",
-                  }}
-                >
-                  {r.fecha || r.fechaCreacion}
-                </div>
-              </div>
+              </article>
             ))
           )}
         </div>
       </main>
 
-      {/* MODAL NUEVA RESEÃ‘A */}
+      {/* MODAL NUEVA RESEÑA */}
       {modalOpen && (
         <div className="modal-overlay open" id="modalResena">
           <div className="modal" style={{ maxWidth: "480px" }}>
             <div className="modal-header">
               <span className="modal-title">
-                {t("resenas.modalTitle", "Nueva ReseÃ±a")}
+                {t("resenas.modalTitle", "Nueva Reseña")}
               </span>
-              <button className="modal-close" onClick={closeModal}>
-                âœ•
+              <button
+                type="button"
+                className="modal-close"
+                onClick={closeModal}
+                aria-label={t("resenas.cancel", "Cancelar")}
+              >
+                ×
               </button>
             </div>
 
+            {errors.formulario && (
+              <div className="form-error" role="alert">
+                {errors.formulario}
+              </div>
+            )}
+
             <div className="form-group">
-              <label className="form-label">
+              <label className="form-label" htmlFor="rProducto">
                 {t("resenas.productLabel", "Producto *")}
               </label>
               <select
                 className="form-select"
                 id="rProducto"
                 value={rProducto}
+                disabled={cargandoProductos || productos.length === 0}
                 onChange={(e) => setRProducto(e.target.value)}
               >
                 <option value="">
-                  {t("resenas.selectProduct", "Selecciona un producto...")}
+                  {cargandoProductos
+                    ? t("resenas.loadingProducts", "Cargando productos...")
+                    : productos.length === 0
+                      ? t("resenas.noProducts", "No hay productos para reseñar")
+                      : t("resenas.selectProduct", "Selecciona un producto...")}
                 </option>
-                {PRODUCTOS.map((p) => (
-                  <option key={p}>{p}</option>
+                {productos.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nombre}
+                  </option>
                 ))}
               </select>
               {errors.producto && (
@@ -221,17 +233,27 @@ export default function Resenas() {
 
             <div className="form-group">
               <label className="form-label">
-                {t("resenas.ratingLabel", "CalificaciÃ³n *")}
+                {t("resenas.ratingLabel", "Calificación *")}
               </label>
-              <div className="star-input-row" id="starRow">
+              <div className="star-input-row" id="starRow" role="radiogroup">
                 {[1, 2, 3, 4, 5].map((v) => (
                   <span
                     key={v}
                     className="star-inp"
+                    role="radio"
+                    tabIndex={0}
+                    aria-checked={rating === v}
+                    aria-label={`${v} de 5`}
                     data-val={v}
-                    onClick={() => setRatingVal(v)}
-                    onMouseOver={() => hoverStar(v)}
-                    onMouseOut={resetHover}
+                    onClick={() => setRating(v)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setRating(v);
+                      }
+                    }}
+                    onMouseOver={() => setHoverRating(v)}
+                    onMouseOut={() => setHoverRating(0)}
                     style={{
                       cursor: "pointer",
                       fontSize: "1.8rem",
@@ -242,7 +264,7 @@ export default function Resenas() {
                       transition: "color 0.15s",
                     }}
                   >
-                    â˜…
+                    ★
                   </span>
                 ))}
               </div>
@@ -270,17 +292,29 @@ export default function Resenas() {
               ></textarea>
               {errors.comentario && (
                 <span className="form-error" id="rComentErr">
-                  {errors.comentErr || errors.comentario}
+                  {errors.comentario}
                 </span>
               )}
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={closeModal}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={closeModal}
+                disabled={enviando}
+              >
                 {t("resenas.cancel", "Cancelar")}
               </button>
-              <button className="btn btn-primary" onClick={publicarResena}>
-                {t("resenas.publish", " Publicar reseÃ±a")}
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={publicarResena}
+                disabled={enviando}
+              >
+                {enviando
+                  ? t("resenas.publishing", "Publicando...")
+                  : t("resenas.publish", "Publicar reseña")}
               </button>
             </div>
           </div>

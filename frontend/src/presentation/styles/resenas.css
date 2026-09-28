@@ -1,4 +1,74 @@
 /* Resenas Page Styles */
+
+/*
+ * Clases de la tarjeta y la pagina. Antes todo el JSX usaba estilos inline,
+ * lo que impedia cualquier ajuste responsive y reutilizacion.
+ */
+.resenas-page {
+  padding: 28px 32px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.review-card {
+  background: var(--card-bg, var(--surface));
+  border: 1px solid var(--border-light, #e5e7eb);
+  border-radius: var(--radius, 10px);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.review-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.review-stars {
+  color: var(--gold, #d4a017);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.review-stars-empty {
+  color: var(--border-light, #e5e7eb);
+}
+
+.review-product {
+  font-size: 0.85rem;
+  color: var(--primary, #1b4332);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.review-comment {
+  color: var(--text-secondary, #4b5563);
+}
+
+.review-date {
+  font-size: 0.75rem;
+  color: var(--text-muted, #6b7280);
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .resenas-page {
+    padding: 20px 16px;
+  }
+
+  .review-card {
+    padding: 16px;
+  }
+
+  .review-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
 .review-card {
   background: var(--surface);
   border: 1px solid var(--border);
