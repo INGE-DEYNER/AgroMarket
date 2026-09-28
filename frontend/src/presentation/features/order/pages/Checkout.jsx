@@ -5,6 +5,10 @@ import { useCart } from "@/presentation/features/order/hooks/useCart";
 import api from "@/infrastructure/http/api";
 import Icon from "@/presentation/shared/components/Icon";
 import BuyerShell from "@/presentation/features/order/components/BuyerShell";
+import {
+  cotizarEnvio,
+  cargarParametrosEnvio,
+} from "@/application/support/cotizadorEnvio";
 
 export default function Checkout() {
   const { user, formatPrice, refetchUser } = useAuth();
@@ -15,7 +19,25 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [successData, setSuccessData] = useState(null);
 
-  const [costoEnvio] = useState(0);
+  /*
+   * Envío calculado por distancia.
+   *
+   * Antes era `const [costoEnvio] = useState(0)`: sin setter, el valor
+   * nunca cambiaba y el resumen siempre mostraba $0, aunque el backend
+   * cobrara el costo real calculado con Haversine al crear el pedido.
+   * Ahora se cotiza contra la ciudad de destino con la misma fórmula del
+   * backend (OrderUseCase.calcularCostoEnvio) usando los parámetros que
+   * publica GET /envios/config.
+   */
+  const [envio, setEnvio] = useState({
+    costo: null,
+    km: null,
+    dias: null,
+    zona: null,
+    conocido: false,
+  });
+
+  const costoEnvio = envio.costo ?? 0;
 
   // Step 2 Address State
   const [addressForm, setAddressForm] = useState({
@@ -25,6 +47,29 @@ export default function Checkout() {
     referencia: "",
     codigoPostal: "",
   });
+
+  /*
+   * Envío calculado por distancia.
+   *
+   * Antes era `const [costoEnvio] = useState(0)`: sin setter, el valor
+   * nunca cambiaba y el resumen siempre mostraba $0, aunque el backend
+   * cobrara el costo real calculado con Haversine al crear el pedido.
+   * Ahora se cotiza contra la ciudad de destino con la misma fórmula del
+   * backend (OrderUseCase.calcularCostoEnvio) usando los parámetros que
+   * publica GET /envios/config.
+   */
+  useEffect(() => {
+    let vigente = true;
+    void cargarParametrosEnvio().then((params) => {
+      if (!vigente) return;
+      setEnvio(cotizarEnvio(addressForm.ciudad, params));
+    });
+    return () => {
+      vigente = false;
+    };
+    // Solo depende de la ciudad: la tarifa se resuelve una sola vez.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addressForm.ciudad]);
 
   // Load defaults from user profile
   useEffect(() => {
@@ -636,13 +681,50 @@ export default function Checkout() {
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
+                          alignItems: "flex-start",
                           fontSize: "0.95rem",
                           color: "#718096",
                           marginBottom: "8px",
                         }}
                       >
-                        <span>Envío</span>
-                        <span>{formatPrice(costoEnvio)}</span>
+                        <span>
+                          Envío
+                          {envio.conocido && envio.zona ? (
+                            <small
+                              style={{
+                                display: "block",
+                                fontSize: "0.72rem",
+                                opacity: 0.85,
+                              }}
+                            >
+                              {envio.zona} · {envio.km} km
+                              {envio.dias
+                                ? ` · ${envio.dias} día${envio.dias > 1 ? "s" : ""}`
+                                : ""}
+                            </small>
+                          ) : null}
+                        </span>
+                        <span>
+                          {!addressForm.ciudad ? (
+                            <small style={{ fontSize: "0.72rem" }}>
+                              Indica la ciudad de destino
+                            </small>
+                          ) : envio.conocido ? (
+                            formatPrice(costoEnvio)
+                          ) : (
+                            <small
+                              style={{
+                                fontSize: "0.72rem",
+                                color: "#b7791f",
+                                textAlign: "right",
+                                maxWidth: "180px",
+                                display: "block",
+                              }}
+                            >
+                              cotizaremos el costo al confirmar
+                            </small>
+                          )}
+                        </span>
                       </div>
                       <div
                         style={{

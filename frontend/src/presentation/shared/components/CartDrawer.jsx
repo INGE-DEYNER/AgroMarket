@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,9 @@ export default function CartDrawer({ isOpen, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [costoEnvio] = useState(0);
+  // El envío ya no se fija a 0 aquí: se cotiza por distancia en el
+  // checkout, cuando ya se conoce la ciudad de destino. Ver
+  // src/application/support/cotizadorEnvio.js.
 
   useEffect(() => {
     if (!isOpen) {
@@ -266,7 +268,25 @@ export default function CartDrawer({ isOpen, onClose }) {
               <span>{t("catalog.shippingEst", "Envío estimado")}</span>
 
               <span className="cart-footer-price">
-                {formatPrice(costoEnvio)}
+                {/*
+                  En el carrito todavía no hay dirección de destino, así que
+                  no se puede cotizar por distancia. Antes se pintaba
+                  formatPrice(0) como si el envío fuera gratis; ahora se
+                  explica que se calcula en el checkout.
+                */}
+                <small
+                  style={{
+                    fontSize: "0.68rem",
+                    opacity: 0.8,
+                    textAlign: "right",
+                    display: "block",
+                  }}
+                >
+                  {t(
+                    "catalog.shippingAtCheckout",
+                    "Se calcula según la ciudad de destino",
+                  )}
+                </small>
               </span>
             </div>
 
@@ -274,7 +294,7 @@ export default function CartDrawer({ isOpen, onClose }) {
               <span>{t("catalog.total", "TOTAL")}</span>
 
               <span className="cart-footer-price-total">
-                {formatPrice(total + costoEnvio)}
+                {formatPrice(total)}
               </span>
             </div>
 
