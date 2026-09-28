@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
+import { useToast } from "@/app/contexts/ToastContext";
+import { descargarCsv, marcaTemporal } from "@/application/support/exportar";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
@@ -25,6 +27,9 @@ export default function Admin() {
   const { user, setUser, logout, formatPrice } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  // Avisos en pantalla en vez de window.alert()/confirm(), que congelan la
+  // interfaz y no respetan el tema oscuro.
+  const toast = useToast();
 
   // La URL manda: si viene /admin/<id>, se resuelve a su sección. Si no hay
   // identificador se muestra el resumen.
@@ -748,28 +753,28 @@ export default function Admin() {
   const handleGenerateReport = async () => {
     try {
       const token = localStorage.getItem("token");
+      toast.info(t("admin.generatingReportAlert", "Generando reporte PDF..."));
+
       const res = await fetch(`${API_BASE}/admin/reportes/pdf`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (!res.ok) {
-        if (
-          res.status === 404 ||
-          res.status === 401 ||
-          res.status === 403 ||
-          res.status >= 500
-        ) {
-          const usarFallback = window.confirm(
-            `El servidor respondió ${res.status} (${res.statusText || "sin detalle"}) al generar el PDF.\n\n` +
-              "Esto suele ocurrir cuando el backend desplegado todavía no tiene el endpoint de reportes.\n\n" +
-              "¿Quieres generar un reporte imprimible con los datos cargados en el panel?",
-          );
-          if (usarFallback) generarReporteImprimible();
-          return;
-        }
-        throw new Error(`Error ${res.status} al generar el reporte.`);
+        /*
+         * Antes se abría un window.confirm() para ofrecer el reporte
+         * imprimible. Es bloqueante y corta el render de React. Ahora se avisa
+         * y se genera el imprimible directamente: es lo mismo de útil sin
+         * congelar la pantalla.
+         */
+        toast.warning(
+          `El servidor respondió ${res.status}. Se genera el reporte imprimible con los datos del panel.`,
+        );
+        generarReporteImprimible();
+        return;
       }
+
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -779,17 +784,96 @@ export default function Admin() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      alert("Reporte mensual descargado (reporte-mensual.pdf).");
+      toast.success("Reporte mensual descargado (reporte-mensual.pdf).");
     } catch (err) {
-      if (err?.isNetworkError) {
-        alert("Sin conexión con el backend. " + err.message);
-        return;
-      }
-      const usarFallback = window.confirm(
-        `No se pudo descargar el PDF (${err.message}).\n\n` +
-          "¿Quieres generar un reporte imprimible con los datos cargados en el panel?",
+      toast.error(
+        err?.isNetworkError
+          ? `Sin conexión con el backend. ${err.message}`
+          : `No se pudo descargar el PDF. Se genera el reporte imprimible.`,
       );
-      if (usarFallback) generarReporteImprimible();
+      generarReporteImprimible();
+    }
+  };
+
+  /**
+   * Exporta la tabla de pedidos a CSV.
+   *
+   * Se genera en el navegador con los datos que la tabla ya tiene cargados,
+   * así que no depende de un endpoint ni de una segunda petición.
+   */
+  const exportarPedidos = () => {
+    if (adminPedidos.length === 0) {
+      toast.warning("No hay pedidos para exportar todavía.");
+      return;
+    }
+
+    const columnas = ["Pedido", "Cliente", "Total", "Estado", "Fecha"];
+    const filas = adminPedidos.map((p) => [
+      p.id ?? p.codigo ?? "",
+      p.cliente ?? p.comprador?.nombre ?? p.buyerName ?? "",
+      p.total ?? p.totalAmount ?? p.amount ?? "",
+      p.estado ?? p.status ?? "",
+      p.fecha ?? p.createdAt ?? "",
+    ]);
+
+    try {
+      descargarCsv(`pedidos-${marcaTemporal()}`, columnas, filas);
+      toast.success(
+        `Se exportaron ${filas.length} pedido${filas.length === 1 ? "" : "s"}.`,
+      );
+    } catch (error) {
+      toast.error(error.message || "No se pudo generar el archivo.");
+    }
+  };
+
+  /*
+   * Tickets de soporte.
+   *
+   * Antes solo se leían del resumen del dashboard, que no los trae, así que la
+   * tabla de soporte salía siempre vacía. Ahora se piden a su endpoint real
+   * (GET /mensajes/tickets), que para un administrador devuelve todos.
+   */
+  const [tickets, setTickets] = useState([]);
+
+  const loadTickets = useCallback(async () => {
+    try {
+      const res = await api.get("/mensajes/tickets");
+      setTickets(extractArray(res));
+    } catch (err) {
+      console.error("Error loadTickets:", err);
+      setTickets([]);
+    }
+  }, [extractArray]);
+
+  // Se cargan al montar (el contador del resumen los necesita siempre) y de
+  // nuevo cada vez que se abre la vista de Soporte.
+  useEffect(() => {
+    void loadTickets();
+  }, [loadTickets]);
+
+  /** Exporta los tickets de soporte a CSV. */
+  const exportarTickets = () => {
+    if (adminTickets.length === 0) {
+      toast.warning("No hay tickets para exportar todavía.");
+      return;
+    }
+
+    const columnas = ["Ticket", "Asunto", "Usuario", "Estado", "Mensajes"];
+    const filas = adminTickets.map((t) => [
+      t.id ?? "",
+      t.subject ?? "",
+      t.creatorUsername ?? "",
+      t.status ?? "",
+      Array.isArray(t.messages) ? t.messages.length : 0,
+    ]);
+
+    try {
+      descargarCsv(`tickets-${marcaTemporal()}`, columnas, filas);
+      toast.success(
+        `Se exportaron ${filas.length} ticket${filas.length === 1 ? "" : "s"}.`,
+      );
+    } catch (error) {
+      toast.error(error.message || "No se pudo generar el archivo.");
     }
   };
 
@@ -849,17 +933,34 @@ export default function Admin() {
     return [];
   };
 
+  /**
+   * Formatea la fecha de un ticket. El backend la devuelve como
+   * LocalDateTime ISO ("2026-09-28T14:32:10"); se muestra en formato
+   * colombiano corto y, si no se puede interpretar, se devuelve tal cual
+   * para no dejar la celda vacía.
+   */
+  const formatearFechaTicket = (valor) => {
+    if (!valor) return "—";
+    const fecha = new Date(valor);
+    if (Number.isNaN(fecha.getTime())) return String(valor);
+    return fecha.toLocaleString("es-CO", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const adminPedidos = getDashboardCollection(
     "pedidos",
     "ultimosPedidos",
     "recentOrders",
     "ordenes",
   );
-  const adminTickets = getDashboardCollection(
-    "tickets",
-    "ticketsSoporte",
-    "soporte",
-  );
+  const adminTickets = tickets.length
+    ? tickets
+    : getDashboardCollection("tickets", "ticketsSoporte", "soporte");
   const productores = usuarios.filter((u) =>
     String(u.role || u.rol || "")
       .toUpperCase()
@@ -902,6 +1003,32 @@ export default function Admin() {
 
       {/* SIDEBAR */}
       <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+        {/*
+         * Logo: enlace a la portada pública.
+         *
+         * Importante: es un <Link> de React Router, NO el botón de "Cerrar
+         * sesión". Navegar a "/" no desmonta el Proveedor de autenticación ni
+         * limpia la sesión, así que el administrador sigue conectado y puede
+         * volver al panel desde la portada sin volver a iniciar sesión.
+         */}
+        <Link
+          to="/"
+          className="sidebar-logo"
+          aria-label="Ir a la portada de AgroMarket"
+        >
+          <img
+            src="/agromarket/logo.png"
+            alt="AgroMarket"
+            width="30"
+            height="30"
+            loading="eager"
+          />
+          <span className="sidebar-logo__texto">
+            <strong>AgroMarket</strong>
+            <small>Panel de administración</small>
+          </span>
+        </Link>
+
         <div className="sidebar-user">
           <div
             className="avatar avatar-red"
@@ -1783,7 +1910,20 @@ export default function Admin() {
                       dashboard administrativo.
                     </p>
                   </div>
-                  <button className="table-action">Exportar</button>
+                  <button
+                    type="button"
+                    className="table-action"
+                    onClick={exportarPedidos}
+                    disabled={adminPedidos.length === 0}
+                    title={
+                      adminPedidos.length === 0
+                        ? "No hay pedidos para exportar"
+                        : "Descargar los pedidos visibles en formato CSV"
+                    }
+                  >
+                    <Icon name="download" size={15} />
+                    Exportar
+                  </button>
                 </div>
                 <div className="table-wrap">
                   <table className="table-responsive">
@@ -3053,8 +3193,19 @@ export default function Admin() {
                       Centro de atención y seguimiento de incidencias.
                     </p>
                   </div>
-                  <button className="table-action" type="button">
-                    + Nuevo ticket
+                  <button
+                    type="button"
+                    className="table-action"
+                    onClick={exportarTickets}
+                    disabled={adminTickets.length === 0}
+                    title={
+                      adminTickets.length === 0
+                        ? "No hay tickets para exportar"
+                        : "Descargar los tickets visibles en formato CSV"
+                    }
+                  >
+                    <Icon name="download" size={15} />
+                    Exportar
                   </button>
                 </div>
                 <div className="table-wrap">
@@ -3065,47 +3216,51 @@ export default function Admin() {
                         <th>Asunto</th>
                         <th>Usuario</th>
                         <th>Estado</th>
-                        <th>Prioridad</th>
-                        <th>Fecha</th>
+                        <th>Mensajes</th>
+                        <th>Actualizado</th>
                       </tr>
                     </thead>
                     <tbody>
                       {adminTickets.length === 0 ? (
                         <tr>
-                          <td colSpan="6" className="empty-cell">
-                            El frontend actual no tiene un endpoint de tickets
-                            de soporte. Cuando /admin/dashboard devuelva
-                            tickets, se renderizarán automáticamente en esta
-                            tabla.
+                          <td colSpan="6">
+                            <div className="estado-vacio">
+                              <span className="estado-vacio__icono" aria-hidden="true">
+                                <Icon name="check" size={26} />
+                              </span>
+                              <p className="estado-vacio__titulo">
+                                No hay tickets de soporte
+                              </p>
+                              <p className="estado-vacio__texto">
+                                Cuando un usuario abra un ticket aparecerá aquí.
+                              </p>
+                            </div>
                           </td>
                         </tr>
                       ) : (
                         adminTickets.map((ticket, i) => (
                           <tr key={ticket.id || i}>
                             <td data-label="Ticket">
-                              {ticket.codigo ||
-                                ticket.numero ||
-                                ticket.id ||
-                                `#T-${i + 1}`}
+                              {ticket.id || `#T-${i + 1}`}
                             </td>
                             <td data-label="Asunto">
-                              {ticket.asunto || ticket.titulo || "—"}
+                              {ticket.subject || "—"}
                             </td>
                             <td data-label="Usuario">
-                              {ticket.usuario || ticket.nombreUsuario || "—"}
+                              {ticket.creatorUsername || "—"}
                             </td>
                             <td data-label="Estado">
                               <span className="badge-status status-pending">
-                                {ticket.estado || "—"}
+                                {ticket.status || "—"}
                               </span>
                             </td>
-                            <td data-label="Prioridad">
-                              <span className="priority-badge">
-                                {ticket.prioridad || "Media"}
-                              </span>
+                            <td data-label="Mensajes">
+                              {Array.isArray(ticket.messages)
+                                ? ticket.messages.length
+                                : 0}
                             </td>
-                            <td data-label="Fecha">
-                              {ticket.fecha || ticket.fechaCreacion || "—"}
+                            <td data-label="Actualizado">
+                              {formatearFechaTicket(ticket.updatedAt)}
                             </td>
                           </tr>
                         ))

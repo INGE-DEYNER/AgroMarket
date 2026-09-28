@@ -1,3 +1,11 @@
+/*
+ * Paleta del panel.
+ *
+ * Los colores de marca (verde ASAFRUT) son fijos. Los de superficie, texto y
+ * borde se redefinen para el tema oscuro más abajo, de modo que las reglas
+ * que usan var(--admin-*) cambian solas al alternar el tema y no hace falta
+ * duplicar ninguna regla con html.dark.
+ */
 :root {
   --admin-green: #11823b;
   --admin-dark: #0a5a27;
@@ -13,6 +21,25 @@
   --admin-white: #ffffff;
   --admin-radius: 12px;
   --admin-shadow: 0 5px 18px rgba(10, 90, 39, 0.08);
+
+  /* Superficies y marco del panel */
+  --admin-page: #f5f8f6;
+  --admin-surface: #ffffff;
+  --admin-surface-alt: #f1f6f2;
+  --admin-frame: #eef3ef;
+  --admin-frame-border: #d9e5dc;
+}
+
+html.dark {
+  --admin-page: #0e1711;
+  --admin-surface: #16211a;
+  --admin-surface-alt: #1d2a21;
+  --admin-frame: #1a251e;
+  --admin-frame-border: #2c3b31;
+  --admin-border: #2c3b31;
+  --admin-text: #eef7f0;
+  --admin-muted: #94a89a;
+  --admin-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
 }
 
 .app-layout {
@@ -394,13 +421,202 @@
 
 /* ============================================================
    NAVEGACIÓN POR SECCIONES (SPA)
-   ============================================================
-   El render ya no apila todas las secciones: cada <section> recibe la clase
-   "active" solo cuando es la vista seleccionada. Esta es la regla base que
-   oculta las demás; el bloque siguiente solo asegura que la activa se vea.
+   ============================================================ */
 
-   El layout sigue siendo compacto: la sidebar navega entre vistas sin
-   recargar la página ni abrir pestaña. */
+/* Logo del sidebar. Enlaza a la portada pública con <Link> de React Router,
+   así que NO toca la sesión del administrador. */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 12px 10px 14px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #fff;
+  transition: background 0.15s ease;
+}
+
+.sidebar-logo:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.sidebar-logo img {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo__texto {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.sidebar-logo__texto strong {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-logo__texto small {
+  font-size: 0.6rem;
+  opacity: 0.68;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Estado vacío elegante: sustituye al mensaje técnico que decía que
+   "el frontend no tiene endpoint". */
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 34px 20px;
+  text-align: center;
+}
+
+.estado-vacio__icono {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--admin-surface-alt, #f1f6f2);
+  color: var(--admin-green, #11823b);
+  margin-bottom: 4px;
+}
+
+.estado-vacio__titulo {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--admin-text, #111827);
+}
+
+.estado-vacio__texto {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--admin-muted, #667280);
+  max-width: 34ch;
+}
+
+/* ============================================================
+   SUPERFICIES QUE SEGUÍAN EL TEMA
+   ============================================================
+   Estas reglas usaban #fff literales, por lo que en modo oscuro aparecían
+   tarjetas blancas con texto claro encima. Al pasar a variables, desaparecen
+   los fondos residuales al cambiar de tema. */
+
+.app-layout,
+.admin-dashboard {
+  background: var(--admin-page, #f5f8f6);
+  color: var(--admin-text, #111827);
+}
+
+.admin-dashboard .card-table,
+.app-layout .card-table {
+  background: var(--admin-surface, #ffffff);
+  border-color: var(--admin-frame-border, #d9e5dc);
+  color: var(--admin-text, #111827);
+}
+
+.admin-dashboard .table-header,
+.app-layout .table-header {
+  background: var(--admin-frame, #eef3ef);
+  border-color: var(--admin-frame-border, #d9e5dc);
+}
+
+.admin-dashboard .card-title,
+.app-layout .card-title {
+  color: var(--admin-text, #111827);
+}
+
+.admin-dashboard .section-subtitle,
+.admin-dashboard .section-subtitle * {
+  color: var(--admin-muted, #667280);
+}
+
+.admin-dashboard .table-responsive,
+.admin-dashboard .table-responsive td,
+.admin-dashboard .table-responsive th {
+  background: var(--admin-surface, #ffffff);
+  color: var(--admin-text, #111827);
+  border-color: var(--admin-frame-border, #d9e5dc);
+}
+
+.admin-dashboard .table-responsive thead th {
+  background: var(--admin-surface-alt, #f1f6f2);
+}
+
+.admin-dashboard .form-input,
+.admin-dashboard .form-label,
+.admin-dashboard .table-responsive input,
+.admin-dashboard .table-responsive select,
+.admin-dashboard .table-responsive textarea {
+  background: var(--admin-surface-alt, #f1f6f2);
+  color: var(--admin-text, #111827);
+  border-color: var(--admin-frame-border, #d9e5dc);
+}
+
+/* Etiquetas inline que se pintaban con --border-light, una variable que
+   solo existe en el tema claro. */
+.admin-dashboard * {
+  border-color: var(--admin-border, #d9e5dc);
+}
+
+/* ============================================================
+   DISEÑO COMPACTO
+   ============================================================
+   Reduce el aire vertical para aprovechar mejor la pantalla sin perder
+   legibilidad: paddings, altura de fila y tamaño de fuente. */
+
+.admin-dashboard .table-header {
+  padding: 11px 14px;
+}
+
+.admin-dashboard .section {
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.admin-dashboard .table-responsive th,
+.admin-dashboard .table-responsive td {
+  padding: 7px 10px;
+  font-size: 0.8rem;
+}
+
+.admin-dashboard .stat-card {
+  padding: 12px 14px;
+}
+
+.admin-dashboard .stat-value {
+  font-size: 1.5rem;
+}
+
+.admin-dashboard .stat-label {
+  font-size: 0.7rem;
+}
+
+.admin-dashboard .sidebar-link {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  margin: 1px 8px;
+}
+
+.admin-dashboard .dash-welcome h1 {
+  font-size: 1.32rem;
+}
+
+.admin-dashboard .dash-welcome p {
+  font-size: 0.78rem;
+}
 
 .admin-dashboard .section {
   display: none;
