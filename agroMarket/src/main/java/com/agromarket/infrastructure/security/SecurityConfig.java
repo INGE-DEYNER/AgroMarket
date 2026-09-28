@@ -100,6 +100,33 @@ public class SecurityConfig {
                                                                 "/api/public/**")
                                                 .permitAll()
 
+                                                /*
+                                                 * CRÍTICO: /error debe ser público.
+                                                 *
+                                                 * Cuando un endpoint lanza
+                                                 * cualquier excepción (JSON
+                                                 * malformado, error de SQL,
+                                                 * 404), Spring la reenvía al
+                                                 * dispatcher de errores en
+                                                 * POST /error. Si esa ruta cae
+                                                 * bajo anyRequest()
+                                                 * .authenticated(), el 401
+                                                 * ENMASCARA el error real y el
+                                                 * frontend lo muestra como
+                                                 * "no tienes autorización",
+                                                 * haciendo creer al usuario que
+                                                 * su sesión caducó cuando el
+                                                 * problema era otro.
+                                                 *
+                                                 * Permitir /error devuelve el
+                                                 * código verdadero (400/404/409/
+                                                 * 500) y su mensaje, que es lo
+                                                 * único que permite
+                                                 * diagnosticar.
+                                                 */
+                                                .requestMatchers("/error")
+                                                .permitAll()
+
                                                 // Productos del productor autenticado: debe ir ANTES que la
                                                 // regla pública de abajo, porque Spring Security aplica la
                                                 // primera regla que matchee.

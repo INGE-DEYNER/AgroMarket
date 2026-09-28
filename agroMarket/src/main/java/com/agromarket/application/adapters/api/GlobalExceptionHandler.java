@@ -84,6 +84,30 @@ public class GlobalExceptionHandler {
                                                 exception.getMessage()));
         }
 
+        /*
+         * IllegalStateException significa que el servidor no está en
+         * condiciones de atender la petición por un problema de CONFIGURACIÓN
+         * o de infraestructura, no por un error del cliente. El caso real es
+         * brevo.api.key sin definir: la recuperación de contraseña y el envío de
+         * facturas fallaban con un 500 sin cuerpo, porque Spring no encuentra
+         * manejador para esta excepción y devuelve la página de error por
+         * defecto (además reenviada a /error).
+         *
+         * 503 Service Unavailable es el código correcto: el cliente no puede
+         * reintentar hasta que se configure la dependencia, y el mensaje
+         * deja claro el motivo.
+         */
+        @ExceptionHandler(IllegalStateException.class)
+        public ResponseEntity<Map<String, Object>> handleIllegalStateException(
+                        IllegalStateException exception) {
+
+                return ResponseEntity
+                                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                                .body(buildBody(
+                                                HttpStatus.SERVICE_UNAVAILABLE,
+                                                exception.getMessage()));
+        }
+
         private HttpStatus resolveStatus(
                         DomainException exception) {
 
