@@ -3390,8 +3390,16 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* SIDEBAR INFO ADMIN */}
-            <div className="side-info">
+            {/*
+              SIDEBAR INFO — "Top Productores" e "Ingresos 6 Meses".
+              Antes este bloque estaba fuera de toda .section, así que se
+              renderizaba siempre: en Cupones, Usuarios, Reseñas o
+              Configuración aparecía al pie la gráfica de ingresos que solo
+              pertenece al Dashboard. Ahora se muestra únicamente cuando la
+              sección activa es el resumen.
+            */}
+            {activeSection === "dashboard" && (
+              <div className="side-info">
               <div
                 className="card-table"
                 style={{ padding: "24px", marginBottom: "24px" }}
@@ -3512,7 +3520,8 @@ export default function Admin() {
                   </div>
                 )}
               </div>
-            </div>
+              </div>
+            )}
           </div>
               {/* MI PERFIL — dentro del panel, sin salir a otra página */}
               <div
