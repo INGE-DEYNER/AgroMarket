@@ -26,14 +26,13 @@
    clases raíz. El sitio público no se ve afectado.
    ============================================================ */
 
-/* --- Título de sección (el h1 dentro de .dash-header) --- */
+/* --- Título de sección (el h1 dentro de .dash-header) ---
+   Los selectores `.section.active` se retiraron: con el Outlet solo se monta
+   la sección de la ruta y ninguna lleva ya la clase "active". */
 .admin-dashboard .dash-header h1,
 .buyer-dashboard .dash-header h1,
 .buyer-shell .dash-header h1,
-.producer-dashboard .dash-header h1,
-.buyer-dashboard .section.active .dash-header h1,
-.producer-dashboard .section.active .dash-header h1,
-.admin-dashboard .section.active .dash-header h1 {
+.producer-dashboard .dash-header h1 {
   font-size: 1.15rem !important;
   font-weight: 800;
   line-height: 1.3;
@@ -134,11 +133,13 @@
   font-size: 0.82rem !important;
 }
 
-/* --- Enlace del menú lateral --- */
+/* --- Enlace del menú lateral ---
+   El shell común dibuja el menú con .ds-nav__item, que ya toma su tamaño de
+   --fs-sm (dashboard-shell.css). Aquí solo quedan los dos paneles que aún no
+   se han migrado al shell. */
 .admin-dashboard .sidebar-link,
 .buyer-dashboard .sidebar-link,
-.buyer-shell .sidebar-link,
-.producer-dashboard .sidebar-link {
+.buyer-shell .sidebar-link {
   font-size: 0.8rem !important;
   font-weight: 600;
 }

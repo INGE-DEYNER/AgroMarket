@@ -1,10 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useNavigate, NavLink, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
-import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
-import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import { useMensajeriaStream } from "@/application/messaging/useMessaging";
 // formatearHora se fue con la sección de Mensajería, que es la única que lo
@@ -16,7 +14,8 @@ import {
 import "@/presentation/styles/envios.css";
 import "@/presentation/styles/mensajeria.css";
 import "@/presentation/styles/productor.css";
-import Icon from "@/presentation/shared/components/Icon";
+import DashboardShell from "@/presentation/shared/layout/DashboardShell";
+import { NAV_PRODUCTOR } from "@/application/navigation/navConfig";
 import ProductorShell from "@/presentation/features/product/components/ProductorShell";
 import SeccionesActivas from "@/presentation/features/product/sections/SeccionesActivas";
 
@@ -44,11 +43,8 @@ export default function DashboardProductor() {
     if (res.content && Array.isArray(res.content)) return res.content;
     return [];
   }, []);
-  const { user, setUser, logout } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
-
-  // Navigation state
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /*
    * NAVEGACIÓN POR SECCIONES (SPA).
@@ -64,8 +60,10 @@ export default function DashboardProductor() {
    *
    * `seccionActual` es la lectura de esa ruta. La consumen los efectos que
    * necesitan saber qué vista está abierta (carga diferida por sección y
-   * sondeo de mensajería). Con el Outlet montado, quien ya sabe la sección
-   * es el propio Outlet, pero estos efectos viven en el padre.
+   * sondeo de mensajería).
+   *
+   * El estado de "menú abierto" ya no vive aquí: el shell común lo lleva y lo
+   * cierra en cada clic del menú.
    */
   const { seccion: seccionActual = "resumen" } = useParams();
   const showSection = useCallback(
@@ -810,266 +808,25 @@ export default function DashboardProductor() {
 
 
   return (
-    <div className="app-layout producer-dashboard">
-      {/* Overlay para sidebar móvil */}
-      <div
-        className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
-        onClick={() => setSidebarOpen(false)}
-      />
-
-      {/* SIDEBAR */}
-      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div
-          className="sidebar-user"
-          style={{ cursor: "pointer" }}
-          onClick={() => {
-            setSidebarOpen(false);
-            navigate("/perfil");
-          }}
-        >
-          <div
-            className="avatar avatar-green"
-            style={{ width: "48px", height: "48px", fontSize: "1.2rem" }}
-          >
-            {iniciales}
-          </div>
-          <div className="sidebar-user-info">
-            <span className="name">{user?.nombre || "Luis Palacios"}</span>
-            <span className="role">
-              {t("dashboardProductor.producerRole", "Productor ASAFRUT")}
-              {user?.verificado && (
-                <span
-                  style={{
-                    display: "inline-block",
-                    marginLeft: "6px",
-                    background: "#385723",
-                    color: "#fff",
-                    padding: "1px 5px",
-                    borderRadius: "4px",
-                    fontSize: "0.65rem",
-                    fontWeight: "700",
-                  }}
-                >
-                  Verificado
-                </span>
-              )}
-            </span>
-            <div className="rating">
-              <Icon
-                name="star"
-                size={16}
-                className="inline text-yellow-500 mr-1"
-              />{" "}
-              {calificacionProductor}
-              {reputacion && (
-                <small style={{ color: "var(--text-dim)" }}>
-                  {" "}
-                  ({reputacion.total}{" "}
-                  {reputacion.total === 1 ? "reseña" : "reseñas"})
-                </small>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="sidebar-label">Gestión del negocio</div>
-        <NavLink
-          to={`/dashboard-productor/resumen`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon">⌂</span> Panel general
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/misProductos`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon">▦</span> Productos
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/pedidosRec`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon">▤</span> Pedidos y ventas{" "}
-          <span className="badge-count">{pedidos.length}</span>
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/mensajeria`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"><Icon name="mail" size={18} /></span> Mensajes
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/resenas`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"><Icon name="star" size={18} /></span> Reseñas
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/finca`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon">⌂</span> Información de la finca
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/finanzas`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon">$</span> Finanzas / pagos
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/configuracion`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"><Icon name="settings" size={18} /></span> Configuración
-        </NavLink>
-        <div className="sidebar-divider"></div>
-        <div className="sidebar-label">Operación</div>
-        <NavLink
-          to={`/dashboard-productor/seguimiento`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon">▣</span> Despachos
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/rfq`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon">◈</span> Oportunidades
-        </NavLink>
-        <NavLink
-          to={`/dashboard-productor/perfil`}
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon">●</span> Mi perfil
-        </NavLink>
-        <button
-          type="button"
-          className="sidebar-link producer-logout"
-          onClick={async () => {
-            setSidebarOpen(false);
-            await logout();
-            navigate("/");
-          }}
-        >
-          <span className="icon">↪</span> Cerrar sesión
-        </button>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="main-content">
-        <header className="producer-topbar">
-          <div className="producer-brand">
-            <span className="producer-brand-mark">AM</span>
-            <div>
-              <strong>AgroMarket</strong>
-              <small>
-                {t(
-                  "nav.brandTagline",
-                  "Del campo de Urabá y Colombia a tu mesa",
-                )}
-              </small>
-            </div>
-          </div>
-          <div className="producer-topbar-center">
-            <strong>
-              {t("dashboardProductor.producerRole", "PRODUCTOR / VENDEDOR")}
-            </strong>
-            <span>
-              {t(
-                "dashboardProductor.producerSub",
-                "Gestiona tu negocio, productos y ventas en AgroMarket",
-              )}
-            </span>
-          </div>
-          <div className="producer-topbar-actions">
-            <button
-              type="button"
-              className="producer-icon-btn"
-              onClick={() => showSection("mensajeria")}
-              aria-label="Mensajes"
-            >
-              ✉
-            </button>
-            <button
-              type="button"
-              className="producer-icon-btn"
-              onClick={() => showSection("configuracion")}
-              aria-label="Configuración"
-            >
-              ⚙
-            </button>
-            <button
-              type="button"
-              className="producer-account"
-              onClick={() => showSection("perfil")}
-            >
-              <span className="producer-avatar">{iniciales}</span>
-              <span>
-                <strong>{user?.nombre || "Productor"}</strong>
-                <small>Productor</small>
-              </span>
-            </button>
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </div>
-        </header>
-        <div className="producer-mobile-toolbar">
-          <button
-            type="button"
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Abrir menú de navegación"
-          >
-            <Icon name="menu" size={16} className="inline mr-2" /> Menú
-          </button>
-          <LanguageSwitcher />
-        </div>
-
-        {/* â”€â”€â”€ RESUMEN â”€â”€â”€ */}
+    <DashboardShell
+      nav={NAV_PRODUCTOR}
+      badges={{ pedidosRec: pedidos.length }}
+    >
+      <ProductorShell valor={estadoProductor}>
         {/*
-          * El shell comun de los tres paneles vive en DashboardShell; aqui
-          * solo se expone el estado a las secciones por contexto. Cada
-          * seccion se monta por ruta y lo lee con useProductorData(), asi
-          * que el shell no se re-monta al cambiar de vista.
-          */}
-        <ProductorShell valor={estadoProductor}>
+         * Este contenedor conserva el alcance `.producer-dashboard ...` de
+         * productor.css y de dashboards-tipografia.css. Sin el, unas treinta
+         * reglas (tipografia de las tablas, tarjetas de metrica, tintes del
+         * modo oscuro) se quedarian sin aplicar, porque el shell dibuja su
+         * propio contenedor .ds-main y no es del Productor.
+         */}
+        <div className="producer-dashboard">
           <SeccionesActivas />
-        </ProductorShell>
+        </div>
+      </ProductorShell>
 
-      </main>
+      {/* Modales: position fixed, viven fuera del flujo del shell. */}
+      {/* ---------------------------------------------------------------- */}
 
       {/* MODAL PRODUCTO */}
       {modalOpen && (
@@ -1500,6 +1257,6 @@ export default function DashboardProductor() {
           </div>
         </div>
       )}
-    </div>
+    </DashboardShell>
   );
 }

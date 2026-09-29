@@ -33,9 +33,15 @@
   --space-5: 1.25rem;
   --space-6: 1.5rem;
 
-  /* Medidas del shell. */
-  --sidebar-w: 248px;
-  --topbar-h: 64px;
+  /* Medidas del shell.
+    llevan prefijo ds- a proposito: --sidebar-w ya existe en styles.css y en
+     variables.css (280px) y lo consumen .sidebar, BuyerShell y
+     SpecialSystemShell. Como dashboard-shell.css se inyecta DESPUES (el panel
+     es un lazy), definir aqui --sidebar-w: 248px pisaba el valor global y
+     cambiaba el ancho del menu de los otros paneles sin que se notara en el
+     build. Con --ds-sidebar-w cada shell va por libre. */
+  --ds-sidebar-w: 248px;
+  --ds-topbar-h: 64px;
   --nav-item-h: 2rem;
   --nav-icon-size: 18px;
 
@@ -113,7 +119,7 @@ html.dark .ds-shell {
   /* Altura por token y NINGÚN margen negativo: antes los tres paneles
      usaban `margin: 0 -28px 28px` / `-18px -22px 18px`, lo que sacaba la
      barra del flujo y recortaba la fila de arriba. */
-  min-height: var(--topbar-h);
+  min-height: var(--ds-topbar-h);
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -297,8 +303,8 @@ html.dark .ds-shell {
 .ds-sidebar {
   /* Columna flex para que la zona de pie quede siempre visible, por
      muchos ítems que tenga la navegación. */
-  width: var(--sidebar-w);
-  flex: 0 0 var(--sidebar-w);
+  width: var(--ds-sidebar-w);
+  flex: 0 0 var(--ds-sidebar-w);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -533,7 +539,7 @@ html.dark .ds-shell {
 
 @media (max-width: 860px) {
   :root {
-    --topbar-h: 56px;
+    --ds-topbar-h: 56px;
   }
 
   .ds-topbar {

@@ -44,6 +44,13 @@ export const NAV_PRODUCTOR = {
   rol: "productor",
   etiquetaRol: "Productor / Vendedor",
   base: "/dashboard-productor",
+  /*
+   * Los ids son los SEGMENTOS DE RUTA y tienen que coincidir con las claves de
+   * SECCIONES en sections/SeccionesActivas.jsx. Antes ponía `productos` y
+   * `pedidos`, que no existen: las secciones se llaman `misProductos` y
+   * `pedidosRec`, y `finca` faltaba por completo. Con esos ids el menú
+   * navegaba a rutas sin sección y caía en el resumen.
+   */
   secciones: [
     {
       id: "resumen",
@@ -51,10 +58,11 @@ export const NAV_PRODUCTOR = {
       icon: "home",
       group: "Gestión del negocio",
     },
-    { id: "productos", label: "Productos", icon: "box" },
-    { id: "pedidos", label: "Pedidos y ventas", icon: "package" },
+    { id: "misProductos", label: "Productos", icon: "box" },
+    { id: "pedidosRec", label: "Pedidos y ventas", icon: "package" },
     { id: "mensajeria", label: "Mensajes", icon: "message" },
     { id: "resenas", label: "Reseñas", icon: "star" },
+    { id: "finca", label: "Información de la finca", icon: "leaf" },
     { id: "finanzas", label: "Finanzas / pagos", icon: "card" },
     { id: "rfq", label: "Oportunidades", icon: "lightbulb" },
     { id: "seguimiento", label: "Despachos", icon: "truck", group: "Operación" },
@@ -65,6 +73,8 @@ export const NAV_PRODUCTOR = {
       group: "Sistema",
     },
   ],
+  // "perfil" no se lista aquí: el shell la dibuja siempre en el pie fijo,
+  // junto a "Cerrar sesión", para que nunca quede fuera de la vista.
 };
 
 export const NAV_COMPRADOR = {
