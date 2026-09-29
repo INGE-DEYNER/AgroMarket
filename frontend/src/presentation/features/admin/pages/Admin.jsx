@@ -1,16 +1,14 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, useParams, Link, NavLink } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useToast } from "@/app/contexts/ToastContext";
 import { descargarCsv, marcaTemporal } from "@/application/support/exportar";
-import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import api, { API_BASE } from "@/infrastructure/http/api";
-import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
-import Icon from "@/presentation/shared/components/Icon";
-import PanelNotificaciones from "@/presentation/shared/components/PanelNotificaciones";
 import { rutaDeSeccion, seccionDesdeRuta } from "@/application/security/rutasAdmin";
+import { NAV_ADMIN } from "@/application/navigation/navConfig";
+import DashboardShell from "@/presentation/shared/layout/DashboardShell";
 import AdminShell from "@/presentation/features/admin/components/AdminShell";
 import SeccionesAdmin from "@/presentation/features/admin/sections/SeccionesAdmin";
 import "@/presentation/styles/admin.css";
@@ -27,14 +25,12 @@ import "@/presentation/styles/admin.css";
 
 export default function Admin() {
   const { t } = useTranslation();
-  const { user, setUser, logout, formatPrice } = useAuth();
+  const { user, setUser, formatPrice } = useAuth();
   const navigate = useNavigate();
   // Avisos en pantalla en vez de window.alert()/confirm(), que congelan la
   // interfaz y no respetan el tema oscuro.
   const toast = useToast();
 
-
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /*
    * SECCIONES COMO RUTAS ANIDADAS.
@@ -1020,168 +1016,18 @@ export default function Admin() {
 
 
   return (
-    <div className="app-layout admin-dashboard">
-      {/* Overlay para sidebar móvil */}
-      <div
-        className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
-        onClick={() => setSidebarOpen(false)}
-      />
-
-      {/* SIDEBAR */}
-      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        {/*
-         * Logo: enlace a la portada pública.
-         *
-         * Importante: es un <Link> de React Router, NO el botón de "Cerrar
-         * sesión". Navegar a "/" no desmonta el Proveedor de autenticación ni
-         * limpia la sesión, así que el administrador sigue conectado y puede
-         * volver al panel desde la portada sin volver a iniciar sesión.
-         */}
-        <Link
-          to="/"
-          className="sidebar-logo"
-          aria-label="Ir a la portada de AgroMarket"
-        >
-          <img
-            src="/agromarket/logo.png"
-            alt="AgroMarket"
-            width="30"
-            height="30"
-            loading="eager"
-          />
-          <span className="sidebar-logo__texto">
-            <strong>AgroMarket</strong>
-            <small>Panel de administración</small>
-          </span>
-        </Link>
-
-        <div className="sidebar-user">
-          <div
-            className="avatar avatar-red"
-            style={{ width: "48px", height: "48px", fontSize: "1.2rem" }}
-          >
-            AD
-          </div>
-          <div className="sidebar-user-info">
-            <span className="name">
-              {t("admin.roleAdmin", "Administrador")}
-            </span>
-            <span className="role">
-              {t("admin.supportRole", "Soporte AgroMarket")}
-            </span>
-          </div>
-        </div>
-
-        <div className="sidebar-label">
-          {t("admin.nav.title", "Panel de Control")}
-        </div>
-        {[
-          ["dashboard", t("admin.nav.dashboard", "Dashboard"), "home"],
-          ["usuarios", t("admin.nav.users", "Usuarios"), "users"],
-          ["mensajeria", t("admin.nav.messaging", "Mensajería"), "message"],
-          ["productos", t("admin.nav.products", "Productos"), "package"],
-          ["pedidos", t("admin.nav.orders", "Pedidos"), "box"],
-          ["productores", t("admin.nav.producers", "Productores"), "leaf"],
-          ["pagos", t("admin.nav.payments", "Pagos"), "card"],
-          ["finanzas", t("admin.nav.reports", "Reportes"), "calendar"],
-          ["logistica", t("admin.nav.logistics", "Logística"), "truck"],
-          ["cupones", t("admin.nav.coupons", "Cupones"), "ticket"],
-          ["resenas", t("admin.nav.reviews", "Reseñas"), "star"],
-          ["configuracion", t("admin.nav.settings", "Configuración"), "settings"],
-          ["soporte", t("admin.nav.support", "Soporte"), "info"],
-          ["auditoria", t("admin.nav.audit", "Auditoría"), "shield"],
-        ].map(([section, label, icon]) => (
-          <NavLink
-            key={section}
-            to={rutaDeSeccion(section)}
-            className={({ isActive }) =>
-              `sidebar-link${isActive ? " active" : ""}`
-            }
-            onClick={() => setSidebarOpen(false)}
-          >
-            <span className="sidebar-icon" aria-hidden="true">
-              <Icon name={icon} size={17} />
-            </span>
-            {label}
-            {section === "pedidos" && adminPedidos.length > 0 && (
-              <span className="sidebar-badge">{adminPedidos.length}</span>
-            )}
-          </NavLink>
-        ))}
-
-        <div className="sidebar-divider"></div>
-        {/*
-         * "Mi Perfil" se abre DENTRO del panel (sección sec-perfil) en vez de
-         * navegar a /perfil y dejar el dashboard. Antes era un <Link>, así que
-         * salía del panel y el usuario perdía el contexto.
-         */}
-        <button
-          type="button"
-          className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`}
-          onClick={() => {
-            showSection("perfil");
-            setSidebarOpen(false);
-          }}
-        >
-          <span className="sidebar-icon" aria-hidden="true">
-            ◎
-          </span>
-          {t("profile.title", "Mi Perfil")}
-        </button>
-
-        <a
-          href="#"
-          className="sidebar-link"
-          style={{ marginTop: "auto", color: "var(--red)" }}
-          onClick={async (e) => {
-            e.preventDefault();
-            // AuthContext.logout() redirige al home 0.3 s después de limpiar
-            // la sesión (comportamiento global para todos los roles).
-            await logout();
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="currentColor"
-            style={{ marginRight: "8px", verticalAlign: "middle" }}
-          >
-            <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
-          </svg>
-          {t("admin.logout", "Cerrar sesión")}
-        </a>
-      </aside>
-
-      <main className="main-content">
-        {/* Top bar with sidebar toggle */}
-        <div className="admin-topbar">
-          <button
-            type="button"
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Abrir menú de navegación"
-          >
-            ☰ Menú
-          </button>
-          <div className="admin-search">
-            {t("admin.searchPlaceholder", "Buscar en AgroMarket...")}{" "}
-            <span>⌕</span>
-          </div>
-          <div className="admin-top-actions">
-            <PanelNotificaciones userId={user?.id} />
-            <span className="admin-user-avatar">
-              {(user?.nombre || "A").slice(0, 1).toUpperCase()}
-            </span>
-            <span className="admin-user-name">
-              {user?.nombre || "Admin"}
-              <small>Administrador</small>
-            </span>
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </div>
-        </div>
-
+    /*
+     * El shell es el MISMO para los tres paneles: aqui solo se pasa la
+     * navegación del rol. Antes cada panel dibujaba su propio topbar y su
+     * propio sidebar, con margenes negativos en la barra (que la recortaban) y
+     * sin pie fijo (por lo que "Cerrar sesion" se cortaba en pantallas
+     * bajas). Ver DashboardShell.jsx.
+     */
+    <DashboardShell
+      nav={NAV_ADMIN}
+      badges={{ pedidos: adminPedidos.length }}
+    >
+      <div className="admin-dashboard">
         {/*
          * El encabezado y las tarjetas de métricas SOLO existen en el
          * Dashboard. Antes vivían sueltos en el <main>, fuera de cualquier
@@ -1274,7 +1120,7 @@ export default function Admin() {
               <SeccionesAdmin />
             </AdminShell>
           </div>
-        </main>
-    </div>
+        </div>
+    </DashboardShell>
   );
 }

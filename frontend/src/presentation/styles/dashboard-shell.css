@@ -45,11 +45,17 @@
   --nav-item-h: 2rem;
   --nav-icon-size: 18px;
 
-  /* Radios. */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-pill: 999px;
+  /* Radios del shell.
+     Van CON PREFIJO ds- a proposito: --radius-sm/md/lg ya existen en
+     styles.css y variables.css con otros valores (4px/8px/16px). Como los
+     paneles son React.lazy(), esta hoja se inyecta DESPUES y sus --radius-lg
+     pisaba al global, cambiando el redondeo de toda la aplicacion. Es el
+     mismo fallo que --sidebar-w, que ya esta renombrado arriba.
+     Ver scripts/ver-tokens.cjs, que avisa de esto. */
+  --ds-radius-sm: 6px;
+  --ds-radius-md: 8px;
+  --ds-radius-lg: 12px;
+  --ds-radius-pill: 999px;
 
   /* Ancho de contenido. Un solo valor para todas las secciones: el
      grid de 2 columnas va dentro de la vista Dashboard del admin,
@@ -186,7 +192,7 @@ html.dark .ds-shell {
   background: var(--ds-surface-2);
   border: 1px solid var(--ds-border);
   border-right: 0;
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-radius: var(--ds-radius-md) 0 0 var(--ds-radius-md);
 }
 
 .ds-topbar__search button {
@@ -194,7 +200,7 @@ html.dark .ds-shell {
   border: 0;
   background: var(--ds-brand);
   color: #fff;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-radius: 0 var(--ds-radius-md) var(--ds-radius-md) 0;
   cursor: pointer;
 }
 
@@ -213,7 +219,7 @@ html.dark .ds-shell {
   padding: 2px;
   background: var(--ds-surface-2);
   border: 1px solid var(--ds-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--ds-radius-md);
 }
 
 .ds-font-scale button {
@@ -222,7 +228,7 @@ html.dark .ds-shell {
   width: 1.75rem;
   height: 1.75rem;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--ds-radius-sm);
   background: transparent;
   color: var(--ds-text);
   font-family: inherit;
@@ -319,7 +325,7 @@ html.dark .ds-shell {
   padding: var(--space-3);
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
+  border-radius: var(--ds-radius-lg);
   flex: 0 0 auto;
 }
 
@@ -386,7 +392,7 @@ html.dark .ds-shell {
   min-height: var(--nav-item-h);
   padding: var(--space-1) var(--space-2);
   border: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--ds-radius-md);
   background: transparent;
   color: #d8eee0;
   font-family: inherit;
@@ -428,7 +434,7 @@ html.dark .ds-shell {
   flex: 0 0 auto;
   min-width: 1.25rem;
   padding: 0 5px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--ds-radius-pill);
   background: rgba(255, 255, 255, 0.16);
   color: #fff;
   font-size: var(--fs-xs);
@@ -514,7 +520,7 @@ html.dark .ds-shell {
   color: var(--ds-text-muted);
   background: var(--ds-surface);
   border: 1px solid var(--ds-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--ds-radius-lg);
 }
 
 .ds-overlay {
@@ -553,7 +559,7 @@ html.dark .ds-shell {
     height: 2rem;
     flex: 0 0 auto;
     border: 1px solid var(--ds-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--ds-radius-md);
     background: transparent;
     color: var(--ds-text);
     cursor: pointer;

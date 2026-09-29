@@ -25,7 +25,7 @@ export const NAV_ADMIN = {
     { id: "pedidos", label: "Pedidos", icon: "package" },
     { id: "productores", label: "Productores", icon: "leaf" },
     { id: "pagos", label: "Pagos", icon: "card" },
-    { id: "reportes", label: "Reportes", icon: "barChart" },
+    { id: "finanzas", label: "Reportes", icon: "barChart" },
     { id: "logistica", label: "Logística", icon: "truck" },
     { id: "cupones", label: "Cupones", icon: "tag", group: "Operación" },
     { id: "resenas", label: "Reseñas", icon: "star" },
@@ -90,12 +90,11 @@ export const NAV_COMPRADOR = {
     { id: "seguimiento", label: "Seguimiento", icon: "truck", group: "Servicios" },
     { id: "mensajeria", label: "Mensajería", icon: "message" },
     { id: "resenas", label: "Mis reseñas", icon: "star" },
-    {
-      id: "configuracion",
-      label: "Configuración",
-      icon: "settings",
-      group: "Sistema",
-    },
+    /*
+     * "configuracion" NO se lista aquí: el panel del comprador no tiene
+     * todavía esa sección, así que el enlace caía en el resumen sin avisar.
+     * Se reincorpora cuando exista, junto con sus subsecciones.
+     */
   ],
 };
 

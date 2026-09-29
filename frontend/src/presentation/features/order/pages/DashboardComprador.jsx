@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, useParams, NavLink } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
-import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import CartDrawer from "@/presentation/shared/components/CartDrawer";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import { useMensajeriaStream } from "@/application/messaging/useMessaging";
@@ -11,6 +10,8 @@ import {
   normalizarPedido,
 } from "@/infrastructure/normalizar";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
+import { NAV_COMPRADOR } from "@/application/navigation/navConfig";
+import DashboardShell from "@/presentation/shared/layout/DashboardShell";
 import CompradorShell from "@/presentation/features/order/components/CompradorShell";
 import SeccionesComprador from "@/presentation/features/order/sections/SeccionesComprador";
 import "@/presentation/styles/catalogo.css";
@@ -59,7 +60,7 @@ export default function DashboardComprador() {
     if (res.content && Array.isArray(res.content)) return res.content;
     return [];
   }, []);
-  const { user, setUser, logout, formatPrice } = useAuth();
+  const { user, setUser, formatPrice } = useAuth();
   const navigate = useNavigate();
 
   /*
@@ -73,7 +74,6 @@ export default function DashboardComprador() {
    */
   const { seccion: seccionActual } = useParams();
   const activeSection = seccionActual ?? "resumen";
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const showSection = useCallback(
     (key) => navigate(`/dashboard-comprador/${key}`),
@@ -827,9 +827,6 @@ export default function DashboardComprador() {
   });
 
   const nombreUsuario = user?.nombre || "María";
-  const iniciales =
-    (user?.nombre || "MT").charAt(0).toUpperCase() +
-    (user?.apellido || "T").charAt(0).toUpperCase();
 
   const badgeClass = (estado) => {
     const e = estado?.toLowerCase();
@@ -907,241 +904,30 @@ export default function DashboardComprador() {
 
 
   return (
-    <div className="app-layout buyer-dashboard">
-      {/* Overlay para sidebar móvil */}
-      <div
-        className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
-        onClick={() => setSidebarOpen(false)}
-      />
-
-      {/* SIDEBAR */}
-      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div
-          className="sidebar-user"
-          style={{ cursor: "pointer" }}
-          onClick={() => {
-            showSection("perfil");
-            setSidebarOpen(false);
-          }}
-        >
-          <div
-            className="avatar avatar-blue"
-            style={{ width: "48px", height: "48px", fontSize: "1.2rem" }}
-          >
-            {iniciales}
-          </div>
-          <div className="sidebar-user-info">
-            <span className="name">{user?.nombre || "María Torres"}</span>
-            <span className="role">
-              {t("dashboardComprador.premiumClient", "Cliente Premium")}
-            </span>
-          </div>
-        </div>
-
-        <div className="sidebar-label">
-          {t("dashboardComprador.nav.title", "Navegación")}
-        </div>
+    /*
+     * El shell es el MISMO para los tres paneles: aqui solo se pasa la
+     * navegación del rol. Ver DashboardShell.jsx.
+     */
+    <DashboardShell
+      nav={NAV_COMPRADOR}
+      badges={{
+        misPedidos: pedidos.length,
+        misFacturas: facturas.length,
+      }}
+    >
+      <div className="buyer-dashboard">
         {/*
-          * NavLink en vez de <a href="#"> con preventDefault: el <a> viejo no
-          * era navegable con teclado y el activo se calculaba contra un estado
-          * en vez de contra la ruta. El NavLink resuelve el activo por ruta y
-          * aporta aria-current="page".
-          */}
-        <NavLink
-          to="/dashboard-comprador/resumen"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardComprador.nav.summary", "Resumen")}
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/catalogo"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardComprador.nav.explore", "Explorar Catálogo")}
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/misPedidos"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardComprador.nav.myOrders", "Mis Pedidos")}{" "}
-          <span className="badge-count">{pedidos.length}</span>
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/misFacturas"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardComprador.nav.myInvoices", "Mis Facturas")}{" "}
-          <span className="badge-count">{facturas.length}</span>
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/rfq"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span> Licitaciones B2B (RFQ)
-        </NavLink>
-
-        <div className="sidebar-divider"></div>
-        <div className="sidebar-label">
-          {t("dashboardComprador.services.title", "Servicios")}
-        </div>
-        <NavLink
-          to="/dashboard-comprador/seguimiento"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardComprador.services.tracking", "Seguimiento")}
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/mensajeria"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardComprador.services.messaging", "Mensajería")}
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/resenas"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardComprador.services.reviews", "Mis Reseñas")}
-        </NavLink>
-        {/*
-          "Mi Perfil" abre la sección interna del panel. Antes era un
-          <Link to="/perfil"> que sacaba del dashboard, justo lo contrario de
-          lo que hace el resto del menú.
-        */}
-        <NavLink
-          to="/dashboard-comprador/perfil"
-          className={({ isActive }) =>
-            `sidebar-link${isActive ? " active" : ""}`
-          }
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="icon"></span> {t("profile.title", "Mi Perfil")}
-        </NavLink>
-
-        <a
-          href="#"
-          className="sidebar-link"
-          style={{ marginTop: "auto", color: "var(--red)" }}
-          onClick={async (e) => {
-            e.preventDefault();
-            await logout();
-            navigate("/");
-          }}
-        >
-          <span className="icon"></span>{" "}
-          {t("dashboardComprador.services.logout", "Cerrar sesión")}
-        </a>
-      </aside>
-
-      {/* MOBILE NAV */}
-      <nav className="mobile-nav">
-        {/*
-          * La barra móvil usa los mismos NavLink que el sidebar: mismo destino,
-          * mismo resaltado por ruta. Antes eran <a href="#"> con preventDefault.
-          */}
-        <NavLink
-          to="/dashboard-comprador/resumen"
-          className={({ isActive }) =>
-            `mobile-nav-item${isActive ? " active" : ""}`
-          }
-        >
-          <span className="icon"></span>
-          <span>{t("dashboardComprador.mobileNav.home", "Inicio")}</span>
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/catalogo"
-          className={({ isActive }) =>
-            `mobile-nav-item${isActive ? " active" : ""}`
-          }
-        >
-          <span className="icon"></span>
-          <span>{t("dashboardComprador.mobileNav.shop", "Tienda")}</span>
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/misPedidos"
-          className={({ isActive }) =>
-            `mobile-nav-item${isActive ? " active" : ""}`
-          }
-        >
-          <span className="icon"></span>
-          <span>{t("dashboardComprador.mobileNav.orders", "Pedidos")}</span>
-        </NavLink>
-        <NavLink
-          to="/dashboard-comprador/mensajeria"
-          className={({ isActive }) =>
-            `mobile-nav-item${isActive ? " active" : ""}`
-          }
-        >
-          <span className="icon"></span>
-          <span>{t("dashboardComprador.mobileNav.chat", "Chat")}</span>
-        </NavLink>
-        {/* "Perfil" abre la sección interna, como el resto del menú. */}
-        <NavLink
-          to="/dashboard-comprador/perfil"
-          className={({ isActive }) =>
-            `mobile-nav-item${isActive ? " active" : ""}`
-          }
-        >
-          <span className="icon"></span>
-          <span>{t("dashboardComprador.mobileNav.profile", "Perfil")}</span>
-        </NavLink>
-      </nav>
-
-      {/* MAIN CONTAINER */}
-      <main className="main-content">
-        {/* Top bar with toggle button */}
-        <div className="buyer-topbar">
-          <button
-            type="button"
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Abrir menú de navegación"
-          >
-            <Icon name="menu" size={16} className="mr-2 inline" /> Menú
-          </button>
-          <LanguageSwitcher />
-        </div>
-
-        {/*
-          * El shell comun de los tres paneles vive en DashboardShell; aqui
-          * solo se expone el estado a las secciones por contexto. Cada
-          * seccion se monta por ruta y lo lee con useCompradorData().
-          */}
+         * El shell comun de los tres paneles vive en DashboardShell; aqui
+         * solo se expone el estado a las secciones por contexto. Cada
+         * seccion se monta por ruta y lo lee con useCompradorData().
+         *
+         * Los modales de abajo tambien van dentro del shell: se posicionan
+         * con position:fixed, asi que el contenedor no les afecta.
+         */}
         <CompradorShell valor={estadoComprador}>
           <SeccionesComprador />
         </CompradorShell>
-
-      </main>
+      </div>
 
       {/* MODAL PROCESAR PAGO (PSE/TARJETA/EFECTIVO) */}
       {pagoModalOpen && checkoutPedido && (
@@ -1933,6 +1719,6 @@ export default function DashboardComprador() {
       )}
 
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-    </div>
+    </DashboardShell>
   );
 }
