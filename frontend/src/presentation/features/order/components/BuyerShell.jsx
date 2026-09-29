@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
@@ -151,6 +152,7 @@ export default function BuyerShell({
 }) {
   const { user, logout } = useAuth();
   const { count } = useCart();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);

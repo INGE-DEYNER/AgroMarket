@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
@@ -7,12 +7,12 @@ import CartDrawer from "@/presentation/shared/components/CartDrawer";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import { useMensajeriaStream } from "@/application/messaging/useMessaging";
 import {
-  formatearHora,
   normalizarMensaje,
   normalizarPedido,
 } from "@/infrastructure/normalizar";
 import { useCart } from "@/presentation/features/order/hooks/useCart";
-import ProductCard from "@/presentation/features/product/components/ProductCard";
+import CompradorShell from "@/presentation/features/order/components/CompradorShell";
+import SeccionesComprador from "@/presentation/features/order/sections/SeccionesComprador";
 import "@/presentation/styles/catalogo.css";
 /*
  * Sin este import, TODAS las reglas de .buyer-dashboard de comprador.css
@@ -61,35 +61,23 @@ export default function DashboardComprador() {
   }, []);
   const { user, setUser, logout, formatPrice } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Navigation state
-  const [activeSection, setActiveSection] = useState("resumen");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /*
-   * NAVEGACIÓN POR SECCIONES (SPA).
+   * SECCIONES COMO RUTAS ANIDADAS.
    *
-   * Cada clave del menú muestra SOLO su propia vista: el contenido cambia en
-   * el sitio, sin recargar la página ni abrir pestaña.
-   *
-   * Además sincroniza con la URL (?section=mensajeria). Antes solo se leía al
-   * montar pero nunca se escribía, así que el enlace no era compartible y el
-   * botón "atrás" del navegador no funcionaba entre secciones.
+   * Antes la sección activa vivía en un estado local y la URL solo se leía al
+   * montar: el enlace no era compartible y el botón "atrás" no funcionaba entre
+   * secciones. Con dos fuentes de verdad había que sincronizarlas, y de ahí
+   * salían los fallos (ya pasó en Productor y Admin). Ahora la ruta es la
+   * única fuente: se lee con useParams y se navega con showSection.
    */
+  const { seccion: seccionActual } = useParams();
+  const activeSection = seccionActual ?? "resumen";
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const showSection = useCallback(
-    (key) => {
-      setActiveSection(key);
-      const params = new URLSearchParams(location.search);
-      if (key === "resumen") params.delete("section");
-      else params.set("section", key);
-      const query = params.toString();
-      navigate(
-        { pathname: location.pathname, search: query ? `?${query}` : "" },
-        { replace: false },
-      );
-    },
-    [location.pathname, location.search, navigate],
+    (key) => navigate(`/dashboard-comprador/${key}`),
+    [navigate],
   );
 
   // Chat/Mensajeria state
@@ -98,33 +86,6 @@ export default function DashboardComprador() {
   const [messages, setMessages] = useState([]);
   const [msgInput, setMsgInput] = useState("");
   const chatRef = useRef(null);
-
-  /*
-   * Claves válidas del menú. Se validan también al leer la URL: antes,
-   * cualquier texto en ?section= se aceptaba y activaba una sección que no
-   * existe, dejando el panel en blanco.
-   */
-  const SECCIONES = [
-    "resumen",
-    "catalogo",
-    "misPedidos",
-    "misFacturas",
-    "rfq",
-    "seguimiento",
-    "mensajeria",
-    "resenas",
-    "perfil",
-  ];
-
-  // Enlace profundo (p. ej. /dashboard-comprador?section=mensajeria): marca la
-  // sección correspondiente como activa al montar. Con `replace` para no
-  // ensuciar el historial con la normalización de la URL.
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const sec = params.get("section");
-    if (!sec) return;
-    if (SECCIONES.includes(sec)) setActiveSection(sec);
-  }, [location.search]);
 
   // Pedidos & Catalog state
   const [pedidos, setPedidos] = useState([]);
@@ -903,6 +864,48 @@ export default function DashboardComprador() {
     pedidos.map((p) => p.productor || p.nombreProductor).filter(Boolean),
   ).size;
 
+  /*
+   * Estado que consumen las secciones, expuesto por contexto.
+   *
+   * Antes pasaba por el ámbito del componente, imposible de mantener con el
+   * Outlet: las secciones se montan por ruta y ya no son hijas del padre. Este
+   * objeto es el único punto de unión; si una sección necesita un campo
+   * nuevo, se añade aquí.
+   */
+  const estadoComprador = {
+    // Catálogo
+    CATEGORIES, catalogFiltered, catalogLoading, catalogSearch,
+    catalogSearchQuery, setCatalogSearch, setCatalogSearchQuery,
+    filtroTipoCatalog, setFiltroTipoCatalog, minPrice, setMinPrice,
+    maxPrice, setMaxPrice, soloPromo, setSoloPromo, count,
+    // Pedidos
+    pedidos, getGroupedPedidos, badgeClass, filtroEstado, setFiltroEstado,
+    pedidosFiltrados, setCheckoutPedido, setPagoModalOpen, openFactura,
+    // Facturas
+    facturas, getGroupedFacturas, descargarPdfGroup,
+    // Envíos
+    shipments, historialEnvios, progressColor, expandedShipmentId,
+    setExpandedShipmentId,
+    // Mensajería
+    contactos, selectedContact, selectContact, messages, msgInput,
+    setMsgInput, sendMessage, chatRef,
+    // Reseñas
+    reviews, setReviewModalOpen, comentario,
+    // RFQ
+    rfqs, rfqForm, setRfqForm, rfqMsg, crearRfq, aceptarOfertaRfq,
+    // Perfil
+    perfilForm, setPerfilForm, perfilMsg, pwForm, setPwForm, pwMsg,
+    showCurrentPassword, setShowCurrentPassword,
+    showNewPassword, setShowNewPassword,
+    handleUpdatePerfil, handleUpdatePassword,
+    // Acciones compartidas
+    addToCart, setCartOpen, setSelectedProduct, contactProductor, showSection,
+    // Derivados del resumen
+    nombreUsuario, currentDate, totalInvestment, reviewsDejadasCount,
+    uniqueProducersCount,
+  };
+
+
   return (
     <div className="app-layout buyer-dashboard">
       {/* Overlay para sidebar móvil */}
@@ -938,124 +941,112 @@ export default function DashboardComprador() {
         <div className="sidebar-label">
           {t("dashboardComprador.nav.title", "Navegación")}
         </div>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "resumen" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("resumen");
-            setSidebarOpen(false);
-          }}
+        {/*
+          * NavLink en vez de <a href="#"> con preventDefault: el <a> viejo no
+          * era navegable con teclado y el activo se calculaba contra un estado
+          * en vez de contra la ruta. El NavLink resuelve el activo por ruta y
+          * aporta aria-current="page".
+          */}
+        <NavLink
+          to="/dashboard-comprador/resumen"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span>{" "}
           {t("dashboardComprador.nav.summary", "Resumen")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "catalogo" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("catalogo");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/catalogo"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span>{" "}
           {t("dashboardComprador.nav.explore", "Explorar Catálogo")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "misPedidos" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("misPedidos");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/misPedidos"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span>{" "}
           {t("dashboardComprador.nav.myOrders", "Mis Pedidos")}{" "}
           <span className="badge-count">{pedidos.length}</span>
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "misFacturas" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("misFacturas");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/misFacturas"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span>{" "}
           {t("dashboardComprador.nav.myInvoices", "Mis Facturas")}{" "}
           <span className="badge-count">{facturas.length}</span>
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "rfq" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("rfq");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/rfq"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span> Licitaciones B2B (RFQ)
-        </a>
+        </NavLink>
 
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">
           {t("dashboardComprador.services.title", "Servicios")}
         </div>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "seguimiento" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("seguimiento");
-            setSidebarOpen(false);
-          }}
+        <NavLink
+          to="/dashboard-comprador/seguimiento"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span>{" "}
           {t("dashboardComprador.services.tracking", "Seguimiento")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "mensajeria" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("mensajeria");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/mensajeria"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span>{" "}
           {t("dashboardComprador.services.messaging", "Mensajería")}
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "resenas" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("resenas");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/resenas"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span>{" "}
           {t("dashboardComprador.services.reviews", "Mis Reseñas")}
-        </a>
+        </NavLink>
         {/*
           "Mi Perfil" abre la sección interna del panel. Antes era un
           <Link to="/perfil"> que sacaba del dashboard, justo lo contrario de
           lo que hace el resto del menú.
         */}
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("perfil");
-            setSidebarOpen(false);
-          }}
+        <NavLink
+          to="/dashboard-comprador/perfil"
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"></span> {t("profile.title", "Mi Perfil")}
-        </a>
+        </NavLink>
 
         <a
           href="#"
@@ -1074,66 +1065,56 @@ export default function DashboardComprador() {
 
       {/* MOBILE NAV */}
       <nav className="mobile-nav">
-        <a
-          href="#"
-          className={`mobile-nav-item${activeSection === "resumen" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("resumen");
-          }}
+        {/*
+          * La barra móvil usa los mismos NavLink que el sidebar: mismo destino,
+          * mismo resaltado por ruta. Antes eran <a href="#"> con preventDefault.
+          */}
+        <NavLink
+          to="/dashboard-comprador/resumen"
+          className={({ isActive }) =>
+            `mobile-nav-item${isActive ? " active" : ""}`
+          }
         >
           <span className="icon"></span>
           <span>{t("dashboardComprador.mobileNav.home", "Inicio")}</span>
-        </a>
-        <a
-          href="#"
-          className={`mobile-nav-item${activeSection === "catalogo" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("catalogo");
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/catalogo"
+          className={({ isActive }) =>
+            `mobile-nav-item${isActive ? " active" : ""}`
+          }
         >
           <span className="icon"></span>
           <span>{t("dashboardComprador.mobileNav.shop", "Tienda")}</span>
-        </a>
-        <a
-          href="#"
-          className={`mobile-nav-item${activeSection === "misPedidos" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("misPedidos");
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/misPedidos"
+          className={({ isActive }) =>
+            `mobile-nav-item${isActive ? " active" : ""}`
+          }
         >
           <span className="icon"></span>
           <span>{t("dashboardComprador.mobileNav.orders", "Pedidos")}</span>
-        </a>
-        <a
-          href="#"
-          className={`mobile-nav-item${activeSection === "mensajeria" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("mensajeria");
-          }}
+        </NavLink>
+        <NavLink
+          to="/dashboard-comprador/mensajeria"
+          className={({ isActive }) =>
+            `mobile-nav-item${isActive ? " active" : ""}`
+          }
         >
           <span className="icon"></span>
           <span>{t("dashboardComprador.mobileNav.chat", "Chat")}</span>
-        </a>
-        {/*
-          "Perfil" abre la sección interna, como el resto del menú. Antes era
-          un <Link to="/perfil"> que sacaba del dashboard, incoherente con el
-          sidebar que sí lo tenía como sección.
-        */}
-        <a
-          href="#"
-          className={`mobile-nav-item${activeSection === "perfil" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("perfil");
-          }}
+        </NavLink>
+        {/* "Perfil" abre la sección interna, como el resto del menú. */}
+        <NavLink
+          to="/dashboard-comprador/perfil"
+          className={({ isActive }) =>
+            `mobile-nav-item${isActive ? " active" : ""}`
+          }
         >
           <span className="icon"></span>
           <span>{t("dashboardComprador.mobileNav.profile", "Perfil")}</span>
-        </a>
+        </NavLink>
       </nav>
 
       {/* MAIN CONTAINER */}
@@ -1151,1927 +1132,15 @@ export default function DashboardComprador() {
           <LanguageSwitcher />
         </div>
 
-        {/* ─── RESUMEN ─── */}
-        <div className={`section${activeSection === "resumen" ? " active" : ""}`} id="sec-resumen">
-          <div className="dash-header">
-            <div className="dash-welcome">
-              <h1>
-                {t(
-                  "dashboardComprador.welcome",
-                  "¡Hola de nuevo, {{name}}!",
-                  { name: nombreUsuario },
-                )}
-              </h1>
-              <p>
-                {currentDate} • 28°C {t("dashboardComprador.sub", "Urabá")}
-              </p>
-            </div>
-            <button
-              className="btn-cta"
-              onClick={() => showSection("catalogo")}
-            >
-              {t("dashboardComprador.exploreCatalog", "Explorar catálogo")} <Icon name="arrowRight" size={15} />
-            </button>
-          </div>
+        {/*
+          * El shell comun de los tres paneles vive en DashboardShell; aqui
+          * solo se expone el estado a las secciones por contexto. Cada
+          * seccion se monta por ruta y lo lee con useCompradorData().
+          */}
+        <CompradorShell valor={estadoComprador}>
+          <SeccionesComprador />
+        </CompradorShell>
 
-          {!user?.telefono && (
-            <div className="buyer-alert">
-              <div>
-                <strong>¡Mejora la seguridad de tu cuenta!</strong>
-                <span>
-                  Agrega tu número de teléfono y verifica tu perfil para
-                  facilitar el contacto con los productores.
-                </span>
-              </div>
-              <button
-                className="btn btn-primary"
-                onClick={() => showSection("perfil")}
-              >
-                Configurar Perfil
-              </button>
-            </div>
-          )}
-
-          <div className="stats-grid">
-            <div className="stat-card color-1">
-              <span className="stat-icon-lg"></span>
-              <div className="stat-label">
-                {t(
-                  "dashboardComprador.stats.ordersPlaced",
-                  "Pedidos Realizados",
-                )}
-              </div>
-              <div className="stat-value">
-                {String(pedidos.length).padStart(2, "0")}
-              </div>
-            </div>
-            <div className="stat-card color-2">
-              <span className="stat-icon-lg"></span>
-              <div className="stat-label">
-                {t(
-                  "dashboardComprador.stats.totalInvestment",
-                  "Inversión Total",
-                )}
-              </div>
-              <div className="stat-value">{formatPrice(totalInvestment)}</div>
-            </div>
-            <div className="stat-card color-3">
-              <span className="stat-icon-lg"></span>
-              <div className="stat-label">
-                {t("dashboardComprador.stats.reviewsLeft", "Reseñas Dejadas")}
-              </div>
-              <div className="stat-value">{reviewsDejadasCount}</div>
-            </div>
-            <div className="stat-card color-4">
-              <span className="stat-icon-lg"></span>
-              <div className="stat-label">
-                {t("dashboardComprador.stats.producers", "Productores")}
-              </div>
-              <div className="stat-value">{uniqueProducersCount}</div>
-            </div>
-          </div>
-
-          {/* TABLA RECIENTES */}
-          <div className="card-table" style={{ marginBottom: "32px" }}>
-            <div className="table-header">
-              <h3 className="card-title">
-                {" "}
-                {t("dashboardComprador.recentOrders", "Pedidos Recientes")}
-              </h3>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  showSection("misPedidos");
-                }}
-                style={{ fontSize: "0.8rem", fontWeight: "600" }}
-              >
-                {t(
-                  "dashboardComprador.viewAllOrders",
-                  "Ver todos los pedidos",
-                )}
-              </a>
-            </div>
-            <div className="table-wrap">
-              <table className="table-responsive">
-                <thead>
-                  <tr>
-                    <th>{t("pedidos.id", "ID")}</th>
-                    <th>{t("pedidos.product", "Producto")}</th>
-                    <th>{t("pedidos.total", "Total")}</th>
-                    <th>{t("pedidos.statusHeader", "Estado")}</th>
-                    <th>{t("pedidos.actions", "Acciones")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {getGroupedPedidos(pedidos)
-                    .slice(0, 5)
-                    .map((p) => (
-                      <tr key={p.checkoutId || p.id}>
-                        <td data-label={t("pedidos.id", "ID")}>
-                          {p.checkoutId || `#${p.id}`}
-                        </td>
-                        <td data-label={t("pedidos.product", "Producto")}>
-                          {p.items.map((item, idx) => (
-                            <div key={item.id || idx}>
-                              • {item.productoNombre || item.producto} (
-                              {item.cantidad} kg)
-                            </div>
-                          ))}
-                        </td>
-                        <td data-label={t("pedidos.total", "Total")}>
-                          {formatPrice(p.total)}
-                        </td>
-                        <td data-label={t("pedidos.statusHeader", "Estado")}>
-                          <span className={badgeClass(p.estado)}>
-                            {t(
-                              "pedidos.status." + p.estado?.toLowerCase(),
-                              p.estado,
-                            )}
-                          </span>
-                        </td>
-                        <td data-label={t("pedidos.actions", "Acciones")}>
-                          {p.estado?.toLowerCase() === "pendiente" && (
-                            <button
-                              onClick={() => {
-                                setCheckoutPedido(p);
-                                setPagoModalOpen(true);
-                              }}
-                              className="btn btn-primary btn-sm"
-                              style={{ marginRight: "6px" }}
-                            >
-                              Pagar
-                            </button>
-                          )}
-                          <button
-                            onClick={() => showSection("seguimiento")}
-                            className="btn btn-secondary btn-sm"
-                          >
-                            {t("pedidos.track", "Rastrear")}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── EXPLORAR CATALOGO ─── */}
-        <div className={`section${activeSection === "catalogo" ? " active" : ""}`} id="sec-catalogo">
-          <div
-            className="catalog-hero"
-            style={{
-              background:
-                "linear-gradient(135deg, var(--primary) 0%, var(--am-green) 100%)",
-              borderRadius: "16px",
-              padding: "32px",
-              color: "#fff",
-              marginBottom: "24px",
-            }}
-          >
-            <h1
-              style={{ color: "#fff", fontSize: "2rem", marginBottom: "8px" }}
-            >
-              {t("catalog.heroTitle", "Frutas tropicales")}
-            </h1>
-            <p style={{ opacity: 0.9 }}>
-              {t(
-                "catalog.heroSub",
-                "Productos frescos de los agricultores de ASAFRUT. Sin intermediarios, precios justos.",
-              )}
-            </p>
-          </div>
-
-          <div
-            className="catalog-controls"
-            style={{
-              display: "flex",
-              gap: "16px",
-              flexWrap: "wrap",
-              marginBottom: "20px",
-            }}
-          >
-            <div
-              className="search-wrapper"
-              style={{ flex: 1, position: "relative" }}
-            >
-              <input
-                className="search-input"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px 12px 40px",
-                  borderRadius: "8px",
-                  border: "1px solid var(--border-light)",
-                }}
-                type="text"
-                placeholder={t(
-                  "catalog.searchPlaceholder",
-                  "Buscar productos...",
-                )}
-                value={catalogSearch}
-                onChange={(e) => setCatalogSearch(e.target.value)}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  left: "14px",
-                  top: "12px",
-                  color: "var(--text-muted)",
-                }}
-              ></span>
-            </div>
-            {count > 0 && (
-              <button
-                className="btn btn-primary"
-                onClick={() => setCartOpen(true)}
-              >
-                {t("catalog.cartButton", "Carrito")} ({count})
-              </button>
-            )}
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 280px",
-              gap: "24px",
-              alignItems: "flex-start",
-            }}
-            className="catalog-layout-grid"
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "16px",
-              }}
-            >
-              <div
-                className="catalog-controls"
-                style={{
-                  display: "flex",
-                  gap: "16px",
-                  flexWrap: "wrap",
-                  marginBottom: "20px",
-                }}
-              >
-                <div
-                  className="search-wrapper"
-                  style={{ flex: 1, position: "relative" }}
-                >
-                  <input
-                    className="search-input"
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px 12px 40px",
-                      borderRadius: "8px",
-                      border: "1px solid var(--border-light)",
-                    }}
-                    type="text"
-                    placeholder={t(
-                      "catalog.searchPlaceholder",
-                      "Buscar productos...",
-                    )}
-                    value={catalogSearchQuery}
-                    onChange={(e) => setCatalogSearchQuery(e.target.value)}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: "14px",
-                      top: "12px",
-                      color: "var(--text-muted)",
-                    }}
-                  ></span>
-                </div>
-                {count > 0 && (
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => setCartOpen(true)}
-                  >
-                    {t("catalog.cartButton", "Carrito")} ({count})
-                  </button>
-                )}
-              </div>
-
-              {/* CATEGORY CHIPS */}
-              <div
-                className="category-chips"
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  flexWrap: "wrap",
-                  marginBottom: "24px",
-                }}
-              >
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.value}
-                    className={`chip${filtroTipoCatalog === cat.value ? " active" : ""}`}
-                    onClick={() => setFiltroTipoCatalog(cat.value)}
-                  >
-                    <span>{cat.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* SIDE FILTER CONTROLS */}
-            <div
-              className="card-table"
-              style={{
-                padding: "20px",
-                borderRadius: "var(--radius)",
-                background: "var(--surface)",
-              }}
-            >
-              <h4
-                style={{
-                  fontSize: "0.9rem",
-                  fontWeight: "bold",
-                  marginBottom: "16px",
-                  borderBottom: "1px solid var(--border-light)",
-                  paddingBottom: "8px",
-                }}
-              >
-                Filtros
-              </h4>
-              <div className="form-group" style={{ marginBottom: "12px" }}>
-                <label className="form-label" style={{ fontSize: "0.75rem" }}>
-                  Precio Mínimo (COP)
-                </label>
-                <input
-                  className="form-input"
-                  type="number"
-                  placeholder="$ Mín"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                />
-              </div>
-              <div className="form-group" style={{ marginBottom: "12px" }}>
-                <label className="form-label" style={{ fontSize: "0.75rem" }}>
-                  Precio Máximo (COP)
-                </label>
-                <input
-                  className="form-input"
-                  type="number"
-                  placeholder="$ Máx"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginTop: "12px",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  id="promoToggleCatalog"
-                  checked={soloPromo}
-                  onChange={(e) => setSoloPromo(e.target.checked)}
-                  style={{ width: "16px", height: "16px" }}
-                />
-                <label
-                  htmlFor="promoToggleCatalog"
-                  style={{
-                    fontSize: "0.8rem",
-                    fontWeight: "500",
-                    cursor: "pointer",
-                  }}
-                >
-                  {" "}
-                  Sólo Promociones
-                </label>
-              </div>
-              {(minPrice || maxPrice || soloPromo || filtroTipoCatalog) && (
-                <button
-                  className="btn btn-secondary btn-sm"
-                  style={{ width: "100%", marginTop: "16px" }}
-                  onClick={() => {
-                    setMinPrice("");
-                    setMaxPrice("");
-                    setSoloPromo(false);
-                    setFiltroTipoCatalog("");
-                    setCatalogSearchQuery("");
-                  }}
-                >
-                  Limpiar
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* PRODUCT GRID */}
-          <div className="catalog-grid">
-            {catalogLoading ? (
-              <div
-                style={{
-                  padding: "48px",
-                  textAlign: "center",
-                  gridColumn: "1 / -1",
-                }}
-              >
-                {t("catalog.loading", "Cargando catálogo...")}
-              </div>
-            ) : catalogFiltered.length === 0 ? (
-              <div
-                className="catalog-empty"
-                style={{
-                  gridColumn: "1 / -1",
-                  padding: "60px",
-                  textAlign: "center",
-                }}
-              >
-                <div style={{ fontSize: "2.5rem" }}></div>
-                <h3>
-                  {t("catalog.noProducts", "No se encontraron productos")}
-                </h3>
-              </div>
-            ) : (
-              catalogFiltered.map((p) => (
-                <ProductCard
-                  key={p.id}
-                  p={{
-                    ...p,
-                    tipoFruta: p.tipoFruta || p.tipo,
-                    calificacion: p.calificacion || "4.8",
-                  }}
-                  t={t}
-                  addedStates={{}}
-                  handlePedirAhora={addToCart}
-                  onViewDetails={setSelectedProduct}
-                  onContactProducer={(prod) =>
-                    contactProductor(
-                      prod.productorNombre ||
-                        prod.productor ||
-                        prod.nombreProductor,
-                    )
-                  }
-                />
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* ─── MIS PEDIDOS ─── */}
-        <div className={`section${activeSection === "misPedidos" ? " active" : ""}`} id="sec-misPedidos">
-          <div className="dash-header">
-            <div className="dash-welcome">
-              <h1>
-                {t("dashboardComprador.nav.myOrders", "Historial de Pedidos")}
-              </h1>
-              <p>
-                {t(
-                  "dashboardComprador.ordersSub",
-                  "Gestiona y revisa tus compras anteriores",
-                )}
-              </p>
-            </div>
-          </div>
-          <div className="card-table">
-            <div
-              className="table-filters"
-              style={{ display: "flex", gap: "12px", marginBottom: "20px" }}
-            >
-              <select
-                className="form-select"
-                style={{ width: "180px" }}
-                value={filtroEstado}
-                onChange={(e) => setFiltroEstado(e.target.value)}
-              >
-                <option value="">
-                  {t("pedidos.allStates", "Todos los estados")}
-                </option>
-                <option value="Pendiente">
-                  {t("pedidos.status.pendiente", "Pendiente")}
-                </option>
-                <option value="Enviado">
-                  {t("pedidos.status.enviado", "Enviado")}
-                </option>
-                <option value="Entregado">
-                  {t("pedidos.status.entregado", "Entregado")}
-                </option>
-              </select>
-            </div>
-            <div className="table-wrap">
-              <table className="table-responsive">
-                <thead>
-                  <tr>
-                    <th>{t("pedidos.id", "ID")}</th>
-                    <th>{t("pedidos.product", "Producto")}</th>
-                    <th>{t("pedidos.quantity", "Cantidad")}</th>
-                    <th>{t("pedidos.total", "Total")}</th>
-                    <th>{t("pedidos.statusHeader", "Estado")}</th>
-                    <th>{t("pedidos.actions", "Acciones")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {getGroupedPedidos(pedidosFiltrados).map((p) => (
-                    <tr key={p.checkoutId || p.id}>
-                      <td data-label={t("pedidos.id", "ID")}>
-                        {p.checkoutId || `#${p.id}`}
-                      </td>
-                      <td data-label={t("pedidos.product", "Producto")}>
-                        {p.items.map((item, idx) => (
-                          <div key={item.id || idx}>
-                            • {item.productoNombre || item.producto} (
-                            {item.cantidad} kg)
-                          </div>
-                        ))}
-                      </td>
-                      <td data-label={t("pedidos.quantity", "Cantidad")}>
-                        {p.items.reduce(
-                          (sum, item) => sum + Number(item.cantidad || 0),
-                          0,
-                        )}{" "}
-                        kg
-                      </td>
-                      <td data-label={t("pedidos.total", "Total")}>
-                        {formatPrice(p.total)}
-                      </td>
-                      <td data-label={t("pedidos.statusHeader", "Estado")}>
-                        <span className={badgeClass(p.estado)}>
-                          {t(
-                            "pedidos.status." + p.estado?.toLowerCase(),
-                            p.estado,
-                          )}
-                        </span>
-                      </td>
-                      <td data-label={t("pedidos.actions", "Acciones")}>
-                        {p.estado?.toLowerCase() === "pendiente" && (
-                          <button
-                            onClick={() => {
-                              setCheckoutPedido(p);
-                              setPagoModalOpen(true);
-                            }}
-                            className="btn btn-primary btn-sm"
-                            style={{ marginRight: "6px" }}
-                          >
-                            Pagar
-                          </button>
-                        )}
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => openFactura(p)}
-                        >
-                          {t("pedidos.invoice", "Factura")}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── SEGUIMIENTO DE ENVIOS ─── */}
-        <div className={`section${activeSection === "seguimiento" ? " active" : ""}`} id="sec-seguimiento">
-          <div className="dash-header">
-            <div className="dash-welcome">
-              <h1> {t("envios.title", "Seguimiento de Envíos")}</h1>
-              <p>Monitorea tus pedidos en ruta en tiempo real</p>
-            </div>
-          </div>
-
-          <div id="shipmentsContainer" style={{ marginTop: "20px" }}>
-            {shipments.length === 0 ? (
-              <div
-                className="empty-state"
-                style={{
-                  padding: "40px",
-                  textAlign: "center",
-                  background: "var(--card-bg)",
-                  border: "1px solid var(--border-light)",
-                  borderRadius: "12px",
-                }}
-              >
-                <div style={{ fontSize: "2rem" }}></div>
-                <div style={{ marginTop: "8px" }}>
-                  {t(
-                    "envios.noActive",
-                    "No hay envíos activos en este momento.",
-                  )}
-                </div>
-              </div>
-            ) : (
-              shipments.map((s) => {
-                const isExpanded = expandedShipmentId === s.id;
-
-                // Map state to active step (0-4)
-                const getActiveStep = (estado) => {
-                  const est = estado?.toUpperCase();
-                  if (est === "ENTREGADO" || est === "DELIVERED") return 4;
-                  if (est === "EN_REPARTO") return 3;
-                  if (
-                    est === "EN_CAMINO" ||
-                    est === "EN_TRANSITO" ||
-                    est === "EN TRÁNSITO"
-                  )
-                    return 2;
-                  if (est === "PREPARANDO") return 1;
-                  return 0; // PEDIDO_CONFIRMADO
-                };
-
-                const activeStep = getActiveStep(s.estado);
-                const progressPct = (activeStep + 1) * 20;
-
-                const steps = [
-                  {
-                    label: "Pago Confirmado",
-                    desc: "Pago procesado y verificado.",
-                  },
-                  {
-                    label: "Preparando Envío",
-                    desc: "El productor está alistando los productos frescamente.",
-                  },
-                  {
-                    label: "En Camino",
-                    desc: "El paquete está en tránsito con la transportadora.",
-                  },
-                  {
-                    label: "En Reparto",
-                    desc: "El transportista está en ruta a tu ubicación de entrega.",
-                  },
-                  {
-                    label: "Entregado",
-                    desc: "El pedido ha sido entregado en la dirección indicada.",
-                  },
-                ];
-
-                const matchOrder = pedidos.find((p) => p.id === s.pedidoId);
-                const productorNombre = matchOrder
-                  ? matchOrder.productorNombre || matchOrder.productor
-                  : null;
-
-                return (
-                  <div
-                    key={s.id}
-                    className="shipment-card"
-                    style={{
-                      background: "var(--card-bg)",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "12px",
-                      padding: "24px",
-                      marginBottom: "20px",
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        marginBottom: "16px",
-                      }}
-                    >
-                      <div>
-                        <div
-                          style={{
-                            fontWeight: "700",
-                            fontSize: "1.05rem",
-                            color: "var(--text-dark)",
-                          }}
-                        >
-                          {s.producto || "Producto ASAFRUT"}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "0.85rem",
-                            color: "var(--text-muted)",
-                            marginTop: "4px",
-                          }}
-                        >
-                          {s.origen || "Chigorodó, Antioquia"} &rarr;{" "}
-                          {s.direccionDestino || "Destino"}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "8px",
-                          alignItems: "center",
-                        }}
-                      >
-                        <span
-                          className="badge-status status-shipped"
-                          style={{ textTransform: "capitalize" }}
-                        >
-                          {t(
-                            "pedidos.status." + s.estado?.toLowerCase(),
-                            s.estado,
-                          )}
-                        </span>
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={() =>
-                            setExpandedShipmentId(isExpanded ? null : s.id)
-                          }
-                        >
-                          {isExpanded ? "Ocultar" : "Rastrear"}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: "var(--border-light)",
-                        borderRadius: "4px",
-                        height: "8px",
-                        overflow: "hidden",
-                        cursor: "pointer",
-                      }}
-                      onClick={() =>
-                        setExpandedShipmentId(isExpanded ? null : s.id)
-                      }
-                    >
-                      <div
-                        style={{
-                          height: "100%",
-                          width: `${progressPct}%`,
-                          background: progressColor(s.estado),
-                          borderRadius: "4px",
-                          transition: "width 0.5s ease",
-                        }}
-                      ></div>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: "0.75rem",
-                        color: "var(--text-muted)",
-                        marginTop: "8px",
-                      }}
-                    >
-                      <span>Guía: {s.guia || "No asignada"}</span>
-                      <span>
-                        Transportista: {s.transportista || "Por asignar"}
-                      </span>
-                    </div>
-
-                    {isExpanded && (
-                      <div
-                        style={{
-                          marginTop: "24px",
-                          borderTop: "1px solid var(--border-light)",
-                          paddingTop: "20px",
-                          animation: "fadeIn 0.4s ease",
-                        }}
-                      >
-                        <h4
-                          style={{
-                            fontSize: "0.95rem",
-                            fontWeight: "bold",
-                            marginBottom: "16px",
-                            color: "var(--text-dark)",
-                          }}
-                        >
-                          Detalles de Trazabilidad
-                        </h4>
-
-                        {/* ESTIMATED DATE */}
-                        {s.fechaEstimadaEntrega && (
-                          <div
-                            style={{
-                              background: "var(--color-surface-2)",
-                              color: "var(--color-primary-dark)",
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              fontSize: "0.85rem",
-                              fontWeight: "600",
-                              marginBottom: "20px",
-                              border: "1px solid var(--color-border)",
-                            }}
-                          >
-                            Fecha estimada de entrega:{" "}
-                            {new Date(
-                              s.fechaEstimadaEntrega + "T12:00:00",
-                            ).toLocaleDateString("es-CO", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
-                          </div>
-                        )}
-
-                        {/* ROUTE ILLUSTRATION */}
-                        <div
-                          className="cell-soft"
-                          style={{
-                            position: "relative",
-                            height: "54px",
-                            borderRadius: "10px",
-                            margin: "20px 0",
-                            overflow: "hidden",
-                            display: "flex",
-                            alignItems: "center",
-                            padding: "0 20px",
-                            border: "1px solid var(--am-border, #cbd5e1)",
-                          }}
-                        >
-                          <div
-                            style={{
-                              position: "absolute",
-                              left: "16px",
-                              fontSize: "0.75rem",
-                              fontWeight: "bold",
-                              color: "var(--am-text, #475569)",
-                            }}
-                          >
-                            Chigorodó
-                          </div>
-                          <div
-                            style={{
-                              position: "absolute",
-                              right: "16px",
-                              fontSize: "0.75rem",
-                              fontWeight: "bold",
-                              color: "var(--am-text, #475569)",
-                              maxWidth: "180px",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {s.direccionDestino || "Destino"}
-                          </div>
-                          {/* Moving Truck Emoji */}
-                          <div
-                            style={{
-                              position: "absolute",
-                              left: `${20 + activeStep * 15}%`, // Move truck based on step
-                              transition:
-                                "left 1s cubic-bezier(0.25, 0.8, 0.25, 1)",
-                              fontSize: "1.6rem",
-                              zIndex: 10,
-                            }}
-                          >
-                            <Icon name="truck" size={22} />
-                          </div>
-                          {/* Visual Dashed Route Line */}
-                          <div
-                            style={{
-                              position: "absolute",
-                              left: "10%",
-                              right: "10%",
-                              borderBottom: "2px dashed var(--am-border, #cbd5e1)",
-                              zIndex: 1,
-                            }}
-                          ></div>
-                        </div>
-
-                        {/* VERTICAL TIMELINE */}
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "20px",
-                            paddingLeft: "8px",
-                            position: "relative",
-                          }}
-                        >
-                          {/* Vertical Line Connector */}
-                          <div
-                            style={{
-                              position: "absolute",
-                              left: "18px",
-                              top: "10px",
-                              bottom: "10px",
-                              width: "2px",
-                              background: "var(--am-surface-2, #e2e8f0)",
-                            }}
-                          ></div>
-
-                          {steps.map((step, idx) => {
-                            const isCompleted = idx <= activeStep;
-                            const isActive = idx === activeStep;
-                            return (
-                              <div
-                                key={idx}
-                                style={{
-                                  display: "flex",
-                                  gap: "16px",
-                                  position: "relative",
-                                  zIndex: 2,
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    width: "22px",
-                                    height: "22px",
-                                    borderRadius: "50%",
-                                    background: isCompleted
-                                      ? "var(--am-green)"
-                                      : "var(--am-border, #cbd5e1)",
-                                    color: "#fff",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: "0.7rem",
-                                    fontWeight: "bold",
-                                    border: isActive
-                                      ? "4px solid var(--am-green)"
-                                      : "none",
-                                    boxSizing: "content-box",
-                                  }}
-                                >
-                                  {isCompleted ? <Icon name="check" size={14} /> : idx + 1}
-                                </div>
-                                <div>
-                                  <h5
-                                    style={{
-                                      fontSize: "0.88rem",
-                                      fontWeight: isActive ? "700" : "600",
-                                      color: isActive
-                                        ? "var(--am-green)"
-                                        : "var(--am-text, #1e293b)",
-                                      margin: 0,
-                                    }}
-                                  >
-                                    {step.label}
-                                  </h5>
-                                  <p
-                                    style={{
-                                      fontSize: "0.75rem",
-                                      color: "var(--am-text-muted, #64748b)",
-                                      margin: "4px 0 0 0",
-                                    }}
-                                  >
-                                    {step.desc}
-                                  </p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {/* CONTACT PRODUCER BUTTON */}
-                        {productorNombre && (
-                          <div
-                            style={{
-                              marginTop: "24px",
-                              display: "flex",
-                              justifyContent: "flex-end",
-                            }}
-                          >
-                            <button
-                              className="btn btn-primary"
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                              }}
-                              onClick={() =>
-                                contactProductor(productorNombre)
-                              }
-                            >
-                              <svg
-                                viewBox="0 0 24 24"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                              >
-                                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
-                              </svg>
-                              Contactar Productor ({productorNombre})
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          <div style={{ marginTop: "32px" }}>
-            <h3 style={{ fontSize: "1.1rem", marginBottom: "16px" }}>
-              {" "}
-              {t("envios.historyTitle", "Historial de todos los envíos")}
-            </h3>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{t("envios.id", "ID Envío")}</th>
-                    <th>{t("envios.route", "Origen - Destino")}</th>
-                    <th>{t("envios.carrier", "Transportista")}</th>
-                    <th>{t("envios.status", "Estado")}</th>
-                    <th>Guía</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {historialEnvios.map((e) => (
-                    <tr key={e.id}>
-                      <td data-label="ID Envío">#{e.id}</td>
-                      <td data-label="Ruta">
-                        {e.origen || "Chigorodó"} - {e.direccionDestino}
-                      </td>
-                      <td data-label="Transportista">
-                        {e.transportista || "—"}
-                      </td>
-                      <td data-label="Estado">
-                        <span
-                          className={`badge-status ${e.estado === "Entregado" ? "status-delivered" : "status-pending"}`}
-                        >
-                          {t(
-                            "pedidos.status." + e.estado?.toLowerCase(),
-                            e.estado,
-                          )}
-                        </span>
-                      </td>
-                      <td data-label="Guía">{e.guia || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── MENSAJERIA ─── */}
-        <div className={`section${activeSection === "mensajeria" ? " active" : ""}`} id="sec-mensajeria">
-          <div
-            className="chat-layout"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 2fr",
-              background: "var(--card-bg)",
-              border: "1px solid var(--border-light)",
-              borderRadius: "12px",
-              overflow: "hidden",
-              height: "600px",
-            }}
-          >
-            {/* CONTACTS */}
-            <div
-              className="chat-contacts"
-              style={{
-                borderRight: "1px solid var(--border-light)",
-                overflowY: "auto",
-              }}
-            >
-              {contactos.length === 0 ? (
-                <div
-                  style={{
-                    padding: "24px",
-                    textAlign: "center",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  No tienes contactos activos.
-                </div>
-              ) : (
-                contactos.map((c) => (
-                  <div
-                    key={c.id}
-                    className={`contact-item${selectedContact?.id === c.id ? " active" : ""}`}
-                    onClick={() => selectContact(c)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                      padding: "14px 16px",
-                      cursor: "pointer",
-                      borderBottom: "1px solid var(--border-light)",
-                      background:
-                        selectedContact?.id === c.id
-                          ? "var(--primary-bg)"
-                          : "transparent",
-                    }}
-                  >
-                    <div className="avatar avatar-blue">
-                      {c.nombre?.charAt(0).toUpperCase() || "C"}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: "600", fontSize: "0.9rem" }}>
-                        {c.nombre}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.75rem",
-                          color: "var(--text-muted)",
-                        }}
-                      >
-                        {t("auth." + c.rol?.toLowerCase(), c.rol)}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* WINDOW */}
-            <div
-              className="chat-window"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-              }}
-            >
-              <div
-                className="chat-header"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: "16px 20px",
-                  borderBottom: "1px solid var(--border-light)",
-                }}
-              >
-                <div className="avatar avatar-blue">
-                  {selectedContact?.nombre?.charAt(0).toUpperCase() || "--"}
-                </div>
-                <div>
-                  <div className="chat-name" style={{ fontWeight: "700" }}>
-                    {selectedContact?.nombre || "Selecciona un contacto"}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    {selectedContact?.rol || ""}
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="chat-messages"
-                ref={chatRef}
-                style={{
-                  flex: 1,
-                  padding: "20px",
-                  overflowY: "auto",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                }}
-              >
-                {!selectedContact ? (
-                  <div
-                    style={{
-                      margin: "auto",
-                      textAlign: "center",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    <div style={{ fontSize: "2.5rem" }}></div>
-                    <div>
-                      Selecciona un contacto para iniciar la conversación.
-                    </div>
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div style={{ margin: "auto", color: "var(--text-muted)" }}>
-                    No hay mensajes aún. ¡Sé el primero en escribir!
-                  </div>
-                ) : (
-                  messages.map((m) => {
-                    const esMio = m.mio || m.remitenteId === user?.id;
-                    return (
-                      <div
-                        key={m.id}
-                        style={{
-                          display: "flex",
-                          justifyContent: esMio ? "flex-end" : "flex-start",
-                        }}
-                      >
-                        <div
-                          style={{
-                            maxWidth: "70%",
-                            background: esMio
-                              ? "var(--primary)"
-                              : "var(--card-bg)",
-                            color: esMio ? "#fff" : "inherit",
-                            padding: "10px 14px",
-                            borderRadius: esMio
-                              ? "16px 16px 4px 16px"
-                              : "16px 16px 16px 4px",
-                            border: esMio
-                              ? "none"
-                              : "1px solid var(--border-light)",
-                          }}
-                        >
-                          <div>{m.texto || m.contenido}</div>
-                          <div
-                            style={{
-                              fontSize: "0.65rem",
-                              opacity: 0.7,
-                              marginTop: "4px",
-                              textAlign: "right",
-                            }}
-                          >
-                            {m.hora ||
-                              formatearHora(m.fechaEnvio ?? m.sentAt)}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              <div
-                className="chat-input-bar"
-                style={{
-                  padding: "16px",
-                  borderTop: "1px solid var(--border-light)",
-                  display: "flex",
-                  gap: "12px",
-                }}
-              >
-                <input
-                  className="chat-input"
-                  style={{
-                    flex: 1,
-                    padding: "12px 16px",
-                    borderRadius: "8px",
-                    border: "1px solid var(--border-light)",
-                  }}
-                  placeholder="Escribe un mensaje..."
-                  value={msgInput}
-                  onChange={(e) => setMsgInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") sendMessage();
-                  }}
-                  disabled={!selectedContact}
-                />
-                <button
-                  className="btn btn-primary"
-                  onClick={sendMessage}
-                  disabled={!selectedContact}
-                >
-                  Enviar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── RESEÑAS ─── */}
-        <div className={`section${activeSection === "resenas" ? " active" : ""}`} id="sec-resenas">
-          <div
-            className="section-header"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "24px",
-            }}
-          >
-            <span
-              className="section-title"
-              style={{ fontSize: "1.25rem", fontWeight: "700" }}
-            >
-              {" "}
-              Mis Reseñas de Productos
-            </span>
-            <button
-              className="btn btn-primary"
-              onClick={() => setReviewModalOpen(true)}
-            >
-              + Nueva reseña
-            </button>
-          </div>
-
-          <div id="reviewsList">
-            {reviews.length === 0 ? (
-              <div
-                className="empty-state"
-                style={{
-                  padding: "60px",
-                  textAlign: "center",
-                  background: "var(--card-bg)",
-                  border: "1px solid var(--border-light)",
-                  borderRadius: "12px",
-                }}
-              >
-                <div style={{ fontSize: "2rem" }}></div>
-                <div>No hay reseñas registradas aún.</div>
-              </div>
-            ) : (
-              reviews.map((r) => (
-                <div
-                  key={r.id}
-                  className="review-card"
-                  style={{
-                    background: "var(--card-bg)",
-                    border: "1px solid var(--border-light)",
-                    borderRadius: "12px",
-                    padding: "20px 24px",
-                    marginBottom: "16px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <div style={{ fontWeight: "700" }}>
-                      {r.compradorNombre || "Usuario"}
-                    </div>
-                    <div style={{ color: "var(--gold)", fontSize: "1.1rem" }}>
-                      {[...Array(r.calificacion || 5)].map((_, i) => (
-                        <Icon
-                          key={i}
-                          name="star"
-                          size={14}
-                          className="inline text-yellow-500"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div style={{ color: "var(--text-secondary)" }}>
-                    {r.comentario}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--text-muted)",
-                      marginTop: "8px",
-                    }}
-                  >
-                    {new Date(r.fecha).toLocaleDateString()}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* ─── MI PERFIL & AJUSTES ───
-            Los estilos vivían en atributos style (padding, bordes, fondos),
-            lo que impedía cualquier ajuste responsive y dejaba tarjetas con
-            variables que solo existen en tema claro (--card-bg,
-            --border-light). Ahora la maquetación vive en .perfil-* dentro de
-            comprador.css. */}
-        <div className={`section${activeSection === "perfil" ? " active" : ""}`} id="sec-perfil">
-          <div className="dash-header">
-            <div className="dash-welcome">
-              <h1> Ajustes de Mi Perfil</h1>
-              <p>
-                Administra tu información personal y la seguridad de tu cuenta
-              </p>
-            </div>
-          </div>
-
-          <div className="perfil-grid">
-            {/* Profile Details Form */}
-            <div className="card-table perfil-card">
-              <h3 className="perfil-card__title">Datos Personales</h3>
-              {perfilMsg.text && (
-                <div className={`perfil-alert perfil-alert--${perfilMsg.type}`}>
-                  {perfilMsg.text}
-                </div>
-              )}
-              <form onSubmit={handleUpdatePerfil}>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="comprador-nombre">
-                    Nombre Completo
-                  </label>
-                  <input
-                    id="comprador-nombre"
-                    className="form-input"
-                    value={perfilForm.nombre}
-                    onChange={(e) =>
-                      setPerfilForm({ ...perfilForm, nombre: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="comprador-telefono">
-                    Teléfono Móvil
-                  </label>
-                  <input
-                    id="comprador-telefono"
-                    className="form-input"
-                    type="tel"
-                    inputMode="numeric"
-                    value={perfilForm.telefono}
-                    onChange={(e) =>
-                      setPerfilForm({
-                        ...perfilForm,
-                        telefono: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="comprador-email">
-                    Correo Electrónico (No editable)
-                  </label>
-                  <input
-                    id="comprador-email"
-                    className="form-input is-readonly"
-                    value={user?.email || ""}
-                    readOnly
-                  />
-                </div>
-                <button
-                  className="btn btn-primary perfil-submit"
-                  type="submit"
-                >
-                  Guardar Cambios
-                </button>
-              </form>
-            </div>
-
-            {/* Password Change Form */}
-            <div className="card-table perfil-card">
-              <h3 className="perfil-card__title">Seguridad de la Cuenta</h3>
-              {pwMsg.text && (
-                <div className={`perfil-alert perfil-alert--${pwMsg.type}`}>
-                  {pwMsg.text}
-                </div>
-              )}
-              <form onSubmit={handleUpdatePassword}>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="comprador-pw-actual">
-                    Contraseña Actual
-                  </label>
-                  <div className="perfil-secret">
-                    <input
-                      id="comprador-pw-actual"
-                      className="form-input"
-                      type={showCurrentPassword ? "text" : "password"}
-                      value={pwForm.contrasenaActual}
-                      onChange={(e) =>
-                        setPwForm({
-                          ...pwForm,
-                          contrasenaActual: e.target.value,
-                        })
-                      }
-                    />
-                    <button
-                      type="button"
-                      className="perfil-secret__toggle"
-                      onClick={() =>
-                        setShowCurrentPassword(!showCurrentPassword)
-                      }
-                      aria-label={
-                        showCurrentPassword
-                          ? "Ocultar contraseña"
-                          : "Mostrar contraseña"
-                      }
-                    >
-                      {showCurrentPassword ? (
-                        <Icon name="eyeOff" size={17} />
-                      ) : (
-                        <Icon name="eye" size={17} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="comprador-pw-nueva">
-                    Nueva Contraseña
-                  </label>
-                  <div className="perfil-secret">
-                    <input
-                      id="comprador-pw-nueva"
-                      className="form-input"
-                      type={showNewPassword ? "text" : "password"}
-                      value={pwForm.nuevaContrasena}
-                      onChange={(e) =>
-                        setPwForm({
-                          ...pwForm,
-                          nuevaContrasena: e.target.value,
-                        })
-                      }
-                    />
-                    <button
-                      type="button"
-                      className="perfil-secret__toggle"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      aria-label={
-                        showNewPassword
-                          ? "Ocultar contraseña"
-                          : "Mostrar contraseña"
-                      }
-                    >
-                      {showNewPassword ? (
-                        <Icon name="eyeOff" size={17} />
-                      ) : (
-                        <Icon name="eye" size={17} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <button
-                  className="btn btn-primary perfil-submit"
-                  type="submit"
-                >
-                  Cambiar Contraseña
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-        {/* ─── MIS FACTURAS ─── */}
-        <div className={`section${activeSection === "misFacturas" ? " active" : ""}`} id="sec-misFacturas">
-          <div className="dash-header">
-            <div className="dash-welcome">
-              <h1>Mis Facturas de Compra</h1>
-              <p>
-                Descarga tus comprobantes electrónicos detallados de ASAFRUT
-              </p>
-            </div>
-          </div>
-          <div className="card-table">
-            <div className="table-wrap">
-              <table className="table-responsive">
-                <thead>
-                  <tr>
-                    <th>Factura N°</th>
-                    <th>Pedido ID</th>
-                    <th>Subtotal</th>
-                    <th>IVA (19%)</th>
-                    <th>Total</th>
-                    <th>Fecha Emisión</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {facturas.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="7"
-                        style={{
-                          textAlign: "center",
-                          padding: "24px",
-                          color: "var(--text-muted)",
-                        }}
-                      >
-                        No tienes facturas emitidas en este momento.
-                      </td>
-                    </tr>
-                  ) : (
-                    getGroupedFacturas(facturas).map((f) => (
-                      <tr key={f.checkoutId || f.id}>
-                        <td data-label="Factura N°">{f.numeroFactura}</td>
-                        <td data-label="Pedido ID">
-                          {f.checkoutId || `#${f.pedidoId}`}
-                        </td>
-                        <td data-label="Subtotal">
-                          {formatPrice(f.subtotal)}
-                        </td>
-                        <td data-label="IVA">{formatPrice(f.impuesto)}</td>
-                        <td
-                          data-label="Total"
-                          style={{
-                            fontWeight: "600",
-                            color: "var(--primary)",
-                          }}
-                        >
-                          {formatPrice(f.total)}
-                        </td>
-                        <td data-label="Fecha">
-                          {new Date(f.fechaEmision).toLocaleDateString()}
-                        </td>
-                        <td data-label="Acciones">
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            onClick={() => descargarPdfGroup(f)}
-                          >
-                            Descargar PDF
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── LICITACIONES B2B (RFQ) ─── */}
-        <div className={`section${activeSection === "rfq" ? " active" : ""}`} id="sec-rfq">
-          <div className="dash-header">
-            <div className="dash-welcome">
-              <h1> Licitaciones B2B (RFQ)</h1>
-              <p>
-                Publica solicitudes de cotización al por mayor para recibir
-                ofertas competitivas de productores verificados
-              </p>
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 2fr",
-              gap: "24px",
-              marginTop: "24px",
-            }}
-          >
-            {/* Publicar Solicitud */}
-            <div
-              className="card-table"
-              style={{
-                padding: "24px",
-                borderRadius: "12px",
-                background: "var(--card-bg)",
-              }}
-            >
-              <h3
-                style={{
-                  marginBottom: "16px",
-                  fontSize: "1.1rem",
-                  borderBottom: "1px solid var(--border-light)",
-                  paddingBottom: "8px",
-                }}
-              >
-                Nueva Solicitud (RFQ)
-              </h3>
-              {rfqMsg.text && (
-                <div
-                  style={{
-                    padding: "10px 14px",
-                    borderRadius: "6px",
-                    marginBottom: "16px",
-                    fontSize: "0.85rem",
-                    background:
-                      rfqMsg.type === "success"
-                        ? "var(--green-bg)"
-                        : "var(--red-bg)",
-                    color:
-                      rfqMsg.type === "success"
-                        ? "var(--primary)"
-                        : "var(--red)",
-                  }}
-                >
-                  {rfqMsg.text}
-                </div>
-              )}
-              <form onSubmit={crearRfq}>
-                <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">Tipo de Fruta *</label>
-                  <select
-                    className="form-select"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "6px",
-                    }}
-                    value={rfqForm.tipoFruta}
-                    onChange={(e) =>
-                      setRfqForm({ ...rfqForm, tipoFruta: e.target.value })
-                    }
-                  >
-                    <option value="PASSION_FRUIT"> Maracuyá</option>
-                  </select>
-                </div>
-                <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">
-                    Cantidad Requerida (kg) *
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    className="form-input"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "6px",
-                    }}
-                    value={rfqForm.cantidadRequerida}
-                    onChange={(e) =>
-                      setRfqForm({
-                        ...rfqForm,
-                        cantidadRequerida: e.target.value,
-                      })
-                    }
-                    placeholder="Ej: 500"
-                  />
-                </div>
-                <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">
-                    Fecha Límite para Ofertar *
-                  </label>
-                  <input
-                    type="datetime-local"
-                    className="form-input"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "6px",
-                    }}
-                    value={rfqForm.fechaLimite}
-                    onChange={(e) =>
-                      setRfqForm({ ...rfqForm, fechaLimite: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <label className="form-label">
-                    Instrucciones / Especificaciones
-                  </label>
-                  <textarea
-                    rows="3"
-                    className="form-textarea"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "6px",
-                    }}
-                    value={rfqForm.descripcion}
-                    onChange={(e) =>
-                      setRfqForm({ ...rfqForm, descripcion: e.target.value })
-                    }
-                    placeholder="Ej: Busco piña manzana de calibre grande, despacho a bodega en Medellín."
-                  ></textarea>
-                </div>
-                <button
-                  className="btn btn-primary"
-                  type="submit"
-                  style={{ width: "100%" }}
-                >
-                  Publicar Licitación
-                </button>
-              </form>
-            </div>
-
-            {/* Mis Solicitudes y sus Ofertas */}
-            <div
-              className="card-table"
-              style={{
-                padding: "24px",
-                borderRadius: "12px",
-                background: "var(--card-bg)",
-              }}
-            >
-              <h3
-                style={{
-                  marginBottom: "16px",
-                  fontSize: "1.1rem",
-                  borderBottom: "1px solid var(--border-light)",
-                  paddingBottom: "8px",
-                }}
-              >
-                Mis Licitaciones Publicadas
-              </h3>
-              {rfqs.length === 0 ? (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "48px 0",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  No has publicado ninguna licitación.
-                </div>
-              ) : (
-                rfqs.map((rfq) => (
-                  <div
-                    key={rfq.id}
-                    className="cell-soft"
-                    style={{
-                      padding: "16px",
-                      borderRadius: "10px",
-                      marginBottom: "16px",
-                      border: "1px solid var(--border-light)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontWeight: "700",
-                          fontSize: "1rem",
-                          color: "var(--primary)",
-                        }}
-                      >
-                        {rfq.tipoFruta} - {rfq.cantidadRequerida} kg
-                      </span>
-                      <span
-                        className={`badge-status ${rfq.activo ? "status-shipped" : "status-pending"}`}
-                        style={{ fontSize: "0.75rem" }}
-                      >
-                        {rfq.activo ? "Activa" : "Cerrada"}
-                      </span>
-                    </div>
-                    <p style={{ fontSize: "0.85rem", margin: "4px 0" }}>
-                      {rfq.descripcion || "Sin descripción."}
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      Vence: {new Date(rfq.fechaLimite).toLocaleString()}
-                    </p>
-
-                    <div
-                      style={{
-                        marginTop: "14px",
-                        borderTop: "1px dashed var(--am-border, #cbd5e1)",
-                        paddingTop: "10px",
-                      }}
-                    >
-                      <strong
-                        style={{
-                          fontSize: "0.8rem",
-                          display: "block",
-                          marginBottom: "6px",
-                        }}
-                      >
-                        Cotizaciones Recibidas ({rfq.ofertas?.length || 0}):
-                      </strong>
-                      {!rfq.ofertas || rfq.ofertas.length === 0 ? (
-                        <span
-                          style={{
-                            fontSize: "0.75rem",
-                            color: "var(--text-muted)",
-                            fontStyle: "italic",
-                          }}
-                        >
-                          Esperando ofertas de productores...
-                        </span>
-                      ) : (
-                        rfq.ofertas.map((of) => (
-                          <div
-                            key={of.id}
-                            style={{
-                              background: "var(--surface)",
-                              padding: "10px 12px",
-                              borderRadius: "6px",
-                              border: "1px solid var(--border-light)",
-                              fontSize: "0.8rem",
-                              marginBottom: "8px",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <div>
-                              <strong>{of.productorNombre}</strong>:{" "}
-                              <span
-                                style={{
-                                  color: "var(--primary)",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                {formatPrice(of.precioPropuesto)}/kg
-                              </span>
-                              <div
-                                style={{
-                                  fontSize: "0.7rem",
-                                  color: "var(--text-muted)",
-                                  marginTop: "2px",
-                                }}
-                              >
-                                "{of.comentarios}"
-                              </div>
-                            </div>
-                            {rfq.activo && (
-                              <button
-                                className="btn btn-primary btn-sm"
-                                style={{
-                                  padding: "4px 8px",
-                                  fontSize: "0.7rem",
-                                }}
-                                onClick={() =>
-                                  aceptarOfertaRfq(rfq.id, of.id)
-                                }
-                              >
-                                Aceptar
-                              </button>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
       </main>
 
       {/* MODAL PROCESAR PAGO (PSE/TARJETA/EFECTIVO) */}

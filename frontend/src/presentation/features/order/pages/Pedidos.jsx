@@ -8,6 +8,7 @@ import { useSecureParams } from "@/presentation/shared/hooks/useSecureParams";
 import api from "@/infrastructure/http/api";
 import { normalizarPedido } from "@/infrastructure/normalizar";
 import PedidoCard from "@/presentation/features/order/components/PedidoCard";
+import Icon from "@/presentation/shared/components/Icon";
 
 export default function Pedidos() {
   const { t } = useTranslation();
