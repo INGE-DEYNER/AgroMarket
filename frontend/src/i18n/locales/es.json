@@ -1004,7 +1004,7 @@
     "navigationHistorySub": "Revisa los productos que has visitado recientemente.",
     "clearHistory": "Limpiar historial",
     "helpCenter": "Centro de ayuda",
-    "helpCenterSub": "Encuentra respuestas a las preguntas más frecuentes.",
+    "helpCenterSub": "Encuentra respuestas y guías para usar AgroMarket.",
     "catOrders": "Pedidos y compras",
     "catShipping": "Envíos y entregas",
     "catPayments": "Pagos y facturación",
@@ -1046,7 +1046,12 @@
     "viewAllArticles": "Ver todos los artículos de ayuda",
     "searchHelp": "Buscar en ayuda...",
     "emptyHistory": "Tu historial está vacío.",
-    "viewFullHistory": "Ver historial completo"
+    "viewFullHistory": "Ver historial completo",
+    "helpSearch": "Buscar en ayuda...",
+    "helpCategories": "Categorías",
+    "helpPopular": "Artículos populares",
+    "helpNoResults": "No encontramos artículos para tu búsqueda.",
+    "helpSeeAll": "Ver todos los artículos de ayuda"
   },
   "ayuda": {
     "breadcrumb": "Migas de pan",
@@ -1261,7 +1266,10 @@
       "devoluciones": "Devoluciones",
       "pagosGuardados": "Pagos guardados",
       "apariencia": "Apariencia",
-      "deseos": "Lista de deseos"
+      "deseos": "Lista de deseos",
+      "sub": "Ajusta tus notificaciones, tus datos y el aspecto de la plataforma.",
+      "proximamente": "Esta sección se está completando. El enlace funciona y te mantiene dentro del panel.",
+      "sistema": "Sistema"
     }
   },
   "common": {

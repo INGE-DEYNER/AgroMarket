@@ -8,6 +8,7 @@ import SeccionResenas from "./SeccionResenas";
 import SeccionPerfil from "./SeccionPerfil";
 import SeccionMisFacturas from "./SeccionMisFacturas";
 import SeccionRfq from "./SeccionRfq";
+import SeccionConfiguracionRol from "@/presentation/shared/layout/SeccionConfiguracionRol";
 
 /**
  * Monta la sección que corresponde a la ruta actual.
@@ -33,7 +34,16 @@ const COMPONENTES = {
 };
 
 export default function SeccionesComprador() {
-  const { seccion } = useParams();
+  const { seccion, sub } = useParams();
+
+  // Ver SeccionesAdmin.jsx: la subseccion de Configuracion la resuelve su
+  // propia ruta, no este mapa.
+  if (sub) {
+    return (
+      <SeccionConfiguracionRol rol="comprador" base="/dashboard-comprador" />
+    );
+  }
+
   const Componente = COMPONENTES[seccion] ?? SeccionResumen;
   return <Componente />;
 }

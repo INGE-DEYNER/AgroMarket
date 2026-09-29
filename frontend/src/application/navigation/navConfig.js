@@ -140,7 +140,13 @@ export const CONFIG_COMUN = [
 ];
 
 export const CONFIG_POR_ROL = {
-  admin: CONFIG_COMUN,
+  // El modo mantenimiento es exclusivo del administrador: bloquea la tienda a
+  // los clientes, así que no tiene sentido ofrecerlo al productor o al
+  // comprador. Por eso vive en la lista de Admin y no en la común.
+  admin: [
+    ...CONFIG_COMUN,
+    { id: "sistema", label: "Sistema", i18n: "paneles.config.sistema", icon: "shield" },
+  ],
   productor: CONFIG_COMUN,
   comprador: [
     ...CONFIG_COMUN.slice(0, 4),

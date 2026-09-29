@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "@/infrastructure/http/api";
 import Icon from "@/presentation/shared/components/Icon";
 import {
@@ -10,7 +11,7 @@ import {
 /**
  * Campana de notificaciones con panel desplegable.
  *
- * Antes la campana navegan a /especial/notificaciones y sacaba al
+ * Antes la campana navegaba a /especial/notificaciones y sacaba al
  * administrador del panel. Ahora abre una pila de avisos en el mismo
  * sitio, al estilo de las notificaciones agrupadas de iOS: cada aviso es
  * una tarjeta translúcida con icono, categoría, resumen y hora.
@@ -21,14 +22,16 @@ import {
  *
  * `rutaVerTodas` permite que cada rol apunte a su propia sección de
  * Configuración. Antes el enlace iba siempre a /especial/notificaciones, que
- * además sacaba al usuario de los dashboards.
+ * además sacaba al usuario de los dashboards. El shell lo pasa como
+ * `<base del rol>/configuracion/notificaciones`, que sí existe: la subsección
+ * se declaró como ruta hija en los tres paneles.
  */
 export default function PanelNotificaciones({
   userId,
   limite = 6,
   rutaVerTodas = "/especial/notificaciones",
 }) {
-  const navegar = useNavigate();
+  const { t } = useTranslation();
   const [abierto, setAbierto] = useState(false);
   const [items, setItems] = useState([]);
   const [cargando, setCargando] = useState(false);
@@ -164,16 +167,15 @@ export default function PanelNotificaciones({
           )}
 
           <div className="notif-pop__foot">
-            <a
-              href={rutaVerTodas}
-              onClick={(e) => {
-                e.preventDefault();
-                setAbierto(false);
-                navegar(rutaVerTodas);
-              }}
-            >
-              Ver todas las notificaciones
-            </a>
+            {/*
+              Link y no <a href> con preventDefault: el <a> no es navegable
+              con teclado ni announce su destino, y con SPA la recarga de
+              pagina no aporta nada. El panel se cierra en el mismo clic, al
+              navegar.
+            */}
+            <Link to={rutaVerTodas} onClick={() => setAbierto(false)}>
+              {t("special.viewAllNotifications", "Ver todas las notificaciones")}
+            </Link>
           </div>
         </div>
       )}

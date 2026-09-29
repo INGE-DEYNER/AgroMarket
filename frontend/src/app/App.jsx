@@ -10,6 +10,7 @@ import {
 import { AuthProvider } from "@/app/providers/AuthContext";
 import { rutaDeSeccion } from "@/application/security/rutasAdmin";
 import LegacyRedirect from "@/presentation/shared/components/LegacyRedirect";
+import SeccionConfiguracionRol from "@/presentation/shared/layout/SeccionConfiguracionRol";
 import { ToastProvider } from "@/app/providers/ToastContext";
 import { CartProvider } from "@/app/providers/CartContext";
 import { DivisaProvider } from "@/app/providers/DivisaContext";
@@ -429,6 +430,12 @@ function App() {
                         }
                       >
                         <Route index element={<Navigate to="resumen" replace />} />
+                        <Route path="configuracion/:sub" element={
+                          <SeccionConfiguracionRol
+                            rol="comprador"
+                            base="/dashboard-comprador"
+                          />
+                        } />
                         <Route path=":seccion" element={null} />
                       </Route>
 
@@ -454,6 +461,12 @@ function App() {
                         }
                       >
                         <Route index element={<Navigate to="resumen" replace />} />
+                        <Route path="configuracion/:sub" element={
+                          <SeccionConfiguracionRol
+                            rol="productor"
+                            base="/dashboard-productor"
+                          />
+                        } />
                         <Route path=":seccion" element={null} />
                       </Route>
 
@@ -507,6 +520,12 @@ function App() {
                           index
                           element={<Navigate to={rutaDeSeccion("dashboard")} replace />}
                         />
+                        <Route path="configuracion/:sub" element={
+                          <SeccionConfiguracionRol
+                            rol="admin"
+                            base="/admin"
+                          />
+                        } />
                         <Route path=":seccion" element={null} />
                       </Route>
 

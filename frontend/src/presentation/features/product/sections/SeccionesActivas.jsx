@@ -11,6 +11,7 @@ import SeccionFinanzas from "./SeccionFinanzas";
 import SeccionConfiguracion from "./SeccionConfiguracion";
 import SeccionPerfil from "./SeccionPerfil";
 import SeccionRfq from "./SeccionRfq";
+import SeccionConfiguracionRol from "@/presentation/shared/layout/SeccionConfiguracionRol";
 
 /**
  * Monta la sección que corresponde a la ruta actual.
@@ -38,7 +39,16 @@ const SECCIONES = {
 };
 
 export default function SeccionesActivas() {
-  const { seccion } = useParams();
+  const { seccion, sub } = useParams();
+
+  // Ver SeccionesAdmin.jsx: la subseccion de Configuracion la resuelve su
+  // propia ruta, no este mapa.
+  if (sub) {
+    return (
+      <SeccionConfiguracionRol rol="productor" base="/dashboard-productor" />
+    );
+  }
+
   const Componente = SECCIONES[seccion] || SECCIONES.resumen;
 
   // Aviso en desarrollo si navConfig y este mapa se desincronizan.

@@ -1004,7 +1004,7 @@
     "navigationHistorySub": "Review the products you have visited recently.",
     "clearHistory": "Clear history",
     "helpCenter": "Help center",
-    "helpCenterSub": "Find answers to the most frequently asked questions.",
+    "helpCenterSub": "Find answers and guides for using AgroMarket.",
     "catOrders": "Orders and purchases",
     "catShipping": "Shipping and delivery",
     "catPayments": "Payments and billing",
@@ -1046,7 +1046,12 @@
     "viewAllArticles": "View all help articles",
     "searchHelp": "Search in help...",
     "emptyHistory": "Your history is empty.",
-    "viewFullHistory": "View full history"
+    "viewFullHistory": "View full history",
+    "helpSearch": "Search help...",
+    "helpCategories": "Categories",
+    "helpPopular": "Popular articles",
+    "helpNoResults": "We found no articles for your search.",
+    "helpSeeAll": "See all help articles"
   },
   "ayuda": {
     "breadcrumb": "Breadcrumb",
@@ -1261,7 +1266,10 @@
       "devoluciones": "Returns",
       "pagosGuardados": "Saved payments",
       "apariencia": "Appearance",
-      "deseos": "Wishlist"
+      "deseos": "Wishlist",
+      "sub": "Manage your notifications, your data and how the platform looks.",
+      "proximamente": "This section is being completed. The link works and keeps you inside the panel.",
+      "sistema": "System"
     }
   },
   "common": {

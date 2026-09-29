@@ -15,6 +15,7 @@ import SeccionSoporte from "./SeccionSoporte";
 import SeccionAuditoria from "./SeccionAuditoria";
 import SeccionConfiguracion from "./SeccionConfiguracion";
 import SeccionPerfil from "./SeccionPerfil";
+import SeccionConfiguracionRol from "@/presentation/shared/layout/SeccionConfiguracionRol";
 
 /**
  * Monta la sección que corresponde a la ruta actual.
@@ -46,7 +47,15 @@ const COMPONENTES = {
 };
 
 export default function SeccionesAdmin() {
-  const { seccion: seccionRuta } = useParams();
+  const { seccion: seccionRuta, sub } = useParams();
+
+  /*
+   * "configuracion/:sub" no pasa por el mapa de secciones: esa ruta tiene dos
+   * segmentos y la resuelve la subseccion compartida, directamente desde la
+   * ruta. Se devuelve antes de mirar :seccion, que aqui vale "configuracion".
+   */
+  if (sub) return <SeccionConfiguracionRol rol="admin" base="/admin" />;
+
   const seccion = seccionDesdeRuta(`/admin/${seccionRuta ?? ""}`) ?? seccionRuta;
   const Componente = COMPONENTES[seccion] ?? SeccionDashboard;
   return <Componente />;
