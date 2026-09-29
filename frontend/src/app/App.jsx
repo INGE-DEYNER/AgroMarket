@@ -3,7 +3,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Outlet,
+  Navigate,
   useLocation,
 } from "react-router-dom";
 
@@ -403,10 +403,13 @@ function App() {
 
                       {/*
                         DASHBOARD DEL COMPRADOR.
-                        Cada seccion es una ruta hija, asi que al pulsar el menu
-                        cambia la URL y solo se monta la vista pedida. El shell
-                        no se re-monta: React Router mantiene esta instancia
-                        viva y lo unico que cambia es el Outlet.
+                        Cada seccion es una ruta HIJA, de ahi los `<Route>` de
+                        abajo: en React Router v6 el enrutado anidado se declara
+                        como hijos del Route padre, no como Routes hermanos con
+                        la misma URL. Si se declararan como hermanos, la ruta
+                        /dashboard-comprador/<id> renderizaria su propio element
+                        (null) sin montar el padre, y el panel saldria en
+                        blanco.
                       */}
                       <Route
                         path="/dashboard-comprador"
@@ -424,10 +427,9 @@ function App() {
                           </ProtectedRoute>
                         }
                       >
-                        <Outlet />
+                        <Route index element={<Navigate to="resumen" replace />} />
+                        <Route path=":seccion" element={null} />
                       </Route>
-
-                      <Route path="/dashboard-comprador/:seccion" element={null} />
 
                       {/* ==================================================
                           DASHBOARD PRODUCTOR
@@ -450,10 +452,9 @@ function App() {
                           </ProtectedRoute>
                         }
                       >
-                        <Outlet />
+                        <Route index element={<Navigate to="resumen" replace />} />
+                        <Route path=":seccion" element={null} />
                       </Route>
-
-                      <Route path="/dashboard-productor/:seccion" element={null} />
 
                       {/* ==================================================
                           ADMIN
@@ -486,10 +487,11 @@ function App() {
                       />
 
                       {/*
-                        El panel sin sección abría el resumen. Con rutas
-                        anidadas, "/admin" tiene que redirigir explícitamente:
-                        si no, el Outlet no recibe ":seccion" y ninguna vista
-                        se monta.
+                        ADMIN: pendiente de su propio lote de secciones.
+                        Se mantiene como ruta plana (no anidada) porque Admin
+                        aún resuelve la sección con su estado interno. Cuando
+                        sus secciones se extraigan, esta ruta alojara los
+                        Route index y :seccion como en los otros dos paneles.
                       */}
                       <Route
                         path="/admin"
@@ -498,9 +500,7 @@ function App() {
                             <Admin />
                           </ProtectedRoute>
                         }
-                      >
-                        <Outlet />
-                      </Route>
+                      />
 
                       <Route
                         path="/admin/:seccion"
