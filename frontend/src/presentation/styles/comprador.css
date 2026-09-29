@@ -865,12 +865,22 @@ html.dark .buyer-dashboard {
                          Reseñas y Mensajería.
    Antes la regla solo contemplaba .buyer-shell, que este dashboard NO usa,
    así que sus secciones nunca se ocultaban y quedaban todas apiladas. */
-.buyer-dashboard .section,
+/* Dos envoltorios, con comportamientos DISTINTOS:
+   - .buyer-dashboard → DashboardComprador. Con el Outlet solo se monta la
+     sección de la ruta, así que llega sin la clase "active". Antes la regla
+     era `display: none` + `.active { display: block }`, y al migrar el render
+     sin tocar el CSS el panel entero quedó en blanco.
+   - .buyer-shell → BuyerShell, que envuelve Pedidos, Envíos, Reseñas y
+     Mensajería. Esos SÍ montan todas las secciones y las alternan con
+     "active", así que ahí el ocultado sigue siendo necesario. */
+.buyer-dashboard .section {
+  display: block;
+}
+
 .buyer-shell .section {
   display: none;
 }
 
-.buyer-dashboard .section.active,
 .buyer-shell .section.active {
   display: block !important;
 }
@@ -888,12 +898,12 @@ html.dark .buyer-dashboard {
 }
 
 /* Secciones con fondo y separadas.
-   Antes esta regla solo alcanzaba a .buyer-shell, que BuyerShell envuelve
-   (Pedidos, Envíos, Reseñas, Mensajería) pero NO este dashboard. Por eso las
-   9 secciones del comprador se veían como bloques crudos sobre el fondo de
-   la página: sin borde, sin radio y sin padding propio. */
+   Con el Outlet la sección ya llega sin "active", así que el selector es
+   `.section` a secas. Si se deja `.section.active`, la tarjeta (fondo, borde,
+   radio, padding) no se aplica y el contenido queda sobre el fondo de la
+   página, sin recuadro. */
 .buyer-shell .section.active,
-.buyer-dashboard .section.active {
+.buyer-dashboard .section {
   background: var(--am-surface, #ffffff);
   border: 1px solid var(--am-border, var(--color-border));
   border-radius: 10px;
@@ -904,15 +914,15 @@ html.dark .buyer-dashboard {
 /* La cabecera interna repite el título de la sección con un h1 gigante y
    mucho margen: en un panel compacto empuja el contenido fuera de pantalla.
    Se reduce a un encabezado de sección. */
-.buyer-dashboard .section.active .dash-header {
+.buyer-dashboard .section .dash-header {
   margin-bottom: 12px;
   gap: 10px;
 }
-.buyer-dashboard .section.active .dash-header h1 {
+.buyer-dashboard .section .dash-header h1 {
   font-size: 1.05rem;
   margin: 0;
 }
-.buyer-dashboard .section.active .dash-header p {
+.buyer-dashboard .section .dash-header p {
   margin: 2px 0 0;
   font-size: .74rem;
 }

@@ -4,19 +4,35 @@
    productor y comprador). Cualquier tamaño suelto en px o un
    font-size inline debe acabar aquí.
 
-   `--font-scale` lo escribe FontScaleProvider en <html>; vale 1
-   por defecto. Todas las medidas de texto se multiplican por él,
-   de modo que el control A− / A+ redimensiona menús, tarjetas y
-   tablas de forma proporcional sin romper el layout: las medidas
-   que dependen del texto (alto de fila de menú, alto del topbar)
-   se derivan del mismo token.
+   TAMAÑO DE TEXTO ENTRE DISPOSITIVOS
+   La base es fija: `html { font-size: 16px }` (más abajo, y también en
+   index.css y styles.css). Al ser fija, 1rem = 16px SIEMPRE, y todas las
+   medidas --fs-* en rem dan el mismo tamaño en un portátil y en un PC, con
+   independencia de la fuente por defecto del navegador o del SO, que sí
+   varían entre equipos.
+
+   `--font-scale` se mantiene para Configuración → Apariencia, pero ya no lo
+   multiplica nadie: el control A− / A+ se retiró de la barra superior
+   porque el navegador ya ofrece el zoom. Está aquí para que el ajuste
+   vuelva a ser un sitio, no un parche repartido por las hojas.
    ============================================================ */
+
+/* Base tipográfica FIJA.
+   `html { font-size: 16px }` (no un porcentaje) es lo que hace que el texto
+   mida lo mismo en un portátil que en un PC. Con un porcentaje, 1rem depende
+   de la fuente por defecto del navegador, que cambia entre sistemas y
+   navegadores, y el mismo diseño se ve más pequeño en unos equipos que en
+   otros. index.css y styles.css ya la fijan; se repite aquí para que la hoja
+   del shell sea autónoma y no dependa del orden de carga. */
+html {
+  font-size: 16px;
+}
 
 :root {
   --font-scale: 1;
 
-  /* Escala tipográfica. El 1rem del documento también escala, así que
-     rem ya es proporcional a --font-scale. */
+  /* Escala tipográfica. Todas en rem, sin multiplicadores: con la base
+     fija de 16px, 0.7rem son 11.2px en cualquier dispositivo. */
   --fs-xs: 0.7rem;
   --fs-sm: 0.8rem;
   --fs-base: 0.875rem;
@@ -211,7 +227,14 @@ html.dark .ds-shell {
   margin-left: auto;
 }
 
-/* Control de tamaño de fuente: A− / A+ / reset. */
+/*
+ * Control de tamaño de fuente (A− / A+ / reset).
+ *
+ * SUSPENDIDO, no borrado: se retiró de la barra superior porque el navegador
+ * ya ofrece el zoom y tener dos controles del mismo ajuste confunde. Estas
+ * reglas vuelven a estar activas en cuanto el ajuste se exponga en
+ * Configuración → Apariencia, que es donde corresponde.
+ */
 .ds-font-scale {
   display: flex;
   align-items: center;

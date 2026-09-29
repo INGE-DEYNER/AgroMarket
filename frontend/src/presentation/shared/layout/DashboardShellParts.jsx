@@ -5,7 +5,6 @@ import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher"
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import PanelNotificaciones from "@/presentation/shared/components/PanelNotificaciones";
 import { useAuth } from "@/app/hooks/useAuth";
-import { useFontScale } from "@/app/contexts/FontScaleContext";
 
 /** Lista de secciones agrupada. El encabezado se dibuja una sola vez. */
 export function NavItems({ nav, badges, onNavegar }) {
@@ -44,11 +43,13 @@ export function NavItems({ nav, badges, onNavegar }) {
   return salida;
 }
 
-/** Barra superior única: marca, control de fuente, avisos, idioma, tema, usuario. */
+/**
+ * Barra superior única: marca, notificaciones, idioma, tema y usuario.
+ * El tamaño del texto NO está aquí: lo controla el navegador y, como ajuste,
+ * vive en Configuración → Apariencia.
+ */
 export function Topbar({ nav, iniciales, nombreCompleto, sidebarOpen, onOpenSidebar, t }) {
   const { user } = useAuth();
-  const { fontScale, increase, decrease, reset, canIncrease, canDecrease } =
-    useFontScale();
 
   return (
     <header className="ds-topbar">
@@ -73,42 +74,15 @@ export function Topbar({ nav, iniciales, nombreCompleto, sidebarOpen, onOpenSide
       </Link>
 
       <div className="ds-topbar__actions">
-        {/* Los límites (0.85–1.25) los acota el provider: por encima el
-            sidebar deja de caber en pantallas bajas y el pie se cortaría. */}
-        <div
-          className="ds-font-scale"
-          role="group"
-          aria-label={t("common.fontSize", "Tamaño del texto")}
-        >
-          <button
-            type="button"
-            onClick={decrease}
-            disabled={!canDecrease}
-            aria-label={t("common.fontSmaller", "Reducir tamaño del texto")}
-            title={t("common.fontSmaller", "Reducir tamaño del texto")}
-          >
-            A−
-          </button>
-          <output aria-live="polite">{Math.round(fontScale * 100)}%</output>
-          <button
-            type="button"
-            onClick={increase}
-            disabled={!canIncrease}
-            aria-label={t("common.fontBigger", "Aumentar tamaño del texto")}
-            title={t("common.fontBigger", "Aumentar tamaño del texto")}
-          >
-            A+
-          </button>
-          <button
-            type="button"
-            onClick={reset}
-            disabled={fontScale === 1}
-            aria-label={t("common.fontReset", "Restablecer tamaño del texto")}
-            title={t("common.fontReset", "Restablecer tamaño del texto")}
-          >
-            <Icon name="undo" size={13} />
-          </button>
-        </div>
+        {/*
+          * SIN control de tamaño de texto en la barra.
+          *
+          * El navegador ya lo ofrece (Ctrl + / Ctrl -), y tener tambien un
+          * A- / A+ propio duplicaba el control y añadia un estado mas que
+          * persistir. La funcionalidad NO se borra: sigue en FontScaleProvider
+          * y se expone en Configuración → Apariencia, que es donde vive un
+          * ajuste de este tipo.
+          */}
 
         <PanelNotificaciones
           userId={user?.id}

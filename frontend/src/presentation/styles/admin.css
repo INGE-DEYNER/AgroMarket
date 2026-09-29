@@ -901,12 +901,20 @@ html.dark {
   font-size: 0.78rem;
 }
 
+/*
+ * Mostrar la sección.
+ *
+ * ANTES: `.admin-dashboard .section { display: none }` y
+ * `.section.active { display: block !important }`. Eso ocultaba todo menos la
+ * sección activa, y era necesario porque el componente montaba las quince a
+ * la vez. Con el Outlet ya solo se monta la que toca, así que la sección llega
+ * sin la clase "active" y TODAS quedaban ocultas: el panel salía en blanco.
+ *
+ * Es el mismo cambio que se aplicó en productor.css, y que hay que hacer en
+ * los tres paneles: cambiar el render sin tocar el CSS deja la vista vacía.
+ */
 .admin-dashboard .section {
-  display: none;
-}
-
-.admin-dashboard .section.active {
-  display: block !important;
+  display: block;
 }
 
 /* Layout compacto */

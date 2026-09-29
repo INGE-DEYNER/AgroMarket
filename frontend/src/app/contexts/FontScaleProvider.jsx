@@ -28,12 +28,16 @@ function readInitialScale() {
 }
 
 /*
- * El valor viaja como `--font-scale` en el elemento <html>. Todas las medidas
- * de texto del shell se expresan como `calc(var(--fs-*) * var(--font-scale))`,
- * así que subir o bajar la fuente redimensiona menús, tarjetas y tablas de
- * forma proporcional. El layout no se rompe porque las medidas que dependen
- * de texto (alto de fila de menú, alto del topbar) también se derivan del
- * mismo token, y el nav tiene scroll interno para cuando no alcanzan.
+ * El valor viaja como `--font-scale` en el elemento <html>.
+ *
+ * El control A- / A+ se retiró de la barra superior: el navegador ya ofrece
+ * el zoom del texto y tener dos controles para lo mismo confunde. El contexto
+ * se conserva entero para exponer el ajuste en Configuración → Apariencia.
+ *
+ * OJO: hoy ningún selector multiplica por este valor; las medidas --fs-* van
+ * en rem sobre una base fija de 16px, que es lo que hace que el texto mida
+ * igual en todos los dispositivos. Por eso el ajuste todavía no altera nada:
+ * hay que reengancharlo en los tokens cuando se exponga en la interfaz.
  */
 function applyScale(scale) {
   document.documentElement.style.setProperty(
