@@ -1201,6 +1201,71 @@
     "track": {
       "subtitle": "Track your orders on the road in real time",
       "guide": "Tracking number"
+    },
+    "nav": {
+      "menuDe": "{{role}} menu",
+      "roles": {
+        "admin": "Administrator",
+        "productor": "Producer / Seller",
+        "comprador": "Buyer"
+      },
+      "grupos": {
+        "control": "Control panel",
+        "negocio": "Business management",
+        "operacion": "Operations",
+        "navegacion": "Navigation",
+        "servicios": "Services",
+        "sistema": "System"
+      },
+      "admin": {
+        "dashboard": "Dashboard",
+        "usuarios": "Users",
+        "pedidos": "Orders",
+        "productores": "Producers",
+        "pagos": "Payments",
+        "reportes": "Reports",
+        "logistica": "Logistics",
+        "cupones": "Coupons",
+        "resenas": "Reviews",
+        "soporte": "Support",
+        "auditoria": "Audit"
+      },
+      "productor": {
+        "resumen": "Overview",
+        "pedidosVentas": "Orders and sales",
+        "mensajes": "Messages",
+        "finca": "Farm information",
+        "finanzas": "Finance / payments",
+        "despachos": "Dispatches"
+      },
+      "comprador": {
+        "resumen": "Summary",
+        "catalogo": "Browse catalog",
+        "misPedidos": "My orders",
+        "misFacturas": "My invoices",
+        "rfq": "B2B requests (RFQ)",
+        "seguimiento": "Tracking",
+        "misResenas": "My reviews"
+      },
+      "productos": "Products",
+      "mensajeria": "Messaging",
+      "rfq": "Opportunities"
+    },
+    "config": {
+      "titulo": "Settings",
+      "notificaciones": "Notifications",
+      "historial": "History",
+      "direcciones": "Addresses",
+      "cupones": "Coupons and promotions",
+      "ayuda": "Help center",
+      "devoluciones": "Returns",
+      "pagosGuardados": "Saved payments",
+      "apariencia": "Appearance",
+      "deseos": "Wishlist"
     }
+  },
+  "common": {
+    "user": "User",
+    "loading": "Loading…"
   }
 }

@@ -1201,6 +1201,71 @@
     "track": {
       "subtitle": "Monitorea tus pedidos en ruta en tiempo real",
       "guide": "Guía"
+    },
+    "nav": {
+      "menuDe": "Menú de {{role}}",
+      "roles": {
+        "admin": "Administrador",
+        "productor": "Productor / Vendedor",
+        "comprador": "Comprador"
+      },
+      "grupos": {
+        "control": "Panel de control",
+        "negocio": "Gestión del negocio",
+        "operacion": "Operación",
+        "navegacion": "Navegación",
+        "servicios": "Servicios",
+        "sistema": "Sistema"
+      },
+      "admin": {
+        "dashboard": "Dashboard",
+        "usuarios": "Usuarios",
+        "pedidos": "Pedidos",
+        "productores": "Productores",
+        "pagos": "Pagos",
+        "reportes": "Reportes",
+        "logistica": "Logística",
+        "cupones": "Cupones",
+        "resenas": "Reseñas",
+        "soporte": "Soporte",
+        "auditoria": "Auditoría"
+      },
+      "productor": {
+        "resumen": "Panel general",
+        "pedidosVentas": "Pedidos y ventas",
+        "mensajes": "Mensajes",
+        "finca": "Información de la finca",
+        "finanzas": "Finanzas / pagos",
+        "despachos": "Despachos"
+      },
+      "comprador": {
+        "resumen": "Resumen",
+        "catalogo": "Explorar catálogo",
+        "misPedidos": "Mis pedidos",
+        "misFacturas": "Mis facturas",
+        "rfq": "Licitaciones B2B (RFQ)",
+        "seguimiento": "Seguimiento",
+        "misResenas": "Mis reseñas"
+      },
+      "productos": "Productos",
+      "mensajeria": "Mensajería",
+      "rfq": "Oportunidades"
+    },
+    "config": {
+      "titulo": "Configuración",
+      "notificaciones": "Notificaciones",
+      "historial": "Historial",
+      "direcciones": "Direcciones",
+      "cupones": "Cupones y promociones",
+      "ayuda": "Centro de ayuda",
+      "devoluciones": "Devoluciones",
+      "pagosGuardados": "Pagos guardados",
+      "apariencia": "Apariencia",
+      "deseos": "Lista de deseos"
     }
+  },
+  "common": {
+    "user": "Usuario",
+    "loading": "Cargando…"
   }
 }

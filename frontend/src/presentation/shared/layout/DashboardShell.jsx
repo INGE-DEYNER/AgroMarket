@@ -75,13 +75,21 @@ export default function DashboardShell({ nav, children, badges = {} }) {
               {iniciales}
             </div>
             <span className="ds-sidebar__profile-text">
-              <strong>{nombreCompleto || "Usuario"}</strong>
-              <small>{nav.etiquetaRol}</small>
+              <strong>{nombreCompleto || t("common.user", "Usuario")}</strong>
+              <small>{t(nav.rolI18n, nav.etiquetaRol)}</small>
             </span>
           </div>
 
-          <nav className="ds-nav" aria-label={`Menú de ${nav.etiquetaRol}`}>
-            <NavItems nav={nav} badges={badges} onNavegar={cerrarSidebar} />
+          <nav
+            className="ds-nav"
+            aria-label={t("paneles.nav.menuDe", { role: t(nav.rolI18n, nav.etiquetaRol) })}
+          >
+            <NavItems
+              nav={nav}
+              badges={badges}
+              onNavegar={cerrarSidebar}
+              t={t}
+            />
           </nav>
 
           {/* Zona fija al pie: el nav es el único elemento con scroll, así
