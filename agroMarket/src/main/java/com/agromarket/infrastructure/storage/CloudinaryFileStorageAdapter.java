@@ -15,12 +15,15 @@ import com.cloudinary.utils.ObjectUtils;
 public class CloudinaryFileStorageAdapter implements FileStoragePort {
 
     private final Cloudinary cloudinary;
+    private final String folder;
 
     public CloudinaryFileStorageAdapter(
             @Value("${cloudinary.cloud-name}") String cloudName,
             @Value("${cloudinary.api-key}") String apiKey,
-            @Value("${cloudinary.api-secret}") String apiSecret) {
+            @Value("${cloudinary.api-secret}") String apiSecret,
+            @Value("${cloudinary.folder:Agromarket/products}") String folder) {
 
+        this.folder = folder;
         this.cloudinary = new Cloudinary(
                 ObjectUtils.asMap(
                         "cloud_name", cloudName,
@@ -52,7 +55,12 @@ public class CloudinaryFileStorageAdapter implements FileStoragePort {
                             "resource_type", "image",
                             "use_filename", true,
                             "unique_filename", true,
-                            "filename_override", fileName));
+                            "filename_override", fileName,
+                            // Sin este parametro Cloudinary deja el archivo
+                            // en la raiz del proyecto. El valor viene de
+                            // cloudinary.folder, con default
+                            // Agromarket/products.
+                            "folder", folder));
 
             return new FileUploadResult(
                     String.valueOf(result.get("secure_url")),

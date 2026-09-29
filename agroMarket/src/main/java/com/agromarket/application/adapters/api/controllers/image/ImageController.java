@@ -30,10 +30,34 @@ public class ImageController {
 
         private final ImagePort imagePort;
 
+        /*
+         * OJO con el contrato: no se pueden mezclar dos mecanismos.
+         *
+         * - @RequestParam lee la QUERY STRING.
+         * - @RequestPart MultipartFile lee el archivo del multipart.
+         *
+         * La firma original mezclaba ambos: file como @RequestPart y
+         * productId/type como @RequestParam. Con FormData, los dos ultimos
+         * viajan como PARTES del formulario, no en la query, asi que llegaban
+         * nulos y la peticion terminaba en 400.
+         *
+         * La correccion NO es poner @RequestPart en los tres: Spring rechaza
+         * con 415 un @RequestPart que no sea MultipartFile, Part o String.
+         * Comprobado contra el backend en marcha:
+         *
+         *   file solo ............. 400  (falta productId)
+         *   file + productId ..... 415  (@RequestPart con Long no es valido)
+         *
+         * Por eso productId y type se quedan como @RequestParam y el
+         * FRONTEND los pone en la URL. Ver DashboardProductor.jsx.
+         *
+         * productId y no ownerId: es el id del PRODUCTO al que se asocia la
+         * imagen, no el del propietario. El nombre viejo confundia.
+         */
         @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public ResponseEntity<ImageResponse> upload(
                         @RequestPart("file") MultipartFile file,
-                        @RequestParam Long ownerId,
+                        @RequestParam Long productId,
                         @RequestParam ImageType type) {
 
                 try {
@@ -42,7 +66,7 @@ public class ImageController {
                                                         file.getBytes(),
                                                         file.getOriginalFilename(),
                                                         file.getContentType(),
-                                                        ownerId,
+                                                        productId,
                                                         type));
 
                         return ResponseEntity.status(HttpStatus.CREATED)

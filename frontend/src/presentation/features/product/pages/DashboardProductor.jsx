@@ -693,10 +693,18 @@ export default function DashboardProductor() {
       if (productId && selectedImageFile) {
         const formData = new FormData();
         formData.append("file", selectedImageFile);
-        formData.append("ownerId", productId);
-        formData.append("type", "PRODUCT");
+        // productId y type viajan en la URL, NO dentro del FormData: el
+        // backend los lee con @RequestParam (query string). Meterlos como
+        // partes no funciona: @RequestPart solo admite MultipartFile, Part o
+        // String, y para un Long el servidor responde 415. Verificado.
+        //
+        // productId y no ownerId: es el id del PRODUCTO al que se asocia la
+        // imagen, no el del propietario.
         try {
-          const imageRes = await api.post(`/images`, formData);
+          const imageRes = await api.post(
+            `/images?productId=${productId}&type=PRODUCT`,
+            formData,
+          );
           if (imageRes && imageRes.url) {
             const updatedPayload = { ...payload, imageUrl: imageRes.url };
             await api.put(`/productos/${productId}`, updatedPayload);

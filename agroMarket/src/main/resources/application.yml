@@ -103,3 +103,6 @@ cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME:}
   api-key: ${CLOUDINARY_API_KEY:}
   api-secret: ${CLOUDINARY_API_SECRET:}
+  # Carpeta de destino en la consola de Cloudinary. Sin este parámetro el
+  # archivo se guarda en la raíz del proyecto, no dentro de Agromarket/.
+  folder: ${CLOUDINARY_FOLDER:Agromarket/products}
