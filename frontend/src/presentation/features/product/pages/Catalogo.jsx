@@ -53,7 +53,6 @@ export default function Catalogo() {
   const { formatearPrecio, divisaActual } = useDivisa();
 
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState(searchParams.get("search") || "");
   const [sort, setSort] = useState(searchParams.get("sort") || "relevancia");
@@ -71,14 +70,17 @@ export default function Catalogo() {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    Promise.all([
-      api.get("/productos?page=0&size=100"),
-      api.get("/productos/categorias"),
-    ])
-      .then(([productsRes, categoriesRes]) => {
+    /*
+     * Solo se piden los productos. Antes se cargaba también
+     * /productos/categorias y se guardaba en un estado que nadie leía: el
+     * filtro de categoría vive en la URL (?categoria=), no en un estado local.
+     * Era una petición de sobra en cada visita al catálogo.
+     */
+    api
+      .get("/productos?page=0&size=100")
+      .then((productsRes) => {
         if (!active) return;
         setProducts(extractArray(productsRes));
-        setCategories(extractArray(categoriesRes));
       })
       .catch((err) => console.error("No se pudo cargar el catálogo:", err))
       .finally(() => active && setLoading(false));

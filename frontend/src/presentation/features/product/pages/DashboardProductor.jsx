@@ -1,14 +1,15 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, NavLink, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import LanguageSwitcher from "@/presentation/shared/components/LanguageSwitcher";
 import ThemeToggle from "@/presentation/shared/components/ThemeToggle";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import { useMensajeriaStream } from "@/application/messaging/useMessaging";
+// formatearHora se fue con la sección de Mensajería, que es la única que lo
+// usaba. Sigue exportado en normalizar.js para cuando haga falta.
 import {
-  formatearHora,
   normalizarMensaje,
   normalizarPedido,
 } from "@/infrastructure/normalizar";
@@ -43,9 +44,8 @@ export default function DashboardProductor() {
     if (res.content && Array.isArray(res.content)) return res.content;
     return [];
   }, []);
-  const { user, setUser, logout, formatPrice } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Navigation state
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -61,7 +61,13 @@ export default function DashboardProductor() {
    * Ahora la sección la determina la ruta (/dashboard-productor/<id>). Se
    * navega en vez de cambiar estado, así que el enlace es compartible, el
    * historial funciona y solo se monta la vista pedida.
+   *
+   * `seccionActual` es la lectura de esa ruta. La consumen los efectos que
+   * necesitan saber qué vista está abierta (carga diferida por sección y
+   * sondeo de mensajería). Con el Outlet montado, quien ya sabe la sección
+   * es el propio Outlet, pero estos efectos viven en el padre.
    */
+  const { seccion: seccionActual = "resumen" } = useParams();
   const showSection = useCallback(
     (key) => navigate(`/dashboard-productor/${key}`),
     [navigate],
@@ -356,7 +362,7 @@ export default function DashboardProductor() {
 
   useEffect(() => {
     const cargar = async () => {
-      switch (activeSection) {
+      switch (seccionActual) {
         case "resumen":
         case "misProductos":
           await loadProductos();
@@ -379,14 +385,14 @@ export default function DashboardProductor() {
     };
 
     // Se evita repetir la petición si ya se cargó en esta sesión de navegación.
-    const marca = activeSection;
+    const marca = seccionActual;
     if (seccionesCargadas.current.has(marca)) return undefined;
     seccionesCargadas.current.add(marca);
 
     const timer = setTimeout(() => void cargar(), 0);
     return () => clearTimeout(timer);
   }, [
-    activeSection,
+    seccionActual,
     loadProductos,
     loadActiveRfqs,
     loadEnvios,
@@ -432,13 +438,13 @@ export default function DashboardProductor() {
   // Solo mientras la sección de mensajería está visible: si no, el polling
   // seguiría gastando batería y peticiones en segundo plano.
   useEffect(() => {
-    if (activeSection !== "mensajeria") return undefined;
+    if (seccionActual !== "mensajeria") return undefined;
     const contactosTimer = setInterval(() => void loadContactos(), 10000);
     return () => clearInterval(contactosTimer);
-  }, [loadContactos, activeSection]);
+  }, [loadContactos, seccionActual]);
 
   useEffect(() => {
-    if (activeSection !== "mensajeria") return undefined;
+    if (seccionActual !== "mensajeria") return undefined;
     if (!selectedContact) return undefined;
     const conversacionTimer = setInterval(async () => {
       try {
@@ -453,7 +459,7 @@ export default function DashboardProductor() {
       }
     }, 3500);
     return () => clearInterval(conversacionTimer);
-  }, [selectedContact, user, extractArray]);
+  }, [selectedContact, user, extractArray, seccionActual]);
 
   /*
    * TIEMPO REAL (SSE): el backend empuja el mensaje y se agrega al instante a
@@ -867,130 +873,108 @@ export default function DashboardProductor() {
         </div>
 
         <div className="sidebar-label">Gestión del negocio</div>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "resumen" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("resumen");
-            setSidebarOpen(false);
-          }}
+        <NavLink
+          to={`/dashboard-productor/resumen`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon">⌂</span> Panel general
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "misProductos" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("misProductos");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/misProductos`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon">▦</span> Productos
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "pedidosRec" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("pedidosRec");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/pedidosRec`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon">▤</span> Pedidos y ventas{" "}
           <span className="badge-count">{pedidos.length}</span>
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "mensajeria" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("mensajeria");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/mensajeria`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"><Icon name="mail" size={18} /></span> Mensajes
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "resenas" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("resenas");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/resenas`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"><Icon name="star" size={18} /></span> Reseñas
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "finca" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("finca");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/finca`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon">⌂</span> Información de la finca
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "finanzas" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("finanzas");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/finanzas`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon">$</span> Finanzas / pagos
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "configuracion" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("configuracion");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/configuracion`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon"><Icon name="settings" size={18} /></span> Configuración
-        </a>
+        </NavLink>
         <div className="sidebar-divider"></div>
         <div className="sidebar-label">Operación</div>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "seguimiento" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("seguimiento");
-            setSidebarOpen(false);
-          }}
+        <NavLink
+          to={`/dashboard-productor/seguimiento`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon">▣</span> Despachos
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "rfq" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("rfq");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/rfq`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon">◈</span> Oportunidades
-        </a>
-        <a
-          href="#"
-          className={`sidebar-link${activeSection === "perfil" ? " active" : ""}`}
-          onClick={(e) => {
-            e.preventDefault();
-            showSection("perfil");
-            setSidebarOpen(false);
-          }}
+        </NavLink>
+        <NavLink
+          to={`/dashboard-productor/perfil`}
+          className={({ isActive }) =>
+            `sidebar-link${isActive ? " active" : ""}`
+          }
+          onClick={() => setSidebarOpen(false)}
         >
           <span className="icon">●</span> Mi perfil
-        </a>
+        </NavLink>
         <button
           type="button"
           className="sidebar-link producer-logout"
