@@ -105,12 +105,36 @@ html.dark {
 .sidebar-link:hover { color: #fff; background: rgba(255,255,255,.09); transform: translateX(1px); }
 .sidebar-link.active { color: #fff; background: var(--admin-green); box-shadow: 0 5px 14px rgba(17,130,59,.25); font-weight: 700; }
 .sidebar-icon { width: 18px; text-align: center; opacity: .92; font-size: 1rem; }
+
+/* Contador de pedidos pendientes. Va al final con margin-left:auto para que
+   el número se alinee a la derecha sin alterar el ancho de la etiqueta. */
+.sidebar-badge {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: .66rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .sidebar-divider { height: 1px; margin: 12px 16px; background: rgba(255,255,255,.1); }
+
 
 .main-content {
   min-width: 0;
   padding: 20px 24px 0;
 }
+
+/* Contenedor estandar de una seccion del panel.
+   Antes el contenedor del shell era un grid que cambiaba de columnas segun
+   la seccion activa (2fr 1fr en el dashboard, 1fr en el resto), lo que hacia
+   que el layout reproporcionara al navegar. Aqui no hay grid: cada seccion
+   aporta el suyo si lo necesita, y todas ocupan el mismo ancho por defecto. */
+.admin-content { display: block; width: 100%; }
 
 .admin-topbar {
   display: flex;

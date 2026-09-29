@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider } from "@/app/providers/AuthContext";
+import { rutaDeSeccion } from "@/application/security/rutasAdmin";
 import LegacyRedirect from "@/presentation/shared/components/LegacyRedirect";
 import { ToastProvider } from "@/app/providers/ToastContext";
 import { CartProvider } from "@/app/providers/CartContext";
@@ -487,11 +488,12 @@ function App() {
                       />
 
                       {/*
-                        ADMIN: pendiente de su propio lote de secciones.
-                        Se mantiene como ruta plana (no anidada) porque Admin
-                        aún resuelve la sección con su estado interno. Cuando
-                        sus secciones se extraigan, esta ruta alojara los
-                        Route index y :seccion como en los otros dos paneles.
+                        ADMIN.
+                        Las secciones van como hijas de /admin, no como rutas
+                        hermanas: en React Router gana la coincidencia más
+                        específica, y con dos rutas planas la segunda renderizaba
+                        su propio elemento sin montar el panel padre. El index
+                        redirige al resumen cuando no hay sección en la URL.
                       */}
                       <Route
                         path="/admin"
@@ -500,16 +502,13 @@ function App() {
                             <Admin />
                           </ProtectedRoute>
                         }
-                      />
-
-                      <Route
-                        path="/admin/:seccion"
-                        element={
-                          <ProtectedRoute roles={["ADMIN"]}>
-                            <Admin />
-                          </ProtectedRoute>
-                        }
-                      />
+                      >
+                        <Route
+                          index
+                          element={<Navigate to={rutaDeSeccion("dashboard")} replace />}
+                        />
+                        <Route path=":seccion" element={null} />
+                      </Route>
 
                       {/* ==================================================
                           PÁGINAS ESPECIALES
