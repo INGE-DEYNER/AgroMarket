@@ -44,7 +44,7 @@
   40% { opacity: 1; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .chat-layout {
     grid-template-columns: 1fr !important;
     display: flex !important;
@@ -63,7 +63,7 @@
 }
 
 /* ─── RESPONSIVE: MÓVIL PEQUEÑO (<480px) ────────────────────────────── */
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .page-wrap {
     height: 100dvh;
   }

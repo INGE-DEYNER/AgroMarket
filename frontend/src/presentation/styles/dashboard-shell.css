@@ -556,7 +556,7 @@ html.dark .ds-shell {
 
 /* ---- Responsive ---- */
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .ds-topbar__brand small {
     display: none;
   }
@@ -566,7 +566,7 @@ html.dark .ds-shell {
   }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   :root {
     --ds-topbar-h: 56px;
   }

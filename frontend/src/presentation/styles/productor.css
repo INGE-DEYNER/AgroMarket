@@ -198,8 +198,6 @@ html.dark .producer-dashboard th {
 .producer-dashboard .stat-card.color-4 {
   background: var(--producer-surface);
 }
-
-
 .producer-dashboard .stat-icon-lg {
   color: var(--producer-green);
   opacity: 0.13;
@@ -435,16 +433,19 @@ html.dark .producer-dashboard th {
  * también en un móvil de 360px y quedaban ilegibles. Se degradan a una
  * sola columna en pantallas estrechas.
  */
-@media (max-width: 620px) {
+@media (max-width: 560px) {
   .producer-farm-stats {
     grid-template-columns: 1fr;
   }
 }
-@media (min-width: 621px) and (max-width: 900px) {
-  .producer-farm-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
+/*
+ * Antes había además un `@media (min-width: 621px) and (max-width: 900px)`
+ * que fijaba tres columnas en tablet. Era redundante: tres columnas con
+ * minmax(0, 1fr) ya es el valor por defecto de la rejilla, y ese corte
+ * introducía un cuarto ancho (621px) que el resto de hojas no compartía.
+ * Si algún día tres columnas no caben en tablet, se ajusta aquí, no con un
+ * rango propio.
+ */
 .producer-info-row,
 .producer-config-row {
   display: flex;
@@ -524,13 +525,13 @@ html.dark .producer-dashboard th {
 .producer-dashboard .sidebar-toggle-btn {
   background: var(--producer-green-dark);
 }
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .producer-dashboard .stats-grid,
   .producer-finance-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .producer-dashboard .main-content {
     padding: 0 16px 92px;
   }
@@ -569,12 +570,11 @@ html.dark .producer-dashboard th {
     gap: 2px;
   }
 }
-@media (max-width: 576px) {
+@media (max-width: 560px) {
   .producer-dashboard .stats-grid,
   .producer-finance-grid {
     grid-template-columns: 1fr;
   }
-  
   .producer-panel,
   .producer-farm-card,
   .producer-finance-card {
@@ -714,8 +714,6 @@ html.dark .producer-dashboard th {
   text-transform: uppercase;
   color: var(--text-dim);
 }
-
-
 .producer-stars {
   color: var(--producer-accent);
 }
@@ -733,6 +731,6 @@ html.dark .producer-dashboard th {
 /* ============================================================
    RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
    ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .producer-table { min-width: 600px; }
 }

@@ -173,7 +173,7 @@
   flex-wrap: wrap;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .tracking-bar {
     flex-direction: column;
     align-items: flex-start;

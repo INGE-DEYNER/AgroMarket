@@ -29,7 +29,6 @@
   --admin-frame: #eef3ef;
   --admin-frame-border: #d9e5dc;
 }
-
 html.dark {
   --admin-page: #0e1711;
   --admin-surface: #16211a;
@@ -41,137 +40,16 @@ html.dark {
   --admin-muted: #94a89a;
   --admin-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
 }
-
-.app-layout {
-  min-height: 100vh;
-  background: var(--admin-page, #f5f8f6);
-}
-
-.sidebar {
-  width: clamp(200px, 20vw, 230px);
-  background: linear-gradient(180deg, #06451f 0%, #063b1b 100%);
-  color: #fff;
-  box-shadow: 6px 0 24px rgba(0, 0, 0, 0.08);
-  z-index: 1000;
-}
-
-.sidebar-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 22px 18px 18px;
-  border-bottom: 1px solid rgba(255,255,255,.11);
-}
-
-.sidebar-user-info { min-width: 0; }
 .sidebar-user-info .name,
-.sidebar-user-info .role { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sidebar-user-info .name { font-weight: 800; font-size: .9rem; }
-.sidebar-user-info .role { margin-top: 3px; color: #fff; font-size: .72rem; }
-
-.avatar-red {
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--admin-surface);
-  color: var(--admin-dark);
-  font-weight: 800;
-  flex: 0 0 auto;
-}
-
-.sidebar-label {
-  padding: 18px 18px 8px;
-  color: #fff;
-  font-size: .66rem;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.sidebar-link {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 42px;
-  margin: 2px 10px;
-  padding: 9px 11px;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 8px;
-  font-size: .79rem;
-  transition: background .18s ease, color .18s ease, transform .18s ease;
-}
-
-.sidebar-link:hover { color: #fff; background: rgba(255,255,255,.09); transform: translateX(1px); }
 .sidebar-link.active { color: #fff; background: var(--admin-green); box-shadow: 0 5px 14px rgba(17,130,59,.25); font-weight: 700; }
-.sidebar-icon { width: 18px; text-align: center; opacity: .92; font-size: 1rem; }
-
 /* Contador de pedidos pendientes. Va al final con margin-left:auto para que
    el número se alinee a la derecha sin alterar el ancho de la etiqueta. */
-.sidebar-badge {
-  margin-left: auto;
-  min-width: 20px;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: #dc2626;
-  color: #fff;
-  font-size: .66rem;
-  font-weight: 700;
-  line-height: 1.5;
-  text-align: center;
-}
-
-.sidebar-divider { height: 1px; margin: 12px 16px; background: rgba(255,255,255,.1); }
-
-
-.main-content {
-  min-width: 0;
-  padding: 20px 24px 0;
-}
-
 /* Contenedor estandar de una seccion del panel.
    Antes el contenedor del shell era un grid que cambiaba de columnas segun
    la seccion activa (2fr 1fr en el dashboard, 1fr en el resto), lo que hacia
    que el layout reproporcionara al navegar. Aqui no hay grid: cada seccion
    aporta el suyo si lo necesita, y todas ocupan el mismo ancho por defecto. */
 .admin-content { display: block; width: 100%; }
-
-.admin-topbar {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  min-height: 48px;
-  margin-bottom: 16px;
-}
-
-.admin-search {
-  width: min(430px, 44vw);
-  margin-left: auto;
-  padding: 10px 14px;
-  border: 1px solid var(--admin-border);
-  border-radius: 8px;
-  background: var(--admin-surface);
-  color: #8a9590;
-  font-size: .76rem;
-}
-.admin-search span { float: right; color: var(--admin-dark); font-size: 1rem; }
-.admin-top-actions { display: flex; align-items: center; gap: 10px; }
-.admin-bell { position: relative; font-size: 1.1rem; color: var(--admin-dark); }
-.admin-bell b { position: absolute; top: -7px; right: -8px; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #dc2626; color: #fff; font-size: .58rem; }
-.admin-user-avatar { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--admin-border); border-radius: 50%; background: var(--admin-surface); color: var(--admin-dark); font-weight: 800; }
-.admin-user-name { display: flex; flex-direction: column; font-size: .76rem; font-weight: 800; color: var(--admin-text); }
-.admin-user-name small { margin-top: 2px; color: var(--admin-muted); font-weight: 500; font-size: .62rem; }
-
-.sidebar-toggle-btn {
-  display: none;
-  border: 0;
-  border-radius: 8px;
-  padding: 9px 12px;
-  background: var(--admin-dark);
-  color: #fff;
-  cursor: pointer;
-}
-
 .dash-header {
   display: flex;
   align-items: flex-end;
@@ -183,7 +61,6 @@ html.dark {
 .dash-welcome p { margin: 4px 0 0; color: var(--admin-muted); font-size: .82rem; }
 .btn-cta { border: 0; border-radius: 8px; padding: 10px 16px; color: #fff; font-weight: 700; cursor: pointer; background: var(--admin-dark); }
 .btn-cta:hover { background: var(--admin-green); }
-
 .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 14px; }
 /* El círculo decorativo (::after) se eliminaba: como la tarjeta no fija
    min-height al contenido, el círculo se desbordaba y se veía como un cuarto
@@ -201,8 +78,6 @@ html.dark {
 .color-2 { border-top: 2px solid #3b82f6; }
 .color-3 { border-top: 2px solid #f59e0b; }
 .color-4 { border-top: 2px solid #ef4444; }
-
-.grid-columns { align-items: start; }
 .card-table { min-width: 0; border: 1px solid var(--admin-border); border-radius: var(--admin-radius); background: var(--admin-surface); box-shadow: var(--admin-shadow); overflow: hidden; }
 .table-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #edf2ee; }
 .card-title { margin: 0; color: var(--admin-deep); font-size: 1rem; font-weight: 800; }
@@ -217,7 +92,6 @@ html.dark {
 .table-responsive tbody tr:hover { background: var(--admin-frame); }
 .empty-cell { padding: 28px !important; text-align: center; color: var(--admin-muted); line-height: 1.6; }
 .table-action { border: 1px solid var(--admin-green); border-radius: 7px; background: var(--admin-surface); color: var(--admin-dark); padding: 8px 12px; font-size: .7rem; font-weight: 700; cursor: pointer; }
-
 .btn { border: 0; border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: .7rem; font-weight: 700; }
 .btn-primary { background: var(--admin-green); color: #fff; }
 .btn-primary:hover { background: var(--admin-dark); }
@@ -227,8 +101,6 @@ html.dark {
 .badge-status, .priority-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 8px; font-size: .62rem; font-weight: 800; white-space: nowrap; }
 .status-shipped { background: #dcfce7; color: #166534; }
 .status-pending { background: #fef3c7; color: #92400e; }
-.priority-badge { background: #fff7ed; color: #c2410c; }
-
 .admin-dashboard-section { padding: 0 0 20px; }
 .admin-kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; padding: 18px 20px; }
 .admin-kpi { border: 1px solid var(--admin-border); border-radius: 10px; padding: 13px; background: var(--admin-surface); }
@@ -251,55 +123,27 @@ html.dark {
 .admin-mini { padding: 13px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-surface); }
 .admin-mini span, .admin-mini strong { display: block; }.admin-mini span { color: var(--admin-muted); font-size: .65rem; }.admin-mini strong { margin-top: 5px; color: var(--admin-deep); font-size: 1rem; }
 .date-chip { padding: 7px 10px; border: 1px solid var(--admin-border); border-radius: 7px; color: var(--admin-muted); background: var(--admin-surface); font-size: .65rem; }
-
 .audit-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 20px; }
 .audit-card { padding: 16px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-lighter); }
 .audit-card span, .audit-card small { display: block; color: var(--admin-muted); font-size: .66rem; }.audit-card strong { display: block; margin: 7px 0; color: var(--admin-deep); font-size: 1.25rem; }.empty-audit { margin: 0 20px 20px; padding: 20px; border: 1px dashed var(--admin-border); border-radius: 9px; color: var(--admin-muted); font-size: .72rem; text-align: center; background: var(--admin-frame); }
-
-.side-info { min-width: 0; }
-.chart-container { border-radius: 8px; background: #f7faf8; }
-
-.admin-footer { display: grid; grid-template-columns: 1.5fr repeat(4,1fr) 1.35fr; gap: 24px; margin: 28px -24px 0; padding: 30px 24px; background: #063d1b; color: #fff; }
-.admin-footer > div { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
-.admin-footer strong { color: #fff; font-size: 1rem; }
-.admin-footer small, .admin-footer span { color: #fff; font-size: .65rem; }
-.admin-footer b { color: #fff; font-size: .7rem; margin-bottom: 2px; }
-.admin-footer-security { padding: 13px; border: 1px solid rgba(168,230,161,.3); border-radius: 10px; background: rgba(255,255,255,.03); }
-
-.sidebar-overlay { display: none; }
-
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .stats-grid, .admin-kpi-grid { grid-template-columns: repeat(2,1fr); }
   .admin-dashboard-grid { grid-template-columns: 1fr; }
   .admin-mini-grid { grid-template-columns: repeat(2,1fr); }
-  .admin-footer { grid-template-columns: repeat(3,1fr); }
 }
-
-@media (max-width: 768px) {
-  .sidebar { position: fixed; inset: 0 auto 0 0; transform: translateX(-105%); transition: transform .2s ease; height: 100vh; overflow-y: auto; }
+@media (max-width: 900px) {
   .sidebar.open { transform: translateX(0); }
   .sidebar-overlay.open { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.38); z-index: 999; }
-  .sidebar-toggle-btn { display: block; }
-  .main-content { padding: 14px 14px 0; }
-  .admin-search { display: none; }
-  .admin-user-name { display: none; }
   .dash-header { align-items: flex-start; flex-direction: column; }.dash-welcome h1 { font-size: 1.3rem; }
-  .grid-columns { grid-template-columns: 1fr !important; }
-  .side-info { display: none; }
-  .admin-footer { margin-left: -14px; margin-right: -14px; padding: 24px 14px; grid-template-columns: repeat(2,1fr); }
 }
-
-@media (max-width: 576px) {
+@media (max-width: 560px) {
   .stats-grid, .admin-kpi-grid, .admin-mini-grid, .audit-grid { grid-template-columns: 1fr; }
-  .admin-top-actions { margin-left: auto; }.admin-topbar { gap: 8px; }
   .table-header { align-items: flex-start; flex-direction: column; }
   .table-action { width: 100%; }
   .table-responsive thead { display: none; }
   .table-responsive, .table-responsive tbody, .table-responsive tr, .table-responsive td { display: block; width: 100%; }
   .table-responsive tr { padding: 10px 0; border-top: 1px solid #edf2ee; }.table-responsive td { display: flex; justify-content: space-between; gap: 14px; padding: 7px 14px; border: 0; }.table-responsive td::before { content: attr(data-label); color: var(--admin-muted); font-weight: 700; }
-  .admin-footer { grid-template-columns: 1fr; }
 }
-
 /* ============================================================
    PANEL DESPLEGABLE DE NOTIFICACIONES
    ------------------------------------------------------------
@@ -308,7 +152,6 @@ html.dark {
    cada aviso es una pila translúcida con icono, título, resumen y
    hora, apiladas verticalmente y ligeramente desplazadas.
    ============================================================ */
-
 .notif-bell {
   position: relative;
   display: grid;
@@ -338,7 +181,6 @@ html.dark {
   font-size: .58rem;
   font-weight: 800;
 }
-
 .notif-pop {
   position: absolute;
   top: calc(100% + 10px);
@@ -356,7 +198,6 @@ html.dark {
   from { opacity: 0; transform: translateY(-6px) scale(.98); }
   to { opacity: 1; transform: none; }
 }
-
 .notif-pop__head {
   display: flex;
   align-items: center;
@@ -376,7 +217,6 @@ html.dark {
   padding: 2px;
 }
 .notif-pop__head button:disabled { color: var(--admin-muted); cursor: default; }
-
 .notif-pop__list {
   max-height: 340px;
   overflow-y: auto;
@@ -384,22 +224,6 @@ html.dark {
   gap: 8px;
   padding: 10px;
 }
-
-.notif-item {
-  display: flex;
-  gap: 10px;
-  padding: 10px 11px;
-  border: 1px solid var(--admin-border);
-  border-radius: 12px;
-  background: var(--admin-surface-alt);
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
-  transition: border-color .16s ease, transform .16s ease;
-}
-.notif-item:hover { border-color: var(--admin-green); transform: translateY(-1px); }
-.notif-item--unread { border-left: 3px solid var(--admin-green); }
-
 .notif-item__icon {
   flex: 0 0 auto;
   width: 30px;
@@ -436,7 +260,6 @@ html.dark {
   color: var(--admin-muted);
   font-size: .6rem;
 }
-
 .notif-pop__foot {
   border-top: 1px solid var(--admin-border);
   padding: 9px;
@@ -449,25 +272,12 @@ html.dark {
   text-decoration: none;
 }
 .notif-pop__foot a:hover { text-decoration: underline; }
-
 .notif-pop__empty {
   padding: 26px 16px;
   text-align: center;
   color: var(--admin-muted);
   font-size: .72rem;
 }
-
-.badge-admin {
-  background: linear-gradient(135deg, #2b7a3b, #1b4d25);
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
 /* ============================================================
    CORRECCIONES DE TEMA OSCURO Y PROPORCIÓN
    ------------------------------------------------------------
@@ -476,7 +286,6 @@ html.dark {
    texto claro encima: ilegibles. Aquí se sustituyen por los
    tokens var(--admin-*), que ya se redefinen en html.dark.
    ============================================================ */
-
 .admin-dashboard .admin-search,
 .admin-dashboard .table-action,
 .admin-dashboard .admin-kpi,
@@ -486,7 +295,6 @@ html.dark {
   background: var(--admin-surface);
   color: var(--admin-text);
 }
-
 .admin-dashboard .admin-kpi,
 .admin-dashboard .admin-panel,
 .admin-dashboard .chart-container,
@@ -494,7 +302,6 @@ html.dark {
 .admin-dashboard .empty-audit {
   background: var(--admin-surface-alt);
 }
-
 .admin-dashboard .table-header,
 .admin-dashboard .table-filters,
 .admin-dashboard .table-responsive th,
@@ -504,22 +311,18 @@ html.dark {
 .admin-dashboard .admin-footer {
   border-color: var(--admin-border);
 }
-
 .admin-dashboard .table-responsive th,
 .admin-dashboard .chart-container {
   background: var(--admin-surface-alt);
   color: var(--admin-muted);
 }
-
 .admin-dashboard .table-responsive td {
   color: var(--admin-text);
   border-top-color: var(--admin-border);
 }
-
 .admin-dashboard .table-responsive tbody tr:hover {
   background: var(--admin-surface-alt);
 }
-
 .admin-dashboard .card-title,
 .admin-dashboard .dash-welcome h1,
 .admin-dashboard .stat-value,
@@ -530,52 +333,40 @@ html.dark {
 .admin-dashboard .audit-card strong {
   color: var(--admin-text);
 }
-
 .admin-dashboard .empty-audit,
 .admin-dashboard .empty-cell {
   background: var(--admin-surface-alt);
   color: var(--admin-muted);
 }
-
 .admin-dashboard .admin-search {
   color: var(--admin-muted);
 }
-
 .admin-dashboard .admin-user-avatar,
 .admin-dashboard .avatar-red {
   background: var(--admin-surface-alt);
   color: var(--admin-text);
 }
-
 .admin-dashboard .btn-secondary,
 .admin-dashboard .status-shipped,
 .admin-dashboard .status-pending,
 .admin-dashboard .priority-badge {
   color: var(--admin-text);
 }
-
 .admin-dashboard .admin-chart-placeholder {
   background: var(--admin-surface-alt);
 }
-
 /* Legibilidad de las barras de "Ingresos 6 meses": con el ancho completo
    las barras ocupaban 1500 px y quedaban como líneas de 1 px. */
 .admin-dashboard .admin-chart-placeholder span {
   max-width: 34px;
   border-radius: 4px 4px 0 0;
 }
-
 /* ============================================================
    ALINEACIÓN FIGMA — admin-productores (10:5702) y secciones
    Tabs píldora · badges de estado exactos · tabla radius 16 ·
    cabecera de tabla suave · paginación.
    ============================================================ */
-
 .admin-shell,
-.app-layout {
-  --am-frame-border: #e2e8f0;
-}
-
 /* Tabs / filtros tipo píldora */
 .admin-tabs .tab,
 .admin-tabs button,
@@ -585,76 +376,38 @@ html.dark {
   font-weight: 600;
   font-size: 14px;
 }
-
 /* Badges de estado con paleta exacta del frame */
 .badge-status.status-verified,
 .badge-status.status-active {
   background: #e8f9ed;
   color: #1a5c2a;
 }
-
 .badge-status.status-pending-review {
   background: #fef9e7;
   color: #b7950b;
 }
-
 .badge-status.status-rejected {
   background: #fdeded;
   color: #e74c3c;
 }
-
 /* Tabla: tarjeta radius 16 y cabecera suave */
 .admin-shell .card-table,
 .app-layout .card-table {
   border-radius: 16px;
   border-color: var(--am-frame-border);
 }
-
 .admin-shell th,
-.app-layout th {
-  background: #f4f6f8;
-  font-size: 13px;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
 /* Acciones de fila */
 .admin-shell td:last-child .btn,
 .app-layout td:last-child .btn {
   border-radius: 6px;
 }
-
 /* ============================================================
    FIX LAYOUT DASHBOARDS — proporción, visibilidad y overflow
    (topbar fijo arriba sin tapar el título, contenido sin
     desbordes horizontales, grid con minmax para que la columna
     derecha no se corte por la mitad)
    ============================================================ */
-.app-layout {
-  display: flex;
-  align-items: flex-start;
-  width: 100%;
-}
-
-.app-layout > .main-content {
-  flex: 1 1 auto;
-  min-width: 0;
-  max-width: 100%;
-  padding: 18px 22px 40px;
-}
-
-.admin-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: -18px -22px 18px;
-  padding: 12px 22px;
-  background: var(--surface, var(--admin-lighter));
-  border-bottom: 1px solid var(--border-light, var(--admin-border));
-}
-
 .admin-dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
@@ -662,18 +415,15 @@ html.dark {
   align-items: start;
   width: 100%;
 }
-
 .admin-dashboard-grid > * {
   min-width: 0;
 }
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 14px;
   width: 100%;
 }
-
 .dash-header {
   display: flex;
   flex-wrap: wrap;
@@ -682,77 +432,21 @@ html.dark {
   gap: 14px;
   margin-bottom: 18px;
 }
-
 .card-table,
 .table-wrap {
   max-width: 100%;
   overflow-x: auto;
 }
-
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .admin-dashboard-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-
-@media (max-width: 768px) {
-  .admin-topbar {
-    margin: -14px -14px 14px;
-    padding: 10px 14px;
-  }
-}
-
 /* ============================================================
    NAVEGACIÓN POR SECCIONES (SPA)
    ============================================================ */
-
 /* Logo del sidebar. Enlaza a la portada pública con <Link> de React Router,
    así que NO toca la sesión del administrador. */
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 12px 10px 14px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: #fff;
-  transition: background 0.15s ease;
-}
-
-.sidebar-logo:hover {
-  background: rgba(255, 255, 255, 0.09);
-}
-
-.sidebar-logo img {
-  width: 30px;
-  height: 30px;
-  object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.sidebar-logo__texto {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-  min-width: 0;
-}
-
-.sidebar-logo__texto strong {
-  font-size: 0.9rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-.sidebar-logo__texto small {
-  font-size: 0.6rem;
-  opacity: 0.68;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Estado vacío elegante: sustituye al mensaje técnico que decía que
    "el frontend no tiene endpoint". */
 .estado-vacio {
@@ -763,7 +457,6 @@ html.dark {
   padding: 34px 20px;
   text-align: center;
 }
-
 .estado-vacio__icono {
   display: grid;
   place-items: center;
@@ -774,57 +467,48 @@ html.dark {
   color: var(--admin-green, #11823b);
   margin-bottom: 4px;
 }
-
 .estado-vacio__titulo {
   margin: 0;
   font-size: 0.92rem;
   font-weight: 700;
   color: var(--admin-text, #111827);
 }
-
 .estado-vacio__texto {
   margin: 0;
   font-size: 0.8rem;
   color: var(--admin-muted, #667280);
   max-width: 34ch;
 }
-
 /* ============================================================
    SUPERFICIES QUE SEGUÍAN EL TEMA
    ============================================================
    Estas reglas usaban #fff literales, por lo que en modo oscuro aparecían
    tarjetas blancas con texto claro encima. Al pasar a variables, desaparecen
    los fondos residuales al cambiar de tema. */
-
 .app-layout,
 .admin-dashboard {
   background: var(--admin-page, #f5f8f6);
   color: var(--admin-text, #111827);
 }
-
 .admin-dashboard .card-table,
 .app-layout .card-table {
   background: var(--admin-surface, #ffffff);
   border-color: var(--admin-frame-border, #d9e5dc);
   color: var(--admin-text, #111827);
 }
-
 .admin-dashboard .table-header,
 .app-layout .table-header {
   background: var(--admin-frame, #eef3ef);
   border-color: var(--admin-frame-border, #d9e5dc);
 }
-
 .admin-dashboard .card-title,
 .app-layout .card-title {
   color: var(--admin-text, #111827);
 }
-
 .admin-dashboard .section-subtitle,
 .admin-dashboard .section-subtitle * {
   color: var(--admin-muted, #667280);
 }
-
 .admin-dashboard .table-responsive,
 .admin-dashboard .table-responsive td,
 .admin-dashboard .table-responsive th {
@@ -832,11 +516,9 @@ html.dark {
   color: var(--admin-text, #111827);
   border-color: var(--admin-frame-border, #d9e5dc);
 }
-
 .admin-dashboard .table-responsive thead th {
   background: var(--admin-surface-alt, #f1f6f2);
 }
-
 .admin-dashboard .form-input,
 .admin-dashboard .form-label,
 .admin-dashboard .table-responsive input,
@@ -846,48 +528,31 @@ html.dark {
   color: var(--admin-text, #111827);
   border-color: var(--admin-frame-border, #d9e5dc);
 }
-
 /* Etiquetas inline que se pintaban con --border-light, una variable que
    solo existe en el tema claro. */
 .admin-dashboard * {
   border-color: var(--admin-border, #d9e5dc);
 }
-
 /* ============================================================
    DISEÑO COMPACTO
    ============================================================
    Reduce el aire vertical para aprovechar mejor la pantalla sin perder
    legibilidad: paddings, altura de fila y tamaño de fuente. */
-
 .admin-dashboard .table-header {
   padding: 11px 14px;
 }
-
 .admin-dashboard .section {
   padding: 14px;
   margin-bottom: 14px;
 }
-
 .admin-dashboard .table-responsive th,
 .admin-dashboard .table-responsive td {
   padding: 7px 10px;
   font-size: 0.8rem;
 }
-
 .admin-dashboard .stat-card {
   padding: 12px 14px;
 }
-
-
-
-
-
-
-
-
-
-
-
 /*
  * Mostrar la sección.
  *
@@ -903,7 +568,6 @@ html.dark {
 .admin-dashboard .section {
   display: block;
 }
-
 /* Layout compacto */
 .admin-dashboard .main-content {
   display: flex;
@@ -912,14 +576,12 @@ html.dark {
   width: 100%;
   padding: 20px;
 }
-
 /* Tarjetas de estadísticas en grid responsive */
 .admin-dashboard .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
-
 /* Secciones con estilo consistente.
    Se usan variables en vez de colores literales para que el modo oscuro
    (html.dark) repinte las tarjetas sin necesidad de duplicar reglas. */
@@ -932,7 +594,6 @@ html.dark {
   border: 1px solid var(--admin-border, #d9e5dc);
   color: var(--am-text, #1b4332);
 }
-
 /* OPCIONAL: dashboard sin sidebar (secciones a todo el ancho).
    Se deja desactivado porque el sidebar se conserva visible: además de la
    navegación de la página contiene "Mi Perfil" y "Cerrar sesión".
