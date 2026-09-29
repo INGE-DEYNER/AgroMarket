@@ -19,7 +19,7 @@ export default function SeccionSeguimiento() {
           <div className="dash-header">
             <div className="dash-welcome">
               <h1> {t("envios.title", "Seguimiento de Envíos")}</h1>
-              <p>Monitorea tus pedidos en ruta en tiempo real</p>
+              <p>{t("paneles.track.subtitle", "Monitorea tus pedidos en ruta en tiempo real")}</p>
             </div>
           </div>
 
@@ -449,7 +449,7 @@ export default function SeccionSeguimiento() {
                     <th>{t("envios.route", "Origen - Destino")}</th>
                     <th>{t("envios.carrier", "Transportista")}</th>
                     <th>{t("envios.status", "Estado")}</th>
-                    <th>Guía</th>
+                    <th> {t("paneles.track.guide", "Guía")} </th>
                   </tr>
                 </thead>
                 <tbody>

@@ -85,9 +85,9 @@ export default function SeccionPedidosRec() {
                       "Cambiar estado",
                     )}
                   </option>
-                  <option value="Enviado">Marcar Enviado</option>
-                  <option value="Entregado">Marcar Entregado</option>
-                  <option value="Cancelar">Cancelar pedido</option>
+                  <option value="Enviado"> {t("paneles.order.markShipped")} </option>
+                  <option value="Entregado"> {t("paneles.order.markDelivered")} </option>
+                  <option value="Cancelar"> {t("paneles.order.cancel")} </option>
                 </select>
               </td>
             </tr>

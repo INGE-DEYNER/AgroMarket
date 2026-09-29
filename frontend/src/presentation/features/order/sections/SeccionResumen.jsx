@@ -42,7 +42,7 @@ export default function SeccionResumen() {
           {!user?.telefono && (
             <div className="buyer-alert">
               <div>
-                <strong>¡Mejora la seguridad de tu cuenta!</strong>
+                <strong>{t("paneles.security.improveTitle", "¡Mejora la seguridad de tu cuenta!")}</strong>
                 <span>
                   Agrega tu número de teléfono y verifica tu perfil para
                   facilitar el contacto con los productores.

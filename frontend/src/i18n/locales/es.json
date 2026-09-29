@@ -1170,5 +1170,37 @@
     "error": "No se pudieron cargar las notificaciones.",
     "loginRequired": "Inicia sesión para ver tus notificaciones.",
     "markAllRead": "Marcar todas como leídas"
+  },
+  "paneles": {
+    "col": {
+      "name": "Nombre",
+      "email": "Correo",
+      "location": "Ubicación",
+      "actions": "Acciones"
+    },
+    "admin": {
+      "adminName": "Nombre del Administrador",
+      "supportPhone": "Teléfono de Soporte"
+    },
+    "pw": {
+      "current": "Contraseña Actual",
+      "new": "Nueva Contraseña"
+    },
+    "order": {
+      "markShipped": "Marcar Enviado",
+      "markDelivered": "Marcar Entregado",
+      "cancel": "Cancelar pedido"
+    },
+    "catalog": {
+      "minPrice": "$ Mín",
+      "maxPrice": "$ Máx"
+    },
+    "security": {
+      "improveTitle": "¡Mejora la seguridad de tu cuenta!"
+    },
+    "track": {
+      "subtitle": "Monitorea tus pedidos en ruta en tiempo real",
+      "guide": "Guía"
+    }
   }
 }

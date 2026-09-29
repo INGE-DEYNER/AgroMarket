@@ -80,7 +80,7 @@ export default function SeccionPerfil() {
               )}
               <form onSubmit={handleUpdatePerfil}>
                 <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">Nombre del Administrador</label>
+                  <label className="form-label"> {t("paneles.admin.adminName")} </label>
                   <input
                     className="form-input"
                     style={{
@@ -96,7 +96,7 @@ export default function SeccionPerfil() {
                   />
                 </div>
                 <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">Teléfono de Soporte</label>
+                  <label className="form-label"> {t("paneles.admin.supportPhone")} </label>
                   <input
                     className="form-input"
                     style={{
@@ -180,7 +180,7 @@ export default function SeccionPerfil() {
               )}
               <form onSubmit={handleUpdatePassword}>
                 <div className="form-group" style={{ marginBottom: "16px" }}>
-                  <label className="form-label">Contraseña Actual</label>
+                  <label className="form-label"> {t("paneles.pw.current")} </label>
                   <div style={{ position: "relative" }}>
                     <input
                       className="form-input"
@@ -227,7 +227,7 @@ export default function SeccionPerfil() {
                   </div>
                 </div>
                 <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <label className="form-label">Nueva Contraseña</label>
+                  <label className="form-label"> {t("paneles.pw.new")} </label>
                   <div style={{ position: "relative" }}>
                     <input
                       className="form-input"

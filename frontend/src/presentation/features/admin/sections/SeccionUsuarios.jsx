@@ -63,10 +63,10 @@ export default function SeccionUsuarios() {
                       >
                         <thead>
                           <tr style={{ background: "var(--gold-bg)" }}>
-                            <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Ubicación</th>
-                            <th>Acciones</th>
+                            <th>{t("paneles.col.name")}</th>
+                            <th>{t("paneles.col.email")}</th>
+                            <th>{t("paneles.col.location")}</th>
+                            <th>{t("paneles.col.actions")}</th>
                           </tr>
                         </thead>
                         <tbody>

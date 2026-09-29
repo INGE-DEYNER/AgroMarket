@@ -217,7 +217,7 @@ export default function SeccionMensajeria() {
                     borderRadius: "8px",
                     border: "1px solid var(--border-light)",
                   }}
-                  placeholder="Escribe un mensaje..."
+                  placeholder={t("messaging.typeMessage", "Escribe un mensaje...")}
                   value={msgInput}
                   onChange={(e) => setMsgInput(e.target.value)}
                   onKeyDown={(e) => {

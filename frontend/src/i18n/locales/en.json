@@ -1170,5 +1170,37 @@
     "error": "Notifications could not be loaded.",
     "loginRequired": "Sign in to see your notifications.",
     "markAllRead": "Mark all as read"
+  },
+  "paneles": {
+    "col": {
+      "name": "Name",
+      "email": "Email",
+      "location": "Location",
+      "actions": "Actions"
+    },
+    "admin": {
+      "adminName": "Administrator name",
+      "supportPhone": "Support phone"
+    },
+    "pw": {
+      "current": "Current password",
+      "new": "New password"
+    },
+    "order": {
+      "markShipped": "Mark as shipped",
+      "markDelivered": "Mark as delivered",
+      "cancel": "Cancel order"
+    },
+    "catalog": {
+      "minPrice": "$ Min",
+      "maxPrice": "$ Max"
+    },
+    "security": {
+      "improveTitle": "Improve your account security!"
+    },
+    "track": {
+      "subtitle": "Track your orders on the road in real time",
+      "guide": "Tracking number"
+    }
   }
 }

@@ -201,7 +201,7 @@ export default function SeccionCatalogo() {
                 <input
                   className="form-input"
                   type="number"
-                  placeholder="$ Mín"
+                  placeholder={t("paneles.catalog.minPrice", "$ Mín")}
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                 />
@@ -213,7 +213,7 @@ export default function SeccionCatalogo() {
                 <input
                   className="form-input"
                   type="number"
-                  placeholder="$ Máx"
+                  placeholder={t("paneles.catalog.maxPrice", "$ Máx")}
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                 />
