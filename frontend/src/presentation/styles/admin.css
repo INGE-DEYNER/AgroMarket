@@ -878,28 +878,15 @@ html.dark {
   padding: 12px 14px;
 }
 
-.admin-dashboard .stat-value {
-  font-size: 1.5rem;
-}
 
-.admin-dashboard .stat-label {
-  font-size: 0.7rem;
-}
 
-.admin-dashboard .sidebar-link {
-  min-height: 34px;
-  padding: 6px 10px;
-  font-size: 0.78rem;
-  margin: 1px 8px;
-}
 
-.admin-dashboard .dash-welcome h1 {
-  font-size: 1.32rem;
-}
 
-.admin-dashboard .dash-welcome p {
-  font-size: 0.78rem;
-}
+
+
+
+
+
 
 /*
  * Mostrar la sección.

@@ -28,11 +28,21 @@
 
 /* --- Título de sección (el h1 dentro de .dash-header) ---
    Los selectores `.section.active` se retiraron: con el Outlet solo se monta
-   la sección de la ruta y ninguna lleva ya la clase "active". */
+   la sección de la ruta y ninguna lleva ya la clase "active".
+
+  familias de cabecera que NO son .dash-header y que hay que cubrir aquí:
+   el Productor usa .producer-section-head en cuatro secciones y .dash-header
+   en otras cinco, así que el mismo panel mostraba el título a 30px en unas y
+   a 18px en otras. El Comprador tiene .buyer-page-heading y
+   .buyer-dashboard-head. Los tres títulos miden ahora lo mismo. */
 .admin-dashboard .dash-header h1,
 .buyer-dashboard .dash-header h1,
 .buyer-shell .dash-header h1,
-.producer-dashboard .dash-header h1 {
+.producer-dashboard .dash-header h1,
+.producer-dashboard .producer-section-head h1,
+.buyer-dashboard .buyer-page-heading h1,
+.buyer-dashboard .buyer-page-heading h2,
+.buyer-dashboard .buyer-dashboard-head h1 {
   font-size: 1.15rem !important;
   font-weight: 800;
   line-height: 1.3;
@@ -40,11 +50,14 @@
   letter-spacing: -0.01em;
 }
 
-/* --- Subtítulo de sección --- */
+/* --- Subtítulo de sección, en las mismas familias --- */
 .admin-dashboard .dash-header p,
 .buyer-dashboard .dash-header p,
 .buyer-shell .dash-header p,
-.producer-dashboard .dash-header p {
+.producer-dashboard .dash-header p,
+.producer-dashboard .producer-section-head p,
+.buyer-dashboard .buyer-page-heading p,
+.buyer-dashboard .buyer-dashboard-head p {
   font-size: 0.78rem !important;
   font-weight: 500;
   line-height: 1.45;
@@ -52,11 +65,31 @@
   color: var(--am-text-muted, #94a89a);
 }
 
-/* --- Etiqueta de métrica (KPI) --- */
+/* --- Antetítulo / eyebrow, en las tres cabeceras --- */
+.producer-dashboard .producer-eyebrow,
+.producer-dashboard .producer-panel-kicker {
+  font-size: 0.7rem !important;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* --- Etiqueta de métrica (KPI) ---
+   Cada panel tenía su propia familia y sus propias medidas: el Comprador
+   llegaba a 24px en la cifra y el Productor se quedaba en 16px. Aquí se cubren
+   las cuatro, para que la cifra grande mida igual en los tres. */
 .admin-dashboard .stat-label,
 .buyer-dashboard .stat-label,
 .buyer-shell .stat-label,
-.producer-dashboard .stat-label {
+.producer-dashboard .stat-label,
+.admin-dashboard .admin-kpi span,
+.admin-dashboard .admin-kpi small,
+.producer-dashboard .producer-farm-stats span,
+.buyer-dashboard .buyer-metric span,
+.buyer-dashboard .buyer-metric small,
+.admin-dashboard .admin-mini span,
+.admin-dashboard .audit-card span,
+.admin-dashboard .audit-card small {
   font-size: 0.7rem !important;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -67,7 +100,13 @@
 .admin-dashboard .stat-value,
 .buyer-dashboard .stat-value,
 .buyer-shell .stat-value,
-.producer-dashboard .stat-value {
+.producer-dashboard .stat-value,
+.admin-dashboard .admin-kpi strong,
+.producer-dashboard .producer-farm-stats strong,
+.buyer-dashboard .buyer-metric strong,
+.admin-dashboard .admin-mini strong,
+.admin-dashboard .admin-big-number,
+.admin-dashboard .audit-card strong {
   font-size: 1.35rem !important;
   font-weight: 800;
   line-height: 1.2;

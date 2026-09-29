@@ -198,16 +198,8 @@ html.dark .producer-dashboard th {
 .producer-dashboard .stat-card.color-4 {
   background: var(--producer-surface);
 }
-.producer-dashboard .stat-label {
-  color: var(--producer-muted);
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 0.78rem;
-}
-.producer-dashboard .stat-value {
-  color: var(--producer-green-dark);
-  font-size: 1.75rem;
-}
+
+
 .producer-dashboard .stat-icon-lg {
   color: var(--producer-green);
   opacity: 0.13;
@@ -582,10 +574,7 @@ html.dark .producer-dashboard th {
   .producer-finance-grid {
     grid-template-columns: 1fr;
   }
-  .producer-dashboard .dash-welcome h1,
-  .producer-dashboard .producer-section-head h1 {
-    font-size: 1.4rem;
-  }
+  
   .producer-panel,
   .producer-farm-card,
   .producer-finance-card {
@@ -725,19 +714,8 @@ html.dark .producer-dashboard th {
   text-transform: uppercase;
   color: var(--text-dim);
 }
-.producer-section-head h1 {
-  font-family: var(--font-title);
-  font-weight: 800;
-  font-size: clamp(24px, 2.2vw, 32px);
-  color: var(--text);
-}
-.producer-finance-card strong,
-.producer-rating-main strong {
-  font-family: var(--font-title);
-  font-weight: 800;
-  font-size: clamp(22px, 2vw, 28px);
-  color: var(--text);
-}
+
+
 .producer-stars {
   color: var(--producer-accent);
 }

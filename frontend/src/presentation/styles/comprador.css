@@ -357,7 +357,7 @@ html.dark .buyer-dashboard {
   letter-spacing: -0.02em;
 }
 
-.buyer-page-heading h1 { font-size: clamp(22px, 2.2vw, 30px); }
+
 .buyer-page-heading p { margin: 4px 0 0; color: var(--buyer-muted); font-size: 13px; }
 
 .buyer-card,
@@ -378,12 +378,7 @@ html.dark .buyer-dashboard {
   margin-bottom: 18px;
 }
 
-.buyer-dashboard-head h1 {
-  margin: 0;
-  font-family: Poppins, var(--font-title, sans-serif);
-  font-size: clamp(23px, 2.4vw, 31px);
-  color: var(--buyer-text);
-}
+
 
 .buyer-dashboard-head p {
   margin: 5px 0 0;
@@ -546,12 +541,7 @@ html.dark .buyer-dashboard {
   margin-bottom: 18px !important;
 }
 
-.buyer-page-content .section-title {
-  font-family: Poppins, var(--font-title, sans-serif);
-  font-size: 24px !important;
-  font-weight: 700 !important;
-  color: var(--buyer-text) !important;
-}
+
 
 .buyer-page-content .table-wrap {
   overflow-x: auto;
@@ -791,7 +781,7 @@ html.dark .buyer-dashboard {
   .buyer-page-heading { flex-direction: column; }
   .buyer-page-heading .btn,
   .buyer-page-content .section-header .btn { width: 100%; }
-  .buyer-page-content .section-title { font-size: 20px !important; }
+  
   .buyer-page-content .chat-layout { grid-template-columns: 1fr; height: 650px; }
   .buyer-page-content .chat-contacts { max-height: 180px; border-right: 0; border-bottom: 1px solid var(--buyer-border); }
   .buyer-page-content .profile-grid { grid-template-columns: 1fr !important; }
@@ -922,10 +912,7 @@ html.dark .buyer-dashboard {
   font-size: 1.05rem;
   margin: 0;
 }
-.buyer-dashboard .section .dash-header p {
-  margin: 2px 0 0;
-  font-size: .74rem;
-}
+
 
 /* El bloque de "mejora tu seguridad" usaba colores claros fijos (#e0f2fe,
    #7dd3fc, #0369a1), ilegibles en tema oscuro. */
