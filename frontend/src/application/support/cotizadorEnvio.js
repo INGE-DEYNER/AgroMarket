@@ -18,16 +18,44 @@
 
 import api from "@/infrastructure/http/api";
 
+/**
+ * Bandas de trayecto. Deben coincidir con `ShippingTariffs` del backend
+ * (domain/services/shipping), que es quien cobra de verdad: si divergen, el
+ * checkout muestra una cifra y el pedido cobra otra.
+ *
+ * Valores validados por Deyner:
+ *   Local     $800/kg  · mínimo $3.500   (misma ciudad)
+ *   Regional  $1.400/kg · mínimo $6.000   (mismo departamento)
+ *   Nacional  $2.200/kg · mínimo $9.500   (entre departamentos)
+ *   Especial  $3.200/kg · mínimo $14.000  (zona de difícil acceso)
+ */
+export const BANDAS_ENVIO = {
+  LOCAL: { etiqueta: "Local", porKg: 800, minimo: 3500 },
+  REGIONAL: { etiqueta: "Regional", porKg: 1400, minimo: 6000 },
+  NACIONAL: { etiqueta: "Nacional", porKg: 2200, minimo: 9500 },
+  ESPECIAL: { etiqueta: "Especial", porKg: 3200, minimo: 14000 },
+};
+
+/** Radios que separan las bandas, en km. Mismos valores que application.yml. */
+export const RADIOS_ENVIO = {
+  localKm: 25,
+  regionalKm: 180,
+};
+
 /** Origen: Centro de acopio ASAFRUT, Chigorodó (Urabá, Antioquia). */
 export const ORIGEN_POR_DEFECTO = {
   latitude: 7.6667,
   longitude: -76.6811,
 };
 
-/** Parámetros por defecto; se sustituyen por los que publica la API. */
+/**
+ * Parámetros por defecto; se sustituyen por los que publica la API.
+ * El backend expone precioPorKilometro y minimumCost como overrides: si vienen
+ * vacíos, mandan las bandas de arriba.
+ */
 export const TARIFAS_POR_DEFECTO = {
-  precioPorKilometro: 1000,
-  costoMinimo: 0,
+  precioPorKilometro: null,
+  costoMinimo: null,
 };
 
 /**
@@ -102,12 +130,29 @@ export function distanciaKm(lat1, lon1, lat2, lon2) {
 }
 
 /**
+ * Banda de trayecto según la distancia al centro de acopio.
+ *
+ * Local hasta `localKm`, regional hasta `regionalKm`, nacional el resto.
+ * "Especial" no se deduce: es un interruptor de negocio, igual que en el
+ * backend (`app.shipping.special-zone`).
+ */
+export function bandaDe(km, { especial = false, localKm, regionalKm } = {}) {
+  if (especial) return BANDAS_ENVIO.ESPECIAL;
+  if (km <= localKm) return BANDAS_ENVIO.LOCAL;
+  if (km <= regionalKm) return BANDAS_ENVIO.REGIONAL;
+  return BANDAS_ENVIO.NACIONAL;
+}
+
+/**
  * Calcula el costo de envío a una ciudad.
  *
  * @param {string} ciudad  Ciudad de destino.
- * @param {object} params  `{precioPorKilometro, costoMinimo, origen}`.
+ * @param {object} params  `{precioPorKilometro, costoMinimo, origen, pesoKg}`.
+ *   `precioPorKilometro` y `costoMinimo`, si vienen, sobrescriben los de la
+ *   banda: son el override que publica la API. `pesoKg` es la cantidad del
+ *   pedido, que en AgroMarket ya es en kilos.
  * @returns {{costo:number|null, km:number|null, dias:number|null,
- *            zona:string|null, conocido:boolean}}
+ *            zona:string|null, banda:string|null, conocido:boolean}}
  *   `conocido=false` cuando la ciudad no está en la tabla: en ese caso
  *   `costo` es `null` y quien lo consume debe indicarlo en pantalla en
  *   lugar de mostrar un precio inventado.
@@ -117,11 +162,15 @@ export function cotizarEnvio(ciudad, params = {}) {
     precioPorKilometro = TARIFAS_POR_DEFECTO.precioPorKilometro,
     costoMinimo = TARIFAS_POR_DEFECTO.costoMinimo,
     origen = ORIGEN_POR_DEFECTO,
+    pesoKg = 1,
+    especial = false,
   } = params;
 
   const destino = coordenadasDe(ciudad);
   if (!destino) {
-    return { costo: null, km: null, dias: null, zona: null, conocido: false };
+    return {
+      costo: null, km: null, dias: null, zona: null, banda: null, conocido: false,
+    };
   }
 
   const km = distanciaKm(
@@ -130,13 +179,27 @@ export function cotizarEnvio(ciudad, params = {}) {
     destino.lat,
     destino.lon,
   );
-  const costo = Math.max(Math.ceil(km * precioPorKilometro), costoMinimo);
+
+  const banda = bandaDe(km, {
+    especial,
+    localKm: RADIOS_ENVIO.localKm,
+    regionalKm: RADIOS_ENVIO.regionalKm,
+  });
+
+  // El peso minimo facturable es 1 kg, igual que en ShippingTariffs: por
+  // debajo, la transportadora redondea igual y el despacho se paga entero.
+  const pesoCobrable = Math.max(1, Number(pesoKg) || 1);
+  const porKg = precioPorKilometro || banda.porKg;
+  const minimo = costoMinimo || banda.minimo;
+
+  const costo = Math.max(Math.ceil(porKg * pesoCobrable), minimo);
 
   return {
     costo,
     km: Math.round(km),
     dias: destino.dias,
     zona: destino.zona,
+    banda: banda.etiqueta,
     conocido: true,
   };
 }

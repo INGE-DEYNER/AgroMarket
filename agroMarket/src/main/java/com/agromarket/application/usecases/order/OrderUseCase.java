@@ -27,6 +27,7 @@ import com.agromarket.domain.ports.in.order.OrderResult;
 import com.agromarket.domain.ports.in.messaging.MessagingPort;
 import com.agromarket.domain.ports.out.product.ProductPort;
 import com.agromarket.domain.ports.out.user.UserPort;
+import com.agromarket.domain.services.shipping.ShippingTariffs;
 import com.agromarket.domain.services.order.OrderService;
 import com.agromarket.domain.services.product.ProductService;
 import com.agromarket.domain.services.product.ProductStockService;
@@ -54,6 +55,9 @@ public class OrderUseCase implements OrderPort {
     private final double shippingOriginLongitude;
     private final BigDecimal shippingPricePerKilometer;
     private final BigDecimal shippingMinimumCost;
+    private final double localRadiusKm;
+    private final double regionalRadiusKm;
+    private final boolean specialZoneEnabled;
 
     public OrderUseCase(
             com.agromarket.domain.ports.out.order.OrderPort orderPort,
@@ -66,7 +70,10 @@ public class OrderUseCase implements OrderPort {
             @Value("${app.shipping.origin-latitude}") double shippingOriginLatitude,
             @Value("${app.shipping.origin-longitude}") double shippingOriginLongitude,
             @Value("${app.shipping.price-per-kilometer}") BigDecimal shippingPricePerKilometer,
-            @Value("${app.shipping.minimum-cost:0}") BigDecimal shippingMinimumCost) {
+            @Value("${app.shipping.minimum-cost:0}") BigDecimal shippingMinimumCost,
+            @Value("${app.shipping.local-radius-km:25}") double localRadiusKm,
+            @Value("${app.shipping.regional-radius-km:180}") double regionalRadiusKm,
+            @Value("${app.shipping.special-zone:false}") boolean specialZoneEnabled) {
         this.orderPort = orderPort;
         this.productPort = productPort;
         this.userPort = userPort;
@@ -78,6 +85,9 @@ public class OrderUseCase implements OrderPort {
         this.shippingOriginLongitude = shippingOriginLongitude;
         this.shippingPricePerKilometer = shippingPricePerKilometer;
         this.shippingMinimumCost = shippingMinimumCost;
+        this.localRadiusKm = localRadiusKm;
+        this.regionalRadiusKm = regionalRadiusKm;
+        this.specialZoneEnabled = specialZoneEnabled;
     }
 
     @Override
@@ -397,10 +407,68 @@ public class OrderUseCase implements OrderPort {
 
         double distanceKilometers = haversineKilometers(
                 originLatitude, originLongitude, destinationLatitude, destinationLongitude);
-        BigDecimal distanceCost = shippingPricePerKilometer
-                .multiply(BigDecimal.valueOf(distanceKilometers));
 
-        return distanceCost.max(shippingMinimumCost).setScale(0, java.math.RoundingMode.CEILING);
+        /*
+         * ANTES: distanceCost = precioPorKm x km, con un minimo global.
+         * Con $1.000/km, 199 km hasta Medellin salian $199.393.
+         *
+         * AHORA: banda de trayecto (local / regional / nacional / especial) y
+         * precio por kilo facturable dentro de la banda, con su minimo. Ver
+         * ShippingTariffs, donde estan los valores que valido Deyner.
+         *
+         * El peso facturable es la cantidad del pedido: AgroMarket vende todo
+         * por kilo (ver Product.fruitType, que solo admite frutas, y el "/kg"
+         * que el frontend imprime en catalogo, carrito y RFQ). El modelo de
+         * producto todavia NO tiene campo de peso fisico ni dimensiones, asi que
+         * el peso volumetrico queda pendiente: cuando exista, se calcula
+         * max(real, volumetrico) y se pasa por aqui igual.
+         */
+        BigDecimal pesoFacturable = BigDecimal.valueOf(
+                command.getQuantity() == null ? 1 : command.getQuantity());
+
+        ShippingTariffs.Categoria categoria = categoriaDe(
+                command, originLatitude, originLongitude, distanceKilometers);
+
+        return ShippingTariffs.costo(
+                categoria,
+                pesoFacturable.doubleValue(),
+                shippingPricePerKilometer, // reutilizado como override por kg
+                shippingMinimumCost);
+    }
+
+    /**
+     * Decide la banda del trayecto.
+     *
+     * <p>Usa las coordenadas que envia el checkout, no una tabla de ciudades:
+     * el backend no debe depender de una lista de municipios que el frontend
+     * mantiene aparte.
+     *
+     * <ul>
+     *   <li>Zona especial: si el interruptor de negocio esta activo.</li>
+     *   <li>Local: dentro de un radio corto alrededor del centro de acopio.</li>
+     *   <li>Regional: mismo departamento (radio amplio).</li>
+     *   <li>Nacional: el resto.</li>
+     * </ul>
+     */
+    private ShippingTariffs.Categoria categoriaDe(
+            CreateOrderCommand command,
+            double originLatitude,
+            double originLongitude,
+            double distanceKilometers) {
+
+        if (specialZoneEnabled) {
+            return ShippingTariffs.Categoria.ESPECIAL;
+        }
+        if (distanceKilometers <= localRadiusKm) {
+            return ShippingTariffs.Categoria.LOCAL;
+        }
+        // "Regional" se aproxima con el radio: dos municipios a 120 km por
+        // carretera siguen siendo regional aunque la distancia en linea sea
+        // menor. El limite exacto lo ajusta Deyner segun las rutas reales.
+        if (distanceKilometers <= regionalRadiusKm) {
+            return ShippingTariffs.Categoria.REGIONAL;
+        }
+        return ShippingTariffs.Categoria.NACIONAL;
     }
 
     private double requireCoordinate(Double coordinate, String name) {

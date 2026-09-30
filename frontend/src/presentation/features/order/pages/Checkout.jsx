@@ -8,6 +8,8 @@ import BuyerShell from "@/presentation/features/order/components/BuyerShell";
 import {
   cotizarEnvio,
   cargarParametrosEnvio,
+  coordenadasDe,
+  ORIGEN_POR_DEFECTO,
 } from "@/application/support/cotizadorEnvio";
 
 export default function Checkout() {
@@ -18,6 +20,9 @@ export default function Checkout() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [successData, setSuccessData] = useState(null);
+  // Error de pago visible en pantalla: el backend responde 400/403/500 con un
+  // motivo y antes solo se veía en la consola.
+  const [errorPago, setErrorPago] = useState("");
 
   /*
    * Envío calculado por distancia.
@@ -38,6 +43,17 @@ export default function Checkout() {
   });
 
   const costoEnvio = envio.costo ?? 0;
+
+  /**
+   * Kilos totales del carrito.
+   *
+   * AgroMarket vende todo por kilo (el catálogo, el carrito y el RFQ imprime
+   * "/kg"), así que la cantidad de cada línea ES el peso. No hace falta un
+   * campo de peso en el producto para calcular el envío: eso solo sería
+   * necesario para el peso volumétrico, que sigue pendiente.
+   */
+  const pesoTotalKg = () =>
+    cart.reduce((suma, item) => suma + (Number(item.qty) || 0), 0);
 
   // Step 2 Address State
   const [addressForm, setAddressForm] = useState({
@@ -62,14 +78,20 @@ export default function Checkout() {
     let vigente = true;
     void cargarParametrosEnvio().then((params) => {
       if (!vigente) return;
-      setEnvio(cotizarEnvio(addressForm.ciudad, params));
+      setEnvio(
+        cotizarEnvio(addressForm.ciudad, {
+          ...params,
+          // El peso facturable es la cantidad del carrito: AgroMarket vende
+          // todo por kilo, asi que no hace falta un campo de peso aparte.
+          pesoKg: pesoTotalKg(),
+        }),
+      );
     });
     return () => {
       vigente = false;
     };
-    // Solo depende de la ciudad: la tarifa se resuelve una sola vez.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addressForm.ciudad]);
+    // Se recalcula al cambiar ciudad o peso: ambos alteran la banda o el total.
+  }, [addressForm.ciudad, pesoTotalKg()]);
 
   // Load defaults from user profile
   useEffect(() => {
@@ -241,6 +263,32 @@ export default function Checkout() {
       const completedOrders = [];
       let gatewayRedirectUrl = null;
 
+      /*
+       * COORDENADAS DEL ENVÍO (causa del bloqueo del checkout).
+       *
+       * OrderUseCase exige originLatitude, originLongitude, destinationLatitude
+       * y destinationLongitude para calcular el costo con Haversine. Si faltan,
+       * responde 400 "Falta la coordenada originLatitude del envío" y NADIE
+       * puede comprar: el backend pide la distancia, pero el payload no la
+       * traía. Aquí ya se cotiza el envío para mostrarlo, así que solo hay que
+       * leer las mismas coordenadas.
+       *
+       * El origen es fijo (centro de acopio de Chigorodó). El destino se saca
+       * de la ciudad elegida en el formulario de dirección.
+       */
+      const destino = coordenadasDe(addressForm.ciudad || user?.ciudad);
+      const origen = ORIGEN_POR_DEFECTO;
+      if (!destino) {
+        // Sin coordenadas no hay forma de calcular el envío, y el backend
+        // rechazaría el pedido con 400. Se detiene aquí, antes de crear nada.
+        setLoading(false);
+        setErrorPago(
+          "No tenemos cobertura de envío para esa ciudad. Elige otra o " +
+            "escríbenos para buscar una transportadora.",
+        );
+        return;
+      }
+
       for (const item of cart) {
         const orderRes = await api.post("/pedidos", {
           productId: item.id,
@@ -258,6 +306,10 @@ export default function Checkout() {
             user?.direccionCompleta ||
             "Dirección de entrega",
           checkoutId: localCheckoutId,
+          originLatitude: origen.latitude,
+          originLongitude: origen.longitude,
+          destinationLatitude: destino.lat,
+          destinationLongitude: destino.lon,
         });
         const order = orderRes.data || orderRes;
 
@@ -319,7 +371,10 @@ export default function Checkout() {
           "y actualizar el archivo .env del backend.";
       }
 
-      alert("Hubo un error al iniciar el pago: " + msg);
+      // Se guarda en estado, no en alert(): el alert() bloquea, corta el
+      // render y desaparece solo. Con el estado el motivo queda en pantalla
+      // hasta que el usuario vuelva a intentar.
+      setErrorPago("Hubo un error al iniciar el pago: " + msg);
 
       if (err.status === 401) {
         navigate("/login");
@@ -1477,6 +1532,33 @@ export default function Checkout() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Aviso de error del pago: antes solo se veía en un alert(),
+                      que desaparece solo y no deja leer el motivo. */}
+                  {errorPago && (
+                    <div
+                      role="alert"
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        alignItems: "flex-start",
+                        marginTop: "16px",
+                        padding: "12px 14px",
+                        borderRadius: "10px",
+                        background: "rgba(220, 38, 38, 0.12)",
+                        border: "1px solid rgba(220, 38, 38, 0.45)",
+                        color: "#b91c1c",
+                        fontSize: "0.86rem",
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      <span aria-hidden="true">
+                        <Icon name="alert" size={18} />
+                      </span>
+                      <span>{errorPago}</span>
+                    </div>
+                  )}
+
 
                   <div style={{ display: "flex", gap: "16px" }}>
                     <button

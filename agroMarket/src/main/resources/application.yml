@@ -85,8 +85,17 @@ app:
   shipping:
     origin-latitude: ${SHIPPING_ORIGIN_LATITUDE:7.6667}
     origin-longitude: ${SHIPPING_ORIGIN_LONGITUDE:-76.6811}
-    price-per-kilometer: ${SHIPPING_PRICE_PER_KM:1000}
-    minimum-cost: ${SHIPPING_MINIMUM_COST:0}
+    # Bandas de trayecto. Cada una tiene su base por kilo y su minimo; estan
+    # en ShippingTariffs y los valido Deyner. Estos dos campos se conservan
+    # como override para no tener que recompilar al ajustar un precio.
+    price-per-kilometer: ${SHIPPING_PRICE_PER_KM:}
+    minimum-cost: ${SHIPPING_MINIMUM_COST:}
+    # Radios que separan las bandas, en km desde el centro de acopio.
+    local-radius-km: ${SHIPPING_LOCAL_RADIUS_KM:25}
+    regional-radius-km: ${SHIPPING_REGIONAL_RADIUS_KM:180}
+    # Interruptor de negocio: "zona especial" NO se deduce de la distancia,
+    # la decide AgroMarket. Por defecto apagado.
+    special-zone: ${SHIPPING_SPECIAL_ZONE:false}
 
   scheduler:
     promotions-delay-ms: ${PROMOTIONS_JOB_DELAY_MS:300000}
