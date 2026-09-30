@@ -86,10 +86,16 @@ app:
     origin-latitude: ${SHIPPING_ORIGIN_LATITUDE:7.6667}
     origin-longitude: ${SHIPPING_ORIGIN_LONGITUDE:-76.6811}
     # Bandas de trayecto. Cada una tiene su base por kilo y su minimo; estan
-    # en ShippingTariffs y los valido Deyner. Estos dos campos se conservan
-    # como override para no tener que recompilar al ajustar un precio.
-    price-per-kilometer: ${SHIPPING_PRICE_PER_KM:}
-    minimum-cost: ${SHIPPING_MINIMUM_COST:}
+    # en ShippingTariffs y los valido Deyner. Estos dos campos son un OVERRIDE
+    # opcional: si se dejan vacios, manda la banda.
+    #
+    # OJO con el valor por defecto. Spring convierte la cadena vacia en null
+    # para un BigDecimal, y un Map.of() con un null revienta con
+    # NullPointerException -> el endpoint /envios/config devolvia 500 y el
+    # checkout se quedaba sin tarifas. Por eso el default es un numero, no
+    # una cadena vacia. Para no aplicar override, se comenta la variable.
+    price-per-kilometer: ${SHIPPING_PRICE_PER_KM:1000}
+    minimum-cost: ${SHIPPING_MINIMUM_COST:0}
     # Radios que separan las bandas, en km desde el centro de acopio.
     local-radius-km: ${SHIPPING_LOCAL_RADIUS_KM:25}
     regional-radius-km: ${SHIPPING_REGIONAL_RADIUS_KM:180}

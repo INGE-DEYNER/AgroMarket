@@ -2,6 +2,7 @@
 package com.agromarket.application.adapters.api.controllers.shipping;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import com.agromarket.application.adapters.api.request.shipping.CreateShippingRe
 import com.agromarket.application.adapters.api.request.shipping.UpdateShippingRequest;
 import com.agromarket.application.adapters.api.response.shipping.ShippingResponse;
 import com.agromarket.domain.ports.in.shipping.ShippingPort;
+import com.agromarket.domain.services.shipping.ShippingTariffs;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,12 @@ public class ShippingController {
 
         @Value("${app.shipping.minimum-cost:0}")
         private BigDecimal minimumCost;
+
+        @Value("${app.shipping.local-radius-km:25}")
+        private double localRadiusKm;
+
+        @Value("${app.shipping.regional-radius-km:180}")
+        private double regionalRadiusKm;
 
 	/** Devuelve las reglas necesarias para cotizar el envío por distancia. */
 	@GetMapping("/config")

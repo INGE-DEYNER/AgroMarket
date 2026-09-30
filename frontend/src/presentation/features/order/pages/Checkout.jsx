@@ -313,6 +313,15 @@ export default function Checkout() {
             addressForm.direccionCompleta ||
             user?.direccionCompleta ||
             "Dirección de entrega",
+          /*
+           * El backend valida el municipio contra su catálogo del DANE y saca
+           * de ahí las coordenadas. Sin estos dos campos devuelve 400 con
+           * "Falta el departamento o el municipio de destino" y no se puede
+           * comprar. Se envían primero los del formulario y, si el usuario no
+           * los tocó, los de su perfil, que es de donde se rellenan.
+           */
+          departamento: addressForm.departamento || user?.departamento || "",
+          ciudad: addressForm.ciudad || user?.ciudad || "",
           checkoutId: localCheckoutId,
           originLatitude: origen.latitude,
           originLongitude: origen.longitude,
