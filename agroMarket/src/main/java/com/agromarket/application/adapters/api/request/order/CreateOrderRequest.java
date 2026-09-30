@@ -28,6 +28,15 @@ public class CreateOrderRequest {
     private String direccionEnvio;
     private String direccionCompleta;
 
+    /**
+     * Departamento y municipio del destino. El backend valida que el municipio
+     * pertenezca al departamento con su propio catálogo (el del DANE) y saca
+     * de ahí las coordenadas: las que envía el cliente se pueden manipular para
+     * que un envío a Bogotá se cobre como si fuera a Chigorodó.
+     */
+    private String departamento;
+    private String ciudad;
+
     private Double originLatitude;
     private Double originLongitude;
     private Double destinationLatitude;

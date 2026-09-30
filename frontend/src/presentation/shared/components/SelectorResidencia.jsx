@@ -3,6 +3,8 @@ import {
   PAISES,
   departamentosDe,
   ciudadesDe,
+  cargarMunicipios,
+  CODIGO_COLOMBIA,
   banderaDe,
 } from "@/application/support/geoCatalog";
 import BuscadorMunicipio from "@/presentation/shared/components/BuscadorMunicipio";
@@ -42,9 +44,29 @@ export default function SelectorResidencia({
     [pais],
   );
 
+  /*
+   * Los municipios NO se cargan aquí: se le pasa al buscador una función que
+   * los pide cuando alguien abre el campo. Importar el catálogo del DANE de
+   * forma estática metería sus 71 KB en el chunk inicial de toda la aplicación,
+   * y la mayoría de las visitas (catálogo público, home, login) nunca escribe
+   * una dirección.
+   *
+   * Para los países sin catálogo detallado se mantiene la lista fija, que son
+   * unas 15 ciudades y no compensa diferir.
+   */
+  const esColombia = pais === CODIGO_COLOMBIA;
+
+  const cargarCiudades = useMemo(() => {
+    if (!esColombia) return null;
+    // La función se recrea al cambiar de departamento, y eso es lo que dispara
+    // la recarga en el buscador. El import dinámico queda cacheado por el
+    // navegador, así que solo la primera vez hay descarga de verdad.
+    return () => cargarMunicipios(departamento);
+  }, [esColombia, departamento]);
+
   const ciudades = useMemo(
-    () => (departamento ? ciudadesDe(pais, departamento) : []),
-    [pais, departamento],
+    () => (esColombia || !departamento ? [] : ciudadesDe(pais, departamento)),
+    [pais, departamento, esColombia],
   );
 
   return (
@@ -103,7 +125,8 @@ export default function SelectorResidencia({
         <BuscadorMunicipio
           id="residencia-ciudad"
           className={inputClass}
-          opciones={ciudades}
+          opciones={esColombia ? [] : ciudades}
+          cargarOpciones={cargarCiudades || undefined}
           valor={ciudad || ""}
           onChange={(nombre) => onCiudad(nombre)}
           disabled={!departamento}

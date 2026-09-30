@@ -20,6 +20,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
  */
 export default function BuscadorMunicipio({
   opciones = [],
+  cargarOpciones,
   valor,
   onChange,
   etiqueta,
@@ -38,7 +39,47 @@ export default function BuscadorMunicipio({
   const [texto, setTexto] = useState(valor || "");
   const [abierto, setAbierto] = useState(false);
   const [resaltado, setResaltado] = useState(-1);
+  const [cargadas, setCargadas] = useState(opciones);
+  const [cargando, setCargando] = useState(false);
   const cajaRef = useRef(null);
+
+  /*
+   * Carga diferida del catálogo.
+   *
+   * Si el padre pasa `cargarOpciones`, el catálogo de 1.122 municipios se pide
+   * en el momento de abrir el campo, no al cargar la página. Hasta entonces la
+   * lista está vacía y se muestra un aviso de carga: es preferible a un salto
+   * visual de 71 KB descargados en segundo plano.
+   *
+   * Se cachea por departamento: al volver al mismo no se vuelve a pedir, y el
+   * import dinámico queda cacheado por el navegador para el resto de la sesión.
+   */
+  useEffect(() => {
+    if (!cargarOpciones) {
+      setCargadas(opciones);
+      return undefined;
+    }
+    let vigente = true;
+    if (opciones && opciones.length) {
+      setCargadas(opciones);
+      return undefined;
+    }
+    setCargando(true);
+    Promise.resolve(cargarOpciones())
+      .then((lista) => {
+        if (vigente) setCargadas(Array.isArray(lista) ? lista : []);
+      })
+      .catch(() => {
+        if (vigente) setCargadas([]);
+      })
+      .finally(() => {
+        if (vigente) setCargando(false);
+      });
+    return () => {
+      vigente = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cargarOpciones]);
 
   // Cuando el valor cambia desde fuera (carga del perfil, cambio de
   // departamento) el input refleja el nombre, no lo que el usuario tecleó.
@@ -67,11 +108,11 @@ export default function BuscadorMunicipio({
     const q = plegar(texto).trim();
     // Con el texto vacío se listan los primeros, no todos: 1.122 filas en el
     // DOM es lento de pintar y de recorrer con el teclado.
-    if (!q) return opciones.slice(0, maxResultados);
-    return opciones
+    if (!q) return cargadas.slice(0, maxResultados);
+    return cargadas
       .filter((o) => plegar(o.n).includes(q))
       .slice(0, maxResultados);
-  }, [opciones, texto, maxResultados]);
+  }, [cargadas, texto, maxResultados]);
 
   const elegir = (opcion) => {
     setTexto(opcion.n);
@@ -146,12 +187,15 @@ export default function BuscadorMunicipio({
 
         {abierto && (
           <ul className="buscador-municipio__lista" id={listaId} role="listbox">
-            {filtrados.length === 0 && (
+            {cargando && (
+              <li className="buscador-municipio__vacio">Cargando municipios…</li>
+            )}
+            {!cargando && filtrados.length === 0 && (
               <li className="buscador-municipio__vacio">
                 {mensajeSinDatos}
               </li>
             )}
-            {filtrados.map((o, i) => (
+            {abierto && !cargando && filtrados.map((o, i) => (
               <li
                 key={o.c || o.n}
                 id={listaId + "-" + i}

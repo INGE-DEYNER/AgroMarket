@@ -28,6 +28,7 @@ import com.agromarket.domain.ports.in.messaging.MessagingPort;
 import com.agromarket.domain.ports.out.product.ProductPort;
 import com.agromarket.domain.ports.out.user.UserPort;
 import com.agromarket.domain.services.shipping.ShippingTariffs;
+import com.agromarket.domain.services.location.MunicipioCatalogoService;
 import com.agromarket.domain.services.order.OrderService;
 import com.agromarket.domain.services.product.ProductService;
 import com.agromarket.domain.services.product.ProductStockService;
@@ -51,6 +52,7 @@ public class OrderUseCase implements OrderPort {
     private final ProductService productService;
     private final ProductStockService productStockService;
     private final MessagingPort messagingPort;
+    private final MunicipioCatalogoService municipioCatalogoService;
     private final double shippingOriginLatitude;
     private final double shippingOriginLongitude;
     private final BigDecimal shippingPricePerKilometer;
@@ -67,6 +69,7 @@ public class OrderUseCase implements OrderPort {
             ProductService productService,
             ProductStockService productStockService,
             MessagingPort messagingPort,
+            MunicipioCatalogoService municipioCatalogoService,
             @Value("${app.shipping.origin-latitude}") double shippingOriginLatitude,
             @Value("${app.shipping.origin-longitude}") double shippingOriginLongitude,
             @Value("${app.shipping.price-per-kilometer}") BigDecimal shippingPricePerKilometer,
@@ -81,6 +84,7 @@ public class OrderUseCase implements OrderPort {
         this.productService = productService;
         this.productStockService = productStockService;
         this.messagingPort = messagingPort;
+        this.municipioCatalogoService = municipioCatalogoService;
         this.shippingOriginLatitude = shippingOriginLatitude;
         this.shippingOriginLongitude = shippingOriginLongitude;
         this.shippingPricePerKilometer = shippingPricePerKilometer;
@@ -110,6 +114,27 @@ public class OrderUseCase implements OrderPort {
         productPort.save(product);
 
         /*
+         * La dirección se valida SIEMPRE, no solo cuando toca cobrar el envío.
+         *
+         * Al principio la validación estaba dentro de calcularCostoEnvio(), que
+         * solo se llama para el primer pedido de un checkout. Resultado: una
+         * llamada a la API sin checkoutId (o en el segundo pedido del mismo
+         * carrito) se saltaba la validación entera y guardaba "Chocó +
+         * Medellín" sin problema. Se encontró probando contra el backend en
+         * ejecución, no leyendo el código.
+         */
+        MunicipioCatalogoService.Municipio destino = resolverDestino(command);
+
+        // Peso facturable en kilos. AgroMarket vende todo por kilo (Product
+        // solo admite frutas y el frontend imprime "/kg" en catálogo, carrito
+        // y RFQ), así que la cantidad del pedido ES el peso.
+        //
+        // El peso volumetrico (alto x ancho x largo / 5000) queda pendiente:
+        // requiere que el producto tenga dimensiones, que es un cambio de
+        // alcance aparte. Cuando exista, se tomara el mayor de los dos.
+        double pesoKg = command.getQuantity() == null ? 1 : command.getQuantity();
+
+        /*
          * Envío: el backend es la única fuente de verdad. Se cobra UNA única
          * vez por compra: el primer pedido de un checkout (mismo checkoutId)
          * lleva el costo calculado por distancia; los siguientes llevan 0.
@@ -120,7 +145,7 @@ public class OrderUseCase implements OrderPort {
                 && !checkoutId.isBlank()
                 && !orderPort.existsByCheckoutId(checkoutId);
         BigDecimal envio = primerPedidoDelCheckout
-            ? calcularCostoEnvio(command)
+            ? calcularCostoEnvio(destino, pesoKg)
                 : BigDecimal.ZERO;
 
         Order order = Order.builder()
@@ -399,14 +424,51 @@ public class OrderUseCase implements OrderPort {
         };
     }
 
-    private BigDecimal calcularCostoEnvio(CreateOrderCommand command) {
-        double originLatitude = requireCoordinate(command.getOriginLatitude(), "originLatitude");
-        double originLongitude = requireCoordinate(command.getOriginLongitude(), "originLongitude");
-        double destinationLatitude = requireCoordinate(command.getDestinationLatitude(), "destinationLatitude");
-        double destinationLongitude = requireCoordinate(command.getDestinationLongitude(), "destinationLongitude");
+    /**
+     * Resuelve y valida el municipio de destino.
+     *
+     * <p>Se ejecuta en todos los pedidos, no solo en los que cobran envío: la
+     * dirección es un dato del pedido, y guardar "Chocó + Medellín" la haría
+     * indirigible aunque el envío fuera a 0.
+     *
+     * <p>Las coordenadas que devuelve son las del catálogo, no las que envía
+     * el cliente. Con esas manipuladas, un envío a Bogotá podría facturarse
+     * como si fuera a Chigorodó.
+     */
+    private MunicipioCatalogoService.Municipio resolverDestino(CreateOrderCommand command) {
+        MunicipioCatalogoService.Municipio destino =
+                municipioCatalogoService.buscar(
+                        command.getDepartamento(), command.getCiudad());
 
+        if (destino != null) {
+            return destino;
+        }
+
+        String depto = command.getDepartamento();
+        String ciudad = command.getCiudad();
+        if (depto == null || depto.isBlank() || ciudad == null || ciudad.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Falta el departamento o el municipio de destino");
+        }
+        // Dos mensajes distintos porque el remedio es distinto: si el
+        // departamento no existe, es un dato corrupto; si el municipio no
+        // pertenece, es una combinación imposible.
+        if (!municipioCatalogoService.existeDepartamento(depto)) {
+            throw new IllegalArgumentException(
+                    "El departamento \"" + depto + "\" no existe en Colombia");
+        }
+        throw new IllegalArgumentException(
+                "\"" + ciudad + "\" no pertenece al departamento \"" + depto + "\"");
+    }
+
+    private BigDecimal calcularCostoEnvio(
+            MunicipioCatalogoService.Municipio destino,
+            double pesoKgDelPedido) {
+        double originLatitude = shippingOriginLatitude;
+        double originLongitude = shippingOriginLongitude;
         double distanceKilometers = haversineKilometers(
-                originLatitude, originLongitude, destinationLatitude, destinationLongitude);
+                originLatitude, originLongitude,
+                destino.latitud(), destino.longitud());
 
         /*
          * ANTES: distanceCost = precioPorKm x km, con un minimo global.
@@ -423,11 +485,9 @@ public class OrderUseCase implements OrderPort {
          * el peso volumetrico queda pendiente: cuando exista, se calcula
          * max(real, volumetrico) y se pasa por aqui igual.
          */
-        BigDecimal pesoFacturable = BigDecimal.valueOf(
-                command.getQuantity() == null ? 1 : command.getQuantity());
+        BigDecimal pesoFacturable = BigDecimal.valueOf(pesoKgDelPedido);
 
-        ShippingTariffs.Categoria categoria = categoriaDe(
-                command, originLatitude, originLongitude, distanceKilometers);
+        ShippingTariffs.Categoria categoria = categoriaDe(distanceKilometers);
 
         return ShippingTariffs.costo(
                 categoria,
@@ -437,24 +497,16 @@ public class OrderUseCase implements OrderPort {
     }
 
     /**
-     * Decide la banda del trayecto.
-     *
-     * <p>Usa las coordenadas que envia el checkout, no una tabla de ciudades:
-     * el backend no debe depender de una lista de municipios que el frontend
-     * mantiene aparte.
+     * Decide la banda del trayecto a partir de la distancia real.
      *
      * <ul>
-     *   <li>Zona especial: si el interruptor de negocio esta activo.</li>
+     *   <li>Zona especial: si el interruptor de negocio está activo.</li>
      *   <li>Local: dentro de un radio corto alrededor del centro de acopio.</li>
-     *   <li>Regional: mismo departamento (radio amplio).</li>
+     *   <li>Regional: hasta el radio regional.</li>
      *   <li>Nacional: el resto.</li>
      * </ul>
      */
-    private ShippingTariffs.Categoria categoriaDe(
-            CreateOrderCommand command,
-            double originLatitude,
-            double originLongitude,
-            double distanceKilometers) {
+    private ShippingTariffs.Categoria categoriaDe(double distanceKilometers) {
 
         if (specialZoneEnabled) {
             return ShippingTariffs.Categoria.ESPECIAL;
@@ -469,13 +521,6 @@ public class OrderUseCase implements OrderPort {
             return ShippingTariffs.Categoria.REGIONAL;
         }
         return ShippingTariffs.Categoria.NACIONAL;
-    }
-
-    private double requireCoordinate(Double coordinate, String name) {
-        if (coordinate == null || !Double.isFinite(coordinate)) {
-            throw new IllegalArgumentException("Falta la coordenada " + name + " del envío");
-        }
-        return coordinate;
     }
 
     private double haversineKilometers(

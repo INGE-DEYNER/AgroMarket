@@ -18,7 +18,7 @@
  */
 
 import api from "@/infrastructure/http/api";
-import { MUNICIPIOS, departamentoPorNombre } from "./geoCatalog.js";
+import { departamentoPorNombre, municipioEnCache } from "./geoCatalog.js";
 
 /**
  * Coordenadas de ciudades fuera de Colombia.
@@ -151,31 +151,13 @@ export function coordenadasDe(ciudad, departamento) {
   const clave = normalizarCiudad(ciudad);
   if (!clave) return null;
 
-  // 1. Municipio del catálogo del DANE. Requiere el departamento porque hay
-  //    nombres repetidos en el país (hay dos "San Pedro" y tres "Santa Rosa").
+  // 1. Municipio del catálogo del DANE ya descargado. Requiere el departamento
+  //    porque hay nombres repetidos en el país (dos "San Pedro", tres "Santa
+  //    Rosa"). La caché la llena cargarMunicipios() al abrir el buscador, así
+  //    que para cuando se cotiza ya está.
   if (departamento) {
     const depto = departamentoPorNombre(departamento);
-    if (depto) {
-      const lista = MUNICIPIOS[depto.n]?.ms || [];
-      const hit = lista.find((m) => normalizarCiudad(m.n) === clave);
-      if (hit) {
-        const z = ZONAS_LOGISTICAS[clave] || {};
-        return {
-          lat: hit.a,
-          lon: hit.o,
-          dias: z.dias ?? null,
-          zona: z.zona ?? null,
-          codigo: hit.c,
-        };
-      }
-    }
-  }
-
-  // 2. Sin departamento, o municipio no catalogado: se busca por nombre plano
-  //    entre todos los municipios. Más lento, pero el checkout siempre conoce
-  //    el departamento, así que es el camino de respaldo.
-  for (const d of Object.values(MUNICIPIOS)) {
-    const hit = d.ms.find((m) => normalizarCiudad(m.n) === clave);
+    const hit = depto ? municipioEnCache(depto.n, ciudad) : null;
     if (hit) {
       const z = ZONAS_LOGISTICAS[clave] || {};
       return {
@@ -188,7 +170,7 @@ export function coordenadasDe(ciudad, departamento) {
     }
   }
 
-  // 3. Ciudades delextranjero, que sí traen coordenadas propias.
+  // 2. Ciudades delextranjero, que sí traen coordenadas propias.
   const ext = EXTRAS_CON_COORDENADAS[clave];
   if (ext) {
     const z = ZONAS_LOGISTICAS[clave] || {};

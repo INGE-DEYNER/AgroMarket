@@ -81,6 +81,8 @@ public class OrderController {
                         .productId(request.getProductId())
                         .quantity(request.getQuantity())
                         .checkoutId(request.getCheckoutId())
+                        .departamento(request.getDepartamento())
+                        .ciudad(request.getCiudad())
                         .originLatitude(request.getOriginLatitude())
                         .originLongitude(request.getOriginLongitude())
                         .destinationLatitude(request.getDestinationLatitude())

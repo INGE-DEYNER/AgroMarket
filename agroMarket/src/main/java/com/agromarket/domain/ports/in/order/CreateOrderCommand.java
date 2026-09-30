@@ -18,6 +18,13 @@ public class CreateOrderCommand {
      */
     private String checkoutId;
     /**
+     * Departamento y municipio del destino. El backend los valida contra su
+     * catálogo y de ahí saca las coordenadas reales, en vez de creerle a las
+     * que envía el cliente.
+     */
+    private String departamento;
+    private String ciudad;
+    /**
      * Costo de envío (COP) en caso de que el cliente lo envíe. El backend
      * lo valida contra el valor configurado y lo fuerza a 0 si NO es el
      * primer pedido del checkout, por lo que el cliente nunca es la fuente
