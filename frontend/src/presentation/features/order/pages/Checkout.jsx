@@ -331,10 +331,22 @@ export default function Checkout() {
         completedOrders.push(order.id);
       }
 
-      clearCart();
-
-      // Redirigir al proceso de pago oficial en la pasarela de Mercado Pago
+      /*
+       * El carrito se vacia SOLO cuando hay una redireccion a la pasarela y
+       * esta tiene exito.
+       *
+       * Antes se vaciaba aqui, antes de redirigir, y como /pago/exitoso no
+       * existia en el router la navegacion caia en la pagina 404: el
+       * comprador se quedaba viendo el checkout con el carrito ya vacio, y el
+       * resumen mostraba "Subtotal $0" y "Total = solo el envio". Parecia que
+       * el producto salia gratis, aunque el backend si habia cobrado bien
+       * (el pedido y el pago se crean con el total correcto).
+       *
+       * Si no hay redireccion, el flujo termina en la pantalla de exito local
+       * de mas abajo, y ahi si se vacia porque la compra si se completo.
+       */
       if (gatewayRedirectUrl) {
+        clearCart();
         if (
           gatewayRedirectUrl.startsWith("http://") ||
           gatewayRedirectUrl.startsWith("https://")
@@ -345,6 +357,10 @@ export default function Checkout() {
         }
         return;
       }
+
+      // Sin redireccion a la pasarela: la compra SI se completo (el pedido y el
+      // pago ya estan creados), asi que aqui si toca vaciar el carrito.
+      clearCart();
 
       const txnId = `TXN-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
       setSuccessData({

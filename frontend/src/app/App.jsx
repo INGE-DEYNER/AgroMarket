@@ -102,6 +102,10 @@ const SeleccionMetodoPago = lazy(
   () => import("@/presentation/features/payment/pages/SeleccionMetodoPago"),
 );
 
+const ResultadoPago = lazy(
+  () => import("@/presentation/features/payment/pages/ResultadoPago"),
+);
+
 const Productores = lazy(
   () => import("@/presentation/features/product/pages/Productores"),
 );
@@ -398,6 +402,19 @@ function App() {
                           </ProtectedRoute>
                         }
                       />
+
+                      {/*
+                       * RUTAS DE RESULTADO DE PAGO.
+                       *
+                       * El backend devuelve checkoutUrl = FRONTEND_URL +
+                       * "/pago/exitoso?pagoId=N" y sus backUrls apuntan a
+                       * /pago/exitoso, /pago/fallido y /pago/pendiente. Ninguna
+                       * existia: tras pagar, el usuario caia en un 404 con el
+                       * pedido ya creado y el carrito ya vaciado.
+                       */}
+                      <Route path="/pago/exitoso" element={<ResultadoPago estado="exitoso" />} />
+                      <Route path="/pago/fallido" element={<ResultadoPago estado="fallido" />} />
+                      <Route path="/pago/pendiente" element={<ResultadoPago estado="pendiente" />} />
 
                       {/* ==================================================
                           DASHBOARD COMPRADOR
