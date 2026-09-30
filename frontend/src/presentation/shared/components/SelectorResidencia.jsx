@@ -5,6 +5,7 @@ import {
   ciudadesDe,
   banderaDe,
 } from "@/application/support/geoCatalog";
+import BuscadorMunicipio from "@/presentation/shared/components/BuscadorMunicipio";
 
 /**
  * Selector de residencia en cascada: pais -> departamento -> ciudad.
@@ -34,6 +35,7 @@ export default function SelectorResidencia({
   labelDepartamento = "Departamento",
   labelCiudad = "Ciudad / Municipio",
   conPais = true,
+  requerido = false,
 }) {
   const departamentos = useMemo(
     () => departamentosDe(pais),
@@ -91,27 +93,32 @@ export default function SelectorResidencia({
       </div>
 
       <div className="form-group">
-        <label className="form-label" htmlFor="residencia-ciudad">
-          {labelCiudad}
-        </label>
-        <select
+        {/*
+          Buscador y no <select>: el catálogo del DANE trae 1.122 municipios y
+          un desplegable nativo obligaría a recorrer una lista interminable
+          para llegar, por ejemplo, a "Zarzal". Además el buscador obliga a
+          elegir de la lista, con lo que ya no se puede guardar "Medellín"
+          como ciudad de Chocó.
+        */}
+        <BuscadorMunicipio
           id="residencia-ciudad"
           className={inputClass}
-          value={ciudad || ""}
-          onChange={(e) => onCiudad(e.target.value)}
+          opciones={ciudades}
+          valor={ciudad || ""}
+          onChange={(nombre) => onCiudad(nombre)}
           disabled={!departamento}
-        >
-          <option value="">
-            {departamento
-              ? "Selecciona una ciudad"
-              : "Elige primero el departamento"}
-          </option>
-          {ciudades.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+          required={requerido}
+          placeholder={
+            departamento
+              ? "Escribe el municipio…"
+              : "Elige primero el departamento"
+          }
+          mensajeSinDatos={
+            departamento
+              ? `No encontramos "${ciudad || ""}" en ${departamento}`
+              : "Elige primero el departamento"
+          }
+        />
       </div>
     </div>
   );

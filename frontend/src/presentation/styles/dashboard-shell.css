@@ -768,3 +768,65 @@ html.dark .ds-shell {
   }
 }
 
+
+
+/* ==========================================================================
+   BUSCADOR DE MUNICIPIOS (BuscadorMunicipio.jsx)
+   ==========================================================================
+   La lista es absoluta sobre el campo, así que el contenedor padre no debe
+   tener overflow hidden: si lo tuviera, la lista se cortaría al llegar al
+   final de la tarjeta. El z-index alto la deja por encima de los avisos
+   internos del checkout.
+   */
+.buscador-municipio {
+  position: relative;
+}
+
+.buscador-municipio__lista {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 264px;
+  overflow-y: auto;
+  background: var(--ds-surface, #fff);
+  border: 1px solid var(--ds-border, #d8e2dc);
+  border-radius: var(--ds-radius-md, 8px);
+  box-shadow: 0 10px 28px rgba(15, 40, 30, 0.18);
+}
+
+.buscador-municipio__opcion {
+  padding: 8px 10px;
+  border-radius: var(--ds-radius-sm, 4px);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--ds-text, #1b4332);
+  cursor: pointer;
+}
+
+.buscador-municipio__opcion--activa,
+.buscador-municipio__opcion:hover {
+  background: var(--ds-surface-2, #eef4f1);
+}
+
+.buscador-municipio__vacio {
+  padding: 10px;
+  font-size: 0.78rem;
+  color: var(--ds-text-muted, #5c7a6b);
+}
+
+html.dark .buscador-municipio__lista {
+  background: var(--ds-surface, #15201b);
+  border-color: var(--ds-border, #26352d);
+}
+html.dark .buscador-municipio__opcion {
+  color: var(--ds-text, #e6f0ea);
+}
+html.dark .buscador-municipio__opcion--activa,
+html.dark .buscador-municipio__opcion:hover {
+  background: var(--ds-surface-2, #1d2b24);
+}

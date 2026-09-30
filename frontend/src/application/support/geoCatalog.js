@@ -1,24 +1,41 @@
 /**
  * Banco de datos de ubicaciones para el formulario de residencia.
  *
- * ESTRUCTURA: pais -> departamentos/estados -> ciudades/municipios.
- * Los formularios de Registro y Perfil encadenan selects dependientes:
- *   1) Pais        -> PAISES (el codigo va a users.country_code)
- *   2) Departamento -> departamentosDe(codigoPais)
- *   3) Ciudad       -> ciudadesDe(codigoPais, departamento)
+ * ESTRUCTURA: pais -> departamentos/estados -> municipios/ciudades.
  *
- * Colombia trae el catalogo de sus 32 departamentos con sus municipios
- * (el mercado real de AgroMarket es Uraba, Antioquia). Los demas paises
- * traen sus ciudades principales para que el selector nunca quede vacio.
+ * Colombia usa el catálogo oficial del DANE que trae `municipios.generated.js`:
+ * 33 departamentos y 1.122 municipios, cada uno con sus coordenadas. Ese
+ * archivo se genera con scripts/genera-municipios.cjs; no se edita a mano.
  *
- * Es catalogo de referencia, no dato de negocio: por eso vive en el codigo
- * y no en la base de datos.
+ * Los demás países traen sus ciudades principales, sin coordenadas: AgroMarket
+ * opera en Urabá y el envío se cotiza desde ahí, así que un catálogo mundial
+ * completo no aporta nada al cálculo y solo engorda el bundle.
+ *
+ * Es catálogo de referencia, no dato de negocio: por eso vive en el código y
+ * no en la base de datos.
  */
 
-/** Codigo telefonico de Colombia, unico pais con catalogo por departamentos. */
+import {
+  MUNICIPIOS,
+  DEPARTAMENTOS as DEPTOS_CO,
+} from "./municipios.generated.js";
+
+/*
+ * Se re-exportan porque este módulo es la fachada del catálogo: el cotizador de
+ * envío necesita consultar municipios por su cuenta, y si tuviera que importar
+ * del archivo generado se saltaría las funciones de búsqueda con normalización
+ * de acentos que viven aquí.
+ */
+export { MUNICIPIOS, DEPARTAMENTOS } from "./municipios.generated.js";
+export {
+  TOTAL_MUNICIPIOS,
+  TOTAL_DEPARTAMENTOS,
+} from "./municipios.generated.js";
+
+/** Código telefónico de Colombia, único país con catálogo por departamentos. */
 export const CODIGO_COLOMBIA = "+57";
 
-/** Paises soportados. `codigo` es lo que se guarda en country_code. */
+/** Países soportados. `codigo` es lo que se guarda en country_code. */
 export const PAISES = [
   { codigo: "+57", iso: "CO", nombre: "Colombia", bandera: "CO" },
   { codigo: "+1", iso: "US", nombre: "Estados Unidos", bandera: "US" },
@@ -30,132 +47,14 @@ export const PAISES = [
   { codigo: "+58", iso: "VE", nombre: "Venezuela", bandera: "VE" },
 ];
 
-/** Departamentos de Colombia con sus municipios. */
-export const COLOMBIA = {
-  Antioquia: [
-    "Medellín", "Bello", "Itagüí", "Envigado", "Sabaneta", "La Estrella",
-    "Copacabana", "Guatapé", "Guarne", "Caldas", "Rionegro",
-    "El Carmen de Viboral", "Barbosa", "Concepción", "Andes",
-    "Chigorodó", "Turbo", "Apartadó", "CAREPA", "Puerto Berberí",
-    "Necoclí", "San Pedro de Urabá", "Arboletes", "Marinilla",
-    "San Vicente Ferrer", "La Dorada", "Puerto Triunfo",
-  ],
-  "Bogota D.C.": ["Bogotá"],
-  Atlantico: [
-    "Barranquilla", "Soledad", "Malambo", "Sabanalarga", "Puerto Colombia",
-    "Candelaria", "Polo", "Juan de Acosta", "Usiacurí", "Galapa",
-    "Santa Marta", "Ciénaga", "Tubará",
-  ],
-  Bolivar: [
-    "Cartagena", "Magangué", "Turbaco", "El Carmen de Bolívar",
-    "San Jacinto", "Mahates", "Mompos", "Arjona", "Simití", "Pinillos",
-    "Achi", "Montería",
-  ],
-  Boyaca: [
-    "Tunja", "Duitama", "Sogamoso", "Chiquinquirá", "Paipa", "Raquira",
-    "Villavieja", "Miraflores", "Nobsa", "Samacá", "Soracá", "Siachoque",
-    "Tununguá", "Ramiriquí", "Guateque", "Somondoco",
-  ],
-  Caldas: [
-    "Manizales", "Chinchiná", "Villamaría", "Riosucio", "Marsella",
-    "Salamá", "Victoria", "Viterbo", "La Dorada", "Pereira",
-    "Santa Rosa de Cabal", "Dosquebradas",
-  ],
-  Caqueta: [
-    "Florencia", "Belén de La Parrilla", "El Guainía", "Pitalito",
-    "Curillo", "Morelia", "Solano", "Valle delguidán",
-    "San José del Guaviare",
-  ],
-  Casanare: ["Yopal", "Arauca", "Paz de Aripao", "Villanueva", "Montería"],
-  Cauca: [
-    "Popayán", "Santander de Quilichao", "Puerto Tejada", "Piendamó",
-    "Timbiquí", "Caldono", "La Vega", "Guachené", "Inzá", "Silvió",
-    "Suárez", "Cauca",
-  ],
-  Cesar: [
-    "Valledupar", "Aguachica", "Codazzi", "Chiriguaná", "El Banco",
-    "La Jagua de Ibirico", "Manaure", "Dibulla", "Pueblo Bello",
-  ],
-  Choco: [
-    "Quibdó", "Istmina", "Bahía Solano", "El Carmen del Darién",
-    "Medellín del Atrato", "Unguía", "Cabo San Juan", "Acandí",
-  ],
-  Cordoba: [
-    "Montería", "Lorica", "Sahagún", "Cereté", "Sincelejo", "Túmpiz",
-    "Ciénaga de Oro", "Mompos", "Montelibano", "Pueblo Nuevo",
-    "Planeta Rica", "San Carlos", "Caño de los Ujos",
-  ],
-  Cundinamarca: [
-    "Soacha", "Zipaquirá", "Facatativá", "Chía", "Funza", "Fusagasugá",
-    "Girardot", "Mota", "Nemeoca", "Pandi", "Pasca", "Puente de los Molinos",
-    "Sibundoy", "Villeta", "Vergara", "La Calera", "Ubaté", "Une", "Guasca",
-    "Villagarzón",
-  ],
-  Guainia: ["Inírida", "Cáceres", "Puerrezal"],
-  Guaviare: [
-    "San José del Guaviare", "Calamar", "El Retorno", "Miraflores",
-  ],
-  Huila: [
-    "Neiva", "Pitalito", "Garzón", "La Plata", "Campoalegre", "Palermo",
-    "Acevedo", "Agrado", "Almagro", "Suárez", "Tello",
-  ],
-  "La Guajira": [
-    "Riohacha", "Maicao", "Uribia", "Dibulla", "Alta Mira", "Distracción",
-    "El Hato", "El Rosario", "La Jagua del Pilar", "Manatí", "Puj",
-  ],
-  Magdalena: [
-    "Santa Marta", "Ciénaga", "Fundación", "El Banco", "Palamino",
-    "Santa Ana", "Sierra Nevada", "Cerro San Antonio",
-  ],
-  Meta: [
-    "Villavicencio", "Acacías", "Granada", "Cumaral", "Restrepo", "Fresnes",
-    "Mesetas", "San Juan de los Llanos", "Castilla la Nueva",
-  ],
-  Narino: [
-    "Pasto", "Tumaco", "Túquerres", "Ipiales", "La Unión", "Barbacoas",
-    "Buga", "Candi", "El Tambo", "Yotoco", "Policarpa", "Fresneda",
-  ],
-  "Norte de Santander": [
-    "Cúcuta", "Ocaña", "Pamplona", "Villa del Rosario", "Los Patios",
-    "Chitagá", "Ábrego", "Silos", "Salazar",
-  ],
-  Putumayo: [
-    "Mocoa", "Leticia", "San Miguel", "Puerto Asís", "Valle del Guamuez",
-    "Piedemonte", "Orteguaza", "Uribe",
-  ],
-  Quindio: [
-    "Armenia", "Calarcá", "Circasia", "Córdoba", "Filandia", "Génova",
-    "La Tebaida", "Montenegro", "Pijao", "Salento", "Quindío",
-  ],
-  Risaralda: [
-    "Pereira", "Santa Rosa de Cabal", "Doce Quebradas", "Quimbaya",
-    "Mistrató", "La Virginia", "Marsella", "Guatapé",
-  ],
-  Santander: [
-    "Bucaramanga", "Floridablanca", "Barrancabermeja", "Girón",
-    "Piedecuesta", "Sucre", "San Gil", "Socotá", "Mogotes", "Vélez",
-    "Cerrito", "Los Santos", "Suanda", "Zapatoca",
-  ],
-  Sucre: [
-    "Sincelejo", "Corozal", "Sahagún", "Majagual", "Tolu", "Toluviejas",
-    "San Onofre", "Serranía", "El Roble",
-  ],
-  Tolima: [
-    "Ibagué", "Espinal", "Melgar", "Honda", "Ambalá", "Cajamarca",
-    "Coello", "Lérida", "Natagaima", "Piedras", "Salgar", "San Antonio",
-    "Prado",
-  ],
-  "Valle del Cauca": [
-    "Cali", "Palmira", "Buenaventura", "Tuluá", "Cartago", "Buga",
-    "Jamundí", "Dagua", "Ginebra", "Guacarí", "Pradera", "Restrepo",
-    "Riofrío", "Yumbo", "Zarzal", "Versalles",
-  ],
-  Vaupes: ["Mitú", "Cedral", "Carurú"],
-  Vichada: ["Puerto Carreño", "La Primavera", "Santa Rosalía"],
-};
-
-/** Ciudades principales por pais (fuera de Colombia). */
-const OTROS_PAISES = {
+/**
+ * Ciudades principales por país (fuera de Colombia).
+ *
+ * Sin coordenadas a propósito: ver la nota de la cabecera sobre por qué no se
+ * incluye un catálogo mundial. Un destino sin coordenadas hace que el cálculo
+ * de envío se bloquee con un mensaje, en vez de mostrar un precio inventado.
+ */
+const CIUDADES_EXTRAS = {
   "+1": [
     "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
     "Philadelphia", "San Antonio", "San Diego", "Dallas", "Miami",
@@ -188,34 +87,93 @@ const OTROS_PAISES = {
   ],
 };
 
+const sinAcentos = (s) =>
+  String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
 /**
- * Departamentos (o estados/provincias) del pais indicado.
+ * Busca un departamento por nombre, tolerando mayúsculas, tildes y espacios.
  *
- * Solo Colombia tiene el catalogo detallado por departamento; el resto de
- * paises usan la division simple "Principal" con sus ciudades principales.
+ * Se usa al leer lo que viene guardado en `users.department`: ese valor lo
+ * escribió una versión anterior del formulario, cuando el catálogo tenía
+ * nombres como "Bogota D.C." sin tilde. Sin normalizar, esos usuarios no
+ * aparecerían en el desplegable y su ciudad quedaría deshabilitada.
  */
-export function departamentosDe(codigoPais) {
-  if (codigoPais === CODIGO_COLOMBIA) return Object.keys(COLOMBIA);
-  return OTROS_PAISES[codigoPais] ? ["Principal"] : [];
+export function departamentoPorNombre(nombre) {
+  if (!nombre) return null;
+  const objetivo = sinAcentos(nombre);
+  return (
+    DEPTOS_CO.find((d) => sinAcentos(d.n) === objetivo) ||
+    DEPTOS_CO.find((d) => sinAcentos(d.n).startsWith(objetivo)) ||
+    null
+  );
 }
 
 /**
- * Ciudades (o municipios) del pais y departamento indicados.
- * Para los paises sin desglose devuelve la lista de ciudades principales.
+ * Busca un municipio dentro de un departamento, con la misma tolerancia.
+ *
+ * @returns el municipio del catálogo, o null si no existe.
+ */
+export function municipioPorNombre(departamento, nombre) {
+  if (!nombre) return null;
+  const depto = departamentoPorNombre(departamento) || { n: departamento };
+  const lista = MUNICIPIOS[depto.n]?.ms || [];
+  const objetivo = sinAcentos(nombre);
+  return (
+    lista.find((m) => sinAcentos(m.n) === objetivo) ||
+    lista.find((m) => sinAcentos(m.n).startsWith(objetivo)) ||
+    null
+  );
+}
+
+/**
+ * Coordenadas de un municipio, para el cálculo de envío.
+ *
+ * Devuelve `null` si el municipio no está en el catálogo. Quien llama decide
+ * qué hacer con ese null; aquí no se inventa una coordenada.
+ */
+export function coordenadasDeMunicipio(departamento, municipio) {
+  const m = municipioPorNombre(departamento, municipio);
+  return m ? { lat: m.a, lon: m.o, codigo: m.c } : null;
+}
+
+/**
+ * Departamentos (o estados/provincias) del país indicado.
+ *
+ * Solo Colombia tiene el catálogo detallado; el resto usa la división simple
+ * "Principal" con sus ciudades principales.
+ */
+export function departamentosDe(codigoPais) {
+  if (codigoPais === CODIGO_COLOMBIA) return DEPTOS_CO.map((d) => d.n);
+  return CIUDADES_EXTRAS[codigoPais] ? ["Principal"] : [];
+}
+
+/**
+ * Municipios (o ciudades) del país y departamento indicados.
+ * Para los países sin desglose devuelve la lista de ciudades principales.
  */
 export function ciudadesDe(codigoPais, departamento) {
   if (codigoPais === CODIGO_COLOMBIA) {
-    return COLOMBIA[departamento] ?? [];
+    const depto = departamentoPorNombre(departamento);
+    return depto ? MUNICIPIOS[depto.n]?.ms || [] : [];
   }
-  return OTROS_PAISES[codigoPais] ?? [];
+  return (CIUDADES_EXTRAS[codigoPais] || []).map((n) => ({
+    n,
+    c: "",
+    a: null,
+    o: null,
+  }));
 }
 
-/** Datos del pais a partir del codigo telefonico. */
+/** Datos del país a partir del código telefónico. */
 export function paisPorCodigo(codigoPais) {
   return PAISES.find((p) => p.codigo === codigoPais) ?? null;
 }
 
-/** Bandera ISO del pais a partir del codigo telefonico. */
+/** Bandera ISO del país a partir del código telefónico. */
 export function banderaDe(codigoPais) {
   return paisPorCodigo(codigoPais)?.bandera ?? "UN";
 }

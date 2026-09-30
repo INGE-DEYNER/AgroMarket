@@ -5,6 +5,7 @@ import { useCart } from "@/presentation/features/order/hooks/useCart";
 import api from "@/infrastructure/http/api";
 import Icon from "@/presentation/shared/components/Icon";
 import BuyerShell from "@/presentation/features/order/components/BuyerShell";
+import SelectorResidencia from "@/presentation/shared/components/SelectorResidencia";
 import {
   cotizarEnvio,
   cargarParametrosEnvio,
@@ -81,6 +82,10 @@ export default function Checkout() {
       setEnvio(
         cotizarEnvio(addressForm.ciudad, {
           ...params,
+          // El departamento acota la búsqueda del municipio: hay nombres
+          // repetidos en el país (dos "San Pedro", tres "Santa Rosa"), así que
+          // sin él la búsqueda por nombre plano puede dar con el equivocado.
+          departamento: addressForm.departamento,
           // El peso facturable es la cantidad del carrito: AgroMarket vende
           // todo por kilo, asi que no hace falta un campo de peso aparte.
           pesoKg: pesoTotalKg(),
@@ -276,7 +281,10 @@ export default function Checkout() {
        * El origen es fijo (centro de acopio de Chigorodó). El destino se saca
        * de la ciudad elegida en el formulario de dirección.
        */
-      const destino = coordenadasDe(addressForm.ciudad || user?.ciudad);
+      const destino = coordenadasDe(
+        addressForm.ciudad || user?.ciudad,
+        addressForm.departamento || user?.departamento,
+      );
       const origen = ORIGEN_POR_DEFECTO;
       if (!destino) {
         // Sin coordenadas no hay forma de calcular el envío, y el backend
@@ -857,86 +865,42 @@ export default function Checkout() {
                       }}
                       className="form-row"
                     >
-                      <div>
-                        <label className="form-lbl">Departamento *</label>
-                        <select
-                          value={addressForm.departamento}
-                          onChange={(e) =>
-                            setAddressForm({
-                              ...addressForm,
-                              departamento: e.target.value,
-                            })
-                          }
-                          className="form-in"
-                          style={{ height: "44px", background: "white" }}
-                        >
-                          <option value="">Selecciona departamento</option>
-                          {[
-                            "Amazonas",
-                            "Antioquia",
-                            "Arauca",
-                            "Atlántico",
-                            "Bolívar",
-                            "Boyacá",
-                            "Caldas",
-                            "Caquetá",
-                            "Casanare",
-                            "Cauca",
-                            "Cesar",
-                            "Chocó",
-                            "Córdoba",
-                            "Cundinamarca",
-                            "Guainía",
-                            "Guaviare",
-                            "Huila",
-                            "La Guajira",
-                            "Magdalena",
-                            "Meta",
-                            "Nariño",
-                            "Norte de Santander",
-                            "Putumayo",
-                            "Quindío",
-                            "Risaralda",
-                            "San Andrés y Providencia",
-                            "Santander",
-                            "Sucre",
-                            "Tolima",
-                            "Valle del Cauca",
-                            "Vaupés",
-                            "Vichada",
-                            "Bogotá D.C.",
-                          ]
-                            .sort()
-                            .map((dept) => (
-                              <option key={dept} value={dept}>
-                                {dept}
-                              </option>
-                            ))}
-                        </select>
-                        {formErrors.departamento && (
-                          <span className="form-err">
-                            {formErrors.departamento}
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <label className="form-lbl">Ciudad *</label>
-                        <input
-                          type="text"
-                          value={addressForm.ciudad}
-                          onChange={(e) =>
-                            setAddressForm({
-                              ...addressForm,
-                              ciudad: e.target.value,
-                            })
-                          }
-                          className="form-in"
-                          placeholder="Ej. Medellín"
-                        />
-                        {formErrors.ciudad && (
-                          <span className="form-err">{formErrors.ciudad}</span>
-                        )}
-                      </div>
+                      {/*
+                        Departamento y municipio van en un solo componente con
+                        catálogo encadenado. Antes eran un <select> con la lista
+                        de departamentos escrita a mano (y le faltaban Bogotá y
+                        Amazonas) y un <input> de texto libre para la ciudad,
+                        que permitía guardar "Medellín" como ciudad de Chocó.
+                        Con el catálogo del DANE, 1.122 municipios y buscador.
+                      */}
+                      <SelectorResidencia
+                        conPais={false}
+                        requerido
+                        className="form-row"
+                        inputClass="form-in"
+                        labelCiudad="Municipio *"
+                        pais="+57"
+                        departamento={addressForm.departamento}
+                        ciudad={addressForm.ciudad}
+                        onPais={() => {}}
+                        onDepartamento={(nuevo) =>
+                          setAddressForm((prev) => ({
+                            ...prev,
+                            departamento: nuevo,
+                            // Cambiar de departamento invalida el municipio: si
+                            // no, quedaría "Medellín + Chocó" guardado.
+                            ciudad: "",
+                          }))
+                        }
+                        onCiudad={(nuevo) =>
+                          setAddressForm((prev) => ({ ...prev, ciudad: nuevo }))
+                        }
+                      />
+                      {(formErrors.departamento || formErrors.ciudad) && (
+                        <span className="form-err">
+                          {formErrors.departamento || formErrors.ciudad}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <label className="form-lbl">Dirección Completa *</label>

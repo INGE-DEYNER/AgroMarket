@@ -13,10 +13,27 @@
  * aquí. Si el backend cambia una tarifa, el checkout se entera solo.
  *
  * Fórmula (idéntica a la del backend):
- *   costo = max(km × precioPorKm, mínimo)
+ *   banda = local / regional / nacional según la distancia
+ *   costo = max(pesoFacturable × basePorKg, mínimoDeLaBanda)
  */
 
 import api from "@/infrastructure/http/api";
+import { MUNICIPIOS, departamentoPorNombre } from "./geoCatalog.js";
+
+/**
+ * Coordenadas de ciudades fuera de Colombia.
+ *
+ * El catálogo del DANE solo cubre Colombia. Estas son las capitales y grandes
+ * ciudades de los demás países que la plataforma soporta; el usuario las elige
+ * a mano, así que un catálogo mundial completo no aporta nada.
+ */
+const EXTRAS_CON_COORDENADAS = {
+  "san jose cr": { lat: 9.9281, lon: -84.0907 },
+  panama: { lat: 8.9824, lon: -79.5199 },
+  miami: { lat: 25.7617, lon: -80.1918 },
+  "mexico df": { lat: 19.4326, lon: -99.1332 },
+  madrid: { lat: 40.4168, lon: -3.7038 },
+};
 
 /**
  * Bandas de trayecto. Deben coincidir con `ShippingTariffs` del backend
@@ -59,47 +76,57 @@ export const TARIFAS_POR_DEFECTO = {
 };
 
 /**
- * Coordenadas de las ciudades con mayor cobertura de envíos.
+ * ZONAS LOGÍSTICAS: días de entrega y nombre de la zona.
  *
- * Es una tabla de referencia, no un servicio de geocodificación: cubre el
- * caso real (compradores dentro de Colombia) y las capitales de los países
- * que la plataforma atiende. Para una dirección puntual el backend usa las
- * coordenadas que envía el checkout, que son las que mandan.
+ * ANTES este bloque traía también las coordenadas, y eran la única fuente de
+ * cobertura del cotizador: 26 ciudades. Eso hacía que cualquier municipio
+ * fuera de la lista devolviera `conocido: false` y el checkout bloqueara el
+ * pedido con "no tenemos cobertura". Un municipio como Marinilla o Girardota
+ * no estaba, y sí se entregaba.
+ *
+ * Ahora las coordenadas salen del catálogo del DANE (1.122 municipios) y aquí
+ * solo queda lo que NO es un hecho geográfico: cuántos días tarda el despacho
+ * y cómo se llama la zona. Eso lo define AgroMarket, no se deduce de una
+ * latitud, así que no se invierte.
+ *
+ * Si un municipio tiene coordenadas pero no está en esta tabla, el cotizador
+ * devuelve `dias: null` y la interfaz dice "plazo a confirmar" en vez de
+ * inventar un número.
  */
-export const COORDENADAS_CIUDADES = {
+export const ZONAS_LOGISTICAS = {
   // --- Urabá y environs (zona 1: entrega en 1 día) ---
-  chigorodo: { lat: 7.6667, lon: -76.6811, dias: 1, zona: "Urabá" },
-  apartado: { lat: 7.8833, lon: -76.6333, dias: 1, zona: "Urabá" },
-  turbo: { lat: 8.0917, lon: -76.7283, dias: 1, zona: "Urabá" },
-  carepa: { lat: 7.7667, lon: -76.8167, dias: 1, zona: "Urabá" },
+  chigorodo: { dias: 1, zona: "Urabá" },
+  apartado: { dias: 1, zona: "Urabá" },
+  turbo: { dias: 1, zona: "Urabá" },
+  carepa: { dias: 1, zona: "Urabá" },
   // --- Antioquia y Costa Caribe (zona 2: 2 días) ---
-  medellin: { lat: 6.2442, lon: -75.5812, dias: 2, zona: "Antioquia" },
-  bello: { lat: 6.3358, lon: -75.5922, dias: 2, zona: "Antioquia" },
-  itagui: { lat: 6.175, lon: -75.5636, dias: 2, zona: "Antioquia" },
-  envigado: { lat: 6.1667, lon: -75.55, dias: 2, zona: "Antioquia" },
-  barranquilla: { lat: 10.9685, lon: -74.7813, dias: 2, zona: "Costa Caribe" },
-  cartagena: { lat: 10.391, lon: -75.4794, dias: 2, zona: "Costa Caribe" },
-  "santa marta": { lat: 11.2408, lon: -74.199, dias: 2, zona: "Costa Caribe" },
+  medellin: { dias: 2, zona: "Antioquia" },
+  bello: { dias: 2, zona: "Antioquia" },
+  itagui: { dias: 2, zona: "Antioquia" },
+  envigado: { dias: 2, zona: "Antioquia" },
+  barranquilla: { dias: 2, zona: "Costa Caribe" },
+  cartagena: { dias: 2, zona: "Costa Caribe" },
+  "santa marta": { dias: 2, zona: "Costa Caribe" },
   // --- Otras regiones (zona 3-5: 3 a 5 días) ---
-  bogota: { lat: 4.711, lon: -74.0721, dias: 3, zona: "Bogotá y Sabana" },
-  cali: { lat: 3.4516, lon: -76.532, dias: 3, zona: "Valle del Cauca" },
-  manizales: { lat: 5.0689, lon: -75.3431, dias: 3, zona: "Caldas" },
-  pereira: { lat: 4.8144, lon: -75.6944, dias: 3, zona: "Eje Cafetero" },
-  armenia: { lat: 4.5333, lon: -75.6811, dias: 3, zona: "Eje Cafetero" },
-  bucaramanga: { lat: 7.1193, lon: -73.1227, dias: 4, zona: "Santander" },
-  cucuta: { lat: 7.8939, lon: -72.5048, dias: 4, zona: "Norte de Santander" },
-  villavicencio: { lat: 4.142, lon: -73.6291, dias: 4, zona: "Llanos" },
-  barranquiria: { lat: 4.8986, lon: -73.852, dias: 4, zona: "Boyacá" },
-  monteria: { lat: 8.7475, lon: -75.8817, dias: 4, zona: "Córdoba" },
-  ibague: { lat: 4.4373, lon: -75.1921, dias: 4, zona: "Tolima" },
-  pasto: { lat: 1.2139, lon: -77.2811, dias: 5, zona: "Nariño" },
-  florencia: { lat: 1.6156, lon: -75.6042, dias: 5, zona: "Caquetá" },
+  bogota: { dias: 3, zona: "Bogotá y Sabana" },
+  cali: { dias: 3, zona: "Valle del Cauca" },
+  manizales: { dias: 3, zona: "Caldas" },
+  pereira: { dias: 3, zona: "Eje Cafetero" },
+  armenia: { dias: 3, zona: "Eje Cafetero" },
+  bucaramanga: { dias: 4, zona: "Santander" },
+  cucuta: { dias: 4, zona: "Norte de Santander" },
+  villavicencio: { dias: 4, zona: "Llanos" },
+  barranquiria: { dias: 4, zona: "Boyacá" },
+  monteria: { dias: 4, zona: "Córdoba" },
+  ibague: { dias: 4, zona: "Tolima" },
+  pasto: { dias: 5, zona: "Nariño" },
+  florencia: { dias: 5, zona: "Caquetá" },
   // --- Fuera del país (zona 6: 8-9 días) ---
-  "san jose cr": { lat: 9.9281, lon: -84.0907, dias: 8, zona: "Centroamérica" },
-  panama: { lat: 8.9824, lon: -79.5199, dias: 8, zona: "Centroamérica" },
-  miami: { lat: 25.7617, lon: -80.1918, dias: 8, zona: "Norteamérica" },
-  "mexico df": { lat: 19.4326, lon: -99.1332, dias: 9, zona: "Norteamérica" },
-  madrid: { lat: 40.4168, lon: -3.7038, dias: 9, zona: "Europa" },
+  "san jose cr": { dias: 8, zona: "Centroamérica" },
+  panama: { dias: 8, zona: "Centroamérica" },
+  miami: { dias: 8, zona: "Norteamérica" },
+  "mexico df": { dias: 9, zona: "Norteamérica" },
+  madrid: { dias: 9, zona: "Europa" },
 };
 
 /** Normaliza un nombre para poder buscarlo en la tabla. */
@@ -111,9 +138,69 @@ export function normalizarCiudad(ciudad) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-/** Coordenadas de una ciudad, o `null` si la tabla no la conoce. */
-export function coordenadasDe(ciudad) {
-  return COORDENADAS_CIUDADES[normalizarCiudad(ciudad)] || null;
+/**
+ * Coordenadas y datoslogísticos de una ciudad.
+ *
+ * Busca primero en el catálogo del DANE (que cubre todo el país) y, si no
+ * encuentra el municipio, en las ciudades delextranjero que sí tienen
+ * coordenadas propias.
+ *
+ * @returns {{lat, lon, dias, zona}|null}
+ */
+export function coordenadasDe(ciudad, departamento) {
+  const clave = normalizarCiudad(ciudad);
+  if (!clave) return null;
+
+  // 1. Municipio del catálogo del DANE. Requiere el departamento porque hay
+  //    nombres repetidos en el país (hay dos "San Pedro" y tres "Santa Rosa").
+  if (departamento) {
+    const depto = departamentoPorNombre(departamento);
+    if (depto) {
+      const lista = MUNICIPIOS[depto.n]?.ms || [];
+      const hit = lista.find((m) => normalizarCiudad(m.n) === clave);
+      if (hit) {
+        const z = ZONAS_LOGISTICAS[clave] || {};
+        return {
+          lat: hit.a,
+          lon: hit.o,
+          dias: z.dias ?? null,
+          zona: z.zona ?? null,
+          codigo: hit.c,
+        };
+      }
+    }
+  }
+
+  // 2. Sin departamento, o municipio no catalogado: se busca por nombre plano
+  //    entre todos los municipios. Más lento, pero el checkout siempre conoce
+  //    el departamento, así que es el camino de respaldo.
+  for (const d of Object.values(MUNICIPIOS)) {
+    const hit = d.ms.find((m) => normalizarCiudad(m.n) === clave);
+    if (hit) {
+      const z = ZONAS_LOGISTICAS[clave] || {};
+      return {
+        lat: hit.a,
+        lon: hit.o,
+        dias: z.dias ?? null,
+        zona: z.zona ?? null,
+        codigo: hit.c,
+      };
+    }
+  }
+
+  // 3. Ciudades delextranjero, que sí traen coordenadas propias.
+  const ext = EXTRAS_CON_COORDENADAS[clave];
+  if (ext) {
+    const z = ZONAS_LOGISTICAS[clave] || {};
+    return {
+      lat: ext.lat,
+      lon: ext.lon,
+      dias: z.dias ?? null,
+      zona: z.zona ?? null,
+    };
+  }
+
+  return null;
 }
 
 /** Distancia en kilómetros entre dos puntos (fórmula de Haversine). */
