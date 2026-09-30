@@ -19,6 +19,8 @@ import com.agromarket.domain.models.order.Order;
 import com.agromarket.domain.models.order.OrderItem;
 import com.agromarket.domain.ports.out.order.OrderPort;
 
+import jakarta.persistence.EntityManager;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -29,6 +31,7 @@ public class OrderSqlAdapter implements OrderPort {
     private final OrderItemJpaRepository orderItemRepository;
     private final ProductJpaRepository productRepository;
     private final UserJpaRepository userRepository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
@@ -89,6 +92,21 @@ public class OrderSqlAdapter implements OrderPort {
                 orderItemRepository.save(itemEntity);
             }
         }
+
+        /*
+         * Los items se guardan con su propio repositorio, asi que la coleccion
+         * `items` de la OrderEntity que vive en el contexto de persistencia
+         * sigue LAZY y VACIA: Hibernate no la refresca porque ya la conoce. Al
+         * releer con findById se recuperaba esa misma instancia y el
+         * OrderResult salia con product, quantity y unitPrice en null, aunque
+         * los datos estuvieran en la base (el listado sí los traía, porque esa
+         * consulta entra en sesión nueva).
+         *
+         * flush + clear fuerza el volcado a la base y limpia el contexto, de
+         * modo que el findById posterior relea de verdad.
+         */
+        entityManager.flush();
+        entityManager.clear();
 
         return findById(savedOrder.getId()).orElse(null);
     }
