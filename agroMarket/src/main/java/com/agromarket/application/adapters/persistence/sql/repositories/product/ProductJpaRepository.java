@@ -15,6 +15,16 @@ public interface ProductJpaRepository
 
     List<ProductEntity> findByFruitType(FruitType fruitType);
 
+    /**
+     * Productos VIVOS de un productor. Filtra por `active` a proposito: el
+     * borrado desde el panel de Admin es un soft delete (pone active=false), y
+     * sin este filtro el inventario del productor seguia mostrando los
+     * productos ya borrados desde el admin, con su stock intacto. El catalogo
+     * publico y el panel de admin si lo filtraban, por eso el borrado parecia
+     * no hacer efecto y el productor lo veía como un producto duplicado.
+     */
+    List<ProductEntity> findByProducer_IdAndActiveTrue(Long producerId);
+
     List<ProductEntity> findByProducer_Id(Long producerId);
 
     List<ProductEntity> findByOnPromotionTrue();

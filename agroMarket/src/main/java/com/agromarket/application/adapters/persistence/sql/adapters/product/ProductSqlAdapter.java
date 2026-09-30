@@ -85,7 +85,12 @@ public class ProductSqlAdapter implements ProductPort {
     @Override
     @Transactional(readOnly = true)
     public List<Product> findByProducerId(Long producerId) {
-        return repository.findByProducer_Id(producerId)
+        // Solo los activos. Este listado alimenta el inventario del panel del
+        // productor, y antes traia tambien los productos que el admin habia
+        // borrado (soft delete, active=false), con su stock intacto. El
+        // catalogo publico y el panel de admin ya los excluian, de ahi que el
+        // borrado pareciera no surtir efecto en el panel del productor.
+        return repository.findByProducer_IdAndActiveTrue(producerId)
                 .stream()
                 .map(ProductEntity::toDomain)
                 .toList();
