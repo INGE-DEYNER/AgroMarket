@@ -20,6 +20,10 @@ import com.agromarket.domain.models.enums.image.ImageType;
 import com.agromarket.domain.ports.in.image.ImagePort;
 import com.agromarket.domain.ports.in.image.ImageResult;
 import com.agromarket.domain.ports.in.image.ImageUploadCommand;
+import com.agromarket.infrastructure.security.Autorizacion;
+import com.agromarket.infrastructure.security.JwtUserPrincipal;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import lombok.RequiredArgsConstructor;
 
@@ -81,16 +85,23 @@ public class ImageController {
 
         @GetMapping("/{id}")
         public ResponseEntity<ImageResponse> getById(
-                        @PathVariable Long id) {
+                        @PathVariable Long id,
+                        @AuthenticationPrincipal JwtUserPrincipal principal) {
 
-                return ResponseEntity.ok(
-                                toResponse(imagePort.getById(id)));
+                ImageResult imagen = imagePort.getById(id);
+                Autorizacion.exigirDueñoOAdmin(
+                                principal,
+                                "imagen",
+                                imagen.ownerId());
+                return ResponseEntity.ok(toResponse(imagen));
         }
 
         @GetMapping("/owner/{ownerId}")
         public ResponseEntity<List<ImageResponse>> getByOwner(
-                        @PathVariable Long ownerId) {
+                        @PathVariable Long ownerId,
+                        @AuthenticationPrincipal JwtUserPrincipal principal) {
 
+                Autorizacion.exigirDueñoOAdmin(principal, "imagen", ownerId);
                 return ResponseEntity.ok(
                                 imagePort.getByOwner(ownerId)
                                                 .stream()

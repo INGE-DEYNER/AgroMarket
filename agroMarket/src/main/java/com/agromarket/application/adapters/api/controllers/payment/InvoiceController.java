@@ -8,6 +8,7 @@ import com.agromarket.domain.ports.out.order.OrderPort;
 import com.agromarket.domain.ports.out.payment.InvoicePort;
 import com.agromarket.domain.ports.out.user.EmailPort;
 import com.agromarket.infrastructure.pdf.InvoicePdfGenerator;
+import com.agromarket.infrastructure.security.Autorizacion;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -53,11 +54,48 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InvoiceResult> getInvoiceById(@PathVariable Long id) {
+    public ResponseEntity<InvoiceResult> getInvoiceById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
         return invoicePort.findById(id)
-                .map(this::toResult)
+                .map(factura -> {
+                    // La factura no guarda el usuario: se resuelve a traves
+                    // de su pedido. Sin esta comprobacion, cambiar el id
+                    // devuelve la factura (con el monto y el numero) de
+                    // cualquier compra de la plataforma.
+                    exigirFacturaAccesible(principal, factura);
+                    return toResult(factura);
+                })
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    /**
+     * Exige que el principal sea dueno del pedido de la factura (o admin).
+     *
+     * <p>La Invoice de dominio lleva el pedido entero ({@code getOrder()}),
+     * no un orderId suelto: de ahi se sacan el comprador y el productor.
+     */
+    private void exigirFacturaAccesible(
+            JwtUserPrincipal principal,
+            Invoice factura) {
+
+        Order pedido = factura.getOrder();
+
+        if (pedido == null) {
+            // Factura huerfana: sin pedido no se puede comprobar dueno, y se
+            // responde 403 en vez de 200. Un admin sigue viendo la pantalla
+            // para poder repararla.
+            if (Autorizacion.esAdmin(principal)) {
+                return;
+            }
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tienes permiso sobre esta factura.");
+        }
+
+        Autorizacion.exigirDueñoOAdmin(
+                principal, "factura", Autorizacion.duenosDePedido(pedido));
     }
 
     /**
@@ -69,7 +107,17 @@ public class InvoiceController {
      */
     @GetMapping({ "/order/{orderId}", "/pedido/{orderId}" })
     public ResponseEntity<InvoiceResult> getInvoiceByOrder(
-            @PathVariable("orderId") Long orderId) {
+            @PathVariable("orderId") Long orderId,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+        // Antes bastaba con conocer el id de un pedido ajeno para leer su
+        // factura. Se valida contra el dueno del pedido.
+        Order pedido = orderPort.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Pedido no encontrado: " + orderId));
+        Autorizacion.exigirDueñoOAdmin(
+                principal, "factura", Autorizacion.duenosDePedido(pedido));
+
         return invoicePort.findByOrderId(orderId)
                 .map(this::toResult)
                 .map(ResponseEntity::ok)

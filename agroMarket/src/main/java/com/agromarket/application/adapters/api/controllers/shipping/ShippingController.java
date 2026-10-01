@@ -22,7 +22,13 @@ import com.agromarket.application.adapters.api.request.shipping.CreateShippingRe
 import com.agromarket.application.adapters.api.request.shipping.UpdateShippingRequest;
 import com.agromarket.application.adapters.api.response.shipping.ShippingResponse;
 import com.agromarket.domain.ports.in.shipping.ShippingPort;
+import com.agromarket.domain.ports.in.shipping.ShippingResult;
 import com.agromarket.domain.services.shipping.ShippingTariffs;
+import com.agromarket.infrastructure.security.Autorizacion;
+import com.agromarket.infrastructure.security.JwtUserPrincipal;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +39,35 @@ import lombok.RequiredArgsConstructor;
 public class ShippingController {
 
 	private final ShippingPort shippingPort;
+
+    /**
+     * Para comprobar de quien es el envio: el recurso guarda el orderId, no el
+     * usuario. Sin esto, con cualquier token valido,
+     * GET /api/v1/shipments/1 devolvia la direccion y el transportista de un
+     * envio ajeno.
+     */
+    private final com.agromarket.domain.ports.out.order.OrderPort orderPort;
+
+    /** Exige que el principal sea dueno del pedido del envio, o admin. */
+    private void exigirEnvioAccesible(
+            JwtUserPrincipal principal,
+            Long orderId) {
+
+        if (Autorizacion.esAdmin(principal)) {
+            return;
+        }
+        if (orderId == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "No tienes permiso sobre este envío.");
+        }
+        var pedido = orderPort.findById(orderId).orElse(null);
+        if (pedido == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "No tienes permiso sobre este envío.");
+        }
+        Autorizacion.exigirDueñoOAdmin(
+                principal, "envío", Autorizacion.duenosDePedido(pedido));
+    }
 
         @Value("${app.shipping.origin-latitude}")
         private double originLatitude;
@@ -77,17 +112,20 @@ public class ShippingController {
 
         @GetMapping("/{id}")
         public ResponseEntity<ShippingResponse> getById(
-                        @PathVariable Long id) {
+                        @PathVariable Long id,
+                        @AuthenticationPrincipal JwtUserPrincipal principal) {
 
-                return ResponseEntity.ok(
-                                ShippingResponse.fromResult(
-                                                shippingPort.getById(id)));
+                ShippingResult envio = shippingPort.getById(id);
+                exigirEnvioAccesible(principal, envio.getOrderId());
+                return ResponseEntity.ok(ShippingResponse.fromResult(envio));
         }
 
         @GetMapping("/order/{orderId}")
         public ResponseEntity<ShippingResponse> getByOrderId(
-                        @PathVariable Long orderId) {
+                        @PathVariable Long orderId,
+                        @AuthenticationPrincipal JwtUserPrincipal principal) {
 
+                exigirEnvioAccesible(principal, orderId);
                 return ResponseEntity.ok(
                                 ShippingResponse.fromResult(
                                                 shippingPort.getByOrderId(orderId)));

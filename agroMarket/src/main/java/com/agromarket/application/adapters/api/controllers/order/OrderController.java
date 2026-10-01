@@ -20,6 +20,7 @@ import com.agromarket.domain.ports.in.order.*;
 import com.agromarket.domain.models.enums.order.OrderState;
 import com.agromarket.domain.models.product.Product;
 import com.agromarket.domain.models.user.User;
+import com.agromarket.infrastructure.security.Autorizacion;
 import com.agromarket.infrastructure.security.JwtUserPrincipal;
 
 @RestController
@@ -90,9 +91,41 @@ public class OrderController {
                         .build())));
     }
 
+    /**
+     * Dueños legitimos de un pedido, leido del OrderResult.
+     *
+     * <p>El OrderResult trae el producto y el productor en sus referencias, a
+     * diferencia del Order de dominio (que los tiene en items[].product).
+     * Por eso aqui no se puede reutilizar Autorizacion.duenosDePedido.
+     */
+    private Long[] duenosDe(OrderResult order) {
+        if (order == null) {
+            return new Long[0];
+        }
+        Long buyerId = order.getBuyer() != null ? order.getBuyer().getId() : null;
+        Long producerId = order.getProduct() != null
+                && order.getProduct().getProducer() != null
+                ? order.getProduct().getProducer().getId()
+                : null;
+        return new Long[] { buyerId, producerId };
+    }
+
+    /** Carga un pedido y exige que el principal sea dueno o admin. */
+    private OrderResult pedidoAccesible(JwtUserPrincipal principal, Long id) {
+        OrderResult order = orderPort.getOrderById(id);
+        if (order == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Pedido no encontrado: " + id);
+        }
+        Autorizacion.exigirDueñoOAdmin(principal, "pedido", duenosDe(order));
+        return order;
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(toResponse(orderPort.getOrderById(id)));
+    public ResponseEntity<OrderResponse> getById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+        return ResponseEntity.ok(toResponse(pedidoAccesible(principal, id)));
     }
 
     @GetMapping
@@ -101,31 +134,46 @@ public class OrderController {
     }
 
     @GetMapping("/buyer/{buyerId}")
-    public ResponseEntity<List<OrderResponse>> byBuyer(@PathVariable Long buyerId) {
+    public ResponseEntity<List<OrderResponse>> byBuyer(
+            @PathVariable Long buyerId,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+        Autorizacion.exigirDueñoOAdmin(principal, "pedido", buyerId);
         return ResponseEntity
                 .ok(orderPort.getOrdersByBuyer(buyerId).stream().map(this::toResponse).collect(Collectors.toList()));
     }
 
     @GetMapping("/producer/{producerId}")
-    public ResponseEntity<List<OrderResponse>> byProducer(@PathVariable Long producerId) {
+    public ResponseEntity<List<OrderResponse>> byProducer(
+            @PathVariable Long producerId,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+        Autorizacion.exigirDueñoOAdmin(principal, "pedido", producerId);
         return ResponseEntity.ok(
                 orderPort.getOrdersByProducer(producerId).stream().map(this::toResponse).collect(Collectors.toList()));
     }
 
     @PatchMapping("/{id}/advance")
-    public ResponseEntity<Void> advance(@PathVariable Long id) {
+    public ResponseEntity<Void> advance(
+            @PathVariable Long id,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+        pedidoAccesible(principal, id);
         orderPort.advanceOrderState(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Void> cancel(@PathVariable Long id) {
+    public ResponseEntity<Void> cancel(
+            @PathVariable Long id,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+        pedidoAccesible(principal, id);
         orderPort.cancelOrder(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
+        pedidoAccesible(principal, id);
         orderPort.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }

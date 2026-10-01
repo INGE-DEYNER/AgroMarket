@@ -26,7 +26,12 @@ import com.agromarket.domain.exceptions.payment.PaymentNotFoundException;
 import com.agromarket.domain.ports.in.payment.PaymentPort;
 import com.agromarket.domain.ports.in.payment.PaymentResult;
 import com.agromarket.domain.models.enums.payment.PaymentState;
+import com.agromarket.infrastructure.security.Autorizacion;
+import com.agromarket.infrastructure.security.JwtUserPrincipal;
 import com.agromarket.infrastructure.security.MercadoPagoSignatureValidator;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +47,45 @@ public class PaymentController {
     private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
 
     private final PaymentPort paymentPort;
+
+    /**
+     * Se necesita para comprobar de quien es el pago: el recurso guarda el
+     * orderId, no el usuario. Antes, con cualquier token valido,
+     * GET /api/v1/payments/1 devolvia el pago (monto, metodo, referencia de
+     * la pasarela) de otro usuario.
+     */
+    private final com.agromarket.domain.ports.out.order.OrderPort orderPort;
+
+    /** Exige que el principal sea dueno del pedido del pago, o admin. */
+    private void exigirPagoAccesible(
+            JwtUserPrincipal principal,
+            String nombre,
+            Long orderId) {
+
+        if (orderId == null) {
+            // Un pago sin pedido no tiene dueno que comprobar. Se rechaza
+            // para todos menos el admin, que puede verlo para repararlo.
+            if (Autorizacion.esAdmin(principal)) {
+                return;
+            }
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tienes permiso sobre este " + nombre + ".");
+        }
+
+        if (Autorizacion.esAdmin(principal)) {
+            return;
+        }
+
+        var pedido = orderPort.findById(orderId).orElse(null);
+        if (pedido == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tienes permiso sobre este " + nombre + ".");
+        }
+        Autorizacion.exigirDueñoOAdmin(
+                principal, nombre, Autorizacion.duenosDePedido(pedido));
+    }
 
     /**
      * Secret con el que MercadoPago firma las notificaciones.
@@ -83,17 +127,20 @@ public class PaymentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PaymentResponse> getById(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
 
-        return ResponseEntity.ok(
-                PaymentResponse.fromResult(
-                        paymentPort.getById(id)));
+        PaymentResult result = paymentPort.getById(id);
+        exigirPagoAccesible(principal, "pago", result.getOrderId());
+        return ResponseEntity.ok(PaymentResponse.fromResult(result));
     }
 
     @GetMapping("/order/{orderId}")
     public ResponseEntity<List<PaymentResponse>> getByOrderId(
-            @PathVariable Long orderId) {
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal JwtUserPrincipal principal) {
 
+        exigirPagoAccesible(principal, "pago", orderId);
         return ResponseEntity.ok(
                 paymentPort
                         .getByOrderId(orderId)
