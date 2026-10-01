@@ -4,6 +4,7 @@ package com.agromarket.application.adapters.api.controllers.payment;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +26,10 @@ import com.agromarket.domain.exceptions.payment.PaymentNotFoundException;
 import com.agromarket.domain.ports.in.payment.PaymentPort;
 import com.agromarket.domain.ports.in.payment.PaymentResult;
 import com.agromarket.domain.models.enums.payment.PaymentState;
+import com.agromarket.infrastructure.security.MercadoPagoSignatureValidator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +39,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaymentController {
 
+    private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
+
     private final PaymentPort paymentPort;
+
+    /**
+     * Secret con el que MercadoPago firma las notificaciones.
+     *
+     * <p>No es el mismo que el access token: es la "clave secreta" que aparece
+     * en el panel de la cuenta, al lado de la publica. Sin ella no se puede
+     * comprobar que un webhook venga de la pasarela.
+     */
+    @Value("${app.mercadopago.webhook-secret:}")
+    private String webhookSecret;
+
+    private boolean webhookSignatureEnabled() {
+        return webhookSecret != null && !webhookSecret.isBlank();
+    }
 
     /**
      * Alias de negocio: /api/v1/pagos/iniciar (vía ApiPathAliasFilter) llega
@@ -238,27 +260,32 @@ public class PaymentController {
             @RequestBody(required = false) Map<String, Object> body,
             @RequestParam(required = false) String topic,
             @RequestParam(name = "data.id", required = false) String dataIdParam,
-            @RequestParam(required = false) String id) {
+            @RequestParam(required = false) String id,
+            @RequestHeader(name = "x-signature", required = false) String xSignature,
+            @RequestHeader(name = "x-request-id", required = false) String xRequestId) {
 
-        return handleWebhook(body, topic, dataIdParam, id);
+        return handleWebhook(body, topic, dataIdParam, id, xSignature, xRequestId);
     }
 
     /** MercadoPago también notifica con GET en algunos flujos antiguos. */
     @GetMapping("/webhook")
     public ResponseEntity<Map<String, Object>> webhookGet(
-            @RequestBody(required = false) Map<String, Object> body,
             @RequestParam(required = false) String topic,
             @RequestParam(name = "data.id", required = false) String dataIdParam,
-            @RequestParam(required = false) String id) {
+            @RequestParam(required = false) String id,
+            @RequestHeader(name = "x-signature", required = false) String xSignature,
+            @RequestHeader(name = "x-request-id", required = false) String xRequestId) {
 
-        return handleWebhook(body, topic, dataIdParam, id);
+        return handleWebhook(null, topic, dataIdParam, id, xSignature, xRequestId);
     }
 
     private ResponseEntity<Map<String, Object>> handleWebhook(
             Map<String, Object> body,
             String topic,
             String dataIdParam,
-            String id) {
+            String id,
+            String xSignature,
+            String xRequestId) {
 
         String gatewayPaymentId = dataIdParam;
 
@@ -281,6 +308,39 @@ public class PaymentController {
         if (gatewayPaymentId == null || gatewayPaymentId.isBlank()) {
             // 200 para que MercadoPago no reintente indefinidamente.
             return ResponseEntity.ok(Map.of("received", true));
+        }
+
+        /*
+         * Verificación de la firma.
+         *
+         * El webhook es público porque la pasarela no manda JWT. Sin esta
+         * comprobación, cualquiera que supiera el id de un pago podría
+         * confirmarlo con un simple POST vacío:
+         *
+         *   curl -X POST "…/payments/webhook?id=999"
+         *
+         * MercadoPago firma con el secret de la cuenta. Si no hay secret
+         * configurado, el webhook NO se procesa: es preferible que la
+         * pasarela reintente a que se acepte un evento inventado.
+         */
+        if (!webhookSignatureEnabled()) {
+            log.warn("Webhook de pago recibido con MERCADOPAGO_WEBHOOK_SECRET sin "
+                    + "definir: se IGNORA. Sin el secret no se puede comprobar "
+                    + "que el evento venga de MercadoPago. Configura "
+                    + "MERCADOPAGO_WEBHOOK_SECRET antes de recibir pagos reales.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("received", false, "conciliated", false));
+        }
+
+        if (!MercadoPagoSignatureValidator.esValida(
+                gatewayPaymentId, xSignature, xRequestId, webhookSecret)) {
+
+            log.warn("Webhook de pago con firma invalida para el pago de la "
+                    + "pasarela {}: se rechaza.", gatewayPaymentId);
+            // 401 para que MercadoPago lo reintente: si fue un problema de
+            // reloj o de header, podria llegar bien en el reintento.
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("received", false, "conciliated", false));
         }
 
         PaymentResult result = paymentPort.handleGatewayNotification(gatewayPaymentId);

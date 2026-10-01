@@ -86,6 +86,11 @@ app:
   mercadopago:
     base-url: ${MERCADOPAGO_BASE_URL:https://api.mercadopago.com}
     access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
+    # Secret de la cuenta para verificar la firma de los webhooks. NO es el
+    # access token: es la "clave secreta" del panel de MercadoPago. Sin ella,
+    # el webhook rechaza todo evento (401) porque no hay forma de saber si
+    # viene de la pasarela.
+    webhook-secret: ${MERCADOPAGO_WEBHOOK_SECRET:}
     use-mock: ${MERCADOPAGO_USE_MOCK:false}
     webhook-url: ${MERCADOPAGO_WEBHOOK_URL:}
 
