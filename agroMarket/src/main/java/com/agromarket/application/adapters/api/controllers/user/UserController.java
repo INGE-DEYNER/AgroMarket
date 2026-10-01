@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import com.agromarket.application.adapters.api.request.user.ChangePasswordRequest;
 import com.agromarket.application.adapters.api.request.user.UpdateProfileRequest;
 import com.agromarket.application.adapters.api.response.user.OperationResponse;
+import com.agromarket.application.adapters.api.response.user.ProducerPublicResponse;
 import com.agromarket.application.adapters.api.response.user.UserResponse;
 import com.agromarket.domain.ports.in.user.UpdateProfileCommand;
 import com.agromarket.domain.ports.in.user.UserPort;
@@ -98,6 +99,47 @@ public class UserController {
      * `rol` acepta tanto el nombre del enum en inglés (PRODUCER, BUYER,
      * ADMIN) como los alias en español más comunes (PRODUCTOR, COMPRADOR)
      * para no romper al frontend si manda cualquiera de los dos.
+     */
+/**
+     * Directorio público de productores.
+     *
+     * <p>Existe aparte del listado general porque este es el único dato que
+     * necesita alguien sin sesión. {@code GET /users} devolvía además teléfono,
+     * documento, fecha de nacimiento y dirección completa de todas las
+     * cuentas; con esto se expone solo lo que aparece en una tarjeta de perfil.
+     */
+    @GetMapping("/publicos")
+    public ResponseEntity<List<ProducerPublicResponse>> getPublicos(
+                    @RequestParam(required = false) String rol,
+                    @RequestParam(required = false, defaultValue = "0") int page,
+                    @RequestParam(required = false, defaultValue = "20") int size) {
+
+            List<ProducerPublicResponse> todos = userPort.getAll().stream()
+                            .filter(u -> {
+                                    if (rol == null || rol.isBlank()) {
+                                            return true;
+                                    }
+                                    return u.getRole() != null
+                                                    && matchesRole(u.getRole().name(), rol);
+                            })
+                            .map(ProducerPublicResponse::from)
+                            .toList();
+
+            int desde = Math.max(0, page) * Math.max(1, size);
+            if (desde >= todos.size()) {
+                    return ResponseEntity.ok(List.of());
+            }
+            int hasta = Math.min(todos.size(), desde + Math.max(1, size));
+            return ResponseEntity.ok(todos.subList(desde, hasta));
+    }
+
+    /**
+     * Listado completo de usuarios. Exige sesión: ver la nota de seguridad
+     * sobre por qué el directorio de productores usa {@code /publicos}.
+     *
+     * @param rol filtro opcional; acepta el nombre del enum en inglés
+     *            (PRODUCER, BUYER, ADMIN) o el alias en español
+     *            (PRODUCTOR, COMPRADOR).
      */
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAll(

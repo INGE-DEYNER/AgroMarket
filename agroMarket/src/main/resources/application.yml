@@ -67,7 +67,14 @@ app:
     redirect-uri: ${GOOGLE_OAUTH2_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
 
   jwt:
-    secret: ${JWT_SECRET:change-me}
+    # SIN valor por defecto a proposito. Si no se define JWT_SECRET, la
+    # aplicacion avisa al arrancar en desarrollo y SE NIEGA a arrancar en
+    # produccion (ver SecretosStartupValidator).
+    #
+    # Con una clave conocida, cualquiera que lea el repositorio puede firmar
+    # un JWT con role=ADMIN y entrar como administrador. Genera una real con:
+    #   openssl rand -base64 64
+    secret: ${JWT_SECRET:}
     expiration-ms: ${JWT_EXPIRATION_MS:3600000}
     temporary-expiration-ms: ${JWT_TEMPORARY_EXPIRATION_MS:300000}
 

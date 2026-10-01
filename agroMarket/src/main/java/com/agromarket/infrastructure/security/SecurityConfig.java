@@ -207,11 +207,24 @@ public class SecurityConfig {
                                                                 "/api/v1/newsletter/count")
                                                 .hasRole("ADMIN")
 
-                                                // Listado público de productores (para la página /productores).
-                                                .requestMatchers(
-                                                                HttpMethod.GET,
-                                                                "/api/v1/users")
-                                                .permitAll()
+                                                /*
+                                                  * Directorio de productores.
+                                                  *
+                                                  * SOLO la vista publica queda
+                                                  * sin sesion: nombre, empresa,
+                                                  * foto y ciudad. El listado
+                                                  * completo (GET /users) lleva
+                                                  * telefono, documento, fecha
+                                                  * de nacimiento y direccion,
+                                                  * asi que pasa a exigir
+                                                  * sesion. El panel de
+                                                  * administradores no lo usa:
+                                                  * ese lee /api/v1/admins/**.
+                                                  */
+                                                 .requestMatchers(
+                                                                 HttpMethod.GET,
+                                                                 "/api/v1/users/publicos")
+                                                 .permitAll()
 
                                                 /*
                                                  * Webhook server-to-server de MercadoPago:
