@@ -34,4 +34,26 @@ public class TwoFactorService {
                 && user.getTotpSecret() != null
                 && !user.getTotpSecret().isBlank();
     }
+
+    /**
+     * Verifica si a este usuario hay que exigirle 2FA aunque no lo tenga
+     * configurado.
+     *
+     * <p>Un administrador sin 2FA solo esta protegido por su contraseña. Si esa
+     * se filtra por un formulario, un correo reenviado o una pega del
+     * proyecto, quien entre tiene el panel entero. El 2FA es lo que evita que
+     * una contraseña sola alcance una cuenta administrativa.
+     *
+     * <p>Se aplica solo a ADMIN: obligar a todos complica el uso diario sin
+     * proteger nada que no proteja al comprador o al productor, que no manejan
+     * datos de otros usuarios.
+     *
+     * @param user usuario
+     * @return true si el rol obliga a tener 2FA
+     */
+    public boolean esObligatorio(User user) {
+        return user != null
+                && user.getRole() != null
+                && "ADMIN".equalsIgnoreCase(user.getRole().name());
+    }
 }

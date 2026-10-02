@@ -136,7 +136,16 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                         "Tu cuenta no está habilitada para iniciar sesión");
                 }
 
-                if (twoFactorService.isEnabled(user)) {
+                /*
+                 * 2FA.
+                 *
+                 * Se pide si el usuario ya lo tiene configurado, y TAMBIEN si
+                 * su rol lo obliga. Un ADMIN sin 2FA se queda con la
+                 * contraseña como unica barrera hacia el panel entero, y esa
+                 * contraseña puede filtrarse sin que nadie lo note.
+                 */
+                if (twoFactorService.isEnabled(user)
+                        || twoFactorService.esObligatorio(user)) {
 
                         String temporaryToken = authenticationTokenPort
                                         .generateTemporary(user);
@@ -145,7 +154,10 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                         user,
                                         "LOGIN_2FA_REQUIRED",
                                         true,
-                                        "Segundo factor requerido");
+                                        twoFactorService.isEnabled(user)
+                                                        ? "Segundo factor requerido"
+                                                        : "Segundo factor obligatorio "
+                                                                + "para el rol ADMIN");
 
                         return AuthResult.builder()
                                         .temporaryToken(temporaryToken)
@@ -199,6 +211,30 @@ public class AuthenticationUseCase implements AuthenticationPort {
                                 || !twoFactorAuthenticationPort.verifyCode(
                                                 user.getTotpSecret(),
                                                 code)) {
+
+                        /*
+                         * Un ADMIN al que se le acaba de exigir 2FA puede no
+                         * tenerlo montado todavia. Sin esta salida no tendria
+                         * forma de entrar nunca: el login pide el codigo y el
+                         * codigo no existe. Se le dice que lo configure, con
+                         * un mensaje que no revela si la cuenta existe mas alla
+                         * de lo que ya sabe quien tiene la contrasena.
+                         */
+                        if (twoFactorService.esObligatorio(user)
+                                        && !twoFactorService.isEnabled(user)) {
+
+                                log(
+                                                user,
+                                                "LOGIN_2FA_REQUIRED",
+                                                false,
+                                                "2FA obligatorio para ADMIN y no configurado");
+
+                                throw new IllegalArgumentException(
+                                                "Tu cuenta de administrador requiere "
+                                                        + "autenticación de dos factores. "
+                                                        + "Inicia sesión de nuevo para "
+                                                        + "configurarla.");
+                        }
 
                         log(
                                         user,
