@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/hooks/useAuth";
 import api, { API_BASE } from "@/infrastructure/http/api";
 // Assets del frame de Figma "Screen-1-Login" (página 01 Autenticacion)
-import bgCampo from "@/assets/login-bg-campo.png";
+import bgCampo from "@/assets/login-bg-campo.webp";
 import leafIcon from "@/assets/icon-leaf.svg";
 import mapPinIcon from "@/assets/icon-map-pin.svg";
 import eyeIcon from "@/assets/icon-eye.svg";

@@ -1,6 +1,6 @@
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
 import StakeholderCarousel from "@/presentation/shared/components/StakeholderCarousel";
-import aboutImg from "@/assets/asafrut-about.png";
+import aboutImg from "@/assets/asafrut-about.webp";
 import "@/presentation/styles/public-views.css";
 
 const PILARES = [

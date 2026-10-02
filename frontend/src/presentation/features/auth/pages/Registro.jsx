@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import api, { API_BASE } from "@/infrastructure/http/api";
 import { PAISES } from "@/application/support/geoCatalog";
 import SelectorResidencia from "@/presentation/shared/components/SelectorResidencia";
-import bgCampo from "@/assets/register-bg-campo.png";
+import bgCampo from "@/assets/register-bg-campo.webp";
 import leafIcon from "@/assets/icon-leaf.svg";
 import mapPinIcon from "@/assets/icon-map-pin.svg";
 import shieldCheckIcon from "@/assets/icon-shield-check.svg";

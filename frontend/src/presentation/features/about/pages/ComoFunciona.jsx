@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
-import whySupportImg from "@/assets/why-support.png";
+import whySupportImg from "@/assets/why-support.webp";
 import { useTranslation } from "react-i18next";
 import "@/presentation/styles/public-views.css";
 

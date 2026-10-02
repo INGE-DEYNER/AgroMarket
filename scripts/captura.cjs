@@ -88,13 +88,39 @@ try {
 
 fs.writeFileSync(salida, texto, "utf8");
 
-// Solo las lineas que deciden si la operacion fue bien.
+/*
+ * Lineas que dicen si la operacion fue bien.
+ *
+ * Antes solo miraba "BUILD FAILURE" y "ERROR" en mayusculas, y con el build de
+ * Docker eso no aparece: cuando falla, buildkit escupe un volcado de pila en
+ * Go con "failed to solve" en minusculas y ninguna linea decía ERROR. El
+ * script informaba "TERMINO CON CODIGO 0" en un build que habia fallado, y
+ * durante un rato se dio por bueno un contenedor con el codigo viejo.
+ *
+ * Por eso ahora se mira en cualquier caja y se anade "failed to solve".
+ */
 const decisivas = texto.split(/\r?\n/)
-  .filter((l) => /BUILD (SUCCESS|FAILURE)|ERROR|error:|\[ERROR\]/.test(l))
+  .filter((l) =>
+    /BUILD (SUCCESS|FAILURE)|\[ERROR\]|failed to solve|error:/i.test(l))
   .slice(0, 25);
 
 console.log("");
-for (const l of decisivas) console.log("  " + l);
+if (decisivas.length === 0) {
+  console.log("  (sin lineas de error ni de BUILD)");
+} else {
+  for (const l of decisivas) console.log("  " + l.slice(0, 200));
+}
 console.log("");
-console.log(codigo === 0 ? "  TERMINO CON CODIGO 0" : "  TERMINO CON CODIGO " + codigo);
+
+// El codigo de salida es lo que decide. Con Docker, un fallo de build SI
+// devuelve codigo distinto de 0, asi que esto es lo fiable.
+if (codigo === 0) {
+  console.log("  TERMINO CON CODIGO 0");
+} else {
+  console.log("  FALLO: TERMINO CON CODIGO " + codigo);
+  const cola = texto.split(/\r?\n/).slice(-12);
+  console.log("");
+  console.log("  --- ultimas lineas ---");
+  for (const l of cola) if (l.trim()) console.log("  " + l.slice(0, 200));
+}
 process.exit(codigo);

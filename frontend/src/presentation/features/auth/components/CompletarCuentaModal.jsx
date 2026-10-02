@@ -3,7 +3,7 @@ import api from "@/infrastructure/http/api";
 import { useTranslation } from "react-i18next";
 import leafIcon from "@/assets/icon-leaf.svg";
 import shieldCheckIcon from "@/assets/icon-shield-check.svg";
-import completeProfileBg from "@/assets/complete-profile-bg.png";
+import completeProfileBg from "@/assets/complete-profile-bg.webp";
 import "@/presentation/styles/auth-flow.css";
 
 export default function CompletarCuentaModal({ onComplete }) {

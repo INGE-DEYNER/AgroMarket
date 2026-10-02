@@ -1010,6 +1010,64 @@
   font-weight: 800;
   cursor: pointer;
 }
+
+/* Estado de envio: el boton se atenua y deja de aceptar pulsaciones. Sin esto
+   el doble clic creaba dos reportes, y el usuario no tenia ninguna señal de
+   que algo estuviera pasando. */
+.report-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Pista bajo un campo: explica que el correo es opcional, para que nadie lo
+   deje en blanco pensando que es obligatorio. */
+.report-field-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: var(--public-muted, #6b7280);
+}
+
+/* Error de un campo concreto. Va pegado al campo, no arriba del formulario. */
+.report-field-error {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #b91c1c;
+}
+
+/* El campo con error se marca con el borde, no solo con el texto: el color
+   solo no llega a quien no distingue rojo y verde. */
+.report-form [aria-invalid="true"] {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+/* Error general (red caida, limite por IP): no pertenece a un campo. */
+.report-form-error {
+  margin: 4px 0 0;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(220, 38, 38, 0.28);
+  background: rgba(220, 38, 38, 0.07);
+  color: #b91c1c;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+html.dark .report-field-hint {
+  color: var(--color-text-muted, #9ca3af);
+}
+html.dark .report-field-error,
+html.dark .report-form-error {
+  color: #fca5a5;
+}
+html.dark .report-form-error {
+  border-color: rgba(252, 165, 165, 0.3);
+  background: rgba(252, 165, 165, 0.08);
+}
+
 .report-success {
   padding: clamp(20px, 3vw, 30px);
   display: grid;

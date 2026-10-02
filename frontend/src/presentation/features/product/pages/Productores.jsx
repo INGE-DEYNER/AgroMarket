@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
-import heroImg from "@/assets/producers-hero.png";
+import heroImg from "@/assets/producers-hero.webp";
 import handHeartIcon from "@/assets/icon-hand-heart.svg";
 import mapPinIcon from "@/assets/icon-map-pin.svg";
 import api from "@/infrastructure/http/api";
