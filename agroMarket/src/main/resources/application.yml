@@ -80,6 +80,12 @@ app:
     secret: ${JWT_SECRET:}
     expiration-ms: ${JWT_EXPIRATION_MS:3600000}
     temporary-expiration-ms: ${JWT_TEMPORARY_EXPIRATION_MS:300000}
+    # Los tokens revocados viven en la tabla revoked_tokens, no en memoria: en
+    # memoria se perdian al reiniciar y no se compartian entre instancias, asi
+    # que un token revocado en una seguiria valiendo en otra. La cache solo
+    # evita ir a la base en cada peticion.
+    revocation-purge-ms: ${JWT_REVOCATION_PURGE_MS:3600000}
+    revocation-cache-ms: ${JWT_REVOCATION_CACHE_MS:10000}
 
   frontend-url: ${FRONTEND_URL:}
 
