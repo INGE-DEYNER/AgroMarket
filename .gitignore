@@ -57,8 +57,24 @@ node_modules/
 .gradle/
 
 # Environment and secrets
+#
+# El .env lleva los valores reales y no se versiona nunca. El .env.example si
+# se versiona: es la plantilla con los nombres de las variables y el formato que
+# espera cada una, pero sin ningun valor.
 .env
 *.env
+!.env.example
+
+# Copies de seguridad
+#
+# Los .sql.gz y los .archive.gz llevan datos personales y van cifrados con una
+# clave que no esta en el repositorio, asi que no sirven de nada ahi.
+backups/
+*.sql.gz
+*.archive.gz
+
+# Salidas de las comprobaciones de scripts/
+esquema.txt
 
 # Local/generated runtime data
 uploads/
