@@ -1,5 +1,8 @@
 package com.agromarket.infrastructure.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -25,6 +28,17 @@ public class SecretosStartupValidator {
     private final JwtProperties jwtProperties;
     private final Environment environment;
 
+    /**
+     * Valores que son públicos porque están en el repositorio. Si alguno
+     * llega a producción tal cual, la protección que aporta es nula.
+     */
+    private static final String CLAVE_ID_POR_DEFECTO =
+            "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY";
+
+    private static final String[] CONTRASENAS_CONOCIDAS = {
+        "agromarket", "password", "root", "123456", "admin", "",
+    };
+
     public SecretosStartupValidator(
             JwtProperties jwtProperties,
             Environment environment) {
@@ -37,26 +51,119 @@ public class SecretosStartupValidator {
         boolean produccion = PERFIL_PRODUCCION.equalsIgnoreCase(
                 environment.getProperty("spring.profiles.active", "dev"));
 
+        List<String> fallos = new ArrayList<>();
+
         if (produccion) {
             // En producción no hay excepción: si la clave sirve para firmar
             // cualquier token, no se sirve de nada tener autenticación.
-            jwtProperties.validar();
-            return;
+            try {
+                jwtProperties.validar();
+            } catch (IllegalStateException ex) {
+                fallos.add(ex.getMessage());
+            }
+        } else {
+            // En desarrollo se avisa, pero no se para: si se parara, nadie
+            // podría levantar el proyecto sin generar las variables primero.
+            try {
+                jwtProperties.validar();
+            } catch (IllegalStateException ex) {
+                System.err.println();
+                System.err.println("  [AVISO DE SEGURIDAD] " + ex.getMessage());
+                System.err.println("  [AVISO DE SEGURIDAD] La aplicación arranca en "
+                        + "desarrollo, pero con esta clave cualquier persona puede "
+                        + "firmar un token con role=ADMIN.");
+                System.err.println("  [AVISO DE SEGURIDAD] Antes de publicar en "
+                        + "producción, define JWT_SECRET en el entorno.");
+                System.err.println();
+            }
         }
 
-        // En desarrollo se avisa, pero no se para: si se parara, nadie podría
-        // levantar el proyecto sin generar las variables primero.
-        try {
-            jwtProperties.validar();
-        } catch (IllegalStateException ex) {
-            System.err.println();
-            System.err.println("  [AVISO DE SEGURIDAD] " + ex.getMessage());
-            System.err.println("  [AVISO DE SEGURIDAD] La aplicación arranca en "
-                    + "desarrollo, pero con esta clave cualquier persona puede "
-                    + "firmar un token con role=ADMIN.");
-            System.err.println("  [AVISO DE SEGURIDAD] Antes de publicar en "
-                    + "producción, define JWT_SECRET en el entorno.");
-            System.err.println();
+        fallos.addAll(revisarCredencialesBd());
+        fallos.addAll(revisarCifradoIds());
+
+        if (!fallos.isEmpty() && produccion) {
+            throw new IllegalStateException(
+                    "Arranque abortado por secretos inseguros:\n  - "
+                            + String.join("\n  - ", fallos));
         }
+    }
+
+    /**
+     * La contraseña de la base de datos tenía "agromarket" como valor por
+     * defecto en el perfil de producción: con ella, cualquiera que llegase al
+     * puerto de MySQL entraba con todos los privilegios.
+     *
+     * <p>Solo se aborta si la base NO es local. Contra un MySQL de la red
+     * (producción) una contraseña conocida es un agujero; contra el contenedor
+     * de desarrollo es solo una comodidad, y rechazarla impediría levantar el
+     * proyecto. El aviso sale siempre.
+     */
+    private List<String> revisarCredencialesBd() {
+        List<String> fallos = new ArrayList<>();
+
+        String password = environment.getProperty("spring.datasource.password");
+        String usuario = environment.getProperty("spring.datasource.username");
+        String url = environment.getProperty("spring.datasource.url", "");
+
+        boolean baseLocal = esBaseLocal(url);
+
+        if (password == null || password.isBlank()) {
+            fallos.add("SPRING_DATASOURCE_PASSWORD vacía: la base de datos "
+                    + "quedaría abierta o inaccesible.");
+            return fallos;
+        }
+
+        for (String conocida : CONTRASENAS_CONOCIDAS) {
+            if (password.equalsIgnoreCase(conocida)) {
+                String msg = "SPRING_DATASOURCE_PASSWORD tiene un valor por "
+                        + "defecto que está en el repositorio (usuario=" + usuario
+                        + "). Cualquiera con acceso a la base entra con todos "
+                        + "los privilegios.";
+                if (baseLocal) {
+                    System.err.println();
+                    System.err.println("  [AVISO DE SEGURIDAD] " + msg);
+                    System.err.println("  [AVISO DE SEGURIDAD] Se permite porque "
+                            + "la base es local. Antes de publicar, cambia "
+                            + "MYSQL_PASSWORD y recrea el volumen.");
+                    System.err.println();
+                } else {
+                    fallos.add(msg);
+                }
+                break;
+            }
+        }
+
+        if ("root".equalsIgnoreCase(usuario)) {
+            fallos.add("SPRING_DATASOURCE_USERNAME es root: la aplicación "
+                    + "no debería conectarse con el administrador de MySQL.");
+        }
+        return fallos;
+    }
+
+    /** true si la URL de la base apunta a la máquina o a un contenedor local. */
+    private boolean esBaseLocal(String url) {
+        if (url == null || url.isBlank()) {
+            return false;
+        }
+        String minusculas = url.toLowerCase();
+        return minusculas.contains("localhost")
+                || minusculas.contains("127.0.0.1")
+                || minusculas.contains("//mysql:")
+                || minusculas.contains("mysql:3306");
+    }
+
+    /**
+     * La clave con la que se cifran los ids tenía un valor por defecto en el
+     * repositorio. Con ella se pueden descifrar todos los identificadores.
+     */
+    private List<String> revisarCifradoIds() {
+        List<String> fallos = new ArrayList<>();
+        String clave = environment.getProperty("app.security.id-encryption-key");
+        if (clave == null || clave.isBlank() || clave.equals(CLAVE_ID_POR_DEFECTO)) {
+            fallos.add("APP_SECURITY_ID_ENCRYPTION_KEY vacía o con el valor por "
+                    + "defecto del repositorio: los ids cifrados son descifrables. "
+                    + "Genera una con: openssl rand -base64 32");
+        }
+        return fallos;
     }
 }

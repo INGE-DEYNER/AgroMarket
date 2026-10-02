@@ -23,10 +23,15 @@ public class JwtProperties {
     private static final String DEFAULT_PLACEHOLDER = "change-me";
 
     /**
-     * Longitud mínima aceptable para una clave HS512. Con menos, la firma se
-     * puede adivinar por fuerza bruta sin esfuerzo.
+     * Longitud mínima de la clave de firma.
+     *
+     * <p>HS512 usa 512 bits, o sea 64 bytes. Spring Security lo exige así al
+     * construir la clave y lanza IllegalArgumentException si no se cumple, de
+     * modo que un valor de 32 caracteres pasaba esta comprobación y luego
+     * reventaba el arranque un instante después, con un error que no señalaba
+     * la causa. Se valida lo mismo que valida Spring.
      */
-    private static final int MIN_SECRET_LENGTH = 32;
+    private static final int MIN_SECRET_LENGTH = 64;
 
     /**
      * Secreto utilizado para firmar los JWT.
@@ -71,9 +76,9 @@ public class JwtProperties {
         if (secret.trim().length() < MIN_SECRET_LENGTH) {
             throw new IllegalStateException(
                     "app.jwt.secret es demasiado corta (" + secret.trim().length()
-                            + " caracteres). Se requieren al menos "
-                            + MIN_SECRET_LENGTH + " para HS512. "
-                            + "Genera una con: openssl rand -base64 64");
+                            + " caracteres). HS512 necesita al menos "
+                            + MIN_SECRET_LENGTH + ". Genera una con: "
+                            + "openssl rand -base64 64");
         }
     }
 }

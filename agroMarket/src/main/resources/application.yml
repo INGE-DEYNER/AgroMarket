@@ -54,7 +54,10 @@ app:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:3000,http://localhost:5173,http://localhost:5174,https://agro-market.app,https://www.agro-market.app}
 
   security:
-    id-encryption-key: ${APP_SECURITY_ID_ENCRYPTION_KEY:YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY}
+    # SIN valor por defecto. El que tenía era una clave pública del
+    # repositorio, con la que se pueden descifrar todos los ids. En producción
+    # el arranque se aborta si no se define (SecretosStartupValidator).
+    id-encryption-key: ${APP_SECURITY_ID_ENCRYPTION_KEY:}
 
   oauth2:
     success-redirect: ${APP_OAUTH2_SUCCESS_REDIRECT:http://localhost:3000/oauth2/success}
@@ -114,6 +117,14 @@ app:
     # Interruptor de negocio: "zona especial" NO se deduce de la distancia,
     # la decide AgroMarket. Por defecto apagado.
     special-zone: ${SHIPPING_SPECIAL_ZONE:false}
+
+  rate-limit:
+    # ANTES: un solo limite de 10.000/min para todo, que no frenaba la fuerza
+    # bruta (166 intentos por segundo) y ademas permitiria a un atacante
+    # agotar el cupo y dejar sin servicio al resto. Ahora hay dos niveles.
+    general-per-minute: ${RATE_LIMIT_GENERAL:600}
+    sensitive-per-minute: ${RATE_LIMIT_SENSITIVE:10}
+    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
 
   scheduler:
     promotions-delay-ms: ${PROMOTIONS_JOB_DELAY_MS:300000}

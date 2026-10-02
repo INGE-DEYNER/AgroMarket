@@ -1,8 +1,11 @@
 spring:
   datasource:
     url: jdbc:mysql://agromarket-mysql:3306/agromarket?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+    # SIN valor por defecto: "agromarket" estaba en el repositorio, así que
+    # cualquiera con acceso al puerto de MySQL entraba con todos los
+    # privilegios. En producción el arranque se aborta si no se define.
     username: ${SPRING_DATASOURCE_USERNAME:agromarket}
-    password: ${SPRING_DATASOURCE_PASSWORD:agromarket}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
