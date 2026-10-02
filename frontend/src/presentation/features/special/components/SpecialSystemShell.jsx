@@ -72,7 +72,7 @@ export default function SpecialSystemShell({ activeKey, children }) {
         </button>
 
         <Link to="/home" className="special-brand">
-          <img src="/agromarket/logo.png" alt="AgroMarket" />
+          <img src="/agromarket/logo.webp" alt="AgroMarket" />
           <span>
             <strong>AgroMarket</strong>
             <small>{t("nav.brandTagline", "Del campo de Urabá y Colombia a tu mesa")}</small>

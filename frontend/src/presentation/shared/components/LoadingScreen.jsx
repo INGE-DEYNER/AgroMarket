@@ -41,7 +41,7 @@ export default function LoadingScreen() {
 
       <div className="loading-screen__logo">
         <img
-          src="/agromarket/logo.png"
+          src="/agromarket/logo.webp"
           alt="ASAFRUT"
           onError={(e) => {
             // Si la imagen no existe, se sustituye por una hoja SVG para que

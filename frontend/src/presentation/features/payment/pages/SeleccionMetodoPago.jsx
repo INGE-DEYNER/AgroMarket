@@ -165,7 +165,7 @@ export default function SeleccionMetodoPago() {
               </p>
             </div>
             <img
-              src="/agromarket/logo.png"
+              src="/agromarket/logo.webp"
               alt="ASAFRUT"
               className="w-16 h-16 rounded-lg object-cover"
             />

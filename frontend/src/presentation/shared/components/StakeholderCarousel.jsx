@@ -5,7 +5,7 @@ const STAKEHOLDERS = [
     id: "asafrut",
     name: "ASAFRUT",
     description: "Organización promotora de AgroMarket",
-    image: "/by/asafrut.jpg",
+    image: "/by/asafrut.webp",
     type: "organization",
   },
   {
@@ -19,7 +19,7 @@ const STAKEHOLDERS = [
     id: "developer",
     name: "Deyner Chaverra",
     description: "Desarrollador de AgroMarket",
-    image: "/by/DeyDev.png",
+    image: "/by/DeyDev.webp",
     type: "developer",
     prefix: "Desarrollado por",
   },

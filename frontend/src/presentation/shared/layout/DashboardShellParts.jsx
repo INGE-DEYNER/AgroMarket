@@ -73,7 +73,7 @@ export function Topbar({ nav, iniciales, nombreCompleto, sidebarOpen, onOpenSide
       </button>
 
       <Link to="/home" className="ds-topbar__brand">
-        <img src="/agromarket/logo.png" alt="AgroMarket" />
+        <img src="/agromarket/logo.webp" alt="AgroMarket" />
         <span>
           <strong>AgroMarket</strong>
           <small>

@@ -36,7 +36,7 @@ export default function SecurityShell({ activeKey, children }) {
           <Icon name="menu" size={20} />
         </button>
         <Link to="/home" className="security-brand">
-          <img src="/agromarket/logo.png" alt="AgroMarket" />
+          <img src="/agromarket/logo.webp" alt="AgroMarket" />
           <span>
             <strong>AgroMarket</strong>
             <small>Seguridad y confianza</small>

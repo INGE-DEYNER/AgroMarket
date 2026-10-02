@@ -53,6 +53,27 @@ export default function Navbar() {
     // Re-traduce categorías cuando cambia el idioma en todo el proyecto.
   }, [t, i18n.resolvedLanguage, i18n.language]);
 
+  // Drawer móvil: cerrar con Escape y bloquear el scroll del fondo.
+  //
+  // El bloqueo importa: el drawer se abre con translateX(0), pero el <body>
+  // sigue teniendo su altura. Al hacer scroll con el dedo sobre el drawer se
+  // desplazaba la pagina de fondo y el menu se quedaba pegado a media altura.
+  useEffect(() => {
+    if (!menuMovil) return;
+
+    const onKey = (event) => {
+      if (event.key === "Escape") setMenuMovil(false);
+    };
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = overflowAnterior;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuMovil]);
+
   // Glassmorphism on scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -134,7 +155,7 @@ export default function Navbar() {
 
         <a href="/" className="navbar-brand" aria-label="AgroMarket">
           <img
-            src="/agromarket/logo.png"
+            src="/agromarket/logo.webp"
             alt="AgroMarket"
             className="navbar-brand-logo"
           />
@@ -705,15 +726,24 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Drawer móvil izquierda */}
+      {/* Drawer móvil izquierda.
+
+          aria-hidden e inert mientras esta cerrado: el drawer se oculta con
+          translateX(-100%), pero sigue en el DOM. Sin esto, al tabular con el
+          teclado en un movil los enlaces del menu cerrado se enfocan y el
+          usuario ve el foco saltar a una caja que no existe en pantalla. Con
+          inert no son tabulables y los lectores de pantalla los saltan. */}
       <div
         className={`mobile-drawer-overlay ${menuMovil ? "open" : ""}`}
         onClick={() => setMenuMovil(false)}
+        aria-hidden={!menuMovil}
       />
       <div
         className={`mobile-drawer ${menuMovil ? "open" : ""}`}
         role="navigation"
         aria-label={t("nav.mobileMenu", "Menú móvil")}
+        aria-hidden={!menuMovil}
+        {...(!menuMovil ? { inert: "" } : {})}
       >
         <div className="mobile-drawer-header">
           <Link
@@ -722,7 +752,7 @@ export default function Navbar() {
             onClick={() => setMenuMovil(false)}
           >
             <img
-              src="/agromarket/logo.png"
+              src="/agromarket/logo.webp"
               alt="ASAFRUT Logo"
               style={{
                 height: "36px",
