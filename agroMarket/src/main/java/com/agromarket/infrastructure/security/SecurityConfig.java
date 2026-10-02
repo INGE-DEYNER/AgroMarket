@@ -208,6 +208,27 @@ public class SecurityConfig {
                                                 .hasRole("ADMIN")
 
                                                 /*
+                                                 * Reportes de soporte: pagina
+                                                 * "Reportar un problema".
+                                                 *
+                                                 * PUBLICO a proposito. Quien
+                                                 * reporta un problema con un
+                                                 * pedido muchas veces ya no
+                                                 * puede entrar a su cuenta
+                                                 * (contrasena cambiada, correo
+                                                 * sin verificar, cuenta
+                                                 * bloqueada). Si exigiera
+                                                 * sesion, justo esos casos se
+                                                 * quedarian sin salida. El
+                                                 * abuse lo frena el limite por
+                                                 * IP, no la sesion.
+                                                 */
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/v1/soporte/reportes")
+                                                .permitAll()
+
+                                                /*
                                                   * Directorio de productores.
                                                   *
                                                   * SOLO la vista publica queda

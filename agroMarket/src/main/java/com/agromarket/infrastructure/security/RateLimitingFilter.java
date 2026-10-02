@@ -110,7 +110,17 @@ public class RateLimitingFilter
                                 || minusculas.contains("/pagos/")
                                 || minusculas.endsWith("/images")
                                 || minusculas.contains("/images/upload")
-                                || minusculas.contains("/mensajes/tickets");
+                                || minusculas.contains("/mensajes/tickets")
+                                /*
+                                 * Reporte de soporte: ruta PUBLICA y sin sesion.
+                                 * Si no fuera sensible, 600/min por IP darian
+                                 * 10 reports por segundo, cada uno con un
+                                 * correo al buzon de soporte. Con el nivel
+                                 * estricto (10/min) el abuse se frena igual
+                                 * que en el login, y ningun usuario real llega
+                                 * a escribir 10 problemas en un minuto.
+                                 */
+                                || minusculas.contains("/soporte/reportes");
         }
 
         private String resolveClientKey(

@@ -292,6 +292,16 @@ public class BrevoEmailAdapter implements EmailPort {
         send(email, subject, htmlContent, attachmentName, attachment);
     }
 
+    @Override
+    public void sendGenericEmail(
+            String email,
+            String subject,
+            String htmlContent) {
+
+        // Sin adjunto: se pasa null en los dos ultimos parametros.
+        send(email, subject, htmlContent, null, null);
+    }
+
     private void send(
             String email,
             String subject,

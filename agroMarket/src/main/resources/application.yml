@@ -53,6 +53,15 @@ app:
     # desarrollo, que se aplican unicamente si la variable no existe.
     allowed-origins: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:3000,http://localhost:5173,http://localhost:5174,https://agro-market.app,https://www.agro-market.app}
 
+  support:
+    # Buzon donde llegan los reportes de la pagina "Reportar un problema".
+    #
+    # SIN valor por defecto a proposito. Si queda vacio, los reportes SEGUEN
+    # guardando en Mongo, pero nadie recibe el aviso, y eso solo se ve en los
+    # logs del servidor. Un buzon inventado seria peor: el reporte pareceria
+    # atendido cuando en realidad se perdio.
+    email: ${APP_SUPPORT_EMAIL:}
+
   security:
     # SIN valor por defecto. El que tenía era una clave pública del
     # repositorio, con la que se pueden descifrar todos los ids. En producción

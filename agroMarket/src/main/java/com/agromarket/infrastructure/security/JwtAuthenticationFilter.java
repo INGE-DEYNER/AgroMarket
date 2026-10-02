@@ -241,6 +241,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 /*
+                 * Reporte de soporte público.
+                 *
+                 * PÚBLICO a proposito: quien reporta un problema con un pedido
+                 * muchas veces ya no puede entrar a su cuenta (contrasena
+                 * cambiada, correo sin verificar, cuenta bloqueada). Si
+                 * exigiera sesion, justo esos casos se quedarian sin salida.
+                 * El abuse lo frena el limite por IP, no la sesion.
+                 */
+                if ("POST".equalsIgnoreCase(method)
+                                && matches(path, "/api/v1/soporte/reportes")) {
+                        return true;
+                }
+
+                /*
                  * Configuración global del sistema: GET /api/v1/config/system
                  * es público (el frontend sondea el modo mantenimiento sin
                  * estar autenticado). Cualquier escritura (PUT/POST/DELETE)
