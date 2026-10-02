@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Icon from "@/presentation/shared/components/Icon";
-import { REDES, enlaceWhatsapp } from "@/infrastructure/config/contacto";
+import { REDES, CONTACTO, enlaceWhatsapp } from "@/infrastructure/config/contacto";
 import "@/presentation/styles/footer.css";
 
 /* Ver contacto.js: mientras no haya un numero real de WhatsApp, el enlace no
@@ -247,11 +247,13 @@ export default function Footer() {
 
             <span>{t("home.footerUi.address")}</span>
 
-            <a href="mailto:contacto@agro-market.app">
-              contacto@agro-market.app
-            </a>
+            <a href={`mailto:${CONTACTO.email}`}>{CONTACTO.email}</a>
 
-            <a href="tel:+573127658412">+57 312 765 8412</a>
+            {CONTACTO.telefonoLegible && (
+              <a href={`tel:${CONTACTO.telefono}`}>
+                {CONTACTO.telefonoLegible}
+              </a>
+            )}
           </div>
         </div>
       </div>

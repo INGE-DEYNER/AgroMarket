@@ -8,8 +8,12 @@
  * Que busca:
  *  - wa.me/#### escrito a mano. Debe pasar por contacto.js. Si alguien pega
  *    un numero suelto en un componente, este script lo encuentra.
+ *  - Enlaces tel: y mailto: con el dato metido en el HTML en vez de sacarlo de
+ *    contacto.js. Cuando se relleno el numero de WhatsApp, seguia habiendo una
+ *    copia mia en el pie con el mismo numero, y las dos se desincronizarian en
+ *    cuanto cambiara una.
  *  - Numeros de ejemplo morphedos. 573001234567 sale en la documentacion de
- *    i18next como ejemplo; 573127658412 es relleno de este repositorio.
+ *    i18next como ejemplo.
  *  - URLs con doble barra, tipo facebook.com//ASAFRUT67.
  *  - target="_blank" sin rel="noopener".
  */
@@ -62,6 +66,18 @@ for (const archivo of walk(SRC)) {
       problemas.push([rel, n, "numero de ejemplo de la doc de i18next", linea.trim()]);
     }
 
+    // Enlace tel: con el numero escrito dentro. Tiene que salir de contacto.js.
+    if (/(href|href=)\s*[=]?\s*["'{`]\s*tel:/.test(linea) && archivo.indexOf("contacto.js") === -1) {
+      problemas.push([rel, n, 'enlace tel: con el numero escrito a mano (usa CONTACTO.telefono)', linea.trim()]);
+    }
+
+    // Enlace mailto: con el correo escrito dentro, por el mismo motivo.
+    // El $ queda fuera a proposito: mailto:${CONTACTO.email} es la forma
+    // CORRECTA de hacerlo (una plantilla), no un correo escrito a mano.
+    if (/mailto:[^"'`{\s$]/.test(linea) && archivo.indexOf("contacto.js") === -1) {
+      problemas.push([rel, n, 'enlace mailto: con el correo escrito a mano (usa CONTACTO.email)', linea.trim()]);
+    }
+
     // Doble barra en una URL
     const doble = /https?:\/\/[^"'\s]*\/\//.exec(linea);
     if (doble) {
@@ -97,9 +113,9 @@ if (!problemas.length) {
   }
   console.log("  " + problemas.length + " problemas.");
   console.log("");
-  console.log("  Para dar de alta el WhatsApp real: frontend/src/infrastructure/");
-  console.log("  config/contacto.js, campo CONTACTO.whatsapp. Con eso los tres");
-  console.log("  enlaces vuelven a aparecer solos.");
+  console.log("  Todo el contacto debe salir de");
+  console.log("  frontend/src/infrastructure/config/contacto.js. Si falta un dato");
+  console.log("  real (WhatsApp o correo), se pone ahi y los enlaces aparecen solos.");
 }
 
 process.exit(problemas.length ? 1 : 0);

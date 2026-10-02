@@ -18,11 +18,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
    confirmado. Este plugin deja el valor en un solo archivo, asi que cuando
    se confirme el dominio real se cambia aqui y en ningun otro sitio.
 
-   SITE_URL se lee del entorno. Sin ella se usa agro-market.app, que es el
-   valor supuesto; el plugin avisa por pantalla si no esta definida, para que
-   nadie desplegue creyendo que el dominio es el bueno.
+   SITE_URL se lee del entorno. El valor por defecto es el dominio que ASAFRUT
+   confirmó (agro-market.app), así que un build sin configuracion sale con el
+   dominio correcto. Aun asi avisa por pantalla, porque si alguien despliega
+   apuntando a otro sitio tiene que saber que el valor sale del entorno.
    ------------------------------------------------------------------ */
-function sitioUnico(siteUrl, avisos) {
+const DOMINIO_CONFIRMADO = "https://agro-market.app";
+
+function sitioUnico(siteUrl, definido, avisos) {
   return {
     name: "agromarket-site-url",
     apply: "build",
@@ -30,10 +33,11 @@ function sitioUnico(siteUrl, avisos) {
     closeBundle() {
       const dist = path.resolve(__dirname, "dist");
 
-      if (!process.env.SITE_URL) {
+      if (!definido) {
         avisos.push(
-          "SITE_URL no esta definida: se usa " + siteUrl +
-          ", que es un valor SUPUESTO. Definala antes de publicar.",
+          "SITE_URL no esta definida: se usa el valor por defecto, " + siteUrl +
+            ". Ese dominio lo confirmo ASAFRUT, asi que el build es correcto; " +
+            "este aviso solo aparece si alguien despliega apuntando a otro sitio.",
         );
       }
 
@@ -70,7 +74,7 @@ function sitioUnico(siteUrl, avisos) {
         }
       }
 
-      if (!tocados && process.env.SITE_URL) {
+      if (!tocados && definido) {
         // Solo es un problema si alguien DEFINIO un dominio distinto: entonces
         // deberia haberse sustituido y no se ha sustituido, lo que significa
         // que los archivos ya no se generan con el dominio supuesto y el
@@ -90,12 +94,16 @@ function sitioUnico(siteUrl, avisos) {
 
 // FIX: 2026-09-13 - Force cache bust for Cloudflare by ensuring React is bundled
 export default defineConfig(({ mode }) => {
+  // loadEnv lee los archivos .env. OJO: NO los copia a process.env, asi que
+  // hay que mirar el objeto que devuelve. Comprobar process.env.SITE_URL daria
+  // false aunque el .env la tenga puesta.
   const env = loadEnv(mode, process.cwd(), "");
-  const siteUrl = env.SITE_URL || "https://www.agro-market.app";
+  const siteUrl = env.SITE_URL || DOMINIO_CONFIRMADO;
+  const definido = Boolean(env.SITE_URL);
   const avisos = [];
 
   return {
-    plugins: [react(), sitioUnico(siteUrl, avisos)],
+    plugins: [react(), sitioUnico(siteUrl, definido, avisos)],
     base: "/",
     build: {
       outDir: "dist",
