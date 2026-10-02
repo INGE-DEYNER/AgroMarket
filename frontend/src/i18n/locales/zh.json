@@ -699,8 +699,8 @@
   "report": {
     "title": "报告问题",
     "subtitle": "描述问题以及发生问题的页面。此表单独立于帮助助手。",
-    "successTitle": "报告已准备",
-    "successText": "报告已保存在此浏览器中，并生成了跟踪标识。",
+    "successTitle": "报告已发送",
+    "successText": "我们已收到您的报告，我们的团队已将其加入处理队列。如果您留下了邮箱，我们会通过邮件回复。",
     "newReport": "创建另一个报告",
     "category": "类别",
     "categories": {
@@ -721,7 +721,11 @@
     "submit": "提交报告",
     "helpTitle": "需要立即解决方案？",
     "helpText": "帮助助手了解 AgroMarket 的常见问题，并提供解决步骤。",
-    "openAssistant": "打开帮助助手"
+    "openAssistant": "打开帮助助手",
+    "emailHint": "可选。填写后我们将通过邮件回复。",
+    "sending": "发送中…",
+    "tooMany": "您连续发送了多份报告。请等待一分钟后重试。",
+    "sendError": "无法发送报告。请检查您的网络连接，或通过 WhatsApp 联系我们。"
   },
   "support": {
     "title": "AgroMarket 帮助",

@@ -699,8 +699,8 @@
   "report": {
     "title": "Reportar un problema",
     "subtitle": "Describe el inconveniente y la pantalla donde ocurrió. Este formulario es independiente del asistente de ayuda.",
-    "successTitle": "Reporte preparado",
-    "successText": "El reporte quedó registrado en este navegador con un identificador de seguimiento. Conserva los detalles del problema si necesitas contactar al soporte.",
+    "successTitle": "Relato enviado",
+    "successText": "Recebemos seu relato e nossa equipe já o tem na fila. Se você deixou um e-mail, responderemos por ele.",
     "newReport": "Crear otro reporte",
     "category": "Categoría",
     "categories": {
@@ -721,7 +721,11 @@
     "submit": "Enviar reporte",
     "helpTitle": "¿Necesitas una solución inmediata?",
     "helpText": "El asistente de ayuda conoce los problemas frecuentes de AgroMarket y te indica los pasos para resolverlos.",
-    "openAssistant": "Abrir asistente de ayuda"
+    "openAssistant": "Abrir asistente de ayuda",
+    "emailHint": "Opcional. Se você informar, responderemos por e-mail.",
+    "sending": "Enviando…",
+    "tooMany": "Você enviou vários relatos seguidos. Aguarde um minuto e tente de novo.",
+    "sendError": "Não conseguimos enviar o relato. Verifique sua conexão ou fale conosco pelo WhatsApp."
   },
   "support": {
     "title": "Ayuda AgroMarket",

@@ -699,8 +699,8 @@
   "report": {
     "title": "Signaler un problème",
     "subtitle": "Décrivez le problème et l’écran où il s’est produit. Ce formulaire est séparé de l’assistant d’aide.",
-    "successTitle": "Signalement préparé",
-    "successText": "Le signalement a été enregistré dans ce navigateur avec un identifiant de suivi.",
+    "successTitle": "Signalement envoyé",
+    "successText": "Nous avons bien reçu votre signalement et notre équipe l'a déjà en file d'attente. Si vous avez laissé un e-mail, nous y répondrons.",
     "newReport": "Créer un autre signalement",
     "category": "Catégorie",
     "categories": {
@@ -721,7 +721,11 @@
     "submit": "Envoyer le signalement",
     "helpTitle": "Besoin d’une solution immédiate ?",
     "helpText": "L’assistant connaît les problèmes fréquents d’AgroMarket et fournit les étapes de résolution.",
-    "openAssistant": "Ouvrir l’assistant"
+    "openAssistant": "Ouvrir l’assistant",
+    "emailHint": "Facultatif. Si vous le renseignez, nous répondrons par e-mail.",
+    "sending": "Envoi…",
+    "tooMany": "Vous avez envoyé plusieurs signalements d'affilée. Attendez une minute et réessayez.",
+    "sendError": "Impossible d'envoyer le signalement. Vérifiez votre connexion ou écrivez-nous sur WhatsApp."
   },
   "support": {
     "title": "Aide AgroMarket",

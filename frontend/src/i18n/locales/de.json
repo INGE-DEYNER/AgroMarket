@@ -699,8 +699,8 @@
   "report": {
     "title": "Problem melden",
     "subtitle": "Beschreiben Sie das Problem und den Bildschirm, auf dem es aufgetreten ist. Dieses Formular ist vom Hilfeassistenten getrennt.",
-    "successTitle": "Meldung vorbereitet",
-    "successText": "Die Meldung wurde in diesem Browser mit einer Tracking-ID gespeichert.",
+    "successTitle": "Meldung gesendet",
+    "successText": "Wir haben Ihre Meldung erhalten und unser Team hat sie bereits in der Warteschlange. Wenn Sie eine E-Mail angegeben haben, antworten wir dort.",
     "newReport": "Weitere Meldung erstellen",
     "category": "Kategorie",
     "categories": {
@@ -721,7 +721,11 @@
     "submit": "Meldung senden",
     "helpTitle": "Sofort eine Lösung nötig?",
     "helpText": "Der Hilfeassistent kennt häufige AgroMarket-Probleme und zeigt die Lösungsschritte.",
-    "openAssistant": "Hilfeassistent öffnen"
+    "openAssistant": "Hilfeassistent öffnen",
+    "emailHint": "Optional. Wenn Sie sie angeben, antworten wir per E-Mail.",
+    "sending": "Wird gesendet…",
+    "tooMany": "Sie haben mehrere Meldungen hintereinander gesendet. Warten Sie eine Minute und versuchen Sie es erneut.",
+    "sendError": "Die Meldung konnte nicht gesendet werden. Prüfen Sie Ihre Verbindung oder schreiben Sie uns auf WhatsApp."
   },
   "support": {
     "title": "AgroMarket-Hilfe",

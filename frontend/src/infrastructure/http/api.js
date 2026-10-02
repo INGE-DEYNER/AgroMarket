@@ -13,6 +13,15 @@ const PUBLIC_PATHS = [
   "/public",
   "/translation",
   "/actuator",
+  /*
+   * Reportes de soporte.
+   *
+   * Va aquí porque sin token la petición se haría igual, pero el cliente
+   * decide con esta lista si adjunta la cabecera Authorization. Si el path no
+   * está, manda la petición SIN token, y el backend la rechaza con 401 aunque
+   * la ruta sea pública. Es el mismo motivo por el que está "/newsletter".
+   */
+  "/soporte",
 ];
 
 /*

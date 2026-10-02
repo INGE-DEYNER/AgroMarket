@@ -898,8 +898,8 @@
   "report": {
     "title": "Report a problem",
     "subtitle": "Describe the issue and the screen where it happened. This form is separate from the help assistant.",
-    "successTitle": "Report prepared",
-    "successText": "The report was saved in this browser with a tracking identifier.",
+    "successTitle": "Report sent",
+    "successText": "We received your report and our team already has it in the queue. If you left an email, we'll reply there.",
     "newReport": "Create another report",
     "category": "Category",
     "categories": {
@@ -921,7 +921,11 @@
     "helpTitle": "Need an immediate solution?",
     "helpText": "The help assistant knows common AgroMarket problems and provides steps to solve them.",
     "openAssistant": "Open help assistant",
-    "breadcrumb": "Breadcrumb"
+    "breadcrumb": "Breadcrumb",
+    "emailHint": "Optional. If you add it, we'll reply by email.",
+    "sending": "Sending…",
+    "tooMany": "You've sent several reports in a row. Wait a minute and try again.",
+    "sendError": "We couldn't send your report. Check your connection or message us on WhatsApp."
   },
   "support": {
     "title": "AgroMarket Help",
