@@ -130,15 +130,6 @@
       "newOrderDetail": "Juan Calle · 50 kg de Bananes",
       "pending": "En attente"
     },
-    "testimonials": {
-      "eyebrow": "TÉMOIGNAGES",
-      "title": "Ce que disent nos utilisateurs",
-      "buyer": "Acheteur",
-      "producer": "Producteur",
-      "t1": "J'achète des bananes pour mon commerce chaque semaine. La qualité est constante et les prix sont bien meilleurs qu'au marché de gros.",
-      "t2": "Avant, je vendais à des intermédiaires qui me payaient très peu. Maintenant, avec AgroMarket, je vends en direct et mes revenus ont augmenté de 40%.",
-      "t3": "La plateforme est très facile à utiliser. Je publie mes produits, reçois les commandes et coordonne les livraisons depuis mon téléphone."
-    },
     "cta": {
       "title": "Prêt à commencer ?",
       "sub": "Rejoignez AgroMarket et participez au commerce agricole équitable.",

@@ -62,10 +62,21 @@ i18n
   });
 
 // Actualiza el atributo lang del HTML cada vez que cambia el idioma
+//
+// El dir tambien se calcula, en vez de quedarse fijo en "ltr". Hoy solo se
+// publican español e inglés, que son de izquierda a derecha, asi que no cambia
+// nada. Pero "ar" estaba en el repositorio y el selector lo ofrecia como
+// "proximamente": si alguien lo habilita sin tocar esto, el arabe se leeria mal,
+// con el menu y el carrito orientados a la izquierda. Mejor que el valor
+// correcto este puesto y esperando, no que haya que acordarse.
+//
+// Los idiomas de derecha a izquierda segun Unicode bidireccional.
+const RTL = ["ar", "he", "fa", "ur", "ps", "sd", "yi", "dv", "ku"];
+
 i18n.on("languageChanged", (language) => {
   const normalized = (language || "es").split("-")[0].toLowerCase();
   document.documentElement.lang = normalized;
-  document.documentElement.dir = "ltr";
+  document.documentElement.dir = RTL.includes(normalized) ? "rtl" : "ltr";
 });
 
 export default i18n;

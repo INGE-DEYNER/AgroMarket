@@ -77,15 +77,6 @@
       "newOrderDetail": "Juan Calle · 50 kg of Banana",
       "pending": "Pending"
     },
-    "testimonials": {
-      "eyebrow": "TESTIMONIALS",
-      "title": "What our users say",
-      "buyer": "Buyer",
-      "producer": "Producer",
-      "t1": "I buy bananas for my business every week. The quality is consistent and the prices are much better than at the wholesale market.",
-      "t2": "Before I sold to middle-men who paid me very little. Now with AgroMarket I sell direct and my income increased by 40%.",
-      "t3": "The platform is very easy to use. I publish my products, receive orders, and coordinate deliveries all from my phone."
-    },
     "cta": {
       "title": "Ready to start?",
       "sub": "Join AgroMarket and be part of fair agricultural trade.",

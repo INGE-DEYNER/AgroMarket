@@ -77,15 +77,6 @@
       "newOrderDetail": "Juan Calle · 50 kg de Banano",
       "pending": "Pendiente"
     },
-    "testimonials": {
-      "eyebrow": "TESTIMONIOS",
-      "title": "Lo que dicen nuestros usuarios",
-      "buyer": "Comprador",
-      "producer": "Productor",
-      "t1": "Compro banano para mi negocio cada semana. La calidad es constante y los precios son mucho mejores que en la central mayorista.",
-      "t2": "Antes vendía a intermediarios que me pagaban muy poco. Ahora con AgroMarket vendo directo y mis ingresos aumentaron un 40%.",
-      "t3": "La plataforma es muy fácil de usar. Publico mis productos, recibo los pedidos y coordino las entregas todo desde el celular."
-    },
     "cta": {
       "title": "¿Listo para empezar?",
       "sub": "Únete a AgroMarket y sé parte del comercio justo agrícola.",
