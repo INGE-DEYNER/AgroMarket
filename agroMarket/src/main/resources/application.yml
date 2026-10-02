@@ -18,7 +18,26 @@ spring:
   cache:
     type: caffeine
 
-  # Sin migraciones: el esquema lo genera Hibernate (ddl-auto: update)
+  # Esquema gestionado con Flyway (ver db/migration/README.md).
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+    # La base de produccion YA TIENE 23 tablas creadas por ddl-auto: update a lo
+    # largo de meses, y no tiene historial de migraciones. Sin esto, Flyway ve un
+    # esquema no vacio que no reconoce, intenta aplicar V1 encima y falla con
+    # "table already exists": la aplicacion no arranca y no hay forma de entrar
+    # por esta via.
+    #
+    # baseline-on-migrate marca ese esquema existente como version 1 y NO ejecuta
+    # V1. A partir de ahi V2, V3... si se aplican. En una base VACIA (la de un
+    # entorno nuevo) si se ejecuta V1 entera, que es lo que se quiere.
+    baseline-on-migrate: true
+    baseline-version: 1
+
+    # Que no escriba en el esquema al arrancar. Con ddl-auto: validate ya se
+    # comprueba que las entidades cuadran; flyway solo debe aplicar los archivos.
+    validate-on-migrate: true
 
   jackson:
     time-zone: UTC

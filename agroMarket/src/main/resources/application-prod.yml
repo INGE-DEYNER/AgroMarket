@@ -10,7 +10,28 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      # ANTES: update.
+      #
+      # update hacia CRECER el esquema desde las entidades en cada arranque.
+      # Eso funciona en local, pero en produccion significa que el esquema de la
+      # base de datos de verdad no esta en ningun archivo: solo existe dentro de
+      # MySQL, y la unica forma de cambiarlo es arrancar con el codigo nuevo y
+      # confiar en que Hibernate hace lo correcto.
+      #
+      # El problema de update es que NUNCA borra. Si una entidad se renombra o
+      # se le quita un campo, la columna vieja se queda para siempre con los
+      # datos dentro, y el esquema se va llenando de restos sin que nadie lo
+      # decida. Tampoco hay forma de volver atras: no existe un historial de que
+      # cambio el esquema ni cuando.
+      #
+      # validate NO modifica nada: comprueba que las entidades coinciden con el
+      # esquema que ya existe y, si no coinciden, NO ARRANCA. Es lo que se quiere
+      # en produccion, donde el esquema se cambia con una migracion escrita a
+      # mano y revisada, no con un arranque.
+      #
+      # El dia que se monte Flyway (o Liquibase), este valor sigue siendo
+      # validate; lo que cambia es que habra migraciones escritas a mano.
+      ddl-auto: validate
     show-sql: false
     open-in-view: false
     properties:
@@ -38,7 +59,10 @@ spring:
           google:
             issuer-uri: https://accounts.google.com
 
-  # Sin migraciones: el esquema lo genera Hibernate (ddl-auto: update)
+  # Esquema gestionado con migraciones, no con ddl-auto: update.
+  # Falta montar Flyway: ver db/migration/README.md. Hasta entonces, en
+  # produccion el arranque con ddl-auto: validate se niega a arrancar si las
+  # entidades y el esquema no coinciden.
 
 logging:
   level:

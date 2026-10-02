@@ -81,6 +81,8 @@ public class SecretosStartupValidator {
         fallos.addAll(revisarCredencialesBd());
         fallos.addAll(revisarCifradoIds());
 
+        revisarCorreoSoporte();
+
         if (!fallos.isEmpty() && produccion) {
             throw new IllegalStateException(
                     "Arranque abortado por secretos inseguros:\n  - "
@@ -150,6 +152,42 @@ public class SecretosStartupValidator {
                 || minusculas.contains("127.0.0.1")
                 || minusculas.contains("//mysql:")
                 || minusculas.contains("mysql:3306");
+    }
+
+    /**
+     * Avisa cuando no hay buzón de soporte.
+     *
+     * <p>AVISA, no corta el arranque, y a propósito en los dos perfiles. Con
+     * {@code APP_SUPPORT_EMAIL} vacía, un cliente que envía un reporte ve "enviado"
+     * y el reporte se guarda de verdad en Mongo, pero <em>nadie se entera</em>: el
+     * mensaje se queda en la colección hasta que alguien mire. El fallo es
+     * invisible salvo que se mire el log, que es justo lo que no va a pasar.
+     *
+     * <p>Por eso no corta: si abortara el arranque, tampoco se podrían recibir
+     * los reportes que ya estaban funcionando por otra vía, y se perdería
+     * información que sí se está guardando. Y no se inventa un buzón: un correo
+     * de relleno haría que el reporte pareciera atendido cuando se ha perdido.
+     */
+    private void revisarCorreoSoporte() {
+        String correo = environment.getProperty("app.support.email");
+
+        if (correo != null && !correo.isBlank()) {
+            return;
+        }
+
+        System.err.println();
+        System.err.println("  ============================================================");
+        System.err.println("  [AVISO] APP_SUPPORT_EMAIL NO ESTA DEFINIDA");
+        System.err.println("  ============================================================");
+        System.err.println("  Los reportes de \"Reportar un problema\" SE GUARDAN en");
+        System.err.println("  Mongo, pero NADIE recibe el aviso. El cliente ve \"enviado\"");
+        System.err.println("  y el mensaje se queda en la coleccion support_reports.");
+        System.err.println();
+        System.err.println("  Defina APP_SUPPORT_EMAIL con el buzon que debe recibirlos.");
+        System.err.println("  Sin correo, los reportes se pueden recuperar a mano:");
+        System.err.println("    mongosh --eval 'db.support_reports.find().sort({_id:-1}).limit(20)'");
+        System.err.println("  ============================================================");
+        System.err.println();
     }
 
     /**

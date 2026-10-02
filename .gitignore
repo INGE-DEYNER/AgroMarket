@@ -10,6 +10,17 @@ maven-archiver/
 maven-status/
 surefire-reports/
 
+# Salidas de herramientas propias
+# cp.txt lo genera "mvn dependency:build-classpath" y pesa varios MB de
+# classpath de Windows: es una referencia local, no algo que deba versionarse.
+cp.txt
+esquema-dump.sql
+scripts/construccion.log
+logs.txt
+p.txt
+buildb.txt
+upb.txt
+
 # "out/" SOLO en la raiz del repositorio.
 #
 # Sin la barra inicial, git ignora cualquier carpeta llamada "out" a CUALQUIER
