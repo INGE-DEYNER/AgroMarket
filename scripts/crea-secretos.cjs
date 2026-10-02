@@ -29,19 +29,13 @@ const path = require("path");
 /*
  * Rutas.
  *
- * RUTA_ENV: el .env tiene que estar junto al docker-compose.yml. En este
- * proyecto el compose vive en el directorio PADRE de AgroMarket, asi que se
- * sube un nivel. Si se dejara dentro de AgroMarket/, Docker Compose no lo
- * veria y arrancaria sin ningun secreto.
- *
- * RUTA_TEMPLO: el .env.example si vive dentro del repositorio.
- *
- * Ambas se resuelven con __dirname y no con rutas relativas al directorio
- * actual: si no, el script escribiria el .env dentro de scripts/ al ejecutarse
- * desde ahi.
+ * RUTA_ENV: el .env va junto al docker-compose.yml, que ahora está en la raiz
+ * del repositorio (antes vivia un nivel por encima). Se resuelve con
+ * __dirname y no con una ruta relativa al directorio actual: si no, el script
+ * escribiria el .env dentro de scripts/ al ejecutarse desde ahi, y Docker
+ * Compose no lo veria nunca.
  */
-const RUTA_ENV = path.resolve(__dirname, "..", "..", ".env");
-const RUTA_TEMPLO = path.join(path.resolve(__dirname, ".."), ".env.example");
+const RUTA_ENV = path.join(path.resolve(__dirname, ".."), ".env");
 
 const CLAVES = [
   // minimo = lo que exige de verdad la aplicacion para cada clave.
@@ -52,21 +46,23 @@ const CLAVES = [
 ];
 
 /*
- * MySQL NO va aqui a proposito.
+ * MySQL y Mongo NO van en CLAVES a proposito.
  *
- * Su contrasena SOLO se lee al crear el volumen. Si el script generara una
+ * Sus contrasenas SOLO se leen al crear el volumen. Si el script generara una
  * nueva, el backend dejaria de poder conectarse con el volumen ya existente,
- * porque seguiria usando la contrasena con la que se inicializo.
+ * porque seguiria usando la que se le dio al inicializarlo.
  *
  * Tampoco se escribe una contrasena conocida: la que usa el volumen de
  * desarrollo estaria en el repositorio, que es justo el fallo que este
  * trabajo corrige. Si faltan, el script lo dice y explica como elegir una,
- * en vez de inventar una.
+ * en vez de inventar una. Para copiarlas del contenedor: define-mysql.cjs.
  */
-const MYSQL_AUSENTES = [
+const NO_GENERADAS = [
   ["MYSQL_USER", "usuario de MySQL"],
   ["MYSQL_PASSWORD", "contraseña de MySQL"],
   ["MYSQL_ROOT_PASSWORD", "contraseña root de MySQL"],
+  ["MONGO_ROOT_USER", "usuario de MongoDB"],
+  ["MONGO_ROOT_PASSWORD", "contraseña root de MongoDB"],
 ];
 
 const alfanumerico = (chars) => {
@@ -120,7 +116,7 @@ if (process.argv[2] === "--ver") {
     console.log("  " + (ok ? "OK    " : "FALTA ") + nombre
       + "  (" + valor.length + "/" + minimo + " chars)");
   }
-  for (const [nombre] of MYSQL_AUSENTES) {
+  for (const [nombre] of NO_GENERADAS) {
     const valor = leerActual(nombre);
     if (!valor) {
       faltan += 1;
@@ -162,19 +158,21 @@ console.log("  JWT alfanumerica; clave de cifrado en Base64 y entrecomillada.");
 console.log("");
 
 // Aviso de lo que este script NO hace, para que nadie lo asuma.
-const faltanMysql = MYSQL_AUSENTES.filter(([n]) => !leerActual(n));
-if (faltanMysql.length > 0) {
+const faltanBases = NO_GENERADAS.filter(([n]) => !leerActual(n));
+if (faltanBases.length > 0) {
   console.log("  FALTA definir a mano en el .env:");
-  for (const [n, nota] of faltanMysql) {
+  for (const [n, nota] of faltanBases) {
     console.log("    " + n + "   (" + nota + ")");
   }
   console.log("");
   console.log("  No se generan aqui por dos razones:");
-  console.log("    1. MySQL solo lee la contrasena al crear el volumen. Cambiarla");
-  console.log("       despues deja al backend sin poder conectarse.");
+  console.log("    1. MySQL y Mongo solo leen la contrasena al crear el volumen.");
+  console.log("       Cambiarla despues deja al backend sin poder conectarse.");
   console.log("    2. Escribir una contrasena aqui la pondria en el repositorio,");
   console.log("       que es el fallo que este script viene a evitar.");
-  console.log("  Elige una larga y aleatoria, por ejemplo:");
+  console.log("  Para copiar las del contenedor, sin mostrarlas:");
+  console.log("    node scripts/define-mysql.cjs");
+  console.log("  Si prefieres elegirlas tu:");
   console.log("    node -e \"console.log(require('crypto').randomBytes(24).toString('base64url'))\"");
   console.log("");
 }

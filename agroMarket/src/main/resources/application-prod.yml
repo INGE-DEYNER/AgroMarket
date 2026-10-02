@@ -54,8 +54,27 @@ server:
 management:
   endpoint:
     health:
+      # Ni "always": con "never" el endpoint solo dice UP/DOWN, sin revelar
+      # si falla la base, Mongo o el disco. Con "always" un atacante sabe
+      # qué componente está caído y puede esperar al más débil.
       show-details: never
+    prometheus:
+      # Las métricas del backend tampoco son públicas: revelar el número de
+      # peticiones y de conexiones ayuda a planear una denegación.
+      # Para leerlas, desde dentro del contenedor:
+      #   docker exec asafrut-backend wget -qO- localhost:8080/actuator/prometheus
+      enabled: true
   endpoints:
     web:
+      # ANTES: health,prometheus,info,metrics en prod.
+      #
+      # "info" y "metrics" quedarían accesibles sin autenticación desde
+      # internet: dan el perfil de la aplicación, el número de peticiones y
+      # los nombres de los pools de conexión. Son datos que no necesita quien
+      # no es del equipo.
+      #
+      # Se deja solo health (sin detalles) y prometheus. El resto se consulta
+      # desde dentro del contenedor. Para exponerlos de nuevo, que sea con
+      # autenticación, no con "en la lista".
       exposure:
-        include: health,prometheus,info,metrics
+        include: health,prometheus
