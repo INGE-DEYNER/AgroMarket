@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sitemap de AgroMarket.
+
+  Solo van las rutas publicas. Las privadas (/carrito, /pedidos, /perfil,
+  /dashboard-*, /admin) se omiten: devuelven 401 a un rastreador, no aportan
+  nada en busqueda y no interesa que un bot se entre en ellas.
+
+  En una SPA todas estas rutas se sirven con el mismo index.html, asi que este
+  archivo es la unica forma que tiene Google de saber que existen. Por eso el
+  _redirects de la raiz del frontend es obligatorio: sin el, al pedir
+  /catalogo el servidor devuelve 404 y el rastreador nunca llega aqui.
+
+  Los <lastmod> se dejan fuera a proposito: esta aplicacion no tiene fecha de
+  modificacion por ruta, y poner una fecha inventada hace que Google ignore el
+  archivo entero. Es preferible un sitemap honesto sin fechas.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.agro-market.app/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/catalogo</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/productores</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/como-funciona</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/sobre-asafrut</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/ayuda</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/envioEntregas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/metodosPagos</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/devoluciones</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/reportarProblema</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/terminos</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/privacidad</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.agro-market.app/cookies</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

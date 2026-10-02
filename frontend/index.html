@@ -7,14 +7,67 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sdk.mercadopago.com https://*.mercadopago.com https://static.cloudflareinsights.com https://api.agro-market.app; connect-src 'self' https://api.agro-market.app https://www.agro-market.app https://static.cloudflareinsights.com https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com;"
     />
-    <title>AgroMarket | ASAFRUT</title>
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M17 8C8 10 5.9 16.17 3.82 21H5.71C6.66 19 7.66 17.13 9 16c3.95 2.85 8 2.5 12-1-1-2-2.4-4.5-4-7z' fill='%232d6a4f'/></svg>"
+    <title>AgroMarket | Frutas y verduras de Urabá, directo del productor</title>
+
+    <!--
+      Meta description. Sin esto, Google elige el fragmento que quiere del
+      contenido de la pagina y casi nunca es el que el negocio quiere que se
+      lea en el resultado de busqueda.
+    -->
+    <meta
+      name="description"
+      content="Compra frutas, verduras, cafe y productos del campo colombiano cultivados por productores de Uraba. Envio a todo el pais, pago seguro y entrega directa del productor."
     />
+    <meta name="theme-color" content="#1a5c2a" />
+    <meta name="author" content="AgroMarket - ASAFRUT" />
+    <link rel="canonical" href="https://www.agro-market.app/" />
+
+    <!--
+      Open Graph: es lo que se ve al compartir en WhatsApp, Facebook o LinkedIn.
+      Sin esto, el enlace se comparte sin titulo ni imagen, y se ve como una
+      URL suelta. En Colombia la mitad del trafico llega por WhatsApp, asi que
+      esto no es un extra: es por donde entra la gente.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AgroMarket" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:title" content="AgroMarket | Directo del productor a tu mesa" />
+    <meta
+      property="og:description"
+      content="Frutas, verduras, cafe y productos del campo colombiano de productores de Uraba. Envio a todo el pais y pago seguro."
+    />
+    <meta property="og:url" content="https://www.agro-market.app/" />
+    <meta property="og:image" content="https://www.agro-market.app/og-cover.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AgroMarket, productos del campo colombiano" />
+
+    <!-- Twitter/X usa sus propias etiquetas. Sin twitter:card toma la de Open
+         Graph, pero declararla evita que la vista previa salga en miniatura. -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AgroMarket | Directo del productor a tu mesa" />
+    <meta
+      name="twitter:description"
+      content="Frutas, verduras, cafe y productos del campo colombiano de productores de Uraba."
+    />
+    <meta name="twitter:image" content="https://www.agro-market.app/og-cover.png" />
+
+    <!-- Favicon. Se enlaza el archivo de public/ en vez de un data-URI en
+         linea: el data-URI no lo puede cachear el navegador y obliga a
+         reenviarlo en cada carga. Ademas faltaban los tamanos para iOS. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Las cuatro familias (Playfair Display, Outfit, Inter y Plus Jakarta Sans)
+      se piden en una sola peticion, que es lo correcto. Aun asi son cuatro
+      descargas de fuente para una tienda: revisar si hacen falta las cuatro.
+    -->
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"

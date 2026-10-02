@@ -1,0 +1,30 @@
+# Rutas publicas de AgroMarket.
+#
+# Solo se listan las que un buscador tiene sentido que indexe. Las privadas
+# (/carrito, /pedidos, /perfil, /dashboard-*, /admin) se dejan fuera a proposito:
+# no aportan nada en busqueda y ademas no se quiere que un rastreador se meta
+# en paginas que dan 401.
+#
+# IMPORTANTE: esto es una SPA. Cada ruta se sirve con el mismo index.html, asi
+# que Google necesita encontrarlas aqui para saber que existen. Por eso tambien
+# hace falta el _redirects que hay en la raiz del frontend: sin el, al pedir
+# /catalogo el servidor devuelve 404 y Google nunca llega a leer la pagina.
+
+User-agent: *
+Allow: /
+
+# El area privada no se indexa. No se usa Disallow por ruta porque, al ser
+# una SPA, la URL no determina el contenido que se sirve.
+Disallow: /admin
+Disallow: /perfil
+Disallow: /pedidos
+Disallow: /carrito
+Disallow: /dashboard
+Disallow: /mensajeria
+Disallow: /pago
+Disallow: /api
+
+# Google no necesita rastrear el boton de unsubscribe del boletin.
+Disallow: /newsletter
+
+Sitemap: https://www.agro-market.app/sitemap.xml
