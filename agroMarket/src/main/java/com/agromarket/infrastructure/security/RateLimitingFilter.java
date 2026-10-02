@@ -31,16 +31,23 @@ public class RateLimitingFilter
                         throws ServletException, IOException {
 
                 String clientKey = resolveClientKey(request);
+                boolean sensible = esRutaSensible(request);
 
-                boolean allowed = rateLimitingService
-                                .isAllowed(clientKey);
+                boolean allowed = sensible
+                                ? rateLimitingService.permitirSensible(clientKey)
+                                : rateLimitingService.permitirGeneral(clientKey);
 
-                int remaining = rateLimitingService
-                                .remaining(clientKey);
+                int remaining = sensible
+                                ? rateLimitingService.restantesSensibles(clientKey)
+                                : rateLimitingService.restantesGenerales(clientKey);
 
                 response.setHeader(
                                 "X-RateLimit-Remaining",
                                 String.valueOf(remaining));
+
+                response.setHeader(
+                                "X-RateLimit-Limit",
+                                sensible ? "sensible" : "general");
 
                 if (!allowed) {
 
@@ -52,11 +59,12 @@ public class RateLimitingFilter
 
                         response.setHeader(
                                         "Retry-After",
-                                        "60");
+                                        String.valueOf(
+                                                        rateLimitingService.ventanaSegundos()));
 
                         response.getWriter().write(
                                         """
-                                                        {"status":429,"error":"Too Many Requests","message":"Demasiadas solicitudes"}
+                                                        {"status":429,"error":"Too Many Requests","message":"Demasiadas solicitudes. Espera un momento e intentalo de nuevo."}
                                                         """);
 
                         return;
@@ -65,6 +73,44 @@ public class RateLimitingFilter
                 filterChain.doFilter(
                                 request,
                                 response);
+        }
+
+        /**
+         * Rutas donde un intento de mas tiene un coste alto para el atacante.
+         *
+         * <p>Todas van por el nivel estricto (10/min) en vez del general
+         * (600/min). Con el limite general, un atacante hacia 166 intentos por
+         * segundo: suficiente para recorrer los 6 digitos de un segundo factor
+         * en cuestion de horas.
+         *
+         * <p>Se comparan los ultimos segmentos de la ruta porque la aplicacion
+         * sirve alias: el mismo login llega como /api/v1/auth/login y como
+         * /api/auth/login.
+         */
+        private boolean esRutaSensible(HttpServletRequest request) {
+                String ruta = request.getRequestURI();
+                if (ruta == null) {
+                        return false;
+                }
+                String minusculas = ruta.toLowerCase();
+
+                return minusculas.contains("/auth/login")
+                                || minusculas.contains("/auth/registro")
+                                || minusculas.contains("/auth/register")
+                                || minusculas.contains("/auth/recuperar")
+                                || minusculas.contains("/auth/restablecer")
+                                || minusculas.contains("/auth/reset")
+                                || minusculas.contains("/auth/verificar")
+                                || minusculas.contains("/auth/totp")
+                                || minusculas.contains("/auth/2fa")
+                                || minusculas.contains("/auth/logout")
+                                || minusculas.contains("/auth/refresh")
+                                || minusculas.contains("/auth/2fa/setup")
+                                || minusculas.contains("/2fa/")
+                                || minusculas.contains("/pagos/")
+                                || minusculas.endsWith("/images")
+                                || minusculas.contains("/images/upload")
+                                || minusculas.contains("/mensajes/tickets");
         }
 
         private String resolveClientKey(
