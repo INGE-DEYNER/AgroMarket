@@ -148,6 +148,11 @@ public class JwtAuthenticationTokenAdapter
                                 .subject(
                                                 String.valueOf(
                                                                 user.getId()))
+                                // Identificador unico del token. Sin el, el
+                                // logout no puede invalidarlo: un JWT sin
+                                // estado no se puede revocar. Ver
+                                // TokenRevocationService.
+                                .id(java.util.UUID.randomUUID().toString())
                                 .claim(
                                                 ROLE_CLAIM,
                                                 user.getRole() == null

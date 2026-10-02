@@ -21,13 +21,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         private final JwtTokenProvider jwtTokenProvider;
         private final UserDetailsServiceImpl userDetailsService;
+        private final TokenRevocationService tokenRevocationService;
 
         public JwtAuthenticationFilter(
                         JwtTokenProvider jwtTokenProvider,
-                        UserDetailsServiceImpl userDetailsService) {
+                        UserDetailsServiceImpl userDetailsService,
+                        TokenRevocationService tokenRevocationService) {
 
                 this.jwtTokenProvider = jwtTokenProvider;
                 this.userDetailsService = userDetailsService;
+                this.tokenRevocationService = tokenRevocationService;
         }
 
         @Override
@@ -97,6 +100,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                  * Token vacío o inválido.
                  */
                 if (token.isBlank() || !jwtTokenProvider.validateToken(token)) {
+                        unauthorized(response);
+                        return;
+                }
+
+                /*
+                 * Token revocado al cerrar sesion.
+                 *
+                 * Un JWT es sin estado, asi que la firma y la fecha siguen
+                 * siendo validas despues del logout. Esto es lo que hacia que
+                 * cerrar sesion en un equipo no protegiera el token copiado en
+                 * otro: se podia seguir usando hasta una hora despues.
+                 */
+                if (tokenRevocationService.estaRevocado(token)) {
                         unauthorized(response);
                         return;
                 }

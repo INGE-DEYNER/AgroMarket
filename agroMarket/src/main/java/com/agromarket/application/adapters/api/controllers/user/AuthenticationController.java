@@ -38,11 +38,18 @@ public class AuthenticationController {
     private final AuthenticationPort authenticationPort;
     private final EmailVerificationPort emailVerificationPort;
 
+    /** Revoca el token en el logout, para que deje de servir. */
+    private final com.agromarket.infrastructure.security.TokenRevocationService
+            tokenRevocationService;
+
     public AuthenticationController(
             AuthenticationPort authenticationPort,
-            EmailVerificationPort emailVerificationPort) {
+            EmailVerificationPort emailVerificationPort,
+            com.agromarket.infrastructure.security.TokenRevocationService
+                    tokenRevocationService) {
         this.authenticationPort = authenticationPort;
         this.emailVerificationPort = emailVerificationPort;
+        this.tokenRevocationService = tokenRevocationService;
     }
 
     // =========================================================
@@ -263,18 +270,29 @@ public class AuthenticationController {
     /**
      * POST /api/v1/auth/logout — cierre de sesión.
      *
-     * <p>El frontend lo invoca desde {@code AuthContext.logout()}. El JWT es
-     * sin estado, así que no hay lista de revocación que consultar: lo que
-     * queda por invalidar es la cookie de sesión httpOnly que emite el
-     * flujo OAuth2 de Google. Limpiarla aquí es lo que realmente cierra la
-     * sesión en el servidor; el {@code localStorage} lo borra el frontend.</p>
+     * <p>Hace dos cosas, y las dos hacen falta:
+     * <ol>
+     *   <li>Revoca el JWT. Antes no lo revocaba: un JWT es sin estado, así que
+     *       la firma seguía siendo válida y el token copiado del navegador se
+     *       podía seguir usando hasta una hora después de cerrar sesión. Ahora
+     *       el token lleva un {@code jti} que se registra como revocado y
+     *       JwtAuthenticationFilter lo rechaza (TokenRevocationService).</li>
+     *   <li>Limpia la cookie de sesión httpOnly que emite el flujo OAuth2 de
+     *       Google. El {@code localStorage} lo borra el frontend.</li>
+     * </ol>
      *
-     * <p>Siempre responde 200, incluso sin cookie, para que cerrar sesión
-     * nunca falle por un error de red.</p>
+     * <p>Siempre responde 200, incluso sin cookie ni token, para que cerrar
+     * sesión nunca falle por un error de red.</p>
      */
     @PostMapping({ "/logout", "/salir" })
     public ResponseEntity<OperationResponse> logout(
+            jakarta.servlet.http.HttpServletRequest request,
             jakarta.servlet.http.HttpServletResponse response) {
+
+        String token = resolverToken(request);
+        if (token != null && !token.isBlank()) {
+            tokenRevocationService.revocar(token);
+        }
 
         jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie(
                 "AGROMARKET_SESSION",
@@ -286,6 +304,23 @@ public class AuthenticationController {
 
         return ResponseEntity.ok(
                 OperationResponse.success("Sesión cerrada correctamente"));
+    }
+
+    /** Saca el token de la cabecera Authorization o de la cookie de sesión. */
+    private String resolverToken(jakarta.servlet.http.HttpServletRequest request) {
+        String cabecera = request.getHeader("Authorization");
+        if (cabecera != null && cabecera.startsWith("Bearer ")) {
+            return cabecera.substring(7).trim();
+        }
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie c : request.getCookies()) {
+                if ("AGROMARKET_SESSION".equals(c.getName()) && c.getValue() != null
+                        && !c.getValue().isBlank()) {
+                    return c.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     // =========================================================
