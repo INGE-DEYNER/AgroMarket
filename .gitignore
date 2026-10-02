@@ -3,13 +3,23 @@ target/
 **/target/
 build/
 **/build/
-out/
 classes/
 generated-sources/
 generated-test-sources/
 maven-archiver/
 maven-status/
 surefire-reports/
+
+# "out/" SOLO en la raiz del repositorio.
+#
+# Sin la barra inicial, git ignora cualquier carpeta llamada "out" a CUALQUIER
+# nivel. Y en este proyecto hay una que es codigo fuente:
+# com/agromarket/domain/ports/out/, es decir TODA la capa de puertos de
+# salida (EmailPort, OrderPort, ProductPort...). Llevaba tiempo fuera del
+# repositorio sin que se notara: "git status" no la mostraba porque la
+# ignoraba, y el codigo compilaba porque estaba en el disco. Un clon nuevo del
+# repositorio no tendria esa capa y el backend no compilaria.
+out/
 failsafe-reports/
 
 # Packaged artifacts
