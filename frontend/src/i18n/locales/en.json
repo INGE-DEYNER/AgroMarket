@@ -1070,7 +1070,8 @@
     "contactText": "Our local producer and customer support team is ready to assist you directly via chat.",
     "whatsapp247": "WhatsApp 24/7",
     "email": "Email",
-    "talkToSupport": "Talk to Support via WhatsApp"
+    "talkToSupport": "Talk to Support via WhatsApp",
+    "reportInstead": "Send a problem report"
   },
   "comoFunciona": {
     "badge": "Simple and transparent process",
@@ -1279,5 +1280,8 @@
   "common": {
     "user": "User",
     "loading": "Loading…"
+  },
+  "footer": {
+    "contactSupport": "Contact support"
   }
 }

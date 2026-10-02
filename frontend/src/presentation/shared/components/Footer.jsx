@@ -2,7 +2,14 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Icon from "@/presentation/shared/components/Icon";
+import { REDES, enlaceWhatsapp } from "@/infrastructure/config/contacto";
 import "@/presentation/styles/footer.css";
+
+/* Ver contacto.js: mientras no haya un numero real de WhatsApp, el enlace no
+   se pinta y en su lugar se ofrece el formulario. */
+const enlaceWaFooter = enlaceWhatsapp(
+  "Hola, necesito ayuda con AgroMarket",
+);
 
 /* ============================================================
    STAKEHOLDERS
@@ -12,7 +19,7 @@ const STAKEHOLDER_LOGOS = [
   {
     id: "asafrut",
     name: "ASAFRUT",
-    src: "/by/asafrut.jpg",
+    src: "/by/asafrut.webp",
     altKey: "home.footerUi.stakeAsafrutName",
     altFallback: "ASAFRUT",
     roleKey: "home.footerUi.stakeAsafrutRole",
@@ -32,7 +39,7 @@ const STAKEHOLDER_LOGOS = [
   {
     id: "developer",
     name: "Deyner Chaverra",
-    src: "/by/DeyDev.png",
+    src: "/by/DeyDev.webp",
     altKey: "home.footerUi.stakeDevName",
     altFallback: "Deyner Chaverra",
     roleKey: "home.footerUi.stakeDevRole",
@@ -189,7 +196,7 @@ export default function Footer() {
             <h4>{t("home.footerUi.social")}</h4>
 
             <a
-              href="https://www.facebook.com//ASAFRUT67"
+              href={REDES.facebook}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -197,20 +204,26 @@ export default function Footer() {
             </a>
 
             <a
-              href="https://www.instagram.com/asociacion_asafrut/?utm_source=ig_web_button_share_sheet"
+              href={REDES.instagram}
               target="_blank"
               rel="noopener noreferrer"
             >
               Instagram
             </a>
 
-            <a
-              href="https://wa.me/573127658412?text=Hola%2C%20necesito%20ayuda%20con%20AgroMarket"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              WhatsApp
-            </a>
+            {/* Mientras no haya un WhatsApp real, no se ofrece el enlace: se
+                manda al formulario, que si guarda el mensaje de verdad. */}
+            {enlaceWaFooter ? (
+              <a
+                href={enlaceWaFooter}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp
+              </a>
+            ) : (
+              <Link to="/ayuda/reportar-problema">{t("footer.contactSupport", "Contactar soporte")}</Link>
+            )}
           </div>
 
           {/* CUENTA */}
@@ -252,7 +265,7 @@ export default function Footer() {
           <div className="am-footer-brand">
             <a href="/" className="am-footer-logo-link" aria-label="AgroMarket">
               <img
-                src="/agromarket/logo.png"
+                src="/agromarket/logo.webp"
                 alt="AgroMarket"
                 className="am-footer-logo"
               />
@@ -270,7 +283,7 @@ export default function Footer() {
                 aria-label={t("home.footerUi.social")}
               >
                 <a
-                  href="https://www.facebook.com/ASAFRUT67"
+                  href={REDES.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
@@ -279,7 +292,7 @@ export default function Footer() {
                 </a>
 
                 <a
-                  href="https://www.instagram.com/asociacion_asafrut/?utm_source=ig_web_button_share_sheet"
+                  href={REDES.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
@@ -287,14 +300,16 @@ export default function Footer() {
                   <Icon name="instagram" size={16} />
                 </a>
 
-                <a
-                  href="https://wa.me/573127658412"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="WhatsApp"
-                >
-                  <Icon name="messageCircle" size={16} />
-                </a>
+                {enlaceWaFooter && (
+                  <a
+                    href={enlaceWaFooter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WhatsApp"
+                  >
+                    <Icon name="messageCircle" size={16} />
+                  </a>
+                )}
               </div>
             </div>
           </div>

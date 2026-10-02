@@ -865,7 +865,8 @@
     "contactText": "Unser lokales Produzenten- und Kundensupportteam ist bereit, Ihnen direkt über Chat zu helfen.",
     "whatsapp247": "WhatsApp 24/7",
     "email": "E-Mail",
-    "talkToSupport": "Mit Support via WhatsApp sprechen"
+    "talkToSupport": "Mit Support via WhatsApp sprechen",
+    "reportInstead": "Problembericht senden"
   },
   "comoFunciona": {
     "badge": "Einfacher und transparenter Prozess",
@@ -911,5 +912,8 @@
       "q": "Wie funktionieren die Rückgaberichtlinien?",
       "a": "Wenn eine Charge von Obst oder Gemüse nicht in der vereinbarten optimalen Frische ankommen, können Sie uns innerhalb der ersten 12 Stunden nach Erhalt ein Foto an den Support-Chat senden und wir werden es ohne zusätzliche Kosten ersetzen."
     }
+  },
+  "footer": {
+    "contactSupport": "Support kontaktieren"
   }
 }

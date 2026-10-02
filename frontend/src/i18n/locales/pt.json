@@ -865,7 +865,8 @@
     "contactText": "Nossa equipe de suporte local ao produtor e cliente está pronta para atendê-lo diretamente via chat.",
     "whatsapp247": "WhatsApp 24/7",
     "email": "E-mail",
-    "talkToSupport": "Falar com o Suporte via WhatsApp"
+    "talkToSupport": "Falar com o Suporte via WhatsApp",
+    "reportInstead": "Enviar um relato de problema"
   },
   "comoFunciona": {
     "badge": "Processo simples e transparente",
@@ -911,5 +912,8 @@
       "q": "Como funcionam as políticas de devolução?",
       "a": "Se um lote de frutas ou vegetais não chegar na frescura ótima acordada, você pode nos enviar uma foto para o chat de suporte nas primeiras 12 horas do reposição sem custos adicionais."
     }
+  },
+  "footer": {
+    "contactSupport": "Falar com o suporte"
   }
 }

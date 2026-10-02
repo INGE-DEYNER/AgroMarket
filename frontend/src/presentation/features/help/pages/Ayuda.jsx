@@ -1,7 +1,13 @@
 import { useState } from "react";
 import PublicLayout from "@/presentation/shared/components/PublicLayout";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { CONTACTO, enlaceWhatsapp } from "@/infrastructure/config/contacto";
 import "@/presentation/styles/public-views.css";
+
+/* Ver contacto.js: sin un numero real configurado, el boton de WhatsApp se
+   sustituye por el formulario de reporte. */
+const enlaceWaAyuda = enlaceWhatsapp("Hola, necesito ayuda con AgroMarket");
 
 const FAQS = [
   {
@@ -170,18 +176,29 @@ export default function Ayuda() {
                 </span>
                 <div>
                   <small>{t("ayuda.email", "Correo electrónico")}</small>
-                  <strong>soporte@agromarket.co</strong>
+                  <strong>{CONTACTO.email}</strong>
                 </div>
               </div>
             </div>
-            <a
-              className="ay-whatsapp-btn"
-              href="https://wa.me/573001234567"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t("ayuda.talkToSupport", "Hablar con Soporte por WhatsApp")}
-            </a>
+            {/* Sin numero real de WhatsApp no se ofrece el enlace: un boton de soporte
+    que abre el WhatsApp de un desconocido es peor que no tenerlo. */}
+{enlaceWaAyuda ? (
+  <a
+    className="ay-whatsapp-btn"
+    href={enlaceWaAyuda}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {t("ayuda.talkToSupport", "Hablar con Soporte por WhatsApp")}
+  </a>
+) : (
+  <Link
+    className="ay-whatsapp-btn"
+    to="/ayuda/reportar-problema"
+  >
+    {t("ayuda.reportInstead", "Enviar un reporte de problema")}
+  </Link>
+)}
           </aside>
         </section>
       </div>

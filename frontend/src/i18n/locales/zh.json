@@ -865,7 +865,8 @@
     "contactText": "我们的本地生产者和客户支持团队准备通过聊天直接为您提供帮助。",
     "whatsapp247": "WhatsApp 24/7",
     "email": "电子邮件",
-    "talkToSupport": "通过WhatsApp与支持人员交谈"
+    "talkToSupport": "通过WhatsApp与支持人员交谈",
+    "reportInstead": "提交问题报告"
   },
   "comoFunciona": {
     "badge": "简单透明的流程",
@@ -911,5 +912,8 @@
       "q": "退货政策如何运作？",
       "a": "如果一批水果或蔬菜没有以约定的最佳新鲜度到达，您可以在收到后的前12小时内将照片发送到支持聊天，我们将免费更换。"
     }
+  },
+  "footer": {
+    "contactSupport": "联系客服"
   }
 }

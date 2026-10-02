@@ -1070,7 +1070,8 @@
     "contactText": "Nuestro equipo de soporte al productor y cliente local está listo para atenderte directamente por chat.",
     "whatsapp247": "WhatsApp 24/7",
     "email": "Correo electrónico",
-    "talkToSupport": "Hablar con Soporte por WhatsApp"
+    "talkToSupport": "Hablar con Soporte por WhatsApp",
+    "reportInstead": "Enviar un reporte de problema"
   },
   "comoFunciona": {
     "badge": "Proceso simple y transparente",
@@ -1279,5 +1280,8 @@
   "common": {
     "user": "Usuario",
     "loading": "Cargando…"
+  },
+  "footer": {
+    "contactSupport": "Contactar soporte"
   }
 }
