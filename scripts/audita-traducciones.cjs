@@ -42,6 +42,11 @@ const resumen = {};
 
 const faltanPorSeccion = {};
 
+/* Ejemplos de claves que faltan, para ver si son pantallas visibles o texto
+   de mas abajo. Se toman del PRIMER idioma incompleto: las secciones son las
+   mismas en todos, asi que no cambia el diagnostico. */
+let ejemplos = [];
+
 for (const idioma of IDIOMAS) {
   const plano = aplanar(JSON.parse(fs.readFileSync(path.join(DIR, idioma + ".json"), "utf8")));
   const claves = Object.keys(plano);
@@ -56,6 +61,7 @@ for (const idioma of IDIOMAS) {
     const seccion = k.split(".")[0];
     faltanPorSeccion[seccion] = (faltanPorSeccion[seccion] || 0) + 1;
   });
+  if (!ejemplos.length && idioma !== BASE && faltan.length) ejemplos = faltan.slice(0, 25);
   resumen[idioma] = { total: claves.length, faltan: faltan.length };
 
   const sinTraducir = claves.length ? Math.round((iguales / claves.length) * 100) : 0;
@@ -92,4 +98,14 @@ const secciones = Object.keys(faltanPorSeccion).sort(
 );
 for (const s of secciones) {
   console.log("  " + String(faltanPorSeccion[s]).padStart(4) + "  " + s);
+}
+
+/* Muestra el texto espanol de algunas claves que faltan, para poder judging
+   si son pantallas visibles o texto interno. */
+console.log("");
+console.log("=== Ejemplos de lo que falta (el texto en espanol) ===");
+console.log("");
+for (const k of ejemplos) {
+  console.log("  " + k);
+  console.log("      " + es[k]);
 }
