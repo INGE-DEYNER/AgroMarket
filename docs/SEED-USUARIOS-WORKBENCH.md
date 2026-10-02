@@ -9,13 +9,27 @@
 
 ## A) Conexión Workbench (usa esta)
 
-| Campo | Valor Docker (actual) | Valor si paras MySQL80 local |
-|---|---|---|
-| Host | `127.0.0.1` | `127.0.0.1` |
-| Port | `3307` | `3306` |
-| User | `agromarket` (o `root`) | igual |
-| Password | `agromarket` (o `root123`) | igual |
-| Schema | `agromarket` | `agromarket` |
+| Campo | Valor |
+|---|---|
+| Host | `127.0.0.1` |
+| Port | `3307` (MySQL en Docker) o `3306` (MySQL80 local) |
+| User | el `MYSQL_USER` de tu `.env` |
+| Password | el `MYSQL_PASSWORD` de tu `.env` |
+| Schema | `agromarket` |
+
+> **La contraseña no debe aparecer en este documento.** Estaba escrita aquí, y
+> como el archivo está versionado, cualquiera que leyera el repositorio
+> entraba en la base de datos. La credencial real vive solo en tu `.env`, que no
+> se versiona.
+>
+> Para ver qué hay definido sin que se imprima ningún valor:
+>
+> ```
+> node scripts/ver-lineas-env.cjs
+> ```
+>
+> Si necesitas entrar como `root` en vez de con el usuario de la aplicación,
+> usa `MYSQL_ROOT_PASSWORD` de ese mismo `.env`.
 
 ```sql
 USE agromarket;
