@@ -1911,7 +1911,73 @@ html.dark .nav-dropdown button:hover {
   color: var(--primary);
 }
 
+/* La pagina de error (403, 404, 419, 423, 451, 503) es la unica pantalla de la
+   aplicacion que no usa las variables del tema: todo el resto define sus
+   colores con --surface, --text... aqui estaban escritos a mano en claro. Con
+   el tema oscuro activo se veia un recuadro blanco dentro de una pagina negra.
+   Estos selectores reutilizan las variables del tema, asi que la pagina sigue al
+   resto sin volver a escribir los colores a mano. */
+html.dark .standalone-state {
+  background: var(--color-bg, #111827);
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .standalone-state .security-brand {
+  color: var(--primary, #52b788);
+}
+
+html.dark .standalone-state-card {
+  background: var(--color-surface, #1f2937);
+  border-color: var(--border, #374151);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+html.dark .standalone-state-card h1,
+html.dark .standalone-state-card p {
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .standalone-state-card p {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+html.dark .standalone-state-card .state-code {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+html.dark .standalone-state .security-primary {
+  background: var(--primary, #52b788);
+  color: #fff;
+}
+
+/* ============================================================
+   CONTACTO: areas tactiles minimas
+   ============================================================ */
+
+/* Los botones de icono del navbar, del selector de idioma y del carrito eran
+   de 32-36 px. El minimo recomendado en movil es 44x44 (WCAG 2.2, objetivo
+   2.5.8). Con lluvia en Uraba, acertar un icono de 32 px es jugar a la ruleta:
+   el fallo abre el carrito equivocado o el menu equivocado. */
+@media (pointer: coarse) {
+  .nav-icon-btn,
+  .nav-hamburger,
+  .nav-cart-btn,
+  .mobile-drawer-close,
+  .theme-toggle,
+  .language-switcher button[role="option"],
+  .divisa-switcher button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .am-footer-socials a,
+  .footer-social a {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
 /* Drawer móvil */
+
 html.dark .mobile-drawer,
 html.dark .cart-drawer,
 html.dark .sidebar {
