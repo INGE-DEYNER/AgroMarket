@@ -15,6 +15,7 @@ import "@/presentation/styles/public-views.css";
 import { useTranslation } from "react-i18next";
 import { useDivisa } from "@/app/hooks/useDivisa";
 import Icon from "@/presentation/shared/components/Icon";
+import { SkeletonCategorias } from "@/presentation/shared/components/Skeleton";
 
 const getTrustBadges = (t) => [
   {
@@ -361,9 +362,7 @@ export default function Home() {
           </div>
 
           {loadingCategories ? (
-            <div className="hm-loading">
-              {t("home.categories.loading", "Cargando categorías...")}
-            </div>
+            <SkeletonCategorias n={5} />
           ) : (
             <div className="hm-cat-grid">
               {categoryCards.map((cat) =>

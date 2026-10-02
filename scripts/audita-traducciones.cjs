@@ -40,12 +40,23 @@ console.log("  ------  ------  --------------  ------------");
 
 const resumen = {};
 
+const faltanPorSeccion = {};
+
 for (const idioma of IDIOMAS) {
   const plano = aplanar(JSON.parse(fs.readFileSync(path.join(DIR, idioma + ".json"), "utf8")));
   const claves = Object.keys(plano);
 
   let iguales = 0;
   for (const k of claves) if (es[k] !== undefined && es[k] === plano[k]) iguales++;
+
+  // Que claves del espanol no existen en este idioma, agrupadas por seccion de
+  // primer nivel. Sin esto solo se ve "304 faltan" sin saber donde.
+  const faltan = Object.keys(es).filter(function (k) { return plano[k] === undefined; });
+  faltan.forEach(function (k) {
+    const seccion = k.split(".")[0];
+    faltanPorSeccion[seccion] = (faltanPorSeccion[seccion] || 0) + 1;
+  });
+  resumen[idioma] = { total: claves.length, faltan: faltan.length };
 
   const sinTraducir = claves.length ? Math.round((iguales / claves.length) * 100) : 0;
   resumen[idioma] = { claves: claves.length, sinTraducir: sinTraducir, esLaBase: idioma === BASE };
@@ -71,4 +82,14 @@ if (decision.length) {
 } else {
   console.log("");
   console.log("  Todos los idiomas estan traducidos. Se pueden habilitar.");
+}
+
+console.log("");
+console.log("=== Claves que faltan, por seccion (respecto a es) ===");
+console.log("");
+const secciones = Object.keys(faltanPorSeccion).sort(
+  (a, b) => faltanPorSeccion[b] - faltanPorSeccion[a],
+);
+for (const s of secciones) {
+  console.log("  " + String(faltanPorSeccion[s]).padStart(4) + "  " + s);
 }

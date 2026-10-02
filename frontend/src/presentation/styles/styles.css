@@ -1951,6 +1951,57 @@ html.dark .standalone-state .security-primary {
 }
 
 /* ============================================================
+   ESQUELETOS DE CARGA
+   ============================================================ */
+
+/* Un pulso gris, no un spinner girando. Sirve para que el hueco tenga el tamaño
+   de lo que va a llegar y la pagina no salte cuando el contenido entre. */
+.skeleton {
+  display: block;
+  background: #e5e7eb;
+  border-radius: 8px;
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+html.dark .skeleton {
+  background: #2b3442;
+}
+
+/* Quien tenga el sistema en "reducir movimiento" recibe un bloque estatico:
+   un pulso que se repite cada 1,4 s es justo lo que esa opcion pide quitar. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-line {
+  border-radius: 4px;
+}
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+/* ============================================================
    CONTACTO: areas tactiles minimas
    ============================================================ */
 
