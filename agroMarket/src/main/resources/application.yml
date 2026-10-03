@@ -1,0 +1,180 @@
+# src/main/resources/application.yml
+spring:
+  application:
+    name: agromarket
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+    group:
+      dev: sql
+      prod: sql
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+  cache:
+    type: caffeine
+
+  # Esquema gestionado con Flyway (ver db/migration/README.md).
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+    # La base de produccion YA TIENE 23 tablas creadas por ddl-auto: update a lo
+    # largo de meses, y no tiene historial de migraciones. Sin esto, Flyway ve un
+    # esquema no vacio que no reconoce, intenta aplicar V1 encima y falla con
+    # "table already exists": la aplicacion no arranca y no hay forma de entrar
+    # por esta via.
+    #
+    # baseline-on-migrate marca ese esquema existente como version 1 y NO ejecuta
+    # V1. A partir de ahi V2, V3... si se aplican. En una base VACIA (la de un
+    # entorno nuevo) si se ejecuta V1 entera, que es lo que se quiere.
+    baseline-on-migrate: true
+    baseline-version: 1
+
+    # Que no escriba en el esquema al arrancar. Con ddl-auto: validate ya se
+    # comprueba que las entidades cuadran; flyway solo debe aplicar los archivos.
+    validate-on-migrate: true
+
+  jackson:
+    time-zone: UTC
+
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+app:
+  cors:
+    # CAUSA RAÍZ del "No 'Access-Control-Allow-Origin' header is present":
+    # el placeholder estaba como UN único elemento de la lista YAML. Al
+    # bindear sobre List<String>, Spring tomaba toda la cadena con comas
+    # como un solo origen literal, y los Origins del YAML de abajo
+    # quedaban desplazados/invalidos. Ahora la variable sustituye la lista
+    # COMPLETA y el YAML se queda solo con los valores por defecto de
+    # desarrollo, que se aplican unicamente si la variable no existe.
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGIN:http://localhost:3000,http://localhost:5173,http://localhost:5174,https://agro-market.app,https://www.agro-market.app}
+
+  support:
+    # Buzon donde llegan los reportes de la pagina "Reportar un problema".
+    #
+    # SIN valor por defecto a proposito. Si queda vacio, los reportes SEGUEN
+    # guardando en Mongo, pero nadie recibe el aviso, y eso solo se ve en los
+    # logs del servidor. Un buzon inventado seria peor: el reporte pareceria
+    # atendido cuando en realidad se perdio.
+    email: ${APP_SUPPORT_EMAIL:}
+
+  security:
+    # SIN valor por defecto. El que tenía era una clave pública del
+    # repositorio, con la que se pueden descifrar todos los ids. En producción
+    # el arranque se aborta si no se define (SecretosStartupValidator).
+    id-encryption-key: ${APP_SECURITY_ID_ENCRYPTION_KEY:}
+
+  oauth2:
+    success-redirect: ${APP_OAUTH2_SUCCESS_REDIRECT:http://localhost:3000/oauth2/success}
+    failure-redirect: ${APP_OAUTH2_FAILURE_REDIRECT:http://localhost:3000/oauth2/failure}
+    default-role: ${APP_OAUTH2_DEFAULT_ROLE:BUYER}
+
+  google:
+    client-id: ${GOOGLE_OAUTH2_CLIENT_ID:}
+    client-secret: ${GOOGLE_OAUTH2_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_OAUTH2_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+
+  jwt:
+    # SIN valor por defecto a proposito. Si no se define JWT_SECRET, la
+    # aplicacion avisa al arrancar en desarrollo y SE NIEGA a arrancar en
+    # produccion (ver SecretosStartupValidator).
+    #
+    # Con una clave conocida, cualquiera que lea el repositorio puede firmar
+    # un JWT con role=ADMIN y entrar como administrador. Genera una real con:
+    #   openssl rand -base64 64
+    secret: ${JWT_SECRET:}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+    temporary-expiration-ms: ${JWT_TEMPORARY_EXPIRATION_MS:300000}
+    # Los tokens revocados viven en la tabla revoked_tokens, no en memoria: en
+    # memoria se perdian al reiniciar y no se compartian entre instancias, asi
+    # que un token revocado en una seguiria valiendo en otra. La cache solo
+    # evita ir a la base en cada peticion.
+    revocation-purge-ms: ${JWT_REVOCATION_PURGE_MS:3600000}
+    revocation-cache-ms: ${JWT_REVOCATION_CACHE_MS:10000}
+
+  frontend-url: ${FRONTEND_URL:}
+
+  ai:
+    gemini-api-key: ${GEMINI_API_KEY:}
+
+  mercadopago:
+    base-url: ${MERCADOPAGO_BASE_URL:https://api.mercadopago.com}
+    access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
+    # Secret de la cuenta para verificar la firma de los webhooks. NO es el
+    # access token: es la "clave secreta" del panel de MercadoPago. Sin ella,
+    # el webhook rechaza todo evento (401) porque no hay forma de saber si
+    # viene de la pasarela.
+    webhook-secret: ${MERCADOPAGO_WEBHOOK_SECRET:}
+    use-mock: ${MERCADOPAGO_USE_MOCK:false}
+    webhook-url: ${MERCADOPAGO_WEBHOOK_URL:}
+
+  shipping:
+    origin-latitude: ${SHIPPING_ORIGIN_LATITUDE:7.6667}
+    origin-longitude: ${SHIPPING_ORIGIN_LONGITUDE:-76.6811}
+    # Bandas de trayecto. Cada una tiene su base por kilo y su minimo; estan
+    # en ShippingTariffs y los valido Deyner. Estos dos campos son un OVERRIDE
+    # opcional: si se dejan vacios, manda la banda.
+    #
+    # OJO con el valor por defecto. Spring convierte la cadena vacia en null
+    # para un BigDecimal, y un Map.of() con un null revienta con
+    # NullPointerException -> el endpoint /envios/config devolvia 500 y el
+    # checkout se quedaba sin tarifas. Por eso el default es un numero, no
+    # una cadena vacia. Para no aplicar override, se comenta la variable.
+    price-per-kilometer: ${SHIPPING_PRICE_PER_KM:1000}
+    minimum-cost: ${SHIPPING_MINIMUM_COST:0}
+    # Radios que separan las bandas, en km desde el centro de acopio.
+    local-radius-km: ${SHIPPING_LOCAL_RADIUS_KM:25}
+    regional-radius-km: ${SHIPPING_REGIONAL_RADIUS_KM:180}
+    # Interruptor de negocio: "zona especial" NO se deduce de la distancia,
+    # la decide AgroMarket. Por defecto apagado.
+    special-zone: ${SHIPPING_SPECIAL_ZONE:false}
+
+  rate-limit:
+    # ANTES: un solo limite de 10.000/min para todo, que no frenaba la fuerza
+    # bruta (166 intentos por segundo) y ademas permitiria a un atacante
+    # agotar el cupo y dejar sin servicio al resto. Ahora hay dos niveles.
+    general-per-minute: ${RATE_LIMIT_GENERAL:600}
+    sensitive-per-minute: ${RATE_LIMIT_SENSITIVE:10}
+    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
+
+  scheduler:
+    promotions-delay-ms: ${PROMOTIONS_JOB_DELAY_MS:300000}
+    rfq-delay-ms: ${RFQ_JOB_DELAY_MS:300000}
+
+brevo:
+  api:
+    key: ${BREVO_API_KEY:}
+  sender:
+    email: ${BREVO_SENDER_EMAIL:}
+    name: ${BREVO_SENDER_NAME:AgroMarket}
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+  api-key: ${CLOUDINARY_API_KEY:}
+  api-secret: ${CLOUDINARY_API_SECRET:}
+  # Carpeta de destino en la consola de Cloudinary. Sin este parámetro el
+  # archivo se guarda en la raíz del proyecto, no dentro de Agromarket/.
+  folder: ${CLOUDINARY_FOLDER:Agromarket/products}

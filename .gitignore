@@ -1,17 +1,42 @@
-# Compiled class file
+# Build outputs
+target/
+**/target/
+build/
+**/build/
+classes/
+generated-sources/
+generated-test-sources/
+maven-archiver/
+maven-status/
+surefire-reports/
+
+# Salidas de herramientas propias
+# cp.txt lo genera "mvn dependency:build-classpath" y pesa varios MB de
+# classpath de Windows: es una referencia local, no algo que deba versionarse.
+cp.txt
+esquema-dump.sql
+scripts/construccion.log
+logs.txt
+p.txt
+buildb.txt
+upb.txt
+
+# "out/" SOLO en la raiz del repositorio.
+#
+# Sin la barra inicial, git ignora cualquier carpeta llamada "out" a CUALQUIER
+# nivel. Y en este proyecto hay una que es codigo fuente:
+# com/agromarket/domain/ports/out/, es decir TODA la capa de puertos de
+# salida (EmailPort, OrderPort, ProductPort...). Llevaba tiempo fuera del
+# repositorio sin que se notara: "git status" no la mostraba porque la
+# ignoraba, y el codigo compilaba porque estaba en el disco. Un clon nuevo del
+# repositorio no tendria esa capa y el backend no compilaria.
+out/
+failsafe-reports/
+
+# Packaged artifacts
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
+*.jar.original
 *.war
 *.nar
 *.ear
@@ -19,6 +44,62 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+*.swp
 hs_err_pid*
 replay_pid*
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+.apt_generated/
+.factorypath
+.springBeans
+.sts4-cache
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Dependency and cache directories
+node_modules/
+.gradle/
+
+# Environment and secrets
+#
+# El .env lleva los valores reales y no se versiona nunca. El .env.example si
+# se versiona: es la plantilla con los nombres de las variables y el formato que
+# espera cada una, pero sin ningun valor.
+.env
+*.env
+!.env.example
+
+# Copies de seguridad
+#
+# Los .sql.gz y los .archive.gz llevan datos personales y van cifrados con una
+# clave que no esta en el repositorio, asi que no sirven de nada ahi.
+backups/
+*.sql.gz
+*.archive.gz
+
+# Salidas de las comprobaciones de scripts/
+esquema.txt
+
+# Local/generated runtime data
+uploads/
+.github/java-upgrade/
+k8s/secrets/
+frontend/certs/*.pem
+frontend/certs/*.key

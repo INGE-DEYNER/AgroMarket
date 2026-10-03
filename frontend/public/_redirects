@@ -1,0 +1,28 @@
+# Redirecciones de Cloudflare Pages.
+#
+# POR QUE ESTE ARCHIVO ES OBLIGATORIO: esto es una SPA de React Router. Todas
+# las rutas (/catalogo, /carrito, /pedidos, /ayuda...) existen solo en el
+# cliente: en el servidor no hay ningun archivo con esos nombres.
+#
+# Sin esta linea, al recargar /catalogo o al abrir un enlace directo a
+# /ayuda, Cloudflare busca un archivo que no existe y devuelve 404. El usuario
+# ve la pagina de error de AgroMarket siendo que la ruta es correcta. Y Google
+# tampoco puede indexarlas, porque nunca logra cargar la pagina.
+#
+# El codigo 200 (y no 301) es lo correcto aqui: no es una redireccion, es
+# "sirve el index.html de esta SPA para esta ruta", y el cliente se encarga
+# de mostrar lo que corresponde.
+/*    /index.html   200
+
+# La API va al backend, nunca al index.html. Si una peticion a /api/v1/...
+# llegara a esta regla, devolveria el HTML de la SPA con codigo 200 y el
+# frontend recibiria una pagina web donde esperaba JSON.
+/api/*  https://api.agro-market.app/api/:splat  200
+
+# Archivos con hash en el nombre, como los del SDK de MercadoPago. Si
+# versionaran con query (?v=), esta regla lo(cachearia para siempre) y nunca
+# llegaria la version nueva.
+/assets/*
+/icons/*
+/*.js
+/*.css

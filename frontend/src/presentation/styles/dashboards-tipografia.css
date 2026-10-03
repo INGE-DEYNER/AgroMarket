@@ -1,0 +1,204 @@
+/*
+ * ============================================================
+   ESCALA TIPOGRÁFICA COMÚN DE LOS DASHBOARDS
+   ------------------------------------------------------------
+   Los tres paneles (admin, comprador y productor) usaban cada uno su
+   propio tamaño para el mismo elemento: el h1 de sección medía 1.65rem en
+   admin, 1.3rem en productor y el tamaño por defecto (~2rem) en comprador.
+   Con eso un usuario que salta de un panel a otro percibe saltos de
+   tamaño, aunque la jerarquía sea la misma.
+
+   Aquí se fija UNA escala para los tres. Los valores cubren el rango que
+   usan los paneles y están pensados para panel compacto: título de
+   sección 1.15rem, cuerpo 0.85rem, etiqueta 0.7rem.
+
+   POR QUÉ USA !important
+   Los dashboards se cargan con React.lazy(), así que admin.css,
+   comprador.css y productor.css se inyectan en el documento DESPUÉS de
+   main.jsx, sin importar en qué orden se declaren los imports. Además
+   algunas de sus reglas tienen especificidad mayor (.buyer-dashboard
+   .section.active .dash-header h1 es 0,4,1). Confiar en el orden o en la
+   especificidad haría que esta capa se aplicara a veces y no otras.
+   El !important sobre font-size es deliberado: es la única forma de
+   garantizar una escala única sin reescribir cada hoja de panel.
+
+   Ámbito: solo elementos dentro de los tres dashboards, mediante sus
+   clases raíz. El sitio público no se ve afectado.
+   ============================================================ */
+
+/* --- Título de sección (el h1 dentro de .dash-header) ---
+   Los selectores `.section.active` se retiraron: con el Outlet solo se monta
+   la sección de la ruta y ninguna lleva ya la clase "active".
+
+  familias de cabecera que NO son .dash-header y que hay que cubrir aquí:
+   el Productor usa .producer-section-head en cuatro secciones y .dash-header
+   en otras cinco, así que el mismo panel mostraba el título a 30px en unas y
+   a 18px en otras. El Comprador tiene .buyer-page-heading y
+   .buyer-dashboard-head. Los tres títulos miden ahora lo mismo. */
+.admin-dashboard .dash-header h1,
+.buyer-dashboard .dash-header h1,
+.buyer-shell .dash-header h1,
+.producer-dashboard .dash-header h1,
+.producer-dashboard .producer-section-head h1,
+.buyer-dashboard .buyer-page-heading h1,
+.buyer-dashboard .buyer-page-heading h2,
+.buyer-dashboard .buyer-dashboard-head h1 {
+  font-size: 1.15rem !important;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* --- Subtítulo de sección, en las mismas familias --- */
+.admin-dashboard .dash-header p,
+.buyer-dashboard .dash-header p,
+.buyer-shell .dash-header p,
+.producer-dashboard .dash-header p,
+.producer-dashboard .producer-section-head p,
+.buyer-dashboard .buyer-page-heading p,
+.buyer-dashboard .buyer-dashboard-head p {
+  font-size: 0.78rem !important;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 2px 0 0;
+  color: var(--am-text-muted, #94a89a);
+}
+
+/* --- Antetítulo / eyebrow, en las tres cabeceras --- */
+.producer-dashboard .producer-eyebrow,
+.producer-dashboard .producer-panel-kicker {
+  font-size: 0.7rem !important;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* --- Etiqueta de métrica (KPI) ---
+   Cada panel tenía su propia familia y sus propias medidas: el Comprador
+   llegaba a 24px en la cifra y el Productor se quedaba en 16px. Aquí se cubren
+   las cuatro, para que la cifra grande mida igual en los tres. */
+.admin-dashboard .stat-label,
+.buyer-dashboard .stat-label,
+.buyer-shell .stat-label,
+.producer-dashboard .stat-label,
+.admin-dashboard .admin-kpi span,
+.admin-dashboard .admin-kpi small,
+.producer-dashboard .producer-farm-stats span,
+.buyer-dashboard .buyer-metric span,
+.buyer-dashboard .buyer-metric small,
+.admin-dashboard .admin-mini span,
+.admin-dashboard .audit-card span,
+.admin-dashboard .audit-card small {
+  font-size: 0.7rem !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* --- Valor de métrica (cifra grande) --- */
+.admin-dashboard .stat-value,
+.buyer-dashboard .stat-value,
+.buyer-shell .stat-value,
+.producer-dashboard .stat-value,
+.admin-dashboard .admin-kpi strong,
+.producer-dashboard .producer-farm-stats strong,
+.buyer-dashboard .buyer-metric strong,
+.admin-dashboard .admin-mini strong,
+.admin-dashboard .admin-big-number,
+.admin-dashboard .audit-card strong {
+  font-size: 1.35rem !important;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* --- Texto de tendencia bajo la métrica --- */
+.admin-dashboard .stat-trend,
+.buyer-dashboard .stat-trend,
+.buyer-shell .stat-trend,
+.producer-dashboard .stat-trend {
+  font-size: 0.7rem !important;
+  font-weight: 500;
+}
+
+/* --- Título de tarjeta (encabezado de tabla o panel) --- */
+.admin-dashboard .card-title,
+.buyer-dashboard .card-title,
+.buyer-shell .card-title,
+.producer-dashboard .card-title {
+  font-size: 0.9rem !important;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+/* --- Encabezado de tabla --- */
+.admin-dashboard .table-responsive th,
+.buyer-dashboard .table-responsive th,
+.buyer-shell .table-responsive th,
+.producer-dashboard .table-responsive th {
+  font-size: 0.68rem !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* --- Celda de tabla --- */
+.admin-dashboard .table-responsive td,
+.buyer-dashboard .table-responsive td,
+.buyer-shell .table-responsive td,
+.producer-dashboard .table-responsive td {
+  font-size: 0.8rem !important;
+  line-height: 1.4;
+}
+
+/* --- Etiqueta de formulario --- */
+.admin-dashboard .form-label,
+.buyer-dashboard .form-label,
+.buyer-shell .form-label,
+.producer-dashboard .form-label {
+  font-size: 0.74rem !important;
+  font-weight: 600;
+}
+
+/* --- Campo de formulario y botón --- */
+.admin-dashboard .form-input,
+.buyer-dashboard .form-input,
+.buyer-shell .form-input,
+.producer-dashboard .form-input,
+.admin-dashboard .btn,
+.buyer-dashboard .btn,
+.buyer-shell .btn,
+.producer-dashboard .btn {
+  font-size: 0.82rem !important;
+}
+
+/* --- Enlace del menú lateral ---
+   El shell común dibuja el menú con .ds-nav__item, que ya toma su tamaño de
+   --fs-sm (dashboard-shell.css). Aquí solo quedan los dos paneles que aún no
+   se han migrado al shell. */
+.admin-dashboard .sidebar-link,
+.buyer-dashboard .sidebar-link,
+.buyer-shell .sidebar-link {
+  font-size: 0.8rem !important;
+  font-weight: 600;
+}
+
+/* --- Insignia de estado --- */
+.admin-dashboard .badge-status,
+.buyer-dashboard .badge-status,
+.buyer-shell .badge-status,
+.producer-dashboard .badge-status,
+.admin-dashboard .priority-badge,
+.buyer-dashboard .priority-badge {
+  font-size: 0.66rem !important;
+  font-weight: 700;
+}
+
+/* --- Botón principal de la cabecera --- */
+.admin-dashboard .btn-cta,
+.buyer-dashboard .btn-cta,
+.buyer-shell .btn-cta,
+.producer-dashboard .btn-cta {
+  font-size: 0.8rem !important;
+  font-weight: 700;
+}

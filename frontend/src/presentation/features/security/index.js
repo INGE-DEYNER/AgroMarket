@@ -1,0 +1,9 @@
+export { default as RolesPermisos } from "./pages/RolesPermisos";
+export { default as ControlAcceso } from "./pages/ControlAcceso";
+export { default as DosFactorTOTP } from "./pages/DosFactorTOTP";
+export { default as SeguridadCuenta } from "./pages/SeguridadCuenta";
+export { default as EstadosEspeciales } from "./pages/EstadosEspeciales";
+export { default as MatrizPermisos } from "./pages/MatrizPermisos";
+export { default as AuditoriaActividad } from "./pages/AuditoriaActividad";
+export { default as PrivacidadDatos } from "./pages/PrivacidadDatos";
+export { default as SellosConfianza } from "./pages/SellosConfianza";

@@ -1,0 +1,412 @@
+/* ============================================================
+   AgroMarket — Design System Global Tokens
+   variables.css
+   ============================================================ */
+
+:root {
+  /* ==========================================================
+     BRAND
+     ========================================================== */
+
+  /* Paleta alineada al design system de Figma (AgroMarket):
+     verde oscuro #14532D · verde principal #1A5C2A · acento #2ECC71 */
+  --am-green-900: #14532d;
+  --am-green-700: #1a5c2a;
+  --am-green-500: #22c55e;
+  --am-green-300: #a8e6a1;
+  --am-green-100: #e8f5e9;
+
+  /* ==========================================================
+     SEMANTIC
+     ========================================================== */
+
+  --am-success: #11823b;
+  --am-warning: #ffc107;
+  --am-danger: #dc2626;
+  --am-info: #2563eb;
+
+  /* ==========================================================
+     NEUTRALS
+     ========================================================== */
+
+  --am-gray-950: #18201a;
+  --am-gray-700: #374151;
+  --am-gray-500: #626c66;
+  --am-gray-300: #d1d5db;
+  --am-gray-100: #f3f4f6;
+  --am-white: #ffffff;
+
+  /* ==========================================================
+     SURFACES
+     ========================================================== */
+
+  --am-bg: #f8faf8;
+  --am-surface: #ffffff;
+  --am-surface-soft: #e8f5e9;
+  --am-surface-muted: #f3f4f6;
+
+  /* ==========================================================
+     TYPOGRAPHY
+     ========================================================== */
+
+  --am-font-heading: "Poppins", "Outfit", sans-serif;
+  --am-font-body: "Inter", sans-serif;
+
+  /* ==========================================================
+     SPACING
+     ========================================================== */
+
+  --am-space-1: 4px;
+  --am-space-2: 8px;
+  --am-space-3: 12px;
+  --am-space-4: 16px;
+  --am-space-5: 20px;
+  --am-space-6: 24px;
+  --am-space-7: 28px;
+  --am-space-8: 32px;
+  --am-space-10: 40px;
+  --am-space-12: 48px;
+  --am-space-16: 64px;
+
+  /* ==========================================================
+     RADIUS
+     ========================================================== */
+
+  --am-radius-sm: 4px;
+  --am-radius-md: 8px;
+  --am-radius-lg: 12px;
+  --am-radius-xl: 16px;
+  --am-radius-2xl: 20px;
+  --am-radius-3xl: 24px;
+  --am-radius-pill: 999px;
+
+  /* ==========================================================
+     SHADOWS
+     ========================================================== */
+
+  --am-shadow-sm: 0 1px 3px rgba(17, 24, 39, 0.08);
+
+  --am-shadow-md: 0 6px 18px rgba(17, 24, 39, 0.1);
+
+  --am-shadow-lg: 0 14px 38px rgba(17, 24, 39, 0.14);
+
+  /* ==========================================================
+     MOTION
+     ========================================================== */
+
+  --am-duration-fast: 120ms;
+  --am-duration-base: 200ms;
+  --am-duration-slow: 300ms;
+
+  --am-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --am-focus-ring: 0 0 0 3px rgba(26, 92, 42, 0.24);
+
+  /* ==========================================================
+     Z-INDEX
+     ========================================================== */
+
+  --am-z-base: 1;
+  --am-z-dropdown: 1000;
+  --am-z-sticky: 1100;
+  --am-z-overlay: 1200;
+  --am-z-modal: 1300;
+  --am-z-toast: 1400;
+  --am-z-tooltip: 1500;
+
+  /* ==========================================================
+     BREAKPOINTS
+     ========================================================== */
+
+  --am-bp-mobile: 576px;
+  --am-bp-tablet: 768px;
+  --am-bp-laptop: 1024px;
+
+  /* ==========================================================
+     LEGACY ALIASES
+     ========================================================== */
+
+  --bg: var(--am-bg);
+  --surface: var(--am-surface);
+  --surface2: #fafcfa;
+  --surface3: var(--am-surface-muted);
+
+  --border: #d1ddd7;
+  --border-light: #e4eae6;
+
+  --text: var(--am-gray-950);
+  --text-muted: var(--am-gray-700);
+  --text-dim: var(--am-gray-500);
+
+  --primary-dark: var(--am-green-900);
+  --primary: var(--am-green-700);
+  /* Verde intermedio para botones con texto blanco (contraste AA) */
+  --primary-light: #1e7a3a;
+
+  --green-bg: var(--am-green-100);
+
+  --gold: #a86f00;
+  --gold-bg: #fff8db;
+  --gold-border: #f0c84b;
+
+  --red: var(--am-danger);
+  --red-bg: #fef2f2;
+  --red-border: #fee2e2;
+  --blue: var(--am-info);
+  --blue-bg: #eff6ff;
+
+  --gray-bg: var(--am-gray-100);
+
+  --radius: var(--am-radius-lg);
+  --radius-sm: var(--am-radius-sm);
+  --radius-md: var(--am-radius-md);
+  --radius-lg: var(--am-radius-xl);
+
+  --shadow-sm: var(--am-shadow-sm);
+  --shadow: var(--am-shadow-md);
+  --shadow-lg: var(--am-shadow-lg);
+
+  --transition: var(--am-duration-base) var(--am-ease);
+
+  --font-title: var(--am-font-heading);
+  --font-body: var(--am-font-body);
+
+  --sidebar-w: 280px;
+  --navbar-h: 60px;
+
+  --z-dropdown: var(--am-z-dropdown);
+  --z-sticky: var(--am-z-sticky);
+
+  /* ==========================================================
+     COMPATIBILITY TOKENS
+     ========================================================== */
+
+  --color-background: var(--am-bg);
+  --color-surface: var(--am-surface);
+  --color-surface-2: var(--am-surface-muted);
+
+  --color-surface-hover: #f3f7f4;
+  --color-surface-active: #e8f5e9;
+
+  --color-text-primary: var(--am-gray-950);
+  --color-text-secondary: var(--am-gray-700);
+  --color-text-muted: var(--am-gray-500);
+  --color-text-inverse: #ffffff;
+
+  --color-border: var(--border);
+  --color-border-strong: rgba(17, 130, 59, 0.28);
+
+  --color-primary: var(--primary);
+}
+
+/* ============================================================
+   DARK MODE
+   ============================================================
+
+   IMPORTANTE:
+
+   El tema oscuro se activa cuando cualquiera de estos elementos
+   posee la clase "dark":
+
+     <html class="dark">
+     <body class="dark">
+     <div id="root" class="dark">
+
+   También soporta:
+
+     data-theme="dark"
+
+   Esto hace que los tokens sean mucho más resistentes a la forma
+   en que tu ThemeContext / ThemeProvider esté aplicando el tema.
+   ============================================================ */
+
+html.dark,
+body.dark,
+#root.dark,
+html[data-theme="dark"],
+body[data-theme="dark"],
+#root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* ==========================================================
+     DARK BRAND
+     ========================================================== */
+
+  --am-green-900: #7bcb8a;
+  --am-green-700: #52b86a;
+  --am-green-500: #72c77f;
+  --am-green-300: #9be3a3;
+  --am-green-100: #1d3022;
+
+  /* ==========================================================
+     DARK SEMANTIC
+     ========================================================== */
+
+  --am-success: #72c77f;
+  --am-warning: #ffd666;
+  --am-danger: #f87171;
+  --am-info: #60a5fa;
+
+  /* ==========================================================
+     DARK NEUTRALS
+     ========================================================== */
+
+  --am-gray-950: #ffffff;
+  --am-gray-700: #ffffff;
+  --am-gray-500: #ffffff;
+  --am-gray-300: #ffffff;
+  --am-gray-100: #263229;
+  --am-white: #ffffff;
+
+  /* ==========================================================
+     DARK SURFACES
+     ========================================================== */
+
+  --am-bg: #0f1712;
+  --am-surface: #17221a;
+  --am-surface-soft: #1d3022;
+  --am-surface-muted: #202a24;
+
+  /* ==========================================================
+     DARK LEGACY ALIASES
+     ========================================================== */
+
+  --bg: var(--am-bg);
+  --surface: var(--am-surface);
+  --surface2: #1d2a21;
+  --surface3: var(--am-surface-muted);
+
+  --border: #37463c;
+  --border-light: #2c3a31;
+
+  --text: #ffffff;
+  --text-muted: #ffffff;
+  --text-dim: #ffffff;
+
+  --primary-dark: #7bcb8a;
+  --primary: #52b86a;
+  --primary-light: #72c77f;
+
+  --green-bg: var(--am-surface-soft);
+
+  --gold: #ffd666;
+  --gold-bg: rgba(255, 193, 7, 0.14);
+  --gold-border: rgba(255, 193, 7, 0.35);
+
+  --red: #f87171;
+  --red-bg: rgba(220, 38, 38, 0.14);
+
+  --blue: #60a5fa;
+  --blue-bg: rgba(37, 99, 235, 0.14);
+
+  --gray-bg: var(--am-surface-muted);
+
+  /* ==========================================================
+     DARK COMPATIBILITY TOKENS
+     ========================================================== */
+
+  --color-background: var(--am-bg);
+  --color-surface: var(--am-surface);
+  --color-surface-2: var(--am-surface-muted);
+
+  --color-surface-hover: #1d2a21;
+  --color-surface-active: #26352b;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-muted: #ffffff;
+  --color-text-inverse: #111827;
+
+  --color-border: #37463c;
+  --color-border-strong: #4b5b50;
+
+  --color-primary: var(--primary);
+}
+
+/* ============================================================
+   GLOBAL DARK MODE FALLBACK
+   ============================================================
+
+   Esto es intencionalmente pequeño.
+
+   Las variables anteriores hacen el trabajo principal.
+   Estas reglas garantizan que html/body/root realmente ocupen
+   toda la pantalla con la superficie oscura.
+   ============================================================ */
+
+html.dark,
+html[data-theme="dark"] {
+  background: var(--am-bg);
+  color: var(--text);
+}
+
+body.dark,
+body[data-theme="dark"] {
+  background: var(--bg);
+  color: var(--text);
+}
+
+#root.dark,
+#root[data-theme="dark"] {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ============================================================
+   SELECCIÓN DE TEXTO
+   ============================================================ */
+
+html.dark ::selection,
+html[data-theme="dark"] ::selection,
+body.dark ::selection,
+body[data-theme="dark"] ::selection {
+  background: rgba(82, 184, 106, 0.3);
+  color: #ffffff;
+}
+
+/* ============================================================
+   SCROLLBAR DARK
+   ============================================================ */
+
+html.dark,
+html[data-theme="dark"] {
+  scrollbar-color: #3f5146 #0f1712;
+}
+
+html.dark::-webkit-scrollbar,
+html[data-theme="dark"]::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html.dark::-webkit-scrollbar-track,
+html[data-theme="dark"]::-webkit-scrollbar-track {
+  background: var(--am-bg);
+}
+
+html.dark::-webkit-scrollbar-thumb,
+html[data-theme="dark"]::-webkit-scrollbar-thumb {
+  background: #3f5146;
+  border-radius: var(--am-radius-pill);
+  border: 2px solid var(--am-bg);
+}
+
+html.dark::-webkit-scrollbar-thumb:hover,
+html[data-theme="dark"]::-webkit-scrollbar-thumb:hover {
+  background: #52685a;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html.dark *,
+  html.dark *::before,
+  html.dark *::after,
+  html[data-theme="dark"] *,
+  html[data-theme="dark"] *::before,
+  html[data-theme="dark"] *::after {
+    scroll-behavior: auto !important;
+  }
+}

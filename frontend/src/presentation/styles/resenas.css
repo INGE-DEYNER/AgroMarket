@@ -1,0 +1,161 @@
+/* Resenas Page Styles */
+
+/*
+ * Clases de la tarjeta y la pagina. Antes todo el JSX usaba estilos inline,
+ * lo que impedia cualquier ajuste responsive y reutilizacion.
+ */
+.resenas-page {
+  padding: 28px 32px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.review-card {
+  background: var(--card-bg, var(--surface));
+  border: 1px solid var(--border-light, #e5e7eb);
+  border-radius: var(--radius, 10px);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.review-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.review-stars {
+  color: var(--gold, #d4a017);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.review-stars-empty {
+  color: var(--border-light, #e5e7eb);
+}
+
+.review-product {
+  font-size: 0.85rem;
+  color: var(--primary, #1b4332);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.review-comment {
+  color: var(--text-secondary, #4b5563);
+}
+
+.review-date {
+  font-size: 0.75rem;
+  color: var(--text-muted, #6b7280);
+  margin-top: 8px;
+}
+
+@media (max-width: 560px) {
+  .resenas-page {
+    padding: 20px 16px;
+  }
+
+  .review-card {
+    padding: 16px;
+  }
+
+  .review-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+.review-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  animation: fadeUp 0.3s ease;
+}
+.review-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+.review-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.review-meta {
+  flex: 1;
+}
+.review-user {
+  font-weight: 700;
+  font-family: var(--font-title);
+  font-size: 1rem;
+  color: var(--green-dark);
+}
+.review-time {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.review-stars {
+  color: var(--gold);
+  font-size: 1.15rem;
+  margin: 8px 0;
+  letter-spacing: 2px;
+}
+.review-comment {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.review-product-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-bg);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  color: var(--green);
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+/* Star input */
+.star-input-row {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 6px;
+}
+.star-inp {
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--border);
+  transition: color 0.15s, transform 0.15s;
+  user-select: none;
+  line-height: 1;
+}
+.star-inp:hover,
+.star-inp.hover,
+.star-inp.active {
+  color: var(--gold);
+  transform: scale(1.15);
+}
+
+/* ─── RESPONSIVE: MÓVIL ─────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .review-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .review-header {
+    gap: 10px;
+  }
+}

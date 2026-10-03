@@ -1,0 +1,10 @@
+// Categoría 6 — Páginas Especiales del Sistema
+export { default as Notificaciones } from "./pages/Notificaciones";
+export { default as DireccionesGuardadas } from "./pages/DireccionesGuardadas";
+export { default as CuponesPromociones } from "./pages/CuponesPromociones";
+export { default as ListaDeseos } from "./pages/ListaDeseos";
+export { default as HistorialNavegacion } from "./pages/HistorialNavegacion";
+export { default as CentroAyudaDetallado } from "./pages/CentroAyudaDetallado";
+export { default as DevolucionesReembolsos } from "./pages/DevolucionesReembolsos";
+export { default as MetodosPagoGuardados } from "./pages/MetodosPagoGuardados";
+export { default as ModoOscuro } from "./pages/ModoOscuro";

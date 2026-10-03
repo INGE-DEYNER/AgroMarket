@@ -1,0 +1,207 @@
+package com.agromarket.application.usecases.user;
+
+import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.agromarket.domain.models.enums.user.Role;
+import com.agromarket.domain.models.user.User;
+import com.agromarket.domain.ports.in.user.UpdateProfileCommand;
+import com.agromarket.domain.ports.in.user.UserPort;
+import com.agromarket.domain.ports.in.user.UserResult;
+import com.agromarket.domain.ports.out.user.PasswordHashPort;
+import com.agromarket.domain.services.user.PasswordPolicyService;
+
+@RequiredArgsConstructor
+@Service
+@Transactional
+public class UserUseCase implements UserPort {
+
+    private final com.agromarket.domain.ports.out.user.UserPort userPersistencePort;
+    private final PasswordHashPort passwordHashPort;
+    private final PasswordPolicyService passwordPolicyService;
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResult getById(Long id) {
+        return toResult(findUser(id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResult getProfile(Long id) {
+        return toResult(findUser(id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserResult> getAll() {
+        return userPersistencePort.findAll().stream().map(this::toResult).toList();
+    }
+
+    @Override
+    public UserResult update(Long id, UpdateProfileCommand command) {
+        User user = findUser(id);
+        apply(command, user);
+        user.setUpdatedAt(LocalDateTime.now());
+        return toResult(userPersistencePort.save(user));
+    }
+
+    @Override
+    public UserResult updateProfile(Long id, UpdateProfileCommand command) {
+        return update(id, command);
+    }
+
+    @Override
+    public void changePassword(Long id, String newPassword) {
+        passwordPolicyService.validate(newPassword);
+        String hashed = passwordHashPort.hash(newPassword);
+        userPersistencePort.changePassword(id, hashed);
+    }
+
+    @Override
+    public void changeOwnPassword(Long id, String currentPassword, String newPassword) {
+        User user = findUser(id);
+
+        // NOTA: se asume que PasswordHashPort expone "matches(raw, hashed)"
+        // y que User expone "getPassword()" con el hash almacenado.
+        // Ajusta los nombres si en tu proyecto son distintos (verify, check,
+        // getPasswordHash, etc.)
+        if (!passwordHashPort.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("La contraseña actual no es correcta");
+        }
+
+        passwordPolicyService.validate(newPassword);
+
+        String hashed = passwordHashPort.hash(newPassword);
+
+        userPersistencePort.changePassword(id, hashed);
+    }
+
+    @Override
+    public void enable(Long id) {
+        User user = findUser(id);
+        user.setActive(true);
+        user.setUpdatedAt(LocalDateTime.now());
+        userPersistencePort.save(user);
+    }
+
+    @Override
+    public void disable(Long id) {
+        User user = findUser(id);
+        user.setActive(false);
+        user.setUpdatedAt(LocalDateTime.now());
+        userPersistencePort.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserResult> getPendientesAprobacion() {
+        return userPersistencePort.findAll().stream()
+                .filter(u -> u.getRole() == Role.PRODUCER)
+                .filter(u -> !Boolean.TRUE.equals(u.getAccountApproved()))
+                .map(this::toResult)
+                .toList();
+    }
+
+    @Override
+    public UserResult aprobarUsuario(Long id) {
+        User user = findUser(id);
+        user.setAccountApproved(true);
+        user.setActive(true);
+        user.setUpdatedAt(LocalDateTime.now());
+        return toResult(userPersistencePort.save(user));
+    }
+
+    @Override
+    public UserResult rechazarUsuario(Long id) {
+        User user = findUser(id);
+        user.setAccountApproved(false);
+        user.setUpdatedAt(LocalDateTime.now());
+        return toResult(userPersistencePort.save(user));
+    }
+
+    @Override
+    public UserResult toggleVerificadoProductor(Long id) {
+        User user = findUser(id);
+        user.setAccountApproved(!Boolean.TRUE.equals(user.getAccountApproved()));
+        user.setUpdatedAt(LocalDateTime.now());
+        return toResult(userPersistencePort.save(user));
+    }
+
+    private User findUser(Long id) {
+        return userPersistencePort.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
+
+    private void apply(UpdateProfileCommand c, User u) {
+        if (c.getFirstName() != null)
+            u.setFirstName(c.getFirstName());
+        if (c.getLastName() != null)
+            u.setLastName(c.getLastName());
+        if (c.getPhone() != null)
+            u.setPhone(c.getPhone());
+        if (c.getCountryCode() != null)
+            u.setCountryCode(c.getCountryCode());
+        if (c.getIdNumber() != null)
+            u.setIdNumber(c.getIdNumber());
+        if (c.getBirthDate() != null)
+            u.setBirthDate(c.getBirthDate());
+        if (c.getIdType() != null)
+            u.setIdType(c.getIdType());
+        if (c.getCompanyName() != null)
+            u.setCompanyName(c.getCompanyName());
+        if (c.getNit() != null)
+            u.setNit(c.getNit());
+        if (c.getDepartment() != null)
+            u.setDepartment(c.getDepartment());
+        if (c.getCity() != null)
+            u.setCity(c.getCity());
+        if (c.getFullAddress() != null)
+            u.setFullAddress(c.getFullAddress());
+        if (c.getAddressReference() != null)
+            u.setAddressReference(c.getAddressReference());
+        if (c.getPostalCode() != null)
+            u.setPostalCode(c.getPostalCode());
+        if (c.getPhotoUrl() != null)
+            u.setPhotoUrl(c.getPhotoUrl());
+        if (c.getPreferredCurrency() != null)
+            u.setPreferredCurrency(c.getPreferredCurrency());
+    }
+
+    private UserResult toResult(User u) {
+        return UserResult.builder()
+                .id(u.getId())
+                .firstName(u.getFirstName())
+                .lastName(u.getLastName())
+                .email(u.getEmail())
+                .phone(u.getPhone())
+                .role(u.getRole())
+                .active(u.isActive())
+                .totpEnabled(u.isTotpEnabled())
+                .provider(u.getProvider())
+                .emailVerified(u.isEmailVerified())
+                .countryCode(u.getCountryCode())
+                .idNumber(u.getIdNumber())
+                .birthDate(u.getBirthDate())
+                .idType(u.getIdType())
+                .companyName(u.getCompanyName())
+                .nit(u.getNit())
+                .isCompany(u.isCompanyUser())
+                .accountApproved(u.getAccountApproved())
+                .accountComplete(u.isAccountComplete())
+                .department(u.getDepartment())
+                .city(u.getCity())
+                .fullAddress(u.getFullAddress())
+                .addressReference(u.getAddressReference())
+                .postalCode(u.getPostalCode())
+                .photoUrl(u.getPhotoUrl())
+                .createdAt(u.getCreatedAt())
+                .updatedAt(u.getUpdatedAt())
+                .preferredCurrency(u.getPreferredCurrency())
+                .build();
+    }
+}

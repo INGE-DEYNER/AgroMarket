@@ -1,0 +1,607 @@
+/*
+ * Paleta del panel.
+ *
+ * Los colores de marca (verde ASAFRUT) son fijos. Los de superficie, texto y
+ * borde se redefinen para el tema oscuro más abajo, de modo que las reglas
+ * que usan var(--admin-*) cambian solas al alternar el tema y no hace falta
+ * duplicar ninguna regla con html.dark.
+ */
+:root {
+  --admin-green: #11823b;
+  --admin-dark: #0a5a27;
+  --admin-deep: #063d1b;
+  --admin-light: #e8f5e9;
+  --admin-lighter: #f5fbf6;
+  --admin-border: #d9e5dc;
+  --admin-text: #111827;
+  --admin-muted: #667280;
+  --admin-yellow: #f59e0b;
+  --admin-red: #dc2626;
+  --admin-blue: #2563eb;
+  --admin-white: #ffffff;
+  --admin-radius: 12px;
+  --admin-shadow: 0 5px 18px rgba(10, 90, 39, 0.08);
+
+  /* Superficies y marco del panel */
+  --admin-page: #f5f8f6;
+  --admin-surface: #ffffff;
+  --admin-surface-alt: #f1f6f2;
+  --admin-frame: #eef3ef;
+  --admin-frame-border: #d9e5dc;
+}
+html.dark {
+  --admin-page: #0e1711;
+  --admin-surface: #16211a;
+  --admin-surface-alt: #1d2a21;
+  --admin-frame: #1a251e;
+  --admin-frame-border: #2c3b31;
+  --admin-border: #2c3b31;
+  --admin-text: #eef7f0;
+  --admin-muted: #94a89a;
+  --admin-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+}
+.sidebar-user-info .name,
+.sidebar-link.active { color: #fff; background: var(--admin-green); box-shadow: 0 5px 14px rgba(17,130,59,.25); font-weight: 700; }
+/* Contador de pedidos pendientes. Va al final con margin-left:auto para que
+   el número se alinee a la derecha sin alterar el ancho de la etiqueta. */
+/* Contenedor estandar de una seccion del panel.
+   Antes el contenedor del shell era un grid que cambiaba de columnas segun
+   la seccion activa (2fr 1fr en el dashboard, 1fr en el resto), lo que hacia
+   que el layout reproporcionara al navegar. Aqui no hay grid: cada seccion
+   aporta el suyo si lo necesita, y todas ocupan el mismo ancho por defecto. */
+.admin-content { display: block; width: 100%; }
+.dash-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 4px 0 20px;
+}
+.dash-welcome h1 { margin: 0; color: var(--admin-deep); font-size: 1.65rem; letter-spacing: .02em; }
+.dash-welcome p { margin: 4px 0 0; color: var(--admin-muted); font-size: .82rem; }
+.btn-cta { border: 0; border-radius: 8px; padding: 10px 16px; color: #fff; font-weight: 700; cursor: pointer; background: var(--admin-dark); }
+.btn-cta:hover { background: var(--admin-green); }
+.stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 14px; }
+/* El círculo decorativo (::after) se eliminaba: como la tarjeta no fija
+   min-height al contenido, el círculo se desbordaba y se veía como un cuarto
+   de círculo suelto en la esquina. Ahora la tarjeta usa un borde superior de
+   color, que es lo que yaDave el aire de "tarjeta de métrica". */
+.stat-card { position: relative; min-height: 84px; padding: 11px 13px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-surface); box-shadow: var(--admin-shadow); }
+.stat-label { color: var(--admin-muted); font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.stat-value { margin: 5px 0 2px; color: var(--admin-text); font-size: 1.3rem; font-weight: 800; }
+.stat-trend { color: var(--admin-muted); font-size: .64rem; }
+.stat-trend.up { color: var(--admin-green); }
+.stat-trend.down { color: var(--admin-red); }
+/* Icono decorativo: cuadrado compacto alineado a la derecha. */
+.stat-icon-lg { position: absolute; top: 11px; right: 11px; width: 20px; height: 20px; border-radius: 6px; background: var(--admin-surface-alt); }
+.color-1 { border-top: 2px solid var(--admin-green); }
+.color-2 { border-top: 2px solid #3b82f6; }
+.color-3 { border-top: 2px solid #f59e0b; }
+.color-4 { border-top: 2px solid #ef4444; }
+.card-table { min-width: 0; border: 1px solid var(--admin-border); border-radius: var(--admin-radius); background: var(--admin-surface); box-shadow: var(--admin-shadow); overflow: hidden; }
+.table-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #edf2ee; }
+.card-title { margin: 0; color: var(--admin-deep); font-size: 1rem; font-weight: 800; }
+.section-subtitle { margin: 4px 0 0; color: var(--admin-muted); font-size: .72rem; }
+.table-filters { padding: 14px 20px; border-bottom: 1px solid #edf2ee; }
+.search-box input { width: 100%; min-height: 38px; border: 1px solid var(--admin-border); border-radius: 7px; padding: 8px 11px; outline: none; }
+.search-box input:focus { border-color: var(--admin-green); box-shadow: 0 0 0 3px rgba(17,130,59,.1); }
+.table-wrap { width: 100%; overflow-x: auto; }
+.table-responsive { width: 100%; border-collapse: collapse; }
+.table-responsive th { background: var(--admin-frame); color: #4b5a52; font-size: .65rem; text-transform: uppercase; letter-spacing: .03em; text-align: left; padding: 11px 12px; white-space: nowrap; }
+.table-responsive td { color: #25312b; font-size: .72rem; padding: 11px 12px; border-top: 1px solid #edf2ee; vertical-align: middle; }
+.table-responsive tbody tr:hover { background: var(--admin-frame); }
+.empty-cell { padding: 28px !important; text-align: center; color: var(--admin-muted); line-height: 1.6; }
+.table-action { border: 1px solid var(--admin-green); border-radius: 7px; background: var(--admin-surface); color: var(--admin-dark); padding: 8px 12px; font-size: .7rem; font-weight: 700; cursor: pointer; }
+.btn { border: 0; border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: .7rem; font-weight: 700; }
+.btn-primary { background: var(--admin-green); color: #fff; }
+.btn-primary:hover { background: var(--admin-dark); }
+.btn-secondary { background: #eef4ef; color: var(--admin-dark); }
+.btn-danger { background: #fee2e2; color: var(--admin-red); }
+.btn-sm { padding: 6px 9px; }
+.badge-status, .priority-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 8px; font-size: .62rem; font-weight: 800; white-space: nowrap; }
+.status-shipped { background: #dcfce7; color: #166534; }
+.status-pending { background: #fef3c7; color: #92400e; }
+.admin-dashboard-section { padding: 0 0 20px; }
+.admin-kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; padding: 18px 20px; }
+.admin-kpi { border: 1px solid var(--admin-border); border-radius: 10px; padding: 13px; background: var(--admin-surface); }
+.admin-kpi span, .admin-kpi small { display: block; color: var(--admin-muted); font-size: .67rem; }
+.admin-kpi strong { display: block; margin: 7px 0 3px; color: var(--admin-deep); font-size: 1.22rem; }
+.admin-dashboard-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 14px; padding: 0 20px; }
+.admin-panel { min-width: 0; border: 1px solid var(--admin-border); border-radius: 10px; padding: 16px; background: var(--admin-surface); }
+.admin-panel-heading { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.admin-panel-heading h4 { margin: 0; color: var(--admin-text); font-size: .82rem; }
+.admin-panel-heading span { color: var(--admin-muted); font-size: .65rem; }
+.admin-big-number { margin: 10px 0; color: var(--admin-deep); font-size: 1.45rem; font-weight: 800; }
+.admin-chart-placeholder { height: 115px; display: flex; align-items: flex-end; gap: 7px; padding: 10px 2px 0; border-bottom: 1px solid #e8eee9; background: linear-gradient(to top, rgba(232,245,233,.7), transparent); }
+.admin-chart-placeholder span { flex: 1; max-width: 28px; margin: 0 auto; border-radius: 5px 5px 0 0; background: var(--admin-green); opacity: .72; }
+.status-list { display: grid; gap: 11px; margin-top: 18px; }
+.status-list div { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 7px; color: #4b5a52; font-size: .72rem; }
+.status-list strong { color: var(--admin-text); }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-green { background: #22c55e; }.dot-blue { background: #3b82f6; }.dot-yellow { background: #f59e0b; }.dot-red { background: #ef4444; }
+.admin-mini-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; padding: 14px 20px 0; }
+.admin-mini { padding: 13px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-surface); }
+.admin-mini span, .admin-mini strong { display: block; }.admin-mini span { color: var(--admin-muted); font-size: .65rem; }.admin-mini strong { margin-top: 5px; color: var(--admin-deep); font-size: 1rem; }
+.date-chip { padding: 7px 10px; border: 1px solid var(--admin-border); border-radius: 7px; color: var(--admin-muted); background: var(--admin-surface); font-size: .65rem; }
+.audit-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 20px; }
+.audit-card { padding: 16px; border: 1px solid var(--admin-border); border-radius: 10px; background: var(--admin-lighter); }
+.audit-card span, .audit-card small { display: block; color: var(--admin-muted); font-size: .66rem; }.audit-card strong { display: block; margin: 7px 0; color: var(--admin-deep); font-size: 1.25rem; }.empty-audit { margin: 0 20px 20px; padding: 20px; border: 1px dashed var(--admin-border); border-radius: 9px; color: var(--admin-muted); font-size: .72rem; text-align: center; background: var(--admin-frame); }
+@media (max-width: 1200px) {
+  .stats-grid, .admin-kpi-grid { grid-template-columns: repeat(2,1fr); }
+  .admin-dashboard-grid { grid-template-columns: 1fr; }
+  .admin-mini-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 900px) {
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.38); z-index: 999; }
+  .dash-header { align-items: flex-start; flex-direction: column; }.dash-welcome h1 { font-size: 1.3rem; }
+}
+@media (max-width: 560px) {
+  .stats-grid, .admin-kpi-grid, .admin-mini-grid, .audit-grid { grid-template-columns: 1fr; }
+  .table-header { align-items: flex-start; flex-direction: column; }
+  .table-action { width: 100%; }
+  .table-responsive thead { display: none; }
+  .table-responsive, .table-responsive tbody, .table-responsive tr, .table-responsive td { display: block; width: 100%; }
+  .table-responsive tr { padding: 10px 0; border-top: 1px solid #edf2ee; }.table-responsive td { display: flex; justify-content: space-between; gap: 14px; padding: 7px 14px; border: 0; }.table-responsive td::before { content: attr(data-label); color: var(--admin-muted); font-weight: 700; }
+}
+/* ============================================================
+   PANEL DESPLEGABLE DE NOTIFICACIONES
+   ------------------------------------------------------------
+   La campana del topbar abre este panel en el mismo lugar (sin
+   navegar), al estilo de las notificaciones agrupadas de iOS:
+   cada aviso es una pila translúcida con icono, título, resumen y
+   hora, apiladas verticalmente y ligeramente desplazadas.
+   ============================================================ */
+.notif-bell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--admin-border);
+  border-radius: 9px;
+  background: var(--admin-surface-alt);
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+.notif-bell:hover { background: var(--admin-surface); }
+.notif-bell__badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--admin-red);
+  color: #fff;
+  font-size: .58rem;
+  font-weight: 800;
+}
+.notif-pop {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1200;
+  width: min(360px, calc(100vw - 32px));
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  background: var(--admin-surface);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .28);
+  overflow: hidden;
+  animation: notif-in .16s ease-out;
+}
+@keyframes notif-in {
+  from { opacity: 0; transform: translateY(-6px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+.notif-pop__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--admin-border);
+}
+.notif-pop__head strong { color: var(--admin-text); font-size: .78rem; }
+.notif-pop__head button {
+  border: 0;
+  background: none;
+  color: var(--admin-green);
+  font-size: .66rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px;
+}
+.notif-pop__head button:disabled { color: var(--admin-muted); cursor: default; }
+.notif-pop__list {
+  max-height: 340px;
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+.notif-item__icon {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--admin-surface);
+  color: var(--admin-green);
+  display: grid;
+  place-items: center;
+}
+.notif-item__body { min-width: 0; flex: 1; }
+.notif-item__body strong {
+  display: block;
+  color: var(--admin-text);
+  font-size: .72rem;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notif-item__body p {
+  margin: 3px 0 0;
+  color: var(--admin-muted);
+  font-size: .68rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.notif-item__time {
+  display: block;
+  margin-top: 4px;
+  color: var(--admin-muted);
+  font-size: .6rem;
+}
+.notif-pop__foot {
+  border-top: 1px solid var(--admin-border);
+  padding: 9px;
+  text-align: center;
+}
+.notif-pop__foot a {
+  color: var(--admin-green);
+  font-size: .68rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.notif-pop__foot a:hover { text-decoration: underline; }
+.notif-pop__empty {
+  padding: 26px 16px;
+  text-align: center;
+  color: var(--admin-muted);
+  font-size: .72rem;
+}
+/* ============================================================
+   CORRECCIONES DE TEMA OSCURO Y PROPORCIÓN
+   ------------------------------------------------------------
+   Estas reglas existían con colores claros literales (#fff, #f7faf8,
+   #edf2ee...) que en modo oscuro producían tarjetas blancas con
+   texto claro encima: ilegibles. Aquí se sustituyen por los
+   tokens var(--admin-*), que ya se redefinen en html.dark.
+   ============================================================ */
+.admin-dashboard .admin-search,
+.admin-dashboard .table-action,
+.admin-dashboard .admin-kpi,
+.admin-dashboard .admin-panel,
+.admin-dashboard .chart-container,
+.admin-dashboard .stat-card {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+.admin-dashboard .admin-kpi,
+.admin-dashboard .admin-panel,
+.admin-dashboard .chart-container,
+.admin-dashboard .audit-card,
+.admin-dashboard .empty-audit {
+  background: var(--admin-surface-alt);
+}
+.admin-dashboard .table-header,
+.admin-dashboard .table-filters,
+.admin-dashboard .table-responsive th,
+.admin-dashboard .table-responsive td,
+.admin-dashboard .admin-chart-placeholder,
+.admin-dashboard .table-responsive tr,
+.admin-dashboard .admin-footer {
+  border-color: var(--admin-border);
+}
+.admin-dashboard .table-responsive th,
+.admin-dashboard .chart-container {
+  background: var(--admin-surface-alt);
+  color: var(--admin-muted);
+}
+.admin-dashboard .table-responsive td {
+  color: var(--admin-text);
+  border-top-color: var(--admin-border);
+}
+.admin-dashboard .table-responsive tbody tr:hover {
+  background: var(--admin-surface-alt);
+}
+.admin-dashboard .card-title,
+.admin-dashboard .dash-welcome h1,
+.admin-dashboard .stat-value,
+.admin-dashboard .admin-kpi strong,
+.admin-dashboard .admin-big-number,
+.admin-dashboard .admin-bell,
+.admin-dashboard .table-action,
+.admin-dashboard .audit-card strong {
+  color: var(--admin-text);
+}
+.admin-dashboard .empty-audit,
+.admin-dashboard .empty-cell {
+  background: var(--admin-surface-alt);
+  color: var(--admin-muted);
+}
+.admin-dashboard .admin-search {
+  color: var(--admin-muted);
+}
+.admin-dashboard .admin-user-avatar,
+.admin-dashboard .avatar-red {
+  background: var(--admin-surface-alt);
+  color: var(--admin-text);
+}
+.admin-dashboard .btn-secondary,
+.admin-dashboard .status-shipped,
+.admin-dashboard .status-pending,
+.admin-dashboard .priority-badge {
+  color: var(--admin-text);
+}
+.admin-dashboard .admin-chart-placeholder {
+  background: var(--admin-surface-alt);
+}
+/* Legibilidad de las barras de "Ingresos 6 meses": con el ancho completo
+   las barras ocupaban 1500 px y quedaban como líneas de 1 px. */
+.admin-dashboard .admin-chart-placeholder span {
+  max-width: 34px;
+  border-radius: 4px 4px 0 0;
+}
+/* ============================================================
+   ALINEACIÓN FIGMA — admin-productores (10:5702) y secciones
+   Tabs píldora · badges de estado exactos · tabla radius 16 ·
+   cabecera de tabla suave · paginación.
+   ============================================================ */
+.admin-shell,
+/* Tabs / filtros tipo píldora */
+.admin-tabs .tab,
+.admin-tabs button,
+.admin-filters .btn {
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+}
+/* Badges de estado con paleta exacta del frame */
+.badge-status.status-verified,
+.badge-status.status-active {
+  background: #e8f9ed;
+  color: #1a5c2a;
+}
+.badge-status.status-pending-review {
+  background: #fef9e7;
+  color: #b7950b;
+}
+.badge-status.status-rejected {
+  background: #fdeded;
+  color: #e74c3c;
+}
+/* Tabla: tarjeta radius 16 y cabecera suave */
+.admin-shell .card-table,
+.app-layout .card-table {
+  border-radius: 16px;
+  border-color: var(--am-frame-border);
+}
+.admin-shell th,
+/* Acciones de fila */
+.admin-shell td:last-child .btn,
+.app-layout td:last-child .btn {
+  border-radius: 6px;
+}
+/* ============================================================
+   FIX LAYOUT DASHBOARDS — proporción, visibilidad y overflow
+   (topbar fijo arriba sin tapar el título, contenido sin
+    desbordes horizontales, grid con minmax para que la columna
+    derecha no se corte por la mitad)
+   ============================================================ */
+.admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  gap: 18px;
+  align-items: start;
+  width: 100%;
+}
+.admin-dashboard-grid > * {
+  min-width: 0;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+.dash-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.card-table,
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+@media (max-width: 1200px) {
+  .admin-dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* ============================================================
+   NAVEGACIÓN POR SECCIONES (SPA)
+   ============================================================ */
+/* Logo del sidebar. Enlaza a la portada pública con <Link> de React Router,
+   así que NO toca la sesión del administrador. */
+/* Estado vacío elegante: sustituye al mensaje técnico que decía que
+   "el frontend no tiene endpoint". */
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 34px 20px;
+  text-align: center;
+}
+.estado-vacio__icono {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--admin-surface-alt, #f1f6f2);
+  color: var(--admin-green, #11823b);
+  margin-bottom: 4px;
+}
+.estado-vacio__titulo {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--admin-text, #111827);
+}
+.estado-vacio__texto {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--admin-muted, #667280);
+  max-width: 34ch;
+}
+/* ============================================================
+   SUPERFICIES QUE SEGUÍAN EL TEMA
+   ============================================================
+   Estas reglas usaban #fff literales, por lo que en modo oscuro aparecían
+   tarjetas blancas con texto claro encima. Al pasar a variables, desaparecen
+   los fondos residuales al cambiar de tema. */
+.app-layout,
+.admin-dashboard {
+  background: var(--admin-page, #f5f8f6);
+  color: var(--admin-text, #111827);
+}
+.admin-dashboard .card-table,
+.app-layout .card-table {
+  background: var(--admin-surface, #ffffff);
+  border-color: var(--admin-frame-border, #d9e5dc);
+  color: var(--admin-text, #111827);
+}
+.admin-dashboard .table-header,
+.app-layout .table-header {
+  background: var(--admin-frame, #eef3ef);
+  border-color: var(--admin-frame-border, #d9e5dc);
+}
+.admin-dashboard .card-title,
+.app-layout .card-title {
+  color: var(--admin-text, #111827);
+}
+.admin-dashboard .section-subtitle,
+.admin-dashboard .section-subtitle * {
+  color: var(--admin-muted, #667280);
+}
+.admin-dashboard .table-responsive,
+.admin-dashboard .table-responsive td,
+.admin-dashboard .table-responsive th {
+  background: var(--admin-surface, #ffffff);
+  color: var(--admin-text, #111827);
+  border-color: var(--admin-frame-border, #d9e5dc);
+}
+.admin-dashboard .table-responsive thead th {
+  background: var(--admin-surface-alt, #f1f6f2);
+}
+.admin-dashboard .form-input,
+.admin-dashboard .form-label,
+.admin-dashboard .table-responsive input,
+.admin-dashboard .table-responsive select,
+.admin-dashboard .table-responsive textarea {
+  background: var(--admin-surface-alt, #f1f6f2);
+  color: var(--admin-text, #111827);
+  border-color: var(--admin-frame-border, #d9e5dc);
+}
+/* Etiquetas inline que se pintaban con --border-light, una variable que
+   solo existe en el tema claro. */
+.admin-dashboard * {
+  border-color: var(--admin-border, #d9e5dc);
+}
+/* ============================================================
+   DISEÑO COMPACTO
+   ============================================================
+   Reduce el aire vertical para aprovechar mejor la pantalla sin perder
+   legibilidad: paddings, altura de fila y tamaño de fuente. */
+.admin-dashboard .table-header {
+  padding: 11px 14px;
+}
+.admin-dashboard .section {
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.admin-dashboard .table-responsive th,
+.admin-dashboard .table-responsive td {
+  padding: 7px 10px;
+  font-size: 0.8rem;
+}
+.admin-dashboard .stat-card {
+  padding: 12px 14px;
+}
+/*
+ * Mostrar la sección.
+ *
+ * ANTES: `.admin-dashboard .section { display: none }` y
+ * `.section.active { display: block !important }`. Eso ocultaba todo menos la
+ * sección activa, y era necesario porque el componente montaba las quince a
+ * la vez. Con el Outlet ya solo se monta la que toca, así que la sección llega
+ * sin la clase "active" y TODAS quedaban ocultas: el panel salía en blanco.
+ *
+ * Es el mismo cambio que se aplicó en productor.css, y que hay que hacer en
+ * los tres paneles: cambiar el render sin tocar el CSS deja la vista vacía.
+ */
+.admin-dashboard .section {
+  display: block;
+}
+/* Layout compacto */
+.admin-dashboard .main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  padding: 20px;
+}
+/* Tarjetas de estadísticas en grid responsive */
+.admin-dashboard .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+/* Secciones con estilo consistente.
+   Se usan variables en vez de colores literales para que el modo oscuro
+   (html.dark) repinte las tarjetas sin necesidad de duplicar reglas. */
+.admin-dashboard .section {
+  background: var(--am-surface, #ffffff);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  border: 1px solid var(--admin-border, #d9e5dc);
+  color: var(--am-text, #1b4332);
+}
+/* OPCIONAL: dashboard sin sidebar (secciones a todo el ancho).
+   Se deja desactivado porque el sidebar se conserva visible: además de la
+   navegación de la página contiene "Mi Perfil" y "Cerrar sesión".
+   Descomentar para ocultarlo por completo.
+.admin-dashboard .sidebar,
+.admin-dashboard .mobile-nav,
+.admin-dashboard .sidebar-overlay,
+.admin-dashboard .sidebar-toggle-btn {
+  display: none !important;
+}
+*/

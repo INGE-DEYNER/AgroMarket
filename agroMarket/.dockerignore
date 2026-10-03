@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Build outputs (se generan dentro del build multi-stage)
+target/
+!target/*.jar
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config (no incluir en la imagen)
+.env
+.env.local
+*.local
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Docs
+README.md
+docs/
+
+# Tests (opcional - quitar si quieres correr tests en el build)
+# src/test/
+

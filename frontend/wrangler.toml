@@ -1,0 +1,16 @@
+# Configuración de Cloudflare Pages para AgroMarket Frontend
+# Documentación: https://developers.cloudflare.com/pages/
+
+name = "agro-market"
+compatibility_date = "2024-01-01"
+
+# Directorio de salida del build de Vite
+pages_build_output_dir = "dist"
+
+# Variables de entorno para producción (valores no secretos)
+# Los secretos se configuran en el dashboard de Cloudflare Pages o con: wrangler pages secret put
+[vars]
+VITE_API_URL = "https://api.agro-market.app/api/v1"
+VITE_DEFAULT_LANGUAGE = "es"
+NODE_ENV = "production"
+

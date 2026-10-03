@@ -1,0 +1,235 @@
+# ========================================================================
+# AgroMarket - despliegue con Docker Compose
+#
+# Este archivo ESTÁ en el repositorio, así que no puede contener ninguna
+# contraseña. Todo lo sensible viene del .env, que no se versiona:
+#
+#   cp .env.example .env   y rellénalo
+#   node scripts/crea-secretos.cjs   (genera JWT y la clave de cifrado)
+#   node scripts/define-mysql.cjs    (copia las de MySQL del contenedor)
+#
+# Ninguna variable de entorno tiene valor por defecto a propósito: si falta
+# el .env, el backend arranca con las credenciales vacías y
+# SecretosStartupValidator lo aborta, en vez de conectarse con "agromarket".
+# ========================================================================
+
+services:
+  # ========================================================================
+  # MySQL 8.0 - Base de datos relacional
+  # ========================================================================
+  asafrut-mysql:
+    image: mysql:8.0
+    container_name: asafrut-mysql
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT_HOST:-3307}:3306"
+    environment:
+      # SIN valores por defecto. Antes eran "agromarket" y "root123", escritos
+      # aquí y por tanto publicados: cualquiera con acceso al puerto 3307
+      # entraba como administrador de la base.
+      #
+      # OJO: MySQL solo lee estas variables al crear el volumen. Cambiarlas
+      # después NO cambia la contraseña en la base; habría que ejecutar
+      # ALTER USER dentro del contenedor. Ver docs/ROTAR-SEGURIDAD.md.
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?define MYSQL_ROOT_PASSWORD en el .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-agromarket}
+      MYSQL_USER: ${MYSQL_USER:-agromarket}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?define MYSQL_PASSWORD en el .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      # Usa la variable del propio contenedor, no una escrita aquí: así el
+      # healthcheck funciona con cualquier contraseña.
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - asafrut-network
+
+  # ========================================================================
+  # MongoDB 7 - Base de datos NoSQL
+  # ========================================================================
+  asafrut-mongo:
+    image: mongo:7
+    container_name: asafrut-mongo
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT_HOST:-27018}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-root}
+      # Sin valor por defecto: era "root123", y con él el puerto 27018 quedaba
+      # abierto a cualquiera que llegara al servidor.
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?define MONGO_ROOT_PASSWORD en el .env}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-agromarket}
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    command: mongod --auth --bind_ip_all
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet -u \"$$MONGO_INITDB_ROOT_USERNAME\" -p \"$$MONGO_INITDB_ROOT_PASSWORD\" --eval 'db.runCommand({ping:1})' admin"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 45s
+    networks:
+      - asafrut-network
+
+  # ========================================================================
+  # Backend - Spring Boot (AgroMarket)
+  # ========================================================================
+  asafrut-backend:
+    build:
+      # Rutas relativas al propio compose, que ahora está en la raíz del
+      # repositorio. Antes el compose vivía un nivel por encima y estas rutas
+      # llevaba el prefijo AgroMarket/.
+      context: ./agroMarket
+      dockerfile: Dockerfile
+    container_name: asafrut-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - SERVER_ADDRESS=0.0.0.0
+      - SPRING_PROFILES_ACTIVE=prod
+      # MySQL Configuration
+      #
+      # SIN valores por defecto: hasta ahora venían escritas aquí, con lo que
+      # el mismo "agromarket" estaba en el repositorio. Con perfil prod,
+      # SecretosStartupValidator se niega a arrancar si la contraseña es
+      # conocida o si falta la clave de cifrado de ids.
+      - SPRING_DATASOURCE_URL=jdbc:mysql://asafrut-mysql:3306/${MYSQL_DATABASE:-agromarket}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-agromarket}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:?define MYSQL_PASSWORD en el .env}
+      # MongoDB Configuration
+      #
+      # La URI lleva usuario y contraseña, así que se compone desde el .env en
+      # vez de escribirla aquí. Estaba fija con "root:root123", y eso además de
+      # ser una contraseña publicada impedía cambiar la de Mongo sin editar
+      # este archivo.
+      - SPRING_DATA_MONGODB_URI=mongodb://${MONGO_ROOT_USER:-root}:${MONGO_ROOT_PASSWORD:?define MONGO_ROOT_PASSWORD en el .env}@asafrut-mongo:27017/${MONGO_DATABASE:-agromarket}?authSource=admin
+      # Security Configuration
+      #
+      # Los secretos vienen del .env, nunca del repositorio: aquí firmaban
+      # el JWT y el cifrado de ids, y con ellos en el repo cualquiera podía
+      # autenticarse como administrador. El arranque en prod se aborta si
+      # faltan (SecretosStartupValidator).
+      - JWT_SECRET=${JWT_SECRET:-}
+      - APP_SECURITY_ID_ENCRYPTION_KEY=${APP_SECURITY_ID_ENCRYPTION_KEY:-}
+
+      # Buzón donde llegan los reportes de "Reportar un problema".
+      #
+      # Estaba en el .env pero NO en esta lista, así que nunca llegaba al
+      # contenedor: Spring leía ${APP_SUPPORT_EMAIL:} y se quedaba vacío. El
+      # aviso de "no está definida" salía en el arranque del backend local, que
+      # es donde se probó, pero en el servidor el mismo fallo habría pasado
+      # inadvertido.
+      #
+      # Regla: una variable del .env no llega a la aplicación hasta que se
+      # escribe aquí. Estar en el .env no basta.
+      - APP_SUPPORT_EMAIL=${APP_SUPPORT_EMAIL:-}
+
+      # URL publica del frontend. De aquí salen los enlaces de los correos
+      # (verificacion, recuperacion, factura) y las backUrls de MercadoPago:
+      # el backend construye FRONTEND_URL + "/pago/exitoso?pagoId=N".
+      #
+      # Antes estaba fija y con www, que ya no es el dominio confirmado. Si
+      # cambia el dominio hay que cambiarla aquí tambien, o los correos
+      # mandaran a los usuarios a una pagina que no existe.
+      - FRONTEND_URL=${FRONTEND_URL:-https://agro-market.app}
+      - APP_CORS_ALLOWED_ORIGIN=${APP_CORS_ALLOWED_ORIGIN:-https://agro-market.app,http://localhost:3000,http://localhost:5173}
+      # Envío de correo (Brevo / Sendinblue). Sin BREVO_API_KEY la
+      # recuperación de contraseña, la verificación de email y el envío de
+      # facturas responden 503 con el motivo, en vez de fallar en silencio.
+      # Genera la key en https://app.brevo.com/settings/keys
+      - BREVO_API_KEY=${BREVO_API_KEY:-}
+      - BREVO_SENDER_EMAIL=${BREVO_SENDER_EMAIL:-noreply@agro-market.app}
+      - BREVO_SENDER_NAME=${BREVO_SENDER_NAME:-AgroMarket}
+
+      # Google OAuth2 (iniciar sesion con Google).
+      #
+      # Estas cuatro tampoco llegaban, y eso dejaba el login con Google
+      # MUERTO en Docker: application-prod.yml las lee sin valor por defecto,
+      # asi que Spring se quedaba con el client-id vacio y el boton de Google
+      # fallaba. En el .env estaban escritas y bien, lo que hacia aun mas
+      # dificil de ver: el error no era "falta la variable", sino "la variable
+      # existe y no llega".
+      - GOOGLE_OAUTH2_CLIENT_ID=${GOOGLE_OAUTH2_CLIENT_ID:-}
+      - GOOGLE_OAUTH2_CLIENT_SECRET=${GOOGLE_OAUTH2_CLIENT_SECRET:-}
+      - GOOGLE_OAUTH2_REDIRECT_URI=${GOOGLE_OAUTH2_REDIRECT_URI:-https://api.agro-market.app/login/oauth2/code/google}
+      - APP_OAUTH2_SUCCESS_REDIRECT=${APP_OAUTH2_SUCCESS_REDIRECT:-https://agro-market.app/oauth2/success}
+      - APP_OAUTH2_FAILURE_REDIRECT=${APP_OAUTH2_FAILURE_REDIRECT:-https://agro-market.app/oauth2/failure}
+      - APP_OAUTH2_DEFAULT_ROLE=${APP_OAUTH2_DEFAULT_ROLE:-BUYER}
+
+      # Ajustes con valor por defecto en la aplicacion. Se pasan igualmente
+      # para que cambiarlos en el .env sirva de algo.
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-3600000}
+      - MERCADOPAGO_BASE_URL=${MERCADOPAGO_BASE_URL:-https://api.mercadopago.com}
+      - PROMOTIONS_JOB_DELAY_MS=${PROMOTIONS_JOB_DELAY_MS:-300000}
+      - RFQ_JOB_DELAY_MS=${RFQ_JOB_DELAY_MS:-300000}
+      # Almacenamiento de imágenes (Cloudinary). Los valores viven en el .env de
+      # la raíz, junto a este compose. Genera las llaves en
+      # https://console.cloudinary.com/settings/api-keys
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-}
+      # MercadoPago
+      #
+      # ATENCIÓN: use-mock está en true a propósito mientras no haya pasarela
+      # real. El adaptador cae en MOCK igualmente si el access-token viene
+      # vacío (useMock = useMock || token.isBlank()), así que hoy ya estaba en
+      # modo simulación sin querer. Se declara explícito para que no dependa de
+      # ese efecto secundario: cuando metas el token de producción, pon
+      # MERCADOPAGO_USE_MOCK=false en el .env de la raíz.
+      #
+      # Con MOCK no se mueve dinero real: el backend responde sin llamar a la
+      # API de MercadoPago.
+      - MERCADOPAGO_ACCESS_TOKEN=${MERCADOPAGO_ACCESS_TOKEN:-}
+      - MERCADOPAGO_USE_MOCK=${MERCADOPAGO_USE_MOCK:-true}
+      - MERCADOPAGO_WEBHOOK_URL=${MERCADOPAGO_WEBHOOK_URL:-}
+      # Secret con el que MercadoPago firma las notificaciones. Sale del panel
+      # de la cuenta, junto a la clave publica. Sin este valor el webhook
+      # responde 401 a TODO evento, firmado o no: es lo correcto, porque sin
+      # secret no hay forma de saber si el evento viene de la pasarela.
+      - MERCADOPAGO_WEBHOOK_SECRET=${MERCADOPAGO_WEBHOOK_SECRET:-}
+    depends_on:
+      asafrut-mysql:
+        condition: service_healthy
+      asafrut-mongo:
+        condition: service_healthy
+    volumes:
+      - ./agroMarket/uploads:/app/uploads
+    networks:
+      - asafrut-network
+
+# ========================================================================
+# Volumenes persistentes
+#
+# OJO: los volumenes se nombran de forma explicita para que no cambien de
+# nombre si el proyecto se mueve de directorio. Docker Compose los crearia
+# como "<nombre-del-proyecto>_mysql_data", y al cambiar la ruta del
+# compose (este archivo paso de estar un nivel mas arriba a la raiz del
+# repositorio) appeared un juego NUEVO de volumenes vacios, con los
+# containers arrancando sin datos.
+#
+# Con name: explicito, el volumen sigue siendo el de siempre y los datos
+# no se pierden por mover un archivo.
+#
+# Para cambiar esto en una instalacion ya montada, primero hay que saber
+# que volumen tenia los datos. Ver scripts/migra-volumenes.cjs.
+# ========================================================================
+volumes:
+  mysql_data:
+    name: asafrut_mysql_data
+  mongo_data:
+    name: asafrut_mongo_data
+
+# ========================================================================
+# Red personalizada
+# ========================================================================
+networks:
+  asafrut-network:
+    driver: bridge

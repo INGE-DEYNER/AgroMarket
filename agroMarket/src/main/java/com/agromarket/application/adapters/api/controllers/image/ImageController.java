@@ -1,0 +1,139 @@
+package com.agromarket.application.adapters.api.controllers.image;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.agromarket.application.adapters.api.response.image.ImageResponse;
+import com.agromarket.domain.models.enums.image.ImageType;
+import com.agromarket.domain.ports.in.image.ImagePort;
+import com.agromarket.domain.ports.in.image.ImageResult;
+import com.agromarket.domain.ports.in.image.ImageUploadCommand;
+import com.agromarket.infrastructure.security.Autorizacion;
+import com.agromarket.infrastructure.security.JwtUserPrincipal;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/v1/images")
+@RequiredArgsConstructor
+public class ImageController {
+
+        private final ImagePort imagePort;
+
+        /*
+         * OJO con el contrato: no se pueden mezclar dos mecanismos.
+         *
+         * - @RequestParam lee la QUERY STRING.
+         * - @RequestPart MultipartFile lee el archivo del multipart.
+         *
+         * La firma original mezclaba ambos: file como @RequestPart y
+         * productId/type como @RequestParam. Con FormData, los dos ultimos
+         * viajan como PARTES del formulario, no en la query, asi que llegaban
+         * nulos y la peticion terminaba en 400.
+         *
+         * La correccion NO es poner @RequestPart en los tres: Spring rechaza
+         * con 415 un @RequestPart que no sea MultipartFile, Part o String.
+         * Comprobado contra el backend en marcha:
+         *
+         *   file solo ............. 400  (falta productId)
+         *   file + productId ..... 415  (@RequestPart con Long no es valido)
+         *
+         * Por eso productId y type se quedan como @RequestParam y el
+         * FRONTEND los pone en la URL. Ver DashboardProductor.jsx.
+         *
+         * productId y no ownerId: es el id del PRODUCTO al que se asocia la
+         * imagen, no el del propietario. El nombre viejo confundia.
+         */
+        @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public ResponseEntity<ImageResponse> upload(
+                        @RequestPart("file") MultipartFile file,
+                        @RequestParam Long productId,
+                        @RequestParam ImageType type) {
+
+                try {
+                        ImageResult result = imagePort.upload(
+                                        new ImageUploadCommand(
+                                                        file.getBytes(),
+                                                        file.getOriginalFilename(),
+                                                        file.getContentType(),
+                                                        productId,
+                                                        type));
+
+                        return ResponseEntity.status(HttpStatus.CREATED)
+                                        .body(toResponse(result));
+
+                } catch (java.io.IOException ex) {
+                        throw new IllegalStateException(
+                                        "No fue posible leer el archivo de imagen",
+                                        ex);
+                }
+        }
+
+        @GetMapping("/{id}")
+        public ResponseEntity<ImageResponse> getById(
+                        @PathVariable Long id,
+                        @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+                ImageResult imagen = imagePort.getById(id);
+                Autorizacion.exigirDueñoOAdmin(
+                                principal,
+                                "imagen",
+                                imagen.ownerId());
+                return ResponseEntity.ok(toResponse(imagen));
+        }
+
+        @GetMapping("/owner/{ownerId}")
+        public ResponseEntity<List<ImageResponse>> getByOwner(
+                        @PathVariable Long ownerId,
+                        @AuthenticationPrincipal JwtUserPrincipal principal) {
+
+                Autorizacion.exigirDueñoOAdmin(principal, "imagen", ownerId);
+                return ResponseEntity.ok(
+                                imagePort.getByOwner(ownerId)
+                                                .stream()
+                                                .map(this::toResponse)
+                                                .toList());
+        }
+
+        @GetMapping("/owner/{ownerId}/type/{type}")
+        public ResponseEntity<List<ImageResponse>> getByOwnerAndType(
+                        @PathVariable Long ownerId,
+                        @PathVariable ImageType type) {
+
+                return ResponseEntity.ok(
+                                imagePort.getByOwnerAndType(
+                                                ownerId,
+                                                type)
+                                                .stream()
+                                                .map(this::toResponse)
+                                                .toList());
+        }
+
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Void> deactivate(
+                        @PathVariable Long id) {
+
+                imagePort.deactivate(id);
+                return ResponseEntity.noContent().build();
+        }
+
+        private ImageResponse toResponse(
+                        ImageResult result) {
+
+                return ImageResponse.fromResult(result);
+        }
+}

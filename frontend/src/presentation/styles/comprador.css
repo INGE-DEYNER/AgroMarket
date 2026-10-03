@@ -1,0 +1,804 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+/* ============================================================
+   AGROMARKET - CATEGORÍA 2 / DASHBOARD COMPRADOR
+   Visual layer only. API contracts and business logic stay in pages.
+   ============================================================ */
+.buyer-shell {
+  --buyer-green: #11823b;
+  --buyer-green-dark: #0a5a27;
+  --buyer-green-soft: #e8f5e9;
+  --buyer-green-pale: #f3f8f2;
+  --buyer-yellow: #ffc107;
+  --buyer-text: #111827;
+  --buyer-muted: #667280;
+  --buyer-border: #e5e7eb;
+  --buyer-bg: #f7f9f7;
+  min-height: 100vh;
+  background: var(--buyer-bg);
+  color: var(--buyer-text);
+  font-family: Inter, var(--font-body, sans-serif);
+}
+.buyer-shell,
+.buyer-shell * {
+  box-sizing: border-box;
+}
+/*
+   Tokens del dashboard del comprador en modo oscuro.
+   `.buyer-dashboard` (el contenedor real del panel) NO tiene bloque propio, y
+   `.buyer-shell` solo lo envuelve en Pedidos/Envios/Resenas/Mensajeria. Sin
+   estas variantes, --buyer-text, --buyer-bg y --buyer-border se quedaban en
+   sus valores claros y el panel salia blanco dentro de un tema oscuro.
+*/
+html.dark .buyer-shell,
+html.dark .buyer-dashboard {
+  /* El texto iba en #0a5a27 sobre superficie oscura: ilegible. */
+  --buyer-green-dark: #7ee2a4;
+  --buyer-text: #e8f0e9;
+  --buyer-muted: #9db0a2;
+  --buyer-border: rgba(148, 168, 154, 0.22);
+  --buyer-bg: #0e1711;
+  --buyer-surface: #16211a;
+  --buyer-surface-2: #1d2a21;
+  --buyer-green-soft: #14301f;
+  --buyer-green-pale: #17251c;
+}
+.buyer-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  min-height: 68px;
+  display: grid;
+  grid-template-columns: auto minmax(180px, 280px) minmax(280px, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 22px;
+  background: var(--buyer-surface);
+  border-bottom: 1px solid var(--buyer-border);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+}
+.buyer-menu-button {
+  display: none;
+  border: 0;
+  background: transparent;
+  color: var(--buyer-green-dark);
+  cursor: pointer;
+}
+.buyer-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--buyer-green-dark);
+  text-decoration: none;
+  min-width: 0;
+}
+.buyer-brand img {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #dfeee0;
+}
+.buyer-brand span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.buyer-brand strong {
+  font-family: Poppins, var(--font-title, sans-serif);
+  font-size: 21px;
+  line-height: 1.05;
+  font-weight: 700;
+  color: var(--buyer-green-dark);
+}
+.buyer-brand small {
+  color: #667280;
+  font-size: 9px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.buyer-search {
+  height: 40px;
+  display: flex;
+  min-width: 0;
+  border: 1px solid var(--buyer-border);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--buyer-surface);
+}
+.buyer-search input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  padding: 0 13px;
+  color: var(--buyer-text);
+  font-size: 13px;
+  background: transparent;
+}
+.buyer-search input::placeholder {
+  color: #9ca3af;
+}
+.buyer-search button {
+  width: 42px;
+  border: 0;
+  background: var(--buyer-green-dark);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.buyer-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+.buyer-top-actions > * {
+  flex-shrink: 0;
+}
+.buyer-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #374151;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.buyer-cart-button,
+.buyer-avatar {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--buyer-border);
+  border-radius: 50%;
+  background: var(--buyer-surface);
+  color: var(--buyer-green-dark);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.buyer-cart-button span {
+  position: absolute;
+  top: -4px;
+  right: -3px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--buyer-green);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.buyer-avatar {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+}
+.buyer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.buyer-body {
+  display: grid;
+  grid-template-columns: 226px minmax(0, 1fr);
+  min-height: calc(100vh - 68px);
+}
+.buyer-sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: var(--buyer-green-pale);
+}
+.buyer-sidebar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--buyer-green-dark);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.buyer-sidebar-profile div:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.buyer-sidebar-profile strong {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.buyer-sidebar-profile span {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--buyer-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.buyer-sidebar-label {
+  padding: 0 10px 7px;
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.buyer-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.buyer-sidebar-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #4b5563;
+  text-align: left;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.buyer-sidebar-link:hover {
+  background: #f2f7f2;
+  color: var(--buyer-green-dark);
+}
+.buyer-sidebar-link.active {
+  background: var(--buyer-green-soft);
+  color: var(--buyer-green-dark);
+  font-weight: 700;
+}
+.buyer-sidebar-link.active svg {
+  stroke-width: 2.3;
+}
+.buyer-sidebar-spacer {
+  flex: 1;
+}
+.buyer-logout {
+  color: #b42318;
+}
+.buyer-logout:hover {
+  background: #fff1f0;
+  color: #b42318;
+}
+.buyer-main {
+  min-width: 0;
+  padding: 28px clamp(16px, 3vw, 36px) 42px;
+}
+.buyer-page-content {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+.buyer-page-heading h1,
+.buyer-card,
+.buyer-page-content .card-table,
+.buyer-page-content .shipment-card,
+.buyer-page-content .review-card {
+  background: var(--buyer-surface) !important;
+  border: 1px solid var(--buyer-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.035);
+}
+.buyer-page-content .section-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 18px !important;
+}
+.buyer-page-content .table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+.buyer-page-content table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--buyer-surface);
+}
+.buyer-page-content th {
+  padding: 12px 14px;
+  text-align: left;
+  background: #f8faf8;
+  color: #667280;
+  border-bottom: 1px solid var(--buyer-border);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.buyer-page-content td {
+  padding: 13px 14px;
+  color: #374151;
+  border-bottom: 1px solid #f1f2f3;
+  font-size: 11px;
+}
+.buyer-page-content tbody tr:last-child td { border-bottom: 0; }
+.buyer-page-content tbody tr:hover { background: #fbfdfb; }
+.buyer-page-content .form-select,
+.buyer-page-content .form-input,
+.buyer-page-content .form-textarea,
+.buyer-page-content .form-in {
+  border-color: #d8dde3 !important;
+  border-radius: 8px !important;
+  background: var(--buyer-surface) !important;
+  color: var(--buyer-text) !important;
+}
+.buyer-page-content .btn-primary,
+.buyer-page-content .btn-primary-chk {
+  background: var(--buyer-green-dark) !important;
+  border-color: var(--buyer-green-dark) !important;
+  border-radius: 8px !important;
+}
+.buyer-page-content .btn-secondary,
+.buyer-page-content .btn-secondary-chk {
+  border-radius: 8px !important;
+}
+/* Profile */
+.buyer-page-content .profile-grid {
+  grid-template-columns: 210px minmax(0, 1fr) !important;
+  gap: 18px !important;
+}
+.buyer-page-content .profile-grid > div:first-child {
+  padding: 8px;
+  background: var(--buyer-surface);
+  border: 1px solid var(--buyer-border);
+  border-radius: 12px;
+  height: fit-content;
+}
+.buyer-page-content .profile-grid > div:first-child .btn {
+  min-height: 40px;
+  border-radius: 8px !important;
+  font-size: 11px;
+}
+/* Messaging */
+.buyer-page-content .chat-layout {
+  min-height: 620px;
+  height: calc(100vh - 180px);
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  border: 1px solid var(--buyer-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--buyer-surface);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.035);
+}
+.buyer-page-content .chat-contacts {
+  overflow-y: auto;
+  border-right: 1px solid var(--buyer-border);
+}
+.buyer-page-content .chat-window {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.buyer-page-content .chat-header {
+  padding: 14px 16px;
+}
+.buyer-page-content .chat-messages { flex: 1; overflow-y: auto; }
+/* Reviews */
+.buyer-page-content .review-card {
+  padding: 17px 18px !important;
+  margin-bottom: 10px !important;
+}
+/* Checkout */
+.buyer-checkout-page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.buyer-checkout-page > div {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.buyer-checkout-page .checkout-grid {
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, .8fr) !important;
+  gap: 18px !important;
+}
+.buyer-checkout-page .checkout-grid > div {
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+/* Drawer becomes a desktop shopping panel while preserving its behavior. */
+.buyer-shell .cart-drawer {
+  width: min(620px, 100%);
+  border-left: 1px solid var(--buyer-border);
+}
+.buyer-shell .cart-header {
+  padding: 16px 20px;
+  border-bottom-color: var(--buyer-border);
+}
+.buyer-shell .cart-items { padding: 10px 20px; }
+.buyer-shell .cart-item-row { padding: 12px 0; }
+.buyer-shell .cart-item-thumb { width: 62px; height: 62px; }
+.buyer-shell .cart-footer { padding: 18px 20px; }
+.buyer-shell .btn-checkout { background: var(--buyer-green-dark); border-radius: 8px; }
+.buyer-mobile-nav { display: none; }
+@media (max-width: 1200px) {
+  .buyer-topbar {
+    grid-template-columns: auto minmax(170px, 230px) minmax(220px, 1fr) auto;
+    gap: 10px;
+    padding-inline: 14px;
+  }
+  .buyer-location { display: none; }
+  .buyer-body { grid-template-columns: 205px minmax(0, 1fr); }
+}
+@media (max-width: 900px) {
+  .buyer-topbar {
+    grid-template-columns: auto minmax(170px, 1fr) auto;
+  }
+  .buyer-menu-button { display: grid; place-items: center; }
+  .buyer-search { display: none; }
+  .buyer-top-actions .theme-toggle,
+  .buyer-top-actions .divisa-switcher { display: none; }
+  .buyer-body { grid-template-columns: 1fr; }
+  .buyer-main { padding-bottom: 78px; }
+  .buyer-mobile-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1030;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 7px 6px calc(7px + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,.97);
+    border-top: 1px solid var(--buyer-border);
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, .08);
+  }
+  .buyer-mobile-nav button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    border: 0;
+    background: transparent;
+    color: #6b7280;
+    font-size: 9px;
+    cursor: pointer;
+    padding: 4px 2px;
+  }
+  .buyer-mobile-nav button.active { color: var(--buyer-green-dark); font-weight: 700; }
+  .buyer-checkout-page .checkout-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 560px) {
+  .buyer-topbar { min-height: 60px; grid-template-columns: auto 1fr auto; padding: 8px 10px; }
+  .buyer-brand small { display: none; }
+  .buyer-brand strong { font-size: 18px; }
+  .buyer-brand img { width: 36px; height: 36px; }
+  .buyer-top-actions > :is(.buyer-location, .buyer-top-actions > button:nth-last-child(3)) { display: none; }
+  .buyer-top-actions { gap: 5px; }
+  .buyer-main { padding: 18px 12px 76px; }
+  .buyer-order-row > *:nth-child(3),
+  .buyer-page-heading .btn,
+  .buyer-page-content .section-header .btn { width: 100%; }
+  .buyer-page-content .chat-layout { grid-template-columns: 1fr; height: 650px; }
+  .buyer-page-content .chat-contacts { max-height: 180px; border-right: 0; border-bottom: 1px solid var(--buyer-border); }
+  .buyer-page-content .profile-grid { grid-template-columns: 1fr !important; }
+  .buyer-shell .cart-drawer { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .buyer-sidebar,
+  .buyer-sidebar-link,
+  .buyer-search button { transition: none !important; }
+}
+.buyer-main > .buyer-page-content {
+  width: min(1180px, 100%);
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+.buyer-main > .buyer-page-content > main.buyer-page-content {
+  width: 100%;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* RESPONSIVE TABLES FOR MOBILE */
+@media (max-width: 900px) {
+  .buyer-page-content .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .buyer-page-content table {
+    min-width: 600px; /* Permite scroll horizontal */
+  }
+}
+.buyer-shell .footer-pro {
+  margin-top: 0;
+}
+/* ============================================================
+   RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
+   ============================================================ */
+/* ============================================================
+   NAVEGACIÓN POR SECCIONES (SPA)
+   ============================================================ */
+/* Dos envoltorios posibles, a propósito:
+   - .buyer-dashboard  → DashboardComprador (este dashboard)
+   - .buyer-shell      → BuyerShell, que envuelve Pedidos, Envios,
+                         Reseñas y Mensajería.
+   Antes la regla solo contemplaba .buyer-shell, que este dashboard NO usa,
+   así que sus secciones nunca se ocultaban y quedaban todas apiladas. */
+/* Dos envoltorios, con comportamientos DISTINTOS:
+   - .buyer-dashboard → DashboardComprador. Con el Outlet solo se monta la
+     sección de la ruta, así que llega sin la clase "active". Antes la regla
+     era `display: none` + `.active { display: block }`, y al migrar el render
+     sin tocar el CSS el panel entero quedó en blanco.
+   - .buyer-shell → BuyerShell, que envuelve Pedidos, Envíos, Reseñas y
+     Mensajería. Esos SÍ montan todas las secciones y las alternan con
+     "active", así que ahí el ocultado sigue siendo necesario. */
+.buyer-dashboard .section {
+  display: block;
+}
+.buyer-shell .section {
+  display: none;
+}
+.buyer-shell .section.active {
+  display: block !important;
+}
+/* Eliminar botones de navegación entre secciones */
+.buyer-shell .section a[href="#"] {
+  display: none !important;
+}
+/* Layout compacto: todo en columna */
+.buyer-page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+/* Secciones con fondo y separadas.
+   Con el Outlet la sección ya llega sin "active", así que el selector es
+   `.section` a secas. Si se deja `.section.active`, la tarjeta (fondo, borde,
+   radio, padding) no se aplica y el contenido queda sobre el fondo de la
+   página, sin recuadro. */
+.buyer-shell .section.active,
+.buyer-dashboard .section {
+  background: var(--am-surface, #ffffff);
+  border: 1px solid var(--am-border, var(--color-border));
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+/* La cabecera interna repite el título de la sección con un h1 gigante y
+   mucho margen: en un panel compacto empuja el contenido fuera de pantalla.
+   Se reduce a un encabezado de sección. */
+.buyer-dashboard .section .dash-header {
+  margin-bottom: 12px;
+  gap: 10px;
+}
+.buyer-dashboard .section .dash-header h1 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+/* El bloque de "mejora tu seguridad" usaba colores claros fijos (#e0f2fe,
+   #7dd3fc, #0369a1), ilegibles en tema oscuro. */
+.buyer-dashboard .buyer-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--am-border, var(--color-border));
+  border-left: 3px solid var(--am-green, #3fbf6a);
+  border-radius: 9px;
+  background: var(--am-surface-2, #1d2a21);
+}
+.buyer-dashboard .buyer-alert strong {
+  display: block;
+  color: var(--am-text, var(--color-text-primary));
+  font-size: .82rem;
+}
+/* Celdas y zonas con fondo claro. Se usaba #f8fafc literal, que en tema
+   oscuro dejaba parches blancos dentro de las tablas. */
+.buyer-dashboard .cell-soft,
+.buyer-shell .cell-soft {
+  background: var(--am-surface-2, #f8fafc);
+}
+.buyer-dashboard .buyer-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  margin-bottom: 12px;
+}
+.buyer-dashboard .buyer-alert span {
+  color: var(--am-text-muted, var(--color-text-muted));
+  font-size: .72rem;
+}
+/* Ocultar títulos duplicados de secciones */
+.buyer-shell .section-header,
+.buyer-shell .card-title {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--buyer-border);
+}
+/* ============================================================
+   SECCIÓN MI PERFIL
+   ------------------------------------------------------------
+   La maquetación estaba entera en atributos style, lo que impedía
+   cualquier ajuste responsive y usaba variables que solo existen en
+   tema claro (--card-bg, --border-light): en oscuro las tarjetas
+   quedaban blancas y los avisos de éxito/error salían con colores
+   claros ilegibles. Aquí se usa solo token y media query.
+   ============================================================ */
+.buyer-dashboard .perfil-grid,
+.buyer-shell .perfil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+.buyer-dashboard .perfil-card,
+.buyer-shell .perfil-card {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--am-surface);
+  border: 1px solid var(--am-border, var(--color-border));
+}
+.buyer-dashboard .perfil-card__title,
+.buyer-shell .perfil-card__title {
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--am-border, var(--color-border));
+  color: var(--am-text, var(--color-text-primary));
+  font-size: .95rem;
+  font-weight: 800;
+}
+.buyer-dashboard .perfil-card .form-group,
+.buyer-shell .perfil-card .form-group {
+  margin-bottom: 12px;
+}
+.buyer-dashboard .perfil-card .form-input,
+.buyer-shell .perfil-card .form-input {
+  width: 100%;
+  background: var(--am-surface-2, var(--color-surface-2));
+  color: var(--am-text, var(--color-text-primary));
+  border: 1px solid var(--am-border, var(--color-border));
+}
+.buyer-dashboard .perfil-card .form-input:focus,
+.buyer-shell .perfil-card .form-input:focus {
+  border-color: var(--am-green, #3fbf6a);
+  outline: none;
+}
+.buyer-dashboard .perfil-card .is-readonly,
+.buyer-shell .perfil-card .is-readonly {
+  opacity: .65;
+  cursor: not-allowed;
+}
+.buyer-dashboard .perfil-submit,
+.buyer-shell .perfil-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+.buyer-dashboard .perfil-secret,
+.buyer-shell .perfil-secret {
+  position: relative;
+}
+.buyer-dashboard .perfil-secret .form-input,
+.buyer-shell .perfil-secret .form-input {
+  padding-right: 42px;
+}
+.buyer-dashboard .perfil-secret__toggle,
+.buyer-shell .perfil-secret__toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 0;
+  background: none;
+  color: var(--am-text-muted, var(--color-text-muted));
+  cursor: pointer;
+  border-radius: 6px;
+}
+.buyer-dashboard .perfil-secret__toggle:hover,
+.buyer-shell .perfil-secret__toggle:hover {
+  background: var(--am-surface, #17221a);
+}
+/* Avisos de resultado. Los dos casos llevan fondo y texto propios para que
+   en tema oscuro no se lean texto claro sobre verde/rojo claros. */
+.buyer-dashboard .perfil-alert,
+.buyer-shell .perfil-alert {
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  font-size: .76rem;
+  line-height: 1.45;
+}
+.buyer-dashboard .perfil-alert--success,
+.buyer-shell .perfil-alert--success {
+  background: var(--am-surface-2, #1d2a21);
+  border-color: var(--am-green, #3fbf6a);
+  color: #7ee2a6;
+}
+.buyer-dashboard .perfil-alert--error,
+.buyer-shell .perfil-alert--error {
+  background: #2a1618;
+  border-color: #d9534f;
+  color: #ff9a94;
+}
+/* Grid para las tarjetas de estadísticas */
+.buyer-shell .stats-grid,
+.buyer-dashboard .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+/* Tarjetas de métrica compactas. Se replican aquí lo que ya hace admin.css:
+   antes heredaban de styles.css un padding de 24px y un pseudo-elemento
+   ::after circular que, al desbordarse, se veía como un cuarto de círculo
+   suelto en la esquina. Además el fondo venía hardcodeado (#fff), lo que en
+   tema oscuro dejaba tarjetas blancas con texto claro encima. */
+.buyer-shell .stat-card,
+.buyer-dashboard .stat-card {
+  min-height: 0;
+  padding: 11px 13px;
+  border: 1px solid var(--buyer-border, var(--color-border));
+  border-radius: 10px;
+  background: var(--buyer-surface, var(--am-surface));
+  box-shadow: none;
+}
+.buyer-shell .stat-card::after,
+.buyer-dashboard .stat-card::after {
+  content: none;
+}
+.buyer-shell .stat-label,
+.buyer-dashboard .stat-label {
+  color: var(--buyer-muted, var(--color-text-muted));
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.buyer-shell .stat-value,
+.buyer-dashboard .stat-value {
+  margin: 5px 0 2px;
+  color: var(--buyer-text, var(--color-text-primary));
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.buyer-shell .stat-trend,
+.buyer-dashboard .stat-trend {
+  color: var(--buyer-muted, var(--color-text-muted));
+  font-size: .64rem;
+}
+.buyer-shell .stat-icon-lg,
+.buyer-dashboard .stat-icon-lg {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--buyer-surface-alt, var(--am-surface-2));
+}
+/* Ajustar content para que ocupe todo el ancho */
+.buyer-page-content .buyer-content {
+  width: 100%;
+  padding-left: 0 !important;
+}
+/* Los botones que llaman a showSection ahora desplazan la vista hasta su sección
+   en lugar de quedar inertes (los selectores [onclick*=...] que había aquí nunca
+   coincidían con ningún elemento de React). */

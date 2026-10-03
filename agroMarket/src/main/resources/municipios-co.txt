@@ -1,0 +1,1133 @@
+# CATALOGO GENERADO - no editar a mano.
+# Fuente: GeoNames CO.txt (derivado del DANE), registros ADM1 y ADM2.
+# Generado por scripts/genera-municipios.cjs
+#
+# Formato: DEPARTAMENTO|CODIGO_DANE|MUNICIPIO|LATITUD|LONGITUD
+# El backend lo carga una vez al arrancar para validar que el municipio
+# pertenece al departamento, y para no depender de las coordenadas que
+# envía el cliente: esas se pueden manipular.
+#
+# departamentos: 33
+# municipios: 1122
+Amazonas|91263|El Encanto|-1.5626|-73.2568
+Amazonas|91405|La Chorrera|-1.4889|-72.7293
+Amazonas|91407|La Pedrera|-1.656|-70.2219
+Amazonas|91430|La Victoria|-0.1831|-71.0376
+Amazonas|91001|Leticia|-3.6583|-70.0282
+Amazonas|91460|Miriti - Paraná|-0.8186|-70.7892
+Amazonas|91530|Puerto Alegría|-0.9689|-73.7496
+Amazonas|91536|Puerto Arica|-1.9068|-71.1465
+Amazonas|91540|Puerto Nariño|-3.6055|-70.4146
+Amazonas|91669|Puerto Santander|-1.0987|-71.9391
+Amazonas|91798|Tarapacá|-2.8854|-69.7769
+Antioquia|05002|Abejorral|5.8183|-75.4438
+Antioquia|05004|Abriaquí|6.6347|-76.0888
+Antioquia|05021|Alejandría|6.3667|-75.0833
+Antioquia|05030|Amagá|6.0403|-75.7078
+Antioquia|05031|Amalfi|7.0261|-74.9679
+Antioquia|05034|Andes|5.6697|-75.899
+Antioquia|05036|Angelópolis|6.1223|-75.7143
+Antioquia|05038|Angostura|6.8712|-75.3595
+Antioquia|05040|Anorí|7.0742|-75.1472
+Antioquia|05044|Anza|6.3333|-75.9167
+Antioquia|05045|Apartadó|7.904|-76.5731
+Antioquia|05051|Arboletes|8.6068|-76.4175
+Antioquia|05055|Argelia|5.705|-75.1215
+Antioquia|05059|Armenia|6.1755|-75.8123
+Antioquia|05079|Barbosa|6.45|-75.3333
+Antioquia|05088|Bello|6.3616|-75.5873
+Antioquia|05086|Belmira|6.6667|-75.6667
+Antioquia|05091|Betania|5.7357|-75.9896
+Antioquia|05093|Betulia|6.1863|-75.945
+Antioquia|05107|Briceño|7.05|-75.509
+Antioquia|05113|Buriticá|6.8055|-75.9209
+Antioquia|05120|Cáceres|7.6825|-75.2248
+Antioquia|05125|Caicedo|6.4281|-75.9971
+Antioquia|05129|Caldas|6.0567|-75.6271
+Antioquia|05134|Campamento|7.0391|-75.2894
+Antioquia|05138|Cañasgordas|6.8095|-76.0395
+Antioquia|05142|Caracolí|6.3265|-74.7419
+Antioquia|05145|Caramanta|5.5414|-75.6696
+Antioquia|05147|Carepa|7.7601|-76.6627
+Antioquia|05150|Carolina|6.7481|-75.3213
+Antioquia|05154|Caucasia|7.867|-75.0286
+Antioquia|05172|Chigorodó|7.6338|-76.6322
+Antioquia|05190|Cisneros|6.5451|-75.0941
+Antioquia|05101|Ciudad Bolívar|5.8395|-76.0109
+Antioquia|05197|Cocorná|6.0058|-75.1698
+Antioquia|05206|Concepción|6.39|-75.2195
+Antioquia|05209|Concordia|6.045|-75.9018
+Antioquia|05212|Copacabana|6.3623|-75.4992
+Antioquia|05234|Dabeiba|7.0337|-76.3416
+Antioquia|05237|Don Matías|6.5056|-75.3664
+Antioquia|05240|Ebéjico|6.3341|-75.7852
+Antioquia|05250|El Bagre|7.7444|-74.6789
+Antioquia|05148|El Carmen de Viboral|5.9781|-75.2632
+Antioquia|05697|El Santuario|6.1357|-75.2571
+Antioquia|05264|Entrerrios|6.5833|-75.5833
+Antioquia|05266|Envigado|6.1534|-75.545
+Antioquia|05282|Fredonia|5.8924|-75.6855
+Antioquia|05284|Frontino|6.7011|-76.3232
+Antioquia|05306|Giraldo|6.6667|-75.9535
+Antioquia|05308|Girardota|6.3679|-75.4623
+Antioquia|05310|Gómez Plata|6.6985|-75.2055
+Antioquia|05313|Granada|6.1141|-75.1405
+Antioquia|05315|Guadalupe|6.8558|-75.2382
+Antioquia|05318|Guarne|6.2835|-75.4436
+Antioquia|05321|Guatapé|6.2555|-75.1643
+Antioquia|05347|Heliconia|6.2169|-75.7445
+Antioquia|05353|Hispania|5.7956|-75.9041
+Antioquia|05360|Itagui|6.1787|-75.6312
+Antioquia|05361|Ituango|7.3017|-75.9186
+Antioquia|05364|Jardín|5.5904|-75.8185
+Antioquia|05368|Jericó|5.7805|-75.761
+Antioquia|05376|La Ceja|6|-75.4331
+Antioquia|05380|La Estrella|6.1424|-75.6526
+Antioquia|05390|La Pintada|5.7508|-75.6002
+Antioquia|05400|La Unión|5.9464|-75.3592
+Antioquia|05411|Liborina|6.7304|-75.7821
+Antioquia|05425|Maceo|6.5446|-74.7328
+Antioquia|05440|Marinilla|6.1961|-75.3031
+Antioquia|05001|Medellín|6.25|-75.5833
+Antioquia|05467|Montebello|5.937|-75.5274
+Antioquia|05664|Municipio de San Pedro de los Milagros|6.4654|-75.5645
+Antioquia|05475|Murindó|6.847|-76.7154
+Antioquia|05480|Mutatá|7.3482|-76.5
+Antioquia|05483|Nariño|5.5969|-75.1933
+Antioquia|05495|Nechí|7.9981|-74.8578
+Antioquia|05490|Necoclí|8.4296|-76.7711
+Antioquia|05501|Olaya|6.6035|-75.7861
+Antioquia|05541|Peñol|6.2343|-75.2257
+Antioquia|05543|Peque|7.0407|-75.8921
+Antioquia|05576|Pueblorrico|5.8|-75.85
+Antioquia|05579|Puerto Berrío|6.5075|-74.5227
+Antioquia|05585|Puerto Nare|6.1917|-74.5867
+Antioquia|05591|Puerto Triunfo|5.9396|-74.7041
+Antioquia|05604|Remedios|7.0219|-74.5482
+Antioquia|05607|Retiro|6.0591|-75.5149
+Antioquia|05615|Rionegro|6.1667|-75.4167
+Antioquia|05628|Sabanalarga|6.9057|-75.7937
+Antioquia|05631|Sabaneta|6.1382|-75.6085
+Antioquia|05642|Salgar|5.9671|-75.9875
+Antioquia|05647|San Andrés de Cuerquía|6.9167|-75.6667
+Antioquia|05649|San Carlos|6.2078|-74.9049
+Antioquia|05652|San Francisco|5.8597|-74.979
+Antioquia|05656|San Jerónimo|6.4414|-75.7078
+Antioquia|05658|San José de La Montaña|6.8221|-75.6976
+Antioquia|05659|San Juan de Urabá|8.6716|-76.5051
+Antioquia|05660|San Luis|6.0164|-74.9469
+Antioquia|05665|San Pedro de Uraba|8.4229|-76.3175
+Antioquia|05667|San Rafael|6.3123|-75.0243
+Antioquia|05670|San Roque|6.4442|-74.9525
+Antioquia|05674|San Vicente Ferrer|6.3224|-75.3302
+Antioquia|05679|Santa Bárbara|5.8894|-75.5825
+Antioquia|05686|Santa Rosa de Osos|6.6878|-75.4409
+Antioquia|05042|Santafé de Antioquia|6.55|-75.9
+Antioquia|05690|Santo Domingo|6.4735|-75.1546
+Antioquia|05736|Segovia|7.2813|-74.6427
+Antioquia|05756|Sonson|5.75|-75
+Antioquia|05761|Sopetrán|6.5227|-75.7461
+Antioquia|05789|Támesis|5.6705|-75.7215
+Antioquia|05790|Tarazá|7.493|-75.5049
+Antioquia|05792|Tarso|5.8812|-75.831
+Antioquia|05809|Titiribí|6.0622|-75.7992
+Antioquia|05819|Toledo|7.0235|-75.7149
+Antioquia|05837|Turbo|8.0954|-76.7334
+Antioquia|05842|Uramita|6.9166|-76.1308
+Antioquia|05847|Urrao|6.19|-76.08
+Antioquia|05854|Valdivia|7.2895|-75.3913
+Antioquia|05856|Valparaíso|5.652|-75.6541
+Antioquia|05858|Vegachí|6.8167|-74.787
+Antioquia|05861|Venecia|5.9542|-75.799
+Antioquia|05873|Vigía del Fuerte|6.3851|-76.6628
+Antioquia|05885|Yalí|6.7026|-74.7902
+Antioquia|05887|Yarumal|6.9853|-75.454
+Antioquia|05890|Yolombó|6.6657|-74.9912
+Antioquia|05893|Yondó|6.9074|-74.1769
+Antioquia|05895|Zaragoza|7.4829|-74.8757
+Arauca|81001|Arauca|6.8731|-70.4797
+Arauca|81065|Arauquita|6.9458|-71.4697
+Arauca|81220|Cravo Norte|6.3875|-70.1547
+Arauca|81300|Fortul|6.7461|-71.8567
+Arauca|81591|Puerto Rondón|6.4189|-70.965
+Arauca|81736|Saravena|6.9206|-71.8533
+Arauca|81794|Tame|6.3983|-71.7839
+Atlántico|08078|Baranoa|10.795|-74.9207
+Atlántico|08001|Barranquilla|10.9584|-74.7918
+Atlántico|08137|Campo de La Cruz|10.3784|-74.9026
+Atlántico|08141|Candelaria|10.4739|-74.8858
+Atlántico|08296|Galapa|10.8979|-74.887
+Atlántico|08372|Juan de Acosta|10.8295|-75.0743
+Atlántico|08421|Luruaco|10.6392|-75.1458
+Atlántico|08433|Malambo|10.8496|-74.8076
+Atlántico|08436|Manatí|10.464|-74.9822
+Atlántico|08520|Palmar de Varela|10.6961|-74.769
+Atlántico|08549|Piojó|10.7461|-75.138
+Atlántico|08558|Polonuevo|10.7807|-74.8589
+Atlántico|08560|Ponedera|10.5833|-74.8049
+Atlántico|08573|Puerto Colombia|11.0085|-74.9089
+Atlántico|08606|Repelón|10.5094|-75.1283
+Atlántico|08634|Sabanagrande|10.8008|-74.7705
+Atlántico|08638|Sabanalarga|10.6164|-74.9572
+Atlántico|08675|Santa Lucía|10.3524|-74.9654
+Atlántico|08685|Santo Tomás|10.7318|-74.8009
+Atlántico|08758|Soledad|10.8999|-74.7879
+Atlántico|08770|Suan|10.3021|-74.9193
+Atlántico|08832|Tubará|10.9155|-74.9837
+Atlántico|08849|Usiacurí|10.7454|-74.9837
+Bogotá D.C.|11001|Bogotá D.C.|4.3147|-74.1808
+Bolívar|13006|Achí|8.6258|-74.4776
+Bolívar|13030|Altos del Rosario|8.7389|-74.23
+Bolívar|13042|Arenal|8.3417|-74.1058
+Bolívar|13052|Arjona|10.1759|-75.3588
+Bolívar|13062|Arroyohondo|10.2358|-75.0422
+Bolívar|13074|Barranco de Loba|8.8829|-74.1828
+Bolívar|13140|Calamar|10.2338|-74.9424
+Bolívar|13160|Cantagallo|7.2292|-74.1297
+Bolívar|13001|Cartagena de Indias|10.5074|-75.4543
+Bolívar|13188|Cicuco|9.2323|-74.6909
+Bolívar|13222|Clemencia|10.5833|-75.3333
+Bolívar|13212|Córdoba|9.5515|-74.898
+Bolívar|13244|El Carmen de Bolívar|9.7088|-75.1596
+Bolívar|13248|El Guamo|10.0175|-74.9348
+Bolívar|13268|El Peñón|8.8654|-73.9115
+Bolívar|13300|Hatillo de Loba|8.9661|-74.1245
+Bolívar|13430|Magangué|9.1248|-74.7802
+Bolívar|13433|Mahates|10.1667|-75.1667
+Bolívar|13440|Margarita|9.0633|-74.2813
+Bolívar|13468|Mompós|9.1399|-74.5451
+Bolívar|13458|Montecristo|7.9957|-74.4582
+Bolívar|13473|Morales|8.2523|-73.9731
+Bolívar|13442|Municipio de María la Baja|9.9923|-75.3436
+Bolívar|13490|Norosi|8.5064|-74.1156
+Bolívar|13549|Pinillos|8.8237|-74.3811
+Bolívar|13580|Regidor|8.7223|-73.8489
+Bolívar|13600|Río Viejo|8.6041|-73.8185
+Bolívar|13620|San Cristóbal|10.3696|-75.0734
+Bolívar|13647|San Estanislao|10.3742|-75.2078
+Bolívar|13650|San Fernando|9.0771|-74.4118
+Bolívar|13654|San Jacinto|9.8391|-75.1104
+Bolívar|13655|San Jacinto del Cauca|8.2373|-74.6678
+Bolívar|13657|San Juan Nepomuceno|9.9498|-75.0743
+Bolívar|13667|San Martín de Loba|8.8821|-74.0035
+Bolívar|13670|San Pablo|7.3127|-74.2447
+Bolívar|13673|Santa Catalina|10.6045|-75.2955
+Bolívar|13683|Santa Rosa|10.4731|-75.3616
+Bolívar|13688|Santa Rosa del Sur|7.6976|-74.2759
+Bolívar|13744|Simití|7.8163|-73.9792
+Bolívar|13760|Soplaviento|10.3318|-75.1185
+Bolívar|13780|Talaigua Nuevo|9.3201|-74.6559
+Bolívar|13810|Tiquisio|8.478|-74.3063
+Bolívar|13836|Turbaco|10.3571|-75.3804
+Bolívar|13838|Turbaná|10.2353|-75.4561
+Bolívar|13873|Villanueva|10.4476|-75.2657
+Bolívar|13894|Zambrano|9.7482|-74.8849
+Boyacá|15022|Almeida|4.9226|-73.4113
+Boyacá|15047|Aquitania|5.4034|-72.9019
+Boyacá|15051|Arcabuco|5.7239|-73.4678
+Boyacá|15087|Belén|5.9763|-72.9248
+Boyacá|15090|Berbeo|5.2276|-73.1253
+Boyacá|15092|Betéitiva|5.8943|-72.8708
+Boyacá|15097|Boavita|6.3074|-72.6431
+Boyacá|15104|Boyacá|5.4487|-73.3514
+Boyacá|15106|Briceño|5.6873|-73.9328
+Boyacá|15109|Buenavista|5.5|-73.9667
+Boyacá|15114|Busbanzá|5.8435|-72.8699
+Boyacá|15131|Caldas|5.5783|-73.8807
+Boyacá|15135|Campohermoso|4.9773|-73.1671
+Boyacá|15162|Cerinza|5.9365|-72.9913
+Boyacá|15172|Chinavita|5.1792|-73.3715
+Boyacá|15176|Chiquinquirá|5.6136|-73.8385
+Boyacá|15232|Chíquiza|5.6201|-73.4962
+Boyacá|15180|Chiscas|6.6933|-72.4243
+Boyacá|15183|Chita|6.0779|-72.4677
+Boyacá|15185|Chitaraque|5.9617|-73.4576
+Boyacá|15187|Chivatá|5.5409|-73.2847
+Boyacá|15236|Chivor|4.8395|-73.3739
+Boyacá|15189|Ciénega|5.3633|-73.2975
+Boyacá|15204|Cómbita|5.6876|-73.3294
+Boyacá|15212|Coper|5.4362|-74.0321
+Boyacá|15215|Corrales|5.825|-72.8454
+Boyacá|15218|Covarachía|6.5193|-72.74
+Boyacá|15223|Cubará|6.8856|-72.19
+Boyacá|15224|Cucaita|5.5274|-73.4463
+Boyacá|15226|Cuítiva|5.5916|-72.9628
+Boyacá|15238|Duitama|5.8636|-73.0899
+Boyacá|15244|El Cocuy|6.3284|-72.4358
+Boyacá|15248|El Espino|6.5081|-72.4804
+Boyacá|15272|Firavitoba|5.6405|-73.0508
+Boyacá|15276|Floresta|5.859|-72.9251
+Boyacá|15293|Gachantivá|5.7442|-73.5425
+Boyacá|15296|Gameza|5.8031|-72.7372
+Boyacá|15299|Garagoa|5.0922|-73.316
+Boyacá|15317|Guacamayas|6.446|-72.5168
+Boyacá|15322|Guateque|5.0148|-73.4882
+Boyacá|15325|Guayatá|4.9194|-73.5297
+Boyacá|15332|Güicán|6.5368|-72.2731
+Boyacá|15362|Iza|5.6259|-72.9782
+Boyacá|15367|Jenesano|5.377|-73.3772
+Boyacá|15368|Jericó|6.1458|-72.586
+Boyacá|15380|La Capilla|5.0808|-73.4808
+Boyacá|15403|La Uvita|6.2426|-72.5645
+Boyacá|15401|La Victoria|5.5228|-74.2328
+Boyacá|15377|Labranzagrande|5.5424|-72.6023
+Boyacá|15425|Macanal|4.9505|-73.3203
+Boyacá|15442|Maripí|5.5573|-74.0544
+Boyacá|15455|Miraflores|5.1222|-73.2121
+Boyacá|15464|Mongua|5.6745|-72.7173
+Boyacá|15466|Monguí|5.6975|-72.8336
+Boyacá|15469|Moniquirá|5.8431|-73.5777
+Boyacá|15476|Motavita|5.5784|-73.3677
+Boyacá|15480|Muzo|5.529|-74.1013
+Boyacá|15491|Nobsa|5.7473|-72.956
+Boyacá|15494|Nuevo Colón|5.3538|-73.4497
+Boyacá|15500|Oicatá|5.5748|-73.3114
+Boyacá|15507|Otanche|5.7753|-74.2031
+Boyacá|15511|Pachavita|5.1486|-73.3994
+Boyacá|15514|Páez|5.0683|-73.0308
+Boyacá|15516|Paipa|5.8298|-73.2309
+Boyacá|15518|Pajarito|5.3475|-72.7207
+Boyacá|15522|Panqueba|6.4049|-72.4751
+Boyacá|15531|Pauna|5.6758|-74.0262
+Boyacá|15533|Paya|5.664|-72.3747
+Boyacá|15537|Paz de Río|6.0022|-72.7886
+Boyacá|15542|Pesca|5.5021|-73.0879
+Boyacá|15550|Pisba|5.7428|-72.4894
+Boyacá|15572|Puerto Boyacá|5.9721|-74.4635
+Boyacá|15580|Quípama|5.5588|-74.2166
+Boyacá|15599|Ramiriquí|5.3197|-73.3114
+Boyacá|15600|Ráquira|5.484|-73.6566
+Boyacá|15621|Rondón|5.3817|-73.1968
+Boyacá|15632|Saboyá|5.6879|-73.7814
+Boyacá|15638|Sáchica|5.5744|-73.5435
+Boyacá|15646|Samacá|5.4474|-73.5501
+Boyacá|15660|San Eduardo|5.204|-73.0729
+Boyacá|15664|San José de Pare|5.9768|-73.5596
+Boyacá|15667|San Luis de Gaceno|4.8529|-73.142
+Boyacá|15673|San Mateo|6.377|-72.578
+Boyacá|15676|San Miguel de Sema|5.5349|-73.7514
+Boyacá|15681|San Pablo de Borbur|5.6664|-74.1372
+Boyacá|15690|Santa María|4.8228|-73.2537
+Boyacá|15693|Santa Rosa de Viterbo|5.8852|-73.0134
+Boyacá|15696|Santa Sofía|5.7021|-73.6298
+Boyacá|15686|Santana|6.0446|-73.5111
+Boyacá|15720|Sativanorte|6.1058|-72.7532
+Boyacá|15723|Sativasur|6.071|-72.7151
+Boyacá|15740|Siachoque|5.469|-73.2345
+Boyacá|15753|Soatá|6.2997|-72.7242
+Boyacá|15757|Socha|5.9293|-72.7007
+Boyacá|15755|Socotá|5.909|-72.5811
+Boyacá|15759|Sogamoso|5.6401|-72.9119
+Boyacá|15761|Somondoco|4.9697|-73.4285
+Boyacá|15762|Sora|5.5808|-73.4433
+Boyacá|15764|Soracá|5.496|-73.3189
+Boyacá|15763|Sotaquirá|5.7618|-73.2859
+Boyacá|15774|Susacón|6.1861|-72.7567
+Boyacá|15776|Sutamarchán|5.6155|-73.6525
+Boyacá|15778|Sutatenza|5.0264|-73.4337
+Boyacá|15790|Tasco|5.8482|-72.7539
+Boyacá|15798|Tenza|5.0708|-73.4246
+Boyacá|15804|Tibaná|5.2846|-73.4278
+Boyacá|15806|Tibasosa|5.7472|-73.0109
+Boyacá|15808|Tinjacá|5.5664|-73.7105
+Boyacá|15810|Tipacoque|6.3969|-72.7219
+Boyacá|15814|Toca|5.5582|-73.1854
+Boyacá|15816|Togüí|5.8943|-73.5137
+Boyacá|15820|Tópaga|5.7748|-72.8284
+Boyacá|15822|Tota|5.5023|-73.0065
+Boyacá|15001|Tunja|5.518|-73.3783
+Boyacá|15832|Tununguá|5.708|-73.9588
+Boyacá|15835|Turmequé|5.3062|-73.5088
+Boyacá|15837|Tuta|5.6459|-73.214
+Boyacá|15839|Tutazá|6.0513|-72.8796
+Boyacá|15842|Umbita|5.1841|-73.4834
+Boyacá|15861|Ventaquemada|5.3599|-73.5503
+Boyacá|15407|Villa de Leyva|5.6706|-73.5155
+Boyacá|15879|Viracachá|5.4411|-73.2668
+Boyacá|15897|Zetaquira|5.2582|-73.1827
+Caldas|17013|Aguadas|5.6061|-75.4427
+Caldas|17042|Anserma|5.2043|-75.7917
+Caldas|17050|Aranzazu|5.2552|-75.5098
+Caldas|17088|Belalcázar|5.0036|-75.8187
+Caldas|17174|Chinchiná|4.9752|-75.7042
+Caldas|17272|Filadelfia|5.2894|-75.5929
+Caldas|17380|La Dorada|5.5333|-74.7
+Caldas|17388|La Merced|5.3806|-75.5884
+Caldas|17001|Manizales|5.0833|-75.5
+Caldas|17433|Manzanares|5.2331|-75.1517
+Caldas|17442|Marmato|5.4755|-75.5971
+Caldas|17444|Marquetalia|5.2907|-75.0803
+Caldas|17446|Marulanda|5.2185|-75.3134
+Caldas|17486|Neira|5.1753|-75.524
+Caldas|17495|Norcasia|5.6373|-74.8551
+Caldas|17513|Pácora|5.5063|-75.4905
+Caldas|17524|Palestina|5.0457|-75.6955
+Caldas|17541|Pensilvania|5.3884|-75.2042
+Caldas|17614|Riosucio|5.45|-75.75
+Caldas|17616|Risaralda|5.1124|-75.7586
+Caldas|17653|Salamina|5.3701|-75.4155
+Caldas|17662|Samaná|5.5406|-74.9935
+Caldas|17665|San José|5.0709|-75.8129
+Caldas|17777|Supía|5.435|-75.6728
+Caldas|17867|Victoria|5.4567|-74.8406
+Caldas|17873|Villamaría|4.9508|-75.4368
+Caldas|17877|Viterbo|5.0451|-75.9192
+Caquetá|18029|Albania|1.2633|-75.9537
+Caquetá|18094|Belén de Los Andaquies|1.4167|-75.9167
+Caquetá|18150|Cartagena del Chairá|0.8525|-74.6059
+Caquetá|18205|Curillo|1.0986|-76.0304
+Caquetá|18247|El Doncello|1.7086|-75.2859
+Caquetá|18256|El Paujil|1.5709|-75.314
+Caquetá|18001|Florencia|1.7162|-75.5962
+Caquetá|18410|La Montañita|1.4639|-75.3036
+Caquetá|18460|Milán|1.1538|-75.5461
+Caquetá|18479|Morelia|1.4823|-75.7205
+Caquetá|18592|Puerto Rico|1.9678|-75.0333
+Caquetá|18610|San José del Fragua|1.3078|-76.1655
+Caquetá|18753|San Vicente del Caguán|1.578|-74.5178
+Caquetá|18756|Solano|0.2284|-73.276
+Caquetá|18785|Solita|0.9698|-75.6553
+Caquetá|18860|Valparaíso|1.0571|-75.7597
+Casanare|85010|Aguazul|5.0992|-72.5716
+Casanare|85015|Chameza|5.1924|-72.8895
+Casanare|85125|Hato Corozal|6.1628|-70.9969
+Casanare|85136|La Salina|6.1853|-72.3444
+Casanare|85139|Maní|4.7|-72.25
+Casanare|85162|Monterrey|4.8202|-72.879
+Casanare|85225|Nunchía|5.5444|-72.1014
+Casanare|85230|Orocué|4.9219|-71.5972
+Casanare|85250|Paz de Ariporo|5.8833|-71.9
+Casanare|85263|Pore|5.6708|-71.93
+Casanare|85279|Recetor|5.2285|-72.7864
+Casanare|85300|Sabanalarga|4.7351|-73.0082
+Casanare|85315|Sácama|6.0521|-72.2105
+Casanare|85325|San Luis de Palenque|5.2806|-71.5819
+Casanare|85400|Támara|5.8897|-72.2131
+Casanare|85410|Tauramena|4.6645|-72.6507
+Casanare|85430|Trinidad|5.3478|-71.2019
+Casanare|85440|Villanueva|4.4782|-72.8224
+Casanare|85001|Yopal|5.2581|-72.2644
+Cauca|19022|Almaguer|1.9167|-76.8333
+Cauca|19050|Argelia|2.3173|-77.257
+Cauca|19075|Balboa|2.0844|-77.2078
+Cauca|19100|Bolívar|1.8467|-76.9829
+Cauca|19110|Buenos Aires|3.0483|-76.6307
+Cauca|19130|Cajibío|2.6449|-76.708
+Cauca|19137|Caldono|2.8076|-76.4567
+Cauca|19142|Caloto|3.0389|-76.3604
+Cauca|19212|Corinto|3.136|-76.2065
+Cauca|19256|El Tambo|2.5368|-77.0142
+Cauca|19290|Florencia|1.7125|-77.0913
+Cauca|19300|Guachené|3.1448|-76.3926
+Cauca|19318|Guapi|2.5521|-77.8786
+Cauca|19355|Inzá|2.5092|-76.1296
+Cauca|19364|Jambaló|2.8507|-76.3251
+Cauca|19392|La Sierra|2.1967|-76.7859
+Cauca|19397|La Vega|2.062|-76.7681
+Cauca|19418|López de Micay|3|-77.25
+Cauca|19450|Mercaderes|1.805|-77.1828
+Cauca|19455|Miranda|3.2377|-76.2209
+Cauca|19473|Morales|2.7819|-76.7694
+Cauca|19513|Padilla|3.1997|-76.3569
+Cauca|19517|Páez|2.75|-76
+Cauca|19532|Patía|2.1402|-77.0174
+Cauca|19533|Piamonte|1.1928|-76.3345
+Cauca|19548|Piendamó|2.7021|-76.5974
+Cauca|19001|Popayán|2.4806|-76.5911
+Cauca|19573|Puerto Tejada|3.2339|-76.4193
+Cauca|19585|Puracé|2.3385|-76.3876
+Cauca|19622|Rosas|2.2459|-76.7423
+Cauca|19693|San Sebastián|1.9167|-76.6667
+Cauca|19701|Santa Rosa|1.537|-76.4979
+Cauca|19698|Santander de Quilichao|3|-76.5
+Cauca|19743|Silvia|2.6588|-76.3481
+Cauca|19760|Sotara|2.25|-76.5833
+Cauca|19780|Suárez|2.9346|-76.7448
+Cauca|19785|Sucre|2.0618|-76.9144
+Cauca|19807|Timbío|2.3696|-76.7106
+Cauca|19809|Timbiquí|2.7646|-77.6335
+Cauca|19821|Toribio|3|-76.1667
+Cauca|19824|Totoró|2.5052|-76.3925
+Cauca|19845|Villa Rica|3.1782|-76.4666
+Cesar|20011|Aguachica|8.2493|-73.6189
+Cesar|20013|Agustín Codazzi|9.9485|-73.2216
+Cesar|20032|Astrea|9.4899|-73.9788
+Cesar|20045|Becerril|9.7429|-73.2175
+Cesar|20060|Bosconia|9.9292|-73.8886
+Cesar|20175|Chimichagua|9.2225|-73.8075
+Cesar|20178|Chiriguaná|9.3932|-73.5188
+Cesar|20228|Curumaní|9.2055|-73.5199
+Cesar|20238|El Copey|10.1854|-73.9333
+Cesar|20250|El Paso|9.6584|-73.7142
+Cesar|20295|Gamarra|8.3297|-73.7177
+Cesar|20310|González|8.3674|-73.4003
+Cesar|20383|La Gloria|8.6116|-73.6304
+Cesar|20400|La Jagua de Ibirico|9.5667|-73.3333
+Cesar|20621|La Paz|10.1049|-73.2206
+Cesar|20443|Manaure|10.4014|-72.931
+Cesar|20517|Pailitas|8.9255|-73.5929
+Cesar|20550|Pelaya|8.7707|-73.6109
+Cesar|20570|Pueblo Bello|10.4167|-73.5833
+Cesar|20614|Río de Oro|8.1788|-73.5122
+Cesar|20710|San Alberto|7.8144|-73.4582
+Cesar|20750|San Diego|10.2324|-73.2735
+Cesar|20770|San Martín|7.97|-73.5725
+Cesar|20787|Tamalameque|8.8642|-73.7811
+Cesar|20001|Valledupar|10.3565|-73.3664
+Chocó|27006|Acandí|8.4247|-77.2928
+Chocó|27025|Alto Baudo|5.6046|-77.0697
+Chocó|27050|Atrato|5.5736|-76.6406
+Chocó|27073|Bagadó|5.5207|-76.1878
+Chocó|27075|Bahía Solano|6.2252|-77.3915
+Chocó|27077|Bajo Baudó|4.9018|-77.2277
+Chocó|27099|Bojaya|6.5|-77.1
+Chocó|27150|Carmen del Darien|7.0364|-76.9522
+Chocó|27160|Cértegui|5.4|-76.6
+Chocó|27205|Condoto|5.106|-76.4516
+Chocó|27135|El Cantón del San Pablo|5.3599|-76.7728
+Chocó|27245|El Carmen de Atrato|5.8333|-76.25
+Chocó|27250|El Litoral del San Juan|4.2507|-76.9693
+Chocó|27361|Istmina|4.9877|-76.8053
+Chocó|27372|Juradó|7.0043|-77.6514
+Chocó|27413|Lloró|5.6011|-76.3737
+Chocó|27425|Medio Atrato|5.995|-76.7825
+Chocó|27430|Medio Baudó|5.05|-77.05
+Chocó|27450|Medio San Juan|5.0928|-76.6953
+Chocó|27491|Nóvita|4.8708|-76.6188
+Chocó|27495|Nuquí|5.6701|-77.2875
+Chocó|27001|Quibdó|5.7608|-76.837
+Chocó|27580|Río Iro|5.1833|-76.4833
+Chocó|27600|Río Quito|5.5167|-76.75
+Chocó|27615|Riosucio|7.4167|-77.1667
+Chocó|27660|San José del Palmar|4.9466|-76.2223
+Chocó|27745|Sipí|4.6026|-76.5104
+Chocó|27787|Tadó|5.2635|-76.5507
+Chocó|27800|Unguía|8.1112|-77.1092
+Chocó|27810|Unión Panamericana|5.2814|-76.63
+Córdoba|23068|Ayapel|8.2722|-75.0396
+Córdoba|23079|Buenavista|8.177|-75.4448
+Córdoba|23090|Canalete|8.7487|-76.2588
+Córdoba|23162|Cereté|8.8821|-75.8218
+Córdoba|23168|Chimá|9.1147|-75.6509
+Córdoba|23182|Chinú|9.0387|-75.3427
+Córdoba|23189|Ciénaga de Oro|8.8358|-75.6042
+Córdoba|23300|Cotorra|9.0572|-75.7792
+Córdoba|23350|La Apartada|8.0479|-75.301
+Córdoba|23417|Lorica|9.1761|-75.8972
+Córdoba|23419|Los Córdobas|8.8717|-76.2909
+Córdoba|23464|Momil|9.2347|-75.6357
+Córdoba|23466|Montelíbano|7.7613|-75.9217
+Córdoba|23001|Montería|8.6314|-75.9721
+Córdoba|23500|Moñitos|9.2262|-76.1359
+Córdoba|23555|Planeta Rica|8.3333|-75.5833
+Córdoba|23570|Pueblo Nuevo|8.5|-75.4167
+Córdoba|23574|Puerto Escondido|8.9945|-76.1935
+Córdoba|23580|Puerto Libertador|7.6818|-75.7831
+Córdoba|23586|Purísima|9.2496|-75.7118
+Córdoba|23660|Sahagún|8.7972|-75.4424
+Córdoba|23670|San Andrés Sotavento|9.1218|-75.5163
+Córdoba|23672|San Antero|9.3614|-75.786
+Córdoba|23675|San Bernardo del Viento|9.335|-75.9694
+Córdoba|23678|San Carlos|8.7104|-75.6896
+Córdoba|23682|San Jose De Ure|7.7533|-75.5659
+Córdoba|23686|San Pelayo|9|-75.9167
+Córdoba|23807|Tierralta|7.8786|-76.2131
+Córdoba|23815|Tuchin|9.2234|-75.5452
+Córdoba|23855|Valencia|8.2335|-76.2143
+Cundinamarca|25001|Agua de Dios|4.3584|-74.69
+Cundinamarca|25019|Albán|4.8943|-74.4439
+Cundinamarca|25035|Anapoima|4.5436|-74.5469
+Cundinamarca|25040|Anolaima|4.7762|-74.4841
+Cundinamarca|25599|Apulo|4.509|-74.5977
+Cundinamarca|25053|Arbeláez|4.2125|-74.4146
+Cundinamarca|25086|Beltrán|4.7195|-74.7566
+Cundinamarca|25095|Bituima|4.829|-74.552
+Cundinamarca|25099|Bojacá|4.6872|-74.3371
+Cundinamarca|25120|Cabrera|3.8744|-74.4719
+Cundinamarca|25123|Cachipay|4.7042|-74.4871
+Cundinamarca|25126|Cajicá|4.9128|-74.0526
+Cundinamarca|25148|Caparrapí|5.3785|-74.5228
+Cundinamarca|25151|Caqueza|4.3871|-73.9572
+Cundinamarca|25154|Carmen de Carupa|5.3326|-73.9279
+Cundinamarca|25168|Chaguaní|4.9455|-74.6595
+Cundinamarca|25175|Chía|4.8445|-74.0585
+Cundinamarca|25178|Chipaque|4.4148|-74.0754
+Cundinamarca|25181|Choachí|4.5606|-73.9185
+Cundinamarca|25183|Chocontá|5.1233|-73.6869
+Cundinamarca|25200|Cogua|5.0847|-73.9949
+Cundinamarca|25214|Cota|4.776|-74.1433
+Cundinamarca|25224|Cucunubá|5.2163|-73.8076
+Cundinamarca|25245|El Colegio|4.5605|-74.4261
+Cundinamarca|25258|El Peñón|5.26|-74.3333
+Cundinamarca|25260|El Rosal|4.85|-74.2667
+Cundinamarca|25269|Facatativá|4.8196|-74.3589
+Cundinamarca|25279|Fomeque|4.5281|-73.7888
+Cundinamarca|25281|Fosca|4.3018|-73.974
+Cundinamarca|25286|Funza|4.7306|-74.2179
+Cundinamarca|25288|Fúquene|5.4199|-73.77
+Cundinamarca|25290|Fusagasugá|4.2924|-74.3833
+Cundinamarca|25293|Gachala|4.6667|-73.5
+Cundinamarca|25295|Gachancipá|5.0102|-73.878
+Cundinamarca|25297|Gachetá|4.871|-73.6173
+Cundinamarca|25299|Gama|4.7098|-73.62
+Cundinamarca|25307|Girardot|4.318|-74.835
+Cundinamarca|25312|Granada|4.5186|-74.3514
+Cundinamarca|25317|Guachetá|5.389|-73.697
+Cundinamarca|25320|Guaduas|5.0743|-74.5985
+Cundinamarca|25322|Guasca|4.807|-73.8517
+Cundinamarca|25324|Guataquí|4.5162|-74.7722
+Cundinamarca|25326|Guatavita|4.9112|-73.8399
+Cundinamarca|25328|Guayabal de Siquima|4.8788|-74.4831
+Cundinamarca|25335|Guayabetal|4.1751|-73.8812
+Cundinamarca|25339|Gutiérrez|4.1849|-74.0117
+Cundinamarca|25368|Jerusalén|4.5568|-74.7094
+Cundinamarca|25372|Junín|4.7073|-73.6955
+Cundinamarca|25377|La Calera|4.6868|-73.9359
+Cundinamarca|25386|La Mesa|4.6537|-74.4732
+Cundinamarca|25394|La Palma|5.3173|-74.43
+Cundinamarca|25398|La Peña|5.1984|-74.4114
+Cundinamarca|25402|La Vega|4.9738|-74.3448
+Cundinamarca|25407|Lenguazaque|5.2853|-73.7102
+Cundinamarca|25426|Macheta|5.0833|-73.6167
+Cundinamarca|25430|Madrid|4.7556|-74.2771
+Cundinamarca|25436|Manta|4.9572|-73.5858
+Cundinamarca|25438|Medina|4.501|-73.4049
+Cundinamarca|25473|Mosquera|4.6894|-74.236
+Cundinamarca|25483|Nariño|4.3991|-74.8224
+Cundinamarca|25486|Nemocón|5.0697|-73.9061
+Cundinamarca|25488|Nilo|4.3134|-74.6057
+Cundinamarca|25489|Nimaima|5.1174|-74.4034
+Cundinamarca|25491|Nocaima|5.0477|-74.4046
+Cundinamarca|25513|Pacho|5.1499|-74.1807
+Cundinamarca|25518|Paime|5.389|-74.1667
+Cundinamarca|25524|Pandi|4.1803|-74.471
+Cundinamarca|25530|Paratebueno|4.4169|-73.1856
+Cundinamarca|25535|Pasca|4.3023|-74.2751
+Cundinamarca|25572|Puerto Salgar|5.6189|-74.5848
+Cundinamarca|25580|Pulí|4.6786|-74.6953
+Cundinamarca|25592|Quebradanegra|5.0826|-74.5212
+Cundinamarca|25594|Quetame|4.3324|-73.8401
+Cundinamarca|25596|Quipile|4.7237|-74.551
+Cundinamarca|25612|Ricaurte|4.2913|-74.7543
+Cundinamarca|25645|San Antonio del Tequendama|4.6167|-74.35
+Cundinamarca|25649|San Bernardo|4.1296|-74.359
+Cundinamarca|25653|San Cayetano|5.3169|-74.0714
+Cundinamarca|25658|San Francisco|4.9634|-74.2661
+Cundinamarca|25662|San Juan de Río Seco|4.8308|-74.6825
+Cundinamarca|25718|Sasaima|4.9289|-74.428
+Cundinamarca|25736|Sesquilé|4.9883|-73.8004
+Cundinamarca|25740|Sibaté|4.4491|-74.2829
+Cundinamarca|25743|Silvania|4.4251|-74.3842
+Cundinamarca|25745|Simijaca|5.5042|-73.8694
+Cundinamarca|25754|Soacha|4.5461|-74.2063
+Cundinamarca|25758|Sopó|4.8716|-73.9862
+Cundinamarca|25769|Subachoque|4.9781|-74.1612
+Cundinamarca|25772|Suesca|5.1261|-73.8036
+Cundinamarca|25777|Supatá|5.0615|-74.2291
+Cundinamarca|25779|Susa|5.427|-73.8479
+Cundinamarca|25781|Sutatausa|5.229|-73.8791
+Cundinamarca|25785|Tabio|4.9351|-74.1021
+Cundinamarca|25793|Tausa|5.1764|-73.9694
+Cundinamarca|25797|Tena|4.6486|-74.3992
+Cundinamarca|25799|Tenjo|4.8232|-74.1657
+Cundinamarca|25805|Tibacuy|4.3061|-74.5164
+Cundinamarca|25807|Tibirita|5.0852|-73.5137
+Cundinamarca|25815|Tocaima|4.4607|-74.6572
+Cundinamarca|25817|Tocancipá|4.9481|-73.9483
+Cundinamarca|25823|Topaipí|5.3389|-74.3133
+Cundinamarca|25839|Ubalá|4.8082|-73.477
+Cundinamarca|25841|Ubaque|4.4844|-73.9966
+Cundinamarca|25845|Une|4.3069|-74.071
+Cundinamarca|25851|Útica|5.1698|-74.5013
+Cundinamarca|25506|Venecia|4.0886|-74.4775
+Cundinamarca|25862|Vergara|5.136|-74.3154
+Cundinamarca|25867|Vianí|4.8958|-74.554
+Cundinamarca|25843|Villa de San Diego de Ubate|5.3154|-73.8204
+Cundinamarca|25871|Villagómez|5.271|-74.191
+Cundinamarca|25873|Villapinzón|5.2088|-73.6054
+Cundinamarca|25875|Villeta|5.0001|-74.505
+Cundinamarca|25878|Viotá|4.4205|-74.5081
+Cundinamarca|25885|Yacopí|5.5822|-74.3733
+Cundinamarca|25898|Zipacón|4.7545|-74.3876
+Cundinamarca|25899|Zipaquirá|5.0263|-74.0421
+Guainía|94343|Barranco Minas|3.099|-69.583
+Guainía|94886|Cacahual|3.3253|-67.624
+Guainía|94001|Inírida|2.9241|-68.9353
+Guainía|94885|La Guadalupe|1.3958|-67.0015
+Guainía|94663|Mapiripana|2.81|-70.2857
+Guainía|94888|Morichal|2.4298|-69.8328
+Guainía|94887|Pana Pana|1.9625|-69.126
+Guainía|94884|Puerto Colombia|2.439|-68.1642
+Guainía|94883|San Felipe|2.1432|-67.3412
+Guaviare|95015|Calamar|1.6018|-72.9824
+Guaviare|95025|El Retorno|1.9261|-71.5756
+Guaviare|95200|Miraflores|1.3098|-72.0419
+Guaviare|95001|San José del Guaviare|2.5537|-72.0746
+Huila|41006|Acevedo|1.7047|-76.0061
+Huila|41013|Agrado|2.2705|-75.7183
+Huila|41016|Aipe|3.3234|-75.3079
+Huila|41020|Algeciras|2.5279|-75.282
+Huila|41026|Altamira|2.055|-75.8045
+Huila|41078|Baraya|3.1453|-74.954
+Huila|41132|Campoalegre|2.6667|-75.3333
+Huila|41206|Colombia|3.3993|-74.7203
+Huila|41244|Elías|1.9901|-75.9806
+Huila|41298|Garzón|2.1818|-75.5781
+Huila|41306|Gigante|2.38|-75.5363
+Huila|41319|Guadalupe|1.988|-75.6901
+Huila|41349|Hobo|2.5413|-75.4478
+Huila|41359|Isnos|1.9763|-76.2817
+Huila|41378|La Argentina|2.1767|-76.2048
+Huila|41396|La Plata|2.3206|-76.1045
+Huila|41357|Municipio de Íquira|2.6951|-75.6735
+Huila|41483|Nátaga|2.5785|-75.7868
+Huila|41001|Neiva|3.0144|-75.3094
+Huila|41503|Oporapa|2.0577|-76.0413
+Huila|41518|Paicol|2.4005|-75.7709
+Huila|41524|Palermo|2.8792|-75.4485
+Huila|41530|Palestina|1.6859|-76.1692
+Huila|41548|Pital|2.2299|-75.8314
+Huila|41551|Pitalito|1.8213|-76.1226
+Huila|41615|Rivera|2.7735|-75.2019
+Huila|41660|Saladoblanco|2.0642|-76.2096
+Huila|41668|San Agustín|1.9243|-76.4157
+Huila|41676|Santa María|2.9339|-75.6318
+Huila|41770|Suaza|1.8784|-75.8116
+Huila|41791|Tarqui|2.1349|-75.8768
+Huila|41799|Tello|3.0381|-75.0963
+Huila|41801|Teruel|2.7524|-75.5636
+Huila|41797|Tesalia|2.5353|-75.7155
+Huila|41807|Timaná|1.912|-75.9734
+Huila|41872|Villavieja|3.2977|-75.1453
+Huila|41885|Yaguará|2.6353|-75.5322
+La Guajira|44035|Albania|11.1597|-72.5856
+La Guajira|44078|Barrancas|10.9718|-72.6911
+La Guajira|44090|Dibulla|11.2667|-73.3
+La Guajira|44098|Distracción|10.9|-72.8833
+La Guajira|44110|El Molino|10.5946|-72.8539
+La Guajira|44279|Fonseca|10.8297|-72.7978
+La Guajira|44378|Hatonuevo|11.0694|-72.7669
+La Guajira|44420|La Jagua del Pilar|10.4581|-73.0723
+La Guajira|44430|Maicao|11.3995|-72.2867
+La Guajira|44560|Manaure|11.5817|-72.5651
+La Guajira|44001|Riohacha|11.1667|-73.0833
+La Guajira|44650|San Juan del Cesar|10.8333|-73.0833
+La Guajira|44847|Uribia|12.0264|-71.7489
+La Guajira|44855|Urumita|10.4982|-72.9759
+La Guajira|44874|Villanueva|10.5833|-72.9608
+Magdalena|47030|Algarrobo|10.1855|-74.0616
+Magdalena|47053|Aracataca|10.6449|-73.8726
+Magdalena|47058|Ariguaní|9.8938|-74.1358
+Magdalena|47161|Cerro San Antonio|10.2906|-74.8217
+Magdalena|47170|Chibolo|10.0825|-74.507
+Magdalena|47189|Ciénaga|10.8333|-74.0833
+Magdalena|47205|Concordia|10.2328|-74.7785
+Magdalena|47245|El Banco|9.1241|-73.9763
+Magdalena|47258|El Piñon|10.3333|-74.6667
+Magdalena|47268|El Retén|10.6611|-74.3255
+Magdalena|47288|Fundación|10.4167|-73.9167
+Magdalena|47318|Guamal|9.2608|-74.131
+Magdalena|47460|Nueva Granada|9.7359|-74.3289
+Magdalena|47541|Pedraza|10.1494|-74.8363
+Magdalena|47545|Pijiño del Carmen|9.5353|-74.1199
+Magdalena|47551|Pivijay|10.4318|-74.4154
+Magdalena|47555|Plato|9.7727|-74.7455
+Magdalena|47570|Puebloviejo|10.8424|-74.3854
+Magdalena|47605|Remolino|10.6505|-74.5844
+Magdalena|47660|Sabanas de San Angel|10.1107|-74.2601
+Magdalena|47675|Salamina|10.5173|-74.7194
+Magdalena|47692|San Sebastián de Buenavista|9.3324|-74.2152
+Magdalena|47703|San Zenón|9.3269|-74.3291
+Magdalena|47707|Santa Ana|9.5148|-74.3433
+Magdalena|47720|Santa Bárbara de Pinto|9.5211|-74.6491
+Magdalena|47001|Santa Marta|11.2435|-74.2083
+Magdalena|47745|Sitionuevo|10.8897|-74.6308
+Magdalena|47798|Tenerife|9.932|-74.7346
+Magdalena|47960|Zapayán|10.1185|-74.6914
+Magdalena|47980|Zona Bananera|10.7642|-74.1572
+Meta|50006|Acacías|4.0093|-73.7802
+Meta|50110|Barranca de Upía|4.4745|-72.9937
+Meta|50124|Cabuyaro|4.2853|-72.9803
+Meta|50150|Castilla la Nueva|3.8|-73.5833
+Meta|50223|Cubarral|3.8267|-74.0767
+Meta|50226|Cumaral|4.2381|-73.341
+Meta|50245|El Calvario|4.3543|-73.7443
+Meta|50251|El Castillo|3.5772|-73.9644
+Meta|50270|El Dorado|3.7077|-73.8325
+Meta|50287|Fuente de Oro|3.3417|-73.6295
+Meta|50313|Granada|3.4859|-73.7621
+Meta|50318|Guamal|3.9444|-73.9365
+Meta|50350|La Macarena|2.007|-74.0732
+Meta|50400|Lejanías|3.5292|-74.0238
+Meta|50325|Mapiripán|3.0971|-71.9496
+Meta|50330|Mesetas|3.1556|-74.0994
+Meta|50450|Puerto Concordia|2.6226|-72.7611
+Meta|50568|Puerto Gaitán|3.9938|-71.637
+Meta|50577|Puerto Lleras|3.2179|-73.2321
+Meta|50573|Puerto López|4.0443|-72.6573
+Meta|50590|Puerto Rico|2.7827|-73.1396
+Meta|50606|Restrepo|4.2941|-73.5956
+Meta|50680|San Carlos de Guaroa|3.7984|-73.2179
+Meta|50683|San Juan de Arama|3.2903|-73.8206
+Meta|50686|San Juanito|4.4291|-73.6964
+Meta|50689|San Martín|3.5082|-73.0397
+Meta|50370|Uribe|3.0265|-74.4361
+Meta|50001|Villavicencio|4.0742|-73.4915
+Meta|50711|Vistahermosa|2.9041|-73.5321
+Nariño|52019|Albán|1.4705|-77.0685
+Nariño|52022|Aldana|0.8816|-77.7005
+Nariño|52036|Ancuyá|1.2654|-77.5326
+Nariño|52051|Arboleda|1.4983|-77.1361
+Nariño|52079|Barbacoas|1.4817|-78.1222
+Nariño|52083|Belén|1.5937|-77.0373
+Nariño|52110|Buesaco|1.3293|-77.1237
+Nariño|52240|Chachagüí|1.3873|-77.2693
+Nariño|52203|Colón|1.6285|-77.0293
+Nariño|52207|Consaca|1.2084|-77.4632
+Nariño|52210|Contadero|0.9307|-77.5333
+Nariño|52215|Córdoba|0.785|-77.3614
+Nariño|52224|Cuaspud|0.8757|-77.7364
+Nariño|52227|Cumbal|0.9503|-77.9414
+Nariño|52233|Cumbitara|1.6768|-77.5929
+Nariño|52250|El Charco|2.4691|-78.0997
+Nariño|52254|El Peñol|1.5129|-77.4308
+Nariño|52256|El Rosario|1.8459|-77.4062
+Nariño|52258|El Tablón de Gómez|1.412|-76.9853
+Nariño|52260|El Tambo|1.4305|-77.3833
+Nariño|52520|Francisco Pizarro|2.1471|-78.5888
+Nariño|52287|Funes|0.9318|-77.3522
+Nariño|52317|Guachucal|0.977|-77.7356
+Nariño|52320|Guaitarilla|1.1793|-77.5584
+Nariño|52323|Gualmatán|0.9286|-77.5827
+Nariño|52352|Iles|0.98|-77.5192
+Nariño|52354|Imués|1.0789|-77.5
+Nariño|52356|Ipiales|0.5833|-77.4167
+Nariño|52378|La Cruz|1.5875|-76.9219
+Nariño|52381|La Florida|1.3569|-77.4127
+Nariño|52385|La Llanada|1.5123|-77.7053
+Nariño|52390|La Tola|2.3358|-78.2068
+Nariño|52399|La Unión|1.6269|-77.1592
+Nariño|52405|Leiva|1.9615|-77.3756
+Nariño|52411|Linares|1.4005|-77.5442
+Nariño|52418|Los Andes|1.6283|-77.6796
+Nariño|52427|Magüi|1.905|-78.0492
+Nariño|52435|Mallama|1.1589|-77.8469
+Nariño|52473|Mosquera|2.4914|-78.4431
+Nariño|52480|Nariño|1.3029|-77.3459
+Nariño|52490|Olaya Herrera|2.2193|-78.3223
+Nariño|52506|Ospina|1.0296|-77.5525
+Nariño|52001|Pasto|1.2147|-77.2786
+Nariño|52540|Policarpa|1.733|-77.4918
+Nariño|52560|Potosí|0.7467|-77.4216
+Nariño|52565|Providencia|1.242|-77.6047
+Nariño|52573|Puerres|0.8212|-77.3198
+Nariño|52585|Pupiales|0.9225|-77.6419
+Nariño|52612|Ricaurte|1.1879|-78.0554
+Nariño|52621|Roberto Payán|1.9176|-78.3819
+Nariño|52678|Samaniego|1.4167|-77.6667
+Nariño|52835|San Andres de Tumaco|1.6377|-78.6122
+Nariño|52685|San Bernardo|1.5386|-77.0379
+Nariño|52687|San Lorenzo|1.5573|-77.246
+Nariño|52693|San Pablo|1.6702|-77.0237
+Nariño|52694|San Pedro de Cartago|1.5553|-77.1298
+Nariño|52683|Sandoná|1.3072|-77.4828
+Nariño|52696|Santa Bárbara|2.3019|-77.9149
+Nariño|52699|Santacruz|1.3333|-77.7
+Nariño|52720|Sapuyes|1.0595|-77.7066
+Nariño|52786|Taminango|1.5939|-77.3552
+Nariño|52788|Tangua|1.0919|-77.3864
+Nariño|52838|Túquerres|1.1355|-77.6309
+Nariño|52885|Yacuanquer|1.125|-77.4242
+Norte de Santander|54003|Abrego|8|-73.2
+Norte de Santander|54051|Arboledas|7.6349|-72.8605
+Norte de Santander|54099|Bochalema|7.6022|-72.6884
+Norte de Santander|54109|Bucarasica|8.0807|-72.929
+Norte de Santander|54128|Cachirá|7.75|-73.1667
+Norte de Santander|54125|Cácota|7.2505|-72.6783
+Norte de Santander|54172|Chinácota|7.5554|-72.6041
+Norte de Santander|54174|Chitagá|7.032|-72.5507
+Norte de Santander|54206|Convención|8.8224|-73.2285
+Norte de Santander|54001|Cúcuta|8.0841|-72.5052
+Norte de Santander|54223|Cucutilla|7.4989|-72.797
+Norte de Santander|54239|Durania|7.7192|-72.7003
+Norte de Santander|54245|El Carmen|8.8517|-73.353
+Norte de Santander|54250|El Tarra|8.6545|-73.0531
+Norte de Santander|54261|El Zulia|8.0654|-72.6599
+Norte de Santander|54313|Gramalote|7.8785|-72.822
+Norte de Santander|54344|Hacarí|8.3439|-73.0963
+Norte de Santander|54347|Herrán|7.4807|-72.5006
+Norte de Santander|54385|La Esperanza|7.686|-73.4073
+Norte de Santander|54398|La Playa|8.2583|-73.1922
+Norte de Santander|54377|Labateca|7.2456|-72.5529
+Norte de Santander|54405|Los Patios|7.7054|-72.5692
+Norte de Santander|54418|Lourdes|7.9677|-72.8452
+Norte de Santander|54480|Mutiscua|7.2981|-72.7988
+Norte de Santander|54498|Ocaña|8.2164|-73.3492
+Norte de Santander|54518|Pamplona|7.3494|-72.6995
+Norte de Santander|54520|Pamplonita|7.4581|-72.6596
+Norte de Santander|54553|Puerto Santander|8.3288|-72.4114
+Norte de Santander|54599|Ragonvalia|7.5976|-72.5098
+Norte de Santander|54660|Salazar|7.7825|-72.8574
+Norte de Santander|54670|San Calixto|8.4418|-73.166
+Norte de Santander|54673|San Cayetano|7.8477|-72.6101
+Norte de Santander|54680|Santiago|7.8693|-72.7375
+Norte de Santander|54720|Sardinata|8.2342|-72.8204
+Norte de Santander|54743|Silos|7.1869|-72.785
+Norte de Santander|54800|Teorama|8.7522|-73.1601
+Norte de Santander|54810|Tibú|8.6954|-72.8127
+Norte de Santander|54820|Toledo|7.2322|-72.3113
+Norte de Santander|54871|Villa Caro|7.9167|-73
+Norte de Santander|54874|Villa del Rosario|7.7582|-72.4818
+Putumayo|86219|Colón|1.2314|-76.9653
+Putumayo|86573|Leguízamo|0.0568|-75.0583
+Putumayo|86001|Mocoa|1.2124|-76.6544
+Putumayo|86320|Orito|0.6682|-76.9347
+Putumayo|86568|Puerto Asís|0.4616|-76.3423
+Putumayo|86569|Puerto Caicedo|0.6764|-76.4135
+Putumayo|86571|Puerto Guzmán|0.7305|-75.9061
+Putumayo|86755|San Francisco|1.1116|-76.8399
+Putumayo|86757|San Miguel|0.343|-76.91
+Putumayo|86760|Santiago|1.0536|-77.0389
+Putumayo|86749|Sibundoy|1.2296|-76.9024
+Putumayo|86865|Valle del Guamuez|0.3558|-76.8673
+Putumayo|86885|Villagarzón|0.8966|-76.7279
+Quindío|63001|Armenia|4.5331|-75.7044
+Quindío|63111|Buenavista|4.3665|-75.7437
+Quindío|63130|Calarca|4.5|-75.6333
+Quindío|63190|Circasia|4.5994|-75.6854
+Quindío|63212|Córdoba|4.3806|-75.6668
+Quindío|63272|Filandia|4.6753|-75.6714
+Quindío|63302|Génova|4.2274|-75.7548
+Quindío|63401|La Tebaida|4.4335|-75.8148
+Quindío|63470|Montenegro|4.5268|-75.8226
+Quindío|63548|Pijao|4.3059|-75.6818
+Quindío|63594|Quimbaya|4.5934|-75.8376
+Quindío|63690|Salento|4.6364|-75.5674
+Risaralda|66045|Apía|5.1396|-75.9576
+Risaralda|66075|Balboa|4.9228|-75.9403
+Risaralda|66088|Belén de Umbría|5.209|-75.8721
+Risaralda|66170|Dosquebradas|4.8333|-75.6833
+Risaralda|66318|Guática|5.3253|-75.8098
+Risaralda|66383|La Celia|5|-76.0048
+Risaralda|66400|La Virginia|4.9058|-75.851
+Risaralda|66440|Marsella|4.9524|-75.7526
+Risaralda|66456|Mistrató|5.4182|-75.9474
+Risaralda|66001|Pereira|4.769|-75.7222
+Risaralda|66572|Pueblo Rico|5.2945|-76.067
+Risaralda|66594|Quinchía|5.3198|-75.7578
+Risaralda|66682|Santa Rosa de Cabal|4.8452|-75.545
+Risaralda|66687|Santuario|5.0532|-75.9906
+San Andrés y Providencia|88564|Providencia|13.3848|-81.3747
+San Andrés y Providencia|88001|San Andrés|12.5431|-81.7175
+Santander|68013|Aguada|6.1602|-73.5275
+Santander|68020|Albania|5.7706|-73.8646
+Santander|68051|Aratoca|6.7045|-73.0288
+Santander|68077|Barbosa|5.9516|-73.6373
+Santander|68079|Barichara|6.6456|-73.2339
+Santander|68081|Barrancabermeja|7.0545|-73.7712
+Santander|68092|Betulia|6.9962|-73.3915
+Santander|68101|Bolívar|6.0987|-74.1504
+Santander|68001|Bucaramanga|7.1372|-73.1328
+Santander|68121|Cabrera|6.5644|-73.2677
+Santander|68132|California|7.3434|-72.9581
+Santander|68147|Capitanejo|6.5208|-72.6743
+Santander|68152|Carcasí|6.648|-72.5932
+Santander|68160|Cepitá|6.7338|-72.9491
+Santander|68162|Cerrito|6.8907|-72.671
+Santander|68167|Charalá|6.1751|-73.1759
+Santander|68169|Charta|7.2449|-73.0071
+Santander|68176|Chima|6.3629|-73.4253
+Santander|68179|Chipatá|6.0631|-73.6539
+Santander|68190|Cimitarra|6.4283|-74.1745
+Santander|68207|Concepción|6.7702|-72.6344
+Santander|68209|Confines|6.3488|-73.2099
+Santander|68211|Contratación|6.2932|-73.484
+Santander|68217|Coromoro|6.2332|-72.9754
+Santander|68229|Curití|6.6063|-73.046
+Santander|68235|El Carmen de Chucurí|6.6704|-73.6154
+Santander|68245|El Guacamayo|6.2486|-73.5296
+Santander|68250|El Peñón|6.099|-73.9283
+Santander|68255|El Playón|7.517|-73.1956
+Santander|68264|Encino|6.0534|-73.0674
+Santander|68266|Enciso|6.6465|-72.7071
+Santander|68271|Florián|5.8038|-74.0158
+Santander|68276|Floridablanca|7.0632|-73.0859
+Santander|68296|Galán|6.6627|-73.3423
+Santander|68298|Gambita|5.9027|-73.3679
+Santander|68307|Girón|7.0687|-73.3173
+Santander|68318|Guaca|6.916|-72.8479
+Santander|68320|Guadalupe|6.206|-73.4079
+Santander|68322|Guapotá|6.307|-73.3285
+Santander|68324|Guavatá|5.9339|-73.7174
+Santander|68327|Güepsa|6.0268|-73.5941
+Santander|68344|Hato|6.5611|-73.3589
+Santander|68368|Jesús María|5.8545|-73.8099
+Santander|68370|Jordán|6.6986|-73.1097
+Santander|68377|La Belleza|5.8901|-74.0384
+Santander|68397|La Paz|6.2027|-73.6371
+Santander|68385|Landázuri|6.3065|-73.8513
+Santander|68406|Lebríja|7.1971|-73.3157
+Santander|68418|Los Santos|6.7973|-73.1249
+Santander|68425|Macaravita|6.4973|-72.6107
+Santander|68432|Málaga|6.7075|-72.771
+Santander|68444|Matanza|7.3561|-73.053
+Santander|68464|Mogotes|6.509|-72.9594
+Santander|68468|Molagavita|6.6263|-72.8523
+Santander|68498|Ocamonte|6.3438|-73.1368
+Santander|68500|Oiba|6.2297|-73.2787
+Santander|68502|Onzaga|6.3244|-72.8324
+Santander|68522|Palmar|6.4974|-73.3074
+Santander|68524|Palmas del Socorro|6.3729|-73.2815
+Santander|68533|Páramo|6.4375|-73.1803
+Santander|68547|Piedecuesta|6.9744|-73.0228
+Santander|68549|Pinchote|6.5084|-73.1888
+Santander|68572|Puente Nacional|5.8166|-73.6929
+Santander|68573|Puerto Parra|6.6765|-73.9822
+Santander|68575|Puerto Wilches|7.5366|-73.805
+Santander|68615|Rionegro|7.5|-73.3333
+Santander|68655|Sabana de Torres|7.4184|-73.5969
+Santander|68669|San Andrés|6.7838|-72.8341
+Santander|68673|San Benito|6.1021|-73.5375
+Santander|68679|San Gil|6.5446|-73.1387
+Santander|68682|San Joaquín|6.4655|-72.8485
+Santander|68684|San José de Miranda|6.6305|-72.7315
+Santander|68686|San Miguel|6.5682|-72.6432
+Santander|68689|San Vicente de Chucurí|6.884|-73.417
+Santander|68705|Santa Bárbara|6.9928|-72.9103
+Santander|68720|Santa Helena del Opón|6.3969|-73.6004
+Santander|68745|Simacota|6.5241|-73.6693
+Santander|68755|Socorro|6.4565|-73.255
+Santander|68770|Suaita|6.0822|-73.3701
+Santander|68773|Sucre|5.97|-73.9663
+Santander|68780|Suratá|7.517|-73.059
+Santander|68820|Tona|7.1573|-72.9656
+Santander|68855|Valle de San José|6.4198|-73.1295
+Santander|68861|Vélez|6.2327|-73.7258
+Santander|68867|Vetas|7.3226|-72.8813
+Santander|68872|Villanueva|6.6655|-73.1778
+Santander|68895|Zapatoca|6.8058|-73.2677
+Sucre|70110|Buenavista|9.3324|-74.9483
+Sucre|70124|Caimito|8.7883|-75.1358
+Sucre|70230|Chalán|9.5701|-75.3181
+Sucre|70204|Coloso|9.5118|-75.3623
+Sucre|70215|Corozal|9.2|-75.2792
+Sucre|70221|Coveñas|9.3941|-75.6572
+Sucre|70233|El Roble|9.07|-75.1368
+Sucre|70235|Galeras|9.1332|-74.9777
+Sucre|70265|Guaranda|8.3948|-74.7986
+Sucre|70400|La Unión|8.7963|-75.2958
+Sucre|70418|Los Palmitos|9.4249|-75.2065
+Sucre|70429|Majagual|8.535|-74.715
+Sucre|70473|Morroa|9.3961|-75.3303
+Sucre|70508|Ovejas|9.5408|-75.1833
+Sucre|70523|Palmito|9.3367|-75.5633
+Sucre|70670|Sampués|9.1542|-75.3458
+Sucre|70678|San Benito Abad|8.7883|-74.9567
+Sucre|70702|San Juan de Betulia|9.2849|-75.1941
+Sucre|70742|San Luis de Sincé|9.2552|-75.0853
+Sucre|70708|San Marcos|8.5833|-75.1667
+Sucre|70713|San Onofre|9.7371|-75.5248
+Sucre|70717|San Pedro|9.3992|-75.035
+Sucre|70820|Santiago de Tolú|9.5322|-75.5358
+Sucre|70001|Sincelejo|9.3167|-75.435
+Sucre|70771|Sucre|8.8333|-74.75
+Sucre|70823|Tolú Viejo|9.4545|-75.4376
+Tolima|73024|Alpujarra|3.3922|-74.9327
+Tolima|73026|Alvarado|4.5883|-74.9781
+Tolima|73030|Ambalema|4.8328|-74.7961
+Tolima|73043|Anzoátegui|4.6223|-75.1805
+Tolima|73055|Armero|4.9887|-74.8813
+Tolima|73067|Ataco|3.4264|-75.4635
+Tolima|73124|Cajamarca|4.4167|-75.5
+Tolima|73148|Carmen de Apicalá|4.1077|-74.7678
+Tolima|73152|Casabianca|5.0173|-75.187
+Tolima|73168|Chaparral|3.75|-75.5833
+Tolima|73200|Coello|4.3733|-74.8865
+Tolima|73217|Coyaima|3.7278|-75.174
+Tolima|73226|Cunday|4.0028|-74.6929
+Tolima|73236|Dolores|3.6053|-74.8059
+Tolima|73268|Espinal|4.1509|-74.9123
+Tolima|73270|Falan|5.0795|-74.957
+Tolima|73275|Flandes|4.25|-74.8333
+Tolima|73283|Fresno|5.1995|-75.0376
+Tolima|73319|Guamo|4.0746|-74.9769
+Tolima|73347|Herveo|5.0616|-75.2695
+Tolima|73349|Honda|5.1786|-74.7828
+Tolima|73001|Ibagué|4.4354|-75.2642
+Tolima|73352|Icononzo|4.1305|-74.5341
+Tolima|73408|Lérida|4.8729|-74.9178
+Tolima|73411|Líbano|4.8356|-75.1083
+Tolima|73449|Melgar|4.1785|-74.6721
+Tolima|73443|Municipio de San Sebastián de Mariquita|5.2427|-74.9077
+Tolima|73461|Murillo|4.8171|-75.2788
+Tolima|73483|Natagaima|3.5521|-75.1134
+Tolima|73504|Ortega|3.9451|-75.2725
+Tolima|73520|Palocabildo|5.0942|-75.0184
+Tolima|73547|Piedras|4.5|-74.9167
+Tolima|73555|Planadas|3.1033|-75.8168
+Tolima|73563|Prado|3.7322|-74.8649
+Tolima|73585|Purificación|3.869|-74.886
+Tolima|73616|Rioblanco|3.5|-75.8333
+Tolima|73622|Roncesvalles|4.1091|-75.5965
+Tolima|73624|Rovira|4.2122|-75.3421
+Tolima|73671|Saldaña|3.8887|-75.0347
+Tolima|73675|San Antonio|3.9566|-75.5
+Tolima|73678|San Luis|4.1667|-75.0833
+Tolima|73686|Santa Isabel|4.7263|-75.2239
+Tolima|73770|Suárez|4.049|-74.8182
+Tolima|73854|Valle de San Juan|4.172|-75.1939
+Tolima|73861|Venadillo|4.6918|-74.9367
+Tolima|73870|Villahermosa|4.965|-75.1565
+Tolima|73873|Villarrica|3.831|-74.6526
+Valle del Cauca|76020|Alcalá|4.6746|-75.7719
+Valle del Cauca|76036|Andalucía|4.1404|-76.1474
+Valle del Cauca|76041|Ansermanuevo|4.8021|-76.0345
+Valle del Cauca|76054|Argelia|4.729|-76.1164
+Valle del Cauca|76100|Bolívar|4.3771|-76.3487
+Valle del Cauca|76109|Buenaventura|3.8643|-77.0354
+Valle del Cauca|76113|Bugalagrande|4.1667|-76.0833
+Valle del Cauca|76122|Caicedonia|4.3337|-75.8342
+Valle del Cauca|76001|Cali|3.4103|-76.581
+Valle del Cauca|76126|Calima|3.9251|-76.6265
+Valle del Cauca|76130|Candelaria|3.3837|-76.4247
+Valle del Cauca|76147|Cartago|4.7|-75.9167
+Valle del Cauca|76233|Dagua|3.6164|-76.7321
+Valle del Cauca|76243|El Águila|4.9195|-76.0568
+Valle del Cauca|76246|El Cairo|4.7489|-76.2444
+Valle del Cauca|76248|El Cerrito|3.6427|-76.2096
+Valle del Cauca|76250|El Dovio|4.5438|-76.2854
+Valle del Cauca|76275|Florida|3.3094|-76.1899
+Valle del Cauca|76306|Ginebra|3.743|-76.1941
+Valle del Cauca|76318|Guacarí|3.775|-76.3081
+Valle del Cauca|76111|Guadalajara de Buga|3.8559|-76.1013
+Valle del Cauca|76364|Jamundí|3.2608|-76.5369
+Valle del Cauca|76377|La Cumbre|3.6962|-76.5861
+Valle del Cauca|76400|La Unión|4.5384|-76.1066
+Valle del Cauca|76403|La Victoria|4.4762|-75.9812
+Valle del Cauca|76497|Obando|4.5959|-75.9488
+Valle del Cauca|76520|Palmira|3.5397|-76.2261
+Valle del Cauca|76563|Pradera|3.4279|-76.1716
+Valle del Cauca|76606|Restrepo|3.7959|-76.5674
+Valle del Cauca|76616|Riofrío|4.1028|-76.4159
+Valle del Cauca|76622|Roldanillo|4.446|-76.1639
+Valle del Cauca|76670|San Pedro|3.9994|-76.2612
+Valle del Cauca|76736|Sevilla|4.1935|-75.8883
+Valle del Cauca|76823|Toro|4.6271|-76.0796
+Valle del Cauca|76828|Trujillo|4.237|-76.3473
+Valle del Cauca|76834|Tuluá|4.0089|-76.0502
+Valle del Cauca|76845|Ulloa|4.7075|-75.7778
+Valle del Cauca|76863|Versalles|4.6634|-76.2465
+Valle del Cauca|76869|Vijes|3.7328|-76.4936
+Valle del Cauca|76890|Yotoco|3.9317|-76.4249
+Valle del Cauca|76892|Yumbo|3.5699|-76.5438
+Valle del Cauca|76895|Zarzal|4.3608|-76.0484
+Vaupés|97161|Caruru|1.0208|-71.3379
+Vaupés|97001|Mitú|0.9724|-70.4063
+Vaupés|97511|Pacoa|0.1564|-70.8927
+Vaupés|97777|Papunaua|1.6834|-70.7097
+Vaupés|97666|Taraira|-0.7483|-69.8966
+Vaupés|97889|Yavaraté|0.8283|-69.6296
+Vichada|99773|Cumaribo|4.5757|-69.5955
+Vichada|99524|La Primavera|5.5146|-69.4979
+Vichada|99001|Puerto Carreño|5.8377|-68.0367
+Vichada|99624|Santa Rosalía|5.0217|-70.6598

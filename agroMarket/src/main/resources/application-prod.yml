@@ -1,0 +1,104 @@
+spring:
+  datasource:
+    url: jdbc:mysql://agromarket-mysql:3306/agromarket?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+    # SIN valor por defecto: "agromarket" estaba en el repositorio, así que
+    # cualquiera con acceso al puerto de MySQL entraba con todos los
+    # privilegios. En producción el arranque se aborta si no se define.
+    username: ${SPRING_DATASOURCE_USERNAME:agromarket}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # ANTES: update.
+      #
+      # update hacia CRECER el esquema desde las entidades en cada arranque.
+      # Eso funciona en local, pero en produccion significa que el esquema de la
+      # base de datos de verdad no esta en ningun archivo: solo existe dentro de
+      # MySQL, y la unica forma de cambiarlo es arrancar con el codigo nuevo y
+      # confiar en que Hibernate hace lo correcto.
+      #
+      # El problema de update es que NUNCA borra. Si una entidad se renombra o
+      # se le quita un campo, la columna vieja se queda para siempre con los
+      # datos dentro, y el esquema se va llenando de restos sin que nadie lo
+      # decida. Tampoco hay forma de volver atras: no existe un historial de que
+      # cambio el esquema ni cuando.
+      #
+      # validate NO modifica nada: comprueba que las entidades coinciden con el
+      # esquema que ya existe y, si no coinciden, NO ARRANCA. Es lo que se quiere
+      # en produccion, donde el esquema se cambia con una migracion escrita a
+      # mano y revisada, no con un arranque.
+      #
+      # El dia que se monte Flyway (o Liquibase), este valor sigue siendo
+      # validate; lo que cambia es que habra migraciones escritas a mano.
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        "[format_sql]": false
+
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://agromarket-mongo:27017/agromarket}
+      auto-index-creation: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH2_CLIENT_ID}
+            client-secret: ${GOOGLE_OAUTH2_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: ${GOOGLE_OAUTH2_REDIRECT_URI:https://api.agro-market.app/login/oauth2/code/google}
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+
+  # Esquema gestionado con migraciones, no con ddl-auto: update.
+  # Falta montar Flyway: ver db/migration/README.md. Hasta entonces, en
+  # produccion el arranque con ddl-auto: validate se niega a arrancar si las
+  # entidades y el esquema no coinciden.
+
+logging:
+  level:
+    "[com.agromarket]": INFO
+    "[org.springframework.security]": INFO
+    "[org.springframework.web]": INFO
+    "[org.hibernate.SQL]": WARN
+    "[org.hibernate.orm.jdbc.bind]": WARN
+
+server:
+  forward-headers-strategy: framework
+
+management:
+  endpoint:
+    health:
+      # Ni "always": con "never" el endpoint solo dice UP/DOWN, sin revelar
+      # si falla la base, Mongo o el disco. Con "always" un atacante sabe
+      # qué componente está caído y puede esperar al más débil.
+      show-details: never
+    prometheus:
+      # Las métricas del backend tampoco son públicas: revelar el número de
+      # peticiones y de conexiones ayuda a planear una denegación.
+      # Para leerlas, desde dentro del contenedor:
+      #   docker exec asafrut-backend wget -qO- localhost:8080/actuator/prometheus
+      enabled: true
+  endpoints:
+    web:
+      # ANTES: health,prometheus,info,metrics en prod.
+      #
+      # "info" y "metrics" quedarían accesibles sin autenticación desde
+      # internet: dan el perfil de la aplicación, el número de peticiones y
+      # los nombres de los pools de conexión. Son datos que no necesita quien
+      # no es del equipo.
+      #
+      # Se deja solo health (sin detalles) y prometheus. El resto se consulta
+      # desde dentro del contenedor. Para exponerlos de nuevo, que sea con
+      # autenticación, no con "en la lista".
+      exposure:
+        include: health,prometheus

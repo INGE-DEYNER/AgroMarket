@@ -1,0 +1,2044 @@
+/* ============================================================
+   AGROMARKET — FOOTER
+   Responsive / Desktop / Tablet / Mobile
+   ============================================================ */
+
+/* ============================================================
+   1. VARIABLES Y RESET
+   ============================================================ */
+
+.footer-ml-style {
+  --footer-green: #075d2d;
+  --footer-green-light: #087238;
+  --footer-green-dark: #064f27;
+  --footer-dark: #0c1d14;
+
+  --footer-white: #ffffff;
+  --footer-text: #ffffff;
+  --footer-muted: #ffffff;
+  --footer-faint: #ffffff;
+
+  --footer-border: rgba(255, 255, 255, 0.1);
+
+  width: 100%;
+  max-width: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  color: var(--footer-white);
+
+  font-family: inherit;
+
+  overflow-x: clip;
+
+  box-sizing: border-box;
+}
+
+.footer-ml-style *,
+.footer-ml-style *::before,
+.footer-ml-style *::after {
+  box-sizing: border-box;
+}
+
+/* Evita que elementos externos provoquen
+   scroll horizontal */
+
+.footer-ml-style img,
+.footer-ml-style video,
+.footer-ml-style iframe {
+  max-width: 100%;
+}
+
+/* ============================================================
+   2. CONTENEDOR GENERAL
+   ============================================================ */
+
+.footer-ml-style .footer-container,
+.footer-ml-style .am-footer-container {
+  width: min(1180px, calc(100% - 48px));
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============================================================
+   3. MORE INFORMATION
+   ============================================================ */
+
+.footer-more-bar {
+  width: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  background: var(--footer-green-dark);
+
+  border-top: 1px solid var(--footer-border);
+  border-bottom: 1px solid var(--footer-border);
+}
+
+/* Botón */
+
+.footer-more-button {
+  width: min(1180px, calc(100% - 48px));
+
+  min-height: 48px;
+
+  margin: 0 auto;
+  padding: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.footer-more-button:hover {
+  color: #ffffff;
+}
+
+.footer-more-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.55);
+
+  outline-offset: -3px;
+}
+
+/* Flecha */
+
+.footer-more-chevron {
+  width: 28px;
+  height: 28px;
+
+  flex: 0 0 28px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+
+  font-size: 0.9rem;
+
+  transition: transform 0.25s ease;
+}
+
+.footer-more-button.is-open .footer-more-chevron {
+  transform: rotate(180deg);
+}
+
+/* Panel */
+
+.footer-more-panel {
+  width: 100%;
+
+  max-height: 0;
+
+  overflow: hidden;
+
+  background: var(--footer-dark);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease,
+    visibility 0.35s ease;
+}
+
+.footer-more-panel.is-open {
+  max-height: 800px;
+
+  opacity: 1;
+
+  visibility: visible;
+}
+
+/* Grid */
+
+.footer-more-panel .footer-links-grid {
+  width: min(1180px, calc(100% - 48px));
+
+  margin: 0 auto;
+
+  padding: 38px 0 42px;
+
+  display: grid;
+
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+
+  gap: 30px;
+}
+
+/* Columnas */
+
+.footer-more-panel .footer-link-column {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 9px;
+}
+
+/* Títulos */
+
+.footer-more-panel .footer-link-column h4 {
+  margin: 0 0 7px;
+  padding: 0;
+
+  color: #ffffff;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+/* Links */
+
+.footer-more-panel .footer-link-column a,
+.footer-more-panel .footer-link-column span {
+  display: block;
+
+  margin: 0;
+  padding: 0;
+
+  color: #ffffff;
+
+  font-size: 0.71rem;
+
+  line-height: 1.45;
+
+  text-decoration: none;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.footer-more-panel .footer-link-column a:hover {
+  color: #ffffff;
+
+  transform: translateX(2px);
+}
+
+/* ============================================================
+   4. FOOTER PRINCIPAL
+   ============================================================ */
+
+.am-footer-main {
+  position: relative;
+
+  width: 100%;
+  max-width: 100%;
+
+  margin: 0;
+  padding: 6px 0 !important;
+
+  background: linear-gradient(
+    135deg,
+    var(--footer-green) 0%,
+    var(--footer-green-light) 50%,
+    var(--footer-green) 100%
+  );
+
+  color: #ffffff;
+
+  overflow: hidden;
+}
+
+.am-footer-main::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  background: radial-gradient(
+    circle at 90% 20%,
+    rgba(255, 255, 255, 0.045),
+    transparent 28%
+  );
+}
+
+.am-footer-main > .am-footer-container {
+  position: relative;
+
+  z-index: 1;
+}
+
+/* ============================================================
+   5. INFORMACIÓN DE MARCA
+   ============================================================ */
+
+.am-footer-brand {
+  width: 100%;
+
+  padding: 6px 0 6px;
+}
+
+/* Logo */
+
+.am-footer-logo-link {
+  display: inline-flex;
+
+  margin: 0 0 4px;
+  padding: 0;
+
+  text-decoration: none;
+}
+
+.am-footer-logo {
+  display: block !important;
+
+  width: 38px !important;
+  height: 38px !important;
+
+  min-width: 38px !important;
+  min-height: 38px !important;
+
+  max-width: 38px !important;
+  max-height: 38px !important;
+
+  margin: 0 !important;
+  padding: 4px !important;
+
+  object-fit: contain !important;
+
+  background: #ffffff;
+
+  border-radius: 10px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Título */
+
+.am-footer-brand h2 {
+  max-width: 720px;
+
+  margin: 0 0 4px;
+  padding: 0;
+
+  color: #ffffff;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+/* Descripción */
+
+.am-footer-brand > p {
+  max-width: 680px;
+
+  margin: 0;
+  padding: 0;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 0.76rem;
+
+  line-height: 1.4;
+}
+
+/* ============================================================
+   6. UBICACIÓN + REDES
+   ============================================================ */
+
+.am-footer-brand-bottom {
+  width: 100%;
+
+  margin-top: 8px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.am-footer-brand-bottom > span {
+  min-width: 0;
+
+  color: rgba(255, 255, 255, 0.62);
+
+  font-size: 0.76rem;
+
+  line-height: 1.5;
+}
+
+/* Redes */
+
+.am-footer-socials {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+}
+
+.am-footer-socials a {
+  width: 30px;
+  height: 30px;
+
+  min-width: 30px;
+
+  flex: 0 0 30px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #ffffff;
+
+  font-size: 0.76rem;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.am-footer-socials a:hover {
+  transform: translateY(-2px);
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* ============================================================
+   7. PAGOS + PARTNERS
+   ============================================================ */
+
+.am-footer-services {
+  width: 100%;
+  max-width: 100%;
+
+  background: var(--footer-green-dark);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  overflow: hidden;
+}
+
+.am-footer-services > .am-footer-container {
+  width: min(1180px, calc(100% - 48px));
+
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------
+   GRID PRINCIPAL
+
+   DESKTOP:
+
+   ┌───────────────┬─────────────────────┐
+   │     PAGOS     │      PARTNERS       │
+   └───────────────┴─────────────────────┘
+------------------------------------------------------------ */
+
+.am-footer-services-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(420px, 0.95fr)
+    minmax(0, 1.35fr);
+
+  align-items: stretch;
+}
+
+/* ============================================================
+   8. BLOQUE PAGOS
+   ============================================================ */
+
+.am-footer-payment-block {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 8px 12px 8px 0;
+
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Encabezado */
+
+.am-footer-block-heading {
+  margin: 0 0 6px;
+}
+
+.am-footer-heading-kicker {
+  display: block;
+
+  margin: 0 0 3px;
+
+  color: rgba(255, 255, 255, 0.44);
+
+  font-size: 0.62rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.14em;
+
+  line-height: 1.3;
+
+  text-transform: uppercase;
+}
+
+.am-footer-block-heading h3 {
+  margin: 0 0 4px;
+  padding: 0;
+
+  color: #ffffff;
+
+  font-size: 0.92rem;
+
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+.am-footer-block-heading p {
+  margin: 0;
+  padding: 0;
+
+  color: rgba(255, 255, 255, 0.55);
+
+  font-size: 0.72rem;
+
+  line-height: 1.4;
+}
+
+/* ============================================================
+   9. MÉTODOS DE PAGO
+   ============================================================ */
+
+.am-footer-payment-methods {
+  width: 100%;
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(130px, 0.65fr)
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.am-footer-method-label {
+  min-width: 0;
+
+  color: rgba(255, 255, 255, 0.55);
+
+  font-size: 0.68rem;
+
+  line-height: 1.45;
+}
+
+/* Lista de métodos */
+
+.footer-ml-style .am-footer-payment-list {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-start;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+}
+
+/* Carrusel métodos de pago: misma animación infinita que partners */
+.footer-ml-style .am-footer-payment-viewport {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+}
+
+.footer-ml-style .am-footer-payment-track {
+  transform: translate3d(0, 0, 0);
+}
+
+.footer-ml-style .am-footer-payment-track-group {
+  flex-shrink: 0;
+}
+
+.footer-ml-style .am-footer-payment-viewport:hover .am-footer-payment-track,
+.footer-ml-style .am-footer-payment-viewport:active .am-footer-payment-track,
+.footer-ml-style .am-footer-payment-viewport:focus-within .am-footer-payment-track {
+  animation-play-state: running;
+}
+
+/* Tarjeta de pago */
+
+.footer-ml-style .am-footer-payment-card {
+  width: 72px !important;
+  height: 42px !important;
+
+  min-width: 72px !important;
+  min-height: 42px !important;
+
+  max-width: 72px !important;
+  max-height: 42px !important;
+
+  flex: 0 0 72px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 !important;
+  padding: 5px 8px !important;
+
+  background: #ffffff;
+
+  border-radius: 8px;
+
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.am-footer-payment-card img {
+  display: block !important;
+
+  width: auto !important;
+  height: auto !important;
+
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  max-width: 100% !important;
+  max-height: 24px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  object-fit: contain !important;
+}
+
+/* ============================================================
+   10. PARTNERS
+   ============================================================ */
+
+.am-footer-partners-block {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 12px 0 12px 16px;
+
+  overflow: hidden;
+}
+
+.am-footer-partners-block .am-footer-block-heading {
+  margin-bottom: 8px;
+}
+
+/* ============================================================
+   11. CARRUSEL
+   ============================================================ */
+
+.am-footer-partners-carousel {
+  width: 100%;
+  max-width: 100%;
+
+  position: relative;
+
+  overflow: hidden;
+
+  /*
+   Desvanecimiento en los extremos.
+  */
+
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+}
+
+/* Track: 4 copias idénticas, loop perfecto en -50% (2 grupos).
+   Con número par de copias el salto es invisible. */
+.am-footer-partners-track {
+  width: max-content;
+
+  display: flex;
+
+  flex-wrap: nowrap;
+
+  align-items: stretch;
+
+  animation: am-footer-partners-scroll 26s linear infinite;
+
+  will-change: transform;
+}
+
+/* ============================================================
+   12. GRUPO DE PARTNERS
+   ============================================================ */
+
+.am-footer-partners-group {
+  display: flex;
+
+  flex-wrap: nowrap;
+
+  align-items: stretch;
+
+  gap: 12px;
+
+  flex-shrink: 0;
+
+  padding-right: 12px;
+}
+
+/* ============================================================
+   13. TARJETA PARTNER
+   ============================================================ */
+
+.am-footer-partner {
+  width: 220px !important;
+
+  min-width: 220px !important;
+
+  max-width: 220px !important;
+
+  height: 70px !important;
+
+  min-height: 70px !important;
+
+  max-height: 70px !important;
+
+  flex: 0 0 220px;
+
+  display: flex;
+
+  flex-direction: row;
+
+  align-items: center;
+
+  gap: 11px;
+
+  margin: 0 !important;
+
+  padding: 9px !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  box-shadow: none;
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.am-footer-partner:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+
+  background: rgba(255, 255, 255, 0.055);
+}
+
+/* ============================================================
+   14. LOGO PARTNER
+   ============================================================ */
+
+.am-footer-partner-logo {
+  width: 50px !important;
+  height: 50px !important;
+
+  min-width: 50px !important;
+  min-height: 50px !important;
+
+  max-width: 50px !important;
+  max-height: 50px !important;
+
+  flex: 0 0 50px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 !important;
+  padding: 5px !important;
+
+  background: #ffffff;
+
+  border-radius: 7px;
+
+  overflow: hidden;
+}
+
+.am-footer-partner-logo img {
+  display: block !important;
+
+  width: auto !important;
+  height: auto !important;
+
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  max-width: 100% !important;
+  max-height: 100% !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  object-fit: contain !important;
+}
+
+/* ============================================================
+   15. INFORMACIÓN PARTNER
+   ============================================================ */
+
+.am-footer-partner-info {
+  min-width: 0;
+
+  width: auto;
+
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  justify-content: center;
+
+  gap: 2px;
+
+  overflow: hidden;
+}
+
+.am-footer-partner-info span {
+  display: block;
+
+  width: 100%;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.42);
+
+  font-size: 0.54rem;
+
+  line-height: 1.15;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.am-footer-partner-info strong {
+  display: block;
+
+  width: 100%;
+
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.am-footer-partner-info p {
+  display: block;
+
+  width: 100%;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 0.56rem;
+
+  line-height: 1.2;
+
+  overflow: hidden;
+}
+
+/* Developer */
+
+.am-footer-partner-developer {
+  border-color: rgba(103, 187, 130, 0.24);
+}
+
+.am-footer-partner-developer:hover {
+  border-color: rgba(103, 187, 130, 0.45);
+}
+
+/* ============================================================
+   16. ANIMACIÓN CONTINUA
+   ============================================================ */
+
+@keyframes am-footer-partners-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* El carrusel no se detiene nunca: movimiento infinito */
+.am-footer-partners-carousel .am-footer-partners-track,
+.am-footer-partners-carousel:hover .am-footer-partners-track,
+.am-footer-partners-carousel:active .am-footer-partners-track,
+.am-footer-partners-carousel:focus-within .am-footer-partners-track {
+  animation-play-state: running;
+}
+
+/* ============================================================
+   17. ECOSISTEMA
+   ============================================================ */
+
+.am-footer-ecosystem {
+  width: 100%;
+
+  margin: 0;
+  padding: 12px 0;
+
+  background: var(--footer-dark);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Contenido */
+
+.am-footer-ecosystem-content {
+  width: 100%;
+
+  min-height: auto;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+/* ============================================================
+   BARRA INFERIOR - DISTRIBUCIÓN HORIZONTAL POR DEFECTO
+   ============================================================ */
+
+.am-footer-bottom-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+}
+
+.am-footer-ecosystem-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.am-footer-ecosystem-mini span {
+  display: block;
+  color: #67bb82;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.am-footer-ecosystem-mini strong {
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Lado izquierdo */
+
+.am-footer-ecosystem-content > div {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.am-footer-ecosystem-content > div > span {
+  display: block;
+
+  margin: 0 0 2px;
+
+  color: #67bb82;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.am-footer-ecosystem-mini strong {
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Enlaces Legales */
+.am-footer-legal {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.am-footer-legal a {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.am-footer-legal a:hover {
+  color: #ffffff;
+}
+
+
+
+/* Derechos y Volver arriba */
+.am-footer-bottom-final {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.am-footer-bottom-final span {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.75rem;
+}
+
+.am-footer-back-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.am-footer-back-top:hover {
+  color: #ffffff;
+}
+
+/* ============================================================
+   ============================================================
+   21. PANTALLAS GRANDES
+   ============================================================
+============================================================ */
+
+@media (min-width: 1400px) {
+  .footer-ml-style .am-footer-container,
+  .footer-ml-style .footer-container,
+  .footer-more-button,
+  .footer-more-panel .footer-links-grid {
+    width: min(1240px, calc(100% - 80px));
+  }
+
+  .am-footer-services > .am-footer-container {
+    width: min(1240px, calc(100% - 80px));
+  }
+
+  .am-footer-partner {
+    width: 230px !important;
+
+    min-width: 230px !important;
+
+    max-width: 230px !important;
+
+    flex-basis: 230px;
+  }
+}
+
+/* ============================================================
+   22. TABLET GRANDE
+   1150px — 1200px
+   ============================================================ */
+
+@media (max-width: 1150px) {
+  .footer-ml-style .am-footer-container,
+  .footer-ml-style .footer-container,
+  .footer-more-button,
+  .footer-more-panel .footer-links-grid {
+    width: calc(100% - 40px);
+  }
+
+  .am-footer-services > .am-footer-container {
+    width: calc(100% - 40px);
+  }
+
+  /* More information */
+
+  .footer-more-panel .footer-links-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 30px 35px;
+  }
+
+  /* Services */
+
+  .am-footer-services-grid {
+    grid-template-columns:
+      minmax(370px, 0.9fr)
+      minmax(0, 1.25fr);
+  }
+
+  .am-footer-payment-block {
+    padding-right: 27px;
+  }
+
+  .am-footer-partners-block {
+    padding-left: 27px;
+  }
+
+  /* Partners */
+
+  .am-footer-partner {
+    width: 205px !important;
+
+    min-width: 205px !important;
+
+    max-width: 205px !important;
+
+    flex-basis: 205px;
+  }
+}
+
+/* ============================================================
+   23. TABLET
+   900px — 1050px
+   ============================================================ */
+
+@media (max-width: 1000px) {
+  .am-footer-services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /*
+   En tablet se elimina la división vertical.
+  */
+
+  .am-footer-payment-block {
+    padding: 28px 0;
+
+    border-right: 0;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .am-footer-partners-block {
+    padding: 28px 0;
+  }
+
+  /*
+   Los partners siguen siendo horizontales.
+   Solo cambia el tamaño de la tarjeta.
+  */
+
+  .am-footer-partner {
+    width: 220px !important;
+
+    min-width: 220px !important;
+
+    max-width: 220px !important;
+
+    flex-basis: 220px;
+  }
+
+  /* Ecosistema Mini Tablet */
+  .am-footer-bottom-flex {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .am-footer-ecosystem-mini {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .am-footer-legal {
+    flex-wrap: wrap;
+  }
+}
+
+/* ============================================================
+   24. TABLET PEQUEÑA
+   ============================================================ */
+
+@media (max-width: 800px) {
+  .footer-ml-style .am-footer-container,
+  .footer-ml-style .footer-container,
+  .footer-more-button,
+  .footer-more-panel .footer-links-grid {
+    width: calc(100% - 32px);
+  }
+
+  .am-footer-services > .am-footer-container {
+    width: calc(100% - 32px);
+  }
+
+  /* Brand */
+
+  .am-footer-brand {
+    padding-top: 40px;
+
+    padding-bottom: 38px;
+  }
+
+  /* Pagos */
+
+  .am-footer-payment-methods {
+    grid-template-columns: 1fr;
+
+    align-items: flex-start;
+
+    gap: 12px;
+  }
+
+  .am-footer-payment-list {
+    width: 100%;
+  }
+
+  /* Ecosistema Tablet Pequeña */
+  .am-footer-bottom-flex {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .am-footer-ecosystem-mini {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .am-footer-legal {
+    flex-wrap: wrap;
+  }
+}
+
+/* ============================================================
+   ============================================================
+   25. MÓVIL
+   ============================================================
+============================================================ */
+
+@media (max-width: 650px) {
+  /* ----------------------------------------------------------
+     CONTENEDORES
+  ---------------------------------------------------------- */
+
+  .footer-ml-style .am-footer-container,
+  .footer-ml-style .footer-container,
+  .footer-more-button,
+  .footer-more-panel .footer-links-grid {
+    width: calc(100% - 28px);
+  }
+
+  .am-footer-services > .am-footer-container {
+    width: calc(100% - 28px);
+  }
+
+  /* ----------------------------------------------------------
+     MORE INFORMATION
+  ---------------------------------------------------------- */
+
+  .footer-more-button {
+    min-height: 45px;
+
+    font-size: 0.76rem;
+  }
+
+  .footer-more-panel .footer-links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 28px 20px;
+
+    padding-top: 30px;
+
+    padding-bottom: 35px;
+  }
+
+  /* ----------------------------------------------------------
+     BRAND
+  ---------------------------------------------------------- */
+
+  .am-footer-brand {
+    padding-top: 35px;
+
+    padding-bottom: 34px;
+  }
+
+  .am-footer-logo {
+    width: 62px !important;
+    height: 62px !important;
+
+    min-width: 62px !important;
+    min-height: 62px !important;
+
+    max-width: 62px !important;
+    max-height: 62px !important;
+  }
+
+  .am-footer-brand h2 {
+    font-size: 0.98rem;
+
+    line-height: 1.4;
+  }
+
+  .am-footer-brand > p {
+    font-size: 0.78rem;
+
+    line-height: 1.55;
+  }
+
+  /* ----------------------------------------------------------
+     UBICACIÓN / REDES
+  ---------------------------------------------------------- */
+
+  .am-footer-brand-bottom {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    justify-content: flex-start;
+
+    gap: 15px;
+  }
+
+  .am-footer-brand-bottom > span {
+    font-size: 0.72rem;
+  }
+
+  /* ----------------------------------------------------------
+     PAGOS
+  ---------------------------------------------------------- */
+
+  .am-footer-payment-block {
+    padding-top: 25px;
+
+    padding-bottom: 25px;
+  }
+
+  .am-footer-block-heading {
+    margin-bottom: 16px;
+  }
+
+  .am-footer-payment-methods {
+    grid-template-columns: 1fr;
+
+    gap: 11px;
+  }
+
+  .am-footer-method-label {
+    white-space: normal;
+  }
+
+  .am-footer-payment-list {
+    gap: 7px;
+  }
+
+  .am-footer-payment-card {
+    width: 65px !important;
+    height: 39px !important;
+
+    min-width: 65px !important;
+    min-height: 39px !important;
+
+    max-width: 65px !important;
+    max-height: 39px !important;
+
+    flex-basis: 65px;
+  }
+
+  /* ----------------------------------------------------------
+     PARTNERS
+  ---------------------------------------------------------- */
+
+  .am-footer-partners-block {
+    padding-top: 25px;
+
+    padding-bottom: 25px;
+  }
+
+  /*
+   Importante:
+   El carrusel sigue siendo horizontal.
+  */
+
+  .am-footer-partners-carousel {
+    width: 100%;
+
+    mask-image: none;
+
+    -webkit-mask-image: none;
+  }
+
+  .am-footer-partners-track {
+    animation-duration: 24s;
+  }
+
+  .am-footer-partner {
+    width: 205px !important;
+
+    min-width: 205px !important;
+
+    max-width: 205px !important;
+
+    flex-basis: 205px;
+
+    height: 68px !important;
+
+    min-height: 68px !important;
+
+    max-height: 68px !important;
+  }
+
+  .am-footer-partner-logo {
+    width: 47px !important;
+    height: 47px !important;
+
+    min-width: 47px !important;
+    min-height: 47px !important;
+
+    max-width: 47px !important;
+    max-height: 47px !important;
+
+    flex-basis: 47px;
+  }
+
+  /* ----------------------------------------------------------
+     BARRA INFERIOR / LEGAL MÓVIL
+  ---------------------------------------------------------- */
+  .am-footer-bottom-flex {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .am-footer-ecosystem-mini {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .am-footer-legal {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .am-footer-bottom-final {
+    justify-content: flex-start;
+    gap: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+/* ============================================================
+   26. MÓVIL PEQUEÑO
+   ============================================================ */
+
+@media (max-width: 420px) {
+  .footer-more-panel .footer-links-grid {
+    grid-template-columns: 1fr;
+
+    gap: 24px;
+  }
+
+  /* Payments */
+
+  .am-footer-payment-card {
+    width: 61px !important;
+    height: 37px !important;
+
+    min-width: 61px !important;
+    min-height: 37px !important;
+
+    max-width: 61px !important;
+    max-height: 37px !important;
+
+    flex-basis: 61px;
+  }
+
+  /* Partners */
+
+  .am-footer-partner {
+    width: 195px !important;
+
+    min-width: 195px !important;
+
+    max-width: 195px !important;
+
+    flex-basis: 195px;
+  }
+
+  .am-footer-partner-logo {
+    width: 45px !important;
+    height: 45px !important;
+
+    min-width: 45px !important;
+    min-height: 45px !important;
+
+    max-width: 45px !important;
+    max-height: 45px !important;
+
+    flex-basis: 45px;
+  }
+
+  .am-footer-partner-info strong {
+    font-size: 0.68rem;
+  }
+
+  .am-footer-partner-info p {
+    font-size: 0.54rem;
+  }
+}
+
+/* ============================================================
+   27. PANTALLAS MUY PEQUEÑAS
+   ============================================================ */
+
+@media (max-width: 360px) {
+  .footer-ml-style .am-footer-container,
+  .footer-ml-style .footer-container,
+  .footer-more-button,
+  .footer-more-panel .footer-links-grid {
+    width: calc(100% - 22px);
+  }
+
+  .am-footer-services > .am-footer-container {
+    width: calc(100% - 22px);
+  }
+
+  .am-footer-logo {
+    width: 58px !important;
+    height: 58px !important;
+
+    min-width: 58px !important;
+    min-height: 58px !important;
+
+    max-width: 58px !important;
+    max-height: 58px !important;
+  }
+
+  .am-footer-partner {
+    width: 185px !important;
+
+    min-width: 185px !important;
+
+    max-width: 185px !important;
+
+    flex-basis: 185px;
+  }
+}
+
+/* ============================================================
+   28. ACCESIBILIDAD
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .am-footer-partners-carousel .am-footer-partners-track,
+  .am-footer-partners-carousel .am-footer-partners-track--css {
+    animation: am-footer-partners-scroll 34s linear infinite !important;
+    animation-play-state: running !important;
+    animation-duration: 34s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  .footer-ml-style .am-footer-payment-track {
+    animation: am-footer-partners-scroll 30s linear infinite !important;
+    animation-play-state: running !important;
+    animation-duration: 30s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  .footer-more-panel,
+  .footer-more-chevron,
+  .am-footer-socials a,
+  .am-footer-partner {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   29. AJUSTE ASCII FOOTER — ANCHO TOTAL + 2 TARJETAS + CARRUSEL
+   No toca .footer-more-bar / .footer-more-panel
+   ============================================================ */
+
+.footer-ml-style {
+  width: 100%;
+  max-width: 100%;
+}
+
+.am-footer-main,
+.am-footer-services,
+.am-footer-ecosystem,
+.am-footer-bottom {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Grid 2 tarjetas: pagos + ecosistema / partners */
+.am-footer-services-grid {
+  padding: 8px 0;
+  gap: 10px;
+}
+
+/* Tarjetas con borde como en el ASCII */
+.am-footer-payment-block,
+.am-footer-partners-block {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 10px 12px;
+  overflow: hidden;
+}
+
+/* Quita la división vertical anterior */
+.am-footer-payment-block {
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Carrusel con flechas laterales ← → */
+.am-footer-partners-carousel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: visible;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.am-footer-partners-viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+}
+
+.am-footer-partners-arrow {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.am-footer-partners-hint {
+  margin: 12px 0 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Compatibilidad: si queda alguna lista antigua */
+.am-footer-partners-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+
+/* ============================================================
+   30. FOOTER COMPACTO + CARRUSEL JS GARANTIZADO
+   Más información intacta. Reduce volumen manteniendo contenido.
+   ============================================================ */
+
+/* Asegura movimiento por encima de reglas anteriores/cache.
+   El estilo inline del JSX ya trae width/animation; aquí solo
+   garantizamos keyframes + grupos en una sola línea. */
+.footer-ml-style .am-footer-partners-track--css {
+  transform: translate3d(0, 0, 0);
+}
+
+.footer-ml-style .am-footer-partners-group {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  flex-shrink: 0 !important;
+  gap: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* ---------- Compactación general ---------- */
+.footer-ml-style .am-footer-main {
+  padding: 18px 0 14px;
+}
+
+.footer-ml-style .am-footer-brand {
+  gap: 8px;
+}
+
+.footer-ml-style .am-footer-brand h2 {
+  margin: 0;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.25;
+}
+
+.footer-ml-style .am-footer-brand > p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.footer-ml-style .am-footer-logo {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+  flex-basis: 56px;
+}
+
+.footer-ml-style .am-footer-brand-bottom {
+  gap: 8px 14px;
+  padding-top: 6px;
+}
+
+.footer-ml-style .am-footer-services {
+  padding: 14px 0;
+}
+
+.footer-ml-style .am-footer-services-grid {
+  padding: 16px 0;
+  gap: 14px;
+}
+
+.footer-ml-style .am-footer-payment-block,
+.footer-ml-style .am-footer-partners-block {
+  padding: 16px 16px 14px;
+  border-radius: 12px;
+}
+
+.footer-ml-style .am-footer-block-heading {
+  margin-bottom: 10px;
+  gap: 4px;
+}
+
+.footer-ml-style .am-footer-block-heading h3 {
+  font-size: 0.88rem;
+}
+
+.footer-ml-style .am-footer-block-heading p {
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+/* Tarjetas del carrusel más compactas pero legibles */
+.footer-ml-style .am-footer-partner {
+  width: 172px !important;
+  min-width: 172px !important;
+  max-width: 172px !important;
+  height: 58px !important;
+  min-height: 58px !important;
+  max-height: 58px !important;
+  flex-basis: 172px;
+  gap: 8px;
+  padding: 7px !important;
+  border-radius: 9px;
+}
+
+.footer-ml-style .am-footer-partner-logo {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  max-width: 42px !important;
+  max-height: 42px !important;
+  flex-basis: 42px;
+  padding: 4px !important;
+}
+
+/* Métodos de pago compactos en fila */
+.footer-ml-style .am-footer-payment-methods {
+  margin-top: 10px;
+  gap: 8px;
+}
+
+.footer-ml-style .am-footer-payment-list {
+  gap: 8px;
+}
+
+.footer-ml-style .am-footer-payment-card {
+  width: 62px !important;
+  height: 38px !important;
+  min-width: 62px !important;
+  min-height: 38px !important;
+  max-width: 62px !important;
+  max-height: 38px !important;
+  flex-basis: 62px;
+  padding: 4px 8px !important;
+}
+
+/* Barra ecosistema + legal compactas */
+.footer-ml-style .am-footer-ecosystem {
+  padding: 16px 0;
+}
+
+.footer-ml-style .am-footer-ecosystem-content {
+  min-height: auto;
+  gap: 18px;
+}
+
+.footer-ml-style .am-footer-bottom-top,
+.footer-ml-style .am-footer-bottom-final {
+  min-height: auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.footer-ml-style .am-footer-partners-hint {
+  margin-top: 8px;
+}
+
+@media (max-width: 1000px) {
+  .footer-ml-style .am-footer-services-grid {
+    padding: 14px 0;
+  }
+}
+
+/* Responsive compacto */
+@media (max-width: 600px) {
+  .footer-ml-style .am-footer-payment-block,
+  .footer-ml-style .am-footer-partners-block {
+    padding: 14px 12px;
+    border-radius: 10px;
+  }
+
+  .footer-ml-style .am-footer-partners-arrow {
+    flex-basis: 24px;
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+
+  .footer-ml-style .am-footer-partners-hint {
+    font-size: 0.56rem;
+  }
+}
+
+/* 33. FOOTER TRANSPARENTE E IGUALADO AL SUBSCRIBE.
+   Sin cuadros/bordes: todo respira sobre el verde.
+   Tamanos de fuente del subscribe (22-28px titulo / 16px texto). */
+.footer-ml-style .am-footer-brand-bottom > span { font-size: .84rem !important; }
+.footer-ml-style .am-footer-heading-kicker { font-size: .74rem !important; letter-spacing: .14em; }
+.footer-ml-style .am-footer-block-heading h3 { font-size: 1.02rem !important; line-height: 1.3; }
+.footer-ml-style .am-footer-block-heading p { font-size: .86rem !important; line-height: 1.45; }
+.footer-ml-style .am-footer-method-label { font-size: .84rem !important; }
+.footer-ml-style .am-footer-partner-info strong { font-size: .8rem !important; line-height: 1.25; }
+.footer-ml-style .am-footer-partner-info p, .footer-ml-style .am-footer-partner-info span { font-size: .7rem !important; line-height: 1.35; }
+.footer-ml-style .am-footer-brand h2 { font-size: 1.1rem !important; line-height: 1.3; }
+.footer-ml-style .am-footer-brand > p { font-size: .9rem !important; line-height: 1.5; }
+.footer-ml-style .am-footer-ecosystem-content h2 { font-size: 1.05rem !important; }
+.footer-ml-style .am-footer-ecosystem-content p, .footer-ml-style .am-footer-ecosystem-content > div > span { font-size: .82rem !important; line-height: 1.5; }
+.footer-ml-style .am-footer-legal a, .footer-ml-style .am-footer-back-top, .footer-ml-style .am-footer-bottom-final span { font-size: .82rem !important; }
+.footer-ml-style .am-footer-partners-hint { display: none !important; }
+
+/* Quita cuadros: transparente total en servicios/partners/pagos */
+.footer-ml-style .am-footer-payment-block, .footer-ml-style .am-footer-partners-block { background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding: 10px 0 !important; }
+.footer-ml-style .am-footer-payment-block { border-right: 0 !important; }
+.footer-ml-style .am-footer-partner { background: transparent !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; width: 180px !important; min-width: 180px !important; max-width: 180px !important; height: 62px !important; min-height: 62px !important; max-height: 62px !important; flex-basis: 180px; }
+.footer-ml-style .am-footer-payment-card { background: #fff !important; border: 0 !important; box-shadow: none !important; }
+/* Alineación pareja de los 2 carruseles + sin flechas */
+.footer-ml-style .am-footer-services-grid { align-items: start !important; }
+.footer-ml-style .am-footer-payment-block { justify-content: flex-start !important; }
+.footer-ml-style .am-footer-partners-block { justify-content: flex-start !important; }
+.footer-ml-style .am-footer-block-heading { min-height: 64px; display: flex; flex-direction: column; justify-content: flex-start; }
+.footer-ml-style .am-footer-payment-methods { margin-top: 2px !important; }
+.footer-ml-style .am-footer-partners-carousel { margin-top: 2px; }
+.footer-ml-style .am-footer-partners-carousel--no-arrows { gap: 0; }
+.footer-ml-style .am-footer-partners-arrow { display: none !important; }
+/* Stakeholders: solo nombre + rol, legible y sin recortes */
+.footer-ml-style .am-footer-partner { align-items: center !important; overflow: visible !important; }
+.footer-ml-style .am-footer-partner-info { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 2px; overflow: visible; }
+.footer-ml-style .am-footer-partner-info strong { display: block; white-space: nowrap; overflow: visible; text-overflow: clip; font-size: .82rem !important; line-height: 1.2; }
+.footer-ml-style .am-footer-partner-info p { display: block; white-space: nowrap; overflow: visible; margin: 0; font-size: .72rem !important; line-height: 1.3; }
+.footer-ml-style .am-footer-partner-info span { display: none !important; }
+.footer-ml-style .am-footer-partner-logo { width: 40px !important; height: 40px !important; min-width: 40px !important; min-height: 40px !important; max-width: 40px !important; max-height: 40px !important; flex-basis: 40px; }
+
+/* 31. ULTRA COMPACTO — quita huecos, mantiene info.
+   Nota: la seccion 32 posterior sube fuentes/tamanos legibles
+   al 100% de zoom, por eso estos valores quedan como base. */
+.footer-ml-style .am-footer-main { padding: 10px 0 8px !important; }
+.footer-ml-style .am-footer-brand { padding: 10px 0 8px !important; gap: 6px; }
+.footer-ml-style .am-footer-brand h2 { font-size: .92rem; margin: 0 0 4px; line-height: 1.25; }
+.footer-ml-style .am-footer-brand > p { font-size: .74rem; line-height: 1.35; margin: 0; }
+.footer-ml-style .am-footer-logo-link { margin: 0 0 6px !important; }
+.footer-ml-style .am-footer-brand-bottom { margin-top: 6px !important; padding-top: 4px !important; gap: 8px 12px !important; }
+.footer-ml-style .am-footer-services { padding: 6px 0 !important; }
+.footer-ml-style .am-footer-services-grid { padding: 6px 0 !important; gap: 10px !important; }
+.footer-ml-style .am-footer-payment-block, .footer-ml-style .am-footer-partners-block { padding: 10px 12px !important; border-radius: 10px; }
+.footer-ml-style .am-footer-block-heading { margin-bottom: 6px !important; gap: 2px; }
+.footer-ml-style .am-footer-block-heading h3 { font-size: .82rem; }
+.footer-ml-style .am-footer-block-heading p { font-size: .7rem; line-height: 1.3; }
+.footer-ml-style .am-footer-partners-group { gap: 6px !important; padding-right: 6px !important; }
+.footer-ml-style .am-footer-partner { width: 160px !important; min-width: 160px !important; max-width: 160px !important; height: 52px !important; min-height: 52px !important; max-height: 52px !important; flex-basis: 160px; gap: 6px !important; padding: 5px !important; }
+.footer-ml-style .am-footer-partner-logo { width: 36px !important; height: 36px !important; min-width: 36px !important; min-height: 36px !important; max-width: 36px !important; max-height: 36px !important; flex-basis: 36px; padding: 3px !important; }
+.footer-ml-style .am-footer-payment-methods { margin-top: 6px !important; gap: 6px !important; }
+.footer-ml-style .am-footer-payment-list { gap: 6px !important; }
+.footer-ml-style .am-footer-payment-card { width: 56px !important; height: 34px !important; min-width: 56px !important; min-height: 34px !important; max-width: 56px !important; max-height: 34px !important; flex-basis: 56px; padding: 3px 6px !important; }
+.footer-ml-style .am-footer-ecosystem { padding: 8px 0 !important; }
+.footer-ml-style .am-footer-ecosystem-content { min-height: auto; gap: 12px; }
+.footer-ml-style .am-footer-bottom-top, .footer-ml-style .am-footer-bottom-final { min-height: auto; padding-top: 6px !important; padding-bottom: 6px !important; }
+.footer-ml-style .am-footer-partners-carousel { gap: 6px; }
+.footer-ml-style .am-footer-partners-arrow { flex: 0 0 24px; width: 24px; height: 24px; font-size: .7rem; }
+.footer-ml-style .am-footer-partners-hint { margin: 6px 0 0 !important; font-size: .54rem; }
+
+/* ============================================================
+   RESPONSIVE MOBILE PATCHES (ADDED VIA AUDIT)
+   ============================================================ */
+@media (max-width: 768px) {
+  .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .footer-bottom { flex-direction: column; text-align: center; gap: 15px; }
+}
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .footer-col { align-items: center; text-align: center; }
+  .footer-socials { justify-content: center; }
+}

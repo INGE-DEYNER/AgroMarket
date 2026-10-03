@@ -1,0 +1,43 @@
+# src/test/resources/application-test.yml
+spring:
+  main:
+    lazy-initialization: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  data:
+    mongodb:
+      auto-index-creation: true
+  flyway:
+    locations: classpath:db/migration
+
+app:
+  jwt:
+    secret: test-secret-that-is-long-enough-for-hmac-sha256-agromarket-2026-123456
+    expiration-ms: 3600000
+    temporary-expiration-ms: 300000
+  security:
+    id-encryption-key: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+  google:
+    client-id: test-google-client
+    client-secret: test-google-secret
+    redirect-uri: http://localhost:8080/login/oauth2/code/google
+  scheduler:
+    promotions-delay-ms: 3600000
+    rfq-delay-ms: 3600000
+
+brevo:
+  api:
+    key: test-brevo-key
+  sender:
+    email: test@agromarket.local
+    name: AgroMarket Test
+
+cloudinary:
+  cloud-name: test-cloud
+  api-key: test-key
+  api-secret: test-secret
