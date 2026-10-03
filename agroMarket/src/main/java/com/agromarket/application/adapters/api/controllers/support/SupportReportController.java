@@ -160,9 +160,16 @@ public class SupportReportController {
                 // Se registra, pero no se le devuelve el error al usuario: su
                 // reporte SI quedo guardado, y contestarle "fallo" seria
                 // empujarle a escribirlo dos veces.
+                //
+                // Se imprime la traza COMPLETA, no solo getMessage(). Con solo el
+                // mensaje, un fallo de Brevo salia como "Conversion = ';'", que
+                // no dice nada: no se sabe si es una credencial, un remitente sin
+                // verificar o un problema de la peticion. Un log que descarta la
+                // traza obliga a reproducir el fallo para averiguarlo.
                 System.err.println("[soporte] reporte " + id
-                        + " guardado pero no se pudo avisar por correo: "
-                        + ex.getMessage());
+                        + " guardado pero no se pudo avisar por correo.");
+                System.err.println("[soporte] motivo: " + ex);
+                ex.printStackTrace();
             }
         } else {
             System.err.println("[soporte] reporte " + id
@@ -243,11 +250,27 @@ public class SupportReportController {
 
         String correoUsuario = email.isBlank()
                 ? "<p style=\"font-size:14px;color:#6b7280;\">"
-                  + "El usuario no dejó correo.</p>"
+                  + "El usuario no dejo correo.</p>"
                 : "<p style=\"font-size:15px;\">Responder a: <strong>"
                   + escapar(email) + "</strong></p>";
 
-        return """
+        /* La plantilla se construye con String.formatted(), que interpreta los
+         * % como especificadores de formato. El HTML va lleno de porcentajes de
+         * CSS (width:100%, font-size:26px...) y cada uno de esos es un
+         * especificador mas que el metodo no espera, con lo que la llamada
+         * revienta con UnknownFormatConversionException.
+         *
+         * Ocurrió al configurar el buzon de soporte: hasta entonces el aviso
+         * nunca llego a construirse porque el envio se saltaba entero, asi que
+         * el fallo llevaba tiempo ahi, escondido a un if de distancia. Se
+         * rumpeaba en cuanto un usuario dejaba su correo, o sea, en el caso
+         * normal, no en un caso raro.
+         *
+         * La solucion NO es doblar los %, que dejaria los %s de abajo
+         * convertidos en %s literales y la plantilla sin sus datos. Es no pasar
+         * el HTML por formatted(): se concatena. Aqui los % son de CSS y los %s
+         * no existen, asi que no hay nada que sustituir. */
+        String html = """
                 <!DOCTYPE html>
                 <html lang="es">
                 <head>
@@ -273,37 +296,46 @@ public class SupportReportController {
                                         Categoria
                                     </td>
                                     <td style="padding:8px 0;font-size:15px;font-weight:bold;">
-                                        %s
+                                        CATEGORIA
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0;font-size:13px;color:#6b7280;">Asunto</td>
-                                    <td style="padding:8px 0;font-size:15px;">%s</td>
+                                    <td style="padding:8px 0;font-size:15px;">@@ASUNTO@@</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0;font-size:13px;color:#6b7280;">Recibido</td>
-                                    <td style="padding:8px 0;font-size:15px;">%s</td>
+                                    <td style="padding:8px 0;font-size:15px;">@@FECHA@@</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0;font-size:13px;color:#6b7280;">Referencia</td>
-                                    <td style="padding:8px 0;font-size:13px;color:#6b7280;">%s</td>
+                                    <td style="padding:8px 0;font-size:13px;color:#6b7280;">@@ID@@</td>
                                 </tr>
                             </table>
                             <h2 style="font-size:15px;margin:28px 0 8px;">Descripcion</h2>
                             <div style="font-size:15px;line-height:1.7;background:#f8faf8;
                                         border-left:3px solid #176b32;padding:16px;
-                                        border-radius:0 8px 8px 0;white-space:pre-wrap;">%s</div>
-                            <div style="margin-top:28px;">%s</div>
+                                        border-radius:0 8px 8px 0;white-space:pre-wrap;">@@DESCRIPCION@@</div>
+                            <div style="margin-top:28px;">@@CORREO@@</div>
                         </div>
                     </div>
                 </body>
                 </html>
-                """.formatted(
-                escapar(CATEGORIAS.get(categoria)),
-                escapar(asunto),
-                fecha.toString(),
-                id,
-                escapar(descripcion),
-                correoUsuario);
+                """;
+
+        /* Se reemplaza por pasos. Un solo replaceAll con varios valores no
+         * funciona: si el texto de un usuario contiene el texto de otro, el
+         * segundo replaceAll volveria a tocar lo que el primero acaba de
+         * escribir. Con @@...@@ y replace(), que es de una pasada, no cabe eso.
+         *
+         * Primero los de texto largo, que son los que pueden traer dentro un
+         * marcador literal. */
+        return html
+                .replace("@@DESCRIPCION@@", escapar(descripcion))
+                .replace("@@CORREO@@", correoUsuario)
+                .replace("@@ASUNTO@@", escapar(asunto))
+                .replace("@@FECHA@@", escapar(fecha.toString()))
+                .replace("@@ID@@", id)
+                .replace("@@CATEGORIA@@", escapar(CATEGORIAS.get(categoria)));
     }
 }
