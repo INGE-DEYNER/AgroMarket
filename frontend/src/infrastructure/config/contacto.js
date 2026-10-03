@@ -26,8 +26,12 @@ export const CONTACTO = {
      312 765 8412 (Chigorodo, Antioquia) escrito en internacional = 573127658412. */
   whatsapp: "573127658412",
 
-  /* Correo de soporte. Es el unico dato de contacto que sigue sin confirmar. */
-  email: "soporte@agromarket.co",
+  /* Correo de soporte. Es el MISMO que recibe los reportes de "Reportar un
+   problema" (APP_SUPPORT_EMAIL en el .env del backend): antes el sitio
+   anunciaba soporte@agromarket.co, un dominio que no es el del sitio y
+   probablemente no existe. Si son distintos, el cliente escribe a un sitio y el
+   reporte llega a otro. */
+  email: "soporte@agro-market.app",
 };
 
 /* El mismo numero, como lo ve la persona que lo lee. Se separa del valor de

@@ -119,8 +119,28 @@ services:
       # faltan (SecretosStartupValidator).
       - JWT_SECRET=${JWT_SECRET:-}
       - APP_SECURITY_ID_ENCRYPTION_KEY=${APP_SECURITY_ID_ENCRYPTION_KEY:-}
-      - FRONTEND_URL=https://www.agro-market.app
-      - APP_CORS_ALLOWED_ORIGIN=https://agro-market.app,https://www.agro-market.app,http://localhost:3000,http://localhost:5173
+
+      # Buzón donde llegan los reportes de "Reportar un problema".
+      #
+      # Estaba en el .env pero NO en esta lista, así que nunca llegaba al
+      # contenedor: Spring leía ${APP_SUPPORT_EMAIL:} y se quedaba vacío. El
+      # aviso de "no está definida" salía en el arranque del backend local, que
+      # es donde se probó, pero en el servidor el mismo fallo habría pasado
+      # inadvertido.
+      #
+      # Regla: una variable del .env no llega a la aplicación hasta que se
+      # escribe aquí. Estar en el .env no basta.
+      - APP_SUPPORT_EMAIL=${APP_SUPPORT_EMAIL:-}
+
+      # URL publica del frontend. De aquí salen los enlaces de los correos
+      # (verificacion, recuperacion, factura) y las backUrls de MercadoPago:
+      # el backend construye FRONTEND_URL + "/pago/exitoso?pagoId=N".
+      #
+      # Antes estaba fija y con www, que ya no es el dominio confirmado. Si
+      # cambia el dominio hay que cambiarla aquí tambien, o los correos
+      # mandaran a los usuarios a una pagina que no existe.
+      - FRONTEND_URL=${FRONTEND_URL:-https://agro-market.app}
+      - APP_CORS_ALLOWED_ORIGIN=${APP_CORS_ALLOWED_ORIGIN:-https://agro-market.app,http://localhost:3000,http://localhost:5173}
       # Envío de correo (Brevo / Sendinblue). Sin BREVO_API_KEY la
       # recuperación de contraseña, la verificación de email y el envío de
       # facturas responden 503 con el motivo, en vez de fallar en silencio.
@@ -128,6 +148,28 @@ services:
       - BREVO_API_KEY=${BREVO_API_KEY:-}
       - BREVO_SENDER_EMAIL=${BREVO_SENDER_EMAIL:-noreply@agro-market.app}
       - BREVO_SENDER_NAME=${BREVO_SENDER_NAME:-AgroMarket}
+
+      # Google OAuth2 (iniciar sesion con Google).
+      #
+      # Estas cuatro tampoco llegaban, y eso dejaba el login con Google
+      # MUERTO en Docker: application-prod.yml las lee sin valor por defecto,
+      # asi que Spring se quedaba con el client-id vacio y el boton de Google
+      # fallaba. En el .env estaban escritas y bien, lo que hacia aun mas
+      # dificil de ver: el error no era "falta la variable", sino "la variable
+      # existe y no llega".
+      - GOOGLE_OAUTH2_CLIENT_ID=${GOOGLE_OAUTH2_CLIENT_ID:-}
+      - GOOGLE_OAUTH2_CLIENT_SECRET=${GOOGLE_OAUTH2_CLIENT_SECRET:-}
+      - GOOGLE_OAUTH2_REDIRECT_URI=${GOOGLE_OAUTH2_REDIRECT_URI:-https://api.agro-market.app/login/oauth2/code/google}
+      - APP_OAUTH2_SUCCESS_REDIRECT=${APP_OAUTH2_SUCCESS_REDIRECT:-https://agro-market.app/oauth2/success}
+      - APP_OAUTH2_FAILURE_REDIRECT=${APP_OAUTH2_FAILURE_REDIRECT:-https://agro-market.app/oauth2/failure}
+      - APP_OAUTH2_DEFAULT_ROLE=${APP_OAUTH2_DEFAULT_ROLE:-BUYER}
+
+      # Ajustes con valor por defecto en la aplicacion. Se pasan igualmente
+      # para que cambiarlos en el .env sirva de algo.
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-3600000}
+      - MERCADOPAGO_BASE_URL=${MERCADOPAGO_BASE_URL:-https://api.mercadopago.com}
+      - PROMOTIONS_JOB_DELAY_MS=${PROMOTIONS_JOB_DELAY_MS:-300000}
+      - RFQ_JOB_DELAY_MS=${RFQ_JOB_DELAY_MS:-300000}
       # Almacenamiento de imágenes (Cloudinary). Los valores viven en el .env de
       # la raíz, junto a este compose. Genera las llaves en
       # https://console.cloudinary.com/settings/api-keys
